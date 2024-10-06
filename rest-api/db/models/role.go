@@ -1,9 +1,9 @@
 package models
 
 const (
-	AdminRoleId   = 1
-	SellerRoleId  = 2
-	CashierRoleId = 3
+	AdminRoleId   Id = 1
+	SellerRoleId  Id = 2
+	CashierRoleId Id = 3
 )
 
 type Role struct {
