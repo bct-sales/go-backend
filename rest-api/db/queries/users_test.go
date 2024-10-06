@@ -11,19 +11,21 @@ import (
 )
 
 func TestAddUser(t *testing.T) {
-	password := "test"
-	salt := "xxx"
-	hash := security.HashPassword(password, salt)
+	for _, password := range []string{"a", "xyz"} {
+		for _, salt := range []string{"fdf", "dsa"} {
+			for _, userId := range []models.Id{1, 5} {
+				for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
+					t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
+						db := openInitializedDatabase()
 
-	for _, userId := range []models.Id{1, 5} {
-		for _, roleId := range []models.Id{models.AdminRoleId} {
-			t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
-				db := openInitializedDatabase()
+						hash := security.HashPassword(password, salt)
+						AddUser(db, userId, roleId, 0, hash, salt)
 
-				AddUser(db, userId, roleId, 0, hash, salt)
-
-				assert.True(t, UserWithIdExists(db, userId))
-			})
+						assert.True(t, UserWithIdExists(db, userId))
+						assert.NoError(t, AuthenticateUser(db, userId, password))
+					})
+				}
+			}
 		}
 	}
 }
