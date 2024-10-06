@@ -29,3 +29,28 @@ func TestAddUser(t *testing.T) {
 		}
 	}
 }
+
+func TestAuthenticatingNonExistingUser(t *testing.T) {
+	db := openInitializedDatabase()
+
+	password := "xyz"
+	var userId models.Id = 5
+
+	assert.False(t, UserWithIdExists(db, userId))
+	assert.Error(t, AuthenticateUser(db, userId, password))
+}
+
+func TestAuthenticatingWrongPassword(t *testing.T) {
+	db := openInitializedDatabase()
+
+	password := "xyz"
+	wrongPassword := "abc"
+	salt := "123"
+	var userId models.Id = 5
+	roleId := models.SellerRoleId
+	hash := security.HashPassword(password, salt)
+
+	AddUser(db, userId, roleId, 0, hash, salt)
+
+	assert.Error(t, AuthenticateUser(db, userId, wrongPassword))
+}
