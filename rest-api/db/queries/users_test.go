@@ -30,6 +30,20 @@ func TestAddUser(t *testing.T) {
 	}
 }
 
+func TestAuthenticatingSuccessfully(t *testing.T) {
+	db := openInitializedDatabase()
+
+	password := "xyz"
+	salt := "123"
+	var userId models.Id = 1
+	roleId := models.SellerRoleId
+	hash := security.HashPassword(password, salt)
+
+	AddUser(db, userId, roleId, 0, hash, salt)
+
+	assert.NoError(t, AuthenticateUser(db, userId, password))
+}
+
 func TestAuthenticatingNonExistingUser(t *testing.T) {
 	db := openInitializedDatabase()
 
