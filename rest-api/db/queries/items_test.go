@@ -21,12 +21,17 @@ func TestAddItem(t *testing.T) {
 
 								t.Run(test_name, func(t *testing.T) {
 									db := openInitializedDatabase()
+									defer db.Close()
+
 									addSeller(db, 1)
 									addSeller(db, 2)
 
-									if err := AddItem(db, timestamp, description, priceInCents, itemCategoryId, ownerId, recipientId, charity); err != nil {
+									itemId, err := AddItem(db, timestamp, description, priceInCents, itemCategoryId, ownerId, recipientId, charity)
+									if err != nil {
 										t.Fatalf(`Failed to add item: %v`, err)
 									}
+
+									assert.True(t, ItemWithIdExists(db, itemId))
 
 									items, err := GetItems(db)
 									assert.NoError(t, err)
@@ -65,7 +70,8 @@ func TestFailingAddItem(t *testing.T) {
 		var ownerId models.Id = 1
 		var recipientId models.Id = 2
 
-		assert.Error(t, AddItem(db, timestamp, description, priceInCents, itemCategoryId, ownerId, recipientId, charity))
+		_, error := AddItem(db, timestamp, description, priceInCents, itemCategoryId, ownerId, recipientId, charity)
+		assert.Error(t, error)
 
 		count, err := CountItems(db)
 		assert.NoError(t, err)
@@ -79,7 +85,8 @@ func TestFailingAddItem(t *testing.T) {
 		var ownerId models.Id = 1
 		var recipientId models.Id = 2
 
-		assert.Error(t, AddItem(db, timestamp, description, priceInCents, itemCategoryId, ownerId, recipientId, charity))
+		_, error := AddItem(db, timestamp, description, priceInCents, itemCategoryId, ownerId, recipientId, charity)
+		assert.Error(t, error)
 
 		count, err := CountItems(db)
 		assert.NoError(t, err)
@@ -96,7 +103,9 @@ func TestFailingAddItem(t *testing.T) {
 
 		categoryExists := CategoryWithIdExists(db, itemCategoryId)
 		assert.False(t, categoryExists)
-		assert.Error(t, AddItem(db, timestamp, description, priceInCents, itemCategoryId, ownerId, recipientId, charity))
+
+		_, error := AddItem(db, timestamp, description, priceInCents, itemCategoryId, ownerId, recipientId, charity)
+		assert.Error(t, error)
 
 		count, err := CountItems(db)
 		assert.NoError(t, err)

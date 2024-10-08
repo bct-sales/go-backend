@@ -63,13 +63,21 @@ func AddItem(
 	itemCategoryId models.Id,
 	ownerId models.Id,
 	recipientId models.Id,
-	charity bool) error {
+	charity bool) (models.Id, error) {
 
-	_, err := db.Exec(
+	statement, err := db.Prepare(
 		`
 			INSERT INTO items (timestamp, description, price_in_cents, item_category_id, owner_id, recipient_id, charity)
-			VALUES ($1, $2, $3, $4, $5, $6, $7)
-		`,
+			VALUES (?, ?, ?, ?, ?, ?, ?)
+		`)
+
+	if err != nil {
+		return 0, err
+	}
+
+	defer statement.Close()
+
+	result, err := statement.Exec(
 		timestamp,
 		description,
 		priceInCents,
@@ -78,7 +86,11 @@ func AddItem(
 		recipientId,
 		charity)
 
-	return err
+	if err != nil {
+		return 0, err
+	}
+
+	return result.LastInsertId()
 }
 
 func ItemWithIdExists(
@@ -94,7 +106,8 @@ func ItemWithIdExists(
 		itemId,
 	)
 
-	err := row.Scan()
+	var result int
+	err := row.Scan(&result)
 
 	return err == nil
 }
