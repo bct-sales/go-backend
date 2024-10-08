@@ -1,5 +1,5 @@
 package models
 
-type Id = uint64
-type MoneyInCents = uint64
-type Timestamp = uint64
+type Id = int64
+type MoneyInCents = int64
+type Timestamp = int64
