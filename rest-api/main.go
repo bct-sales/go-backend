@@ -22,7 +22,7 @@ func getItems(context *gin.Context, db *sql.DB) {
 	context.IndentedJSON(http.StatusOK, items)
 }
 
-func main() {
+func startRestService() {
 	db, err := sql.Open("sqlite", "../bct.db")
 
 	if err != nil {
@@ -37,4 +37,8 @@ func main() {
 	v1.GET("/items", func(context *gin.Context) { getItems(context, db) })
 
 	router.Run("localhost:8000")
+}
+
+func main() {
+	startRestService()
 }
