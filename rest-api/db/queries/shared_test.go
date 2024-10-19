@@ -1,9 +1,9 @@
 package queries
 
 import (
-	database "bctrest/db"
-	models "bctrest/db/models"
-	"bctrest/security"
+	database "bctbackend/db"
+	models "bctbackend/db/models"
+	"bctbackend/security"
 	"database/sql"
 
 	_ "modernc.org/sqlite"

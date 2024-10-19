@@ -1,8 +1,8 @@
 package queries
 
 import (
-	models "bctrest/db/models"
-	"bctrest/security"
+	models "bctbackend/db/models"
+	"bctbackend/security"
 	"fmt"
 	"testing"
 

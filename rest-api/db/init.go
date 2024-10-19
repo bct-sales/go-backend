@@ -1,7 +1,7 @@
 package db
 
 import (
-	models "bctrest/db/models"
+	models "bctbackend/db/models"
 	"database/sql"
 )
 

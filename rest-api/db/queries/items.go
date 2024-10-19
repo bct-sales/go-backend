@@ -1,7 +1,7 @@
 package queries
 
 import (
-	models "bctrest/db/models"
+	models "bctbackend/db/models"
 	"database/sql"
 )
 

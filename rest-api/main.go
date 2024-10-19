@@ -1,7 +1,7 @@
 package main
 
 import (
-	queries "bctrest/db/queries"
+	queries "bctbackend/db/queries"
 	"fmt"
 	"net/http"
 

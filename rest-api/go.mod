@@ -1,4 +1,4 @@
-module bctrest
+module bctbackend
 
 go 1.23
 
