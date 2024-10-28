@@ -36,8 +36,7 @@ func createUserTable(db *sql.DB) {
 			user_id             INTEGER NOT NULL,
 			role_id             INTEGER NOT NULL,
 			timestamp           INTEGER NOT NULL,
-			password_hash       TEXT NOT NULL,
-			password_salt       TEXT NOT NULL,
+			password            TEXT NOT NULL,
 
 			PRIMARY KEY (user_id),
 			FOREIGN KEY (role_id) REFERENCES roles (role_id)
@@ -80,9 +79,11 @@ func createSaleTable(db *sql.DB) {
 	db.Exec(`
 		CREATE TABLE sales (
 			sale_id             INTEGER NOT NULL,
+			cashier_id          INTEGER NOT NULL,
 			timestamp           INTEGER NOT NULL,
 
-			PRIMARY KEY (sale_id)
+			PRIMARY KEY (sale_id),
+			FOREIGN KEY (cashier_id) REFERENCES users (user_id)
 		)
 	`)
 }

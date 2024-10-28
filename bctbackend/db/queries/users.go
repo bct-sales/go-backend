@@ -2,7 +2,6 @@ package queries
 
 import (
 	models "bctbackend/db/models"
-	"bctbackend/security"
 	"database/sql"
 	"errors"
 )
@@ -12,19 +11,17 @@ func AddUser(
 	userId models.Id,
 	roleId models.Id,
 	timestamp models.Timestamp,
-	passwordHash string,
-	passwordSalt string) error {
+	password string) error {
 
 	_, err := db.Exec(
 		`
-			INSERT INTO users (user_id, role_id, timestamp, password_hash, password_salt)
-			VALUES ($1, $2, $3, $4, $5)
+			INSERT INTO users (user_id, role_id, timestamp, password)
+			VALUES ($1, $2, $3, $4)
 		`,
 		userId,
 		roleId,
 		timestamp,
-		passwordHash,
-		passwordSalt,
+		password,
 	)
 
 	return err
@@ -52,23 +49,20 @@ func UserWithIdExists(
 func AuthenticateUser(db *sql.DB, userId models.Id, password string) error {
 	row := db.QueryRow(
 		`
-			SELECT password_hash, password_salt
+			SELECT password
 			FROM users
 			where user_id = $1
 		`,
 		userId)
 
-	var expectedHash string
-	var salt string
-	err := row.Scan(&expectedHash, &salt)
+	var expectedPassword string
+	err := row.Scan(&expectedPassword)
 
 	if err != nil {
 		return err
 	}
 
-	actualHash := security.HashPassword(password, salt)
-
-	if expectedHash == actualHash {
+	if expectedPassword == password {
 		return nil
 	} else {
 		return errors.New("invalid password")

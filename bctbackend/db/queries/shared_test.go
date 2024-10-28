@@ -3,7 +3,6 @@ package queries
 import (
 	database "bctbackend/db"
 	models "bctbackend/db/models"
-	"bctbackend/security"
 	"database/sql"
 
 	_ "modernc.org/sqlite"
@@ -31,8 +30,6 @@ func openInitializedDatabase() *sql.DB {
 
 func addSeller(db *sql.DB, id models.Id) {
 	password := "test"
-	salt := "xxx"
-	hash := security.HashPassword(password, salt)
 
-	AddUser(db, id, models.SellerRoleId, 0, hash, salt)
+	AddUser(db, id, models.SellerRoleId, 0, password)
 }
