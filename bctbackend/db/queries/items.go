@@ -93,10 +93,7 @@ func AddItem(
 	return result.LastInsertId()
 }
 
-func ItemWithIdExists(
-	db *sql.DB,
-	itemId models.Id) bool {
-
+func ItemWithIdExists(db *sql.DB, itemId models.Id) bool {
 	row := db.QueryRow(
 		`
 			SELECT 1
