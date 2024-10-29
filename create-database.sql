@@ -9,8 +9,7 @@ CREATE TABLE users (
     user_id             INTEGER NOT NULL,
     role_id             INTEGER NOT NULL,
     timestamp           INTEGER NOT NULL,
-    password_hash       TEXT NOT NULL,
-    password_salt       TEXT NOT NULL,
+    password            TEXT NOT NULL,
 
     PRIMARY KEY (user_id),
     FOREIGN KEY (role_id) REFERENCES roles (role_id)
@@ -29,21 +28,22 @@ CREATE TABLE items (
     description         TEXT NOT NULL,
     price_in_cents      INTEGER NOT NULL,
     item_category_id    INTEGER NOT NULL,
-    owner_id            INTEGER NOT NULL,
-    recipient_id        INTEGER NOT NULL,
+    seller_id           INTEGER NOT NULL,
+    donation            BOOLEAN NOT NULL,
     charity             BOOLEAN NOT NULL,
 
     PRIMARY KEY (item_id),
-    FOREIGN KEY (owner_id) REFERENCES users (user_id),
-    FOREIGN KEY (recipient_id) REFERENCES users (user_id),
+    FOREIGN KEY (seller_id) REFERENCES users (user_id),
     FOREIGN KEY (item_category_id) REFERENCES item_categories (item_category_id)
 );
 
 CREATE TABLE sales (
     sale_id             INTEGER NOT NULL,
+    cashier_id          INTEGER NOT NULL,
     timestamp           INTEGER NOT NULL,
 
-    PRIMARY KEY (sale_id)
+    PRIMARY KEY (sale_id),
+    FOREIGN KEY (cashier_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE sale_items (
