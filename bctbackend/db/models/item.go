@@ -6,8 +6,8 @@ type Item struct {
 	Description  string
 	PriceInCents MoneyInCents
 	CategoryId   Id
-	OwnerId      Id
-	RecipientId  Id
+	SellerId     Id
+	Donation     bool
 	Charity      bool
 }
 
@@ -17,17 +17,18 @@ func NewItem(
 	description string,
 	priceInCents MoneyInCents,
 	categoryId Id,
-	ownerId Id,
-	recipientId Id,
+	sellerId Id,
+	donation bool,
 	charity bool) *Item {
+
 	return &Item{
 		ItemId:       id,
 		Timestamp:    timestamp,
 		Description:  description,
 		PriceInCents: priceInCents,
 		CategoryId:   categoryId,
-		OwnerId:      ownerId,
-		RecipientId:  recipientId,
+		SellerId:     sellerId,
+		Donation:     donation,
 		Charity:      charity,
 	}
 }

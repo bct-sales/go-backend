@@ -7,7 +7,7 @@ import (
 
 func GetItems(db *sql.DB) ([]models.Item, error) {
 	rows, err := db.Query(`
-		SELECT item_id, timestamp, description, price_in_cents, item_category_id, owner_id, recipient_id, charity
+		SELECT item_id, timestamp, description, price_in_cents, item_category_id, seller_id, donation, charity
 		FROM items
 	`)
 
@@ -25,17 +25,17 @@ func GetItems(db *sql.DB) ([]models.Item, error) {
 		var description string
 		var priceInCents models.MoneyInCents
 		var itemCategoryId models.Id
-		var ownerId models.Id
-		var recipientId models.Id
+		var sellerId models.Id
+		var donation bool
 		var charity bool
 
-		err = rows.Scan(&id, &timestamp, &description, &priceInCents, &itemCategoryId, &ownerId, &recipientId, &charity)
+		err = rows.Scan(&id, &timestamp, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity)
 
 		if err != nil {
 			return nil, err
 		}
 
-		item := models.NewItem(id, timestamp, description, priceInCents, itemCategoryId, ownerId, recipientId, charity)
+		item := models.NewItem(id, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 
 		items = append(items, *item)
 	}
@@ -61,13 +61,13 @@ func AddItem(
 	description string,
 	priceInCents models.MoneyInCents,
 	itemCategoryId models.Id,
-	ownerId models.Id,
-	recipientId models.Id,
+	sellerId models.Id,
+	donation bool,
 	charity bool) (models.Id, error) {
 
 	statement, err := db.Prepare(
 		`
-			INSERT INTO items (timestamp, description, price_in_cents, item_category_id, owner_id, recipient_id, charity)
+			INSERT INTO items (timestamp, description, price_in_cents, item_category_id, seller_id, donation, charity)
 			VALUES (?, ?, ?, ?, ?, ?, ?)
 		`)
 
@@ -82,8 +82,8 @@ func AddItem(
 		description,
 		priceInCents,
 		itemCategoryId,
-		ownerId,
-		recipientId,
+		sellerId,
+		donation,
 		charity)
 
 	if err != nil {

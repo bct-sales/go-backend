@@ -63,13 +63,12 @@ func createItemTable(db *sql.DB) {
 			description         TEXT NOT NULL,
 			price_in_cents      INTEGER NOT NULL,
 			item_category_id    INTEGER NOT NULL,
-			owner_id            INTEGER NOT NULL,
-			recipient_id        INTEGER NOT NULL,
+			seller_id           INTEGER NOT NULL,
+			donation            BOOLEAN NOT NULL,
 			charity             BOOLEAN NOT NULL,
 
 			PRIMARY KEY (item_id),
-			FOREIGN KEY (owner_id) REFERENCES users (user_id),
-			FOREIGN KEY (recipient_id) REFERENCES users (user_id),
+			FOREIGN KEY (seller_id) REFERENCES users (user_id),
 			FOREIGN KEY (item_category_id) REFERENCES item_categories (item_category_id)
 		)
 	`)
