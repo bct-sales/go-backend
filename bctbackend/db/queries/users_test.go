@@ -16,10 +16,12 @@ func TestAddUserWithId(t *testing.T) {
 				t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
 					db := openInitializedDatabase()
 
-					AddUserWithId(db, userId, roleId, 0, password)
+					err := AddUserWithId(db, userId, roleId, 0, password)
 
-					assert.True(t, UserWithIdExists(db, userId))
-					assert.NoError(t, AuthenticateUser(db, userId, password))
+					if assert.NoError(t, err) {
+						assert.True(t, UserWithIdExists(db, userId))
+						assert.NoError(t, AuthenticateUser(db, userId, password))
+					}
 				})
 			}
 		}
