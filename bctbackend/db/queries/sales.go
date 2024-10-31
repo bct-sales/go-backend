@@ -3,6 +3,7 @@ package queries
 import (
 	models "bctbackend/db/models"
 	"database/sql"
+	"fmt"
 	"log"
 )
 
@@ -19,6 +20,10 @@ func AddSale(
 	cashierId models.Id,
 	timestamp models.Timestamp,
 	itemIds []models.Id) (models.Id, error) {
+
+	if len(itemIds) == 0 {
+		return 0, fmt.Errorf("no items to add to sale")
+	}
 
 	transaction, err := db.Begin()
 	if err != nil {
