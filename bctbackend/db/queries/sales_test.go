@@ -22,7 +22,15 @@ func TestAddSale(t *testing.T) {
 	var timestamp models.Timestamp = 0
 	itemIds := []models.Id{item1, item2}
 
-	_, err := AddSale(db, cashierId, timestamp, itemIds)
+	saleId, err := AddSale(db, cashierId, timestamp, itemIds)
 
-	assert.NoError(t, err)
+	if assert.NoError(t, err) {
+		items, err := GetSaleItems(db, saleId)
+
+		if assert.NoError(t, err) {
+			assert.Len(t, items, 2)
+			assert.Equal(t, item1, items[0].ItemId)
+			assert.Equal(t, item2, items[1].ItemId)
+		}
+	}
 }
