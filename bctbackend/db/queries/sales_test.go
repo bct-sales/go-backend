@@ -30,13 +30,19 @@ func TestAddSale(t *testing.T) {
 	saleId, err := AddSale(db, cashierId, timestamp, saleItemIds)
 
 	if assert.NoError(t, err) {
-		items, err := GetSaleItems(db, saleId)
+		actualItems, err := GetSaleItems(db, saleId)
 
 		if assert.NoError(t, err) {
-			assert.Len(t, items, len(saleItemIds))
+			assert.Len(t, actualItems, len(saleItemIds))
 
-			for index, item := range items {
-				assert.Equal(t, saleItemIds[index], item.ItemId)
+			for index, actualItem := range actualItems {
+				assert.Equal(t, saleItemIds[index], actualItem.ItemId)
+
+				expectedItem, err := GetItemWithId(db, saleItemIds[index])
+
+				if assert.NoError(t, err) {
+					assert.Equal(t, *expectedItem, actualItem)
+				}
 			}
 		}
 	}
