@@ -29,7 +29,6 @@ func AddUserWithId(
 
 func AddUser(
 	db *sql.DB,
-	userId models.Id,
 	roleId models.Id,
 	timestamp models.Timestamp,
 	password string) (models.Id, error) {

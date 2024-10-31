@@ -26,6 +26,22 @@ func TestAddUserWithId(t *testing.T) {
 	}
 }
 
+func TestAddUser(t *testing.T) {
+	for _, password := range []string{"a", "xyz"} {
+		for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
+			t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
+				db := openInitializedDatabase()
+
+				userId, err := AddUser(db, roleId, 0, password)
+
+				if assert.NoError(t, err) {
+					assert.True(t, UserWithIdExists(db, userId))
+				}
+			})
+		}
+	}
+}
+
 func TestAuthenticatingSuccessfully(t *testing.T) {
 	db := openInitializedDatabase()
 
