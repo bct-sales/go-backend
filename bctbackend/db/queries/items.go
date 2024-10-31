@@ -44,6 +44,33 @@ func GetItems(db *sql.DB) ([]models.Item, error) {
 	return items, nil
 }
 
+func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
+	row := db.QueryRow(`
+		SELECT item_id, timestamp, description, price_in_cents, item_category_id, seller_id, donation, charity
+		FROM items
+		WHERE item_id = ?
+	`, itemId)
+
+	var id models.Id
+	var timestamp models.Timestamp
+	var description string
+	var priceInCents models.MoneyInCents
+	var itemCategoryId models.Id
+	var sellerId models.Id
+	var donation bool
+	var charity bool
+
+	err := row.Scan(&id, &timestamp, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity)
+
+	if err != nil {
+		return nil, err
+	}
+
+	item := models.NewItem(id, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+
+	return item, nil
+}
+
 func CountItems(db *sql.DB) (int, error) {
 	row := db.QueryRow(`
 		SELECT COUNT(item_id)
