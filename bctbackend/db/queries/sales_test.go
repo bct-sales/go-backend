@@ -12,9 +12,9 @@ func TestAddSale(t *testing.T) {
 	db := openInitializedDatabase()
 
 	sellerId := models.NewId(1)
-	addTestSeller(db, sellerId)
+	addTestSellerWithId(db, sellerId)
 	cashierId := models.NewId(2)
-	addTestCashier(db, cashierId)
+	addTestCashierWithId(db, cashierId)
 
 	item1 := addTestItem(db, sellerId, 1)
 	item2 := addTestItem(db, sellerId, 2)

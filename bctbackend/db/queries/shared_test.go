@@ -29,16 +29,18 @@ func openInitializedDatabase() *sql.DB {
 	return db
 }
 
-func addTestSeller(db *sql.DB, id models.Id) {
+func addTestUser(db *sql.DB, id models.Id, roleId models.Id) {
 	password := "test"
 
-	AddUser(db, id, models.SellerRoleId, 0, password)
+	AddUser(db, id, roleId, 0, password)
 }
 
-func addTestCashier(db *sql.DB, id models.Id) {
-	password := "test"
+func addTestSellerWithId(db *sql.DB, id models.Id) {
+	addTestUser(db, id, models.SellerRoleId)
+}
 
-	AddUser(db, id, models.CashierRoleId, 0, password)
+func addTestCashierWithId(db *sql.DB, id models.Id) {
+	addTestUser(db, id, models.CashierRoleId)
 }
 
 func addTestItem(db *sql.DB, sellerId models.Id, index int) models.Id {
