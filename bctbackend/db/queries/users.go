@@ -91,3 +91,26 @@ func AuthenticateUser(db *sql.DB, userId models.Id, password string) error {
 		return errors.New("invalid password")
 	}
 }
+
+func GetUserWithId(db *sql.DB, userId models.Id) (models.User, error) {
+	row := db.QueryRow(
+		`
+			SELECT role_id, timestamp, password
+			FROM users
+			WHERE user_id = $1
+		`,
+		userId,
+	)
+
+	var roleId models.Id
+	var timestamp models.Timestamp
+	var password string
+	err := row.Scan(&roleId, &timestamp, &password)
+
+	return models.User{
+		UserId:    userId,
+		RoleId:    roleId,
+		Timestamp: timestamp,
+		Password:  password,
+	}, err
+}

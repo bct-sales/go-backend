@@ -95,4 +95,13 @@ func TestFailingAddItem(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, 0, count)
 	})
+
+	t.Run("Cashier owner", func(t *testing.T) {
+		db := openInitializedDatabase()
+		sellerId := addTestCashier(db)
+		donation := false
+
+		_, error := AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+		assert.Error(t, error)
+	})
 }
