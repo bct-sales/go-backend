@@ -9,7 +9,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func TestAddUser(t *testing.T) {
+func TestAddUserWithId(t *testing.T) {
 	for _, password := range []string{"a", "xyz"} {
 		for _, userId := range []models.Id{1, 5} {
 			for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {

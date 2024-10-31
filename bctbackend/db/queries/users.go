@@ -27,6 +27,30 @@ func AddUserWithId(
 	return err
 }
 
+func AddUser(
+	db *sql.DB,
+	userId models.Id,
+	roleId models.Id,
+	timestamp models.Timestamp,
+	password string) (models.Id, error) {
+
+	result, err := db.Exec(
+		`
+			INSERT INTO users (role_id, timestamp, password)
+			VALUES ($1, $2, $3)
+		`,
+		roleId,
+		timestamp,
+		password,
+	)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return result.LastInsertId()
+}
+
 func UserWithIdExists(
 	db *sql.DB,
 	userId models.Id) bool {
