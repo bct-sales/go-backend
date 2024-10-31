@@ -1,3 +1,5 @@
+PRAGMA foreign_keys = 1
+
 CREATE TABLE roles (
     role_id             INTEGER NOT NULL,
     name                TEXT NOT NULL UNIQUE,
