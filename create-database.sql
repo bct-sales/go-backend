@@ -52,7 +52,7 @@ CREATE TABLE sale_items (
 
     PRIMARY KEY (sale_id, item_id),
     FOREIGN KEY (sale_id) REFERENCES sales (sale_id),
-    FOREIGN KEY (item_id) REFERENCES sales (item_id)
+    FOREIGN KEY (item_id) REFERENCES items (item_id)
 );
 
 INSERT INTO roles (name)
