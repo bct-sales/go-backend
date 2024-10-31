@@ -14,18 +14,30 @@ func TestAddSale(t *testing.T) {
 	sellerId := addTestSeller(db)
 	cashierId := addTestCashier(db)
 
-	itemIds := []models.Id{addTestItem(db, sellerId, 1), addTestItem(db, sellerId, 2)}
+	itemIds := []models.Id{
+		addTestItem(db, sellerId, 1),
+		addTestItem(db, sellerId, 2),
+		addTestItem(db, sellerId, 3),
+		addTestItem(db, sellerId, 4),
+	}
+
+	saleItemIds := []models.Id{
+		itemIds[0],
+	}
+
 	timestamp := models.NewTimestamp(0)
 
-	saleId, err := AddSale(db, cashierId, timestamp, itemIds)
+	saleId, err := AddSale(db, cashierId, timestamp, saleItemIds)
 
 	if assert.NoError(t, err) {
 		items, err := GetSaleItems(db, saleId)
 
 		if assert.NoError(t, err) {
-			assert.Len(t, items, 2)
-			assert.Equal(t, itemIds[0], items[0].ItemId)
-			assert.Equal(t, itemIds[1], items[1].ItemId)
+			assert.Len(t, items, len(saleItemIds))
+
+			for index, item := range items {
+				assert.Equal(t, saleItemIds[index], item.ItemId)
+			}
 		}
 	}
 }
