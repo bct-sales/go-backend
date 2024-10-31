@@ -23,8 +23,8 @@ func TestAddItem(t *testing.T) {
 									db := openInitializedDatabase()
 									defer db.Close()
 
-									addSeller(db, 1)
-									addSeller(db, 2)
+									addTestSeller(db, 1)
+									addTestSeller(db, 2)
 
 									itemId, err := AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 									if err != nil {
@@ -65,7 +65,7 @@ func TestFailingAddItem(t *testing.T) {
 
 	t.Run("Nonexisting owner", func(t *testing.T) {
 		db := openInitializedDatabase()
-		addSeller(db, 2)
+		addTestSeller(db, 2)
 
 		var sellerId models.Id = 1
 		donation := false
@@ -80,7 +80,7 @@ func TestFailingAddItem(t *testing.T) {
 
 	t.Run("Nonexisting category", func(t *testing.T) {
 		db := openInitializedDatabase()
-		addSeller(db, 1)
+		addTestSeller(db, 1)
 
 		var ownerId models.Id = 1
 		donation := false

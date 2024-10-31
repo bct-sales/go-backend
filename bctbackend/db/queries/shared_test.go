@@ -29,19 +29,19 @@ func openInitializedDatabase() *sql.DB {
 	return db
 }
 
-func addSeller(db *sql.DB, id models.Id) {
+func addTestSeller(db *sql.DB, id models.Id) {
 	password := "test"
 
 	AddUser(db, id, models.SellerRoleId, 0, password)
 }
 
-func addCashier(db *sql.DB, id models.Id) {
+func addTestCashier(db *sql.DB, id models.Id) {
 	password := "test"
 
 	AddUser(db, id, models.CashierRoleId, 0, password)
 }
 
-func addItem(db *sql.DB, sellerId models.Id, index int) models.Id {
+func addTestItem(db *sql.DB, sellerId models.Id, index int) models.Id {
 	var timestamp models.Timestamp = 0
 	description := "description" + strconv.Itoa(index)
 
