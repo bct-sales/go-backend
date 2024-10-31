@@ -14,11 +14,8 @@ func TestAddSale(t *testing.T) {
 	sellerId := addTestSeller(db)
 	cashierId := addTestCashier(db)
 
-	item1 := addTestItem(db, sellerId, 1)
-	item2 := addTestItem(db, sellerId, 2)
-
+	itemIds := []models.Id{addTestItem(db, sellerId, 1), addTestItem(db, sellerId, 2)}
 	timestamp := models.NewTimestamp(0)
-	itemIds := []models.Id{item1, item2}
 
 	saleId, err := AddSale(db, cashierId, timestamp, itemIds)
 
@@ -27,8 +24,8 @@ func TestAddSale(t *testing.T) {
 
 		if assert.NoError(t, err) {
 			assert.Len(t, items, 2)
-			assert.Equal(t, item1, items[0].ItemId)
-			assert.Equal(t, item2, items[1].ItemId)
+			assert.Equal(t, itemIds[0], items[0].ItemId)
+			assert.Equal(t, itemIds[1], items[1].ItemId)
 		}
 	}
 }
