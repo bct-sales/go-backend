@@ -22,6 +22,11 @@ func getItems(context *gin.Context, db *sql.DB) {
 	context.IndentedJSON(http.StatusOK, items)
 }
 
+func enableForeignKeys(db *sql.DB) error {
+	_, err := db.Exec("PRAGMA foreign_keys = ON")
+	return err
+}
+
 func startRestService() {
 	db, err := sql.Open("sqlite", "../bct.db")
 
@@ -31,6 +36,11 @@ func startRestService() {
 	}
 
 	defer db.Close()
+
+	if err := enableForeignKeys(db); err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	router := gin.Default()
 	v1 := router.Group("/api/v1")
