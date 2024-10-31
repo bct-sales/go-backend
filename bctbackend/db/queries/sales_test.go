@@ -50,3 +50,14 @@ func TestAddSale(t *testing.T) {
 		}
 	}
 }
+
+func TestAddSaleWithoutItems(t *testing.T) {
+	db := openInitializedDatabase()
+
+	cashierId := addTestCashier(db)
+	timestamp := models.NewTimestamp(0)
+
+	_, err := AddSale(db, cashierId, timestamp, []models.Id{})
+
+	assert.Error(t, err)
+}
