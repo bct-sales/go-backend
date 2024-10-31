@@ -30,7 +30,7 @@ func TestAuthenticatingSuccessfully(t *testing.T) {
 	db := openInitializedDatabase()
 
 	password := "xyz"
-	var userId models.Id = 1
+	userId := models.NewId(1)
 	roleId := models.SellerRoleId
 
 	AddUser(db, userId, roleId, 0, password)
@@ -42,7 +42,7 @@ func TestAuthenticatingNonExistingUser(t *testing.T) {
 	db := openInitializedDatabase()
 
 	password := "xyz"
-	var userId models.Id = 5
+	userId := models.NewId(5)
 
 	assert.False(t, UserWithIdExists(db, userId))
 	assert.Error(t, AuthenticateUser(db, userId, password))
@@ -53,7 +53,7 @@ func TestAuthenticatingWrongPassword(t *testing.T) {
 
 	password := "xyz"
 	wrongPassword := "abc"
-	var userId models.Id = 5
+	userId := models.NewId(5)
 	roleId := models.SellerRoleId
 
 	AddUser(db, userId, roleId, 0, password)

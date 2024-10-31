@@ -57,17 +57,17 @@ func TestAddItem(t *testing.T) {
 }
 
 func TestFailingAddItem(t *testing.T) {
-	var timestamp models.Timestamp = 0
-	var description string = "description"
-	var priceInCents models.MoneyInCents = 100
-	var itemCategoryId models.Id = 1
-	var charity bool = false
+	timestamp := models.NewTimestamp(0)
+	description := "description"
+	priceInCents := models.NewMoneyInCents(100)
+	itemCategoryId := models.NewId(1)
+	charity := false
 
 	t.Run("Nonexisting owner", func(t *testing.T) {
 		db := openInitializedDatabase()
 		addTestSeller(db, 2)
 
-		var sellerId models.Id = 1
+		sellerId := models.NewId(1)
 		donation := false
 
 		_, error := AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
@@ -82,14 +82,13 @@ func TestFailingAddItem(t *testing.T) {
 		db := openInitializedDatabase()
 		addTestSeller(db, 1)
 
-		var ownerId models.Id = 1
+		sellerId := models.NewId(1)
 		donation := false
-		var itemCategoryId models.Id = 100
+		itemCategoryId := models.NewId(100)
 
-		categoryExists := CategoryWithIdExists(db, itemCategoryId)
-		assert.False(t, categoryExists)
+		assert.False(t, CategoryWithIdExists(db, itemCategoryId))
 
-		_, error := AddItem(db, timestamp, description, priceInCents, itemCategoryId, ownerId, donation, charity)
+		_, error := AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 		assert.Error(t, error)
 
 		count, err := CountItems(db)

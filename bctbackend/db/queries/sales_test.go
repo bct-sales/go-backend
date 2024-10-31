@@ -11,15 +11,15 @@ import (
 func TestAddSale(t *testing.T) {
 	db := openInitializedDatabase()
 
-	var sellerId models.Id = 1
+	sellerId := models.NewId(1)
 	addTestSeller(db, sellerId)
-	var cashierId models.Id = 2
+	cashierId := models.NewId(2)
 	addTestCashier(db, cashierId)
 
 	item1 := addTestItem(db, sellerId, 1)
 	item2 := addTestItem(db, sellerId, 2)
 
-	var timestamp models.Timestamp = 0
+	timestamp := models.NewTimestamp(0)
 	itemIds := []models.Id{item1, item2}
 
 	saleId, err := AddSale(db, cashierId, timestamp, itemIds)

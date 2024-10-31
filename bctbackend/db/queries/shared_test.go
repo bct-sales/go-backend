@@ -42,11 +42,10 @@ func addTestCashier(db *sql.DB, id models.Id) {
 }
 
 func addTestItem(db *sql.DB, sellerId models.Id, index int) models.Id {
-	var timestamp models.Timestamp = 0
+	timestamp := models.NewTimestamp(0)
 	description := "description" + strconv.Itoa(index)
-
-	var priceInCents models.MoneyInCents = 100 + int64(index)
-	var itemCategoryId models.Id = 1
+	priceInCents := models.NewMoneyInCents(100 + int64(index))
+	itemCategoryId := models.NewId(1)
 	donation := false
 	charity := false
 
