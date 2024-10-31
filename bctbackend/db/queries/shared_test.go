@@ -55,6 +55,10 @@ func addTestCashier(db *sql.DB) models.Id {
 	return addTestUser(db, models.CashierRoleId)
 }
 
+func addTestAdmin(db *sql.DB) models.Id {
+	return addTestUser(db, models.AdminRoleId)
+}
+
 func addTestSellerWithId(db *sql.DB, id models.Id) {
 	addTestUserWithId(db, id, models.SellerRoleId)
 }
