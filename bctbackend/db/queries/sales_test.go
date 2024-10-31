@@ -9,7 +9,7 @@ import (
 )
 
 func TestAddSale(t *testing.T) {
-	for _, itemIndices := range [][]int{[]int{0}, []int{1}, []int{2}, []int{3}, []int{0, 1}, []int{1, 2, 3}, []int{0, 1, 2, 3}} {
+	for _, itemIndices := range [][]int{{0}, {1}, {2}, {3}, {0, 1}, {1, 2, 3}, {0, 1, 2, 3}} {
 		db := openInitializedDatabase()
 
 		sellerId := addTestSeller(db)
