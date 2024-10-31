@@ -9,39 +9,42 @@ import (
 )
 
 func TestAddSale(t *testing.T) {
-	db := openInitializedDatabase()
+	for _, itemIndices := range [][]int{[]int{0}, []int{1}, []int{2}, []int{3}, []int{0, 1}, []int{1, 2, 3}, []int{0, 1, 2, 3}} {
+		db := openInitializedDatabase()
 
-	sellerId := addTestSeller(db)
-	cashierId := addTestCashier(db)
+		sellerId := addTestSeller(db)
+		cashierId := addTestCashier(db)
 
-	itemIds := []models.Id{
-		addTestItem(db, sellerId, 1),
-		addTestItem(db, sellerId, 2),
-		addTestItem(db, sellerId, 3),
-		addTestItem(db, sellerId, 4),
-	}
+		itemIds := []models.Id{
+			addTestItem(db, sellerId, 1),
+			addTestItem(db, sellerId, 2),
+			addTestItem(db, sellerId, 3),
+			addTestItem(db, sellerId, 4),
+		}
 
-	saleItemIds := []models.Id{
-		itemIds[0],
-	}
+		saleItemIds := make([]models.Id, len(itemIndices))
+		for index, itemIndex := range itemIndices {
+			saleItemIds[index] = itemIds[itemIndex]
+		}
 
-	timestamp := models.NewTimestamp(0)
+		timestamp := models.NewTimestamp(0)
 
-	saleId, err := AddSale(db, cashierId, timestamp, saleItemIds)
-
-	if assert.NoError(t, err) {
-		actualItems, err := GetSaleItems(db, saleId)
+		saleId, err := AddSale(db, cashierId, timestamp, saleItemIds)
 
 		if assert.NoError(t, err) {
-			assert.Len(t, actualItems, len(saleItemIds))
+			actualItems, err := GetSaleItems(db, saleId)
 
-			for index, actualItem := range actualItems {
-				assert.Equal(t, saleItemIds[index], actualItem.ItemId)
+			if assert.NoError(t, err) {
+				assert.Len(t, actualItems, len(saleItemIds))
 
-				expectedItem, err := GetItemWithId(db, saleItemIds[index])
+				for index, actualItem := range actualItems {
+					assert.Equal(t, saleItemIds[index], actualItem.ItemId)
 
-				if assert.NoError(t, err) {
-					assert.Equal(t, *expectedItem, actualItem)
+					expectedItem, err := GetItemWithId(db, saleItemIds[index])
+
+					if assert.NoError(t, err) {
+						assert.Equal(t, *expectedItem, actualItem)
+					}
 				}
 			}
 		}
