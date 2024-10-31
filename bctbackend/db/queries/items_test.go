@@ -104,4 +104,13 @@ func TestFailingAddItem(t *testing.T) {
 		_, error := AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 		assert.Error(t, error)
 	})
+
+	t.Run("Admin owner", func(t *testing.T) {
+		db := openInitializedDatabase()
+		sellerId := addTestAdmin(db)
+		donation := false
+
+		_, error := AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+		assert.Error(t, error)
+	})
 }
