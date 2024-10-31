@@ -78,3 +78,20 @@ func TestAuthenticatingWrongPassword(t *testing.T) {
 
 	assert.Error(t, AuthenticateUser(db, userId, wrongPassword))
 }
+
+func TestGetUser(t *testing.T) {
+	db := openInitializedDatabase()
+
+	password := "xyz"
+	userId := models.NewId(1)
+	roleId := models.SellerRoleId
+
+	AddUserWithId(db, userId, roleId, 0, password)
+
+	user, err := GetUserWithId(db, userId)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, userId, user.UserId)
+		assert.Equal(t, roleId, user.RoleId)
+	}
+}
