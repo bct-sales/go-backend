@@ -16,7 +16,7 @@ func TestAddUser(t *testing.T) {
 				t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
 					db := openInitializedDatabase()
 
-					AddUser(db, userId, roleId, 0, password)
+					AddUserWithId(db, userId, roleId, 0, password)
 
 					assert.True(t, UserWithIdExists(db, userId))
 					assert.NoError(t, AuthenticateUser(db, userId, password))
@@ -33,7 +33,7 @@ func TestAuthenticatingSuccessfully(t *testing.T) {
 	userId := models.NewId(1)
 	roleId := models.SellerRoleId
 
-	AddUser(db, userId, roleId, 0, password)
+	AddUserWithId(db, userId, roleId, 0, password)
 
 	assert.NoError(t, AuthenticateUser(db, userId, password))
 }
@@ -56,7 +56,7 @@ func TestAuthenticatingWrongPassword(t *testing.T) {
 	userId := models.NewId(5)
 	roleId := models.SellerRoleId
 
-	AddUser(db, userId, roleId, 0, password)
+	AddUserWithId(db, userId, roleId, 0, password)
 
 	assert.Error(t, AuthenticateUser(db, userId, wrongPassword))
 }

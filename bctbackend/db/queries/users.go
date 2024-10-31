@@ -6,7 +6,7 @@ import (
 	"errors"
 )
 
-func AddUser(
+func AddUserWithId(
 	db *sql.DB,
 	userId models.Id,
 	roleId models.Id,

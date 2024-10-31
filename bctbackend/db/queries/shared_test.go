@@ -32,7 +32,7 @@ func openInitializedDatabase() *sql.DB {
 func addTestUser(db *sql.DB, id models.Id, roleId models.Id) {
 	password := "test"
 
-	AddUser(db, id, roleId, 0, password)
+	AddUserWithId(db, id, roleId, 0, password)
 }
 
 func addTestSellerWithId(db *sql.DB, id models.Id) {
