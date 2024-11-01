@@ -17,7 +17,7 @@ func startRestService(context *cli.Context) error {
 	return rest.StartRestService()
 }
 
-func resetDatabase(context *cli.Context) error {
+func resetDatabase() error {
 	db, err := sql.Open("sqlite", "../bct.db")
 
 	if err != nil {
@@ -35,14 +35,7 @@ func resetDatabase(context *cli.Context) error {
 	return nil
 }
 
-func backupDatabase(context *cli.Context) error {
-	arguments := context.Args()
-
-	if arguments.Len() != 1 {
-		return fmt.Errorf("expected the backup file name as argument")
-	}
-
-	target := arguments.First()
+func backupDatabase(target string) error {
 	fmt.Printf("Backing up database to %s\n", target)
 
 	db, err := sql.Open("sqlite", "../bct.db")

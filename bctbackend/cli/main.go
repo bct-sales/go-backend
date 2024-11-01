@@ -20,14 +20,23 @@ func ProcessCommandLineArguments(arguments []string) error {
 				Name: "db",
 				Subcommands: []*cli.Command{
 					{
-						Name:   "reset",
-						Usage:  "resets database; all data will be lost!",
-						Action: resetDatabase,
+						Name:  "reset",
+						Usage: "resets database; all data will be lost!",
+						Action: func(context *cli.Context) error {
+							return resetDatabase()
+						},
 					},
 					{
-						Name:   "backup",
-						Usage:  "makes a backup",
-						Action: backupDatabase,
+						Name:  "backup",
+						Usage: "makes a backup",
+						Action: func(context *cli.Context) error {
+							arguments := context.Args()
+							if arguments.Len() != 1 {
+								return fmt.Errorf("expected the backup file name as argument")
+							}
+							target := arguments.First()
+							return backupDatabase(target)
+						},
 					},
 				},
 			},
