@@ -1,9 +1,10 @@
 package queries
 
 import (
-	database "bctbackend/db"
-	models "bctbackend/db/models"
+	database "bctbackend/database"
+	models "bctbackend/database/models"
 	"database/sql"
+	"log"
 	"strconv"
 
 	_ "modernc.org/sqlite"
@@ -24,7 +25,9 @@ func openDatabase() *sql.DB {
 func openInitializedDatabase() *sql.DB {
 	db := openDatabase()
 
-	database.InitializeDatabase(db)
+	if err := database.InitializeDatabase(db); err != nil {
+		log.Fatalf("failed to initialize database: %v", err)
+	}
 
 	return db
 }

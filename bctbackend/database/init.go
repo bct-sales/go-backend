@@ -1,7 +1,7 @@
-package db
+package database
 
 import (
-	models "bctbackend/db/models"
+	models "bctbackend/database/models"
 	"database/sql"
 	"fmt"
 	"log"
@@ -17,9 +17,16 @@ func ResetDatabase(db *sql.DB) error {
 	return nil
 }
 
-func InitializeDatabase(db *sql.DB) {
-	createTables(db)
-	populateTables(db)
+func InitializeDatabase(db *sql.DB) error {
+	if err := createTables(db); err != nil {
+		return fmt.Errorf("failed to create tables: %v", err)
+	}
+
+	if err := populateTables(db); err != nil {
+		return fmt.Errorf("failed to populate tables: %v", err)
+	}
+
+	return nil
 }
 
 func removeAllTables(db *sql.DB) error {
@@ -34,17 +41,36 @@ func removeAllTables(db *sql.DB) error {
 	return nil
 }
 
-func createTables(db *sql.DB) {
-	createRoleTable(db)
-	createUserTable(db)
-	createItemCategoryTable(db)
-	createItemTable(db)
-	createSaleTable(db)
-	createSaleItemsTable(db)
+func createTables(db *sql.DB) error {
+	if err := createRoleTable(db); err != nil {
+		return err
+	}
+
+	if err := createUserTable(db); err != nil {
+		return err
+	}
+
+	if err := createItemCategoryTable(db); err != nil {
+		return err
+	}
+
+	if err := createItemTable(db); err != nil {
+		return err
+	}
+
+	if err := createSaleTable(db); err != nil {
+		return err
+	}
+
+	if err := createSaleItemsTable(db); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func createRoleTable(db *sql.DB) {
-	db.Exec(`
+func createRoleTable(db *sql.DB) error {
+	_, err := db.Exec(`
 		CREATE TABLE roles (
 			role_id             INTEGER NOT NULL,
 			name                TEXT NOT NULL UNIQUE,
@@ -52,10 +78,12 @@ func createRoleTable(db *sql.DB) {
 			PRIMARY KEY (role_id)
 		)
 	`)
+
+	return err
 }
 
-func createUserTable(db *sql.DB) {
-	db.Exec(`
+func createUserTable(db *sql.DB) error {
+	_, err := db.Exec(`
 		CREATE TABLE users (
 			user_id             INTEGER NOT NULL,
 			role_id             INTEGER NOT NULL,
@@ -66,10 +94,12 @@ func createUserTable(db *sql.DB) {
 			FOREIGN KEY (role_id) REFERENCES roles (role_id)
 		);
 	`)
+
+	return err
 }
 
-func createItemCategoryTable(db *sql.DB) {
-	db.Exec(`
+func createItemCategoryTable(db *sql.DB) error {
+	_, err := db.Exec(`
 		CREATE TABLE item_categories (
 			item_category_id    INTEGER NOT NULL,
 			name                TEXT NOT NULL UNIQUE,
@@ -77,10 +107,12 @@ func createItemCategoryTable(db *sql.DB) {
 			PRIMARY KEY (item_category_id)
 		)
 	`)
+
+	return err
 }
 
-func createItemTable(db *sql.DB) {
-	db.Exec(`
+func createItemTable(db *sql.DB) error {
+	_, err := db.Exec(`
 		CREATE TABLE items (
 			item_id             INTEGER NOT NULL,
 			timestamp           INTEGER NOT NULL,
@@ -96,10 +128,12 @@ func createItemTable(db *sql.DB) {
 			FOREIGN KEY (item_category_id) REFERENCES item_categories (item_category_id)
 		)
 	`)
+
+	return err
 }
 
-func createSaleTable(db *sql.DB) {
-	db.Exec(`
+func createSaleTable(db *sql.DB) error {
+	_, err := db.Exec(`
 		CREATE TABLE sales (
 			sale_id             INTEGER NOT NULL,
 			cashier_id          INTEGER NOT NULL,
@@ -109,10 +143,12 @@ func createSaleTable(db *sql.DB) {
 			FOREIGN KEY (cashier_id) REFERENCES users (user_id)
 		)
 	`)
+
+	return err
 }
 
-func createSaleItemsTable(db *sql.DB) {
-	db.Exec(`
+func createSaleItemsTable(db *sql.DB) error {
+	_, err := db.Exec(`
 		CREATE TABLE sale_items (
 			sale_id             INTEGER NOT NULL,
 			item_id             INTEGER NOT NULL,
@@ -122,14 +158,23 @@ func createSaleItemsTable(db *sql.DB) {
 			FOREIGN KEY (item_id) REFERENCES items (item_id)
 		)
 	`)
+
+	return err
 }
 
-func populateTables(db *sql.DB) {
-	populateRoleTable(db)
-	populateItemCategoryTable(db)
+func populateTables(db *sql.DB) error {
+	if err := populateRoleTable(db); err != nil {
+		return err
+	}
+
+	if err := populateItemCategoryTable(db); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func populateRoleTable(db *sql.DB) {
+func populateRoleTable(db *sql.DB) error {
 	_, err := db.Exec(`
 			INSERT INTO roles (role_id, name)
 			VALUES
@@ -143,11 +188,13 @@ func populateRoleTable(db *sql.DB) {
 	)
 
 	if err != nil {
-		panic(fmt.Errorf("failed to populate roles: %v", err))
+		return fmt.Errorf("failed to populate roles: %v", err)
 	}
+
+	return nil
 }
 
-func populateItemCategoryTable(db *sql.DB) {
+func populateItemCategoryTable(db *sql.DB) error {
 	_, err := db.Exec(`
 		INSERT INTO item_categories (item_category_id, name)
 		VALUES
@@ -179,6 +226,8 @@ func populateItemCategoryTable(db *sql.DB) {
 	)
 
 	if err != nil {
-		panic(fmt.Errorf("failed to populate item categories: %v", err))
+		return fmt.Errorf("failed to populate item categories: %v", err)
 	}
+
+	return nil
 }

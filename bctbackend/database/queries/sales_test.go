@@ -1,7 +1,7 @@
 package queries
 
 import (
-	"bctbackend/db/models"
+	"bctbackend/database/models"
 	"testing"
 
 	"github.com/stretchr/testify/assert"

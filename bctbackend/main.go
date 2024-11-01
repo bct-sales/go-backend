@@ -1,7 +1,8 @@
 package main
 
 import (
-	queries "bctbackend/db/queries"
+	database "bctbackend/database"
+	queries "bctbackend/database/queries"
 	"fmt"
 	"log"
 	"net/http"
@@ -66,7 +67,7 @@ func resetDatabaseHandler(context *cli.Context) error {
 
 	defer db.Close()
 
-	if err := queries.ResetDatabase(db); err != nil {
+	if err := database.ResetDatabase(db); err != nil {
 		fmt.Println(err)
 		return err
 	}
