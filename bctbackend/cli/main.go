@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bctbackend/database/models"
 	"fmt"
 	"os"
 
@@ -26,6 +27,10 @@ func ProcessCommandLineArguments(arguments []string) error {
 	if err != nil {
 		return fmt.Errorf("error while loading .env file: %v", err)
 	}
+
+	var role string
+	var userPassword string
+	var userId models.Id
 
 	app := &cli.App{
 		Commands: []*cli.Command{
@@ -54,6 +59,42 @@ func ProcessCommandLineArguments(arguments []string) error {
 							}
 							targetPath := arguments.First()
 							return backupDatabase(databasePath, targetPath)
+						},
+					},
+				},
+			},
+			{
+				Name: "add",
+				Subcommands: []*cli.Command{
+					{
+						Name:  "user",
+						Usage: "add a new user",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:        "role",
+								Usage:       "role of the user (admin, seller, cashier)",
+								Destination: &role,
+								Required:    true,
+							},
+							&cli.Int64Flag{
+								Name:        "id",
+								Usage:       "id of the user",
+								Destination: &userId,
+								Required:    true,
+							},
+							&cli.StringFlag{
+								Name:        "password",
+								Usage:       "password of the user",
+								Destination: &userPassword,
+								Required:    true,
+							},
+						},
+						Action: func(context *cli.Context) error {
+							roleId, err := models.ParseRole(role)
+							if err != nil {
+								return fmt.Errorf("error while parsing role: %v", err)
+							}
+							return addUser(databasePath, userId, roleId, userPassword)
 						},
 					},
 				},

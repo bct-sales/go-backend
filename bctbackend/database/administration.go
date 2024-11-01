@@ -178,13 +178,16 @@ func populateRoleTable(db *sql.DB) error {
 	_, err := db.Exec(`
 			INSERT INTO roles (role_id, name)
 			VALUES
-				($1, 'admin'),
-				($2, 'seller'),
-				($3, 'cashier')
+				($1, $2),
+				($3, $4),
+				($5, $6)
 		`,
 		models.AdminRoleId,
+		models.AdminName,
 		models.SellerRoleId,
+		models.SellerName,
 		models.CashierRoleId,
+		models.CashierName,
 	)
 
 	if err != nil {
