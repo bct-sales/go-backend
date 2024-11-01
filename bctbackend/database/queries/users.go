@@ -114,3 +114,42 @@ func GetUserWithId(db *sql.DB, userId models.Id) (models.User, error) {
 		Password:  password,
 	}, err
 }
+
+func ListUsers(db *sql.DB) ([]models.User, error) {
+	rows, err := db.Query(
+		`
+			SELECT user_id, role_id, timestamp, password
+			FROM users
+		`,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	users := []models.User{}
+
+	for rows.Next() {
+		var userId models.Id
+		var roleId models.Id
+		var timestamp models.Timestamp
+		var password string
+
+		err = rows.Scan(&userId, &roleId, &timestamp, &password)
+
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, models.User{
+			UserId:    userId,
+			RoleId:    roleId,
+			Timestamp: timestamp,
+			Password:  password,
+		})
+	}
+
+	return users, nil
+}

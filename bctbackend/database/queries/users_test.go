@@ -95,3 +95,22 @@ func TestGetUser(t *testing.T) {
 		assert.Equal(t, roleId, user.RoleId)
 	}
 }
+
+func TestListUsers(t *testing.T) {
+	db := openInitializedDatabase()
+
+	password := "xyz"
+	userId := models.NewId(1)
+	roleId := models.SellerRoleId
+
+	AddUserWithId(db, userId, roleId, 0, password)
+
+	users, err := ListUsers(db)
+
+	if assert.NoError(t, err) {
+		assert.Len(t, users, 1)
+		assert.Equal(t, userId, users[0].UserId)
+		assert.Equal(t, roleId, users[0].RoleId)
+		assert.Equal(t, password, users[0].Password)
+	}
+}

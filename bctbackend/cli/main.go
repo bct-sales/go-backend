@@ -99,6 +99,18 @@ func ProcessCommandLineArguments(arguments []string) error {
 					},
 				},
 			},
+			{
+				Name: "list",
+				Subcommands: []*cli.Command{
+					{
+						Name:  "users",
+						Usage: "list all users",
+						Action: func(context *cli.Context) error {
+							return listUsers(databasePath)
+						},
+					},
+				},
+			},
 		},
 	}
 
