@@ -25,7 +25,7 @@ func listUsers(databasePath string) error {
 	users, err := queries.ListUsers(db)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("error while listing users: %v", err)
 	}
 
 	tableData := pterm.TableData{
@@ -36,7 +36,7 @@ func listUsers(databasePath string) error {
 		roleString, err := models.RoleToString(user.RoleId)
 
 		if err != nil {
-			return err
+			return fmt.Errorf("error while converting role to string: %v", err)
 		}
 
 		tableData = append(tableData, []string{
@@ -47,7 +47,5 @@ func listUsers(databasePath string) error {
 		})
 	}
 
-	pterm.DefaultTable.WithHasHeader().WithData(tableData).Render()
-
-	return nil
+	return pterm.DefaultTable.WithHasHeader().WithData(tableData).Render()
 }
