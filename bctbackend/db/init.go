@@ -4,11 +4,34 @@ import (
 	models "bctbackend/db/models"
 	"database/sql"
 	"fmt"
+	"log"
 )
+
+func ResetDatabase(db *sql.DB) error {
+	if err := removeAllTables(db); err != nil {
+		return err
+	}
+
+	InitializeDatabase(db)
+
+	return nil
+}
 
 func InitializeDatabase(db *sql.DB) {
 	createTables(db)
 	populateTables(db)
+}
+
+func removeAllTables(db *sql.DB) error {
+	tables := []string{"sale_items", "sales", "items", "item_categories", "users", "roles"}
+
+	for _, table := range tables {
+		if _, err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", table)); err != nil {
+			log.Fatalf("failed to drop table %s: %v", table, err)
+		}
+	}
+
+	return nil
 }
 
 func createTables(db *sql.DB) {

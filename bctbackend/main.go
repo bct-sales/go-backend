@@ -57,6 +57,24 @@ func startRestServiceHandler(context *cli.Context) error {
 	return nil
 }
 
+func resetDatabaseHandler(context *cli.Context) error {
+	db, err := sql.Open("sqlite", "../bct.db")
+
+	if err != nil {
+		log.Fatalf("Error while opening database: %v", err)
+	}
+
+	defer db.Close()
+
+	if err := queries.ResetDatabase(db); err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	fmt.Println("Database reset successfully")
+	return nil
+}
+
 func main() {
 	app := &cli.App{
 		Commands: []*cli.Command{
@@ -64,6 +82,16 @@ func main() {
 				Name:   "server",
 				Usage:  "start REST api server",
 				Action: startRestServiceHandler,
+			},
+			{
+				Name: "db",
+				Subcommands: []*cli.Command{
+					{
+						Name:   "reset",
+						Usage:  "resets database; all data will be lost!",
+						Action: resetDatabaseHandler,
+					},
+				},
 			},
 		},
 	}
