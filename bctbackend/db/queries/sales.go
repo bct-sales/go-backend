@@ -25,6 +25,12 @@ func AddSale(
 		return 0, fmt.Errorf("no items to add to sale")
 	}
 
+	cashier, err := GetUserWithId(db, cashierId)
+
+	if err != nil || cashier.RoleId != models.CashierRoleId {
+		return 0, fmt.Errorf("a sale can only be associated with a cashier; user %v is no cashier", cashierId)
+	}
+
 	transaction, err := db.Begin()
 	if err != nil {
 		return 0, err
