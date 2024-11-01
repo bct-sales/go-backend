@@ -3,11 +3,14 @@ package main
 import (
 	queries "bctbackend/db/queries"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 
 	"database/sql"
 
 	"github.com/gin-gonic/gin"
+	"github.com/urfave/cli/v2"
 
 	_ "modernc.org/sqlite"
 )
@@ -49,6 +52,23 @@ func startRestService() {
 	router.Run("localhost:8000")
 }
 
-func main() {
+func startRestServiceHandler(context *cli.Context) error {
 	startRestService()
+	return nil
+}
+
+func main() {
+	app := &cli.App{
+		Commands: []*cli.Command{
+			{
+				Name:   "server",
+				Usage:  "start REST api server",
+				Action: startRestServiceHandler,
+			},
+		},
+	}
+
+	if err := app.Run(os.Args); err != nil {
+		log.Fatalf("Error while parsing command line arguments: %v", err)
+	}
 }
