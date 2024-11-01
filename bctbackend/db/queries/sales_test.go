@@ -61,3 +61,15 @@ func TestAddSaleWithoutItems(t *testing.T) {
 
 	assert.Error(t, err)
 }
+
+func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
+	db := openInitializedDatabase()
+
+	sellerId := addTestSeller(db)
+	timestamp := models.NewTimestamp(0)
+	itemId := addTestItem(db, sellerId, 1)
+
+	_, err := AddSale(db, sellerId, timestamp, []models.Id{itemId})
+
+	assert.Error(t, err)
+}
