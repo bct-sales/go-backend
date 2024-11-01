@@ -1,4 +1,4 @@
-package cli
+package add
 
 import (
 	"bctbackend/database/models"
@@ -11,7 +11,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func addUser(databasePath string, userId models.Id, role models.Id, password string) error {
+func AddUser(databasePath string, userId models.Id, role models.Id, password string) error {
 	db, err := sql.Open("sqlite", databasePath)
 
 	if err != nil {

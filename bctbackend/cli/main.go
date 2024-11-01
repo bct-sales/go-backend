@@ -1,6 +1,8 @@
 package cli
 
 import (
+	cli_add "bctbackend/cli/add"
+	cli_list "bctbackend/cli/list"
 	"bctbackend/database/models"
 	"fmt"
 	"os"
@@ -94,7 +96,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							if err != nil {
 								return fmt.Errorf("error while parsing role: %v", err)
 							}
-							return addUser(databasePath, userId, roleId, userPassword)
+							return cli_add.AddUser(databasePath, userId, roleId, userPassword)
 						},
 					},
 				},
@@ -106,7 +108,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "users",
 						Usage: "list all users",
 						Action: func(context *cli.Context) error {
-							return listUsers(databasePath)
+							return cli_list.ListUsers(databasePath)
 						},
 					},
 				},

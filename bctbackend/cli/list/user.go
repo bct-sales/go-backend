@@ -1,4 +1,4 @@
-package cli
+package list
 
 import (
 	"bctbackend/database/models"
@@ -13,7 +13,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func listUsers(databasePath string) error {
+func ListUsers(databasePath string) error {
 	db, err := sql.Open("sqlite", databasePath)
 
 	if err != nil {
