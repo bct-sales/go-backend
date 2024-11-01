@@ -24,13 +24,18 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Usage:  "resets database; all data will be lost!",
 						Action: resetDatabase,
 					},
+					{
+						Name:   "backup",
+						Usage:  "makes a backup",
+						Action: backupDatabase,
+					},
 				},
 			},
 		},
 	}
 
 	if err := app.Run(arguments); err != nil {
-		return fmt.Errorf("error while parsing command line arguments: %v", err)
+		return fmt.Errorf("error while processing command line arguments: %v", err)
 	}
 
 	return nil

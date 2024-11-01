@@ -34,3 +34,30 @@ func resetDatabase(context *cli.Context) error {
 	fmt.Println("Database reset successfully")
 	return nil
 }
+
+func backupDatabase(context *cli.Context) error {
+	arguments := context.Args()
+
+	if arguments.Len() != 1 {
+		return fmt.Errorf("expected the backup file name as argument")
+	}
+
+	target := arguments.First()
+	fmt.Printf("Backing up database to %s\n", target)
+
+	db, err := sql.Open("sqlite", "../bct.db")
+
+	if err != nil {
+		return err
+	}
+
+	defer db.Close()
+
+	if _, err = db.Exec("VACUUM INTO ?", target); err != nil {
+		return fmt.Errorf("failed to backup database: %v", err)
+	}
+
+	fmt.Println("Database backup completed successfully")
+
+	return nil
+}

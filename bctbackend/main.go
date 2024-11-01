@@ -2,9 +2,12 @@ package main
 
 import (
 	cli "bctbackend/cli"
+	"fmt"
 	"os"
 )
 
 func main() {
-	cli.ProcessCommandLineArguments(os.Args)
+	if err := cli.ProcessCommandLineArguments(os.Args); err != nil {
+		fmt.Printf("Error: %v\n", err)
+	}
 }
