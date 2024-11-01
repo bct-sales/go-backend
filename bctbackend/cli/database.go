@@ -17,8 +17,8 @@ func startRestService(context *cli.Context) error {
 	return rest.StartRestService()
 }
 
-func resetDatabase() error {
-	db, err := sql.Open("sqlite", "../bct.db")
+func resetDatabase(databasePath string) error {
+	db, err := sql.Open("sqlite", databasePath)
 
 	if err != nil {
 		log.Fatalf("Error while opening database: %v", err)
@@ -35,10 +35,10 @@ func resetDatabase() error {
 	return nil
 }
 
-func backupDatabase(target string) error {
-	fmt.Printf("Backing up database to %s\n", target)
+func backupDatabase(databasePath string, targetPath string) error {
+	fmt.Printf("Backing up database to %s\n", targetPath)
 
-	db, err := sql.Open("sqlite", "../bct.db")
+	db, err := sql.Open("sqlite", databasePath)
 
 	if err != nil {
 		return err
@@ -46,8 +46,8 @@ func backupDatabase(target string) error {
 
 	defer db.Close()
 
-	if _, err = db.Exec("VACUUM INTO ?", target); err != nil {
-		return fmt.Errorf("failed to backup database: %v", err)
+	if _, err = db.Exec("VACUUM INTO ?", targetPath); err != nil {
+		return fmt.Errorf("failed to backup database %s to %s: %v", databasePath, targetPath, err)
 	}
 
 	fmt.Println("Database backup completed successfully")

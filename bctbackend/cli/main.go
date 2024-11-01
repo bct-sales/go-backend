@@ -2,13 +2,31 @@ package cli
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/urfave/cli/v2"
 
 	_ "modernc.org/sqlite"
 )
 
+const (
+	DatabaseEnvironmentVariable = "BCT_DATABASE"
+)
+
 func ProcessCommandLineArguments(arguments []string) error {
+	err := godotenv.Load()
+
+	databasePath, ok := os.LookupEnv(DatabaseEnvironmentVariable)
+
+	if !ok {
+		return fmt.Errorf("environment variable %s not set", DatabaseEnvironmentVariable)
+	}
+
+	if err != nil {
+		return fmt.Errorf("error while loading .env file: %v", err)
+	}
+
 	app := &cli.App{
 		Commands: []*cli.Command{
 			{
@@ -23,7 +41,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "reset",
 						Usage: "resets database; all data will be lost!",
 						Action: func(context *cli.Context) error {
-							return resetDatabase()
+							return resetDatabase(databasePath)
 						},
 					},
 					{
@@ -34,8 +52,8 @@ func ProcessCommandLineArguments(arguments []string) error {
 							if arguments.Len() != 1 {
 								return fmt.Errorf("expected the backup file name as argument")
 							}
-							target := arguments.First()
-							return backupDatabase(target)
+							targetPath := arguments.First()
+							return backupDatabase(databasePath, targetPath)
 						},
 					},
 				},
