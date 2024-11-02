@@ -1,3 +1,4 @@
 *.exe
 bct.db
 coverage-data
+.env
