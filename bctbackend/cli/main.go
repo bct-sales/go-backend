@@ -1,8 +1,7 @@
 package cli
 
 import (
-	cli_add "bctbackend/cli/add"
-	cli_list "bctbackend/cli/list"
+	cli_user "bctbackend/cli/user"
 	"bctbackend/database/models"
 	"fmt"
 	"os"
@@ -41,6 +40,11 @@ func ProcessCommandLineArguments(arguments []string) error {
 			add struct {
 				id       int64
 				role     string
+				password string
+			}
+
+			setPassword struct {
+				id       int64
 				password string
 			}
 		}
@@ -115,14 +119,31 @@ func ProcessCommandLineArguments(arguments []string) error {
 							if err != nil {
 								return fmt.Errorf("error while parsing role: %v", err)
 							}
-							return cli_add.AddUser(databasePath, id, roleId, userPassword)
+							return cli_user.AddUser(databasePath, id, roleId, userPassword)
 						},
 					},
 					{
 						Name:  "list",
 						Usage: "list all users",
 						Action: func(context *cli.Context) error {
-							return cli_list.ListUsers(databasePath)
+							return cli_user.ListUsers(databasePath)
+						},
+					},
+					{
+						Name:  "set-password",
+						Usage: "set password for a user",
+						Flags: []cli.Flag{
+							&cli.Int64Flag{
+								Name:        "id",
+								Usage:       "id of the user",
+								Destination: &options.user.setPassword.id,
+								Required:    true,
+							},
+						},
+						Action: func(context *cli.Context) error {
+							id := options.user.setPassword.id
+							password := options.user.setPassword.password
+							return cli_user.SetPassword(databasePath, id, password)
 						},
 					},
 				},

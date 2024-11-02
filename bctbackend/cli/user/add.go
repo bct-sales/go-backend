@@ -1,4 +1,4 @@
-package add
+package user
 
 import (
 	"bctbackend/database/models"
@@ -15,7 +15,7 @@ func AddUser(databasePath string, userId models.Id, role models.Id, password str
 	db, err := sql.Open("sqlite", databasePath)
 
 	if err != nil {
-		return fmt.Errorf("Error while opening database: %v", err)
+		return fmt.Errorf("error while opening database: %v", err)
 	}
 
 	defer db.Close()
