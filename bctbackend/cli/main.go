@@ -139,6 +139,12 @@ func ProcessCommandLineArguments(arguments []string) error {
 								Destination: &options.user.setPassword.id,
 								Required:    true,
 							},
+							&cli.StringFlag{
+								Name:        "password",
+								Usage:       "new password for the user",
+								Destination: &options.user.setPassword.password,
+								Required:    true,
+							},
 						},
 						Action: func(context *cli.Context) error {
 							id := options.user.setPassword.id
