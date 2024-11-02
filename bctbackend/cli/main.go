@@ -227,7 +227,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							donation := options.item.add.donation
 							charity := options.item.add.charity
 
-							return cli_item.AddItem(databasePath, description, category, price, seller, donation, charity)
+							return cli_item.AddItem(databasePath, description, price, category, seller, donation, charity)
 						},
 					},
 				},
