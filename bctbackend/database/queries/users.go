@@ -153,3 +153,17 @@ func ListUsers(db *sql.DB) ([]models.User, error) {
 
 	return users, nil
 }
+
+func UpdateUserPassword(db *sql.DB, userId models.Id, password string) error {
+	_, err := db.Exec(
+		`
+			UPDATE users
+			SET password = $1
+			WHERE user_id = $2
+		`,
+		password,
+		userId,
+	)
+
+	return err
+}

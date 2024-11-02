@@ -114,3 +114,26 @@ func TestListUsers(t *testing.T) {
 		assert.Equal(t, password, users[0].Password)
 	}
 }
+
+func TestUpdatePassword(t *testing.T) {
+	db := openInitializedDatabase()
+
+	password1 := "xyz"
+	password2 := "abc"
+	newPassword1 := "123"
+
+	user1Id, err := AddUser(db, models.SellerRoleId, 0, password1)
+
+	if assert.NoError(t, err) {
+		user2Id, err := AddUser(db, models.SellerRoleId, 0, password2)
+
+		if assert.NoError(t, err) {
+			err := UpdateUserPassword(db, user1Id, newPassword1)
+
+			if assert.NoError(t, err) {
+				assert.NoError(t, AuthenticateUser(db, user1Id, newPassword1))
+				assert.NoError(t, AuthenticateUser(db, user2Id, password2))
+			}
+		}
+	}
+}
