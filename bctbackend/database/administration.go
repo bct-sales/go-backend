@@ -7,6 +7,29 @@ import (
 	"log"
 )
 
+type DatabaseConnectionError struct {
+	Path string
+	Err  error
+}
+
+func (e *DatabaseConnectionError) Error() string {
+	return fmt.Sprintf("failed to connect to database at %s: %v", e.Path, e.Err)
+}
+
+func (e *DatabaseConnectionError) Unwrap() error {
+	return e.Err
+}
+
+func ConnectToDatabase(path string) (*sql.DB, error) {
+	db, err := sql.Open("sqlite", path)
+
+	if err != nil {
+		return nil, &DatabaseConnectionError{Path: path, Err: err}
+	}
+
+	return db, nil
+}
+
 func ResetDatabase(db *sql.DB) error {
 	if err := removeAllTables(db); err != nil {
 		return err
