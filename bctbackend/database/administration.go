@@ -198,38 +198,25 @@ func populateRoleTable(db *sql.DB) error {
 }
 
 func populateItemCategoryTable(db *sql.DB) error {
-	_, err := db.Exec(`
-		INSERT INTO item_categories (item_category_id, name)
-		VALUES
-			($1, 'Clothing 0-3 mos (50-56)'),
-			($2, 'Clothing 3-6 mos (56-62)'),
-			($3, 'Clothing 6-12 mos (68-80)'),
-			($4, 'Clothing 12-24 mos (86-92)'),
-			($5, 'Clothing 2-3 yrs (92-98)'),
-			($6, 'Clothing 4-6 yrs (104-116)'),
-			($7, 'Clothing 7-8 yrs (122-128)'),
-			($8, 'Clothing 9-10 yrs (128-140)'),
-			($9, 'Clothing 11-12 yrs (140-152)'),
-			($10, 'Shoes (infant to 12 yrs)'),
-			($11, 'Toys'),
-			($12, 'Baby/Child Equipment')
-		`,
-		models.Clothing50_56,
-		models.Clothing56_62,
-		models.Clothing68_80,
-		models.Clothing86_92,
-		models.Clothing92_98,
-		models.Clothing104_116,
-		models.Clothing122_128,
-		models.Clothing128_140,
-		models.Clothing140_152,
-		models.Shoes,
-		models.Toys,
-		models.BabyChildEquipment,
-	)
+	for _, categoryId := range models.Categories() {
+		categoryName, err := models.StringOfCategory(categoryId)
 
-	if err != nil {
-		return fmt.Errorf("failed to populate item categories: %v", err)
+		if err != nil {
+			return fmt.Errorf("failed to get category name: %v", err)
+		}
+
+		_, err = db.Exec(
+			`
+				INSERT INTO item_categories (item_category_id, name)
+				VALUES ($1, $2)
+			`,
+			categoryId,
+			categoryName,
+		)
+
+		if err != nil {
+			return fmt.Errorf("failed to populate item categories: %v", err)
+		}
 	}
 
 	return nil
