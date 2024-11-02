@@ -62,7 +62,7 @@ func Categories() []Id {
 	}
 }
 
-func StringOfCategory(categoryId Id) (string, error) {
+func NameOfCategory(categoryId Id) (string, error) {
 	switch categoryId {
 	case Clothing50_56:
 		return Clothing50_56Name, nil

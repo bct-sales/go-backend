@@ -199,7 +199,7 @@ func populateRoleTable(db *sql.DB) error {
 
 func populateItemCategoryTable(db *sql.DB) error {
 	for _, categoryId := range models.Categories() {
-		categoryName, err := models.StringOfCategory(categoryId)
+		categoryName, err := models.NameOfCategory(categoryId)
 
 		if err != nil {
 			return fmt.Errorf("failed to get category name: %v", err)

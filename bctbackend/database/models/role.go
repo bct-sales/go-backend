@@ -36,7 +36,7 @@ func ParseRole(role string) (Id, error) {
 	}
 }
 
-func RoleToString(roleId Id) (string, error) {
+func NameOfRole(roleId Id) (string, error) {
 	switch roleId {
 	case AdminRoleId:
 		return AdminName, nil

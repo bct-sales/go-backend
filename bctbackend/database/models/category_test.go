@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCategoryToString(t *testing.T) {
+func TestNameOfCategory(t *testing.T) {
 	pairs := []struct {
 		id   Id
 		name string
@@ -30,7 +30,7 @@ func TestCategoryToString(t *testing.T) {
 		expectedName := pair.name
 
 		t.Run(expectedName, func(t *testing.T) {
-			actualName, err := StringOfCategory(id)
+			actualName, err := NameOfCategory(id)
 
 			if assert.NoError(t, err) {
 				assert.Equal(t, expectedName, actualName)
@@ -39,7 +39,7 @@ func TestCategoryToString(t *testing.T) {
 	}
 
 	t.Run("invalid category", func(t *testing.T) {
-		_, err := StringOfCategory(Id(999))
+		_, err := NameOfCategory(Id(999))
 
 		assert.Error(t, err)
 	})

@@ -38,9 +38,9 @@ func TestRoleParsing(t *testing.T) {
 	})
 }
 
-func TestRoleToString(t *testing.T) {
+func TestNameOfRole(t *testing.T) {
 	t.Run("admin", func(t *testing.T) {
-		roleName, err := RoleToString(AdminRoleId)
+		roleName, err := NameOfRole(AdminRoleId)
 
 		if assert.NoError(t, err) {
 			assert.Equal(t, AdminName, roleName)
@@ -48,7 +48,7 @@ func TestRoleToString(t *testing.T) {
 	})
 
 	t.Run("seller", func(t *testing.T) {
-		roleName, err := RoleToString(SellerRoleId)
+		roleName, err := NameOfRole(SellerRoleId)
 
 		if assert.NoError(t, err) {
 			assert.Equal(t, SellerName, roleName)
@@ -56,7 +56,7 @@ func TestRoleToString(t *testing.T) {
 	})
 
 	t.Run("cashier", func(t *testing.T) {
-		roleName, err := RoleToString(CashierRoleId)
+		roleName, err := NameOfRole(CashierRoleId)
 
 		if assert.NoError(t, err) {
 			assert.Equal(t, CashierName, roleName)
@@ -64,7 +64,7 @@ func TestRoleToString(t *testing.T) {
 	})
 
 	t.Run("unknown", func(t *testing.T) {
-		_, err := RoleToString(4)
+		_, err := NameOfRole(4)
 
 		assert.Error(t, err)
 	})

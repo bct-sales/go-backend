@@ -35,7 +35,7 @@ func ListUsers(databasePath string) error {
 	userCount := 0
 
 	for _, user := range users {
-		roleString, err := models.RoleToString(user.RoleId)
+		roleString, err := models.NameOfRole(user.RoleId)
 
 		if err != nil {
 			return fmt.Errorf("error while converting role to string: %v", err)
