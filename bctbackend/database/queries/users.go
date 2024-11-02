@@ -25,7 +25,11 @@ func AddUserWithId(
 		password,
 	)
 
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to add user with id %d: %w", userId, err)
+	}
+
+	return nil
 }
 
 func AddUser(
