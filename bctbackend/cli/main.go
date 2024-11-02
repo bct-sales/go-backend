@@ -60,6 +60,10 @@ func ProcessCommandLineArguments(arguments []string) error {
 				donation    bool
 				charity     bool
 			}
+
+			remove struct {
+				id int64
+			}
 		}
 	}
 
@@ -230,6 +234,22 @@ func ProcessCommandLineArguments(arguments []string) error {
 							charity := options.item.add.charity
 
 							return cli_item.AddItem(databasePath, description, price, category, seller, donation, charity)
+						},
+					},
+					{
+						Name:  "remove",
+						Usage: "remove an item",
+						Flags: []cli.Flag{
+							&cli.Int64Flag{
+								Name:        "id",
+								Usage:       "id of the item",
+								Destination: &options.item.remove.id,
+								Required:    true,
+							},
+						},
+						Action: func(context *cli.Context) error {
+							id := options.item.remove.id
+							return cli_item.RemoveItem(databasePath, id)
 						},
 					},
 				},
