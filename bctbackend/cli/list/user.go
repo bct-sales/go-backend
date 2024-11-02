@@ -32,6 +32,8 @@ func ListUsers(databasePath string) error {
 		{"ID", "Role", "Created At", "Password"},
 	}
 
+	userCount := 0
+
 	for _, user := range users {
 		roleString, err := models.RoleToString(user.RoleId)
 
@@ -45,7 +47,17 @@ func ListUsers(databasePath string) error {
 			time.Unix(user.Timestamp, 0).String(),
 			user.Password,
 		})
+
+		userCount++
 	}
 
-	return pterm.DefaultTable.WithHasHeader().WithData(tableData).Render()
+	err = pterm.DefaultTable.WithHasHeader().WithData(tableData).Render()
+
+	if err != nil {
+		return fmt.Errorf("error while rendering table: %v", err)
+	}
+
+	fmt.Printf("Number of users listed: %d\n", userCount)
+
+	return nil
 }
