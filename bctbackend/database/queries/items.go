@@ -133,3 +133,15 @@ func ItemWithIdExists(db *sql.DB, itemId models.Id) bool {
 
 	return err == nil
 }
+
+func RemoveItemWithId(db *sql.DB, itemId models.Id) error {
+	_, err := db.Exec(
+		`
+			DELETE FROM items
+			WHERE item_id = $1
+		`,
+		itemId,
+	)
+
+	return err
+}

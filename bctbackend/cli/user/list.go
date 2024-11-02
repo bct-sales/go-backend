@@ -1,23 +1,22 @@
 package user
 
 import (
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"fmt"
 	"strconv"
 	"time"
 
-	"database/sql"
-
 	"github.com/pterm/pterm"
 	_ "modernc.org/sqlite"
 )
 
 func ListUsers(databasePath string) error {
-	db, err := sql.Open("sqlite", databasePath)
+	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
-		return fmt.Errorf("error while opening database: %v", err)
+		return err
 	}
 
 	defer db.Close()

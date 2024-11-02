@@ -1,12 +1,11 @@
 package item
 
 import (
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"fmt"
 	"time"
-
-	"database/sql"
 
 	"github.com/pterm/pterm"
 	_ "modernc.org/sqlite"
@@ -21,10 +20,10 @@ func AddItem(
 	donation bool,
 	charity bool) error {
 
-	db, err := sql.Open("sqlite", databasePath)
+	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
-		return fmt.Errorf("error while opening database: %v", err)
+		return err
 	}
 
 	defer db.Close()
@@ -35,10 +34,19 @@ func AddItem(
 		return err
 	}
 
+	categoryName, err := models.NameOfCategory(categoryId)
+
+	if err != nil {
+		return fmt.Errorf("error while converting category to string: %v", err)
+	}
+
 	tableData := pterm.TableData{
 		{"Description", description},
 		{"Price", fmt.Sprintf("%.2f", float64(priceInCents)/100.0)},
-		{"Category", fmt.Sprintf("%d", categoryId)},
+		{"Category", categoryName},
+		{"Seller", fmt.Sprintf("%d", sellerId)},
+		{"Donation", fmt.Sprintf("%t", donation)},
+		{"Charity", fmt.Sprintf("%t", charity)},
 	}
 
 	err = pterm.DefaultTable.WithData(tableData).Render()

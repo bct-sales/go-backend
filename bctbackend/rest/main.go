@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"bctbackend/database"
 	"bctbackend/database/queries"
 	"database/sql"
 	"net/http"
@@ -24,7 +25,7 @@ func enableForeignKeys(db *sql.DB) error {
 }
 
 func StartRestService() error {
-	db, err := sql.Open("sqlite", "../bct.db")
+	db, err := database.ConnectToDatabase("../bct.db")
 
 	if err != nil {
 		return err

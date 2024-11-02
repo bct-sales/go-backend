@@ -4,9 +4,6 @@ import (
 	database "bctbackend/database"
 	rest "bctbackend/rest"
 	"fmt"
-	"log"
-
-	"database/sql"
 
 	"github.com/urfave/cli/v2"
 
@@ -18,10 +15,10 @@ func startRestService(context *cli.Context) error {
 }
 
 func resetDatabase(databasePath string) error {
-	db, err := sql.Open("sqlite", databasePath)
+	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
-		log.Fatalf("Error while opening database: %v", err)
+		return err
 	}
 
 	defer db.Close()
@@ -38,7 +35,7 @@ func resetDatabase(databasePath string) error {
 func backupDatabase(databasePath string, targetPath string) error {
 	fmt.Printf("Backing up database to %s\n", targetPath)
 
-	db, err := sql.Open("sqlite", databasePath)
+	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
 		return err
