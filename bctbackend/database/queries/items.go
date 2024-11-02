@@ -101,7 +101,7 @@ func AddItem(
 	result, err := db.Exec(
 		`
 			INSERT INTO items (timestamp, description, price_in_cents, item_category_id, seller_id, donation, charity)
-			VALUES (?, ?, ?, ?, ?, ?, ?)
+			VALUES ($1, $2, $3, $4, $5, $6, $7)
 		`,
 		timestamp,
 		description,

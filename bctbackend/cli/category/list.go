@@ -1,28 +1,26 @@
 package user
 
 import (
+	"bctbackend/database"
 	"bctbackend/database/queries"
 	"fmt"
-
-	"database/sql"
 
 	"github.com/pterm/pterm"
 	_ "modernc.org/sqlite"
 )
 
 func ListCategories(databasePath string) error {
-	db, err := sql.Open("sqlite", databasePath)
+	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
-		return fmt.Errorf("error while opening database: %v", err)
+		return err
 	}
 
 	defer db.Close()
 
 	categories, err := queries.GetCategories(db)
-
 	if err != nil {
-		return fmt.Errorf("error while listing categories: %v", err)
+		return fmt.Errorf("error while listing categories: %w", err)
 	}
 
 	tableData := pterm.TableData{
@@ -42,7 +40,7 @@ func ListCategories(databasePath string) error {
 	err = pterm.DefaultTable.WithHasHeader().WithData(tableData).Render()
 
 	if err != nil {
-		return fmt.Errorf("error while rendering table: %v", err)
+		return fmt.Errorf("error while rendering table: %w", err)
 	}
 
 	return nil

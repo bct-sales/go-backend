@@ -8,12 +8,13 @@ import (
 )
 
 type DatabaseConnectionError struct {
-	Path string
-	Err  error
+	Context string
+	Path    string
+	Err     error
 }
 
 func (e *DatabaseConnectionError) Error() string {
-	return fmt.Sprintf("failed to connect to database at %s: %v", e.Path, e.Err)
+	return fmt.Sprintf("failed to connect to database at %s while %s: %v", e.Path, e.Context, e.Err)
 }
 
 func (e *DatabaseConnectionError) Unwrap() error {
@@ -24,7 +25,11 @@ func ConnectToDatabase(path string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite", path)
 
 	if err != nil {
-		return nil, &DatabaseConnectionError{Path: path, Err: err}
+		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "opening database"}
+	}
+
+	if _, err := db.Exec("PRAGMA foreign_keys = ON"); err != nil {
+		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "enabling foreign keys"}
 	}
 
 	return db, nil
