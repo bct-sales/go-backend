@@ -30,9 +30,21 @@ func ProcessCommandLineArguments(arguments []string) error {
 		return fmt.Errorf("error while loading .env file: %v", err)
 	}
 
-	var role string
-	var userPassword string
-	var userId models.Id
+	var options struct {
+		db struct {
+			backup struct {
+				target string
+			}
+		}
+
+		add struct {
+			user struct {
+				id       int64
+				role     string
+				password string
+			}
+		}
+	}
 
 	app := &cli.App{
 		Commands: []*cli.Command{
@@ -54,12 +66,16 @@ func ProcessCommandLineArguments(arguments []string) error {
 					{
 						Name:  "backup",
 						Usage: "makes a backup",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:        "target",
+								Usage:       "filename of the backup",
+								Destination: &options.db.backup.target,
+								Required:    true,
+							},
+						},
 						Action: func(context *cli.Context) error {
-							arguments := context.Args()
-							if arguments.Len() != 1 {
-								return fmt.Errorf("expected the backup file name as argument")
-							}
-							targetPath := arguments.First()
+							targetPath := options.db.backup.target
 							return backupDatabase(databasePath, targetPath)
 						},
 					},
@@ -75,28 +91,30 @@ func ProcessCommandLineArguments(arguments []string) error {
 							&cli.StringFlag{
 								Name:        "role",
 								Usage:       "role of the user (admin, seller, cashier)",
-								Destination: &role,
+								Destination: &options.add.user.role,
 								Required:    true,
 							},
 							&cli.Int64Flag{
 								Name:        "id",
 								Usage:       "id of the user",
-								Destination: &userId,
+								Destination: &options.add.user.id,
 								Required:    true,
 							},
 							&cli.StringFlag{
 								Name:        "password",
 								Usage:       "password of the user",
-								Destination: &userPassword,
+								Destination: &options.add.user.password,
 								Required:    true,
 							},
 						},
 						Action: func(context *cli.Context) error {
-							roleId, err := models.ParseRole(role)
+							id := options.add.user.id
+							roleId, err := models.ParseRole(options.add.user.role)
+							userPassword := options.add.user.password
 							if err != nil {
 								return fmt.Errorf("error while parsing role: %v", err)
 							}
-							return cli_add.AddUser(databasePath, userId, roleId, userPassword)
+							return cli_add.AddUser(databasePath, id, roleId, userPassword)
 						},
 					},
 				},
