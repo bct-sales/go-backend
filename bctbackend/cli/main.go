@@ -82,18 +82,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 				},
 			},
 			{
-				Name: "list",
-				Subcommands: []*cli.Command{
-					{
-						Name:  "users",
-						Usage: "list all users",
-						Action: func(context *cli.Context) error {
-							return cli_list.ListUsers(databasePath)
-						},
-					},
-				},
-			},
-			{
 				Name:  "user",
 				Usage: "user related functionality",
 				Subcommands: []*cli.Command{
@@ -128,6 +116,13 @@ func ProcessCommandLineArguments(arguments []string) error {
 								return fmt.Errorf("error while parsing role: %v", err)
 							}
 							return cli_add.AddUser(databasePath, id, roleId, userPassword)
+						},
+					},
+					{
+						Name:  "list",
+						Usage: "list all users",
+						Action: func(context *cli.Context) error {
+							return cli_list.ListUsers(databasePath)
 						},
 					},
 				},
