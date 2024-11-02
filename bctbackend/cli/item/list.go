@@ -59,13 +59,19 @@ func ListItems(databasePath string) error {
 		itemCount++
 	}
 
-	err = pterm.DefaultTable.WithHasHeader().WithData(tableData).Render()
+	if itemCount == 0 {
+		fmt.Println("No items found")
 
-	if err != nil {
-		return fmt.Errorf("error while rendering table: %v", err)
+		return nil
+	} else {
+		err = pterm.DefaultTable.WithHasHeader().WithData(tableData).Render()
+
+		if err != nil {
+			return fmt.Errorf("error while rendering table: %v", err)
+		}
+
+		fmt.Printf("Number of items listed: %d\n", itemCount)
+
+		return nil
 	}
-
-	fmt.Printf("Number of items listed: %d\n", itemCount)
-
-	return nil
 }

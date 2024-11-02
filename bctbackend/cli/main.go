@@ -1,6 +1,7 @@
 package cli
 
 import (
+	cli_item "bctbackend/cli/item"
 	cli_user "bctbackend/cli/user"
 	"bctbackend/database/models"
 	"fmt"
@@ -150,6 +151,19 @@ func ProcessCommandLineArguments(arguments []string) error {
 							id := options.user.setPassword.id
 							password := options.user.setPassword.password
 							return cli_user.SetPassword(databasePath, id, password)
+						},
+					},
+				},
+			},
+			{
+				Name:  "item",
+				Usage: "item related functionality",
+				Subcommands: []*cli.Command{
+					{
+						Name:  "list",
+						Usage: "list all items",
+						Action: func(context *cli.Context) error {
+							return cli_item.ListItems(databasePath)
 						},
 					},
 				},
