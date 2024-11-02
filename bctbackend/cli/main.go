@@ -37,8 +37,8 @@ func ProcessCommandLineArguments(arguments []string) error {
 			}
 		}
 
-		add struct {
-			user struct {
+		user struct {
+			add struct {
 				id       int64
 				role     string
 				password string
@@ -82,44 +82,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 				},
 			},
 			{
-				Name: "add",
-				Subcommands: []*cli.Command{
-					{
-						Name:  "user",
-						Usage: "add a new user",
-						Flags: []cli.Flag{
-							&cli.StringFlag{
-								Name:        "role",
-								Usage:       "role of the user (admin, seller, cashier)",
-								Destination: &options.add.user.role,
-								Required:    true,
-							},
-							&cli.Int64Flag{
-								Name:        "id",
-								Usage:       "id of the user",
-								Destination: &options.add.user.id,
-								Required:    true,
-							},
-							&cli.StringFlag{
-								Name:        "password",
-								Usage:       "password of the user",
-								Destination: &options.add.user.password,
-								Required:    true,
-							},
-						},
-						Action: func(context *cli.Context) error {
-							id := options.add.user.id
-							roleId, err := models.ParseRole(options.add.user.role)
-							userPassword := options.add.user.password
-							if err != nil {
-								return fmt.Errorf("error while parsing role: %v", err)
-							}
-							return cli_add.AddUser(databasePath, id, roleId, userPassword)
-						},
-					},
-				},
-			},
-			{
 				Name: "list",
 				Subcommands: []*cli.Command{
 					{
@@ -127,6 +89,45 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Usage: "list all users",
 						Action: func(context *cli.Context) error {
 							return cli_list.ListUsers(databasePath)
+						},
+					},
+				},
+			},
+			{
+				Name:  "user",
+				Usage: "user related functionality",
+				Subcommands: []*cli.Command{
+					{
+						Name:  "add",
+						Usage: "add a new user",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:        "role",
+								Usage:       "role of the user (admin, seller, cashier)",
+								Destination: &options.user.add.role,
+								Required:    true,
+							},
+							&cli.Int64Flag{
+								Name:        "id",
+								Usage:       "id of the user",
+								Destination: &options.user.add.id,
+								Required:    true,
+							},
+							&cli.StringFlag{
+								Name:        "password",
+								Usage:       "password of the user",
+								Destination: &options.user.add.password,
+								Required:    true,
+							},
+						},
+						Action: func(context *cli.Context) error {
+							id := options.user.add.id
+							roleId, err := models.ParseRole(options.user.add.role)
+							userPassword := options.user.add.password
+							if err != nil {
+								return fmt.Errorf("error while parsing role: %v", err)
+							}
+							return cli_add.AddUser(databasePath, id, roleId, userPassword)
 						},
 					},
 				},
