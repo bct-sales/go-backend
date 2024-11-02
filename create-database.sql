@@ -28,7 +28,7 @@ CREATE TABLE items (
     item_id             INTEGER NOT NULL,
     timestamp           INTEGER NOT NULL,
     description         TEXT NOT NULL,
-    price_in_cents      INTEGER NOT NULL,
+    price_in_cents      INTEGER NOT NULL CHECK (price_in_cents > 0),
     item_category_id    INTEGER NOT NULL,
     seller_id           INTEGER NOT NULL,
     donation            BOOLEAN NOT NULL,
