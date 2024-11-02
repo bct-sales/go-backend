@@ -3,6 +3,7 @@ package queries
 import (
 	models "bctbackend/database/models"
 	"database/sql"
+	"fmt"
 )
 
 func GetItems(db *sql.DB) ([]models.Item, error) {
@@ -135,6 +136,10 @@ func ItemWithIdExists(db *sql.DB, itemId models.Id) bool {
 }
 
 func RemoveItemWithId(db *sql.DB, itemId models.Id) error {
+	if !ItemWithIdExists(db, itemId) {
+		return fmt.Errorf("item with id %d does not exist", itemId)
+	}
+
 	_, err := db.Exec(
 		`
 			DELETE FROM items
