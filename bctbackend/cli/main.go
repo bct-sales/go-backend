@@ -1,6 +1,7 @@
 package cli
 
 import (
+	cli_category "bctbackend/cli/category"
 	cli_item "bctbackend/cli/item"
 	cli_user "bctbackend/cli/user"
 	"bctbackend/database/models"
@@ -164,6 +165,19 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Usage: "list all items",
 						Action: func(context *cli.Context) error {
 							return cli_item.ListItems(databasePath)
+						},
+					},
+				},
+			},
+			{
+				Name:  "category",
+				Usage: "category related functionality",
+				Subcommands: []*cli.Command{
+					{
+						Name:  "list",
+						Usage: "list all categories",
+						Action: func(context *cli.Context) error {
+							return cli_category.ListCategories(databasePath)
 						},
 					},
 				},
