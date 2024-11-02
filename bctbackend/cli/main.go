@@ -50,6 +50,17 @@ func ProcessCommandLineArguments(arguments []string) error {
 				password string
 			}
 		}
+
+		item struct {
+			add struct {
+				description string
+				category    int64
+				price       int64
+				seller      int64
+				donation    bool
+				charity     bool
+			}
+		}
 	}
 
 	app := &cli.App{
@@ -165,6 +176,58 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Usage: "list all items",
 						Action: func(context *cli.Context) error {
 							return cli_item.ListItems(databasePath)
+						},
+					},
+					{
+						Name:  "add",
+						Usage: "add a new item",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:        "description",
+								Usage:       "description of the item",
+								Destination: &options.item.add.description,
+								Required:    true,
+							},
+							&cli.Int64Flag{
+								Name:        "category",
+								Usage:       "category of the item",
+								Destination: &options.item.add.category,
+								Required:    true,
+							},
+							&cli.Int64Flag{
+								Name:        "price-in-cents",
+								Usage:       "price of the item in cents",
+								Destination: &options.item.add.price,
+								Required:    true,
+							},
+							&cli.Int64Flag{
+								Name:        "seller",
+								Usage:       "id of the seller",
+								Destination: &options.item.add.seller,
+								Required:    true,
+							},
+							&cli.BoolFlag{
+								Name:        "donation",
+								Usage:       "is the item a donation?",
+								Destination: &options.item.add.donation,
+								Value:       false,
+							},
+							&cli.BoolFlag{
+								Name:        "charity",
+								Usage:       "is the item a charity?",
+								Destination: &options.item.add.charity,
+								Value:       false,
+							},
+						},
+						Action: func(context *cli.Context) error {
+							description := options.item.add.description
+							category := options.item.add.category
+							price := options.item.add.price
+							seller := options.item.add.seller
+							donation := options.item.add.donation
+							charity := options.item.add.charity
+
+							return cli_item.AddItem(databasePath, description, category, price, seller, donation, charity)
 						},
 					},
 				},

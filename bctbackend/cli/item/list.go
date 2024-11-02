@@ -1,4 +1,4 @@
-package user
+package item
 
 import (
 	"bctbackend/database/models"

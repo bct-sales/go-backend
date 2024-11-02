@@ -3,7 +3,6 @@ package queries
 import (
 	models "bctbackend/database/models"
 	"database/sql"
-	"errors"
 )
 
 func GetItems(db *sql.DB) ([]models.Item, error) {
@@ -93,14 +92,10 @@ func AddItem(
 	donation bool,
 	charity bool) (models.Id, error) {
 
-	seller, err := GetUserWithId(db, sellerId)
+	err := CheckUserRole(db, sellerId, models.SellerRoleId)
 
 	if err != nil {
 		return 0, err
-	}
-
-	if seller.RoleId != models.SellerRoleId {
-		return 0, errors.New("user is not a seller")
 	}
 
 	result, err := db.Exec(

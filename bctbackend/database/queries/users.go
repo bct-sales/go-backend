@@ -4,6 +4,7 @@ import (
 	models "bctbackend/database/models"
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
 func AddUserWithId(
@@ -107,12 +108,16 @@ func GetUserWithId(db *sql.DB, userId models.Id) (models.User, error) {
 	var password string
 	err := row.Scan(&roleId, &timestamp, &password)
 
+	if errors.Is(err, sql.ErrNoRows) {
+		return models.User{}, errors.New("user not found")
+	}
+
 	return models.User{
 		UserId:    userId,
 		RoleId:    roleId,
 		Timestamp: timestamp,
 		Password:  password,
-	}, err
+	}, nil
 }
 
 func ListUsers(db *sql.DB) ([]models.User, error) {
@@ -166,4 +171,25 @@ func UpdateUserPassword(db *sql.DB, userId models.Id, password string) error {
 	)
 
 	return err
+}
+
+func CheckUserRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) error {
+	user, err := GetUserWithId(db, userId)
+
+	if err != nil {
+		return err
+	}
+
+	if user.RoleId != expectedRoleId {
+		expectedRoleName, err1 := models.NameOfRole(expectedRoleId)
+		actualRoleName, err2 := models.NameOfRole(user.RoleId)
+
+		if joinedError := errors.Join(err1, err2); joinedError != nil {
+			return joinedError
+		}
+
+		return fmt.Errorf("user should have role %s but has role %s instead", expectedRoleName, actualRoleName)
+	}
+
+	return nil
 }
