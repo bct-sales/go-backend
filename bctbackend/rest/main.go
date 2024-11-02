@@ -24,8 +24,8 @@ func enableForeignKeys(db *sql.DB) error {
 	return err
 }
 
-func StartRestService() error {
-	db, err := database.ConnectToDatabase("../bct.db")
+func StartRestService(databasePath string) error {
+	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
 		return err

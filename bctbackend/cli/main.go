@@ -66,9 +66,11 @@ func ProcessCommandLineArguments(arguments []string) error {
 	app := &cli.App{
 		Commands: []*cli.Command{
 			{
-				Name:   "server",
-				Usage:  "start REST api server",
-				Action: startRestService,
+				Name:  "server",
+				Usage: "start REST api server",
+				Action: func(ctx *cli.Context) error {
+					return startRestService(databasePath)
+				},
 			},
 			{
 				Name: "db",

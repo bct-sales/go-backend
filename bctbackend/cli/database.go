@@ -5,13 +5,11 @@ import (
 	rest "bctbackend/rest"
 	"fmt"
 
-	"github.com/urfave/cli/v2"
-
 	_ "modernc.org/sqlite"
 )
 
-func startRestService(context *cli.Context) error {
-	return rest.StartRestService()
+func startRestService(databasePath string) error {
+	return rest.StartRestService(databasePath)
 }
 
 func resetDatabase(databasePath string) error {
