@@ -205,7 +205,7 @@ func createViews(db *sql.DB) error {
 
 func createCategoryCountsView(db *sql.DB) error {
 	_, err := db.Exec(`
-		CREATE VIEW category_counts AS
+		CREATE VIEW item_category_counts AS
 		SELECT
 			item_categories.item_category_id as item_category_id,
 			item_categories.name as item_category_name,

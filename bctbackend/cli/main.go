@@ -265,6 +265,13 @@ func ProcessCommandLineArguments(arguments []string) error {
 							return cli_category.ListCategories(databasePath)
 						},
 					},
+					{
+						Name:  "counts",
+						Usage: "list the number of items in each category",
+						Action: func(context *cli.Context) error {
+							return cli_category.ListCategoryCounts(databasePath)
+						},
+					},
 				},
 			},
 		},

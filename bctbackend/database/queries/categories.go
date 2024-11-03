@@ -62,7 +62,7 @@ func GetCategoryCounts(db *sql.DB) ([]models.ItemCategoryCount, error) {
 	rows, err := db.Query(
 		`
 			SELECT item_category_id, item_category_name, count
-			FROM category_counts
+			FROM item_category_counts
 			ORDER BY item_category_id
 		`,
 	)
