@@ -3,6 +3,7 @@ package database
 import (
 	models "bctbackend/database/models"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 )
@@ -48,6 +49,10 @@ func ResetDatabase(db *sql.DB) error {
 func InitializeDatabase(db *sql.DB) error {
 	if err := createTables(db); err != nil {
 		return fmt.Errorf("failed to create tables: %v", err)
+	}
+
+	if err := createViews(db); err != nil {
+		return fmt.Errorf("failed to create views: %v", err)
 	}
 
 	if err := populateTables(db); err != nil {
@@ -185,6 +190,29 @@ func createSaleItemsTable(db *sql.DB) error {
 			FOREIGN KEY (sale_id) REFERENCES sales (sale_id),
 			FOREIGN KEY (item_id) REFERENCES items (item_id)
 		)
+	`)
+
+	return err
+}
+
+func createViews(db *sql.DB) error {
+	err := errors.Join(
+		createCategoryCountsView(db),
+	)
+
+	return err
+}
+
+func createCategoryCountsView(db *sql.DB) error {
+	_, err := db.Exec(`
+		CREATE VIEW category_counts AS
+		SELECT
+			item_categories.item_category_id as item_category_id,
+			item_categories.name as item_category_name,
+			COUNT(items.item_id) AS count
+		FROM item_categories
+		LEFT JOIN items ON item_categories.item_category_id = items.item_category_id
+		GROUP BY item_categories.item_category_id
 	`)
 
 	return err

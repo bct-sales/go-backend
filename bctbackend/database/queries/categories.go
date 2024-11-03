@@ -57,3 +57,39 @@ func GetCategories(db *sql.DB) ([]models.ItemCategory, error) {
 
 	return categories, nil
 }
+
+func GetCategoryCounts(db *sql.DB) ([]models.ItemCategoryCount, error) {
+	rows, err := db.Query(
+		`
+			SELECT item_category_id, item_category_name, count
+			FROM category_counts
+			ORDER BY item_category_id
+		`,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	counts := []models.ItemCategoryCount{}
+
+	for rows.Next() {
+		var count models.ItemCategoryCount
+
+		err := rows.Scan(
+			&count.CategoryId,
+			&count.Name,
+			&count.Count,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		counts = append(counts, count)
+	}
+
+	return counts, nil
+}

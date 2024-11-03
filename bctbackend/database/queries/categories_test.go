@@ -33,3 +33,18 @@ func TestCategoryWithIdExists(t *testing.T) {
 		})
 	}
 }
+
+func TestGetCategoryCountsAllZero(t *testing.T) {
+	db := openInitializedDatabase()
+	defer db.Close()
+
+	counts, err := GetCategoryCounts(db)
+	if assert.NoError(t, err) {
+		assert.Equal(t, len(models.Categories()), len(counts))
+
+		for _, count := range counts {
+			assert.Contains(t, models.Categories(), count.CategoryId)
+			assert.Equal(t, int64(0), count.Count)
+		}
+	}
+}
