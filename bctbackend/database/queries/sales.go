@@ -118,6 +118,29 @@ func GetSales(db *sql.DB) ([]models.Sale, error) {
 	return sales, nil
 }
 
+func SaleExists(db *sql.DB, saleId models.Id) (bool, error) {
+	var exists bool
+
+	err := db.QueryRow(
+		`
+			SELECT 1
+			FROM sales
+			WHERE sale_id = ?
+		`,
+		saleId,
+	).Scan(&exists)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return false, nil
+	}
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 func GetSaleItems(db *sql.DB, saleId models.Id) ([]models.Item, error) {
 	rows, err := db.Query(
 		`
