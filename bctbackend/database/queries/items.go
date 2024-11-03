@@ -154,7 +154,7 @@ func ItemWithIdExists(db *sql.DB, itemId models.Id) bool {
 
 func RemoveItemWithId(db *sql.DB, itemId models.Id) error {
 	if !ItemWithIdExists(db, itemId) {
-		return fmt.Errorf("item with id %d does not exist", itemId)
+		return &ItemNotFoundError{Id: itemId}
 	}
 
 	_, err := db.Exec(
