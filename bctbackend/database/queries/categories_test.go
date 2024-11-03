@@ -34,17 +34,51 @@ func TestCategoryWithIdExists(t *testing.T) {
 	}
 }
 
-func TestGetCategoryCountsAllZero(t *testing.T) {
-	db := openInitializedDatabase()
-	defer db.Close()
+func TestGetCategoryCounts(t *testing.T) {
+	t.Run("zero items", func(t *testing.T) {
+		db := openInitializedDatabase()
+		defer db.Close()
 
-	counts, err := GetCategoryCounts(db)
-	if assert.NoError(t, err) {
-		assert.Equal(t, len(models.Categories()), len(counts))
+		counts, err := GetCategoryCounts(db)
+		if assert.NoError(t, err) {
+			assert.Equal(t, len(models.Categories()), len(counts))
 
-		for _, count := range counts {
-			assert.Contains(t, models.Categories(), count.CategoryId)
-			assert.Equal(t, int64(0), count.Count)
+			for _, count := range counts {
+				assert.Contains(t, models.Categories(), count.CategoryId)
+				assert.Equal(t, int64(0), count.Count)
+			}
 		}
-	}
+	})
+
+	t.Run("multiple items", func(t *testing.T) {
+		db := openInitializedDatabase()
+		defer db.Close()
+
+		countTable := map[models.Id]int64{
+			models.Clothing50_56:      2,
+			models.Toys:               3,
+			models.BabyChildEquipment: 5,
+		}
+
+		sellerId := addTestSeller(db)
+
+		for categoryId, count := range countTable {
+			for i := int64(0); i < count; i++ {
+				addTestItemInCategory(db, sellerId, categoryId)
+			}
+		}
+
+		counts, err := GetCategoryCounts(db)
+		if assert.NoError(t, err) {
+			assert.Equal(t, len(models.Categories()), len(counts))
+
+			for _, count := range counts {
+				assert.Contains(t, models.Categories(), count.CategoryId)
+
+				expectedCount := countTable[count.CategoryId]
+				actualCount := count.Count
+				assert.Equal(t, expectedCount, actualCount)
+			}
+		}
+	})
 }

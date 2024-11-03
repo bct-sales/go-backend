@@ -74,7 +74,23 @@ func addTestItem(db *sql.DB, sellerId models.Id, index int) models.Id {
 	timestamp := models.NewTimestamp(0)
 	description := "description" + strconv.Itoa(index)
 	priceInCents := models.NewMoneyInCents(100 + int64(index))
-	itemCategoryId := models.NewId(1)
+	itemCategoryId := models.Shoes
+	donation := false
+	charity := false
+
+	itemId, err := AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return itemId
+}
+
+func addTestItemInCategory(db *sql.DB, sellerId models.Id, itemCategoryId models.Id) models.Id {
+	timestamp := models.NewTimestamp(0)
+	description := "description"
+	priceInCents := models.NewMoneyInCents(100)
 	donation := false
 	charity := false
 
