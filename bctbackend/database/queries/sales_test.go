@@ -73,3 +73,38 @@ func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
 
 	assert.Error(t, err)
 }
+
+func TestGetSales(t *testing.T) {
+	db := openInitializedDatabase()
+
+	sellerId := addTestSeller(db)
+	cashierId := addTestCashier(db)
+
+	itemIds := []models.Id{
+		addTestItem(db, sellerId, 1),
+		addTestItem(db, sellerId, 2),
+		addTestItem(db, sellerId, 3),
+		addTestItem(db, sellerId, 4),
+	}
+
+	saleIds := make([]models.Id, len(itemIds))
+	for _, itemId := range itemIds {
+		addTestSale(db, cashierId, []models.Id{itemId})
+	}
+
+	actualSales, err := GetSales(db)
+
+	if assert.NoError(t, err) {
+		assert.Len(t, actualSales, len(saleIds))
+
+		for _, actualSale := range actualSales {
+			assert.Equal(t, cashierId, actualSale.CashierId)
+
+			saleItems, err := GetSaleItems(db, actualSale.SaleId)
+
+			if assert.NoError(t, err) {
+				assert.Equal(t, 1, len(saleItems))
+			}
+		}
+	}
+}
