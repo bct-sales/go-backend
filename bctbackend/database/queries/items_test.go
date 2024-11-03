@@ -233,3 +233,42 @@ func TestRemoveItemWithId(t *testing.T) {
 		}
 	})
 }
+
+func TestCountItems(t *testing.T) {
+	t.Run("Empty", func(t *testing.T) {
+		db := openInitializedDatabase()
+		defer db.Close()
+
+		count, err := CountItems(db)
+		if assert.NoError(t, err) {
+			assert.Equal(t, 0, count)
+		}
+	})
+
+	t.Run("One item", func(t *testing.T) {
+		db := openInitializedDatabase()
+		defer db.Close()
+
+		sellerId := addTestSeller(db)
+		addTestItem(db, sellerId, 1)
+
+		count, err := CountItems(db)
+		if assert.NoError(t, err) {
+			assert.Equal(t, 1, count)
+		}
+	})
+
+	t.Run("Two items", func(t *testing.T) {
+		db := openInitializedDatabase()
+		defer db.Close()
+
+		sellerId := addTestSeller(db)
+		addTestItem(db, sellerId, 1)
+		addTestItem(db, sellerId, 2)
+
+		count, err := CountItems(db)
+		if assert.NoError(t, err) {
+			assert.Equal(t, 2, count)
+		}
+	})
+}
