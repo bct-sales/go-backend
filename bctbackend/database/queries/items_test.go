@@ -132,3 +132,45 @@ func TestFailingAddItem(t *testing.T) {
 		assert.Error(t, error)
 	})
 }
+
+func TestGetItems(t *testing.T) {
+	t.Run("Empty", func(t *testing.T) {
+		db := openInitializedDatabase()
+		defer db.Close()
+
+		items, err := GetItems(db)
+		if assert.NoError(t, err) {
+			assert.Equal(t, 0, len(items))
+		}
+	})
+
+	t.Run("One item", func(t *testing.T) {
+		db := openInitializedDatabase()
+		defer db.Close()
+
+		sellerId := addTestSeller(db)
+		itemId := addTestItem(db, sellerId, 1)
+
+		items, err := GetItems(db)
+		if assert.NoError(t, err) {
+			assert.Equal(t, 1, len(items))
+			assert.Equal(t, itemId, items[0].ItemId)
+		}
+	})
+
+	t.Run("Two items", func(t *testing.T) {
+		db := openInitializedDatabase()
+		defer db.Close()
+
+		sellerId := addTestSeller(db)
+		item1Id := addTestItem(db, sellerId, 1)
+		item2Id := addTestItem(db, sellerId, 2)
+
+		items, err := GetItems(db)
+		if assert.NoError(t, err) {
+			assert.Equal(t, 2, len(items))
+			assert.Equal(t, item1Id, items[0].ItemId)
+			assert.Equal(t, item2Id, items[1].ItemId)
+		}
+	})
+}
