@@ -123,3 +123,34 @@ func TestSaleExists(t *testing.T) {
 		assert.True(t, saleExists)
 	}
 }
+
+func TestGetSaleItems(t *testing.T) {
+	db := openInitializedDatabase()
+
+	sellerId := addTestSeller(db)
+	cashierId := addTestCashier(db)
+	itemIds := []models.Id{
+		addTestItem(db, sellerId, 1),
+		addTestItem(db, sellerId, 2),
+		addTestItem(db, sellerId, 3),
+		addTestItem(db, sellerId, 4),
+	}
+
+	saleId := addTestSale(db, cashierId, itemIds)
+
+	actualItems, err := GetSaleItems(db, saleId)
+
+	if assert.NoError(t, err) {
+		assert.Len(t, actualItems, len(itemIds))
+
+		for index, actualItem := range actualItems {
+			assert.Equal(t, itemIds[index], actualItem.ItemId)
+
+			expectedItem, err := GetItemWithId(db, itemIds[index])
+
+			if assert.NoError(t, err) {
+				assert.Equal(t, *expectedItem, actualItem)
+			}
+		}
+	}
+}
