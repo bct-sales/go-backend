@@ -174,3 +174,28 @@ func TestGetItems(t *testing.T) {
 		}
 	})
 }
+
+func TestGetItemWithId(t *testing.T) {
+	t.Run("Nonexisting item", func(t *testing.T) {
+		db := openInitializedDatabase()
+		defer db.Close()
+
+		itemId := models.NewId(1)
+
+		_, err := GetItemWithId(db, itemId)
+		assert.Error(t, err)
+	})
+
+	t.Run("Existing item", func(t *testing.T) {
+		db := openInitializedDatabase()
+		defer db.Close()
+
+		sellerId := addTestSeller(db)
+		itemId := addTestItem(db, sellerId, 1)
+
+		item, err := GetItemWithId(db, itemId)
+		if assert.NoError(t, err) {
+			assert.Equal(t, itemId, item.ItemId)
+		}
+	})
+}
