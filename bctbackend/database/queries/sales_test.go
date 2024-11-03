@@ -154,3 +154,37 @@ func TestGetSaleItems(t *testing.T) {
 		}
 	}
 }
+
+func TestRemoveSale(t *testing.T) {
+	db := openInitializedDatabase()
+
+	sellerId := addTestSeller(db)
+	cashierId := addTestCashier(db)
+	sale1ItemIds := []models.Id{
+		addTestItem(db, sellerId, 1),
+		addTestItem(db, sellerId, 2),
+	}
+	sale2ItemIds := []models.Id{
+		addTestItem(db, sellerId, 3),
+		addTestItem(db, sellerId, 4),
+	}
+
+	sale1Id := addTestSale(db, cashierId, sale1ItemIds)
+	sale2Id := addTestSale(db, cashierId, sale2ItemIds)
+
+	err := RemoveSale(db, sale1Id)
+
+	if assert.NoError(t, err) {
+		sale1Exists, err := SaleExists(db, sale1Id)
+
+		if assert.NoError(t, err) {
+			assert.False(t, sale1Exists)
+		}
+
+		sale2Exists, err := SaleExists(db, sale2Id)
+
+		if assert.NoError(t, err) {
+			assert.True(t, sale2Exists)
+		}
+	}
+}
