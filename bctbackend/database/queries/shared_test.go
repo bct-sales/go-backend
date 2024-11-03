@@ -86,3 +86,15 @@ func addTestItem(db *sql.DB, sellerId models.Id, index int) models.Id {
 
 	return itemId
 }
+
+func addTestSale(db *sql.DB, cashierId models.Id, itemIds []models.Id) models.Id {
+	timestamp := models.NewTimestamp(0)
+
+	saleId, err := AddSale(db, cashierId, timestamp, itemIds)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return saleId
+}

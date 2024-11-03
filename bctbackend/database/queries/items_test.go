@@ -232,6 +232,25 @@ func TestRemoveItemWithId(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("Existing item with sale", func(t *testing.T) {
+		db := openInitializedDatabase()
+		defer db.Close()
+
+		sellerId := addTestSeller(db)
+		cashierId := addTestCashier(db)
+		itemId := addTestItem(db, sellerId, 1)
+
+		addTestSale(db, cashierId, []models.Id{itemId})
+
+		err := RemoveItemWithId(db, itemId)
+		assert.Error(t, err)
+
+		itemExists, err := ItemWithIdExists(db, itemId)
+		if assert.NoError(t, err) {
+			assert.True(t, itemExists)
+		}
+	})
 }
 
 func TestCountItems(t *testing.T) {
