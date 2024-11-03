@@ -7,6 +7,14 @@ import (
 	"log"
 )
 
+type NoSuchSaleError struct {
+	SaleId models.Id
+}
+
+func (err NoSuchSaleError) Error() string {
+	return fmt.Sprintf("no sale with id %v", err.SaleId)
+}
+
 func rollbackTransaction(transaction *sql.Tx, err error) error {
 	if rollbackError := transaction.Rollback(); rollbackError != nil {
 		log.Fatalf("Transaction rollback failed! Transaction error: %v, rollback error: %v", err, rollbackError)
