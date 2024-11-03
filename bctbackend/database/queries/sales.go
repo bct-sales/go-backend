@@ -120,7 +120,7 @@ func GetSales(db *sql.DB) ([]models.Sale, error) {
 }
 
 func SaleExists(db *sql.DB, saleId models.Id) (bool, error) {
-	var exists bool
+	var exists int64
 
 	err := db.QueryRow(
 		`
@@ -186,7 +186,12 @@ func RemoveSale(db *sql.DB, saleId models.Id) error {
 		return NoSuchSaleError{SaleId: saleId}
 	}
 
-	_, err = db.Exec(
+	transaction, err := db.Begin()
+	if err != nil {
+		return err
+	}
+
+	_, err = transaction.Exec(
 		`
 			DELETE FROM sale_items
 			WHERE sale_id = ?
@@ -195,10 +200,10 @@ func RemoveSale(db *sql.DB, saleId models.Id) error {
 	)
 
 	if err != nil {
-		return err
+		return rollbackTransaction(transaction, err)
 	}
 
-	_, err = db.Exec(
+	_, err = transaction.Exec(
 		`
 			DELETE FROM sales
 			WHERE sale_id = ?
@@ -207,7 +212,13 @@ func RemoveSale(db *sql.DB, saleId models.Id) error {
 	)
 
 	if err != nil {
-		return err
+		return rollbackTransaction(transaction, err)
+	}
+
+	err = transaction.Commit()
+
+	if err != nil {
+		return rollbackTransaction(transaction, err)
 	}
 
 	return nil
