@@ -3,6 +3,7 @@ package queries
 import (
 	models "bctbackend/database/models"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 )
@@ -173,4 +174,32 @@ func GetSaleItems(db *sql.DB, saleId models.Id) ([]models.Item, error) {
 	}
 
 	return items, nil
+}
+
+func RemoveSale(db *sql.DB, saleId models.Id) error {
+	_, err := db.Exec(
+		`
+			DELETE FROM sale_items
+			WHERE sale_id = ?
+		`,
+		saleId,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(
+		`
+			DELETE FROM sales
+			WHERE sale_id = ?
+		`,
+		saleId,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
