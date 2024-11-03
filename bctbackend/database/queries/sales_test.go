@@ -108,3 +108,18 @@ func TestGetSales(t *testing.T) {
 		}
 	}
 }
+
+func TestSaleExists(t *testing.T) {
+	db := openInitializedDatabase()
+
+	sellerId := addTestSeller(db)
+	cashierId := addTestCashier(db)
+	itemId := addTestItem(db, sellerId, 1)
+
+	saleId := addTestSale(db, cashierId, []models.Id{itemId})
+	saleExists, err := SaleExists(db, saleId)
+
+	if assert.NoError(t, err) {
+		assert.True(t, saleExists)
+	}
+}
