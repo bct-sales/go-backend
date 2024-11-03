@@ -35,30 +35,37 @@ func TestCategoryWithIdExists(t *testing.T) {
 }
 
 func TestGetCategoryCounts(t *testing.T) {
-	t.Run("zero items", func(t *testing.T) {
+	countTables := []map[models.Id]int64{
+		{},
+		{
+			models.Clothing50_56: 1,
+		},
+		{
+			models.Clothing50_56: 2,
+		},
+		{
+			models.Clothing50_56: 2,
+			models.Toys:          3,
+		},
+		{
+			models.Clothing50_56:      1,
+			models.Clothing56_62:      2,
+			models.Clothing68_80:      3,
+			models.Clothing86_92:      4,
+			models.Clothing92_98:      5,
+			models.Clothing104_116:    6,
+			models.Clothing122_128:    7,
+			models.Clothing128_140:    8,
+			models.Clothing140_152:    9,
+			models.Shoes:              10,
+			models.Toys:               11,
+			models.BabyChildEquipment: 12,
+		},
+	}
+
+	for _, countTable := range countTables {
 		db := openInitializedDatabase()
 		defer db.Close()
-
-		counts, err := GetCategoryCounts(db)
-		if assert.NoError(t, err) {
-			assert.Equal(t, len(models.Categories()), len(counts))
-
-			for _, count := range counts {
-				assert.Contains(t, models.Categories(), count.CategoryId)
-				assert.Equal(t, int64(0), count.Count)
-			}
-		}
-	})
-
-	t.Run("multiple items", func(t *testing.T) {
-		db := openInitializedDatabase()
-		defer db.Close()
-
-		countTable := map[models.Id]int64{
-			models.Clothing50_56:      2,
-			models.Toys:               3,
-			models.BabyChildEquipment: 5,
-		}
 
 		sellerId := addTestSeller(db)
 
@@ -80,5 +87,5 @@ func TestGetCategoryCounts(t *testing.T) {
 				assert.Equal(t, expectedCount, actualCount)
 			}
 		}
-	})
+	}
 }
