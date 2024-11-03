@@ -188,3 +188,11 @@ func TestRemoveSale(t *testing.T) {
 		}
 	}
 }
+
+func TestRemoveNonexistentSale(t *testing.T) {
+	db := openInitializedDatabase()
+
+	err := RemoveSale(db, 0)
+
+	assert.ErrorIs(t, err, NoSuchSaleError{})
+}

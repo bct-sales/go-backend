@@ -176,7 +176,17 @@ func GetSaleItems(db *sql.DB, saleId models.Id) ([]models.Item, error) {
 }
 
 func RemoveSale(db *sql.DB, saleId models.Id) error {
-	_, err := db.Exec(
+	saleExists, err := SaleExists(db, saleId)
+
+	if err != nil {
+		return err
+	}
+
+	if !saleExists {
+		return NoSuchSaleError{SaleId: saleId}
+	}
+
+	_, err = db.Exec(
 		`
 			DELETE FROM sale_items
 			WHERE sale_id = ?
