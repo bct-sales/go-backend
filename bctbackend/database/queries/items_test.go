@@ -181,9 +181,10 @@ func TestGetItemWithId(t *testing.T) {
 		defer db.Close()
 
 		itemId := models.NewId(1)
-
 		_, err := GetItemWithId(db, itemId)
-		assert.Error(t, err)
+
+		var itemNotFoundError *ItemNotFoundError
+		assert.ErrorAs(t, err, &itemNotFoundError)
 	})
 
 	t.Run("Existing item", func(t *testing.T) {
