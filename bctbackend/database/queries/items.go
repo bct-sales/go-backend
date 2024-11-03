@@ -136,7 +136,7 @@ func AddItem(
 	return result.LastInsertId()
 }
 
-func ItemWithIdExists(db *sql.DB, itemId models.Id) bool {
+func ItemWithIdExists(db *sql.DB, itemId models.Id) (bool, error) {
 	row := db.QueryRow(
 		`
 			SELECT 1
@@ -149,15 +149,29 @@ func ItemWithIdExists(db *sql.DB, itemId models.Id) bool {
 	var result int
 	err := row.Scan(&result)
 
-	return err == nil
+	if errors.Is(err, sql.ErrNoRows) {
+		return false, nil
+	}
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 func RemoveItemWithId(db *sql.DB, itemId models.Id) error {
-	if !ItemWithIdExists(db, itemId) {
+	itemExists, err := ItemWithIdExists(db, itemId)
+
+	if err != nil {
+		return err
+	}
+
+	if !itemExists {
 		return &ItemNotFoundError{Id: itemId}
 	}
 
-	_, err := db.Exec(
+	_, err = db.Exec(
 		`
 			DELETE FROM items
 			WHERE item_id = $1

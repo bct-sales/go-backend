@@ -31,7 +31,10 @@ func TestAddItem(t *testing.T) {
 										t.Fatalf(`Failed to add item: %v`, err)
 									}
 
-									assert.True(t, ItemWithIdExists(db, itemId))
+									itemExists, err := ItemWithIdExists(db, itemId)
+									if assert.NoError(t, err) {
+										assert.True(t, itemExists)
+									}
 
 									items, err := GetItems(db)
 									assert.NoError(t, err)
@@ -197,6 +200,36 @@ func TestGetItemWithId(t *testing.T) {
 		item, err := GetItemWithId(db, itemId)
 		if assert.NoError(t, err) {
 			assert.Equal(t, itemId, item.ItemId)
+		}
+	})
+}
+
+func TestRemoveItemWithId(t *testing.T) {
+	t.Run("Nonexisting item", func(t *testing.T) {
+		db := openInitializedDatabase()
+		defer db.Close()
+
+		itemId := models.NewId(1)
+		err := RemoveItemWithId(db, itemId)
+
+		var itemNotFoundError *ItemNotFoundError
+		assert.ErrorAs(t, err, &itemNotFoundError)
+	})
+
+	t.Run("Existing item", func(t *testing.T) {
+		db := openInitializedDatabase()
+		defer db.Close()
+
+		sellerId := addTestSeller(db)
+		itemId := addTestItem(db, sellerId, 1)
+
+		err := RemoveItemWithId(db, itemId)
+		if assert.NoError(t, err) {
+			itemExists, err := ItemWithIdExists(db, itemId)
+
+			if assert.NoError(t, err) {
+				assert.False(t, itemExists)
+			}
 		}
 	})
 }
