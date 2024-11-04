@@ -46,6 +46,12 @@ func getItems(context *gin.Context, db *sql.DB) {
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func StartRestService(db *sql.DB) error {
+	router := CreateRestRouter(db)
+
+	return router.Run("localhost:8000")
+}
+
+func CreateRestRouter(db *sql.DB) *gin.Engine {
 	router := gin.Default()
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -53,5 +59,5 @@ func StartRestService(db *sql.DB) error {
 	v1 := router.Group("/api/v1")
 	v1.GET("/items", func(context *gin.Context) { getItems(context, db) })
 
-	return router.Run("localhost:8000")
+	return router
 }
