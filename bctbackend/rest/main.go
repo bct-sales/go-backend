@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"bctbackend/database"
 	"bctbackend/database/queries"
 	"database/sql"
 	"net/http"
@@ -29,11 +28,6 @@ func getItems(context *gin.Context, db *sql.DB) {
 	context.IndentedJSON(http.StatusOK, items)
 }
 
-func enableForeignKeys(db *sql.DB) error {
-	_, err := db.Exec("PRAGMA foreign_keys = ON")
-	return err
-}
-
 // @title           BCT Sales
 // @version         1.0
 // @description     BCT Sales REST API
@@ -51,19 +45,7 @@ func enableForeignKeys(db *sql.DB) error {
 
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
-func StartRestService(databasePath string) error {
-	db, err := database.ConnectToDatabase(databasePath)
-
-	if err != nil {
-		return err
-	}
-
-	defer db.Close()
-
-	if err := enableForeignKeys(db); err != nil {
-		return err
-	}
-
+func StartRestService(db *sql.DB) error {
 	router := gin.Default()
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

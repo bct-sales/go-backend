@@ -9,7 +9,15 @@ import (
 )
 
 func startRestService(databasePath string) error {
-	return rest.StartRestService(databasePath)
+	db, err := database.ConnectToDatabase(databasePath)
+
+	if err != nil {
+		return err
+	}
+
+	defer db.Close()
+
+	return rest.StartRestService(db)
 }
 
 func resetDatabase(databasePath string) error {
