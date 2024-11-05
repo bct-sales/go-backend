@@ -11,6 +11,7 @@ func GetItems(db *sql.DB) ([]models.Item, error) {
 	rows, err := db.Query(`
 		SELECT item_id, timestamp, description, price_in_cents, item_category_id, seller_id, donation, charity
 		FROM items
+		ORDER BY item_id ASC
 	`)
 
 	if err != nil {
