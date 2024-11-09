@@ -27,3 +27,7 @@ func ParseId(string string) (Id, error) {
 
 	return NewId(id), nil
 }
+
+func IdToString(id Id) string {
+	return strconv.FormatInt(int64(id), 10)
+}
