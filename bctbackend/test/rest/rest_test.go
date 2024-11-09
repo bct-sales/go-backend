@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -11,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestListItems(t *testing.T) {
+func TestListAllItems(t *testing.T) {
 	t.Run("No items", func(t *testing.T) {
 		db, router := createRestRouter()
 		writer := httptest.NewRecorder()
@@ -102,4 +103,33 @@ func TestListItems(t *testing.T) {
 			assert.Equal(t, expected, *actual)
 		}
 	})
+}
+
+func TestListAllItemsAsNonAdmin(t *testing.T) {
+	for _, roleId := range []models.Id{models.SellerRoleId, models.CashierRoleId} {
+		roleString, err := models.NameOfRole(roleId)
+
+		if err != nil {
+			panic(err)
+		}
+
+		t.Run("As "+roleString, func(t *testing.T) {
+			db, router := createRestRouter()
+			writer := httptest.NewRecorder()
+			defer db.Close()
+
+			userId := addTestUser(db, roleId).UserId
+			sessionId := addTestSession(db, userId)
+
+			request, err := http.NewRequest("GET", "/api/v1/items", nil)
+			request.AddCookie(createCookie(sessionId))
+
+			if assert.NoError(t, err) {
+				router.ServeHTTP(writer, request)
+
+				log.Println(writer.Body.String())
+				assert.Equal(t, http.StatusForbidden, writer.Code)
+			}
+		})
+	}
 }
