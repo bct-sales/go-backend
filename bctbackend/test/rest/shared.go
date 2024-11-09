@@ -6,13 +6,10 @@ import (
 	queries "bctbackend/database/queries"
 	"bctbackend/rest"
 	"bctbackend/security"
-	"bytes"
 	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
-	"net/http/httptest"
-	"net/url"
 	"strconv"
 	"time"
 
@@ -95,6 +92,10 @@ func addTestAdmin(db *sql.DB) models.User {
 	return addTestUser(db, models.AdminRoleId)
 }
 
+func addTestAdminWithId(db *sql.DB, id models.Id) models.User {
+	return addTestUserWithId(db, id, models.AdminRoleId)
+}
+
 func addTestSellerWithId(db *sql.DB, id models.Id) models.User {
 	return addTestUserWithId(db, id, models.SellerRoleId)
 }
@@ -103,7 +104,7 @@ func addTestCashierWithId(db *sql.DB, id models.Id) models.User {
 	return addTestUserWithId(db, id, models.CashierRoleId)
 }
 
-func addTestItem(db *sql.DB, sellerId models.Id, index int) models.Id {
+func addTestItem(db *sql.DB, sellerId models.Id, index int) *models.Item {
 	timestamp := models.NewTimestamp(0)
 	description := "description" + strconv.Itoa(index)
 	priceInCents := models.NewMoneyInCents(100 + int64(index))
@@ -117,10 +118,16 @@ func addTestItem(db *sql.DB, sellerId models.Id, index int) models.Id {
 		panic(err)
 	}
 
-	return itemId
+	item, err := queries.GetItemWithId(db, itemId)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return item
 }
 
-func addTestItemInCategory(db *sql.DB, sellerId models.Id, itemCategoryId models.Id) models.Id {
+func addTestItemInCategory(db *sql.DB, sellerId models.Id, itemCategoryId models.Id) *models.Item {
 	timestamp := models.NewTimestamp(0)
 	description := "description"
 	priceInCents := models.NewMoneyInCents(100)
@@ -133,7 +140,13 @@ func addTestItemInCategory(db *sql.DB, sellerId models.Id, itemCategoryId models
 		panic(err)
 	}
 
-	return itemId
+	item, err := queries.GetItemWithId(db, itemId)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return item
 }
 
 func addTestSale(db *sql.DB, cashierId models.Id, itemIds []models.Id) models.Id {
