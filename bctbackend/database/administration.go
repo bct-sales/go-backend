@@ -63,7 +63,7 @@ func InitializeDatabase(db *sql.DB) error {
 }
 
 func removeAllTables(db *sql.DB) error {
-	tables := []string{"sale_items", "sales", "items", "item_categories", "users", "roles"}
+	tables := []string{"sessions", "sale_items", "sales", "items", "item_categories", "users", "roles"}
 
 	for _, table := range tables {
 		if _, err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", table)); err != nil {
@@ -96,6 +96,10 @@ func createTables(db *sql.DB) error {
 	}
 
 	if err := createSaleItemsTable(db); err != nil {
+		return err
+	}
+
+	if err := createSessionTable(db); err != nil {
 		return err
 	}
 
@@ -189,6 +193,20 @@ func createSaleItemsTable(db *sql.DB) error {
 			PRIMARY KEY (sale_id, item_id),
 			FOREIGN KEY (sale_id) REFERENCES sales (sale_id),
 			FOREIGN KEY (item_id) REFERENCES items (item_id)
+		)
+	`)
+
+	return err
+}
+
+func createSessionTable(db *sql.DB) error {
+	_, err := db.Exec(`
+		CREATE TABLE sessions (
+			session_id          TEXT NOT NULL,
+			user_id             INTEGER NOT NULL,
+
+			PRIMARY KEY (session_id),
+			FOREIGN KEY (user_id) REFERENCES users (user_id)
 		)
 	`)
 
