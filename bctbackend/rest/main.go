@@ -1,11 +1,11 @@
 package rest
 
 import (
+	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/security"
 	"database/sql"
 	"net/http"
-	"strconv"
 
 	_ "bctbackend/docs"
 
@@ -18,19 +18,37 @@ const (
 	SessionCookieName = "bctsales_session_id"
 )
 
+type LoginRequest struct {
+	Username string `form:"username" binding:"required" json:"username"`
+	Password string `form:"password" binding:"required" json:"password"`
+}
+
+// @Summary Login
+// @Description Login
+// @Success 200 {object} string
+// @Router /login [post]
+// @param username formData string true "username"
+// @param password formData string true "password"
 func login(context *gin.Context, db *sql.DB) {
-	userIdAsString := context.PostForm("username")
-	password := context.PostForm("password")
+	var loginRequest LoginRequest
 
-	userId, err := strconv.ParseInt(userIdAsString, 10, 64)
-
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+	if err := context.ShouldBind(&loginRequest); err != nil {
+		context.String(http.StatusBadRequest, "Bad request: %v", err)
 		return
 	}
 
+	userId, err := models.ParseId(loginRequest.Username)
+
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid user ID"})
+		return
+	}
+
+	password := loginRequest.Password
+
 	if err := queries.AuthenticateUser(db, userId, password); err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"message": "Login failed"})
+		return
 	}
 
 	sessionId := security.CreateSession(userId, 1, security.SessionDurationInSeconds)
@@ -46,6 +64,20 @@ func login(context *gin.Context, db *sql.DB) {
 // @Success 200 {object} []models.Item
 // @Router /items [get]
 func getItems(context *gin.Context, db *sql.DB) {
+	sessionId, err := context.Cookie(SessionCookieName)
+
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized: missing session ID"})
+		return
+	}
+
+	session := security.GetSession(sessionId)
+
+	if session == nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized: invalid session ID"})
+		return
+	}
+
 	items, err := queries.GetItems(db)
 
 	if err != nil {
