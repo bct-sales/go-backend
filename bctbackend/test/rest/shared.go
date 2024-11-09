@@ -1,4 +1,4 @@
-package test
+package rest
 
 import (
 	database "bctbackend/database"

@@ -1,4 +1,4 @@
-package test
+package rest
 
 import (
 	"net/http"
@@ -58,7 +58,7 @@ func TestListItems(t *testing.T) {
 		}
 	})
 
-	t.Run("Two item", func(t *testing.T) {
+	t.Run("Two items", func(t *testing.T) {
 		db, router := createRestRouter()
 		writer := httptest.NewRecorder()
 		defer db.Close()
