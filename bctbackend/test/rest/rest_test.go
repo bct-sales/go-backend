@@ -17,16 +17,20 @@ func TestListItems(t *testing.T) {
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
+		seller := addTestSeller(db)
+		sessionId := addTestSession(db, seller.UserId)
+
 		request, err := http.NewRequest("GET", "/api/v1/items", nil)
+		request.AddCookie(createCookie(sessionId))
 
 		if assert.NoError(t, err) {
 			router.ServeHTTP(writer, request)
 
-			assert.Equal(t, http.StatusOK, writer.Code)
-
-			expected := []models.Item{}
-			actual := fromJson[[]models.Item](writer.Body.String())
-			assert.Equal(t, expected, *actual)
+			if assert.Equal(t, http.StatusOK, writer.Code) {
+				expected := []models.Item{}
+				actual := fromJson[[]models.Item](writer.Body.String())
+				assert.Equal(t, expected, *actual)
+			}
 		}
 	})
 
@@ -36,6 +40,7 @@ func TestListItems(t *testing.T) {
 		defer db.Close()
 
 		sellerId := addTestSeller(db).UserId
+		sessionId := addTestSession(db, sellerId)
 		item := models.NewItem(0, 100, "test item", 1000, models.Shoes, sellerId, false, false)
 		itemId, err := queries.AddItem(db, item.Timestamp, item.Description, item.PriceInCents, item.CategoryId, item.SellerId, item.Donation, item.Charity)
 
@@ -46,6 +51,7 @@ func TestListItems(t *testing.T) {
 		item.ItemId = itemId
 
 		request, err := http.NewRequest("GET", "/api/v1/items", nil)
+		request.AddCookie(createCookie(sessionId))
 
 		if assert.NoError(t, err) {
 			router.ServeHTTP(writer, request)
@@ -64,6 +70,7 @@ func TestListItems(t *testing.T) {
 		defer db.Close()
 
 		sellerId := addTestSeller(db).UserId
+		sessionId := addTestSession(db, sellerId)
 		item1 := models.NewItem(0, 100, "test item", 1000, models.Shoes, sellerId, false, false)
 		item2 := models.NewItem(0, 100, "test item", 1000, models.Shoes, sellerId, false, false)
 
@@ -80,6 +87,7 @@ func TestListItems(t *testing.T) {
 		item2.ItemId = itemId
 
 		request, err := http.NewRequest("GET", "/api/v1/items", nil)
+		request.AddCookie(createCookie(sessionId))
 
 		if assert.NoError(t, err) {
 			router.ServeHTTP(writer, request)

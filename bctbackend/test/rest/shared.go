@@ -5,10 +5,16 @@ import (
 	models "bctbackend/database/models"
 	queries "bctbackend/database/queries"
 	"bctbackend/rest"
+	"bctbackend/security"
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"log"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"strconv"
+	"time"
 
 	gin "github.com/gin-gonic/gin"
 	_ "modernc.org/sqlite"
@@ -157,4 +163,48 @@ func fromJson[T any](jsonString string) *T {
 		panic(err)
 	}
 	return &x
+}
+
+func login(router *gin.Engine, id models.Id, password string) {
+	writer := httptest.NewRecorder()
+
+	form := url.Values{}
+	form.Add("username", models.IdToString(id))
+	form.Add("password", password)
+
+	request, err := http.NewRequest("POST", "/api/v1/login", bytes.NewBufferString(form.Encode()))
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	router.ServeHTTP(writer, request)
+
+	if writer.Code != http.StatusOK {
+		log.Fatalf("login failed: %v", writer.Body.String())
+	}
+}
+
+func addTestSession(db *sql.DB, userId models.Id) string {
+	sessionId, err := queries.AddSession(db, userId)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return sessionId
+}
+
+func createCookie(sessionId string) *http.Cookie {
+	return &http.Cookie{
+		Name:     security.SessionCookieName,
+		Value:    sessionId,
+		Expires:  time.Now().Add(time.Hour),
+		Path:     "/",
+		Domain:   "localhost",
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode,
+		Secure:   false,
+	}
 }
