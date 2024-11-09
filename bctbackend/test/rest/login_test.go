@@ -1,26 +1,33 @@
 package rest
 
 import (
+	"bctbackend/database/models"
+	"bytes"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
-	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestLogin(t *testing.T) {
-	db, _ := createRestRouter()
+	db, router := createRestRouter()
+	writer := httptest.NewRecorder()
 	defer db.Close()
 
 	seller := addTestSeller(db)
 
-	response, err := http.PostForm("/login", url.Values{
-		"username": {strconv.Itoa(int(seller.UserId))},
-		"password": {seller.Password},
-	})
+	form := url.Values{}
+	form.Add("username", models.IdToString(seller.UserId))
+	form.Add("password", seller.Password)
+
+	request, err := http.NewRequest("POST", "/api/v1/login", bytes.NewBufferString(form.Encode()))
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	if assert.NoError(t, err) {
-		defer response.Body.Close()
+		router.ServeHTTP(writer, request)
+
+		assert.Equal(t, http.StatusOK, writer.Code)
 	}
 }
