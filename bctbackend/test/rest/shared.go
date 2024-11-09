@@ -43,13 +43,23 @@ func createRestRouter() (*sql.DB, *gin.Engine) {
 	return db, router
 }
 
-func addTestUserWithId(db *sql.DB, id models.Id, roleId models.Id) {
+func addTestUserWithId(db *sql.DB, id models.Id, roleId models.Id) models.User {
 	password := "test"
 
-	queries.AddUserWithId(db, id, roleId, 0, password)
+	if err := queries.AddUserWithId(db, id, roleId, 0, password); err != nil {
+		panic(err)
+	}
+
+	user, err := queries.GetUserWithId(db, id)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return user
 }
 
-func addTestUser(db *sql.DB, roleId models.Id) models.Id {
+func addTestUser(db *sql.DB, roleId models.Id) models.User {
 	password := "test"
 
 	userId, err := queries.AddUser(db, roleId, 0, password)
@@ -58,27 +68,33 @@ func addTestUser(db *sql.DB, roleId models.Id) models.Id {
 		panic(err)
 	}
 
-	return userId
+	user, err := queries.GetUserWithId(db, userId)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return user
 }
 
-func addTestSeller(db *sql.DB) models.Id {
+func addTestSeller(db *sql.DB) models.User {
 	return addTestUser(db, models.SellerRoleId)
 }
 
-func addTestCashier(db *sql.DB) models.Id {
+func addTestCashier(db *sql.DB) models.User {
 	return addTestUser(db, models.CashierRoleId)
 }
 
-func addTestAdmin(db *sql.DB) models.Id {
+func addTestAdmin(db *sql.DB) models.User {
 	return addTestUser(db, models.AdminRoleId)
 }
 
-func addTestSellerWithId(db *sql.DB, id models.Id) {
-	addTestUserWithId(db, id, models.SellerRoleId)
+func addTestSellerWithId(db *sql.DB, id models.Id) models.User {
+	return addTestUserWithId(db, id, models.SellerRoleId)
 }
 
-func addTestCashierWithId(db *sql.DB, id models.Id) {
-	addTestUserWithId(db, id, models.CashierRoleId)
+func addTestCashierWithId(db *sql.DB, id models.Id) models.User {
+	return addTestUserWithId(db, id, models.CashierRoleId)
 }
 
 func addTestItem(db *sql.DB, sellerId models.Id, index int) models.Id {
