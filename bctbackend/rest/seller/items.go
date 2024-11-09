@@ -12,7 +12,7 @@ import (
 )
 
 type getItemsUriParameters struct {
-	sellerId string `uri:"id" binding:"required"`
+	SellerId string `uri:"id" binding:"required"`
 }
 
 // @Summary Get seller's items
@@ -20,27 +20,27 @@ type getItemsUriParameters struct {
 // @Produce json
 // @Success 200 {object} []models.Item
 // @Router /items [get]
-func getItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
+func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.SellerRoleId {
 		context.JSON(http.StatusForbidden, gin.H{"message": "Only accessible to sellers"})
 		return
 	}
 
 	var uriParameters getItemsUriParameters
-
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid URI parameters"})
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid URI parameters: " + err.Error()})
 		return
 	}
 
-	uriSellerId, err := models.ParseId(uriParameters.sellerId)
+	uriSellerId, err := models.ParseId(uriParameters.SellerId)
 
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid URI parameters"})
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Cannot parse seller Id: " + err.Error()})
+		return
 	}
 
 	if userId != uriSellerId {
-		context.JSON(http.StatusForbidden, gin.H{"message": "Only accessible to the seller"})
+		context.JSON(http.StatusForbidden, gin.H{"message": "Logged in user does not match URI seller ID"})
 		return
 	}
 
