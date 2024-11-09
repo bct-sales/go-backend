@@ -2,8 +2,10 @@ package rest
 
 import (
 	"bctbackend/database/queries"
+	"bctbackend/security"
 	"database/sql"
 	"net/http"
+	"strconv"
 
 	_ "bctbackend/docs"
 
@@ -11,6 +13,31 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+const (
+	SessionCookieName = "bctsales_session_id"
+)
+
+func login(context *gin.Context, db *sql.DB) {
+	userIdAsString := context.PostForm("username")
+	password := context.PostForm("password")
+
+	userId, err := strconv.ParseInt(userIdAsString, 10, 64)
+
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	if err := queries.AuthenticateUser(db, userId, password); err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "Login failed"})
+	}
+
+	sessionId := security.CreateSession(userId, 1, security.SessionDurationInSeconds)
+	ensureSecure := false // TODO: set to true when using HTTPS
+	context.SetCookie(SessionCookieName, sessionId, security.SessionDurationInSeconds, "/", "localhost", ensureSecure, true)
+	context.JSON(http.StatusOK, gin.H{"message": "Login successful"})
+}
 
 // @Summary Get all items
 // @Description Get all items
@@ -57,6 +84,7 @@ func CreateRestRouter(db *sql.DB) *gin.Engine {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	v1 := router.Group("/api/v1")
+	v1.POST("/login", func(context *gin.Context) { login(context, db) })
 	v1.GET("/items", func(context *gin.Context) { getItems(context, db) })
 
 	return router
