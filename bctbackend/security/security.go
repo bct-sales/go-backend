@@ -1,7 +1,9 @@
 package security
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 )
 
@@ -10,4 +12,12 @@ func HashPassword(password string, salt string) string {
 	hash.Write([]byte(password))
 	hash.Write([]byte(salt))
 	return fmt.Sprintf("%x", hash.Sum(nil))
+}
+
+func GenerateUniqueSessionId() string {
+	bytes := make([]byte, 16)
+	if _, err := rand.Read(bytes); err != nil {
+		panic(err)
+	}
+	return base64.StdEncoding.EncodeToString(bytes)
 }
