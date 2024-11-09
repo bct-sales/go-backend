@@ -21,9 +21,11 @@ func HashPassword(password string, salt string) string {
 }
 
 func GenerateUniqueSessionId() string {
-	bytes := make([]byte, 16)
+	bytes := make([]byte, SessionIdByteLength)
 	if _, err := rand.Read(bytes); err != nil {
 		panic(err)
 	}
-	return base64.StdEncoding.EncodeToString(bytes)
+
+	// Note: base64 leads to trouble
+	return hex.EncodeToString(bytes)
 }
