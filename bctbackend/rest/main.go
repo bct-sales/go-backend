@@ -14,10 +14,6 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-const (
-	SessionCookieName = "bctsales_session_id"
-)
-
 type LoginRequest struct {
 	Username string `form:"username" binding:"required" json:"username"`
 	Password string `form:"password" binding:"required" json:"password"`
@@ -51,9 +47,15 @@ func login(context *gin.Context, db *sql.DB) {
 		return
 	}
 
-	sessionId := security.CreateSession(userId, 1, security.SessionDurationInSeconds)
+	sessionId, err := queries.AddSession(db, userId)
+
+	if err != nil {
+		context.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
 	ensureSecure := false // TODO: set to true when using HTTPS
-	context.SetCookie(SessionCookieName, sessionId, security.SessionDurationInSeconds, "/", "localhost", ensureSecure, true)
+	context.SetCookie(security.SessionCookieName, sessionId, security.SessionDurationInSeconds, "/", "localhost", ensureSecure, true)
 	context.JSON(http.StatusOK, gin.H{"message": "Login successful"})
 }
 
@@ -64,14 +66,19 @@ func login(context *gin.Context, db *sql.DB) {
 // @Success 200 {object} []models.Item
 // @Router /items [get]
 func getItems(context *gin.Context, db *sql.DB) {
-	sessionId, err := context.Cookie(SessionCookieName)
+	sessionId, err := context.Cookie(security.SessionCookieName)
 
 	if err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized: missing session ID"})
 		return
 	}
 
-	session := security.GetSession(sessionId)
+	session, err := queries.GetSessionById(db, sessionId)
+
+	if err != nil {
+		context.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 
 	if session == nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized: invalid session ID"})
