@@ -17,8 +17,8 @@ func TestListItems(t *testing.T) {
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
-		seller := addTestSeller(db)
-		sessionId := addTestSession(db, seller.UserId)
+		admin := addTestAdmin(db)
+		sessionId := addTestSession(db, admin.UserId)
 
 		request, err := http.NewRequest("GET", "/api/v1/items", nil)
 		request.AddCookie(createCookie(sessionId))
@@ -39,8 +39,10 @@ func TestListItems(t *testing.T) {
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
+		adminId := addTestAdmin(db).UserId
+		sessionId := addTestSession(db, adminId)
+
 		sellerId := addTestSeller(db).UserId
-		sessionId := addTestSession(db, sellerId)
 		item := models.NewItem(0, 100, "test item", 1000, models.Shoes, sellerId, false, false)
 		itemId, err := queries.AddItem(db, item.Timestamp, item.Description, item.PriceInCents, item.CategoryId, item.SellerId, item.Donation, item.Charity)
 
@@ -69,8 +71,9 @@ func TestListItems(t *testing.T) {
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
+		adminId := addTestAdmin(db).UserId
+		sessionId := addTestSession(db, adminId)
 		sellerId := addTestSeller(db).UserId
-		sessionId := addTestSession(db, sellerId)
 		item1 := models.NewItem(0, 100, "test item", 1000, models.Shoes, sellerId, false, false)
 		item2 := models.NewItem(0, 100, "test item", 1000, models.Shoes, sellerId, false, false)
 

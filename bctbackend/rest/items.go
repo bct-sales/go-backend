@@ -18,6 +18,11 @@ import (
 // @Success 200 {object} []models.Item
 // @Router /items [get]
 func getItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
+	if roleId != models.AdminRoleId {
+		context.JSON(http.StatusForbidden, gin.H{"message": "Forbidden"})
+		return
+	}
+
 	items, err := queries.GetItems(db)
 
 	if err != nil {
