@@ -4,7 +4,6 @@ import (
 	models "bctbackend/database/models"
 	"bctbackend/security"
 	"database/sql"
-	"log"
 )
 
 func AddSession(
@@ -31,7 +30,7 @@ func AddSession(
 
 func GetSessionById(
 	db *sql.DB,
-	sessionId string) (*models.Session, error) {
+	sessionId models.SessionId) (*models.Session, error) {
 
 	row := db.QueryRow(
 		`
@@ -50,18 +49,6 @@ func GetSessionById(
 	)
 
 	if err == sql.ErrNoRows {
-		sessions, err := GetSessions(db)
-
-		if err != nil {
-			panic("oh no")
-		}
-
-		for _, s := range sessions {
-			log.Printf("session: %v\n", s)
-		}
-
-		log.Printf("Session count: %v\n", len(sessions))
-
 		return nil, err
 	}
 
@@ -70,6 +57,38 @@ func GetSessionById(
 	}
 
 	return &session, nil
+}
+
+type SessionData struct {
+	UserId models.Id
+	RoleId models.Id
+}
+
+func GetSessionData(db *sql.DB, sessionId models.SessionId) (*SessionData, error) {
+	row := db.QueryRow(
+		`
+			SELECT users.user_id, role_id
+			FROM sessions INNER JOIN users ON sessions.user_id = users.user_id
+			WHERE session_id = ?
+		`,
+		sessionId,
+	)
+
+	var sessionData SessionData
+	err := row.Scan(
+		&sessionData.UserId,
+		&sessionData.RoleId,
+	)
+
+	if err == sql.ErrNoRows {
+		return nil, err
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &sessionData, nil
 }
 
 func GetSessions(db *sql.DB) ([]models.Session, error) {
