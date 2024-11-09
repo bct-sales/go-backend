@@ -1,3 +1,9 @@
+.PHONY: test
+
+test:
+	go clean -testcache
+	go test ./...
+
 coverage:
 	go test -coverprofile=coverage-data ./...
 	go tool cover -html=coverage-data
