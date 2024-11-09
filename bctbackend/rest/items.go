@@ -19,14 +19,15 @@ import (
 // @Router /items [get]
 func getItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.AdminRoleId {
-		context.JSON(http.StatusForbidden, gin.H{"message": "Forbidden"})
+		context.JSON(http.StatusForbidden, gin.H{"message": "Only accessible to admins"})
 		return
 	}
 
 	items, err := queries.GetItems(db)
 
 	if err != nil {
-		context.AbortWithStatus(http.StatusInternalServerError)
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch items"})
+		return
 	}
 
 	context.IndentedJSON(http.StatusOK, items)
