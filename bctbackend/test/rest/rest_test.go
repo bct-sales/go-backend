@@ -22,7 +22,7 @@ func TestListItems(t *testing.T) {
 		if assert.NoError(t, err) {
 			router.ServeHTTP(writer, request)
 
-			assert.Equal(t, 200, writer.Code)
+			assert.Equal(t, http.StatusOK, writer.Code)
 
 			expected := []models.Item{}
 			actual := fromJson[[]models.Item](writer.Body.String())
@@ -50,7 +50,7 @@ func TestListItems(t *testing.T) {
 		if assert.NoError(t, err) {
 			router.ServeHTTP(writer, request)
 
-			assert.Equal(t, 200, writer.Code)
+			assert.Equal(t, http.StatusOK, writer.Code)
 
 			expected := []models.Item{*item}
 			actual := fromJson[[]models.Item](writer.Body.String())
@@ -84,7 +84,7 @@ func TestListItems(t *testing.T) {
 		if assert.NoError(t, err) {
 			router.ServeHTTP(writer, request)
 
-			assert.Equal(t, 200, writer.Code)
+			assert.Equal(t, http.StatusOK, writer.Code)
 
 			expected := []models.Item{*item1, *item2}
 			actual := fromJson[[]models.Item](writer.Body.String())
