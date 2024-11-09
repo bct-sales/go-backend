@@ -165,27 +165,6 @@ func fromJson[T any](jsonString string) *T {
 	return &x
 }
 
-func login(router *gin.Engine, id models.Id, password string) {
-	writer := httptest.NewRecorder()
-
-	form := url.Values{}
-	form.Add("username", models.IdToString(id))
-	form.Add("password", password)
-
-	request, err := http.NewRequest("POST", "/api/v1/login", bytes.NewBufferString(form.Encode()))
-	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	router.ServeHTTP(writer, request)
-
-	if writer.Code != http.StatusOK {
-		log.Fatalf("login failed: %v", writer.Body.String())
-	}
-}
-
 func addTestSession(db *sql.DB, userId models.Id) string {
 	sessionId, err := queries.AddSession(db, userId)
 
