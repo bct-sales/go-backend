@@ -1,5 +1,7 @@
 package models
 
+import "strconv"
+
 type Id = int64
 type MoneyInCents = int64
 type Timestamp = int64
@@ -14,4 +16,14 @@ func NewMoneyInCents(moneyInCents int64) MoneyInCents {
 
 func NewTimestamp(timestamp int64) Timestamp {
 	return Timestamp(timestamp)
+}
+
+func ParseId(string string) (Id, error) {
+	id, err := strconv.ParseInt(string, 10, 64)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return NewId(id), nil
 }
