@@ -3,8 +3,14 @@ package security
 import (
 	"crypto/rand"
 	"crypto/sha256"
-	"encoding/base64"
+	"encoding/hex"
 	"fmt"
+)
+
+const (
+	SessionIdByteLength      = 16
+	SessionCookieName        = "bct_session_id"
+	SessionDurationInSeconds = 60 * 60
 )
 
 func HashPassword(password string, salt string) string {
