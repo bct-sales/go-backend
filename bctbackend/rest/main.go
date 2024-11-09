@@ -65,7 +65,7 @@ func login(context *gin.Context, db *sql.DB) {
 // @Produce json
 // @Success 200 {object} []models.Item
 // @Router /items [get]
-func getItems(context *gin.Context, db *sql.DB) {
+func getItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	sessionId, err := context.Cookie(security.SessionCookieName)
 
 	if err != nil {
@@ -118,13 +118,36 @@ func StartRestService(db *sql.DB) error {
 }
 
 func CreateRestRouter(db *sql.DB) *gin.Engine {
+	withUserAndRole := func(handler func(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id)) gin.HandlerFunc {
+		return func(context *gin.Context) {
+			sessionId, err := context.Cookie(security.SessionCookieName)
+
+			if err != nil {
+				context.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized: missing session ID"})
+				return
+			}
+
+			sessionData, err := queries.GetSessionData(db, sessionId)
+
+			if err != nil {
+				context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to retrieve session"})
+				return
+			}
+
+			userId := sessionData.UserId
+			roleId := sessionData.RoleId
+
+			handler(context, db, userId, roleId)
+		}
+	}
+
 	router := gin.Default()
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	v1 := router.Group("/api/v1")
 	v1.POST("/login", func(context *gin.Context) { login(context, db) })
-	v1.GET("/items", func(context *gin.Context) { getItems(context, db) })
+	v1.GET("/items", withUserAndRole(getItems))
 
 	return router
 }
