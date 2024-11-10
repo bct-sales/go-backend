@@ -119,6 +119,29 @@ func GetSales(db *sql.DB) ([]models.Sale, error) {
 	return sales, nil
 }
 
+func GetSaleWithId(db *sql.DB, saleId models.Id) (models.Sale, error) {
+	var sale models.Sale
+
+	err := db.QueryRow(
+		`
+			SELECT sale_id, cashier_id, timestamp
+			FROM sales
+			WHERE sale_id = ?
+		`,
+		saleId,
+	).Scan(&sale.SaleId, &sale.CashierId, &sale.Timestamp)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return sale, NoSuchSaleError{SaleId: saleId}
+	}
+
+	if err != nil {
+		return sale, err
+	}
+
+	return sale, nil
+}
+
 func SaleExists(db *sql.DB, saleId models.Id) (bool, error) {
 	var exists int64
 
