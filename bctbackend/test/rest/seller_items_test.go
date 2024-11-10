@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"bctbackend/defs"
@@ -66,6 +65,7 @@ func TestAddSellerItem(t *testing.T) {
 									seller := test.AddSellerWithIdToDatabase(db, sellerId)
 									sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
+									url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
 									payload := restapi.AddSellerItemPayload{
 										Price:       price,
 										Description: description,
@@ -74,34 +74,25 @@ func TestAddSellerItem(t *testing.T) {
 										Charity:     &charity,
 									}
 
-									payloadJson := test.ToJson(payload)
+									request := test.CreatePostRequest(url, &payload)
+									request.AddCookie(test.CreateCookie(sessionId))
 
-									url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
-									request, err := http.NewRequest("POST", url, strings.NewReader(payloadJson))
+									router.ServeHTTP(writer, request)
 
-									if assert.NoError(t, err) {
-										request.Header.Set("Content-Type", "application/json")
-										request.AddCookie(test.CreateCookie(sessionId))
+									if assert.Equal(t, http.StatusCreated, writer.Code) {
+										response := test.FromJson[restapi.AddSellerItemResponse](writer.Body.String())
 
+										itemsInDatabase, err := queries.GetItems(db)
 										if assert.NoError(t, err) {
-											router.ServeHTTP(writer, request)
-
-											if assert.Equal(t, http.StatusCreated, writer.Code) {
-												response := test.FromJson[restapi.AddSellerItemResponse](writer.Body.String())
-
-												itemsInDatabase, err := queries.GetItems(db)
-												if assert.NoError(t, err) {
-													if assert.Equal(t, 1, len(itemsInDatabase)) {
-														itemInDatabase := itemsInDatabase[0]
-														assert.Equal(t, response.ItemId, itemInDatabase.ItemId)
-														assert.Equal(t, seller.UserId, itemInDatabase.SellerId)
-														assert.Equal(t, price, itemInDatabase.PriceInCents)
-														assert.Equal(t, description, itemInDatabase.Description)
-														assert.Equal(t, categoryId, itemInDatabase.CategoryId)
-														assert.Equal(t, donation, itemInDatabase.Donation)
-														assert.Equal(t, charity, itemInDatabase.Charity)
-													}
-												}
+											if assert.Equal(t, 1, len(itemsInDatabase)) {
+												itemInDatabase := itemsInDatabase[0]
+												assert.Equal(t, response.ItemId, itemInDatabase.ItemId)
+												assert.Equal(t, seller.UserId, itemInDatabase.SellerId)
+												assert.Equal(t, price, itemInDatabase.PriceInCents)
+												assert.Equal(t, description, itemInDatabase.Description)
+												assert.Equal(t, categoryId, itemInDatabase.CategoryId)
+												assert.Equal(t, donation, itemInDatabase.Donation)
+												assert.Equal(t, charity, itemInDatabase.Charity)
 											}
 										}
 									}
@@ -129,6 +120,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller := test.AddSellerToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
+			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
 				Description: description,
@@ -136,25 +128,14 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
+			request := test.CreatePostRequest(url, &payload)
+			request.AddCookie(test.CreateCookie(sessionId))
+			router.ServeHTTP(writer, request)
 
-			payloadJson := test.ToJson(payload)
-
-			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
-			request, err := http.NewRequest("POST", url, strings.NewReader(payloadJson))
-
+			assert.Equal(t, http.StatusBadRequest, writer.Code)
+			itemsInDatabase, err := queries.GetItems(db)
 			if assert.NoError(t, err) {
-				request.Header.Set("Content-Type", "application/json")
-				request.AddCookie(test.CreateCookie(sessionId))
-
-				if assert.NoError(t, err) {
-					router.ServeHTTP(writer, request)
-
-					assert.Equal(t, http.StatusBadRequest, writer.Code)
-					itemsInDatabase, err := queries.GetItems(db)
-					if assert.NoError(t, err) {
-						assert.Equal(t, 0, len(itemsInDatabase))
-					}
-				}
+				assert.Equal(t, 0, len(itemsInDatabase))
 			}
 		})
 
@@ -174,6 +155,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller := test.AddSellerToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
+			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
 				Description: description,
@@ -181,25 +163,15 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
+			request := test.CreatePostRequest(url, &payload)
 
-			payloadJson := test.ToJson(payload)
+			request.AddCookie(test.CreateCookie(sessionId))
+			router.ServeHTTP(writer, request)
 
-			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
-			request, err := http.NewRequest("POST", url, strings.NewReader(payloadJson))
-
+			assert.Equal(t, http.StatusBadRequest, writer.Code)
+			itemsInDatabase, err := queries.GetItems(db)
 			if assert.NoError(t, err) {
-				request.Header.Set("Content-Type", "application/json")
-				request.AddCookie(test.CreateCookie(sessionId))
-
-				if assert.NoError(t, err) {
-					router.ServeHTTP(writer, request)
-
-					assert.Equal(t, http.StatusBadRequest, writer.Code)
-					itemsInDatabase, err := queries.GetItems(db)
-					if assert.NoError(t, err) {
-						assert.Equal(t, 0, len(itemsInDatabase))
-					}
-				}
+				assert.Equal(t, 0, len(itemsInDatabase))
 			}
 		})
 

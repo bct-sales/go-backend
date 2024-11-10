@@ -14,6 +14,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	gin "github.com/gin-gonic/gin"
@@ -202,4 +203,17 @@ func CreateCookie(sessionId string) *http.Cookie {
 		SameSite: http.SameSiteNoneMode,
 		Secure:   false,
 	}
+}
+
+func CreatePostRequest[T any](url string, payload *T) *http.Request {
+	payloadJson := ToJson(payload)
+	request, err := http.NewRequest("POST", url, strings.NewReader(payloadJson))
+
+	if err != nil {
+		panic(err)
+	}
+
+	request.Header.Set("Content-Type", "application/json")
+
+	return request
 }
