@@ -45,7 +45,9 @@ func OpenInitializedDatabase() *sql.DB {
 
 func CreateRestRouter() (*sql.DB, *gin.Engine) {
 	db := OpenInitializedDatabase()
-	router := rest.CreateRestRouter(db)
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	rest.DefineEndpoints(db, router)
 
 	return db, router
 }

@@ -34,12 +34,13 @@ import (
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func StartRestService(db *sql.DB) error {
-	router := CreateRestRouter(db)
+	router := gin.Default()
+	DefineEndpoints(db, router)
 
 	return router.Run("localhost:8000")
 }
 
-func CreateRestRouter(db *sql.DB) *gin.Engine {
+func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 	withUserAndRole := func(handler func(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id)) gin.HandlerFunc {
 		return func(context *gin.Context) {
 			sessionId, err := context.Cookie(security.SessionCookieName)
@@ -63,8 +64,6 @@ func CreateRestRouter(db *sql.DB) *gin.Engine {
 		}
 	}
 
-	router := gin.Default()
-
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	v1 := router.Group("/api/v1")
@@ -73,6 +72,4 @@ func CreateRestRouter(db *sql.DB) *gin.Engine {
 	v1.GET("/sellers/:id/items", withUserAndRole(rest_seller.GetSellerItems))
 	v1.POST("/sellers/:id/items", withUserAndRole(rest_seller.AddSellerItem))
 	v1.POST("/sales", withUserAndRole(rest_cashier.AddSale))
-
-	return router
 }
