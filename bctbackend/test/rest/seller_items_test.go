@@ -2,7 +2,6 @@ package rest
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -81,8 +80,6 @@ func TestAddSellerItem(t *testing.T) {
 
 									if assert.NoError(t, err) {
 										router.ServeHTTP(writer, request)
-
-										log.Println(writer.Body.String())
 
 										if assert.Equal(t, http.StatusCreated, writer.Code) {
 											response := fromJson[restapi.AddSellerItemResponse](writer.Body.String())
