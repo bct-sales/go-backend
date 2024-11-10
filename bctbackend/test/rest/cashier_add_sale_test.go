@@ -161,5 +161,33 @@ func TestAddSaleItem(t *testing.T) {
 				}
 			}
 		})
+
+		t.Run("Duplicate item", func(t *testing.T) {
+			db, router := test.CreateRestRouter()
+			writer := httptest.NewRecorder()
+			defer db.Close()
+
+			cashier := test.AddCashierToDatabase(db)
+			seller := test.AddSellerToDatabase(db)
+			item := test.AddItemToDatabase(db, seller.UserId, 1)
+			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
+
+			payload := restapi.AddSalePayload{
+				Items: []models.Id{item.ItemId, item.ItemId}, // Causes the operation to fail
+			}
+			url := "/api/v1/sales"
+			request := test.CreatePostRequest(url, &payload)
+			request.AddCookie(test.CreateCookie(sessionId))
+
+			router.ServeHTTP(writer, request)
+
+			if assert.Equal(t, http.StatusBadRequest, writer.Code) {
+				sales, err := queries.GetSales(db)
+
+				if assert.NoError(t, err) {
+					assert.Empty(t, sales)
+				}
+			}
+		})
 	})
 }
