@@ -1,6 +1,9 @@
 package models
 
-import "strconv"
+import (
+	"strconv"
+	"time"
+)
 
 type Id = int64
 type MoneyInCents = int64
@@ -16,6 +19,10 @@ func NewMoneyInCents(moneyInCents int64) MoneyInCents {
 
 func NewTimestamp(timestamp int64) Timestamp {
 	return Timestamp(timestamp)
+}
+
+func Now() Timestamp {
+	return time.Now().Unix()
 }
 
 func ParseId(string string) (Id, error) {
