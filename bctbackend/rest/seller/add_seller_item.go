@@ -17,6 +17,10 @@ type AddSellerItemPayload struct {
 	Charity     *bool               `json:"charity" binding:"required"`  // needs to be a pointer to differentiate between false and not present
 }
 
+type AddSellerItemResponse struct {
+	ItemId models.Id `json:"item_id"`
+}
+
 func AddSellerItem(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.SellerRoleId {
 		context.JSON(http.StatusForbidden, gin.H{"message": "Only accessible to sellers"})
@@ -66,5 +70,6 @@ func AddSellerItem(context *gin.Context, db *sql.DB, userId models.Id, roleId mo
 		return
 	}
 
-	context.JSON(http.StatusCreated, gin.H{"item_id": itemId})
+	response := AddSellerItemResponse{ItemId: itemId}
+	context.JSON(http.StatusCreated, response)
 }
