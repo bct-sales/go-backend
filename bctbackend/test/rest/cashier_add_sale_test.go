@@ -27,8 +27,7 @@ func TestAddSaleItem(t *testing.T) {
 		item := test.AddItemToDatabase(db, seller.UserId, 1)
 		sessionId := test.AddSessionToDatabase(db, cashier.UserId)
 		payload := restapi.AddSalePayload{
-			CashierId: cashier.UserId,
-			Items:     []models.Id{item.ItemId},
+			Items: []models.Id{item.ItemId},
 		}
 		url := "/api/v1/sales"
 		request := test.CreatePostRequest(url, &payload)
@@ -59,12 +58,10 @@ func TestAddSaleItem(t *testing.T) {
 			defer db.Close()
 
 			seller := test.AddSellerToDatabase(db)
-			cashier := test.AddCashierToDatabase(db)
 			item := test.AddItemToDatabase(db, seller.UserId, 1)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId) // Causes the operation to fail
 			payload := restapi.AddSalePayload{
-				CashierId: cashier.UserId,
-				Items:     []models.Id{item.ItemId},
+				Items: []models.Id{item.ItemId},
 			}
 			url := "/api/v1/sales"
 			request := test.CreatePostRequest(url, &payload)
@@ -88,12 +85,10 @@ func TestAddSaleItem(t *testing.T) {
 
 			admin := test.AddAdminToDatabase(db)
 			seller := test.AddSellerToDatabase(db)
-			cashier := test.AddCashierToDatabase(db)
 			item := test.AddItemToDatabase(db, seller.UserId, 1)
 			sessionId := test.AddSessionToDatabase(db, admin.UserId) // Causes the operation to fail
 			payload := restapi.AddSalePayload{
-				CashierId: cashier.UserId,
-				Items:     []models.Id{item.ItemId},
+				Items: []models.Id{item.ItemId},
 			}
 			url := "/api/v1/sales"
 			request := test.CreatePostRequest(url, &payload)

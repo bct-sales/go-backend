@@ -10,8 +10,7 @@ import (
 )
 
 type AddSalePayload struct {
-	CashierId models.Id   `json:"cashier_id" binding:"required"`
-	Items     []models.Id `json:"item_ids" binding:"required"`
+	Items []models.Id `json:"item_ids" binding:"required"`
 }
 
 type AddSaleResponse struct {
