@@ -3,6 +3,7 @@ package rest
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	rest_cashier "bctbackend/rest/cashier"
 	rest_seller "bctbackend/rest/seller"
 	"bctbackend/security"
 	"database/sql"
@@ -71,6 +72,7 @@ func CreateRestRouter(db *sql.DB) *gin.Engine {
 	v1.GET("/items", withUserAndRole(getItems))
 	v1.GET("/sellers/:id/items", withUserAndRole(rest_seller.GetSellerItems))
 	v1.POST("/sellers/:id/items", withUserAndRole(rest_seller.AddSellerItem))
+	v1.POST("/sales", withUserAndRole(rest_cashier.AddSale))
 
 	return router
 }
