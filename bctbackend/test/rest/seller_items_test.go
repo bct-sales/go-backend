@@ -212,6 +212,43 @@ func TestAddSellerItem(t *testing.T) {
 			}
 		})
 
+		t.Run("Adding seller item as cashier", func(t *testing.T) {
+			price := models.MoneyInCents(100)
+			description := "Test Description"
+			categoryId := models.NewId(1000)
+			donation := false
+			charity := false
+
+			assert.NotContains(t, defs.ListCategories(), categoryId)
+
+			db, router := test.CreateRestRouter()
+			writer := httptest.NewRecorder()
+			defer db.Close()
+
+			seller := test.AddSellerToDatabase(db)
+			cashier := test.AddCashierToDatabase(db)
+			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
+
+			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
+			payload := restapi.AddSellerItemPayload{
+				Price:       price,
+				Description: description,
+				CategoryId:  categoryId,
+				Donation:    &donation,
+				Charity:     &charity,
+			}
+			request := test.CreatePostRequest(url, &payload)
+
+			request.AddCookie(test.CreateCookie(sessionId))
+			router.ServeHTTP(writer, request)
+
+			assert.Equal(t, http.StatusForbidden, writer.Code)
+			itemsInDatabase, err := queries.GetItems(db)
+			if assert.NoError(t, err) {
+				assert.Equal(t, 0, len(itemsInDatabase))
+			}
+		})
+
 		// Invalid url
 		// As cashier
 		// As nonexisting seller
