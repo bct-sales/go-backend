@@ -17,36 +17,68 @@ import (
 )
 
 func TestAddSaleItem(t *testing.T) {
-	db, router := test.CreateRestRouter()
-	writer := httptest.NewRecorder()
-	defer db.Close()
+	t.Run("Success", func(t *testing.T) {
+		db, router := test.CreateRestRouter()
+		writer := httptest.NewRecorder()
+		defer db.Close()
 
-	seller := test.AddSellerToDatabase(db)
-	cashier := test.AddCashierToDatabase(db)
-	item := test.AddItemToDatabase(db, seller.UserId, 1)
-	sessionId := test.AddSessionToDatabase(db, cashier.UserId)
-	payload := restapi.AddSalePayload{
-		CashierId: cashier.UserId,
-		Items:     []models.Id{item.ItemId},
-	}
-	url := "/api/v1/sales"
-	request := test.CreatePostRequest(url, &payload)
-	request.AddCookie(test.CreateCookie(sessionId))
+		seller := test.AddSellerToDatabase(db)
+		cashier := test.AddCashierToDatabase(db)
+		item := test.AddItemToDatabase(db, seller.UserId, 1)
+		sessionId := test.AddSessionToDatabase(db, cashier.UserId)
+		payload := restapi.AddSalePayload{
+			CashierId: cashier.UserId,
+			Items:     []models.Id{item.ItemId},
+		}
+		url := "/api/v1/sales"
+		request := test.CreatePostRequest(url, &payload)
+		request.AddCookie(test.CreateCookie(sessionId))
 
-	router.ServeHTTP(writer, request)
+		router.ServeHTTP(writer, request)
 
-	if assert.Equal(t, http.StatusCreated, writer.Code) {
-		response := test.FromJson[restapi.AddSaleResponse](writer.Body.String())
+		if assert.Equal(t, http.StatusCreated, writer.Code) {
+			response := test.FromJson[restapi.AddSaleResponse](writer.Body.String())
 
-		sale, err := queries.GetSaleWithId(db, response.SaleId)
-		if assert.NoError(t, err) {
-			assert.Equal(t, cashier.UserId, sale.CashierId)
-
-			saleItems, err := queries.GetSaleItems(db, sale.SaleId)
+			sale, err := queries.GetSaleWithId(db, response.SaleId)
 			if assert.NoError(t, err) {
-				assert.Len(t, saleItems, 1)
-				assert.Equal(t, item.ItemId, saleItems[0].ItemId)
+				assert.Equal(t, cashier.UserId, sale.CashierId)
+
+				saleItems, err := queries.GetSaleItems(db, sale.SaleId)
+				if assert.NoError(t, err) {
+					assert.Len(t, saleItems, 1)
+					assert.Equal(t, item.ItemId, saleItems[0].ItemId)
+				}
 			}
 		}
-	}
+	})
+
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("As seller", func(t *testing.T) {
+			db, router := test.CreateRestRouter()
+			writer := httptest.NewRecorder()
+			defer db.Close()
+
+			seller := test.AddSellerToDatabase(db)
+			cashier := test.AddCashierToDatabase(db)
+			item := test.AddItemToDatabase(db, seller.UserId, 1)
+			sessionId := test.AddSessionToDatabase(db, seller.UserId) // Causes the operation to fail
+			payload := restapi.AddSalePayload{
+				CashierId: cashier.UserId,
+				Items:     []models.Id{item.ItemId},
+			}
+			url := "/api/v1/sales"
+			request := test.CreatePostRequest(url, &payload)
+			request.AddCookie(test.CreateCookie(sessionId))
+
+			router.ServeHTTP(writer, request)
+
+			if assert.Equal(t, http.StatusForbidden, writer.Code) {
+				sales, err := queries.GetSales(db)
+
+				if assert.NoError(t, err) {
+					assert.Empty(t, sales)
+				}
+			}
+		})
+	})
 }
