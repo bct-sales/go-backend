@@ -1,3 +1,5 @@
+//go:build test
+
 package rest
 
 import (
@@ -154,50 +156,56 @@ func TestAddSellerItem(t *testing.T) {
 				}
 			}
 		})
-	})
 
-	t.Run("Invalid category", func(t *testing.T) {
-		price := models.MoneyInCents(100)
-		description := "Test Description"
-		categoryId := models.NewId(1000)
-		donation := false
-		charity := false
+		t.Run("Invalid category", func(t *testing.T) {
+			price := models.MoneyInCents(100)
+			description := "Test Description"
+			categoryId := models.NewId(1000)
+			donation := false
+			charity := false
 
-		assert.NotContains(t, defs.ListCategories(), categoryId)
+			assert.NotContains(t, defs.ListCategories(), categoryId)
 
-		db, router := createRestRouter()
-		writer := httptest.NewRecorder()
-		defer db.Close()
+			db, router := createRestRouter()
+			writer := httptest.NewRecorder()
+			defer db.Close()
 
-		seller := addTestSeller(db)
-		sessionId := addTestSession(db, seller.UserId)
+			seller := addTestSeller(db)
+			sessionId := addTestSession(db, seller.UserId)
 
-		payload := restapi.AddSellerItemPayload{
-			Price:       price,
-			Description: description,
-			CategoryId:  categoryId,
-			Donation:    &donation,
-			Charity:     &charity,
-		}
+			payload := restapi.AddSellerItemPayload{
+				Price:       price,
+				Description: description,
+				CategoryId:  categoryId,
+				Donation:    &donation,
+				Charity:     &charity,
+			}
 
-		payloadJson := toJson(payload)
+			payloadJson := toJson(payload)
 
-		url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
-		request, err := http.NewRequest("POST", url, strings.NewReader(payloadJson))
-
-		if assert.NoError(t, err) {
-			request.Header.Set("Content-Type", "application/json")
-			request.AddCookie(createCookie(sessionId))
+			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
+			request, err := http.NewRequest("POST", url, strings.NewReader(payloadJson))
 
 			if assert.NoError(t, err) {
-				router.ServeHTTP(writer, request)
+				request.Header.Set("Content-Type", "application/json")
+				request.AddCookie(createCookie(sessionId))
 
-				assert.Equal(t, http.StatusBadRequest, writer.Code)
-				itemsInDatabase, err := queries.GetItems(db)
 				if assert.NoError(t, err) {
-					assert.Equal(t, 0, len(itemsInDatabase))
+					router.ServeHTTP(writer, request)
+
+					assert.Equal(t, http.StatusBadRequest, writer.Code)
+					itemsInDatabase, err := queries.GetItems(db)
+					if assert.NoError(t, err) {
+						assert.Equal(t, 0, len(itemsInDatabase))
+					}
 				}
 			}
-		}
+		})
+
+		// As admin
+		// As cashier
+		// As nonexisting seller
+		// As wrong seller
+		// Empty description
 	})
 }
