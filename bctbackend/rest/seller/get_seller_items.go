@@ -11,10 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type getItemsUriParameters struct {
-	SellerId string `uri:"id" binding:"required"`
-}
-
 // @Summary Get seller's items
 // @Description Get a seller's items
 // @Produce json
@@ -26,7 +22,9 @@ func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 		return
 	}
 
-	var uriParameters getItemsUriParameters
+	var uriParameters struct {
+		SellerId string `uri:"id" binding:"required"`
+	}
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid URI parameters: " + err.Error()})
 		return
