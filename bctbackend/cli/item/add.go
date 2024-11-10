@@ -4,6 +4,7 @@ import (
 	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/defs"
 	"fmt"
 	"time"
 
@@ -34,7 +35,7 @@ func AddItem(
 		return err
 	}
 
-	categoryName, err := models.NameOfCategory(categoryId)
+	categoryName, err := defs.NameOfCategory(categoryId)
 
 	if err != nil {
 		return fmt.Errorf("error while converting category to string: %v", err)

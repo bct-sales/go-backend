@@ -7,6 +7,7 @@ import (
 
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/defs"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -43,7 +44,7 @@ func TestListAllItems(t *testing.T) {
 		sessionId := addTestSession(db, adminId)
 
 		sellerId := addTestSeller(db).UserId
-		item := models.NewItem(0, 100, "test item", 1000, models.Shoes, sellerId, false, false)
+		item := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
 		itemId, err := queries.AddItem(db, item.Timestamp, item.Description, item.PriceInCents, item.CategoryId, item.SellerId, item.Donation, item.Charity)
 
 		if !assert.NoError(t, err) {
@@ -74,8 +75,8 @@ func TestListAllItems(t *testing.T) {
 		adminId := addTestAdmin(db).UserId
 		sessionId := addTestSession(db, adminId)
 		sellerId := addTestSeller(db).UserId
-		item1 := models.NewItem(0, 100, "test item", 1000, models.Shoes, sellerId, false, false)
-		item2 := models.NewItem(0, 100, "test item", 1000, models.Shoes, sellerId, false, false)
+		item1 := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
+		item2 := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
 
 		itemId, err := queries.AddItem(db, item1.Timestamp, item1.Description, item1.PriceInCents, item1.CategoryId, item1.SellerId, item1.Donation, item1.Charity)
 		if !assert.NoError(t, err) {

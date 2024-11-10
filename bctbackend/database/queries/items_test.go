@@ -2,6 +2,7 @@ package queries
 
 import (
 	models "bctbackend/database/models"
+	"bctbackend/defs"
 	"fmt"
 	"testing"
 
@@ -12,7 +13,7 @@ import (
 func TestAddItem(t *testing.T) {
 	for _, timestamp := range []models.Timestamp{0, 1000} {
 		for _, priceInCents := range []models.MoneyInCents{50, 100} {
-			for _, itemCategoryId := range models.Categories() {
+			for _, itemCategoryId := range defs.Categories() {
 				for _, description := range []string{"desc1", "desc2"} {
 					for _, sellerId := range []models.Id{1, 2} {
 						for _, donation := range []bool{false, true} {
@@ -103,7 +104,7 @@ func TestFailingAddItem(t *testing.T) {
 		db := openInitializedDatabase()
 		sellerId := addTestSeller(db)
 		donation := false
-		itemCategoryId := models.Shoes
+		itemCategoryId := defs.Shoes
 		priceInCents := models.NewMoneyInCents(0)
 
 		assert.True(t, CategoryWithIdExists(db, itemCategoryId))

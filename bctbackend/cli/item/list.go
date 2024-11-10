@@ -2,8 +2,8 @@ package item
 
 import (
 	"bctbackend/database"
-	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/defs"
 	"fmt"
 	"strconv"
 
@@ -39,7 +39,7 @@ func ListItems(databasePath string) error {
 		itemSellerIdString := strconv.FormatInt(item.SellerId, 10)
 		itemDonationString := strconv.FormatBool(item.Donation)
 		itemCharityString := strconv.FormatBool(item.Charity)
-		itemCategoryNameString, err := models.NameOfCategory(item.CategoryId)
+		itemCategoryNameString, err := defs.NameOfCategory(item.CategoryId)
 
 		if err != nil {
 			return fmt.Errorf("error while converting role to string: %v", err)

@@ -1,7 +1,7 @@
 package queries
 
 import (
-	models "bctbackend/database/models"
+	"bctbackend/defs"
 	"fmt"
 	"testing"
 
@@ -15,10 +15,10 @@ func TestGetCategories(t *testing.T) {
 
 	categories, err := GetCategories(db)
 	if assert.NoError(t, err) {
-		assert.Equal(t, len(models.Categories()), len(categories))
+		assert.Equal(t, len(defs.Categories()), len(categories))
 
 		for _, category := range categories {
-			assert.Contains(t, models.Categories(), category.CategoryId)
+			assert.Contains(t, defs.Categories(), category.CategoryId)
 		}
 	}
 }
@@ -27,7 +27,7 @@ func TestCategoryWithIdExists(t *testing.T) {
 	db := openInitializedDatabase()
 	defer db.Close()
 
-	for _, categoryId := range models.Categories() {
+	for _, categoryId := range defs.Categories() {
 		t.Run(fmt.Sprintf("categoryId = %d", categoryId), func(t *testing.T) {
 			assert.True(t, CategoryWithIdExists(db, categoryId))
 		})
@@ -35,31 +35,31 @@ func TestCategoryWithIdExists(t *testing.T) {
 }
 
 func TestGetCategoryCounts(t *testing.T) {
-	countTables := []map[models.Id]int64{
+	countTables := []map[defs.Id]int64{
 		{},
 		{
-			models.Clothing50_56: 1,
+			defs.Clothing50_56: 1,
 		},
 		{
-			models.Clothing50_56: 2,
+			defs.Clothing50_56: 2,
 		},
 		{
-			models.Clothing50_56: 2,
-			models.Toys:          3,
+			defs.Clothing50_56: 2,
+			defs.Toys:          3,
 		},
 		{
-			models.Clothing50_56:      1,
-			models.Clothing56_62:      2,
-			models.Clothing68_80:      3,
-			models.Clothing86_92:      4,
-			models.Clothing92_98:      5,
-			models.Clothing104_116:    6,
-			models.Clothing122_128:    7,
-			models.Clothing128_140:    8,
-			models.Clothing140_152:    9,
-			models.Shoes:              10,
-			models.Toys:               11,
-			models.BabyChildEquipment: 12,
+			defs.Clothing50_56:      1,
+			defs.Clothing56_62:      2,
+			defs.Clothing68_80:      3,
+			defs.Clothing86_92:      4,
+			defs.Clothing92_98:      5,
+			defs.Clothing104_116:    6,
+			defs.Clothing122_128:    7,
+			defs.Clothing128_140:    8,
+			defs.Clothing140_152:    9,
+			defs.Shoes:              10,
+			defs.Toys:               11,
+			defs.BabyChildEquipment: 12,
 		},
 	}
 
@@ -77,10 +77,10 @@ func TestGetCategoryCounts(t *testing.T) {
 
 		counts, err := GetCategoryCounts(db)
 		if assert.NoError(t, err) {
-			assert.Equal(t, len(models.Categories()), len(counts))
+			assert.Equal(t, len(defs.Categories()), len(counts))
 
 			for _, count := range counts {
-				assert.Contains(t, models.Categories(), count.CategoryId)
+				assert.Contains(t, defs.Categories(), count.CategoryId)
 
 				expectedCount := countTable[count.CategoryId]
 				actualCount := count.Count

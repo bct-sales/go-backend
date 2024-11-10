@@ -4,6 +4,7 @@ import (
 	database "bctbackend/database"
 	models "bctbackend/database/models"
 	queries "bctbackend/database/queries"
+	"bctbackend/defs"
 	"bctbackend/rest"
 	"bctbackend/security"
 	"database/sql"
@@ -108,7 +109,7 @@ func addTestItem(db *sql.DB, sellerId models.Id, index int) *models.Item {
 	timestamp := models.NewTimestamp(0)
 	description := "description" + strconv.Itoa(index)
 	priceInCents := models.NewMoneyInCents(100 + int64(index))
-	itemCategoryId := models.Shoes
+	itemCategoryId := defs.Shoes
 	donation := false
 	charity := false
 

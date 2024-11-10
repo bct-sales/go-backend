@@ -3,6 +3,7 @@ package queries
 import (
 	database "bctbackend/database"
 	models "bctbackend/database/models"
+	"bctbackend/defs"
 	"database/sql"
 	"log"
 	"strconv"
@@ -74,7 +75,7 @@ func addTestItem(db *sql.DB, sellerId models.Id, index int) models.Id {
 	timestamp := models.NewTimestamp(0)
 	description := "description" + strconv.Itoa(index)
 	priceInCents := models.NewMoneyInCents(100 + int64(index))
-	itemCategoryId := models.Shoes
+	itemCategoryId := defs.Shoes
 	donation := false
 	charity := false
 
