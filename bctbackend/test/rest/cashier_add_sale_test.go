@@ -80,5 +80,34 @@ func TestAddSaleItem(t *testing.T) {
 				}
 			}
 		})
+
+		t.Run("As admin", func(t *testing.T) {
+			db, router := test.CreateRestRouter()
+			writer := httptest.NewRecorder()
+			defer db.Close()
+
+			admin := test.AddAdminToDatabase(db)
+			seller := test.AddSellerToDatabase(db)
+			cashier := test.AddCashierToDatabase(db)
+			item := test.AddItemToDatabase(db, seller.UserId, 1)
+			sessionId := test.AddSessionToDatabase(db, admin.UserId) // Causes the operation to fail
+			payload := restapi.AddSalePayload{
+				CashierId: cashier.UserId,
+				Items:     []models.Id{item.ItemId},
+			}
+			url := "/api/v1/sales"
+			request := test.CreatePostRequest(url, &payload)
+			request.AddCookie(test.CreateCookie(sessionId))
+
+			router.ServeHTTP(writer, request)
+
+			if assert.Equal(t, http.StatusForbidden, writer.Code) {
+				sales, err := queries.GetSales(db)
+
+				if assert.NoError(t, err) {
+					assert.Empty(t, sales)
+				}
+			}
+		})
 	})
 }
