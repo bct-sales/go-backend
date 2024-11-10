@@ -32,7 +32,7 @@ const (
 	BabyChildEquipmentName string = "Baby/Child Equipment"
 )
 
-func Categories() []Id {
+func ListCategories() []Id {
 	return []Id{
 		Clothing50_56,
 		Clothing56_62,

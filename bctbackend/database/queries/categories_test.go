@@ -15,10 +15,10 @@ func TestGetCategories(t *testing.T) {
 
 	categories, err := GetCategories(db)
 	if assert.NoError(t, err) {
-		assert.Equal(t, len(defs.Categories()), len(categories))
+		assert.Equal(t, len(defs.ListCategories()), len(categories))
 
 		for _, category := range categories {
-			assert.Contains(t, defs.Categories(), category.CategoryId)
+			assert.Contains(t, defs.ListCategories(), category.CategoryId)
 		}
 	}
 }
@@ -27,7 +27,7 @@ func TestCategoryWithIdExists(t *testing.T) {
 	db := openInitializedDatabase()
 	defer db.Close()
 
-	for _, categoryId := range defs.Categories() {
+	for _, categoryId := range defs.ListCategories() {
 		t.Run(fmt.Sprintf("categoryId = %d", categoryId), func(t *testing.T) {
 			assert.True(t, CategoryWithIdExists(db, categoryId))
 		})
@@ -77,10 +77,10 @@ func TestGetCategoryCounts(t *testing.T) {
 
 		counts, err := GetCategoryCounts(db)
 		if assert.NoError(t, err) {
-			assert.Equal(t, len(defs.Categories()), len(counts))
+			assert.Equal(t, len(defs.ListCategories()), len(counts))
 
 			for _, count := range counts {
-				assert.Contains(t, defs.Categories(), count.CategoryId)
+				assert.Contains(t, defs.ListCategories(), count.CategoryId)
 
 				expectedCount := countTable[count.CategoryId]
 				actualCount := count.Count

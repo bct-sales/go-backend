@@ -273,7 +273,7 @@ func populateRoleTable(db *sql.DB) error {
 }
 
 func populateItemCategoryTable(db *sql.DB) error {
-	for _, categoryId := range defs.Categories() {
+	for _, categoryId := range defs.ListCategories() {
 		categoryName, err := defs.NameOfCategory(categoryId)
 
 		if err != nil {
