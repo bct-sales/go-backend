@@ -5,7 +5,10 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
+
+	restapi "bctbackend/rest/seller"
 
 	models "bctbackend/database/models"
 
@@ -34,12 +37,52 @@ func TestListSellerItems(t *testing.T) {
 			if assert.NoError(t, err) {
 				router.ServeHTTP(writer, request)
 
-				log.Println(writer.Body.String())
 				if assert.Equal(t, http.StatusOK, writer.Code) {
 					actual := fromJson[[]models.Item](writer.Body.String())
 					assert.Equal(t, expectedItems, *actual)
 				}
 			}
+		}
+	}
+}
+
+func TestAddSellerItem(t *testing.T) {
+	for _, sellerId := range []models.Id{models.NewId(1), models.NewId(2), models.NewId(100)} {
+		db, router := createRestRouter()
+		writer := httptest.NewRecorder()
+		defer db.Close()
+
+		seller := addTestSellerWithId(db, sellerId)
+		sessionId := addTestSession(db, seller.UserId)
+
+		price := models.MoneyInCents(100)
+		donation := false
+		description := "Test Description"
+		categoryId := models.Clothing104_116
+		charity := false
+		payload := restapi.AddSellerItemPayload{
+			Price:       price,
+			Description: description,
+			CategoryId:  categoryId,
+			Donation:    &donation,
+			Charity:     &charity,
+		}
+
+		payloadJson := toJson(payload)
+
+		log.Println(payloadJson)
+
+		url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
+		request, err := http.NewRequest("POST", url, strings.NewReader(payloadJson))
+		request.Header.Set("Content-Type", "application/json")
+		request.AddCookie(createCookie(sessionId))
+
+		if assert.NoError(t, err) {
+			router.ServeHTTP(writer, request)
+
+			log.Println(writer.Body.String())
+
+			assert.Equal(t, http.StatusCreated, writer.Code)
 		}
 	}
 }
