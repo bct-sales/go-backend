@@ -10,42 +10,43 @@ import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/defs"
+	"bctbackend/test"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestListAllItems(t *testing.T) {
 	t.Run("No items", func(t *testing.T) {
-		db, router := CreateRestRouter()
+		db, router := test.CreateRestRouter()
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
-		admin := AddTestAdmin(db)
-		sessionId := AddTestSession(db, admin.UserId)
+		admin := test.AddTestAdmin(db)
+		sessionId := test.AddTestSession(db, admin.UserId)
 
 		request, err := http.NewRequest("GET", "/api/v1/items", nil)
-		request.AddCookie(CreateCookie(sessionId))
+		request.AddCookie(test.CreateCookie(sessionId))
 
 		if assert.NoError(t, err) {
 			router.ServeHTTP(writer, request)
 
 			if assert.Equal(t, http.StatusOK, writer.Code) {
 				expected := []models.Item{}
-				actual := FromJson[[]models.Item](writer.Body.String())
+				actual := test.FromJson[[]models.Item](writer.Body.String())
 				assert.Equal(t, expected, *actual)
 			}
 		}
 	})
 
 	t.Run("One item", func(t *testing.T) {
-		db, router := CreateRestRouter()
+		db, router := test.CreateRestRouter()
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
-		adminId := AddTestAdmin(db).UserId
-		sessionId := AddTestSession(db, adminId)
+		adminId := test.AddTestAdmin(db).UserId
+		sessionId := test.AddTestSession(db, adminId)
 
-		sellerId := AddTestSeller(db).UserId
+		sellerId := test.AddTestSeller(db).UserId
 		item := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
 		itemId, err := queries.AddItem(db, item.Timestamp, item.Description, item.PriceInCents, item.CategoryId, item.SellerId, item.Donation, item.Charity)
 
@@ -56,7 +57,7 @@ func TestListAllItems(t *testing.T) {
 		item.ItemId = itemId
 
 		request, err := http.NewRequest("GET", "/api/v1/items", nil)
-		request.AddCookie(CreateCookie(sessionId))
+		request.AddCookie(test.CreateCookie(sessionId))
 
 		if assert.NoError(t, err) {
 			router.ServeHTTP(writer, request)
@@ -64,19 +65,19 @@ func TestListAllItems(t *testing.T) {
 			assert.Equal(t, http.StatusOK, writer.Code)
 
 			expected := []models.Item{*item}
-			actual := FromJson[[]models.Item](writer.Body.String())
+			actual := test.FromJson[[]models.Item](writer.Body.String())
 			assert.Equal(t, expected, *actual)
 		}
 	})
 
 	t.Run("Two items", func(t *testing.T) {
-		db, router := CreateRestRouter()
+		db, router := test.CreateRestRouter()
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
-		adminId := AddTestAdmin(db).UserId
-		sessionId := AddTestSession(db, adminId)
-		sellerId := AddTestSeller(db).UserId
+		adminId := test.AddTestAdmin(db).UserId
+		sessionId := test.AddTestSession(db, adminId)
+		sellerId := test.AddTestSeller(db).UserId
 		item1 := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
 		item2 := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
 
@@ -93,7 +94,7 @@ func TestListAllItems(t *testing.T) {
 		item2.ItemId = itemId
 
 		request, err := http.NewRequest("GET", "/api/v1/items", nil)
-		request.AddCookie(CreateCookie(sessionId))
+		request.AddCookie(test.CreateCookie(sessionId))
 
 		if assert.NoError(t, err) {
 			router.ServeHTTP(writer, request)
@@ -101,7 +102,7 @@ func TestListAllItems(t *testing.T) {
 			assert.Equal(t, http.StatusOK, writer.Code)
 
 			expected := []models.Item{*item1, *item2}
-			actual := FromJson[[]models.Item](writer.Body.String())
+			actual := test.FromJson[[]models.Item](writer.Body.String())
 			assert.Equal(t, expected, *actual)
 		}
 	})
@@ -116,15 +117,15 @@ func TestListAllItemsAsNonAdmin(t *testing.T) {
 		}
 
 		t.Run("As "+roleString, func(t *testing.T) {
-			db, router := CreateRestRouter()
+			db, router := test.CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			userId := AddTestUser(db, roleId).UserId
-			sessionId := AddTestSession(db, userId)
+			userId := test.AddTestUser(db, roleId).UserId
+			sessionId := test.AddTestSession(db, userId)
 
 			request, err := http.NewRequest("GET", "/api/v1/items", nil)
-			request.AddCookie(CreateCookie(sessionId))
+			request.AddCookie(test.CreateCookie(sessionId))
 
 			if assert.NoError(t, err) {
 				router.ServeHTTP(writer, request)

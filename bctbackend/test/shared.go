@@ -1,6 +1,6 @@
 //go:build test
 
-package rest
+package test
 
 import (
 	database "bctbackend/database"

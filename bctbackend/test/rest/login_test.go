@@ -4,6 +4,7 @@ package rest
 
 import (
 	"bctbackend/database/models"
+	"bctbackend/test"
 	"bytes"
 	"net/http"
 	"net/http/httptest"
@@ -14,11 +15,11 @@ import (
 )
 
 func TestLogin(t *testing.T) {
-	db, router := CreateRestRouter()
+	db, router := test.CreateRestRouter()
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	seller := AddTestSeller(db)
+	seller := test.AddTestSeller(db)
 
 	form := url.Values{}
 	form.Add("username", models.IdToString(seller.UserId))
