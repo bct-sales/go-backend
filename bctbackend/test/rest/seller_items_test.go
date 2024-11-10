@@ -249,10 +249,118 @@ func TestAddSellerItem(t *testing.T) {
 			}
 		})
 
-		// Invalid url
-		// As cashier
-		// As nonexisting seller
-		// As wrong seller
+		t.Run("Invalid url", func(t *testing.T) {
+			price := models.MoneyInCents(100)
+			description := "Test Description"
+			categoryId := models.NewId(1000)
+			donation := false
+			charity := false
+
+			assert.NotContains(t, defs.ListCategories(), categoryId)
+
+			db, router := test.CreateRestRouter()
+			writer := httptest.NewRecorder()
+			defer db.Close()
+
+			seller := test.AddSellerToDatabase(db)
+			sessionId := test.AddSessionToDatabase(db, seller.UserId)
+
+			url := "/api/v1/sellers/a/items"
+			payload := restapi.AddSellerItemPayload{
+				Price:       price,
+				Description: description,
+				CategoryId:  categoryId,
+				Donation:    &donation,
+				Charity:     &charity,
+			}
+			request := test.CreatePostRequest(url, &payload)
+
+			request.AddCookie(test.CreateCookie(sessionId))
+			router.ServeHTTP(writer, request)
+
+			assert.Equal(t, http.StatusBadRequest, writer.Code)
+			itemsInDatabase, err := queries.GetItems(db)
+			if assert.NoError(t, err) {
+				assert.Equal(t, 0, len(itemsInDatabase))
+			}
+		})
+
+		t.Run("Adding as different seller", func(t *testing.T) {
+			price := models.MoneyInCents(100)
+			description := "Test Description"
+			categoryId := models.NewId(1000)
+			donation := false
+			charity := false
+
+			assert.NotContains(t, defs.ListCategories(), categoryId)
+
+			db, router := test.CreateRestRouter()
+			writer := httptest.NewRecorder()
+			defer db.Close()
+
+			seller1 := test.AddSellerToDatabase(db)
+			seller2 := test.AddSellerToDatabase(db)
+			sessionId := test.AddSessionToDatabase(db, seller2.UserId)
+
+			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller1.UserId)
+			payload := restapi.AddSellerItemPayload{
+				Price:       price,
+				Description: description,
+				CategoryId:  categoryId,
+				Donation:    &donation,
+				Charity:     &charity,
+			}
+			request := test.CreatePostRequest(url, &payload)
+
+			request.AddCookie(test.CreateCookie(sessionId))
+			router.ServeHTTP(writer, request)
+
+			assert.Equal(t, http.StatusForbidden, writer.Code)
+			itemsInDatabase, err := queries.GetItems(db)
+			if assert.NoError(t, err) {
+				assert.Equal(t, 0, len(itemsInDatabase))
+			}
+		})
+
+		t.Run("Adding as nonexistent seller", func(t *testing.T) {
+			price := models.MoneyInCents(100)
+			description := "Test Description"
+			categoryId := models.NewId(1000)
+			donation := false
+			charity := false
+
+			assert.NotContains(t, defs.ListCategories(), categoryId)
+
+			db, router := test.CreateRestRouter()
+			writer := httptest.NewRecorder()
+			defer db.Close()
+
+			seller := test.AddSellerToDatabase(db)
+			invalidId := models.NewId(1000)
+			sessionId := test.AddSessionToDatabase(db, seller.UserId)
+
+			if assert.False(t, queries.UserWithIdExists(db, invalidId)) {
+				url := fmt.Sprintf("/api/v1/sellers/%d/items", invalidId)
+				payload := restapi.AddSellerItemPayload{
+					Price:       price,
+					Description: description,
+					CategoryId:  categoryId,
+					Donation:    &donation,
+					Charity:     &charity,
+				}
+				request := test.CreatePostRequest(url, &payload)
+
+				request.AddCookie(test.CreateCookie(sessionId))
+				router.ServeHTTP(writer, request)
+
+				assert.Equal(t, http.StatusForbidden, writer.Code)
+				itemsInDatabase, err := queries.GetItems(db)
+				if assert.NoError(t, err) {
+					assert.Equal(t, 0, len(itemsInDatabase))
+				}
+			}
+		})
+
 		// Empty description
 	})
 }
