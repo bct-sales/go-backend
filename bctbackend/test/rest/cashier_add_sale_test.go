@@ -104,5 +104,30 @@ func TestAddSaleItem(t *testing.T) {
 				}
 			}
 		})
+
+		t.Run("No items", func(t *testing.T) {
+			db, router := test.CreateRestRouter()
+			writer := httptest.NewRecorder()
+			defer db.Close()
+
+			cashier := test.AddCashierToDatabase(db)
+			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
+			payload := restapi.AddSalePayload{
+				Items: []models.Id{},
+			}
+			url := "/api/v1/sales"
+			request := test.CreatePostRequest(url, &payload)
+			request.AddCookie(test.CreateCookie(sessionId))
+
+			router.ServeHTTP(writer, request)
+
+			if assert.Equal(t, http.StatusBadRequest, writer.Code) {
+				sales, err := queries.GetSales(db)
+
+				if assert.NoError(t, err) {
+					assert.Empty(t, sales)
+				}
+			}
+		})
 	})
 }
