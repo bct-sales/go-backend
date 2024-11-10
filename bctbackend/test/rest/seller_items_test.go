@@ -21,27 +21,27 @@ import (
 func TestListSellerItems(t *testing.T) {
 	for _, sellerId := range []models.Id{models.NewId(1), models.NewId(2), models.NewId(100)} {
 		for _, itemCount := range []int{0, 1, 5, 100} {
-			db, router := createRestRouter()
+			db, router := CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := addTestSellerWithId(db, sellerId)
-			sessionId := addTestSession(db, seller.UserId)
+			seller := AddTestSellerWithId(db, sellerId)
+			sessionId := AddTestSession(db, seller.UserId)
 
 			expectedItems := []models.Item{}
 			for i := 0; i < itemCount; i++ {
-				expectedItems = append(expectedItems, *addTestItem(db, seller.UserId, i))
+				expectedItems = append(expectedItems, *AddTestItem(db, seller.UserId, i))
 			}
 
 			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
 			request, err := http.NewRequest("GET", url, nil)
-			request.AddCookie(createCookie(sessionId))
+			request.AddCookie(CreateCookie(sessionId))
 
 			if assert.NoError(t, err) {
 				router.ServeHTTP(writer, request)
 
 				if assert.Equal(t, http.StatusOK, writer.Code) {
-					actual := fromJson[[]models.Item](writer.Body.String())
+					actual := FromJson[[]models.Item](writer.Body.String())
 					assert.Equal(t, expectedItems, *actual)
 				}
 			}
@@ -58,12 +58,12 @@ func TestAddSellerItem(t *testing.T) {
 						for _, donation := range []bool{true, false} {
 							for _, charity := range []bool{true, false} {
 								t.Run(fmt.Sprintf("sellerId=%d price=%d description=%s categoryId=%d donation=%t charity=%t", sellerId, price, description, categoryId, donation, charity), func(t *testing.T) {
-									db, router := createRestRouter()
+									db, router := CreateRestRouter()
 									writer := httptest.NewRecorder()
 									defer db.Close()
 
-									seller := addTestSellerWithId(db, sellerId)
-									sessionId := addTestSession(db, seller.UserId)
+									seller := AddTestSellerWithId(db, sellerId)
+									sessionId := AddTestSession(db, seller.UserId)
 
 									payload := restapi.AddSellerItemPayload{
 										Price:       price,
@@ -73,20 +73,20 @@ func TestAddSellerItem(t *testing.T) {
 										Charity:     &charity,
 									}
 
-									payloadJson := toJson(payload)
+									payloadJson := ToJson(payload)
 
 									url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
 									request, err := http.NewRequest("POST", url, strings.NewReader(payloadJson))
 
 									if assert.NoError(t, err) {
 										request.Header.Set("Content-Type", "application/json")
-										request.AddCookie(createCookie(sessionId))
+										request.AddCookie(CreateCookie(sessionId))
 
 										if assert.NoError(t, err) {
 											router.ServeHTTP(writer, request)
 
 											if assert.Equal(t, http.StatusCreated, writer.Code) {
-												response := fromJson[restapi.AddSellerItemResponse](writer.Body.String())
+												response := FromJson[restapi.AddSellerItemResponse](writer.Body.String())
 
 												itemsInDatabase, err := queries.GetItems(db)
 												if assert.NoError(t, err) {
@@ -121,12 +121,12 @@ func TestAddSellerItem(t *testing.T) {
 			donation := false
 			charity := false
 
-			db, router := createRestRouter()
+			db, router := CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := addTestSeller(db)
-			sessionId := addTestSession(db, seller.UserId)
+			seller := AddTestSeller(db)
+			sessionId := AddTestSession(db, seller.UserId)
 
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
@@ -136,14 +136,14 @@ func TestAddSellerItem(t *testing.T) {
 				Charity:     &charity,
 			}
 
-			payloadJson := toJson(payload)
+			payloadJson := ToJson(payload)
 
 			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
 			request, err := http.NewRequest("POST", url, strings.NewReader(payloadJson))
 
 			if assert.NoError(t, err) {
 				request.Header.Set("Content-Type", "application/json")
-				request.AddCookie(createCookie(sessionId))
+				request.AddCookie(CreateCookie(sessionId))
 
 				if assert.NoError(t, err) {
 					router.ServeHTTP(writer, request)
@@ -166,12 +166,12 @@ func TestAddSellerItem(t *testing.T) {
 
 			assert.NotContains(t, defs.ListCategories(), categoryId)
 
-			db, router := createRestRouter()
+			db, router := CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := addTestSeller(db)
-			sessionId := addTestSession(db, seller.UserId)
+			seller := AddTestSeller(db)
+			sessionId := AddTestSession(db, seller.UserId)
 
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
@@ -181,14 +181,14 @@ func TestAddSellerItem(t *testing.T) {
 				Charity:     &charity,
 			}
 
-			payloadJson := toJson(payload)
+			payloadJson := ToJson(payload)
 
 			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
 			request, err := http.NewRequest("POST", url, strings.NewReader(payloadJson))
 
 			if assert.NoError(t, err) {
 				request.Header.Set("Content-Type", "application/json")
-				request.AddCookie(createCookie(sessionId))
+				request.AddCookie(CreateCookie(sessionId))
 
 				if assert.NoError(t, err) {
 					router.ServeHTTP(writer, request)

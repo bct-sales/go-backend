@@ -14,11 +14,11 @@ import (
 )
 
 func TestLogin(t *testing.T) {
-	db, router := createRestRouter()
+	db, router := CreateRestRouter()
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	seller := addTestSeller(db)
+	seller := AddTestSeller(db)
 
 	form := url.Values{}
 	form.Add("username", models.IdToString(seller.UserId))

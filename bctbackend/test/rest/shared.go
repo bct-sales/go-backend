@@ -20,7 +20,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func openDatabase() *sql.DB {
+func OpenDatabase() *sql.DB {
 	db, error := sql.Open("sqlite", ":memory:")
 
 	if error != nil {
@@ -32,8 +32,8 @@ func openDatabase() *sql.DB {
 	return db
 }
 
-func openInitializedDatabase() *sql.DB {
-	db := openDatabase()
+func OpenInitializedDatabase() *sql.DB {
+	db := OpenDatabase()
 
 	if err := database.InitializeDatabase(db); err != nil {
 		log.Fatalf("failed to initialize database: %v", err)
@@ -42,14 +42,14 @@ func openInitializedDatabase() *sql.DB {
 	return db
 }
 
-func createRestRouter() (*sql.DB, *gin.Engine) {
-	db := openInitializedDatabase()
+func CreateRestRouter() (*sql.DB, *gin.Engine) {
+	db := OpenInitializedDatabase()
 	router := rest.CreateRestRouter(db)
 
 	return db, router
 }
 
-func addTestUserWithId(db *sql.DB, id models.Id, roleId models.Id) models.User {
+func AddTestUserWithId(db *sql.DB, id models.Id, roleId models.Id) models.User {
 	password := "test"
 
 	if err := queries.AddUserWithId(db, id, roleId, 0, password); err != nil {
@@ -65,7 +65,7 @@ func addTestUserWithId(db *sql.DB, id models.Id, roleId models.Id) models.User {
 	return user
 }
 
-func addTestUser(db *sql.DB, roleId models.Id) models.User {
+func AddTestUser(db *sql.DB, roleId models.Id) models.User {
 	password := "test"
 
 	userId, err := queries.AddUser(db, roleId, 0, password)
@@ -83,31 +83,31 @@ func addTestUser(db *sql.DB, roleId models.Id) models.User {
 	return user
 }
 
-func addTestSeller(db *sql.DB) models.User {
-	return addTestUser(db, models.SellerRoleId)
+func AddTestSeller(db *sql.DB) models.User {
+	return AddTestUser(db, models.SellerRoleId)
 }
 
-func addTestCashier(db *sql.DB) models.User {
-	return addTestUser(db, models.CashierRoleId)
+func AddTestCashier(db *sql.DB) models.User {
+	return AddTestUser(db, models.CashierRoleId)
 }
 
-func addTestAdmin(db *sql.DB) models.User {
-	return addTestUser(db, models.AdminRoleId)
+func AddTestAdmin(db *sql.DB) models.User {
+	return AddTestUser(db, models.AdminRoleId)
 }
 
-func addTestAdminWithId(db *sql.DB, id models.Id) models.User {
-	return addTestUserWithId(db, id, models.AdminRoleId)
+func AddTestAdminWithId(db *sql.DB, id models.Id) models.User {
+	return AddTestUserWithId(db, id, models.AdminRoleId)
 }
 
-func addTestSellerWithId(db *sql.DB, id models.Id) models.User {
-	return addTestUserWithId(db, id, models.SellerRoleId)
+func AddTestSellerWithId(db *sql.DB, id models.Id) models.User {
+	return AddTestUserWithId(db, id, models.SellerRoleId)
 }
 
-func addTestCashierWithId(db *sql.DB, id models.Id) models.User {
-	return addTestUserWithId(db, id, models.CashierRoleId)
+func AddTestCashierWithId(db *sql.DB, id models.Id) models.User {
+	return AddTestUserWithId(db, id, models.CashierRoleId)
 }
 
-func addTestItem(db *sql.DB, sellerId models.Id, index int) *models.Item {
+func AddTestItem(db *sql.DB, sellerId models.Id, index int) *models.Item {
 	timestamp := models.NewTimestamp(0)
 	description := "description" + strconv.Itoa(index)
 	priceInCents := models.NewMoneyInCents(100 + int64(index))
@@ -130,7 +130,7 @@ func addTestItem(db *sql.DB, sellerId models.Id, index int) *models.Item {
 	return item
 }
 
-func addTestItemInCategory(db *sql.DB, sellerId models.Id, itemCategoryId models.Id) *models.Item {
+func AddTestItemInCategory(db *sql.DB, sellerId models.Id, itemCategoryId models.Id) *models.Item {
 	timestamp := models.NewTimestamp(0)
 	description := "description"
 	priceInCents := models.NewMoneyInCents(100)
@@ -152,7 +152,7 @@ func addTestItemInCategory(db *sql.DB, sellerId models.Id, itemCategoryId models
 	return item
 }
 
-func addTestSale(db *sql.DB, cashierId models.Id, itemIds []models.Id) models.Id {
+func AddTestSale(db *sql.DB, cashierId models.Id, itemIds []models.Id) models.Id {
 	timestamp := models.NewTimestamp(0)
 
 	saleId, err := queries.AddSale(db, cashierId, timestamp, itemIds)
@@ -164,7 +164,7 @@ func addTestSale(db *sql.DB, cashierId models.Id, itemIds []models.Id) models.Id
 	return saleId
 }
 
-func toJson(x any) string {
+func ToJson(x any) string {
 	jsonData, err := json.Marshal(x)
 	if err != nil {
 		panic(err)
@@ -172,7 +172,7 @@ func toJson(x any) string {
 	return string(jsonData)
 }
 
-func fromJson[T any](jsonString string) *T {
+func FromJson[T any](jsonString string) *T {
 	var x T
 	err := json.Unmarshal([]byte(jsonString), &x)
 	if err != nil {
@@ -181,7 +181,7 @@ func fromJson[T any](jsonString string) *T {
 	return &x
 }
 
-func addTestSession(db *sql.DB, userId models.Id) string {
+func AddTestSession(db *sql.DB, userId models.Id) string {
 	sessionId, err := queries.AddSession(db, userId)
 
 	if err != nil {
@@ -191,7 +191,7 @@ func addTestSession(db *sql.DB, userId models.Id) string {
 	return sessionId
 }
 
-func createCookie(sessionId string) *http.Cookie {
+func CreateCookie(sessionId string) *http.Cookie {
 	return &http.Cookie{
 		Name:     security.SessionCookieName,
 		Value:    sessionId,

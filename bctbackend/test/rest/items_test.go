@@ -16,36 +16,36 @@ import (
 
 func TestListAllItems(t *testing.T) {
 	t.Run("No items", func(t *testing.T) {
-		db, router := createRestRouter()
+		db, router := CreateRestRouter()
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
-		admin := addTestAdmin(db)
-		sessionId := addTestSession(db, admin.UserId)
+		admin := AddTestAdmin(db)
+		sessionId := AddTestSession(db, admin.UserId)
 
 		request, err := http.NewRequest("GET", "/api/v1/items", nil)
-		request.AddCookie(createCookie(sessionId))
+		request.AddCookie(CreateCookie(sessionId))
 
 		if assert.NoError(t, err) {
 			router.ServeHTTP(writer, request)
 
 			if assert.Equal(t, http.StatusOK, writer.Code) {
 				expected := []models.Item{}
-				actual := fromJson[[]models.Item](writer.Body.String())
+				actual := FromJson[[]models.Item](writer.Body.String())
 				assert.Equal(t, expected, *actual)
 			}
 		}
 	})
 
 	t.Run("One item", func(t *testing.T) {
-		db, router := createRestRouter()
+		db, router := CreateRestRouter()
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
-		adminId := addTestAdmin(db).UserId
-		sessionId := addTestSession(db, adminId)
+		adminId := AddTestAdmin(db).UserId
+		sessionId := AddTestSession(db, adminId)
 
-		sellerId := addTestSeller(db).UserId
+		sellerId := AddTestSeller(db).UserId
 		item := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
 		itemId, err := queries.AddItem(db, item.Timestamp, item.Description, item.PriceInCents, item.CategoryId, item.SellerId, item.Donation, item.Charity)
 
@@ -56,7 +56,7 @@ func TestListAllItems(t *testing.T) {
 		item.ItemId = itemId
 
 		request, err := http.NewRequest("GET", "/api/v1/items", nil)
-		request.AddCookie(createCookie(sessionId))
+		request.AddCookie(CreateCookie(sessionId))
 
 		if assert.NoError(t, err) {
 			router.ServeHTTP(writer, request)
@@ -64,19 +64,19 @@ func TestListAllItems(t *testing.T) {
 			assert.Equal(t, http.StatusOK, writer.Code)
 
 			expected := []models.Item{*item}
-			actual := fromJson[[]models.Item](writer.Body.String())
+			actual := FromJson[[]models.Item](writer.Body.String())
 			assert.Equal(t, expected, *actual)
 		}
 	})
 
 	t.Run("Two items", func(t *testing.T) {
-		db, router := createRestRouter()
+		db, router := CreateRestRouter()
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
-		adminId := addTestAdmin(db).UserId
-		sessionId := addTestSession(db, adminId)
-		sellerId := addTestSeller(db).UserId
+		adminId := AddTestAdmin(db).UserId
+		sessionId := AddTestSession(db, adminId)
+		sellerId := AddTestSeller(db).UserId
 		item1 := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
 		item2 := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
 
@@ -93,7 +93,7 @@ func TestListAllItems(t *testing.T) {
 		item2.ItemId = itemId
 
 		request, err := http.NewRequest("GET", "/api/v1/items", nil)
-		request.AddCookie(createCookie(sessionId))
+		request.AddCookie(CreateCookie(sessionId))
 
 		if assert.NoError(t, err) {
 			router.ServeHTTP(writer, request)
@@ -101,7 +101,7 @@ func TestListAllItems(t *testing.T) {
 			assert.Equal(t, http.StatusOK, writer.Code)
 
 			expected := []models.Item{*item1, *item2}
-			actual := fromJson[[]models.Item](writer.Body.String())
+			actual := FromJson[[]models.Item](writer.Body.String())
 			assert.Equal(t, expected, *actual)
 		}
 	})
@@ -116,15 +116,15 @@ func TestListAllItemsAsNonAdmin(t *testing.T) {
 		}
 
 		t.Run("As "+roleString, func(t *testing.T) {
-			db, router := createRestRouter()
+			db, router := CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			userId := addTestUser(db, roleId).UserId
-			sessionId := addTestSession(db, userId)
+			userId := AddTestUser(db, roleId).UserId
+			sessionId := AddTestSession(db, userId)
 
 			request, err := http.NewRequest("GET", "/api/v1/items", nil)
-			request.AddCookie(createCookie(sessionId))
+			request.AddCookie(CreateCookie(sessionId))
 
 			if assert.NoError(t, err) {
 				router.ServeHTTP(writer, request)
