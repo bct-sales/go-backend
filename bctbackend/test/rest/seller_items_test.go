@@ -10,6 +10,7 @@ import (
 	restapi "bctbackend/rest/seller"
 
 	models "bctbackend/database/models"
+	"bctbackend/database/queries"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -76,8 +77,23 @@ func TestAddSellerItem(t *testing.T) {
 
 		if assert.NoError(t, err) {
 			router.ServeHTTP(writer, request)
-
 			assert.Equal(t, http.StatusCreated, writer.Code)
+
+			response := fromJson[restapi.AddSellerItemResponse](writer.Body.String())
+
+			itemsInDatabase, err := queries.GetItems(db)
+			if assert.NoError(t, err) {
+				assert.Equal(t, 1, len(itemsInDatabase))
+
+				itemInDatabase := itemsInDatabase[0]
+				assert.Equal(t, response.ItemId, itemInDatabase.ItemId)
+				assert.Equal(t, seller.UserId, itemInDatabase.SellerId)
+				assert.Equal(t, price, itemInDatabase.PriceInCents)
+				assert.Equal(t, description, itemInDatabase.Description)
+				assert.Equal(t, categoryId, itemInDatabase.CategoryId)
+				assert.Equal(t, donation, itemInDatabase.Donation)
+				assert.Equal(t, charity, itemInDatabase.Charity)
+			}
 		}
 	}
 }
