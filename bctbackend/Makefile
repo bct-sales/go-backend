@@ -1,7 +1,10 @@
 .PHONY: test
 
-test:
+cleantest:
 	go clean -testcache
+	go test -tags=test ./...
+
+test:
 	go test -tags=test ./...
 
 coverage:
