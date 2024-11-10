@@ -154,7 +154,7 @@ func createItemTable(db *sql.DB) error {
 		CREATE TABLE items (
 			item_id             INTEGER NOT NULL,
 			timestamp           INTEGER NOT NULL,
-			description         TEXT NOT NULL,
+			description         TEXT NOT NULL CHECK (LENGTH(description) > 0),
 			price_in_cents      INTEGER NOT NULL CHECK (price_in_cents > 0),
 			item_category_id    INTEGER NOT NULL,
 			seller_id           INTEGER NOT NULL,

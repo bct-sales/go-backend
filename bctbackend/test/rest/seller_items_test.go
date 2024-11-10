@@ -139,6 +139,39 @@ func TestAddSellerItem(t *testing.T) {
 			}
 		})
 
+		t.Run("Empty description", func(t *testing.T) {
+			price := models.MoneyInCents(100)
+			description := ""
+			categoryId := defs.Shoes
+			donation := false
+			charity := false
+
+			db, router := test.CreateRestRouter()
+			writer := httptest.NewRecorder()
+			defer db.Close()
+
+			seller := test.AddSellerToDatabase(db)
+			sessionId := test.AddSessionToDatabase(db, seller.UserId)
+
+			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
+			payload := restapi.AddSellerItemPayload{
+				Price:       price,
+				Description: description,
+				CategoryId:  categoryId,
+				Donation:    &donation,
+				Charity:     &charity,
+			}
+			request := test.CreatePostRequest(url, &payload)
+			request.AddCookie(test.CreateCookie(sessionId))
+			router.ServeHTTP(writer, request)
+
+			assert.Equal(t, http.StatusBadRequest, writer.Code)
+			itemsInDatabase, err := queries.GetItems(db)
+			if assert.NoError(t, err) {
+				assert.Equal(t, 0, len(itemsInDatabase))
+			}
+		})
+
 		t.Run("Invalid category", func(t *testing.T) {
 			price := models.MoneyInCents(100)
 			description := "Test Description"
