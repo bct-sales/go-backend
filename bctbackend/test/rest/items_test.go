@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -127,7 +126,6 @@ func TestListAllItemsAsNonAdmin(t *testing.T) {
 			if assert.NoError(t, err) {
 				router.ServeHTTP(writer, request)
 
-				log.Println(writer.Body.String())
 				assert.Equal(t, http.StatusForbidden, writer.Code)
 			}
 		})

@@ -2,7 +2,6 @@ package rest
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -70,8 +69,6 @@ func TestAddSellerItem(t *testing.T) {
 
 		payloadJson := toJson(payload)
 
-		log.Println(payloadJson)
-
 		url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
 		request, err := http.NewRequest("POST", url, strings.NewReader(payloadJson))
 		request.Header.Set("Content-Type", "application/json")
@@ -79,8 +76,6 @@ func TestAddSellerItem(t *testing.T) {
 
 		if assert.NoError(t, err) {
 			router.ServeHTTP(writer, request)
-
-			log.Println(writer.Body.String())
 
 			assert.Equal(t, http.StatusCreated, writer.Code)
 		}
