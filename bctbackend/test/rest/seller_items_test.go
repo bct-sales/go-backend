@@ -26,12 +26,12 @@ func TestListSellerItems(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := test.AddTestSellerWithId(db, sellerId)
-			sessionId := test.AddTestSession(db, seller.UserId)
+			seller := test.AddSellerWithIdToDatabase(db, sellerId)
+			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
 			expectedItems := []models.Item{}
 			for i := 0; i < itemCount; i++ {
-				expectedItems = append(expectedItems, *test.AddTestItem(db, seller.UserId, i))
+				expectedItems = append(expectedItems, *test.AddItemToDatabase(db, seller.UserId, i))
 			}
 
 			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
@@ -63,8 +63,8 @@ func TestAddSellerItem(t *testing.T) {
 									writer := httptest.NewRecorder()
 									defer db.Close()
 
-									seller := test.AddTestSellerWithId(db, sellerId)
-									sessionId := test.AddTestSession(db, seller.UserId)
+									seller := test.AddSellerWithIdToDatabase(db, sellerId)
+									sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
 									payload := restapi.AddSellerItemPayload{
 										Price:       price,
@@ -126,8 +126,8 @@ func TestAddSellerItem(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := test.AddTestSeller(db)
-			sessionId := test.AddTestSession(db, seller.UserId)
+			seller := test.AddSellerToDatabase(db)
+			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
@@ -171,8 +171,8 @@ func TestAddSellerItem(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := test.AddTestSeller(db)
-			sessionId := test.AddTestSession(db, seller.UserId)
+			seller := test.AddSellerToDatabase(db)
+			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,

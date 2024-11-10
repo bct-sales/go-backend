@@ -49,7 +49,7 @@ func CreateRestRouter() (*sql.DB, *gin.Engine) {
 	return db, router
 }
 
-func AddTestUserWithId(db *sql.DB, id models.Id, roleId models.Id) models.User {
+func AddUserWithIdToDatabase(db *sql.DB, id models.Id, roleId models.Id) models.User {
 	password := "test"
 
 	if err := queries.AddUserWithId(db, id, roleId, 0, password); err != nil {
@@ -65,7 +65,7 @@ func AddTestUserWithId(db *sql.DB, id models.Id, roleId models.Id) models.User {
 	return user
 }
 
-func AddTestUser(db *sql.DB, roleId models.Id) models.User {
+func AddUserToDatabase(db *sql.DB, roleId models.Id) models.User {
 	password := "test"
 
 	userId, err := queries.AddUser(db, roleId, 0, password)
@@ -83,31 +83,31 @@ func AddTestUser(db *sql.DB, roleId models.Id) models.User {
 	return user
 }
 
-func AddTestSeller(db *sql.DB) models.User {
-	return AddTestUser(db, models.SellerRoleId)
+func AddSellerToDatabase(db *sql.DB) models.User {
+	return AddUserToDatabase(db, models.SellerRoleId)
 }
 
-func AddTestCashier(db *sql.DB) models.User {
-	return AddTestUser(db, models.CashierRoleId)
+func AddCashierToDatabase(db *sql.DB) models.User {
+	return AddUserToDatabase(db, models.CashierRoleId)
 }
 
-func AddTestAdmin(db *sql.DB) models.User {
-	return AddTestUser(db, models.AdminRoleId)
+func AddAdminToDatabase(db *sql.DB) models.User {
+	return AddUserToDatabase(db, models.AdminRoleId)
 }
 
-func AddTestAdminWithId(db *sql.DB, id models.Id) models.User {
-	return AddTestUserWithId(db, id, models.AdminRoleId)
+func AddAdminWithIdToDatabase(db *sql.DB, id models.Id) models.User {
+	return AddUserWithIdToDatabase(db, id, models.AdminRoleId)
 }
 
-func AddTestSellerWithId(db *sql.DB, id models.Id) models.User {
-	return AddTestUserWithId(db, id, models.SellerRoleId)
+func AddSellerWithIdToDatabase(db *sql.DB, id models.Id) models.User {
+	return AddUserWithIdToDatabase(db, id, models.SellerRoleId)
 }
 
-func AddTestCashierWithId(db *sql.DB, id models.Id) models.User {
-	return AddTestUserWithId(db, id, models.CashierRoleId)
+func AddCashierWithIdToDatabase(db *sql.DB, id models.Id) models.User {
+	return AddUserWithIdToDatabase(db, id, models.CashierRoleId)
 }
 
-func AddTestItem(db *sql.DB, sellerId models.Id, index int) *models.Item {
+func AddItemToDatabase(db *sql.DB, sellerId models.Id, index int) *models.Item {
 	timestamp := models.NewTimestamp(0)
 	description := "description" + strconv.Itoa(index)
 	priceInCents := models.NewMoneyInCents(100 + int64(index))
@@ -130,7 +130,7 @@ func AddTestItem(db *sql.DB, sellerId models.Id, index int) *models.Item {
 	return item
 }
 
-func AddTestItemInCategory(db *sql.DB, sellerId models.Id, itemCategoryId models.Id) *models.Item {
+func AddItemInCategoryToDatabase(db *sql.DB, sellerId models.Id, itemCategoryId models.Id) *models.Item {
 	timestamp := models.NewTimestamp(0)
 	description := "description"
 	priceInCents := models.NewMoneyInCents(100)
@@ -152,7 +152,7 @@ func AddTestItemInCategory(db *sql.DB, sellerId models.Id, itemCategoryId models
 	return item
 }
 
-func AddTestSale(db *sql.DB, cashierId models.Id, itemIds []models.Id) models.Id {
+func AddSaleToDatabase(db *sql.DB, cashierId models.Id, itemIds []models.Id) models.Id {
 	timestamp := models.NewTimestamp(0)
 
 	saleId, err := queries.AddSale(db, cashierId, timestamp, itemIds)
@@ -181,7 +181,7 @@ func FromJson[T any](jsonString string) *T {
 	return &x
 }
 
-func AddTestSession(db *sql.DB, userId models.Id) string {
+func AddSessionToDatabase(db *sql.DB, userId models.Id) string {
 	sessionId, err := queries.AddSession(db, userId)
 
 	if err != nil {

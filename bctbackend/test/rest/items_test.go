@@ -21,8 +21,8 @@ func TestListAllItems(t *testing.T) {
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
-		admin := test.AddTestAdmin(db)
-		sessionId := test.AddTestSession(db, admin.UserId)
+		admin := test.AddAdminToDatabase(db)
+		sessionId := test.AddSessionToDatabase(db, admin.UserId)
 
 		request, err := http.NewRequest("GET", "/api/v1/items", nil)
 		request.AddCookie(test.CreateCookie(sessionId))
@@ -43,10 +43,10 @@ func TestListAllItems(t *testing.T) {
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
-		adminId := test.AddTestAdmin(db).UserId
-		sessionId := test.AddTestSession(db, adminId)
+		adminId := test.AddAdminToDatabase(db).UserId
+		sessionId := test.AddSessionToDatabase(db, adminId)
 
-		sellerId := test.AddTestSeller(db).UserId
+		sellerId := test.AddSellerToDatabase(db).UserId
 		item := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
 		itemId, err := queries.AddItem(db, item.Timestamp, item.Description, item.PriceInCents, item.CategoryId, item.SellerId, item.Donation, item.Charity)
 
@@ -75,9 +75,9 @@ func TestListAllItems(t *testing.T) {
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
-		adminId := test.AddTestAdmin(db).UserId
-		sessionId := test.AddTestSession(db, adminId)
-		sellerId := test.AddTestSeller(db).UserId
+		adminId := test.AddAdminToDatabase(db).UserId
+		sessionId := test.AddSessionToDatabase(db, adminId)
+		sellerId := test.AddSellerToDatabase(db).UserId
 		item1 := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
 		item2 := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
 
@@ -121,8 +121,8 @@ func TestListAllItemsAsNonAdmin(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			userId := test.AddTestUser(db, roleId).UserId
-			sessionId := test.AddTestSession(db, userId)
+			userId := test.AddUserToDatabase(db, roleId).UserId
+			sessionId := test.AddSessionToDatabase(db, userId)
 
 			request, err := http.NewRequest("GET", "/api/v1/items", nil)
 			request.AddCookie(test.CreateCookie(sessionId))

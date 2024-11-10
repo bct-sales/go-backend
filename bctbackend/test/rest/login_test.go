@@ -19,7 +19,7 @@ func TestLogin(t *testing.T) {
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	seller := test.AddTestSeller(db)
+	seller := test.AddSellerToDatabase(db)
 
 	form := url.Values{}
 	form.Add("username", models.IdToString(seller.UserId))
