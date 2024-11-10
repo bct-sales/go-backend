@@ -65,8 +65,9 @@ func AddSellerItem(context *gin.Context, db *sql.DB, userId models.Id, roleId mo
 		*payload.Charity,
 	)
 
+	// TODO recognize error (e.g., if the category does not exist) and return StatusBadRequest or InternalServerError depending on the error
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to add item"})
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Failed to add item"})
 		return
 	}
 
