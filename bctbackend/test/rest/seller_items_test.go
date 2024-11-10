@@ -73,10 +73,8 @@ func TestAddSellerItem(t *testing.T) {
 										Donation:    &donation,
 										Charity:     &charity,
 									}
-
 									request := test.CreatePostRequest(url, &payload)
 									request.AddCookie(test.CreateCookie(sessionId))
-
 									router.ServeHTTP(writer, request)
 
 									if assert.Equal(t, http.StatusCreated, writer.Code) {
@@ -197,7 +195,6 @@ func TestAddSellerItem(t *testing.T) {
 				Charity:     &charity,
 			}
 			request := test.CreatePostRequest(url, &payload)
-
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
@@ -234,7 +231,6 @@ func TestAddSellerItem(t *testing.T) {
 				Charity:     &charity,
 			}
 			request := test.CreatePostRequest(url, &payload)
-
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
@@ -271,7 +267,6 @@ func TestAddSellerItem(t *testing.T) {
 				Charity:     &charity,
 			}
 			request := test.CreatePostRequest(url, &payload)
-
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
@@ -307,7 +302,6 @@ func TestAddSellerItem(t *testing.T) {
 				Charity:     &charity,
 			}
 			request := test.CreatePostRequest(url, &payload)
-
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
@@ -344,7 +338,6 @@ func TestAddSellerItem(t *testing.T) {
 				Charity:     &charity,
 			}
 			request := test.CreatePostRequest(url, &payload)
-
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
@@ -382,7 +375,6 @@ func TestAddSellerItem(t *testing.T) {
 					Charity:     &charity,
 				}
 				request := test.CreatePostRequest(url, &payload)
-
 				request.AddCookie(test.CreateCookie(sessionId))
 				router.ServeHTTP(writer, request)
 
@@ -393,7 +385,5 @@ func TestAddSellerItem(t *testing.T) {
 				}
 			}
 		})
-
-		// Empty description
 	})
 }
