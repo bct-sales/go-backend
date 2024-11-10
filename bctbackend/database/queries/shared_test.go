@@ -41,7 +41,7 @@ func addTestUserWithId(db *sql.DB, id models.Id, roleId models.Id) {
 	AddUserWithId(db, id, roleId, 0, password)
 }
 
-func addTestUser(db *sql.DB, roleId models.Id) models.Id {
+func addTestUser(db *sql.DB, roleId models.Id) models.User {
 	password := "test"
 
 	userId, err := AddUser(db, roleId, 0, password)
@@ -50,19 +50,25 @@ func addTestUser(db *sql.DB, roleId models.Id) models.Id {
 		panic(err)
 	}
 
-	return userId
+	user, err := GetUserWithId(db, userId)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return user
 }
 
 func addTestSeller(db *sql.DB) models.Id {
-	return addTestUser(db, models.SellerRoleId)
+	return addTestUser(db, models.SellerRoleId).UserId
 }
 
 func addTestCashier(db *sql.DB) models.Id {
-	return addTestUser(db, models.CashierRoleId)
+	return addTestUser(db, models.CashierRoleId).UserId
 }
 
 func addTestAdmin(db *sql.DB) models.Id {
-	return addTestUser(db, models.AdminRoleId)
+	return addTestUser(db, models.AdminRoleId).UserId
 }
 
 func addTestSellerWithId(db *sql.DB, id models.Id) {
