@@ -59,16 +59,16 @@ func addTestUser(db *sql.DB, roleId models.Id) models.User {
 	return user
 }
 
-func addTestSeller(db *sql.DB) models.Id {
-	return addTestUser(db, models.SellerRoleId).UserId
+func addTestSeller(db *sql.DB) models.User {
+	return addTestUser(db, models.SellerRoleId)
 }
 
-func addTestCashier(db *sql.DB) models.Id {
-	return addTestUser(db, models.CashierRoleId).UserId
+func addTestCashier(db *sql.DB) models.User {
+	return addTestUser(db, models.CashierRoleId)
 }
 
-func addTestAdmin(db *sql.DB) models.Id {
-	return addTestUser(db, models.AdminRoleId).UserId
+func addTestAdmin(db *sql.DB) models.User {
+	return addTestUser(db, models.AdminRoleId)
 }
 
 func addTestSellerWithId(db *sql.DB, id models.Id) {
