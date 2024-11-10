@@ -2,7 +2,7 @@ package database
 
 import (
 	models "bctbackend/database/models"
-	defs "bctbackend/defs"
+	"bctbackend/defs"
 	"database/sql"
 	"errors"
 	"fmt"
