@@ -39,7 +39,7 @@ func TestGetItemInformation(t *testing.T) {
 
 				sessionId := test.AddSessionToDatabase(db, cashier.UserId)
 
-				url := path.SalesItems().Id(item.ItemId)
+				url := path.SalesItems().WithItemId(item.ItemId)
 				request, err := http.NewRequest("GET", url, nil)
 
 				if assert.NoError(t, err) {
@@ -69,7 +69,7 @@ func TestGetItemInformation(t *testing.T) {
 			cashier := test.AddCashierToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
 
-			url := path.SalesItems().Raw("abc")
+			url := path.SalesItems().WithRawItemId("abc")
 			request, err := http.NewRequest("GET", url, nil)
 
 			if assert.NoError(t, err) {
@@ -91,7 +91,7 @@ func TestGetItemInformation(t *testing.T) {
 
 			test.AddItemToDatabase(db, seller.UserId, 1)
 
-			url := path.SalesItems().Id(item.ItemId)
+			url := path.SalesItems().WithItemId(item.ItemId)
 			request, err := http.NewRequest("GET", url, nil)
 
 			if assert.NoError(t, err) {
@@ -114,7 +114,7 @@ func TestGetItemInformation(t *testing.T) {
 
 			test.AddItemToDatabase(db, seller.UserId, 1)
 
-			url := path.SalesItems().Id(item.ItemId)
+			url := path.SalesItems().WithItemId(item.ItemId)
 			request, err := http.NewRequest("GET", url, nil)
 
 			if assert.NoError(t, err) {
@@ -141,7 +141,7 @@ func TestGetItemInformation(t *testing.T) {
 				if assert.False(t, itemExists) {
 					test.AddItemToDatabase(db, seller.UserId, 1)
 
-					url := path.SalesItems().Id(nonexistentItem)
+					url := path.SalesItems().WithItemId(nonexistentItem)
 					request, err := http.NewRequest("GET", url, nil)
 
 					if assert.NoError(t, err) {

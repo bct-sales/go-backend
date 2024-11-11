@@ -29,7 +29,7 @@ func TestListSellerItems(t *testing.T) {
 				expectedItems = append(expectedItems, *test.AddItemToDatabase(db, seller.UserId, i))
 			}
 
-			url := path.SellerItems().Id(seller.UserId)
+			url := path.SellerItems().WithSellerId(seller.UserId)
 			request, err := http.NewRequest("GET", url, nil)
 			request.AddCookie(test.CreateCookie(sessionId))
 

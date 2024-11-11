@@ -11,14 +11,10 @@ func SalesItems() *SalesPath {
 	return &SalesPath{}
 }
 
-func (path *SalesItemsPath) String() string {
-	return "/api/v1/sales"
-}
-
-func (path *SalesPath) Raw(id string) string {
+func (path *SalesPath) WithRawItemId(id string) string {
 	return fmt.Sprintf("/api/v1/sales/items/%s", id)
 }
 
-func (path *SalesPath) Id(id models.Id) string {
-	return path.Raw(models.IdToString(id))
+func (path *SalesPath) WithItemId(itemId models.Id) string {
+	return path.WithRawItemId(models.IdToString(itemId))
 }

@@ -35,7 +35,7 @@ func TestAddSellerItem(t *testing.T) {
 									seller := test.AddSellerWithIdToDatabase(db, sellerId)
 									sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
-									url := path.SellerItems().Id(seller.UserId)
+									url := path.SellerItems().WithSellerId(seller.UserId)
 									payload := restapi.AddSellerItemPayload{
 										Price:       price,
 										Description: description,
@@ -88,7 +88,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller := test.AddSellerToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
-			url := path.SellerItems().Id(seller.UserId)
+			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
 				Description: description,
@@ -121,7 +121,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller := test.AddSellerToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
-			url := path.SellerItems().Id(seller.UserId)
+			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
 				Description: description,
@@ -156,7 +156,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller := test.AddSellerToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
-			url := path.SellerItems().Id(seller.UserId)
+			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
 				Description: description,
@@ -192,7 +192,7 @@ func TestAddSellerItem(t *testing.T) {
 			admin := test.AddAdminToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, admin.UserId)
 
-			url := path.SellerItems().Id(seller.UserId)
+			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
 				Description: description,
@@ -228,7 +228,7 @@ func TestAddSellerItem(t *testing.T) {
 			cashier := test.AddCashierToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
 
-			url := path.SellerItems().Id(seller.UserId)
+			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
 				Description: description,
@@ -263,7 +263,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller := test.AddSellerToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
-			url := path.SellerItems().Raw("a")
+			url := path.SellerItems().WithRawSellerId("a")
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
 				Description: description,
@@ -299,7 +299,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller2 := test.AddSellerToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, seller2.UserId)
 
-			url := path.SellerItems().Id(seller1.UserId)
+			url := path.SellerItems().WithSellerId(seller1.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
 				Description: description,
@@ -336,7 +336,7 @@ func TestAddSellerItem(t *testing.T) {
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
 			if assert.False(t, queries.UserWithIdExists(db, nonexistentId)) {
-				url := path.SellerItems().Id(nonexistentId)
+				url := path.SellerItems().WithSellerId(nonexistentId)
 				payload := restapi.AddSellerItemPayload{
 					Price:       price,
 					Description: description,
