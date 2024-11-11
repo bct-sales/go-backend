@@ -155,7 +155,7 @@ func TestGetItems(t *testing.T) {
 		defer db.Close()
 
 		sellerId := addTestSeller(db).UserId
-		itemId := addTestItem(db, sellerId, 1)
+		itemId := addTestItem(db, sellerId, 1).ItemId
 
 		items, err := GetItems(db)
 		if assert.NoError(t, err) {
@@ -169,8 +169,8 @@ func TestGetItems(t *testing.T) {
 		defer db.Close()
 
 		sellerId := addTestSeller(db).UserId
-		item1Id := addTestItem(db, sellerId, 1)
-		item2Id := addTestItem(db, sellerId, 2)
+		item1Id := addTestItem(db, sellerId, 1).ItemId
+		item2Id := addTestItem(db, sellerId, 2).ItemId
 
 		items, err := GetItems(db)
 		if assert.NoError(t, err) {
@@ -198,7 +198,7 @@ func TestGetItemWithId(t *testing.T) {
 		defer db.Close()
 
 		sellerId := addTestSeller(db).UserId
-		itemId := addTestItem(db, sellerId, 1)
+		itemId := addTestItem(db, sellerId, 1).ItemId
 
 		item, err := GetItemWithId(db, itemId)
 		if assert.NoError(t, err) {
@@ -224,7 +224,7 @@ func TestRemoveItemWithId(t *testing.T) {
 		defer db.Close()
 
 		sellerId := addTestSeller(db).UserId
-		itemId := addTestItem(db, sellerId, 1)
+		itemId := addTestItem(db, sellerId, 1).ItemId
 
 		err := RemoveItemWithId(db, itemId)
 		if assert.NoError(t, err) {
@@ -242,7 +242,7 @@ func TestRemoveItemWithId(t *testing.T) {
 
 		sellerId := addTestSeller(db).UserId
 		cashierId := addTestCashier(db).UserId
-		itemId := addTestItem(db, sellerId, 1)
+		itemId := addTestItem(db, sellerId, 1).ItemId
 
 		addTestSale(db, cashierId, []models.Id{itemId})
 

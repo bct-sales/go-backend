@@ -18,10 +18,10 @@ func TestAddSale(t *testing.T) {
 		cashierId := addTestCashier(db).UserId
 
 		itemIds := []models.Id{
-			addTestItem(db, sellerId, 1),
-			addTestItem(db, sellerId, 2),
-			addTestItem(db, sellerId, 3),
-			addTestItem(db, sellerId, 4),
+			addTestItem(db, sellerId, 1).ItemId,
+			addTestItem(db, sellerId, 2).ItemId,
+			addTestItem(db, sellerId, 3).ItemId,
+			addTestItem(db, sellerId, 4).ItemId,
 		}
 
 		saleItemIds := make([]models.Id, len(itemIndices))
@@ -69,7 +69,7 @@ func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
 
 	sellerId := addTestSeller(db).UserId
 	timestamp := models.NewTimestamp(0)
-	itemId := addTestItem(db, sellerId, 1)
+	itemId := addTestItem(db, sellerId, 1).ItemId
 
 	_, err := AddSale(db, sellerId, timestamp, []models.Id{itemId})
 
@@ -83,10 +83,10 @@ func TestGetSales(t *testing.T) {
 	cashierId := addTestCashier(db).UserId
 
 	itemIds := []models.Id{
-		addTestItem(db, sellerId, 1),
-		addTestItem(db, sellerId, 2),
-		addTestItem(db, sellerId, 3),
-		addTestItem(db, sellerId, 4),
+		addTestItem(db, sellerId, 1).ItemId,
+		addTestItem(db, sellerId, 2).ItemId,
+		addTestItem(db, sellerId, 3).ItemId,
+		addTestItem(db, sellerId, 4).ItemId,
 	}
 
 	saleIds := make([]models.Id, len(itemIds))
@@ -116,7 +116,7 @@ func TestSaleExists(t *testing.T) {
 
 	sellerId := addTestSeller(db).UserId
 	cashierId := addTestCashier(db).UserId
-	itemId := addTestItem(db, sellerId, 1)
+	itemId := addTestItem(db, sellerId, 1).ItemId
 
 	saleId := addTestSale(db, cashierId, []models.Id{itemId})
 	saleExists, err := SaleExists(db, saleId)
@@ -132,10 +132,10 @@ func TestGetSaleItems(t *testing.T) {
 	sellerId := addTestSeller(db).UserId
 	cashierId := addTestCashier(db).UserId
 	itemIds := []models.Id{
-		addTestItem(db, sellerId, 1),
-		addTestItem(db, sellerId, 2),
-		addTestItem(db, sellerId, 3),
-		addTestItem(db, sellerId, 4),
+		addTestItem(db, sellerId, 1).ItemId,
+		addTestItem(db, sellerId, 2).ItemId,
+		addTestItem(db, sellerId, 3).ItemId,
+		addTestItem(db, sellerId, 4).ItemId,
 	}
 
 	saleId := addTestSale(db, cashierId, itemIds)
@@ -163,12 +163,12 @@ func TestRemoveSale(t *testing.T) {
 	sellerId := addTestSeller(db).UserId
 	cashierId := addTestCashier(db).UserId
 	sale1ItemIds := []models.Id{
-		addTestItem(db, sellerId, 1),
-		addTestItem(db, sellerId, 2),
+		addTestItem(db, sellerId, 1).ItemId,
+		addTestItem(db, sellerId, 2).ItemId,
 	}
 	sale2ItemIds := []models.Id{
-		addTestItem(db, sellerId, 3),
-		addTestItem(db, sellerId, 4),
+		addTestItem(db, sellerId, 3).ItemId,
+		addTestItem(db, sellerId, 4).ItemId,
 	}
 
 	sale1Id := addTestSale(db, cashierId, sale1ItemIds)

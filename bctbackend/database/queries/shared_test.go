@@ -79,7 +79,7 @@ func addTestCashierWithId(db *sql.DB, id models.Id) {
 	addTestUserWithId(db, id, models.CashierRoleId)
 }
 
-func addTestItem(db *sql.DB, sellerId models.Id, index int) models.Id {
+func addTestItem(db *sql.DB, sellerId models.Id, index int) *models.Item {
 	timestamp := models.NewTimestamp(0)
 	description := "description" + strconv.Itoa(index)
 	priceInCents := models.NewMoneyInCents(100 + int64(index))
@@ -93,7 +93,13 @@ func addTestItem(db *sql.DB, sellerId models.Id, index int) models.Id {
 		panic(err)
 	}
 
-	return itemId
+	item, err := GetItemWithId(db, itemId)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return item
 }
 
 func addTestItemInCategory(db *sql.DB, sellerId models.Id, itemCategoryId models.Id) models.Id {
