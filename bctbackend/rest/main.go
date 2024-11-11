@@ -71,5 +71,6 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 	v1.GET("/items", withUserAndRole(getItems))
 	v1.GET("/sellers/:id/items", withUserAndRole(rest_seller.GetSellerItems))
 	v1.POST("/sellers/:id/items", withUserAndRole(rest_seller.AddSellerItem))
+	v1.GET("/sales/items/:id", withUserAndRole(rest_cashier.GetItemInformation))
 	v1.POST("/sales", withUserAndRole(rest_cashier.AddSale))
 }
