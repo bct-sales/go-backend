@@ -100,6 +100,28 @@ func TestGetItemInformation(t *testing.T) {
 			}
 		})
 
+		t.Run("As admin", func(t *testing.T) {
+			db, router := test.CreateRestRouter()
+			writer := httptest.NewRecorder()
+			defer db.Close()
+
+			admin := test.AddAdminToDatabase(db)
+			seller := test.AddSellerToDatabase(db)
+			sessionId := test.AddSessionToDatabase(db, admin.UserId)
+			item := test.AddItemToDatabase(db, seller.UserId, 1)
+
+			test.AddItemToDatabase(db, seller.UserId, 1)
+
+			url := fmt.Sprintf("/api/v1/sales/items/%d", item.ItemId)
+			request, err := http.NewRequest("GET", url, nil)
+
+			if assert.NoError(t, err) {
+				request.AddCookie(test.CreateCookie(sessionId))
+				router.ServeHTTP(writer, request)
+
+				assert.Equal(t, http.StatusForbidden, writer.Code)
+			}
+		})
 				}
 			}
 		})
