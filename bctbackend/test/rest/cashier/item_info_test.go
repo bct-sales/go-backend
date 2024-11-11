@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"bctbackend/database/models"
+	"bctbackend/database/queries"
 	restapi "bctbackend/rest/cashier"
 
 	"bctbackend/test"
@@ -122,6 +123,32 @@ func TestGetItemInformation(t *testing.T) {
 				assert.Equal(t, http.StatusForbidden, writer.Code)
 			}
 		})
+
+		t.Run("Nonexistent item", func(t *testing.T) {
+			db, router := test.CreateRestRouter()
+			writer := httptest.NewRecorder()
+			defer db.Close()
+
+			admin := test.AddAdminToDatabase(db)
+			seller := test.AddSellerToDatabase(db)
+			sessionId := test.AddSessionToDatabase(db, admin.UserId)
+			nonexistentItem := models.NewId(1)
+
+			itemExists, err := queries.ItemWithIdExists(db, nonexistentItem)
+
+			if !assert.NoError(t, err) {
+				if assert.False(t, itemExists) {
+					test.AddItemToDatabase(db, seller.UserId, 1)
+
+					url := fmt.Sprintf("/api/v1/sales/items/%d", nonexistentItem)
+					request, err := http.NewRequest("GET", url, nil)
+
+					if assert.NoError(t, err) {
+						request.AddCookie(test.CreateCookie(sessionId))
+						router.ServeHTTP(writer, request)
+
+						assert.Equal(t, http.StatusBadRequest, writer.Code)
+					}
 				}
 			}
 		})
