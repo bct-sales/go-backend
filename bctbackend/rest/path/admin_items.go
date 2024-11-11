@@ -1,11 +1,11 @@
 package path
 
-type ItemsPath struct{}
+type itemsPath struct{}
 
-func Items() *ItemsPath {
-	return &ItemsPath{}
+func Items() *itemsPath {
+	return &itemsPath{}
 }
 
-func (path *ItemsPath) String() string {
+func (path *itemsPath) String() string {
 	return "/api/v1/items"
 }

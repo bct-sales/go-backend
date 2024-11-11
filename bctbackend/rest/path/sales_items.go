@@ -5,16 +5,16 @@ import (
 	"fmt"
 )
 
-type SalesItemsPath struct{}
+type salesItemsPath struct{}
 
-func SalesItems() *SalesPath {
-	return &SalesPath{}
+func SalesItems() *salesPath {
+	return &salesPath{}
 }
 
-func (path *SalesPath) WithRawItemId(id string) string {
+func (path *salesPath) WithRawItemId(id string) string {
 	return fmt.Sprintf("/api/v1/sales/items/%s", id)
 }
 
-func (path *SalesPath) WithItemId(itemId models.Id) string {
+func (path *salesPath) WithItemId(itemId models.Id) string {
 	return path.WithRawItemId(models.IdToString(itemId))
 }

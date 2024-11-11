@@ -1,11 +1,11 @@
 package path
 
-type SalesPath struct{}
+type salesPath struct{}
 
-func Sales() *SalesPath {
-	return &SalesPath{}
+func Sales() *salesPath {
+	return &salesPath{}
 }
 
-func (path *SalesPath) String() string {
+func (path *salesPath) String() string {
 	return "/api/v1/sales"
 }

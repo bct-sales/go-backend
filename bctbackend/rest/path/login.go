@@ -1,11 +1,11 @@
 package path
 
-type LoginPath struct{}
+type loginPath struct{}
 
-func Login() *LoginPath {
-	return &LoginPath{}
+func Login() *loginPath {
+	return &loginPath{}
 }
 
-func (path *LoginPath) String() string {
+func (path *loginPath) String() string {
 	return "/api/v1/login"
 }
