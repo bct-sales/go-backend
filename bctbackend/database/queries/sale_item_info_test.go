@@ -25,7 +25,7 @@ func TestGetSaleItemInformation(t *testing.T) {
 				item := addTestItem(db, seller.UserId, 1)
 
 				for i := 0; i < sellCount; i++ {
-					addSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
+					AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
 				}
 
 				itemInformation, err := GetSaleItemInformation(db, item.ItemId)
