@@ -5,6 +5,7 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/test"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,16 +14,16 @@ import (
 
 func TestAddSale(t *testing.T) {
 	for _, itemIndices := range [][]int{{0}, {1}, {2}, {3}, {0, 1}, {1, 2, 3}, {0, 1, 2, 3}} {
-		db := OpenInitializedDatabase()
+		db := test.OpenInitializedDatabase()
 
-		sellerId := AddSellerToDatabase(db).UserId
-		cashierId := AddCashierToDatabase(db).UserId
+		sellerId := test.AddSellerToDatabase(db).UserId
+		cashierId := test.AddCashierToDatabase(db).UserId
 
 		itemIds := []models.Id{
-			AddItemToDatabase(db, sellerId, 1).ItemId,
-			AddItemToDatabase(db, sellerId, 2).ItemId,
-			AddItemToDatabase(db, sellerId, 3).ItemId,
-			AddItemToDatabase(db, sellerId, 4).ItemId,
+			test.AddItemToDatabase(db, sellerId, 1).ItemId,
+			test.AddItemToDatabase(db, sellerId, 2).ItemId,
+			test.AddItemToDatabase(db, sellerId, 3).ItemId,
+			test.AddItemToDatabase(db, sellerId, 4).ItemId,
 		}
 
 		saleItemIds := make([]models.Id, len(itemIndices))
@@ -55,9 +56,9 @@ func TestAddSale(t *testing.T) {
 }
 
 func TestAddSaleWithoutItems(t *testing.T) {
-	db := OpenInitializedDatabase()
+	db := test.OpenInitializedDatabase()
 
-	cashierId := AddCashierToDatabase(db).UserId
+	cashierId := test.AddCashierToDatabase(db).UserId
 	timestamp := models.NewTimestamp(0)
 
 	_, err := queries.AddSale(db, cashierId, timestamp, []models.Id{})
@@ -66,11 +67,11 @@ func TestAddSaleWithoutItems(t *testing.T) {
 }
 
 func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
-	db := OpenInitializedDatabase()
+	db := test.OpenInitializedDatabase()
 
-	sellerId := AddSellerToDatabase(db).UserId
+	sellerId := test.AddSellerToDatabase(db).UserId
 	timestamp := models.NewTimestamp(0)
-	itemId := AddItemToDatabase(db, sellerId, 1).ItemId
+	itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
 
 	_, err := queries.AddSale(db, sellerId, timestamp, []models.Id{itemId})
 
@@ -78,21 +79,21 @@ func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
 }
 
 func TestGetSales(t *testing.T) {
-	db := OpenInitializedDatabase()
+	db := test.OpenInitializedDatabase()
 
-	sellerId := AddSellerToDatabase(db).UserId
-	cashierId := AddCashierToDatabase(db).UserId
+	sellerId := test.AddSellerToDatabase(db).UserId
+	cashierId := test.AddCashierToDatabase(db).UserId
 
 	itemIds := []models.Id{
-		AddItemToDatabase(db, sellerId, 1).ItemId,
-		AddItemToDatabase(db, sellerId, 2).ItemId,
-		AddItemToDatabase(db, sellerId, 3).ItemId,
-		AddItemToDatabase(db, sellerId, 4).ItemId,
+		test.AddItemToDatabase(db, sellerId, 1).ItemId,
+		test.AddItemToDatabase(db, sellerId, 2).ItemId,
+		test.AddItemToDatabase(db, sellerId, 3).ItemId,
+		test.AddItemToDatabase(db, sellerId, 4).ItemId,
 	}
 
 	saleIds := make([]models.Id, len(itemIds))
 	for _, itemId := range itemIds {
-		AddSaleToDatabase(db, cashierId, []models.Id{itemId})
+		test.AddSaleToDatabase(db, cashierId, []models.Id{itemId})
 	}
 
 	actualSales, err := queries.GetSales(db)
@@ -113,13 +114,13 @@ func TestGetSales(t *testing.T) {
 }
 
 func TestSaleExists(t *testing.T) {
-	db := OpenInitializedDatabase()
+	db := test.OpenInitializedDatabase()
 
-	sellerId := AddSellerToDatabase(db).UserId
-	cashierId := AddCashierToDatabase(db).UserId
-	itemId := AddItemToDatabase(db, sellerId, 1).ItemId
+	sellerId := test.AddSellerToDatabase(db).UserId
+	cashierId := test.AddCashierToDatabase(db).UserId
+	itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
 
-	saleId := AddSaleToDatabase(db, cashierId, []models.Id{itemId})
+	saleId := test.AddSaleToDatabase(db, cashierId, []models.Id{itemId})
 	saleExists, err := queries.SaleExists(db, saleId)
 
 	if assert.NoError(t, err) {
@@ -128,18 +129,18 @@ func TestSaleExists(t *testing.T) {
 }
 
 func TestGetSaleItems(t *testing.T) {
-	db := OpenInitializedDatabase()
+	db := test.OpenInitializedDatabase()
 
-	sellerId := AddSellerToDatabase(db).UserId
-	cashierId := AddCashierToDatabase(db).UserId
+	sellerId := test.AddSellerToDatabase(db).UserId
+	cashierId := test.AddCashierToDatabase(db).UserId
 	itemIds := []models.Id{
-		AddItemToDatabase(db, sellerId, 1).ItemId,
-		AddItemToDatabase(db, sellerId, 2).ItemId,
-		AddItemToDatabase(db, sellerId, 3).ItemId,
-		AddItemToDatabase(db, sellerId, 4).ItemId,
+		test.AddItemToDatabase(db, sellerId, 1).ItemId,
+		test.AddItemToDatabase(db, sellerId, 2).ItemId,
+		test.AddItemToDatabase(db, sellerId, 3).ItemId,
+		test.AddItemToDatabase(db, sellerId, 4).ItemId,
 	}
 
-	saleId := AddSaleToDatabase(db, cashierId, itemIds)
+	saleId := test.AddSaleToDatabase(db, cashierId, itemIds)
 
 	actualItems, err := queries.GetSaleItems(db, saleId)
 
@@ -159,21 +160,21 @@ func TestGetSaleItems(t *testing.T) {
 }
 
 func TestRemoveSale(t *testing.T) {
-	db := OpenInitializedDatabase()
+	db := test.OpenInitializedDatabase()
 
-	sellerId := AddSellerToDatabase(db).UserId
-	cashierId := AddCashierToDatabase(db).UserId
+	sellerId := test.AddSellerToDatabase(db).UserId
+	cashierId := test.AddCashierToDatabase(db).UserId
 	sale1ItemIds := []models.Id{
-		AddItemToDatabase(db, sellerId, 1).ItemId,
-		AddItemToDatabase(db, sellerId, 2).ItemId,
+		test.AddItemToDatabase(db, sellerId, 1).ItemId,
+		test.AddItemToDatabase(db, sellerId, 2).ItemId,
 	}
 	sale2ItemIds := []models.Id{
-		AddItemToDatabase(db, sellerId, 3).ItemId,
-		AddItemToDatabase(db, sellerId, 4).ItemId,
+		test.AddItemToDatabase(db, sellerId, 3).ItemId,
+		test.AddItemToDatabase(db, sellerId, 4).ItemId,
 	}
 
-	sale1Id := AddSaleToDatabase(db, cashierId, sale1ItemIds)
-	sale2Id := AddSaleToDatabase(db, cashierId, sale2ItemIds)
+	sale1Id := test.AddSaleToDatabase(db, cashierId, sale1ItemIds)
+	sale2Id := test.AddSaleToDatabase(db, cashierId, sale2ItemIds)
 
 	err := queries.RemoveSale(db, sale1Id)
 
@@ -193,7 +194,7 @@ func TestRemoveSale(t *testing.T) {
 }
 
 func TestRemoveNonexistentSale(t *testing.T) {
-	db := OpenInitializedDatabase()
+	db := test.OpenInitializedDatabase()
 
 	err := queries.RemoveSale(db, 0)
 

@@ -22,12 +22,12 @@ func TestGetSaleItemInformation(t *testing.T) {
 				db := test.OpenInitializedDatabase()
 				defer db.Close()
 
-				seller := AddSellerToDatabase(db)
-				cashier := AddCashierToDatabase(db)
-				item := AddItemToDatabase(db, seller.UserId, 1)
+				seller := test.AddSellerToDatabase(db)
+				cashier := test.AddCashierToDatabase(db)
+				item := test.AddItemToDatabase(db, seller.UserId, 1)
 
 				for i := 0; i < sellCount; i++ {
-					AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
+					test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
 				}
 
 				itemInformation, err := queries.GetSaleItemInformation(db, item.ItemId)
@@ -43,7 +43,7 @@ func TestGetSaleItemInformation(t *testing.T) {
 	})
 
 	t.Run("Failure", func(t *testing.T) {
-		db := OpenInitializedDatabase()
+		db := test.OpenInitializedDatabase()
 		defer db.Close()
 
 		nonexistentItemId := models.Id(1)

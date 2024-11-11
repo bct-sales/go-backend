@@ -5,6 +5,7 @@ package queries
 import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/test"
 	"fmt"
 	"testing"
 
@@ -17,7 +18,7 @@ func TestAddUserWithId(t *testing.T) {
 		for _, userId := range []models.Id{1, 5} {
 			for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
 				t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
-					db := OpenInitializedDatabase()
+					db := test.OpenInitializedDatabase()
 
 					err := queries.AddUserWithId(db, userId, roleId, 0, password)
 
@@ -35,7 +36,7 @@ func TestAddUser(t *testing.T) {
 	for _, password := range []string{"a", "xyz"} {
 		for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
 			t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
-				db := OpenInitializedDatabase()
+				db := test.OpenInitializedDatabase()
 
 				userId, err := queries.AddUser(db, roleId, 0, password)
 
@@ -48,7 +49,7 @@ func TestAddUser(t *testing.T) {
 }
 
 func TestAuthenticatingSuccessfully(t *testing.T) {
-	db := OpenInitializedDatabase()
+	db := test.OpenInitializedDatabase()
 
 	password := "xyz"
 	userId := models.NewId(1)
@@ -60,7 +61,7 @@ func TestAuthenticatingSuccessfully(t *testing.T) {
 }
 
 func TestAuthenticatingNonExistingUser(t *testing.T) {
-	db := OpenInitializedDatabase()
+	db := test.OpenInitializedDatabase()
 
 	password := "xyz"
 	userId := models.NewId(5)
@@ -70,7 +71,7 @@ func TestAuthenticatingNonExistingUser(t *testing.T) {
 }
 
 func TestAuthenticatingWrongPassword(t *testing.T) {
-	db := OpenInitializedDatabase()
+	db := test.OpenInitializedDatabase()
 
 	password := "xyz"
 	wrongPassword := "abc"
@@ -83,7 +84,7 @@ func TestAuthenticatingWrongPassword(t *testing.T) {
 }
 
 func TestGetUser(t *testing.T) {
-	db := OpenInitializedDatabase()
+	db := test.OpenInitializedDatabase()
 
 	password := "xyz"
 	userId := models.NewId(1)
@@ -100,7 +101,7 @@ func TestGetUser(t *testing.T) {
 }
 
 func TestListUsers(t *testing.T) {
-	db := OpenInitializedDatabase()
+	db := test.OpenInitializedDatabase()
 
 	password := "xyz"
 	userId := models.NewId(1)
@@ -119,7 +120,7 @@ func TestListUsers(t *testing.T) {
 }
 
 func TestUpdatePassword(t *testing.T) {
-	db := OpenInitializedDatabase()
+	db := test.OpenInitializedDatabase()
 
 	password1 := "xyz"
 	password2 := "abc"
