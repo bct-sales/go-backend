@@ -6,6 +6,7 @@ import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/defs"
+	"bctbackend/test"
 	"fmt"
 	"testing"
 
@@ -13,7 +14,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func TestAddItem(t *testing.T) {
+func TestAddItemToDatabase(t *testing.T) {
 	for _, timestamp := range []models.Timestamp{0, 1000} {
 		for _, priceInCents := range []models.MoneyInCents{50, 100} {
 			for _, itemCategoryId := range defs.ListCategories() {
@@ -24,11 +25,11 @@ func TestAddItem(t *testing.T) {
 								test_name := fmt.Sprintf("timestamp = %d", timestamp)
 
 								t.Run(test_name, func(t *testing.T) {
-									db := OpenInitializedDatabase()
+									db := test.OpenInitializedDatabase()
 									defer db.Close()
 
-									AddSellerWithId(db, 1)
-									AddSellerWithId(db, 2)
+									test.AddSellerWithIdToDatabase(db, 1)
+									test.AddSellerWithIdToDatabase(db, 2)
 
 									itemId, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 									if err != nil {
@@ -63,7 +64,7 @@ func TestAddItem(t *testing.T) {
 	}
 }
 
-func TestFailingAddItem(t *testing.T) {
+func TestFailingAddItemToDatabase(t *testing.T) {
 	timestamp := models.NewTimestamp(0)
 	description := "description"
 	priceInCents := models.NewMoneyInCents(100)
@@ -71,8 +72,8 @@ func TestFailingAddItem(t *testing.T) {
 	charity := false
 
 	t.Run("Nonexisting owner", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		AddSellerWithId(db, 2)
+		db := test.OpenInitializedDatabase()
+		test.AddSellerWithIdToDatabase(db, 2)
 
 		sellerId := models.NewId(1)
 		donation := false
@@ -86,8 +87,8 @@ func TestFailingAddItem(t *testing.T) {
 	})
 
 	t.Run("Nonexisting category", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		AddSellerWithId(db, 1)
+		db := test.OpenInitializedDatabase()
+		test.AddSellerWithIdToDatabase(db, 1)
 
 		sellerId := models.NewId(1)
 		donation := false
@@ -104,8 +105,8 @@ func TestFailingAddItem(t *testing.T) {
 	})
 
 	t.Run("Invalid price", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		sellerId := AddSeller(db).UserId
+		db := test.OpenInitializedDatabase()
+		sellerId := test.AddSellerToDatabase(db).UserId
 		donation := false
 		itemCategoryId := defs.Shoes
 		priceInCents := models.NewMoneyInCents(0)
@@ -122,8 +123,8 @@ func TestFailingAddItem(t *testing.T) {
 	})
 
 	t.Run("Cashier owner", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		sellerId := AddCashier(db).UserId
+		db := test.OpenInitializedDatabase()
+		sellerId := test.AddCashierToDatabase(db).UserId
 		donation := false
 
 		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
@@ -131,8 +132,8 @@ func TestFailingAddItem(t *testing.T) {
 	})
 
 	t.Run("Admin owner", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		sellerId := AddAdmin(db).UserId
+		db := test.OpenInitializedDatabase()
+		sellerId := test.AddAdminToDatabase(db).UserId
 		donation := false
 
 		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
@@ -142,7 +143,7 @@ func TestFailingAddItem(t *testing.T) {
 
 func TestGetItems(t *testing.T) {
 	t.Run("Empty", func(t *testing.T) {
-		db := OpenInitializedDatabase()
+		db := test.OpenInitializedDatabase()
 		defer db.Close()
 
 		items, err := queries.GetItems(db)
@@ -152,11 +153,11 @@ func TestGetItems(t *testing.T) {
 	})
 
 	t.Run("One item", func(t *testing.T) {
-		db := OpenInitializedDatabase()
+		db := test.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := AddSeller(db).UserId
-		itemId := AddItem(db, sellerId, 1).ItemId
+		sellerId := test.AddSellerToDatabase(db).UserId
+		itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
 
 		items, err := queries.GetItems(db)
 		if assert.NoError(t, err) {
@@ -166,12 +167,12 @@ func TestGetItems(t *testing.T) {
 	})
 
 	t.Run("Two items", func(t *testing.T) {
-		db := OpenInitializedDatabase()
+		db := test.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := AddSeller(db).UserId
-		item1Id := AddItem(db, sellerId, 1).ItemId
-		item2Id := AddItem(db, sellerId, 2).ItemId
+		sellerId := test.AddSellerToDatabase(db).UserId
+		item1Id := test.AddItemToDatabase(db, sellerId, 1).ItemId
+		item2Id := test.AddItemToDatabase(db, sellerId, 2).ItemId
 
 		items, err := queries.GetItems(db)
 		if assert.NoError(t, err) {
@@ -184,7 +185,7 @@ func TestGetItems(t *testing.T) {
 
 func TestGetItemWithId(t *testing.T) {
 	t.Run("Nonexisting item", func(t *testing.T) {
-		db := OpenInitializedDatabase()
+		db := test.OpenInitializedDatabase()
 		defer db.Close()
 
 		itemId := models.NewId(1)
@@ -195,11 +196,11 @@ func TestGetItemWithId(t *testing.T) {
 	})
 
 	t.Run("Existing item", func(t *testing.T) {
-		db := OpenInitializedDatabase()
+		db := test.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := AddSeller(db).UserId
-		itemId := AddItem(db, sellerId, 1).ItemId
+		sellerId := test.AddSellerToDatabase(db).UserId
+		itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
 
 		item, err := queries.GetItemWithId(db, itemId)
 		if assert.NoError(t, err) {
@@ -210,7 +211,7 @@ func TestGetItemWithId(t *testing.T) {
 
 func TestRemoveItemWithId(t *testing.T) {
 	t.Run("Nonexisting item", func(t *testing.T) {
-		db := OpenInitializedDatabase()
+		db := test.OpenInitializedDatabase()
 		defer db.Close()
 
 		itemId := models.NewId(1)
@@ -221,11 +222,11 @@ func TestRemoveItemWithId(t *testing.T) {
 	})
 
 	t.Run("Existing item", func(t *testing.T) {
-		db := OpenInitializedDatabase()
+		db := test.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := AddSeller(db).UserId
-		itemId := AddItem(db, sellerId, 1).ItemId
+		sellerId := test.AddSellerToDatabase(db).UserId
+		itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
 
 		err := queries.RemoveItemWithId(db, itemId)
 		if assert.NoError(t, err) {
@@ -238,14 +239,14 @@ func TestRemoveItemWithId(t *testing.T) {
 	})
 
 	t.Run("Existing item with sale", func(t *testing.T) {
-		db := OpenInitializedDatabase()
+		db := test.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := AddSeller(db).UserId
-		cashierId := AddCashier(db).UserId
-		itemId := AddItem(db, sellerId, 1).ItemId
+		sellerId := test.AddSellerToDatabase(db).UserId
+		cashierId := test.AddCashierToDatabase(db).UserId
+		itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
 
-		AddSaleToDatabase(db, cashierId, []models.Id{itemId})
+		test.AddSaleToDatabase(db, cashierId, []models.Id{itemId})
 
 		err := queries.RemoveItemWithId(db, itemId)
 		assert.Error(t, err)
@@ -259,7 +260,7 @@ func TestRemoveItemWithId(t *testing.T) {
 
 func TestCountItems(t *testing.T) {
 	t.Run("Empty", func(t *testing.T) {
-		db := OpenInitializedDatabase()
+		db := test.OpenInitializedDatabase()
 		defer db.Close()
 
 		count, err := queries.CountItems(db)
@@ -269,11 +270,11 @@ func TestCountItems(t *testing.T) {
 	})
 
 	t.Run("One item", func(t *testing.T) {
-		db := OpenInitializedDatabase()
+		db := test.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := AddSeller(db).UserId
-		AddItem(db, sellerId, 1)
+		sellerId := test.AddSellerToDatabase(db).UserId
+		test.AddItemToDatabase(db, sellerId, 1)
 
 		count, err := queries.CountItems(db)
 		if assert.NoError(t, err) {
@@ -282,12 +283,12 @@ func TestCountItems(t *testing.T) {
 	})
 
 	t.Run("Two items", func(t *testing.T) {
-		db := OpenInitializedDatabase()
+		db := test.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := AddSeller(db).UserId
-		AddItem(db, sellerId, 1)
-		AddItem(db, sellerId, 2)
+		sellerId := test.AddSellerToDatabase(db).UserId
+		test.AddItemToDatabase(db, sellerId, 1)
+		test.AddItemToDatabase(db, sellerId, 2)
 
 		count, err := queries.CountItems(db)
 		if assert.NoError(t, err) {

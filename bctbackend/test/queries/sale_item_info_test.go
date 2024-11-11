@@ -5,6 +5,7 @@ package queries
 import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/test"
 	"fmt"
 	"testing"
 
@@ -18,12 +19,12 @@ func TestGetSaleItemInformation(t *testing.T) {
 			label := fmt.Sprintf("Sell count = %d", sellCount)
 
 			t.Run(label, func(t *testing.T) {
-				db := OpenInitializedDatabase()
+				db := test.OpenInitializedDatabase()
 				defer db.Close()
 
-				seller := AddSeller(db)
-				cashier := AddCashier(db)
-				item := AddItem(db, seller.UserId, 1)
+				seller := AddSellerToDatabase(db)
+				cashier := AddCashierToDatabase(db)
+				item := AddItemToDatabase(db, seller.UserId, 1)
 
 				for i := 0; i < sellCount; i++ {
 					AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})

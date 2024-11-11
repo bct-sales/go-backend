@@ -5,6 +5,7 @@ package queries
 import (
 	"bctbackend/database/queries"
 	"bctbackend/defs"
+	"bctbackend/test"
 	"fmt"
 	"testing"
 
@@ -13,7 +14,7 @@ import (
 )
 
 func TestGetCategories(t *testing.T) {
-	db := OpenInitializedDatabase()
+	db := test.OpenInitializedDatabase()
 	defer db.Close()
 
 	categories, err := queries.GetCategories(db)
@@ -27,7 +28,7 @@ func TestGetCategories(t *testing.T) {
 }
 
 func TestCategoryWithIdExists(t *testing.T) {
-	db := OpenInitializedDatabase()
+	db := test.OpenInitializedDatabase()
 	defer db.Close()
 
 	for _, categoryId := range defs.ListCategories() {
@@ -67,14 +68,14 @@ func TestGetCategoryCounts(t *testing.T) {
 	}
 
 	for _, countTable := range countTables {
-		db := OpenInitializedDatabase()
+		db := test.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := AddSeller(db).UserId
+		sellerId := test.AddSellerToDatabase(db).UserId
 
 		for categoryId, count := range countTable {
 			for i := int64(0); i < count; i++ {
-				AddItemInCategory(db, sellerId, categoryId)
+				test.AddItemInCategoryToDatabase(db, sellerId, categoryId)
 			}
 		}
 

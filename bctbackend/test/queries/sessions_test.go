@@ -16,7 +16,7 @@ func TestAddSession(t *testing.T) {
 		for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
 			db := OpenInitializedDatabase()
 
-			userId := AddUser(db, roleId).UserId
+			userId := AddUserToDatabase(db, roleId).UserId
 			sessionId, err := queries.AddSession(db, userId)
 
 			if assert.NoError(t, err) {

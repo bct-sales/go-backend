@@ -36,13 +36,13 @@ func OpenInitializedDatabase() *sql.DB {
 	return db
 }
 
-func AddUserWithId(db *sql.DB, id models.Id, roleId models.Id) {
+func AddUserWithIdToDatabase(db *sql.DB, id models.Id, roleId models.Id) {
 	password := "test"
 
 	queries.AddUserWithId(db, id, roleId, 0, password)
 }
 
-func AddUser(db *sql.DB, roleId models.Id) models.User {
+func AddUserToDatabase(db *sql.DB, roleId models.Id) models.User {
 	password := "test"
 
 	userId, err := queries.AddUser(db, roleId, 0, password)
@@ -60,27 +60,27 @@ func AddUser(db *sql.DB, roleId models.Id) models.User {
 	return user
 }
 
-func AddSeller(db *sql.DB) models.User {
-	return AddUser(db, models.SellerRoleId)
+func AddSellerToDatabase(db *sql.DB) models.User {
+	return AddUserToDatabase(db, models.SellerRoleId)
 }
 
-func AddCashier(db *sql.DB) models.User {
-	return AddUser(db, models.CashierRoleId)
+func AddCashierToDatabase(db *sql.DB) models.User {
+	return AddUserToDatabase(db, models.CashierRoleId)
 }
 
-func AddAdmin(db *sql.DB) models.User {
-	return AddUser(db, models.AdminRoleId)
+func AddAdminToDatabase(db *sql.DB) models.User {
+	return AddUserToDatabase(db, models.AdminRoleId)
 }
 
-func AddSellerWithId(db *sql.DB, id models.Id) {
-	AddUserWithId(db, id, models.SellerRoleId)
+func AddSellerWithIdToDatabase(db *sql.DB, id models.Id) {
+	AddUserWithIdToDatabase(db, id, models.SellerRoleId)
 }
 
-func AddCashierWithId(db *sql.DB, id models.Id) {
-	AddUserWithId(db, id, models.CashierRoleId)
+func AddCashierWithIdToDatabase(db *sql.DB, id models.Id) {
+	AddUserWithIdToDatabase(db, id, models.CashierRoleId)
 }
 
-func AddItem(db *sql.DB, sellerId models.Id, index int) *models.Item {
+func AddItemToDatabase(db *sql.DB, sellerId models.Id, index int) *models.Item {
 	timestamp := models.NewTimestamp(0)
 	description := "description" + strconv.Itoa(index)
 	priceInCents := models.NewMoneyInCents(100 + int64(index))
@@ -103,7 +103,7 @@ func AddItem(db *sql.DB, sellerId models.Id, index int) *models.Item {
 	return item
 }
 
-func AddItemInCategory(db *sql.DB, sellerId models.Id, itemCategoryId models.Id) models.Id {
+func AddItemInCategoryToDatabase(db *sql.DB, sellerId models.Id, itemCategoryId models.Id) models.Id {
 	timestamp := models.NewTimestamp(0)
 	description := "description"
 	priceInCents := models.NewMoneyInCents(100)
