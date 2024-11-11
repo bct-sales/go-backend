@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/database/queries"
 	"bctbackend/defs"
 	"fmt"
 	"testing"
@@ -15,7 +16,7 @@ func TestGetCategories(t *testing.T) {
 	db := openInitializedDatabase()
 	defer db.Close()
 
-	categories, err := GetCategories(db)
+	categories, err := queries.GetCategories(db)
 	if assert.NoError(t, err) {
 		assert.Equal(t, len(defs.ListCategories()), len(categories))
 
@@ -31,7 +32,7 @@ func TestCategoryWithIdExists(t *testing.T) {
 
 	for _, categoryId := range defs.ListCategories() {
 		t.Run(fmt.Sprintf("categoryId = %d", categoryId), func(t *testing.T) {
-			assert.True(t, CategoryWithIdExists(db, categoryId))
+			assert.True(t, queries.CategoryWithIdExists(db, categoryId))
 		})
 	}
 }
@@ -77,7 +78,7 @@ func TestGetCategoryCounts(t *testing.T) {
 			}
 		}
 
-		counts, err := GetCategoryCounts(db)
+		counts, err := queries.GetCategoryCounts(db)
 		if assert.NoError(t, err) {
 			assert.Equal(t, len(defs.ListCategories()), len(counts))
 

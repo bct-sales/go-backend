@@ -4,6 +4,7 @@ package queries
 
 import (
 	models "bctbackend/database/models"
+	"bctbackend/database/queries"
 	"bctbackend/defs"
 	"fmt"
 	"testing"
@@ -29,17 +30,17 @@ func TestAddItem(t *testing.T) {
 									addTestSellerWithId(db, 1)
 									addTestSellerWithId(db, 2)
 
-									itemId, err := AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+									itemId, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 									if err != nil {
 										t.Fatalf(`Failed to add item: %v`, err)
 									}
 
-									itemExists, err := ItemWithIdExists(db, itemId)
+									itemExists, err := queries.ItemWithIdExists(db, itemId)
 									if assert.NoError(t, err) {
 										assert.True(t, itemExists)
 									}
 
-									items, err := GetItems(db)
+									items, err := queries.GetItems(db)
 									assert.NoError(t, err)
 									assert.Equal(t, 1, len(items))
 
@@ -76,10 +77,10 @@ func TestFailingAddItem(t *testing.T) {
 		sellerId := models.NewId(1)
 		donation := false
 
-		_, error := AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 		assert.Error(t, error)
 
-		count, err := CountItems(db)
+		count, err := queries.CountItems(db)
 		assert.NoError(t, err)
 		assert.Equal(t, 0, count)
 	})
@@ -92,12 +93,12 @@ func TestFailingAddItem(t *testing.T) {
 		donation := false
 		itemCategoryId := models.NewId(100)
 
-		assert.False(t, CategoryWithIdExists(db, itemCategoryId))
+		assert.False(t, queries.CategoryWithIdExists(db, itemCategoryId))
 
-		_, error := AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 		assert.Error(t, error)
 
-		count, err := CountItems(db)
+		count, err := queries.CountItems(db)
 		assert.NoError(t, err)
 		assert.Equal(t, 0, count)
 	})
@@ -109,12 +110,12 @@ func TestFailingAddItem(t *testing.T) {
 		itemCategoryId := defs.Shoes
 		priceInCents := models.NewMoneyInCents(0)
 
-		assert.True(t, CategoryWithIdExists(db, itemCategoryId))
+		assert.True(t, queries.CategoryWithIdExists(db, itemCategoryId))
 
-		_, error := AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 		assert.Error(t, error)
 
-		count, err := CountItems(db)
+		count, err := queries.CountItems(db)
 		if assert.NoError(t, err) {
 			assert.Equal(t, 0, count)
 		}
@@ -125,7 +126,7 @@ func TestFailingAddItem(t *testing.T) {
 		sellerId := addTestCashier(db).UserId
 		donation := false
 
-		_, error := AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 		assert.Error(t, error)
 	})
 
@@ -134,7 +135,7 @@ func TestFailingAddItem(t *testing.T) {
 		sellerId := addTestAdmin(db).UserId
 		donation := false
 
-		_, error := AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 		assert.Error(t, error)
 	})
 }
@@ -144,7 +145,7 @@ func TestGetItems(t *testing.T) {
 		db := openInitializedDatabase()
 		defer db.Close()
 
-		items, err := GetItems(db)
+		items, err := queries.GetItems(db)
 		if assert.NoError(t, err) {
 			assert.Equal(t, 0, len(items))
 		}
@@ -157,7 +158,7 @@ func TestGetItems(t *testing.T) {
 		sellerId := addTestSeller(db).UserId
 		itemId := addTestItem(db, sellerId, 1).ItemId
 
-		items, err := GetItems(db)
+		items, err := queries.GetItems(db)
 		if assert.NoError(t, err) {
 			assert.Equal(t, 1, len(items))
 			assert.Equal(t, itemId, items[0].ItemId)
@@ -172,7 +173,7 @@ func TestGetItems(t *testing.T) {
 		item1Id := addTestItem(db, sellerId, 1).ItemId
 		item2Id := addTestItem(db, sellerId, 2).ItemId
 
-		items, err := GetItems(db)
+		items, err := queries.GetItems(db)
 		if assert.NoError(t, err) {
 			assert.Equal(t, 2, len(items))
 			assert.Equal(t, item1Id, items[0].ItemId)
@@ -187,9 +188,9 @@ func TestGetItemWithId(t *testing.T) {
 		defer db.Close()
 
 		itemId := models.NewId(1)
-		_, err := GetItemWithId(db, itemId)
+		_, err := queries.GetItemWithId(db, itemId)
 
-		var itemNotFoundError *ItemNotFoundError
+		var itemNotFoundError *queries.ItemNotFoundError
 		assert.ErrorAs(t, err, &itemNotFoundError)
 	})
 
@@ -200,7 +201,7 @@ func TestGetItemWithId(t *testing.T) {
 		sellerId := addTestSeller(db).UserId
 		itemId := addTestItem(db, sellerId, 1).ItemId
 
-		item, err := GetItemWithId(db, itemId)
+		item, err := queries.GetItemWithId(db, itemId)
 		if assert.NoError(t, err) {
 			assert.Equal(t, itemId, item.ItemId)
 		}
@@ -213,9 +214,9 @@ func TestRemoveItemWithId(t *testing.T) {
 		defer db.Close()
 
 		itemId := models.NewId(1)
-		err := RemoveItemWithId(db, itemId)
+		err := queries.RemoveItemWithId(db, itemId)
 
-		var itemNotFoundError *ItemNotFoundError
+		var itemNotFoundError *queries.ItemNotFoundError
 		assert.ErrorAs(t, err, &itemNotFoundError)
 	})
 
@@ -226,9 +227,9 @@ func TestRemoveItemWithId(t *testing.T) {
 		sellerId := addTestSeller(db).UserId
 		itemId := addTestItem(db, sellerId, 1).ItemId
 
-		err := RemoveItemWithId(db, itemId)
+		err := queries.RemoveItemWithId(db, itemId)
 		if assert.NoError(t, err) {
-			itemExists, err := ItemWithIdExists(db, itemId)
+			itemExists, err := queries.ItemWithIdExists(db, itemId)
 
 			if assert.NoError(t, err) {
 				assert.False(t, itemExists)
@@ -246,10 +247,10 @@ func TestRemoveItemWithId(t *testing.T) {
 
 		AddSaleToDatabase(db, cashierId, []models.Id{itemId})
 
-		err := RemoveItemWithId(db, itemId)
+		err := queries.RemoveItemWithId(db, itemId)
 		assert.Error(t, err)
 
-		itemExists, err := ItemWithIdExists(db, itemId)
+		itemExists, err := queries.ItemWithIdExists(db, itemId)
 		if assert.NoError(t, err) {
 			assert.True(t, itemExists)
 		}
@@ -261,7 +262,7 @@ func TestCountItems(t *testing.T) {
 		db := openInitializedDatabase()
 		defer db.Close()
 
-		count, err := CountItems(db)
+		count, err := queries.CountItems(db)
 		if assert.NoError(t, err) {
 			assert.Equal(t, 0, count)
 		}
@@ -274,7 +275,7 @@ func TestCountItems(t *testing.T) {
 		sellerId := addTestSeller(db).UserId
 		addTestItem(db, sellerId, 1)
 
-		count, err := CountItems(db)
+		count, err := queries.CountItems(db)
 		if assert.NoError(t, err) {
 			assert.Equal(t, 1, count)
 		}
@@ -288,7 +289,7 @@ func TestCountItems(t *testing.T) {
 		addTestItem(db, sellerId, 1)
 		addTestItem(db, sellerId, 2)
 
-		count, err := CountItems(db)
+		count, err := queries.CountItems(db)
 		if assert.NoError(t, err) {
 			assert.Equal(t, 2, count)
 		}

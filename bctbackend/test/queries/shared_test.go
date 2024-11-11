@@ -5,6 +5,7 @@ package queries
 import (
 	database "bctbackend/database"
 	models "bctbackend/database/models"
+	"bctbackend/database/queries"
 	"bctbackend/defs"
 	"database/sql"
 	"log"
@@ -38,19 +39,19 @@ func openInitializedDatabase() *sql.DB {
 func addTestUserWithId(db *sql.DB, id models.Id, roleId models.Id) {
 	password := "test"
 
-	AddUserWithId(db, id, roleId, 0, password)
+	queries.AddUserWithId(db, id, roleId, 0, password)
 }
 
 func addTestUser(db *sql.DB, roleId models.Id) models.User {
 	password := "test"
 
-	userId, err := AddUser(db, roleId, 0, password)
+	userId, err := queries.AddUser(db, roleId, 0, password)
 
 	if err != nil {
 		panic(err)
 	}
 
-	user, err := GetUserWithId(db, userId)
+	user, err := queries.GetUserWithId(db, userId)
 
 	if err != nil {
 		panic(err)
@@ -87,13 +88,13 @@ func addTestItem(db *sql.DB, sellerId models.Id, index int) *models.Item {
 	donation := false
 	charity := false
 
-	itemId, err := AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+	itemId, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 
 	if err != nil {
 		panic(err)
 	}
 
-	item, err := GetItemWithId(db, itemId)
+	item, err := queries.GetItemWithId(db, itemId)
 
 	if err != nil {
 		panic(err)
@@ -109,7 +110,7 @@ func addTestItemInCategory(db *sql.DB, sellerId models.Id, itemCategoryId models
 	donation := false
 	charity := false
 
-	itemId, err := AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+	itemId, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 
 	if err != nil {
 		panic(err)
@@ -121,7 +122,7 @@ func addTestItemInCategory(db *sql.DB, sellerId models.Id, itemCategoryId models
 func AddSaleToDatabase(db *sql.DB, cashierId models.Id, itemIds []models.Id) models.Id {
 	timestamp := models.NewTimestamp(0)
 
-	saleId, err := AddSale(db, cashierId, timestamp, itemIds)
+	saleId, err := queries.AddSale(db, cashierId, timestamp, itemIds)
 
 	if err != nil {
 		panic(err)

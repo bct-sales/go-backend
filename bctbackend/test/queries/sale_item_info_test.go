@@ -4,6 +4,7 @@ package queries
 
 import (
 	models "bctbackend/database/models"
+	"bctbackend/database/queries"
 	"fmt"
 	"testing"
 
@@ -28,7 +29,7 @@ func TestGetSaleItemInformation(t *testing.T) {
 					AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
 				}
 
-				itemInformation, err := GetSaleItemInformation(db, item.ItemId)
+				itemInformation, err := queries.GetSaleItemInformation(db, item.ItemId)
 
 				if assert.NoError(t, err) {
 					assert.Equal(t, item.Description, itemInformation.Description)
@@ -46,10 +47,10 @@ func TestGetSaleItemInformation(t *testing.T) {
 
 		nonexistentItemId := models.Id(1)
 
-		itemExists, err := ItemWithIdExists(db, nonexistentItemId)
+		itemExists, err := queries.ItemWithIdExists(db, nonexistentItemId)
 		if assert.NoError(t, err) {
 			if assert.False(t, itemExists) {
-				_, err := GetSaleItemInformation(db, 1)
+				_, err := queries.GetSaleItemInformation(db, 1)
 				assert.Error(t, err)
 			}
 		}

@@ -4,6 +4,7 @@ package queries
 
 import (
 	models "bctbackend/database/models"
+	"bctbackend/database/queries"
 	"fmt"
 	"testing"
 
@@ -18,11 +19,11 @@ func TestAddUserWithId(t *testing.T) {
 				t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
 					db := openInitializedDatabase()
 
-					err := AddUserWithId(db, userId, roleId, 0, password)
+					err := queries.AddUserWithId(db, userId, roleId, 0, password)
 
 					if assert.NoError(t, err) {
-						assert.True(t, UserWithIdExists(db, userId))
-						assert.NoError(t, AuthenticateUser(db, userId, password))
+						assert.True(t, queries.UserWithIdExists(db, userId))
+						assert.NoError(t, queries.AuthenticateUser(db, userId, password))
 					}
 				})
 			}
@@ -36,10 +37,10 @@ func TestAddUser(t *testing.T) {
 			t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
 				db := openInitializedDatabase()
 
-				userId, err := AddUser(db, roleId, 0, password)
+				userId, err := queries.AddUser(db, roleId, 0, password)
 
 				if assert.NoError(t, err) {
-					assert.True(t, UserWithIdExists(db, userId))
+					assert.True(t, queries.UserWithIdExists(db, userId))
 				}
 			})
 		}
@@ -53,9 +54,9 @@ func TestAuthenticatingSuccessfully(t *testing.T) {
 	userId := models.NewId(1)
 	roleId := models.SellerRoleId
 
-	AddUserWithId(db, userId, roleId, 0, password)
+	queries.AddUserWithId(db, userId, roleId, 0, password)
 
-	assert.NoError(t, AuthenticateUser(db, userId, password))
+	assert.NoError(t, queries.AuthenticateUser(db, userId, password))
 }
 
 func TestAuthenticatingNonExistingUser(t *testing.T) {
@@ -64,8 +65,8 @@ func TestAuthenticatingNonExistingUser(t *testing.T) {
 	password := "xyz"
 	userId := models.NewId(5)
 
-	assert.False(t, UserWithIdExists(db, userId))
-	assert.Error(t, AuthenticateUser(db, userId, password))
+	assert.False(t, queries.UserWithIdExists(db, userId))
+	assert.Error(t, queries.AuthenticateUser(db, userId, password))
 }
 
 func TestAuthenticatingWrongPassword(t *testing.T) {
@@ -76,9 +77,9 @@ func TestAuthenticatingWrongPassword(t *testing.T) {
 	userId := models.NewId(5)
 	roleId := models.SellerRoleId
 
-	AddUserWithId(db, userId, roleId, 0, password)
+	queries.AddUserWithId(db, userId, roleId, 0, password)
 
-	assert.Error(t, AuthenticateUser(db, userId, wrongPassword))
+	assert.Error(t, queries.AuthenticateUser(db, userId, wrongPassword))
 }
 
 func TestGetUser(t *testing.T) {
@@ -88,9 +89,9 @@ func TestGetUser(t *testing.T) {
 	userId := models.NewId(1)
 	roleId := models.SellerRoleId
 
-	AddUserWithId(db, userId, roleId, 0, password)
+	queries.AddUserWithId(db, userId, roleId, 0, password)
 
-	user, err := GetUserWithId(db, userId)
+	user, err := queries.GetUserWithId(db, userId)
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, userId, user.UserId)
@@ -105,9 +106,9 @@ func TestListUsers(t *testing.T) {
 	userId := models.NewId(1)
 	roleId := models.SellerRoleId
 
-	AddUserWithId(db, userId, roleId, 0, password)
+	queries.AddUserWithId(db, userId, roleId, 0, password)
 
-	users, err := ListUsers(db)
+	users, err := queries.ListUsers(db)
 
 	if assert.NoError(t, err) {
 		assert.Len(t, users, 1)
@@ -124,17 +125,17 @@ func TestUpdatePassword(t *testing.T) {
 	password2 := "abc"
 	newPassword1 := "123"
 
-	user1Id, err := AddUser(db, models.SellerRoleId, 0, password1)
+	user1Id, err := queries.AddUser(db, models.SellerRoleId, 0, password1)
 
 	if assert.NoError(t, err) {
-		user2Id, err := AddUser(db, models.SellerRoleId, 0, password2)
+		user2Id, err := queries.AddUser(db, models.SellerRoleId, 0, password2)
 
 		if assert.NoError(t, err) {
-			err := UpdateUserPassword(db, user1Id, newPassword1)
+			err := queries.UpdateUserPassword(db, user1Id, newPassword1)
 
 			if assert.NoError(t, err) {
-				assert.NoError(t, AuthenticateUser(db, user1Id, newPassword1))
-				assert.NoError(t, AuthenticateUser(db, user2Id, password2))
+				assert.NoError(t, queries.AuthenticateUser(db, user1Id, newPassword1))
+				assert.NoError(t, queries.AuthenticateUser(db, user2Id, password2))
 			}
 		}
 	}

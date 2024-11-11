@@ -4,6 +4,7 @@ package queries
 
 import (
 	models "bctbackend/database/models"
+	"bctbackend/database/queries"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,10 +17,10 @@ func TestAddSession(t *testing.T) {
 			db := openInitializedDatabase()
 
 			userId := addTestUser(db, roleId).UserId
-			sessionId, err := AddSession(db, userId)
+			sessionId, err := queries.AddSession(db, userId)
 
 			if assert.NoError(t, err) {
-				session, err := GetSessionById(db, sessionId)
+				session, err := queries.GetSessionById(db, sessionId)
 
 				if assert.NoError(t, err) {
 					assert.Equal(t, sessionId, session.SessionId)

@@ -4,6 +4,7 @@ package queries
 
 import (
 	"bctbackend/database/models"
+	"bctbackend/database/queries"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -31,10 +32,10 @@ func TestAddSale(t *testing.T) {
 
 		timestamp := models.NewTimestamp(0)
 
-		saleId, err := AddSale(db, cashierId, timestamp, saleItemIds)
+		saleId, err := queries.AddSale(db, cashierId, timestamp, saleItemIds)
 
 		if assert.NoError(t, err) {
-			actualItems, err := GetSaleItems(db, saleId)
+			actualItems, err := queries.GetSaleItems(db, saleId)
 
 			if assert.NoError(t, err) {
 				assert.Len(t, actualItems, len(saleItemIds))
@@ -42,7 +43,7 @@ func TestAddSale(t *testing.T) {
 				for index, actualItem := range actualItems {
 					assert.Equal(t, saleItemIds[index], actualItem.ItemId)
 
-					expectedItem, err := GetItemWithId(db, saleItemIds[index])
+					expectedItem, err := queries.GetItemWithId(db, saleItemIds[index])
 
 					if assert.NoError(t, err) {
 						assert.Equal(t, *expectedItem, actualItem)
@@ -59,7 +60,7 @@ func TestAddSaleWithoutItems(t *testing.T) {
 	cashierId := addTestCashier(db).UserId
 	timestamp := models.NewTimestamp(0)
 
-	_, err := AddSale(db, cashierId, timestamp, []models.Id{})
+	_, err := queries.AddSale(db, cashierId, timestamp, []models.Id{})
 
 	assert.Error(t, err)
 }
@@ -71,7 +72,7 @@ func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
 	timestamp := models.NewTimestamp(0)
 	itemId := addTestItem(db, sellerId, 1).ItemId
 
-	_, err := AddSale(db, sellerId, timestamp, []models.Id{itemId})
+	_, err := queries.AddSale(db, sellerId, timestamp, []models.Id{itemId})
 
 	assert.Error(t, err)
 }
@@ -94,7 +95,7 @@ func TestGetSales(t *testing.T) {
 		AddSaleToDatabase(db, cashierId, []models.Id{itemId})
 	}
 
-	actualSales, err := GetSales(db)
+	actualSales, err := queries.GetSales(db)
 
 	if assert.NoError(t, err) {
 		assert.Len(t, actualSales, len(saleIds))
@@ -102,7 +103,7 @@ func TestGetSales(t *testing.T) {
 		for _, actualSale := range actualSales {
 			assert.Equal(t, cashierId, actualSale.CashierId)
 
-			saleItems, err := GetSaleItems(db, actualSale.SaleId)
+			saleItems, err := queries.GetSaleItems(db, actualSale.SaleId)
 
 			if assert.NoError(t, err) {
 				assert.Equal(t, 1, len(saleItems))
@@ -119,7 +120,7 @@ func TestSaleExists(t *testing.T) {
 	itemId := addTestItem(db, sellerId, 1).ItemId
 
 	saleId := AddSaleToDatabase(db, cashierId, []models.Id{itemId})
-	saleExists, err := SaleExists(db, saleId)
+	saleExists, err := queries.SaleExists(db, saleId)
 
 	if assert.NoError(t, err) {
 		assert.True(t, saleExists)
@@ -140,7 +141,7 @@ func TestGetSaleItems(t *testing.T) {
 
 	saleId := AddSaleToDatabase(db, cashierId, itemIds)
 
-	actualItems, err := GetSaleItems(db, saleId)
+	actualItems, err := queries.GetSaleItems(db, saleId)
 
 	if assert.NoError(t, err) {
 		assert.Len(t, actualItems, len(itemIds))
@@ -148,7 +149,7 @@ func TestGetSaleItems(t *testing.T) {
 		for index, actualItem := range actualItems {
 			assert.Equal(t, itemIds[index], actualItem.ItemId)
 
-			expectedItem, err := GetItemWithId(db, itemIds[index])
+			expectedItem, err := queries.GetItemWithId(db, itemIds[index])
 
 			if assert.NoError(t, err) {
 				assert.Equal(t, *expectedItem, actualItem)
@@ -174,16 +175,16 @@ func TestRemoveSale(t *testing.T) {
 	sale1Id := AddSaleToDatabase(db, cashierId, sale1ItemIds)
 	sale2Id := AddSaleToDatabase(db, cashierId, sale2ItemIds)
 
-	err := RemoveSale(db, sale1Id)
+	err := queries.RemoveSale(db, sale1Id)
 
 	if assert.NoError(t, err) {
-		sale1Exists, err := SaleExists(db, sale1Id)
+		sale1Exists, err := queries.SaleExists(db, sale1Id)
 
 		if assert.NoError(t, err) {
 			assert.False(t, sale1Exists)
 		}
 
-		sale2Exists, err := SaleExists(db, sale2Id)
+		sale2Exists, err := queries.SaleExists(db, sale2Id)
 
 		if assert.NoError(t, err) {
 			assert.True(t, sale2Exists)
@@ -194,7 +195,7 @@ func TestRemoveSale(t *testing.T) {
 func TestRemoveNonexistentSale(t *testing.T) {
 	db := openInitializedDatabase()
 
-	err := RemoveSale(db, 0)
+	err := queries.RemoveSale(db, 0)
 
-	assert.ErrorIs(t, err, NoSuchSaleError{})
+	assert.ErrorIs(t, err, queries.NoSuchSaleError{})
 }
