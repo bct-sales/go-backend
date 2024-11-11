@@ -18,12 +18,12 @@ func TestGetSaleItemInformation(t *testing.T) {
 			label := fmt.Sprintf("Sell count = %d", sellCount)
 
 			t.Run(label, func(t *testing.T) {
-				db := openInitializedDatabase()
+				db := OpenInitializedDatabase()
 				defer db.Close()
 
-				seller := addTestSeller(db)
-				cashier := addTestCashier(db)
-				item := addTestItem(db, seller.UserId, 1)
+				seller := AddSeller(db)
+				cashier := AddCashier(db)
+				item := AddItem(db, seller.UserId, 1)
 
 				for i := 0; i < sellCount; i++ {
 					AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
@@ -42,7 +42,7 @@ func TestGetSaleItemInformation(t *testing.T) {
 	})
 
 	t.Run("Failure", func(t *testing.T) {
-		db := openInitializedDatabase()
+		db := OpenInitializedDatabase()
 		defer db.Close()
 
 		nonexistentItemId := models.Id(1)

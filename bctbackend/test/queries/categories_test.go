@@ -13,7 +13,7 @@ import (
 )
 
 func TestGetCategories(t *testing.T) {
-	db := openInitializedDatabase()
+	db := OpenInitializedDatabase()
 	defer db.Close()
 
 	categories, err := queries.GetCategories(db)
@@ -27,7 +27,7 @@ func TestGetCategories(t *testing.T) {
 }
 
 func TestCategoryWithIdExists(t *testing.T) {
-	db := openInitializedDatabase()
+	db := OpenInitializedDatabase()
 	defer db.Close()
 
 	for _, categoryId := range defs.ListCategories() {
@@ -67,14 +67,14 @@ func TestGetCategoryCounts(t *testing.T) {
 	}
 
 	for _, countTable := range countTables {
-		db := openInitializedDatabase()
+		db := OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := addTestSeller(db).UserId
+		sellerId := AddSeller(db).UserId
 
 		for categoryId, count := range countTable {
 			for i := int64(0); i < count; i++ {
-				addTestItemInCategory(db, sellerId, categoryId)
+				AddItemInCategory(db, sellerId, categoryId)
 			}
 		}
 

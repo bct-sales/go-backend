@@ -14,7 +14,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func openDatabase() *sql.DB {
+func OpenDatabase() *sql.DB {
 	db, error := sql.Open("sqlite", ":memory:")
 
 	if error != nil {
@@ -26,8 +26,8 @@ func openDatabase() *sql.DB {
 	return db
 }
 
-func openInitializedDatabase() *sql.DB {
-	db := openDatabase()
+func OpenInitializedDatabase() *sql.DB {
+	db := OpenDatabase()
 
 	if err := database.InitializeDatabase(db); err != nil {
 		log.Fatalf("failed to initialize database: %v", err)
@@ -36,13 +36,13 @@ func openInitializedDatabase() *sql.DB {
 	return db
 }
 
-func addTestUserWithId(db *sql.DB, id models.Id, roleId models.Id) {
+func AddUserWithId(db *sql.DB, id models.Id, roleId models.Id) {
 	password := "test"
 
 	queries.AddUserWithId(db, id, roleId, 0, password)
 }
 
-func addTestUser(db *sql.DB, roleId models.Id) models.User {
+func AddUser(db *sql.DB, roleId models.Id) models.User {
 	password := "test"
 
 	userId, err := queries.AddUser(db, roleId, 0, password)
@@ -60,27 +60,27 @@ func addTestUser(db *sql.DB, roleId models.Id) models.User {
 	return user
 }
 
-func addTestSeller(db *sql.DB) models.User {
-	return addTestUser(db, models.SellerRoleId)
+func AddSeller(db *sql.DB) models.User {
+	return AddUser(db, models.SellerRoleId)
 }
 
-func addTestCashier(db *sql.DB) models.User {
-	return addTestUser(db, models.CashierRoleId)
+func AddCashier(db *sql.DB) models.User {
+	return AddUser(db, models.CashierRoleId)
 }
 
-func addTestAdmin(db *sql.DB) models.User {
-	return addTestUser(db, models.AdminRoleId)
+func AddAdmin(db *sql.DB) models.User {
+	return AddUser(db, models.AdminRoleId)
 }
 
-func addTestSellerWithId(db *sql.DB, id models.Id) {
-	addTestUserWithId(db, id, models.SellerRoleId)
+func AddSellerWithId(db *sql.DB, id models.Id) {
+	AddUserWithId(db, id, models.SellerRoleId)
 }
 
-func addTestCashierWithId(db *sql.DB, id models.Id) {
-	addTestUserWithId(db, id, models.CashierRoleId)
+func AddCashierWithId(db *sql.DB, id models.Id) {
+	AddUserWithId(db, id, models.CashierRoleId)
 }
 
-func addTestItem(db *sql.DB, sellerId models.Id, index int) *models.Item {
+func AddItem(db *sql.DB, sellerId models.Id, index int) *models.Item {
 	timestamp := models.NewTimestamp(0)
 	description := "description" + strconv.Itoa(index)
 	priceInCents := models.NewMoneyInCents(100 + int64(index))
@@ -103,7 +103,7 @@ func addTestItem(db *sql.DB, sellerId models.Id, index int) *models.Item {
 	return item
 }
 
-func addTestItemInCategory(db *sql.DB, sellerId models.Id, itemCategoryId models.Id) models.Id {
+func AddItemInCategory(db *sql.DB, sellerId models.Id, itemCategoryId models.Id) models.Id {
 	timestamp := models.NewTimestamp(0)
 	description := "description"
 	priceInCents := models.NewMoneyInCents(100)
