@@ -74,7 +74,29 @@ func TestGetItemInformation(t *testing.T) {
 				request.AddCookie(test.CreateCookie(sessionId))
 				router.ServeHTTP(writer, request)
 
-				if assert.Equal(t, http.StatusBadRequest, writer.Code) {
+				assert.Equal(t, http.StatusBadRequest, writer.Code)
+			}
+		})
+
+		t.Run("As seller", func(t *testing.T) {
+			db, router := test.CreateRestRouter()
+			writer := httptest.NewRecorder()
+			defer db.Close()
+
+			seller := test.AddSellerToDatabase(db)
+			sessionId := test.AddSessionToDatabase(db, seller.UserId)
+			item := test.AddItemToDatabase(db, seller.UserId, 1)
+
+			test.AddItemToDatabase(db, seller.UserId, 1)
+
+			url := fmt.Sprintf("/api/v1/sales/items/%d", item.ItemId)
+			request, err := http.NewRequest("GET", url, nil)
+
+			if !assert.NoError(t, err) {
+				request.AddCookie(test.CreateCookie(sessionId))
+				router.ServeHTTP(writer, request)
+
+				if assert.Equal(t, http.StatusForbidden, writer.Code) {
 				}
 			}
 		})
