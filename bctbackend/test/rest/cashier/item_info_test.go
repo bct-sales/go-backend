@@ -70,7 +70,7 @@ func TestGetItemInformation(t *testing.T) {
 			url := "/api/v1/sales/items/abc"
 			request, err := http.NewRequest("GET", url, nil)
 
-			if !assert.NoError(t, err) {
+			if assert.NoError(t, err) {
 				request.AddCookie(test.CreateCookie(sessionId))
 				router.ServeHTTP(writer, request)
 
