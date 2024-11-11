@@ -3,6 +3,7 @@ package rest
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	rest_admin "bctbackend/rest/admin"
 	rest_cashier "bctbackend/rest/cashier"
 	rest_seller "bctbackend/rest/seller"
 	"bctbackend/security"
@@ -68,7 +69,7 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 
 	v1 := router.Group("/api/v1")
 	v1.POST("/login", func(context *gin.Context) { login(context, db) })
-	v1.GET("/items", withUserAndRole(getItems))
+	v1.GET("/items", withUserAndRole(rest_admin.GetItems))
 	v1.GET("/sellers/:id/items", withUserAndRole(rest_seller.GetSellerItems))
 	v1.POST("/sellers/:id/items", withUserAndRole(rest_seller.AddSellerItem))
 	v1.GET("/sales/items/:id", withUserAndRole(rest_cashier.GetItemInformation))

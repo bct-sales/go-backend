@@ -1,4 +1,4 @@
-package rest
+package admin
 
 import (
 	"bctbackend/database/models"
@@ -17,7 +17,7 @@ import (
 // @Produce json
 // @Success 200 {object} []models.Item
 // @Router /items [get]
-func getItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
+func GetItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.AdminRoleId {
 		context.JSON(http.StatusForbidden, gin.H{"message": "Only accessible to admins"})
 		return
