@@ -40,18 +40,18 @@ func TestGetItemInformation(t *testing.T) {
 				url := fmt.Sprintf("/api/v1/sales/items/%d", item.ItemId)
 				request, err := http.NewRequest("GET", url, nil)
 
-				if !assert.NoError(t, err) {
+				if assert.NoError(t, err) {
 					request.AddCookie(test.CreateCookie(sessionId))
 					router.ServeHTTP(writer, request)
 
-					if assert.Equal(t, http.StatusCreated, writer.Code) {
+					if assert.Equal(t, http.StatusOK, writer.Code) {
 						response := test.FromJson[restapi.GetItemInformationResponse](writer.Body.String())
 						expectedHasBeenSold := sale_count > 0
 
 						assert.Equal(t, item.Description, response.Description)
 						assert.Equal(t, item.PriceInCents, response.PriceInCents)
 						assert.Equal(t, item.CategoryId, response.CategoryId)
-						assert.Equal(t, &expectedHasBeenSold, *response.HasBeenSold)
+						assert.Equal(t, expectedHasBeenSold, *response.HasBeenSold)
 					}
 				}
 			})
