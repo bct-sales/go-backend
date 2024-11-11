@@ -92,11 +92,14 @@ func TestGetItemInformation(t *testing.T) {
 			url := fmt.Sprintf("/api/v1/sales/items/%d", item.ItemId)
 			request, err := http.NewRequest("GET", url, nil)
 
-			if !assert.NoError(t, err) {
+			if assert.NoError(t, err) {
 				request.AddCookie(test.CreateCookie(sessionId))
 				router.ServeHTTP(writer, request)
 
-				if assert.Equal(t, http.StatusForbidden, writer.Code) {
+				assert.Equal(t, http.StatusForbidden, writer.Code)
+			}
+		})
+
 				}
 			}
 		})
