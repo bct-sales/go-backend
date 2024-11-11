@@ -244,7 +244,7 @@ func TestRemoveItemWithId(t *testing.T) {
 		cashierId := addTestCashier(db).UserId
 		itemId := addTestItem(db, sellerId, 1).ItemId
 
-		addTestSale(db, cashierId, []models.Id{itemId})
+		addSaleToDatabase(db, cashierId, []models.Id{itemId})
 
 		err := RemoveItemWithId(db, itemId)
 		assert.Error(t, err)

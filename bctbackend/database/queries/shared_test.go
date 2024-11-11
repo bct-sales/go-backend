@@ -118,7 +118,7 @@ func addTestItemInCategory(db *sql.DB, sellerId models.Id, itemCategoryId models
 	return itemId
 }
 
-func addTestSale(db *sql.DB, cashierId models.Id, itemIds []models.Id) models.Id {
+func addSaleToDatabase(db *sql.DB, cashierId models.Id, itemIds []models.Id) models.Id {
 	timestamp := models.NewTimestamp(0)
 
 	saleId, err := AddSale(db, cashierId, timestamp, itemIds)

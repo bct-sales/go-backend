@@ -91,7 +91,7 @@ func TestGetSales(t *testing.T) {
 
 	saleIds := make([]models.Id, len(itemIds))
 	for _, itemId := range itemIds {
-		addTestSale(db, cashierId, []models.Id{itemId})
+		addSaleToDatabase(db, cashierId, []models.Id{itemId})
 	}
 
 	actualSales, err := GetSales(db)
@@ -118,7 +118,7 @@ func TestSaleExists(t *testing.T) {
 	cashierId := addTestCashier(db).UserId
 	itemId := addTestItem(db, sellerId, 1).ItemId
 
-	saleId := addTestSale(db, cashierId, []models.Id{itemId})
+	saleId := addSaleToDatabase(db, cashierId, []models.Id{itemId})
 	saleExists, err := SaleExists(db, saleId)
 
 	if assert.NoError(t, err) {
@@ -138,7 +138,7 @@ func TestGetSaleItems(t *testing.T) {
 		addTestItem(db, sellerId, 4).ItemId,
 	}
 
-	saleId := addTestSale(db, cashierId, itemIds)
+	saleId := addSaleToDatabase(db, cashierId, itemIds)
 
 	actualItems, err := GetSaleItems(db, saleId)
 
@@ -171,8 +171,8 @@ func TestRemoveSale(t *testing.T) {
 		addTestItem(db, sellerId, 4).ItemId,
 	}
 
-	sale1Id := addTestSale(db, cashierId, sale1ItemIds)
-	sale2Id := addTestSale(db, cashierId, sale2ItemIds)
+	sale1Id := addSaleToDatabase(db, cashierId, sale1ItemIds)
+	sale2Id := addSaleToDatabase(db, cashierId, sale2ItemIds)
 
 	err := RemoveSale(db, sale1Id)
 
