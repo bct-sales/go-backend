@@ -5,6 +5,7 @@ import (
 	"bctbackend/database/queries"
 	rest_admin "bctbackend/rest/admin"
 	rest_cashier "bctbackend/rest/cashier"
+	rest_path "bctbackend/rest/path"
 	rest_seller "bctbackend/rest/seller"
 	"bctbackend/security"
 	"database/sql"
@@ -67,11 +68,10 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	v1 := router.Group("/api/v1")
-	v1.POST("/login", func(context *gin.Context) { login(context, db) })
-	v1.GET("/items", withUserAndRole(rest_admin.GetItems))
-	v1.GET("/sellers/:id/items", withUserAndRole(rest_seller.GetSellerItems))
-	v1.POST("/sellers/:id/items", withUserAndRole(rest_seller.AddSellerItem))
-	v1.GET("/sales/items/:id", withUserAndRole(rest_cashier.GetItemInformation))
-	v1.POST("/sales", withUserAndRole(rest_cashier.AddSale))
+	router.POST(rest_path.Login().String(), func(context *gin.Context) { login(context, db) })
+	router.GET(rest_path.Items().String(), withUserAndRole(rest_admin.GetItems))
+	router.GET(rest_path.SellerItems().Raw(":id"), withUserAndRole(rest_seller.GetSellerItems))
+	router.POST(rest_path.SellerItems().Raw(":id"), withUserAndRole(rest_seller.AddSellerItem))
+	router.POST(rest_path.Sales().String(), withUserAndRole(rest_cashier.AddSale))
+	router.GET(rest_path.SalesItems().Raw(":id"), withUserAndRole(rest_cashier.GetItemInformation))
 }
