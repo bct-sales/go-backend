@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"bctbackend/defs"
+	"bctbackend/rest/path"
 	restapi "bctbackend/rest/seller"
 
 	models "bctbackend/database/models"
@@ -34,7 +35,7 @@ func TestAddSellerItem(t *testing.T) {
 									seller := test.AddSellerWithIdToDatabase(db, sellerId)
 									sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
-									url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
+									url := path.SellerItems().Id(seller.UserId)
 									payload := restapi.AddSellerItemPayload{
 										Price:       price,
 										Description: description,
@@ -87,7 +88,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller := test.AddSellerToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
-			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
+			url := path.SellerItems().Id(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
 				Description: description,
@@ -120,7 +121,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller := test.AddSellerToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
-			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
+			url := path.SellerItems().Id(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
 				Description: description,
@@ -155,7 +156,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller := test.AddSellerToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
-			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
+			url := path.SellerItems().Id(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
 				Description: description,
@@ -191,7 +192,7 @@ func TestAddSellerItem(t *testing.T) {
 			admin := test.AddAdminToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, admin.UserId)
 
-			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
+			url := path.SellerItems().Id(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
 				Description: description,
@@ -227,7 +228,7 @@ func TestAddSellerItem(t *testing.T) {
 			cashier := test.AddCashierToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
 
-			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
+			url := path.SellerItems().Id(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
 				Description: description,
@@ -262,7 +263,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller := test.AddSellerToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
-			url := "/api/v1/sellers/a/items"
+			url := path.SellerItems().Raw("a")
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
 				Description: description,
@@ -298,7 +299,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller2 := test.AddSellerToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, seller2.UserId)
 
-			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller1.UserId)
+			url := path.SellerItems().Id(seller1.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
 				Description: description,
@@ -331,11 +332,11 @@ func TestAddSellerItem(t *testing.T) {
 			defer db.Close()
 
 			seller := test.AddSellerToDatabase(db)
-			invalidId := models.NewId(1000)
+			nonexistentId := models.NewId(1000)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
-			if assert.False(t, queries.UserWithIdExists(db, invalidId)) {
-				url := fmt.Sprintf("/api/v1/sellers/%d/items", invalidId)
+			if assert.False(t, queries.UserWithIdExists(db, nonexistentId)) {
+				url := path.SellerItems().Id(nonexistentId)
 				payload := restapi.AddSellerItemPayload{
 					Price:       price,
 					Description: description,

@@ -10,6 +10,7 @@ import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/defs"
+	"bctbackend/rest/path"
 	"bctbackend/test"
 
 	"github.com/stretchr/testify/assert"
@@ -24,7 +25,8 @@ func TestListAllItems(t *testing.T) {
 		admin := test.AddAdminToDatabase(db)
 		sessionId := test.AddSessionToDatabase(db, admin.UserId)
 
-		request, err := http.NewRequest("GET", "/api/v1/items", nil)
+		url := path.Items().String()
+		request, err := http.NewRequest("GET", url, nil)
 		request.AddCookie(test.CreateCookie(sessionId))
 
 		if assert.NoError(t, err) {
@@ -56,7 +58,8 @@ func TestListAllItems(t *testing.T) {
 
 		item.ItemId = itemId
 
-		request, err := http.NewRequest("GET", "/api/v1/items", nil)
+		url := path.Items().String()
+		request, err := http.NewRequest("GET", url, nil)
 		request.AddCookie(test.CreateCookie(sessionId))
 
 		if assert.NoError(t, err) {
@@ -93,7 +96,8 @@ func TestListAllItems(t *testing.T) {
 		}
 		item2.ItemId = itemId
 
-		request, err := http.NewRequest("GET", "/api/v1/items", nil)
+		url := path.Items().String()
+		request, err := http.NewRequest("GET", url, nil)
 		request.AddCookie(test.CreateCookie(sessionId))
 
 		if assert.NoError(t, err) {
@@ -124,7 +128,8 @@ func TestListAllItemsAsNonAdmin(t *testing.T) {
 			userId := test.AddUserToDatabase(db, roleId).UserId
 			sessionId := test.AddSessionToDatabase(db, userId)
 
-			request, err := http.NewRequest("GET", "/api/v1/items", nil)
+			url := path.Items().String()
+			request, err := http.NewRequest("GET", url, nil)
 			request.AddCookie(test.CreateCookie(sessionId))
 
 			if assert.NoError(t, err) {

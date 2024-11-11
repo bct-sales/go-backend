@@ -7,9 +7,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	models "bctbackend/database/models"
+	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	restapi "bctbackend/rest/cashier"
+	"bctbackend/rest/path"
 
 	"bctbackend/test"
 
@@ -29,7 +30,7 @@ func TestAddSaleItem(t *testing.T) {
 		payload := restapi.AddSalePayload{
 			Items: []models.Id{item.ItemId},
 		}
-		url := "/api/v1/sales"
+		url := path.Sales().String()
 		request := test.CreatePostRequest(url, &payload)
 		request.AddCookie(test.CreateCookie(sessionId))
 
@@ -63,7 +64,7 @@ func TestAddSaleItem(t *testing.T) {
 			payload := restapi.AddSalePayload{
 				Items: []models.Id{item.ItemId},
 			}
-			url := "/api/v1/sales"
+			url := path.Sales().String()
 			request := test.CreatePostRequest(url, &payload)
 			request.AddCookie(test.CreateCookie(sessionId))
 
@@ -90,7 +91,7 @@ func TestAddSaleItem(t *testing.T) {
 			payload := restapi.AddSalePayload{
 				Items: []models.Id{item.ItemId},
 			}
-			url := "/api/v1/sales"
+			url := path.Sales().String()
 			request := test.CreatePostRequest(url, &payload)
 			request.AddCookie(test.CreateCookie(sessionId))
 
@@ -115,7 +116,7 @@ func TestAddSaleItem(t *testing.T) {
 			payload := restapi.AddSalePayload{
 				Items: []models.Id{},
 			}
-			url := "/api/v1/sales"
+			url := path.Sales().String()
 			request := test.CreatePostRequest(url, &payload)
 			request.AddCookie(test.CreateCookie(sessionId))
 
@@ -145,7 +146,7 @@ func TestAddSaleItem(t *testing.T) {
 					payload := restapi.AddSalePayload{
 						Items: []models.Id{},
 					}
-					url := "/api/v1/sales"
+					url := path.Sales().String()
 					request := test.CreatePostRequest(url, &payload)
 					request.AddCookie(test.CreateCookie(sessionId))
 
@@ -175,7 +176,7 @@ func TestAddSaleItem(t *testing.T) {
 			payload := restapi.AddSalePayload{
 				Items: []models.Id{item.ItemId, item.ItemId}, // Causes the operation to fail
 			}
-			url := "/api/v1/sales"
+			url := path.Sales().String()
 			request := test.CreatePostRequest(url, &payload)
 			request.AddCookie(test.CreateCookie(sessionId))
 

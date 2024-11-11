@@ -11,6 +11,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	restapi "bctbackend/rest/cashier"
+	"bctbackend/rest/path"
 
 	"bctbackend/test"
 
@@ -38,7 +39,7 @@ func TestGetItemInformation(t *testing.T) {
 
 				sessionId := test.AddSessionToDatabase(db, cashier.UserId)
 
-				url := fmt.Sprintf("/api/v1/sales/items/%d", item.ItemId)
+				url := path.SalesItems().Id(item.ItemId)
 				request, err := http.NewRequest("GET", url, nil)
 
 				if assert.NoError(t, err) {
@@ -68,7 +69,7 @@ func TestGetItemInformation(t *testing.T) {
 			cashier := test.AddCashierToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
 
-			url := "/api/v1/sales/items/abc"
+			url := path.SalesItems().Raw("abc")
 			request, err := http.NewRequest("GET", url, nil)
 
 			if assert.NoError(t, err) {
@@ -90,7 +91,7 @@ func TestGetItemInformation(t *testing.T) {
 
 			test.AddItemToDatabase(db, seller.UserId, 1)
 
-			url := fmt.Sprintf("/api/v1/sales/items/%d", item.ItemId)
+			url := path.SalesItems().Id(item.ItemId)
 			request, err := http.NewRequest("GET", url, nil)
 
 			if assert.NoError(t, err) {
@@ -113,7 +114,7 @@ func TestGetItemInformation(t *testing.T) {
 
 			test.AddItemToDatabase(db, seller.UserId, 1)
 
-			url := fmt.Sprintf("/api/v1/sales/items/%d", item.ItemId)
+			url := path.SalesItems().Id(item.ItemId)
 			request, err := http.NewRequest("GET", url, nil)
 
 			if assert.NoError(t, err) {
@@ -140,7 +141,7 @@ func TestGetItemInformation(t *testing.T) {
 				if assert.False(t, itemExists) {
 					test.AddItemToDatabase(db, seller.UserId, 1)
 
-					url := fmt.Sprintf("/api/v1/sales/items/%d", nonexistentItem)
+					url := path.SalesItems().Id(nonexistentItem)
 					request, err := http.NewRequest("GET", url, nil)
 
 					if assert.NoError(t, err) {

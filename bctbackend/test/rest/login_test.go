@@ -4,6 +4,7 @@ package rest
 
 import (
 	"bctbackend/database/models"
+	"bctbackend/rest/path"
 	"bctbackend/test"
 	"bytes"
 	"net/http"
@@ -25,7 +26,8 @@ func TestLogin(t *testing.T) {
 	form.Add("username", models.IdToString(seller.UserId))
 	form.Add("password", seller.Password)
 
-	request, err := http.NewRequest("POST", "/api/v1/login", bytes.NewBufferString(form.Encode()))
+	url := path.Login().String()
+	request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))
 	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	if assert.NoError(t, err) {

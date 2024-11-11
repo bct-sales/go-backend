@@ -3,12 +3,12 @@
 package rest
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	models "bctbackend/database/models"
+	"bctbackend/rest/path"
 	"bctbackend/test"
 
 	"github.com/stretchr/testify/assert"
@@ -29,7 +29,7 @@ func TestListSellerItems(t *testing.T) {
 				expectedItems = append(expectedItems, *test.AddItemToDatabase(db, seller.UserId, i))
 			}
 
-			url := fmt.Sprintf("/api/v1/sellers/%d/items", seller.UserId)
+			url := path.SellerItems().Id(seller.UserId)
 			request, err := http.NewRequest("GET", url, nil)
 			request.AddCookie(test.CreateCookie(sessionId))
 
