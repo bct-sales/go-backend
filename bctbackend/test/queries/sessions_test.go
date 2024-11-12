@@ -18,7 +18,8 @@ func TestAddSession(t *testing.T) {
 			db := test.OpenInitializedDatabase()
 
 			userId := test.AddUserToDatabase(db, roleId).UserId
-			sessionId, err := queries.AddSession(db, userId)
+			expirationTime := models.Timestamp(0)
+			sessionId, err := queries.AddSession(db, userId, expirationTime)
 
 			if assert.NoError(t, err) {
 				session, err := queries.GetSessionById(db, sessionId)
@@ -26,6 +27,7 @@ func TestAddSession(t *testing.T) {
 				if assert.NoError(t, err) {
 					assert.Equal(t, sessionId, session.SessionId)
 					assert.Equal(t, userId, session.UserId)
+					assert.Equal(t, expirationTime, session.ExpirationTime)
 				}
 			}
 		}

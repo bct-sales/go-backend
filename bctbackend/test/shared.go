@@ -185,7 +185,12 @@ func FromJson[T any](jsonString string) *T {
 }
 
 func AddSessionToDatabase(db *sql.DB, userId models.Id) string {
-	sessionId, err := queries.AddSession(db, userId)
+	return AddSessionToDatabaseWithExpiration(db, userId, 3600)
+}
+
+func AddSessionToDatabaseWithExpiration(db *sql.DB, userId models.Id, secondsBeforeExpiration int64) string {
+	expirationTime := models.Now() + secondsBeforeExpiration
+	sessionId, err := queries.AddSession(db, userId, expirationTime)
 
 	if err != nil {
 		panic(err)

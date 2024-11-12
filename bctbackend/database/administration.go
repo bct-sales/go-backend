@@ -205,6 +205,7 @@ func createSessionTable(db *sql.DB) error {
 		CREATE TABLE sessions (
 			session_id          TEXT NOT NULL,
 			user_id             INTEGER NOT NULL,
+			expiration_time     INTEGER NOT NULL,
 
 			PRIMARY KEY (session_id),
 			FOREIGN KEY (user_id) REFERENCES users (user_id)

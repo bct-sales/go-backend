@@ -45,7 +45,8 @@ func login(context *gin.Context, db *sql.DB) {
 		return
 	}
 
-	sessionId, err := queries.AddSession(db, userId)
+	expirationTime := models.Now() + security.SessionDurationInSeconds
+	sessionId, err := queries.AddSession(db, userId, expirationTime)
 
 	if err != nil {
 		context.AbortWithStatus(http.StatusInternalServerError)
