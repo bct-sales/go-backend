@@ -4,7 +4,9 @@ package rest
 
 import (
 	"bctbackend/database/models"
+	"bctbackend/database/queries"
 	"bctbackend/rest/path"
+	"bctbackend/security"
 	"bctbackend/test"
 	"bytes"
 	"net/http"
@@ -34,5 +36,25 @@ func TestLogin(t *testing.T) {
 		router.ServeHTTP(writer, request)
 
 		assert.Equal(t, http.StatusOK, writer.Code)
+
+		cookies := writer.Result().Cookies()
+
+		assert.NotEmpty(t, cookies, "Expected cookies to be set")
+		found := false
+		sessionId := ""
+		for _, cookie := range cookies {
+			if cookie.Name == security.SessionCookieName {
+				sessionId = cookie.Value
+				found = true
+				break
+			}
+		}
+		assert.True(t, found, "Expected session_id cookie to be set")
+
+		sessionData, err := queries.GetSessionById(db, sessionId)
+
+		if assert.NoError(t, err) {
+			assert.Equal(t, seller.UserId, sessionData.UserId)
+		}
 	}
 }
