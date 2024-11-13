@@ -67,6 +67,8 @@ type SessionData struct {
 	RoleId models.Id
 }
 
+var NoSessionFoundError = errors.New("no session found")
+
 func GetSessionData(db *sql.DB, sessionId models.SessionId) (*SessionData, error) {
 	now := models.Now()
 	row := db.QueryRow(
@@ -87,8 +89,8 @@ func GetSessionData(db *sql.DB, sessionId models.SessionId) (*SessionData, error
 		&expirationTime,
 	)
 
-	if err == sql.ErrNoRows {
-		return nil, err
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, NoSessionFoundError
 	}
 
 	if err != nil {
