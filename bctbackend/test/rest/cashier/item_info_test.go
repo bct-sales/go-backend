@@ -107,14 +107,11 @@ func TestGetItemInformation(t *testing.T) {
 			test.AddItemToDatabase(db, seller.UserId, 1)
 
 			url := path.SalesItems().WithItemId(item.ItemId)
-			request, err := http.NewRequest("GET", url, nil)
+			request := test.CreateGetRequest(url)
+			request.AddCookie(test.CreateCookie(sessionId))
+			router.ServeHTTP(writer, request)
 
-			if assert.NoError(t, err) {
-				request.AddCookie(test.CreateCookie(sessionId))
-				router.ServeHTTP(writer, request)
-
-				assert.Equal(t, http.StatusForbidden, writer.Code)
-			}
+			assert.Equal(t, http.StatusForbidden, writer.Code)
 		})
 
 		t.Run("Nonexistent item", func(t *testing.T) {
