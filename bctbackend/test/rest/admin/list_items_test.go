@@ -26,17 +26,15 @@ func TestListAllItems(t *testing.T) {
 		sessionId := test.AddSessionToDatabase(db, admin.UserId)
 
 		url := path.Items().String()
-		request, err := http.NewRequest("GET", url, nil)
+		request := test.CreateGetRequest(url)
 		request.AddCookie(test.CreateCookie(sessionId))
 
-		if assert.NoError(t, err) {
-			router.ServeHTTP(writer, request)
+		router.ServeHTTP(writer, request)
 
-			if assert.Equal(t, http.StatusOK, writer.Code) {
-				expected := []models.Item{}
-				actual := test.FromJson[[]models.Item](writer.Body.String())
-				assert.Equal(t, expected, *actual)
-			}
+		if assert.Equal(t, http.StatusOK, writer.Code) {
+			expected := []models.Item{}
+			actual := test.FromJson[[]models.Item](writer.Body.String())
+			assert.Equal(t, expected, *actual)
 		}
 	})
 
