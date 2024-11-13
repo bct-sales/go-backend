@@ -68,12 +68,9 @@ func TestSessionExpiration(t *testing.T) {
 	sessionId := test.AddSessionToDatabaseWithExpiration(db, admin.UserId, -1)
 
 	url := path.Items().String()
-	request, err := http.NewRequest("GET", url, nil)
+	request := test.CreateGetRequest(url)
 	request.AddCookie(test.CreateCookie(sessionId))
 
-	if assert.NoError(t, err) {
-		router.ServeHTTP(writer, request)
-
-		assert.Equal(t, http.StatusUnauthorized, writer.Code)
-	}
+	router.ServeHTTP(writer, request)
+	assert.Equal(t, http.StatusUnauthorized, writer.Code)
 }
