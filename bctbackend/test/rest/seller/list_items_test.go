@@ -30,16 +30,14 @@ func TestListSellerItems(t *testing.T) {
 			}
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
-			request, err := http.NewRequest("GET", url, nil)
+			request := test.CreateGetRequest(url)
 			request.AddCookie(test.CreateCookie(sessionId))
 
-			if assert.NoError(t, err) {
-				router.ServeHTTP(writer, request)
+			router.ServeHTTP(writer, request)
 
-				if assert.Equal(t, http.StatusOK, writer.Code) {
-					actual := test.FromJson[[]models.Item](writer.Body.String())
-					assert.Equal(t, expectedItems, *actual)
-				}
+			if assert.Equal(t, http.StatusOK, writer.Code) {
+				actual := test.FromJson[[]models.Item](writer.Body.String())
+				assert.Equal(t, expectedItems, *actual)
 			}
 		}
 	}
