@@ -4,6 +4,7 @@ import (
 	models "bctbackend/database/models"
 	"bctbackend/security"
 	"database/sql"
+	"errors"
 )
 
 func AddSession(
