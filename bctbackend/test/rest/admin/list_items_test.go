@@ -122,14 +122,11 @@ func TestListAllItemsAsNonAdmin(t *testing.T) {
 			sessionId := test.AddSessionToDatabase(db, userId)
 
 			url := path.Items().String()
-			request, err := http.NewRequest("GET", url, nil)
+			request := test.CreateGetRequest(url)
 			request.AddCookie(test.CreateCookie(sessionId))
+			router.ServeHTTP(writer, request)
 
-			if assert.NoError(t, err) {
-				router.ServeHTTP(writer, request)
-
-				assert.Equal(t, http.StatusForbidden, writer.Code)
-			}
+			assert.Equal(t, http.StatusForbidden, writer.Code)
 		})
 	}
 }
