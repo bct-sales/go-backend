@@ -58,3 +58,22 @@ func TestLogin(t *testing.T) {
 		}
 	}
 }
+
+func TestSessionExpiration(t *testing.T) {
+	db, router := test.CreateRestRouter()
+	writer := httptest.NewRecorder()
+	defer db.Close()
+
+	admin := test.AddAdminToDatabase(db)
+	sessionId := test.AddSessionToDatabaseWithExpiration(db, admin.UserId, -1)
+
+	url := path.Items().String()
+	request, err := http.NewRequest("GET", url, nil)
+	request.AddCookie(test.CreateCookie(sessionId))
+
+	if assert.NoError(t, err) {
+		router.ServeHTTP(writer, request)
+
+		assert.Equal(t, http.StatusUnauthorized, writer.Code)
+	}
+}
