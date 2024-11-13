@@ -131,14 +131,12 @@ func TestGetItemInformation(t *testing.T) {
 					test.AddItemToDatabase(db, seller.UserId, 1)
 
 					url := path.SalesItems().WithItemId(nonexistentItem)
-					request, err := http.NewRequest("GET", url, nil)
+					request := test.CreateGetRequest(url)
 
-					if assert.NoError(t, err) {
-						request.AddCookie(test.CreateCookie(sessionId))
-						router.ServeHTTP(writer, request)
+					request.AddCookie(test.CreateCookie(sessionId))
+					router.ServeHTTP(writer, request)
 
-						assert.Equal(t, http.StatusBadRequest, writer.Code)
-					}
+					assert.Equal(t, http.StatusBadRequest, writer.Code)
 				}
 			}
 		})
