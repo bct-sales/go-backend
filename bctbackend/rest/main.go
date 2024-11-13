@@ -9,6 +9,7 @@ import (
 	rest_seller "bctbackend/rest/seller"
 	"bctbackend/security"
 	"database/sql"
+	"errors"
 	"log"
 	"net/http"
 
@@ -54,6 +55,10 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 			}
 
 			sessionData, err := queries.GetSessionData(db, sessionId)
+
+			if errors.Is(err, queries.NoSessionFoundError) {
+				context.JSON(http.StatusUnauthorized, gin.H{"message": "Failed to retrieve session"})
+			}
 
 			if err != nil {
 				log.Println("Failed to retrieve session:", err)
