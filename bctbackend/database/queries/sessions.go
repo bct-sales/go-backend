@@ -131,3 +131,15 @@ func GetSessions(db *sql.DB) ([]models.Session, error) {
 
 	return sessions, nil
 }
+
+func DeleteSession(db *sql.DB, sessionId models.SessionId) error {
+	_, err := db.Exec(
+		`
+			DELETE FROM sessions
+			WHERE session_id = ?
+		`,
+		sessionId,
+	)
+
+	return err
+}
