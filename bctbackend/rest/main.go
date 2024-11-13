@@ -76,6 +76,7 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	router.POST(rest_path.Login().String(), func(context *gin.Context) { login(context, db) })
+	router.POST(rest_path.Logout().String(), func(context *gin.Context) { logout(context, db) })
 	router.GET(rest_path.Items().String(), withUserAndRole(rest_admin.GetItems))
 	router.GET(rest_path.SellerItems().WithRawSellerId(":id"), withUserAndRole(rest_seller.GetSellerItems))
 	router.POST(rest_path.SellerItems().WithRawSellerId(":id"), withUserAndRole(rest_seller.AddSellerItem))
