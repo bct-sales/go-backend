@@ -57,18 +57,15 @@ func TestListAllItems(t *testing.T) {
 		item.ItemId = itemId
 
 		url := path.Items().String()
-		request, err := http.NewRequest("GET", url, nil)
+		request := test.CreateGetRequest(url)
 		request.AddCookie(test.CreateCookie(sessionId))
 
-		if assert.NoError(t, err) {
-			router.ServeHTTP(writer, request)
+		router.ServeHTTP(writer, request)
+		assert.Equal(t, http.StatusOK, writer.Code)
 
-			assert.Equal(t, http.StatusOK, writer.Code)
-
-			expected := []models.Item{*item}
-			actual := test.FromJson[[]models.Item](writer.Body.String())
-			assert.Equal(t, expected, *actual)
-		}
+		expected := []models.Item{*item}
+		actual := test.FromJson[[]models.Item](writer.Body.String())
+		assert.Equal(t, expected, *actual)
 	})
 
 	t.Run("Two items", func(t *testing.T) {
