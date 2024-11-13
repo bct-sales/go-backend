@@ -143,3 +143,15 @@ func DeleteSession(db *sql.DB, sessionId models.SessionId) error {
 
 	return err
 }
+
+func DeleteExpiredSessions(db *sql.DB, cutOff models.Timestamp) error {
+	_, err := db.Exec(
+		`
+			DELETE FROM sessions
+			WHERE expiration_time < ?
+		`,
+		cutOff,
+	)
+
+	return err
+}
