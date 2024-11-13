@@ -212,6 +212,16 @@ func CreateCookie(sessionId string) *http.Cookie {
 	}
 }
 
+func CreateGetRequest(url string) *http.Request {
+	request, err := http.NewRequest("GET", url, nil)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return request
+}
+
 func CreatePostRequest[T any](url string, payload *T) *http.Request {
 	payloadJson := ToJson(payload)
 	request, err := http.NewRequest("POST", url, strings.NewReader(payloadJson))
