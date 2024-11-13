@@ -68,14 +68,11 @@ func TestGetItemInformation(t *testing.T) {
 			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
 
 			url := path.SalesItems().WithRawItemId("abc")
-			request, err := http.NewRequest("GET", url, nil)
+			request := test.CreateGetRequest(url)
+			request.AddCookie(test.CreateCookie(sessionId))
+			router.ServeHTTP(writer, request)
 
-			if assert.NoError(t, err) {
-				request.AddCookie(test.CreateCookie(sessionId))
-				router.ServeHTTP(writer, request)
-
-				assert.Equal(t, http.StatusBadRequest, writer.Code)
-			}
+			assert.Equal(t, http.StatusBadRequest, writer.Code)
 		})
 
 		t.Run("As seller", func(t *testing.T) {
