@@ -1,6 +1,7 @@
 package cli
 
 import (
+	cli_barcode "bctbackend/cli/barcode"
 	cli_category "bctbackend/cli/category"
 	cli_item "bctbackend/cli/item"
 	cli_user "bctbackend/cli/user"
@@ -63,6 +64,15 @@ func ProcessCommandLineArguments(arguments []string) error {
 
 			remove struct {
 				id int64
+			}
+		}
+
+		barcode struct {
+			raw struct {
+				data       string
+				outputPath string
+				width      int
+				height     int
 			}
 		}
 	}
@@ -271,6 +281,50 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Usage: "list the number of items in each category",
 						Action: func(context *cli.Context) error {
 							return cli_category.ListCategoryCounts(databasePath)
+						},
+					},
+				},
+			},
+			{
+				Name:  "barcode",
+				Usage: "barcode related functionality",
+				Subcommands: []*cli.Command{
+					{
+						Name:  "raw",
+						Usage: "generate a raw barcode",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:        "data",
+								Usage:       "data to encode in the barcode",
+								Destination: &options.barcode.raw.data,
+								Required:    true,
+							},
+							&cli.StringFlag{
+								Name:        "output",
+								Usage:       "filename to save the barcode to",
+								Destination: &options.barcode.raw.outputPath,
+								Required:    true,
+							},
+							&cli.IntFlag{
+								Name:        "width",
+								Usage:       "width of the barcode",
+								Destination: &options.barcode.raw.width,
+								Value:       200,
+							},
+							&cli.IntFlag{
+								Name:        "height",
+								Usage:       "height of the barcode",
+								Destination: &options.barcode.raw.height,
+								Value:       100,
+							},
+						},
+						Action: func(context *cli.Context) error {
+							return cli_barcode.GenerateRawBarcode(
+								options.barcode.raw.data,
+								options.barcode.raw.outputPath,
+								options.barcode.raw.width,
+								options.barcode.raw.height,
+							)
 						},
 					},
 				},
