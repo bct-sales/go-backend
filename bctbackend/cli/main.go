@@ -77,7 +77,8 @@ func ProcessCommandLineArguments(arguments []string) error {
 				},
 			},
 			{
-				Name: "db",
+				Name:  "db",
+				Usage: "database related functionality",
 				Subcommands: []*cli.Command{
 					{
 						Name:  "reset",
