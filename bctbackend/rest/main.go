@@ -78,6 +78,7 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 	router.POST(rest_path.Login().String(), func(context *gin.Context) { login(context, db) })
 	router.POST(rest_path.Logout().String(), func(context *gin.Context) { logout(context, db) })
 	router.GET(rest_path.Items().String(), withUserAndRole(rest_admin.GetItems))
+	router.GET(rest_path.CategoryCounts().String(), withUserAndRole(rest_admin.GetCategoryCounts))
 	router.GET(rest_path.SellerItems().WithRawSellerId(":id"), withUserAndRole(rest_seller.GetSellerItems))
 	router.POST(rest_path.SellerItems().WithRawSellerId(":id"), withUserAndRole(rest_seller.AddSellerItem))
 	router.POST(rest_path.Sales().String(), withUserAndRole(rest_cashier.AddSale))
