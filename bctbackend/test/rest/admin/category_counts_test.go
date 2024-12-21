@@ -45,4 +45,57 @@ func TestCategoryCounts(t *testing.T) {
 		actual := test.FromJson[rest_admin.CategoryCountResponse](writer.Body.String())
 		assert.Equal(t, expected, *actual)
 	})
+
+	for _, categoryId := range defs.ListCategories() {
+		t.Run("Single item", func(t *testing.T) {
+			db, router := test.CreateRestRouter()
+			writer := httptest.NewRecorder()
+			defer db.Close()
+
+			admin := test.AddAdminToDatabase(db)
+			seller := test.AddSellerToDatabase(db)
+			test.AddItemInCategoryToDatabase(db, seller.UserId, categoryId)
+			sessionId := test.AddSessionToDatabase(db, admin.UserId)
+
+			url := path.CategoryCounts().String()
+			request := test.CreateGetRequest(url)
+			request.AddCookie(test.CreateCookie(sessionId))
+
+			router.ServeHTTP(writer, request)
+			expected := rest_admin.CategoryCountResponse{
+				Counts: createEmptyCategoryMap(),
+			}
+			expected.Counts[categoryId] = 1
+
+			actual := test.FromJson[rest_admin.CategoryCountResponse](writer.Body.String())
+			assert.Equal(t, expected, *actual)
+		})
+	}
+
+	for _, categoryId := range defs.ListCategories() {
+		t.Run("Two items in same category", func(t *testing.T) {
+			db, router := test.CreateRestRouter()
+			writer := httptest.NewRecorder()
+			defer db.Close()
+
+			admin := test.AddAdminToDatabase(db)
+			seller := test.AddSellerToDatabase(db)
+			test.AddItemInCategoryToDatabase(db, seller.UserId, categoryId)
+			test.AddItemInCategoryToDatabase(db, seller.UserId, categoryId)
+			sessionId := test.AddSessionToDatabase(db, admin.UserId)
+
+			url := path.CategoryCounts().String()
+			request := test.CreateGetRequest(url)
+			request.AddCookie(test.CreateCookie(sessionId))
+
+			router.ServeHTTP(writer, request)
+			expected := rest_admin.CategoryCountResponse{
+				Counts: createEmptyCategoryMap(),
+			}
+			expected.Counts[categoryId] = 2
+
+			actual := test.FromJson[rest_admin.CategoryCountResponse](writer.Body.String())
+			assert.Equal(t, expected, *actual)
+		})
+	}
 }
