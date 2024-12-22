@@ -9,6 +9,7 @@ type LayoutSettings struct {
 	PaperRightMargin  float64
 	Columns           int
 	Rows              int
+	LabelPadding      float64
 }
 
 type ValidatedLayoutSettings struct {
@@ -20,13 +21,7 @@ type ValidatedLayoutSettings struct {
 	paperRightMargin  float64
 	columns           int
 	rows              int
-}
-
-type Rectangle struct {
-	Left   float64
-	Top    float64
-	Width  float64
-	Height float64
+	labelPadding      float64
 }
 
 func NewLayoutSettings() *LayoutSettings {
@@ -52,6 +47,12 @@ func (ls *LayoutSettings) SetPaperMargins(margin float64) *LayoutSettings {
 func (ls *LayoutSettings) SetGridSize(columns int, rows int) *LayoutSettings {
 	ls.Columns = columns
 	ls.Rows = rows
+
+	return ls
+}
+
+func (ls *LayoutSettings) SetLabelPadding(padding float64) *LayoutSettings {
+	ls.LabelPadding = padding
 
 	return ls
 }
@@ -89,6 +90,10 @@ func (ls *LayoutSettings) Validate() *ValidatedLayoutSettings {
 		return nil
 	}
 
+	if ls.LabelPadding < 0 {
+		return nil
+	}
+
 	return &ValidatedLayoutSettings{
 		paperWidth:        ls.PaperWidth,
 		paperHeight:       ls.PaperHeight,
@@ -98,6 +103,7 @@ func (ls *LayoutSettings) Validate() *ValidatedLayoutSettings {
 		paperRightMargin:  ls.PaperRightMargin,
 		columns:           ls.Columns,
 		rows:              ls.Rows,
+		labelPadding:      ls.LabelPadding,
 	}
 }
 
