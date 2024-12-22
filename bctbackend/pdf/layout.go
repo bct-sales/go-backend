@@ -125,3 +125,7 @@ func (ls *ValidatedLayoutSettings) GetColumns() int {
 func (ls *ValidatedLayoutSettings) GetRows() int {
 	return ls.rows
 }
+
+func IsA4Size(layout *ValidatedLayoutSettings) bool {
+	return layout.paperWidth == 210.0 && layout.paperHeight == 297.0
+}
