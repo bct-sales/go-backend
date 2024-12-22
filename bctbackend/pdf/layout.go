@@ -11,6 +11,7 @@ type LayoutSettings struct {
 	Rows              int
 	LabelMargin       float64
 	LabelPadding      float64
+	FontSize          float64
 }
 
 type ValidatedLayoutSettings struct {
@@ -24,6 +25,7 @@ type ValidatedLayoutSettings struct {
 	rows              int
 	labelMargin       float64
 	labelPadding      float64
+	fontSize          float64
 }
 
 func NewLayoutSettings() *LayoutSettings {
@@ -61,6 +63,12 @@ func (ls *LayoutSettings) SetLabelMargin(margin float64) *LayoutSettings {
 
 func (ls *LayoutSettings) SetLabelPadding(padding float64) *LayoutSettings {
 	ls.LabelPadding = padding
+
+	return ls
+}
+
+func (ls *LayoutSettings) SetFontSize(size float64) *LayoutSettings {
+	ls.FontSize = size
 
 	return ls
 }
@@ -106,6 +114,10 @@ func (ls *LayoutSettings) Validate() *ValidatedLayoutSettings {
 		return nil
 	}
 
+	if ls.FontSize <= 0 {
+		return nil
+	}
+
 	return &ValidatedLayoutSettings{
 		paperWidth:        ls.PaperWidth,
 		paperHeight:       ls.PaperHeight,
@@ -117,6 +129,7 @@ func (ls *LayoutSettings) Validate() *ValidatedLayoutSettings {
 		rows:              ls.Rows,
 		labelMargin:       ls.LabelMargin,
 		labelPadding:      ls.LabelPadding,
+		fontSize:          ls.FontSize,
 	}
 }
 

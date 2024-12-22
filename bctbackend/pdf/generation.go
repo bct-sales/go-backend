@@ -95,7 +95,8 @@ func (builder *pdfBuilder) generateLabel(labelRectangle *Rectangle, labelData *L
 	}
 
 	builder.pdf.AddUTF8Font("Arial", "", "Arial.ttf")
-	builder.pdf.SetFont("Arial", "", 12)
+	fontSizeInPoints := builder.pdf.UnitToPointConvert(builder.layout.fontSize)
+	builder.pdf.SetFont("Arial", "", fontSizeInPoints)
 	_, textHeightInMm := builder.pdf.GetFontSize()
 
 	descriptionX := rectangle.Left
