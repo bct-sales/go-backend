@@ -1,5 +1,10 @@
 package pdf
 
+import (
+	"errors"
+	"fmt"
+)
+
 type LayoutSettings struct {
 	PaperWidth        float64
 	PaperHeight       float64
@@ -73,49 +78,55 @@ func (ls *LayoutSettings) SetFontSize(size float64) *LayoutSettings {
 	return ls
 }
 
-func (ls *LayoutSettings) Validate() *ValidatedLayoutSettings {
+func (ls *LayoutSettings) Validate() (*ValidatedLayoutSettings, error) {
+	var errs []error
+
 	if ls.PaperWidth <= 0 {
-		return nil
+		errs = append(errs, fmt.Errorf("paper width must be greater than 0"))
 	}
 
 	if ls.PaperHeight <= 0 {
-		return nil
+		errs = append(errs, fmt.Errorf("paper height must be greater than 0"))
 	}
 
 	if ls.PaperTopMargin < 0 {
-		return nil
+		errs = append(errs, fmt.Errorf("paper top margin must be greater than or equal to 0"))
 	}
 
 	if ls.PaperBottomMargin < 0 {
-		return nil
+		errs = append(errs, fmt.Errorf("paper bottom margin must be greater than or equal to 0"))
 	}
 
 	if ls.PaperLeftMargin < 0 {
-		return nil
+		errs = append(errs, fmt.Errorf("paper left margin must be greater than or equal to 0"))
 	}
 
 	if ls.PaperRightMargin < 0 {
-		return nil
+		errs = append(errs, fmt.Errorf("paper right margin must be greater than or equal to 0"))
 	}
 
 	if ls.Columns <= 0 {
-		return nil
+		errs = append(errs, fmt.Errorf("number of columns must be greater than 0"))
 	}
 
 	if ls.Rows <= 0 {
-		return nil
+		errs = append(errs, fmt.Errorf("number of rows must be greater than 0"))
 	}
 
 	if ls.LabelMargin < 0 {
-		return nil
+		errs = append(errs, fmt.Errorf("label margin must be greater than or equal to 0"))
 	}
 
 	if ls.LabelPadding < 0 {
-		return nil
+		errs = append(errs, fmt.Errorf("label padding must be greater than or equal to 0"))
 	}
 
 	if ls.FontSize <= 0 {
-		return nil
+		errs = append(errs, fmt.Errorf("font size must be greater than 0"))
+	}
+
+	if len(errs) > 0 {
+		return nil, errors.Join(errs...)
 	}
 
 	return &ValidatedLayoutSettings{
@@ -130,7 +141,7 @@ func (ls *LayoutSettings) Validate() *ValidatedLayoutSettings {
 		labelMargin:       ls.LabelMargin,
 		labelPadding:      ls.LabelPadding,
 		fontSize:          ls.FontSize,
-	}
+	}, nil
 }
 
 func (ls *ValidatedLayoutSettings) GetColumnWidth() float64 {

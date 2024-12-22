@@ -5,7 +5,11 @@ import (
 )
 
 func GeneratePdf() error {
-	layout := pdf.NewLayoutSettings().SetA4PaperSize().SetPaperMargins(10.0).SetGridSize(2, 8).SetLabelMargin(2).SetLabelPadding(2).SetFontSize(5).Validate()
+	layout, err := pdf.NewLayoutSettings().SetA4PaperSize().SetPaperMargins(10.0).SetGridSize(2, 8).SetLabelMargin(2).SetLabelPadding(2).SetFontSize(5).Validate()
+
+	if err != nil {
+		return err
+	}
 
 	labels := []pdf.LabelData{
 		{
