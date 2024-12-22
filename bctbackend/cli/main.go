@@ -327,6 +327,13 @@ func ProcessCommandLineArguments(arguments []string) error {
 							)
 						},
 					},
+					{
+						Name:  "pdf",
+						Usage: "generate pdf with barcodes",
+						Action: func(context *cli.Context) error {
+							return cli_barcode.GeneratePdf()
+						},
+					},
 				},
 			},
 		},
