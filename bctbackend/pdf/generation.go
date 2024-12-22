@@ -77,15 +77,17 @@ func (builder *pdfBuilder) generateLabels() error {
 	return builder.pdf.OutputFileAndClose(builder.filename)
 }
 
-func (builder *pdfBuilder) generateLabel(rectangle *Rectangle, labelData *LabelData) error {
-	builder.pdf.ClipRect(rectangle.Left, rectangle.Top, rectangle.Width, rectangle.Height, false)
+func (builder *pdfBuilder) generateLabel(labelRectangle *Rectangle, labelData *LabelData) error {
+	builder.pdf.ClipRect(labelRectangle.Left, labelRectangle.Top, labelRectangle.Width, labelRectangle.Height, false)
 	defer builder.pdf.ClipEnd()
 
-	builder.drawLabelBorder(rectangle)
+	builder.drawLabelBorder(labelRectangle)
 	// builder.drawGrid(rectangle, 5)
 
-	barcodeX := rectangle.Left + 2
-	barcodeY := rectangle.Top + 2
+	rectangle := labelRectangle.ShrinkUniformly(builder.layout.labelPadding)
+
+	barcodeX := rectangle.Left
+	barcodeY := rectangle.Top
 	barcodeHeight, err := builder.drawBarcode(labelData.BarcodeData, barcodeX, barcodeY)
 
 	if err != nil {
@@ -96,22 +98,22 @@ func (builder *pdfBuilder) generateLabel(rectangle *Rectangle, labelData *LabelD
 	builder.pdf.SetFont("Arial", "", 12)
 	_, textHeightInMm := builder.pdf.GetFontSize()
 
-	descriptionX := rectangle.Left + 2
-	descriptionY := barcodeY + barcodeHeight + 2 + textHeightInMm
+	descriptionX := rectangle.Left
+	descriptionY := barcodeY + barcodeHeight + textHeightInMm
 	builder.drawText(labelData.Description, descriptionX, descriptionY)
 
-	categoryX := rectangle.Left + 2
+	categoryX := rectangle.Left
 	categoryY := descriptionY + textHeightInMm
 	builder.drawText(labelData.Category, categoryX, categoryY)
 
-	itemIdX := rectangle.Left + 2
-	itemIdY := rectangle.Top + rectangle.Height - 2
+	itemIdX := rectangle.Left
+	itemIdY := rectangle.Top + rectangle.Height
 	builder.drawText(fmt.Sprintf("%d", labelData.ItemIdentifier), itemIdX, itemIdY)
 
 	priceAndSellerString := fmt.Sprintf("€%d.%02d → %d", labelData.PriceInCents/100, labelData.PriceInCents%100, labelData.SellerIdentifier)
 	priceAndSellerWidth := builder.pdf.GetStringWidth(priceAndSellerString)
-	priceAndSellerX := rectangle.Right() - priceAndSellerWidth - 2
-	priceAndSellerY := rectangle.Bottom() - 2
+	priceAndSellerX := rectangle.Right() - priceAndSellerWidth
+	priceAndSellerY := rectangle.Bottom()
 	builder.drawText(priceAndSellerString, priceAndSellerX, priceAndSellerY)
 
 	return nil

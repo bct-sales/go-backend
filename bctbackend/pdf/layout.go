@@ -9,6 +9,7 @@ type LayoutSettings struct {
 	PaperRightMargin  float64
 	Columns           int
 	Rows              int
+	LabelMargin       float64
 	LabelPadding      float64
 }
 
@@ -21,6 +22,7 @@ type ValidatedLayoutSettings struct {
 	paperRightMargin  float64
 	columns           int
 	rows              int
+	labelMargin       float64
 	labelPadding      float64
 }
 
@@ -47,6 +49,12 @@ func (ls *LayoutSettings) SetPaperMargins(margin float64) *LayoutSettings {
 func (ls *LayoutSettings) SetGridSize(columns int, rows int) *LayoutSettings {
 	ls.Columns = columns
 	ls.Rows = rows
+
+	return ls
+}
+
+func (ls *LayoutSettings) SetLabelMargin(margin float64) *LayoutSettings {
+	ls.LabelMargin = margin
 
 	return ls
 }
@@ -90,6 +98,10 @@ func (ls *LayoutSettings) Validate() *ValidatedLayoutSettings {
 		return nil
 	}
 
+	if ls.LabelMargin < 0 {
+		return nil
+	}
+
 	if ls.LabelPadding < 0 {
 		return nil
 	}
@@ -103,6 +115,7 @@ func (ls *LayoutSettings) Validate() *ValidatedLayoutSettings {
 		paperRightMargin:  ls.PaperRightMargin,
 		columns:           ls.Columns,
 		rows:              ls.Rows,
+		labelMargin:       ls.LabelMargin,
 		labelPadding:      ls.LabelPadding,
 	}
 }
@@ -116,12 +129,12 @@ func (ls *ValidatedLayoutSettings) GetRowHeight() float64 {
 }
 
 func (ls *ValidatedLayoutSettings) GetRectangle(column int, row int) *Rectangle {
-	return &Rectangle{
+	return (&Rectangle{
 		Left:   ls.paperLeftMargin + float64(column)*ls.GetColumnWidth(),
 		Top:    ls.paperTopMargin + float64(row)*ls.GetRowHeight(),
 		Width:  ls.GetColumnWidth(),
 		Height: ls.GetRowHeight(),
-	}
+	}).ShrinkUniformly(ls.labelMargin)
 }
 
 func (ls *ValidatedLayoutSettings) GetColumns() int {
