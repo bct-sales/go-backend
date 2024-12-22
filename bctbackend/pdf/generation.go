@@ -31,6 +31,7 @@ type pdfBuilder struct {
 	labels        []LabelData
 	barcodeWidth  int
 	barcodeHeight int
+	showGrid      bool
 }
 
 func GeneratePdf(filename string, layout *ValidatedLayoutSettings, labels []LabelData) error {
@@ -53,6 +54,7 @@ func GeneratePdf(filename string, layout *ValidatedLayoutSettings, labels []Labe
 		labels:        labels,
 		barcodeWidth:  100,
 		barcodeHeight: 20,
+		showGrid:      false,
 	}
 
 	return builder.generateLabels()
@@ -82,7 +84,10 @@ func (builder *pdfBuilder) generateLabel(labelRectangle *Rectangle, labelData *L
 	defer builder.pdf.ClipEnd()
 
 	builder.drawLabelBorder(labelRectangle)
-	// builder.drawGrid(rectangle, 5)
+
+	if builder.showGrid {
+		builder.drawGrid(labelRectangle, 5)
+	}
 
 	rectangle := labelRectangle.ShrinkUniformly(builder.layout.labelPadding)
 
