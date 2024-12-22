@@ -86,6 +86,8 @@ func (builder *pdfBuilder) generateLabel(labelRectangle *Rectangle, labelData *L
 
 	rectangle := labelRectangle.ShrinkUniformly(builder.layout.labelPadding)
 
+	textHeightInMm := builder.setFont()
+
 	barcodeX := rectangle.Left
 	barcodeY := rectangle.Top
 	barcodeHeight, err := builder.drawBarcode(labelData.BarcodeData, barcodeX, barcodeY)
@@ -93,11 +95,6 @@ func (builder *pdfBuilder) generateLabel(labelRectangle *Rectangle, labelData *L
 	if err != nil {
 		return err
 	}
-
-	builder.pdf.AddUTF8Font("Arial", "", "Arial.ttf")
-	fontSizeInPoints := builder.pdf.UnitToPointConvert(builder.layout.fontSize)
-	builder.pdf.SetFont("Arial", "", fontSizeInPoints)
-	_, textHeightInMm := builder.pdf.GetFontSize()
 
 	descriptionX := rectangle.Left
 	descriptionY := barcodeY + barcodeHeight + textHeightInMm
@@ -118,6 +115,15 @@ func (builder *pdfBuilder) generateLabel(labelRectangle *Rectangle, labelData *L
 	builder.drawText(priceAndSellerString, priceAndSellerX, priceAndSellerY)
 
 	return nil
+}
+
+func (builder *pdfBuilder) setFont() float64 {
+	builder.pdf.AddUTF8Font("Arial", "", "Arial.ttf")
+	fontSizeInPoints := builder.pdf.UnitToPointConvert(builder.layout.fontSize)
+	builder.pdf.SetFont("Arial", "", fontSizeInPoints)
+	_, textHeightInMm := builder.pdf.GetFontSize()
+
+	return textHeightInMm
 }
 
 func (builder *pdfBuilder) generateBarcode(data string) (string, error) {
