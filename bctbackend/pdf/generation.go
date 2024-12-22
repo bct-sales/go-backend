@@ -66,7 +66,7 @@ func (builder *pdfBuilder) generateLabels() error {
 
 		rectangle := builder.layout.GetRectangle(builder.gridWalker.CurrentColumn, builder.gridWalker.CurrentRow)
 
-		err := builder.generateLabel(&rectangle, &label)
+		err := builder.generateLabel(rectangle, &label)
 		if err != nil {
 			return err
 		}

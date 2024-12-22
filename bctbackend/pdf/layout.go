@@ -115,8 +115,8 @@ func (ls *ValidatedLayoutSettings) GetRowHeight() float64 {
 	return (ls.paperHeight - ls.paperTopMargin - ls.paperBottomMargin) / float64(ls.rows)
 }
 
-func (ls *ValidatedLayoutSettings) GetRectangle(column int, row int) Rectangle {
-	return Rectangle{
+func (ls *ValidatedLayoutSettings) GetRectangle(column int, row int) *Rectangle {
+	return &Rectangle{
 		Left:   ls.paperLeftMargin + float64(column)*ls.GetColumnWidth(),
 		Top:    ls.paperTopMargin + float64(row)*ls.GetRowHeight(),
 		Width:  ls.GetColumnWidth(),
