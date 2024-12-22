@@ -146,7 +146,7 @@ func (builder *pdfBuilder) generateBarcode(data string) (string, error) {
 	// Generate barcode image in memory
 	barcode, err := barcode.GenerateBarcode(data, builder.barcodeWidth, builder.barcodeHeight)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to generate barcode: %w", err)
 	}
 
 	// Convert image to PNG format, still in memory
@@ -154,7 +154,7 @@ func (builder *pdfBuilder) generateBarcode(data string) (string, error) {
 	err = png.Encode(&buffer, barcode)
 
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to encode barcode as PNG: %w", err)
 	}
 
 	// Generate image name
