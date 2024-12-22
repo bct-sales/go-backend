@@ -24,17 +24,16 @@ func resetDatabase(databasePath string) error {
 	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to connect to database: %v", err)
 	}
 
 	defer db.Close()
 
 	if err := database.ResetDatabase(db); err != nil {
-		fmt.Println(err)
-		return err
+		return fmt.Errorf("failed to reset database: %v", err)
 	}
 
-	fmt.Println("Database reset successfully")
+	fmt.Println("Database reset completed successfully")
 	return nil
 }
 
@@ -44,7 +43,7 @@ func backupDatabase(databasePath string, targetPath string) error {
 	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to connect to database: %v", err)
 	}
 
 	defer db.Close()
@@ -54,6 +53,5 @@ func backupDatabase(databasePath string, targetPath string) error {
 	}
 
 	fmt.Println("Database backup completed successfully")
-
 	return nil
 }
