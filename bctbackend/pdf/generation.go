@@ -108,13 +108,20 @@ func (builder *pdfBuilder) generateLabel(labelRectangle *Rectangle, labelData *L
 	itemIdY := rectangle.Top + rectangle.Height
 	builder.drawText(fmt.Sprintf("%d", labelData.ItemIdentifier), itemIdX, itemIdY)
 
-	priceAndSellerString := fmt.Sprintf("€%d.%02d → %d", labelData.PriceInCents/100, labelData.PriceInCents%100, labelData.SellerIdentifier)
+	priceAndSellerString := formatPriceAndSeller(labelData.PriceInCents, labelData.SellerIdentifier)
 	priceAndSellerWidth := builder.pdf.GetStringWidth(priceAndSellerString)
 	priceAndSellerX := rectangle.Right() - priceAndSellerWidth
 	priceAndSellerY := rectangle.Bottom()
 	builder.drawText(priceAndSellerString, priceAndSellerX, priceAndSellerY)
 
 	return nil
+}
+
+func formatPriceAndSeller(priceInCents int, sellerIdentifier int) string {
+	euros := priceInCents / 100
+	cents := priceInCents % 100
+
+	return fmt.Sprintf("€%d.%02d → %d", euros, cents, sellerIdentifier)
 }
 
 func (builder *pdfBuilder) setFont() float64 {
