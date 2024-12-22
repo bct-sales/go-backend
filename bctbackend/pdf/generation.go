@@ -205,8 +205,8 @@ func (builder *pdfBuilder) drawGrid(rectangle *Rectangle, cellSize float64) {
 
 	left := rectangle.Left
 	top := rectangle.Top
-	right := rectangle.Left + rectangle.Width
-	bottom := rectangle.Top + rectangle.Height
+	right := rectangle.Right()
+	bottom := rectangle.Bottom()
 
 	for dx := 0.0; dx < rectangle.Width; dx += cellSize {
 		x := rectangle.Left + dx
