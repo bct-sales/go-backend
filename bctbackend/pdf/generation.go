@@ -91,7 +91,7 @@ func (builder *pdfBuilder) generateLabel(labelRectangle *Rectangle, labelData *L
 
 	rectangle := labelRectangle.ShrinkUniformly(builder.layout.labelPadding)
 
-	textHeightInMm := builder.setFont()
+	builder.setFont()
 
 	barcodeX := rectangle.Left
 	barcodeY := rectangle.Top
@@ -102,11 +102,11 @@ func (builder *pdfBuilder) generateLabel(labelRectangle *Rectangle, labelData *L
 	}
 
 	descriptionX := rectangle.Left
-	descriptionY := barcodeY + barcodeHeight + textHeightInMm
+	descriptionY := barcodeY + barcodeHeight + builder.layout.fontSize
 	builder.drawText(labelData.Description, descriptionX, descriptionY)
 
 	categoryX := rectangle.Left
-	categoryY := descriptionY + textHeightInMm
+	categoryY := descriptionY + builder.layout.fontSize
 	builder.drawText(labelData.Category, categoryX, categoryY)
 
 	itemIdentifierString := fmt.Sprintf("%d", labelData.ItemIdentifier)
@@ -125,13 +125,10 @@ func formatPriceAndSeller(priceInCents int, sellerIdentifier int) string {
 	return fmt.Sprintf("€%d.%02d → %d", euros, cents, sellerIdentifier)
 }
 
-func (builder *pdfBuilder) setFont() float64 {
+func (builder *pdfBuilder) setFont() {
 	builder.pdf.AddUTF8Font("Arial", "", "Arial.ttf")
 	fontSizeInPoints := builder.pdf.UnitToPointConvert(builder.layout.fontSize)
 	builder.pdf.SetFont("Arial", "", fontSizeInPoints)
-	_, textHeightInMm := builder.pdf.GetFontSize()
-
-	return textHeightInMm
 }
 
 func (builder *pdfBuilder) generateBarcode(data string) (string, error) {
