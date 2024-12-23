@@ -95,12 +95,13 @@ func (builder *pdfBuilder) generateLabel(labelRectangle *Rectangle, labelData *L
 
 	barcodeX := rectangle.Left
 	barcodeY := rectangle.Top
-	barcodeHeight, err := builder.drawBarcode(labelData.BarcodeData, barcodeX, barcodeY)
+	barcodeImageName, err := builder.drawBarcode(labelData.BarcodeData, barcodeX, barcodeY)
 
 	if err != nil {
 		return err
 	}
 
+	_, barcodeHeight := builder.determineImageSize(barcodeImageName)
 	descriptionX := rectangle.Left
 	descriptionY := barcodeY + barcodeHeight + builder.layout.fontSize
 	builder.drawText(labelData.Description, descriptionX, descriptionY)
@@ -173,22 +174,32 @@ func (builder *pdfBuilder) generateBarcode(data string) (string, error) {
 	return imageName, nil
 }
 
-func (builder *pdfBuilder) drawBarcode(data string, x float64, y float64) (float64, error) {
-	imageName, err := builder.generateBarcode(data)
-	if err != nil {
-		return 0, err
-	}
-
+func (builder *pdfBuilder) drawImage(imageName string, x float64, y float64) {
 	imageOptions := fpdf.ImageOptions{
 		ImageType: "png",
 		ReadDpi:   true,
 	}
-	builder.pdf.ImageOptions(imageName, x, y, -1, -1, false, imageOptions, 0, "")
 
+	builder.pdf.ImageOptions(imageName, x, y, -1, -1, false, imageOptions, 0, "")
+}
+
+func (builder *pdfBuilder) determineImageSize(imageName string) (float64, float64) {
 	imageInfo := builder.pdf.GetImageInfo(imageName)
+	imageWidth := imageInfo.Width()
 	imageHeight := imageInfo.Height()
 
-	return imageHeight, nil
+	return imageWidth, imageHeight
+}
+
+func (builder *pdfBuilder) drawBarcode(data string, x float64, y float64) (string, error) {
+	imageName, err := builder.generateBarcode(data)
+	if err != nil {
+		return "", err
+	}
+
+	builder.drawImage(imageName, x, y)
+
+	return imageName, nil
 }
 
 func (builder *pdfBuilder) drawText(text string, x float64, y float64) {
