@@ -44,16 +44,24 @@ func GeneratePdf(filename string, layout *ValidatedLayoutSettings, labels []Labe
 		return errors.New("only A4 paper size is supported")
 	}
 
+	builder := NewPdfBuilder(filename, layout, labels)
+	return builder.generateLabels()
+}
+
+func NewPdfGenerator() *fpdf.Fpdf {
 	orientation := "P"
 	unit := "mm"
 	paperSize := "A4"
 	fontDirectory := ""
-	pdf := fpdf.New(orientation, unit, paperSize, fontDirectory)
 
+	return fpdf.New(orientation, unit, paperSize, fontDirectory)
+}
+
+func NewPdfBuilder(filename string, layout *ValidatedLayoutSettings, labels []LabelData) *pdfBuilder {
 	builder := pdfBuilder{
 		filename:      filename,
 		imageCache:    make(map[string]string),
-		pdf:           pdf,
+		pdf:           NewPdfGenerator(),
 		layout:        layout,
 		gridWalker:    NewGridWalker(layout.columns, layout.rows),
 		labels:        labels,
@@ -64,7 +72,7 @@ func GeneratePdf(filename string, layout *ValidatedLayoutSettings, labels []Labe
 
 	builder.registerImages()
 
-	return builder.generateLabels()
+	return &builder
 }
 
 func (builder *pdfBuilder) registerImages() {
