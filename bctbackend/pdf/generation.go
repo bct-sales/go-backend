@@ -109,9 +109,7 @@ func (builder *pdfBuilder) generateLabel(labelRectangle *Rectangle, labelData *L
 	categoryY := descriptionY + textHeightInMm
 	builder.drawText(labelData.Category, categoryX, categoryY)
 
-	itemIdX := rectangle.Left
-	itemIdY := rectangle.Top + rectangle.Height
-	builder.drawText(fmt.Sprintf("%d", labelData.ItemIdentifier), itemIdX, itemIdY)
+	builder.drawTextInLowerLeftCorner(fmt.Sprintf("%d", labelData.ItemIdentifier), rectangle)
 
 	priceAndSellerString := formatPriceAndSeller(labelData.PriceInCents, labelData.SellerIdentifier)
 	priceAndSellerWidth := builder.pdf.GetStringWidth(priceAndSellerString)
@@ -194,6 +192,12 @@ func (builder *pdfBuilder) drawBarcode(data string, x float64, y float64) (float
 }
 
 func (builder *pdfBuilder) drawText(text string, x float64, y float64) {
+	builder.pdf.Text(x, y, text)
+}
+
+func (builder *pdfBuilder) drawTextInLowerLeftCorner(text string, rectangle *Rectangle) {
+	x := rectangle.Left
+	y := rectangle.Bottom()
 	builder.pdf.Text(x, y, text)
 }
 
