@@ -19,8 +19,8 @@ func GeneratePdf() error {
 			ItemIdentifier:   1,
 			PriceInCents:     1000,
 			SellerIdentifier: 1,
-			Charity:          false,
-			Donation:         false,
+			Charity:          true,
+			Donation:         true,
 		},
 		{
 			BarcodeData:      "2x",

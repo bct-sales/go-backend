@@ -11,6 +11,11 @@ import (
 	"github.com/go-pdf/fpdf"
 )
 
+const (
+	charityImageName  = "charity"
+	donationImageName = "donation"
+)
+
 type LabelData struct {
 	BarcodeData      string
 	Description      string
@@ -57,7 +62,14 @@ func GeneratePdf(filename string, layout *ValidatedLayoutSettings, labels []Labe
 		showGrid:      false,
 	}
 
+	builder.registerImages()
+
 	return builder.generateLabels()
+}
+
+func (builder *pdfBuilder) registerImages() {
+	builder.registerImage(donationImageName, DonationImageBuffer())
+	builder.registerImage(charityImageName, CharityImageBuffer())
 }
 
 func (builder *pdfBuilder) generateLabels() error {
@@ -116,7 +128,20 @@ func (builder *pdfBuilder) generateLabel(labelRectangle *Rectangle, labelData *L
 	priceAndSellerString := formatPriceAndSeller(labelData.PriceInCents, labelData.SellerIdentifier)
 	builder.drawTextInLowerRightCorner(priceAndSellerString, rectangle)
 
+	if labelData.Charity {
+		builder.drawCharityImage(rectangle)
+	}
+
 	return nil
+}
+
+func (builder *pdfBuilder) drawCharityImage(rectangle *Rectangle) {
+	imageName := charityImageName
+	imageWidth, _ := builder.determineImageSize(imageName)
+	x := rectangle.Right() - imageWidth
+	y := rectangle.Top
+
+	builder.drawImage(imageName, x, y)
 }
 
 func formatPriceAndSeller(priceInCents int, sellerIdentifier int) string {
