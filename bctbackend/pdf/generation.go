@@ -131,6 +131,15 @@ func (builder *pdfBuilder) setFont() {
 	builder.pdf.SetFont("Arial", "", fontSizeInPoints)
 }
 
+func (builder *pdfBuilder) registerImage(imageName string, imageBuffer *bytes.Buffer) {
+	imageOptions := fpdf.ImageOptions{
+		ImageType: "png",
+		ReadDpi:   true,
+	}
+
+	builder.pdf.RegisterImageOptionsReader(imageName, imageOptions, imageBuffer)
+}
+
 func (builder *pdfBuilder) generateBarcode(data string) (string, error) {
 	if cached, ok := builder.imageCache[data]; ok {
 		return cached, nil
@@ -154,12 +163,8 @@ func (builder *pdfBuilder) generateBarcode(data string) (string, error) {
 	imageIndex := len(builder.imageCache)
 	imageName := fmt.Sprintf("barcode_%d", imageIndex)
 
-	// Register image in PDF
-	imageOptions := fpdf.ImageOptions{
-		ImageType: "png",
-		ReadDpi:   true,
-	}
-	builder.pdf.RegisterImageOptionsReader(imageName, imageOptions, &buffer)
+	// Register image
+	builder.registerImage(imageName, &buffer)
 
 	// Cache image
 	builder.imageCache[data] = imageName
