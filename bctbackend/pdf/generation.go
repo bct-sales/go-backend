@@ -132,16 +132,28 @@ func (builder *pdfBuilder) generateLabel(labelRectangle *Rectangle, labelData *L
 		builder.drawCharityImage(rectangle)
 	}
 
+	if labelData.Donation {
+		builder.drawDonationImage(rectangle)
+	}
+
 	return nil
 }
 
 func (builder *pdfBuilder) drawCharityImage(rectangle *Rectangle) {
-	imageName := charityImageName
-	imageWidth, _ := builder.determineImageSize(imageName)
+	imageWidth, _ := builder.determineImageSize(charityImageName)
 	x := rectangle.Right() - imageWidth
 	y := rectangle.Top
 
-	builder.drawImage(imageName, x, y)
+	builder.drawImage(charityImageName, x, y)
+}
+
+func (builder *pdfBuilder) drawDonationImage(rectangle *Rectangle) {
+	charityImageWidth, _ := builder.determineImageSize(charityImageName)
+	donationImageWidth, _ := builder.determineImageSize(donationImageName)
+	x := rectangle.Right() - charityImageWidth - donationImageWidth - 2
+	y := rectangle.Top
+
+	builder.drawImage(donationImageName, x, y)
 }
 
 func formatPriceAndSeller(priceInCents int, sellerIdentifier int) string {
