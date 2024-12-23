@@ -126,7 +126,7 @@ func formatPriceAndSeller(priceInCents int, sellerIdentifier int) string {
 }
 
 func (builder *pdfBuilder) setFont() {
-	builder.pdf.AddUTF8Font("Arial", "", "Arial.ttf")
+	builder.pdf.AddUTF8Font("Arial", "", "Arial.otf")
 	fontSizeInPoints := builder.pdf.UnitToPointConvert(builder.layout.fontSize)
 	builder.pdf.SetFont("Arial", "", fontSizeInPoints)
 }
@@ -200,6 +200,14 @@ func (builder *pdfBuilder) drawTextInLowerRightCorner(text string, rectangle *Re
 	stringLength := builder.pdf.GetStringWidth(text)
 	x := rectangle.Right() - stringLength
 	y := rectangle.Bottom()
+	builder.pdf.Text(x, y, text)
+}
+
+func (builder *pdfBuilder) drawTextInTopRightCorner(text string, rectangle *Rectangle) {
+	stringLength := builder.pdf.GetStringWidth(text)
+	stringHeight := builder.layout.fontSize
+	x := rectangle.Right() - stringLength
+	y := rectangle.Top + stringHeight
 	builder.pdf.Text(x, y, text)
 }
 
