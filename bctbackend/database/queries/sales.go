@@ -27,7 +27,7 @@ func rollbackTransaction(transaction *sql.Tx, err error) error {
 func AddSale(
 	db *sql.DB,
 	cashierId models.Id,
-	timestamp models.Timestamp,
+	transactionTime models.Timestamp,
 	itemIds []models.Id) (models.Id, error) {
 
 	if len(itemIds) == 0 {
@@ -47,11 +47,11 @@ func AddSale(
 
 	result, err := transaction.Exec(
 		`
-			INSERT INTO sales(cashier_id, timestamp)
+			INSERT INTO sales(cashier_id, transaction_time)
 			VALUES (?, ?)
 		`,
 		cashierId,
-		timestamp,
+		transactionTime,
 	)
 
 	if err != nil {
@@ -91,7 +91,7 @@ func AddSale(
 func GetSales(db *sql.DB) ([]models.Sale, error) {
 	rows, err := db.Query(
 		`
-			SELECT sale_id, cashier_id, timestamp
+			SELECT sale_id, cashier_id, transaction_time
 			FROM sales
 		`,
 	)
@@ -107,7 +107,7 @@ func GetSales(db *sql.DB) ([]models.Sale, error) {
 	for rows.Next() {
 		var sale models.Sale
 
-		err := rows.Scan(&sale.SaleId, &sale.CashierId, &sale.Timestamp)
+		err := rows.Scan(&sale.SaleId, &sale.CashierId, &sale.TransactionTime)
 
 		if err != nil {
 			return nil, err
@@ -124,12 +124,12 @@ func GetSaleWithId(db *sql.DB, saleId models.Id) (models.Sale, error) {
 
 	err := db.QueryRow(
 		`
-			SELECT sale_id, cashier_id, timestamp
+			SELECT sale_id, cashier_id, transaction_time
 			FROM sales
 			WHERE sale_id = ?
 		`,
 		saleId,
-	).Scan(&sale.SaleId, &sale.CashierId, &sale.Timestamp)
+	).Scan(&sale.SaleId, &sale.CashierId, &sale.TransactionTime)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return sale, NoSuchSaleError{SaleId: saleId}

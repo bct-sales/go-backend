@@ -1,9 +1,9 @@
 package models
 
 type Sale struct {
-	SaleId    Id
-	CashierId Id
-	Timestamp Timestamp
+	SaleId          Id
+	CashierId       Id
+	TransactionTime Timestamp
 }
 
 func NewSale(
@@ -12,8 +12,8 @@ func NewSale(
 	timestamp Timestamp) *Sale {
 
 	return &Sale{
-		SaleId:    saleId,
-		CashierId: cashierId,
-		Timestamp: timestamp,
+		SaleId:          saleId,
+		CashierId:       cashierId,
+		TransactionTime: timestamp,
 	}
 }

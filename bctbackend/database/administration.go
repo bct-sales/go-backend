@@ -175,7 +175,7 @@ func createSaleTable(db *sql.DB) error {
 		CREATE TABLE sales (
 			sale_id             INTEGER NOT NULL,
 			cashier_id          INTEGER NOT NULL,
-			timestamp           INTEGER NOT NULL,
+			transaction_time    INTEGER NOT NULL,
 
 			PRIMARY KEY (sale_id),
 			FOREIGN KEY (cashier_id) REFERENCES users (user_id)
