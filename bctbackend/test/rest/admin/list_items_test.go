@@ -48,7 +48,7 @@ func TestListAllItems(t *testing.T) {
 
 		sellerId := test.AddSellerToDatabase(db).UserId
 		item := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
-		itemId, err := queries.AddItem(db, item.Timestamp, item.Description, item.PriceInCents, item.CategoryId, item.SellerId, item.Donation, item.Charity)
+		itemId, err := queries.AddItem(db, item.AddedAt, item.Description, item.PriceInCents, item.CategoryId, item.SellerId, item.Donation, item.Charity)
 
 		if !assert.NoError(t, err) {
 			return
@@ -79,13 +79,13 @@ func TestListAllItems(t *testing.T) {
 		item1 := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
 		item2 := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
 
-		itemId, err := queries.AddItem(db, item1.Timestamp, item1.Description, item1.PriceInCents, item1.CategoryId, item1.SellerId, item1.Donation, item1.Charity)
+		itemId, err := queries.AddItem(db, item1.AddedAt, item1.Description, item1.PriceInCents, item1.CategoryId, item1.SellerId, item1.Donation, item1.Charity)
 		if !assert.NoError(t, err) {
 			return
 		}
 		item1.ItemId = itemId
 
-		itemId, err = queries.AddItem(db, item2.Timestamp, item2.Description, item2.PriceInCents, item2.CategoryId, item2.SellerId, item2.Donation, item2.Charity)
+		itemId, err = queries.AddItem(db, item2.AddedAt, item2.Description, item2.PriceInCents, item2.CategoryId, item2.SellerId, item2.Donation, item2.Charity)
 		if !assert.NoError(t, err) {
 			return
 		}

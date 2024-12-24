@@ -2,7 +2,7 @@ package models
 
 type Item struct {
 	ItemId       Id
-	Timestamp    Timestamp
+	AddedAt      Timestamp
 	Description  string
 	PriceInCents MoneyInCents
 	CategoryId   Id
@@ -13,7 +13,7 @@ type Item struct {
 
 func NewItem(
 	id Id,
-	timestamp Timestamp,
+	addedAt Timestamp,
 	description string,
 	priceInCents MoneyInCents,
 	categoryId Id,
@@ -23,7 +23,7 @@ func NewItem(
 
 	return &Item{
 		ItemId:       id,
-		Timestamp:    timestamp,
+		AddedAt:      addedAt,
 		Description:  description,
 		PriceInCents: priceInCents,
 		CategoryId:   categoryId,

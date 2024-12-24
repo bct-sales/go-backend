@@ -168,7 +168,7 @@ func SaleExists(db *sql.DB, saleId models.Id) (bool, error) {
 func GetSaleItems(db *sql.DB, saleId models.Id) ([]models.Item, error) {
 	rows, err := db.Query(
 		`
-			SELECT i.item_id, i.timestamp, i.description, i.price_in_cents, i.item_category_id, i.seller_id, i.donation, i.charity
+			SELECT i.item_id, i.added_at, i.description, i.price_in_cents, i.item_category_id, i.seller_id, i.donation, i.charity
 			FROM sale_items si
 			INNER JOIN items i ON si.item_id = i.item_id
 			WHERE si.sale_id = ?
@@ -186,7 +186,7 @@ func GetSaleItems(db *sql.DB, saleId models.Id) ([]models.Item, error) {
 	for rows.Next() {
 		var item models.Item
 
-		err := rows.Scan(&item.ItemId, &item.Timestamp, &item.Description, &item.PriceInCents, &item.CategoryId, &item.SellerId, &item.Donation, &item.Charity)
+		err := rows.Scan(&item.ItemId, &item.AddedAt, &item.Description, &item.PriceInCents, &item.CategoryId, &item.SellerId, &item.Donation, &item.Charity)
 
 		if err != nil {
 			return nil, err

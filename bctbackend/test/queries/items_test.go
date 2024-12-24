@@ -47,7 +47,7 @@ func TestAddItemToDatabase(t *testing.T) {
 
 									item := items[0]
 
-									assert.Equal(t, timestamp, item.Timestamp)
+									assert.Equal(t, timestamp, item.AddedAt)
 									assert.Equal(t, description, item.Description)
 									assert.Equal(t, priceInCents, item.PriceInCents)
 									assert.Equal(t, itemCategoryId, item.CategoryId)

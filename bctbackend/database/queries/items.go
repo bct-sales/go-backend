@@ -9,7 +9,7 @@ import (
 
 func GetItems(db *sql.DB) ([]models.Item, error) {
 	rows, err := db.Query(`
-		SELECT item_id, timestamp, description, price_in_cents, item_category_id, seller_id, donation, charity
+		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity
 		FROM items
 		ORDER BY item_id ASC
 	`)
@@ -24,7 +24,7 @@ func GetItems(db *sql.DB) ([]models.Item, error) {
 
 	for rows.Next() {
 		var id models.Id
-		var timestamp models.Timestamp
+		var addedAt models.Timestamp
 		var description string
 		var priceInCents models.MoneyInCents
 		var itemCategoryId models.Id
@@ -32,13 +32,13 @@ func GetItems(db *sql.DB) ([]models.Item, error) {
 		var donation bool
 		var charity bool
 
-		err = rows.Scan(&id, &timestamp, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity)
+		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity)
 
 		if err != nil {
 			return nil, err
 		}
 
-		item := models.NewItem(id, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+		item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 
 		items = append(items, *item)
 	}
@@ -49,7 +49,7 @@ func GetItems(db *sql.DB) ([]models.Item, error) {
 func GetSellerItems(db *sql.DB, sellerId models.Id) ([]models.Item, error) {
 	rows, err := db.Query(
 		`
-			SELECT item_id, timestamp, description, price_in_cents, item_category_id, seller_id, donation, charity
+			SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity
 			FROM items
 			WHERE seller_id = ?
 			ORDER BY item_id ASC
@@ -67,7 +67,7 @@ func GetSellerItems(db *sql.DB, sellerId models.Id) ([]models.Item, error) {
 
 	for rows.Next() {
 		var id models.Id
-		var timestamp models.Timestamp
+		var addedAt models.Timestamp
 		var description string
 		var priceInCents models.MoneyInCents
 		var itemCategoryId models.Id
@@ -75,13 +75,13 @@ func GetSellerItems(db *sql.DB, sellerId models.Id) ([]models.Item, error) {
 		var donation bool
 		var charity bool
 
-		err = rows.Scan(&id, &timestamp, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity)
+		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity)
 
 		if err != nil {
 			return nil, err
 		}
 
-		item := models.NewItem(id, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+		item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 
 		items = append(items, *item)
 	}
@@ -103,13 +103,13 @@ func (e *ItemNotFoundError) Unwrap() error {
 
 func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	row := db.QueryRow(`
-		SELECT item_id, timestamp, description, price_in_cents, item_category_id, seller_id, donation, charity
+		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity
 		FROM items
 		WHERE item_id = ?
 	`, itemId)
 
 	var id models.Id
-	var timestamp models.Timestamp
+	var addedAt models.Timestamp
 	var description string
 	var priceInCents models.MoneyInCents
 	var itemCategoryId models.Id
@@ -117,7 +117,7 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	var donation bool
 	var charity bool
 
-	err := row.Scan(&id, &timestamp, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity)
+	err := row.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, &ItemNotFoundError{Id: itemId}
@@ -127,7 +127,7 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 		return nil, err
 	}
 
-	item := models.NewItem(id, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+	item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 
 	return item, nil
 }
@@ -146,7 +146,7 @@ func CountItems(db *sql.DB) (int, error) {
 
 func AddItem(
 	db *sql.DB,
-	timestamp models.Timestamp,
+	addedAt models.Timestamp,
 	description string,
 	priceInCents models.MoneyInCents,
 	itemCategoryId models.Id,
@@ -162,10 +162,10 @@ func AddItem(
 
 	result, err := db.Exec(
 		`
-			INSERT INTO items (timestamp, description, price_in_cents, item_category_id, seller_id, donation, charity)
+			INSERT INTO items (added_at, description, price_in_cents, item_category_id, seller_id, donation, charity)
 			VALUES ($1, $2, $3, $4, $5, $6, $7)
 		`,
-		timestamp,
+		addedAt,
 		description,
 		priceInCents,
 		itemCategoryId,
