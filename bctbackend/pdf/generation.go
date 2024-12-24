@@ -65,7 +65,7 @@ func newPdfBuilder(filename string, layout *ValidatedLayoutSettings, labels []La
 		showGrid:      false,
 	}
 
-	// builder.registerPageSize()
+	builder.setFont()
 	builder.registerImages()
 
 	return &builder
@@ -112,8 +112,6 @@ func (builder *pdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *Label
 	}
 
 	rectangle := labelRectangle.ShrinkUniformly(builder.layout.labelPadding)
-
-	builder.setFont()
 
 	barcodeX := rectangle.Left
 	barcodeY := rectangle.Top
