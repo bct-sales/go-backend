@@ -9,11 +9,11 @@ type Sale struct {
 func NewSale(
 	saleId Id,
 	cashierId Id,
-	timestamp Timestamp) *Sale {
+	transactionTime Timestamp) *Sale {
 
 	return &Sale{
 		SaleId:          saleId,
 		CashierId:       cashierId,
-		TransactionTime: timestamp,
+		TransactionTime: transactionTime,
 	}
 }
