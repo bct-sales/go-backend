@@ -37,11 +37,15 @@ func NewLayoutSettings() *LayoutSettings {
 	return &LayoutSettings{}
 }
 
-func (ls *LayoutSettings) SetA4PaperSize() *LayoutSettings {
-	ls.PaperWidth = 210.0
-	ls.PaperHeight = 297.0
+func (ls *LayoutSettings) SetPaperSize(width float64, height float64) *LayoutSettings {
+	ls.PaperWidth = width
+	ls.PaperHeight = height
 
 	return ls
+}
+
+func (ls *LayoutSettings) SetA4PaperSize() *LayoutSettings {
+	return ls.SetPaperSize(210.0, 297.0)
 }
 
 func (ls *LayoutSettings) SetPaperMargins(margin float64) *LayoutSettings {

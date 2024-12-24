@@ -2,7 +2,6 @@ package pdf
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"image/png"
 
@@ -40,18 +39,14 @@ type pdfBuilder struct {
 }
 
 func GeneratePdf(filename string, layout *ValidatedLayoutSettings, labels []LabelData) error {
-	if !IsA4Size(layout) {
-		return errors.New("only A4 paper size is supported")
-	}
-
 	builder := newPdfBuilder(filename, layout, labels)
-	return builder.generateLabels()
+	return builder.drawLabels()
 }
 
 func newPdfGenerator() *fpdf.Fpdf {
 	orientation := "P"
 	unit := "mm"
-	paperSize := "A4"
+	paperSize := "A4" // should not be used, new pages will have an explicitly specified size
 	fontDirectory := ""
 
 	return fpdf.New(orientation, unit, paperSize, fontDirectory)
@@ -70,9 +65,16 @@ func newPdfBuilder(filename string, layout *ValidatedLayoutSettings, labels []La
 		showGrid:      false,
 	}
 
+	// builder.registerPageSize()
 	builder.registerImages()
 
 	return &builder
+}
+
+func (builder *pdfBuilder) addPage() {
+	orientation := "P"
+	pageSize := fpdf.SizeType{Wd: builder.layout.paperWidth, Ht: builder.layout.paperHeight}
+	builder.pdf.AddPageFormat(orientation, pageSize)
 }
 
 func (builder *pdfBuilder) registerImages() {
@@ -80,15 +82,15 @@ func (builder *pdfBuilder) registerImages() {
 	builder.registerImage(charityImageName, CharityImageBuffer())
 }
 
-func (builder *pdfBuilder) generateLabels() error {
+func (builder *pdfBuilder) drawLabels() error {
 	for _, label := range builder.labels {
 		if builder.gridWalker.IsAtStart() {
-			builder.pdf.AddPage()
+			builder.addPage()
 		}
 
 		rectangle := builder.layout.GetRectangle(builder.gridWalker.CurrentColumn, builder.gridWalker.CurrentRow)
 
-		err := builder.generateLabel(rectangle, &label)
+		err := builder.drawLabel(rectangle, &label)
 		if err != nil {
 			return err
 		}
@@ -99,7 +101,7 @@ func (builder *pdfBuilder) generateLabels() error {
 	return builder.pdf.OutputFileAndClose(builder.filename)
 }
 
-func (builder *pdfBuilder) generateLabel(labelRectangle *Rectangle, labelData *LabelData) error {
+func (builder *pdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *LabelData) error {
 	builder.pdf.ClipRect(labelRectangle.Left, labelRectangle.Top, labelRectangle.Width, labelRectangle.Height, false)
 	defer builder.pdf.ClipEnd()
 
