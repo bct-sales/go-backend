@@ -125,7 +125,7 @@ func createUserTable(db *sql.DB) error {
 		CREATE TABLE users (
 			user_id             INTEGER NOT NULL,
 			role_id             INTEGER NOT NULL,
-			timestamp           INTEGER NOT NULL,
+			created_at          INTEGER NOT NULL,
 			password            TEXT NOT NULL,
 
 			PRIMARY KEY (user_id),

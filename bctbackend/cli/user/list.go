@@ -43,7 +43,7 @@ func ListUsers(databasePath string) error {
 		tableData = append(tableData, []string{
 			strconv.FormatInt(user.UserId, 10),
 			roleString,
-			time.Unix(user.Timestamp, 0).String(),
+			time.Unix(user.CreatedAt, 0).String(),
 			user.Password,
 		})
 

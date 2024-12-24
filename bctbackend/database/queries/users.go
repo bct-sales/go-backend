@@ -11,17 +11,17 @@ func AddUserWithId(
 	db *sql.DB,
 	userId models.Id,
 	roleId models.Id,
-	timestamp models.Timestamp,
+	createdAt models.Timestamp,
 	password string) error {
 
 	_, err := db.Exec(
 		`
-			INSERT INTO users (user_id, role_id, timestamp, password)
+			INSERT INTO users (user_id, role_id, created_at, password)
 			VALUES ($1, $2, $3, $4)
 		`,
 		userId,
 		roleId,
-		timestamp,
+		createdAt,
 		password,
 	)
 
@@ -35,16 +35,16 @@ func AddUserWithId(
 func AddUser(
 	db *sql.DB,
 	roleId models.Id,
-	timestamp models.Timestamp,
+	createdAt models.Timestamp,
 	password string) (models.Id, error) {
 
 	result, err := db.Exec(
 		`
-			INSERT INTO users (role_id, timestamp, password)
+			INSERT INTO users (role_id, created_at, password)
 			VALUES ($1, $2, $3)
 		`,
 		roleId,
-		timestamp,
+		createdAt,
 		password,
 	)
 
@@ -100,7 +100,7 @@ func AuthenticateUser(db *sql.DB, userId models.Id, password string) error {
 func GetUserWithId(db *sql.DB, userId models.Id) (models.User, error) {
 	row := db.QueryRow(
 		`
-			SELECT role_id, timestamp, password
+			SELECT role_id, created_at, password
 			FROM users
 			WHERE user_id = $1
 		`,
@@ -108,9 +108,9 @@ func GetUserWithId(db *sql.DB, userId models.Id) (models.User, error) {
 	)
 
 	var roleId models.Id
-	var timestamp models.Timestamp
+	var createdAt models.Timestamp
 	var password string
-	err := row.Scan(&roleId, &timestamp, &password)
+	err := row.Scan(&roleId, &createdAt, &password)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return models.User{}, errors.New("user not found")
@@ -119,7 +119,7 @@ func GetUserWithId(db *sql.DB, userId models.Id) (models.User, error) {
 	return models.User{
 		UserId:    userId,
 		RoleId:    roleId,
-		Timestamp: timestamp,
+		CreatedAt: createdAt,
 		Password:  password,
 	}, nil
 }
@@ -127,7 +127,7 @@ func GetUserWithId(db *sql.DB, userId models.Id) (models.User, error) {
 func ListUsers(db *sql.DB) ([]models.User, error) {
 	rows, err := db.Query(
 		`
-			SELECT user_id, role_id, timestamp, password
+			SELECT user_id, role_id, created_at, password
 			FROM users
 		`,
 	)
@@ -143,10 +143,10 @@ func ListUsers(db *sql.DB) ([]models.User, error) {
 	for rows.Next() {
 		var userId models.Id
 		var roleId models.Id
-		var timestamp models.Timestamp
+		var createdAt models.Timestamp
 		var password string
 
-		err = rows.Scan(&userId, &roleId, &timestamp, &password)
+		err = rows.Scan(&userId, &roleId, &createdAt, &password)
 
 		if err != nil {
 			return nil, err
@@ -155,7 +155,7 @@ func ListUsers(db *sql.DB) ([]models.User, error) {
 		users = append(users, models.User{
 			UserId:    userId,
 			RoleId:    roleId,
-			Timestamp: timestamp,
+			CreatedAt: createdAt,
 			Password:  password,
 		})
 	}
