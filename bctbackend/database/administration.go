@@ -286,7 +286,11 @@ func createSessionTable(db *sql.DB) error {
 		)
 	`)
 
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to create sessions table: %v", err)
+	}
+
+	return nil
 }
 
 func createViews(db *sql.DB) error {
