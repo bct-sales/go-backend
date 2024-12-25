@@ -15,6 +15,7 @@ import (
 
 	_ "bctbackend/docs"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -39,6 +40,7 @@ import (
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func StartRestService(db *sql.DB) error {
 	router := gin.Default()
+	router.Use(cors.Default())
 	DefineEndpoints(db, router)
 
 	return router.Run("localhost:8000")
