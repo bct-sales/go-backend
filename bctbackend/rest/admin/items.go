@@ -25,7 +25,8 @@ type GetItemsFailureResponse struct {
 // @Router /items [get]
 func GetItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.AdminRoleId {
-		context.JSON(http.StatusForbidden, gin.H{"message": "Only accessible to admins"})
+		failureResponse := GetItemsFailureResponse{Message: "Only accessible to admins"}
+		context.JSON(http.StatusForbidden, failureResponse)
 		return
 	}
 
