@@ -127,7 +127,7 @@ func createUserTable(db *sql.DB) error {
 			password            TEXT NOT NULL,
 
 			PRIMARY KEY (user_id),
-			FOREIGN KEY (role_id) REFERENCES roles (role_id)
+			CONSTRAINT users_foreign_key_role FOREIGN KEY (role_id) REFERENCES roles (role_id)
 		);
 	`)
 
@@ -160,8 +160,8 @@ func createItemTable(db *sql.DB) error {
 			charity             BOOLEAN NOT NULL,
 
 			PRIMARY KEY (item_id),
-			FOREIGN KEY (seller_id) REFERENCES users (user_id),
-			FOREIGN KEY (item_category_id) REFERENCES item_categories (item_category_id)
+			CONSTRAINT items_foreign_key_user FOREIGN KEY (seller_id) REFERENCES users (user_id),
+			CONSTRAINT items_foreign_key_item_category FOREIGN KEY (item_category_id) REFERENCES item_categories (item_category_id)
 		)
 	`)
 
@@ -176,7 +176,7 @@ func createSaleTable(db *sql.DB) error {
 			transaction_time    INTEGER NOT NULL,
 
 			PRIMARY KEY (sale_id),
-			FOREIGN KEY (cashier_id) REFERENCES users (user_id)
+			CONSTRAINT sale_foreign_key_user FOREIGN KEY (cashier_id) REFERENCES users (user_id)
 		)
 	`)
 
@@ -190,8 +190,8 @@ func createSaleItemsTable(db *sql.DB) error {
 			item_id             INTEGER NOT NULL,
 
 			PRIMARY KEY (sale_id, item_id),
-			FOREIGN KEY (sale_id) REFERENCES sales (sale_id),
-			FOREIGN KEY (item_id) REFERENCES items (item_id)
+			CONSTRAINT sale_item_foreign_key_sale FOREIGN KEY (sale_id) REFERENCES sales (sale_id),
+			CONSTRAINT sale_item_foreign_key_item FOREIGN KEY (item_id) REFERENCES items (item_id)
 		)
 	`)
 
@@ -206,7 +206,7 @@ func createSessionTable(db *sql.DB) error {
 			expiration_time     INTEGER NOT NULL,
 
 			PRIMARY KEY (session_id),
-			FOREIGN KEY (user_id) REFERENCES users (user_id)
+			CONSTRAINT session_foreign_key_user FOREIGN KEY (user_id) REFERENCES users (user_id)
 		)
 	`)
 
