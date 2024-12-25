@@ -37,7 +37,7 @@ func TestAddSaleItem(t *testing.T) {
 		router.ServeHTTP(writer, request)
 
 		if assert.Equal(t, http.StatusCreated, writer.Code) {
-			response := test.FromJson[restapi.AddSaleResponse](writer.Body.String())
+			response := test.FromJson[restapi.AddSaleSuccessResponse](writer.Body.String())
 
 			sale, err := queries.GetSaleWithId(db, response.SaleId)
 			if assert.NoError(t, err) {
