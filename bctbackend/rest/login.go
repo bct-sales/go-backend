@@ -18,9 +18,13 @@ type loginRequest struct {
 	Password string `form:"password" binding:"required" json:"password"`
 }
 
-// @Summary Login
-// @Description Login
-// @Success 200 {object} string
+type loginResponse struct {
+	Message string `json:"message"`
+}
+
+// @Summary Login user
+// @Description Login user
+// @Success 200 {object} loginResponse
 // @Router /login [post]
 // @param username formData string true "username"
 // @param password formData string true "password"
@@ -58,7 +62,7 @@ func login(context *gin.Context, db *sql.DB) {
 
 	ensureSecure := false // TODO: set to true when using HTTPS
 	context.SetCookie(security.SessionCookieName, sessionId, security.SessionDurationInSeconds, "/", "localhost", ensureSecure, true)
-	context.JSON(http.StatusOK, gin.H{"message": "Login successful"})
+	context.JSON(http.StatusOK, loginResponse{Message: "Login successful"})
 
 	slog.Info("User logged in successfully", slog.String("userId", loginRequest.Username))
 }
