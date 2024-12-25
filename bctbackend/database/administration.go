@@ -6,7 +6,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 )
 
 type DatabaseConnectionError struct {
@@ -65,8 +65,9 @@ func removeAllTables(db *sql.DB) error {
 	tables := []string{"sessions", "sale_items", "sales", "items", "item_categories", "users", "roles"}
 
 	for _, table := range tables {
+		slog.Info("Dropping table", slog.String("table", table))
 		if _, err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", table)); err != nil {
-			log.Fatalf("failed to drop table %s: %v", table, err)
+			return fmt.Errorf("failed to drop table %s: %v", table, err)
 		}
 	}
 
@@ -106,6 +107,8 @@ func createTables(db *sql.DB) error {
 }
 
 func createRoleTable(db *sql.DB) error {
+	slog.Info("Creating roles table")
+
 	_, err := db.Exec(`
 		CREATE TABLE roles (
 			role_id             INTEGER NOT NULL,
@@ -119,6 +122,8 @@ func createRoleTable(db *sql.DB) error {
 }
 
 func createUserTable(db *sql.DB) error {
+	slog.Info("Creating users table")
+
 	_, err := db.Exec(`
 		CREATE TABLE users (
 			user_id             INTEGER NOT NULL,
@@ -135,6 +140,8 @@ func createUserTable(db *sql.DB) error {
 }
 
 func createItemCategoryTable(db *sql.DB) error {
+	slog.Info("Creating item categories table")
+
 	_, err := db.Exec(`
 		CREATE TABLE item_categories (
 			item_category_id    INTEGER NOT NULL,
@@ -148,6 +155,8 @@ func createItemCategoryTable(db *sql.DB) error {
 }
 
 func createItemTable(db *sql.DB) error {
+	slog.Info("Creating items table")
+
 	_, err := db.Exec(`
 		CREATE TABLE items (
 			item_id             INTEGER NOT NULL,
@@ -169,6 +178,8 @@ func createItemTable(db *sql.DB) error {
 }
 
 func createSaleTable(db *sql.DB) error {
+	slog.Info("Creating sales table")
+
 	_, err := db.Exec(`
 		CREATE TABLE sales (
 			sale_id             INTEGER NOT NULL,
@@ -184,6 +195,8 @@ func createSaleTable(db *sql.DB) error {
 }
 
 func createSaleItemsTable(db *sql.DB) error {
+	slog.Info("Creating sale items table")
+
 	_, err := db.Exec(`
 		CREATE TABLE sale_items (
 			sale_id             INTEGER NOT NULL,
@@ -199,6 +212,8 @@ func createSaleItemsTable(db *sql.DB) error {
 }
 
 func createSessionTable(db *sql.DB) error {
+	slog.Info("Creating sessions table")
+
 	_, err := db.Exec(`
 		CREATE TABLE sessions (
 			session_id          TEXT NOT NULL,
@@ -222,6 +237,8 @@ func createViews(db *sql.DB) error {
 }
 
 func createCategoryCountsView(db *sql.DB) error {
+	slog.Info("Creating item category counts view")
+
 	_, err := db.Exec(`
 		CREATE VIEW item_category_counts AS
 		SELECT
@@ -249,6 +266,8 @@ func populateTables(db *sql.DB) error {
 }
 
 func populateRoleTable(db *sql.DB) error {
+	slog.Info("Populating roles table")
+
 	_, err := db.Exec(`
 			INSERT INTO roles (role_id, name)
 			VALUES
@@ -272,6 +291,8 @@ func populateRoleTable(db *sql.DB) error {
 }
 
 func populateItemCategoryTable(db *sql.DB) error {
+	slog.Info("Populating item categories table")
+
 	for _, categoryId := range defs.ListCategories() {
 		categoryName, err := defs.NameOfCategory(categoryId)
 
