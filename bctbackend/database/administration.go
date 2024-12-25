@@ -224,7 +224,7 @@ func createItemTable(db *sql.DB) error {
 	`)
 
 	if err != nil {
-		return fmt.Errorf("failed to create items table: %v", err
+		return fmt.Errorf("failed to create items table: %v", err)
 	}
 
 	return nil
