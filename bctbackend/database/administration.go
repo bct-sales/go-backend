@@ -65,13 +65,18 @@ func removeAllTables(db *sql.DB) error {
 	tables := []string{"sessions", "sale_items", "sales", "items", "item_categories", "users", "roles"}
 
 	for _, table := range tables {
-		slog.Info("Dropping table", slog.String("table", table))
-		if _, err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", table)); err != nil {
+		if err := dropTable(db, table); err != nil {
 			return fmt.Errorf("failed to drop table %s: %v", table, err)
 		}
 	}
 
 	return nil
+}
+
+func dropTable(db *sql.DB, table string) error {
+	slog.Info("Dropping table", slog.String("table", table))
+	_, err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", table))
+	return err
 }
 
 func createTables(db *sql.DB) error {
