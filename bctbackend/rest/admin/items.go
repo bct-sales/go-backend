@@ -11,11 +11,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @Summary Get all items
-// @Description Get all items
+type GetItemsFailureResponse struct {
+	Message string `json:"message"`
+}
+
+// @Summary Add a new sale
+// @Description Returns all items. Only accessible to users with the admin role.
+// @Tags items
 // @Accept json
 // @Produce json
-// @Success 200 {object} []models.Item
+// @Success 200 {object} []models.Item "Items successfully fetched"
+// @Failure 500 {object} GetItemsFailureResponse "Failed to fetch items"
 // @Router /items [get]
 func GetItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.AdminRoleId {
@@ -26,7 +32,8 @@ func GetItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 	items, err := queries.GetItems(db)
 
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch items"})
+		failureResponse := GetItemsFailureResponse{Message: "Failed to fetch items"}
+		context.JSON(http.StatusInternalServerError, failureResponse)
 		return
 	}
 
