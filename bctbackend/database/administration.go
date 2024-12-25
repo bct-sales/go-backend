@@ -379,7 +379,7 @@ func populateItemCategoryTable(db *sql.DB) error {
 		)
 
 		if err != nil {
-			return fmt.Errorf("failed to populate item categories: %v", err)
+			return fmt.Errorf("failed to populate item categories with %d %s: %v", categoryId, categoryName, err)
 		}
 	}
 
