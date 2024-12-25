@@ -38,6 +38,10 @@ func ConnectToDatabase(path string) (*sql.DB, error) {
 }
 
 func ResetDatabase(db *sql.DB) error {
+	if err := removeAllViews(db); err != nil {
+		return err
+	}
+
 	if err := removeAllTables(db); err != nil {
 		return err
 	}
@@ -61,6 +65,18 @@ func InitializeDatabase(db *sql.DB) error {
 	return nil
 }
 
+func removeAllViews(db *sql.DB) error {
+	views := []string{"item_category_counts"}
+
+	for _, view := range views {
+		if err := dropView(db, view); err != nil {
+			return fmt.Errorf("failed to drop view %s: %v", view, err)
+		}
+	}
+
+	return nil
+}
+
 func removeAllTables(db *sql.DB) error {
 	tables := []string{"sessions", "sale_items", "sales", "items", "item_categories", "users", "roles"}
 
@@ -76,6 +92,12 @@ func removeAllTables(db *sql.DB) error {
 func dropTable(db *sql.DB, table string) error {
 	slog.Info("Dropping table", slog.String("table", table))
 	_, err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", table))
+	return err
+}
+
+func dropView(db *sql.DB, view string) error {
+	slog.Info("Dropping view", slog.String("table", view))
+	_, err := db.Exec(fmt.Sprintf("DROP VIEW IF EXISTS %s", view))
 	return err
 }
 
