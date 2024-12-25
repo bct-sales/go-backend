@@ -13,23 +13,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type loginRequest struct {
+type LoginRequest struct {
 	Username string `form:"username" binding:"required" json:"username"`
 	Password string `form:"password" binding:"required" json:"password"`
 }
 
-type loginResponse struct {
+type LoginResponse struct {
 	Message string `json:"message"`
 }
 
 // @Summary Login user
 // @Description Login user
-// @Success 200 {object} loginResponse
+// @Success 200 {object} LoginResponse
 // @Router /login [post]
 // @param username formData string true "username"
 // @param password formData string true "password"
 func login(context *gin.Context, db *sql.DB) {
-	var loginRequest loginRequest
+	var loginRequest LoginRequest
 
 	if err := context.ShouldBind(&loginRequest); err != nil {
 		context.String(http.StatusBadRequest, "Bad request: %v", err)
@@ -62,7 +62,7 @@ func login(context *gin.Context, db *sql.DB) {
 
 	ensureSecure := false // TODO: set to true when using HTTPS
 	context.SetCookie(security.SessionCookieName, sessionId, security.SessionDurationInSeconds, "/", "localhost", ensureSecure, true)
-	context.JSON(http.StatusOK, loginResponse{Message: "Login successful"})
+	context.JSON(http.StatusOK, LoginResponse{Message: "Login successful"})
 
 	slog.Info("User logged in successfully", slog.String("userId", loginRequest.Username))
 }
