@@ -223,7 +223,11 @@ func createItemTable(db *sql.DB) error {
 		)
 	`)
 
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to create items table: %v", err
+	}
+
+	return nil
 }
 
 func createSaleTable(db *sql.DB) error {
