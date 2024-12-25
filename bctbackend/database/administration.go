@@ -315,7 +315,11 @@ func createCategoryCountsView(db *sql.DB) error {
 		GROUP BY item_categories.item_category_id
 	`)
 
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to create item category counts view: %v", err)
+	}
+
+	return nil
 }
 
 func populateTables(db *sql.DB) error {
