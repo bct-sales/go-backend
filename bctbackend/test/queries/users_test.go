@@ -24,7 +24,12 @@ func TestAddUserWithId(t *testing.T) {
 
 					if assert.NoError(t, err) {
 						assert.True(t, queries.UserWithIdExists(db, userId))
-						assert.NoError(t, queries.AuthenticateUser(db, userId, password))
+
+						actualRoleId, err := queries.AuthenticateUser(db, userId, password)
+
+						if assert.NoError(t, err) {
+							assert.Equal(t, roleId, actualRoleId)
+						}
 					}
 				})
 			}
@@ -57,7 +62,10 @@ func TestAuthenticatingSuccessfully(t *testing.T) {
 
 	queries.AddUserWithId(db, userId, roleId, 0, password)
 
-	assert.NoError(t, queries.AuthenticateUser(db, userId, password))
+	actualRoleId, err := queries.AuthenticateUser(db, userId, password)
+	if assert.NoError(t, err) {
+		assert.Equal(t, roleId, actualRoleId)
+	}
 }
 
 func TestAuthenticatingNonExistingUser(t *testing.T) {
@@ -67,7 +75,9 @@ func TestAuthenticatingNonExistingUser(t *testing.T) {
 	userId := models.NewId(5)
 
 	assert.False(t, queries.UserWithIdExists(db, userId))
-	assert.Error(t, queries.AuthenticateUser(db, userId, password))
+
+	_, err := queries.AuthenticateUser(db, userId, password)
+	assert.Error(t, err)
 }
 
 func TestAuthenticatingWrongPassword(t *testing.T) {
@@ -80,7 +90,8 @@ func TestAuthenticatingWrongPassword(t *testing.T) {
 
 	queries.AddUserWithId(db, userId, roleId, 0, password)
 
-	assert.Error(t, queries.AuthenticateUser(db, userId, wrongPassword))
+	_, err := queries.AuthenticateUser(db, userId, wrongPassword)
+	assert.Error(t, err)
 }
 
 func TestGetUser(t *testing.T) {
@@ -135,8 +146,11 @@ func TestUpdatePassword(t *testing.T) {
 			err := queries.UpdateUserPassword(db, user1Id, newPassword1)
 
 			if assert.NoError(t, err) {
-				assert.NoError(t, queries.AuthenticateUser(db, user1Id, newPassword1))
-				assert.NoError(t, queries.AuthenticateUser(db, user2Id, password2))
+				_, err := queries.AuthenticateUser(db, user1Id, newPassword1)
+				assert.NoError(t, err)
+
+				_, err = queries.AuthenticateUser(db, user2Id, password2)
+				assert.NoError(t, err)
 			}
 		}
 	}

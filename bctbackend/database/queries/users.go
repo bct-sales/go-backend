@@ -74,26 +74,27 @@ func UserWithIdExists(
 	return err == nil
 }
 
-func AuthenticateUser(db *sql.DB, userId models.Id, password string) error {
+func AuthenticateUser(db *sql.DB, userId models.Id, password string) (models.Id, error) {
 	row := db.QueryRow(
 		`
-			SELECT password
+			SELECT role_id, password
 			FROM users
 			where user_id = $1
 		`,
 		userId)
 
+	var roleId models.Id
 	var expectedPassword string
-	err := row.Scan(&expectedPassword)
+	err := row.Scan(&roleId, &expectedPassword)
 
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	if expectedPassword == password {
-		return nil
+		return roleId, nil
 	} else {
-		return errors.New("invalid password")
+		return 0, errors.New("invalid password")
 	}
 }
 
