@@ -13,9 +13,10 @@ import (
 
 // @Summary Get seller's items
 // @Description Get a seller's items
+// @Param seller_id path int true "Seller ID"
 // @Produce json
 // @Success 200 {object} []models.Item
-// @Router /items [get]
+// @Router /seller/{seller_id}/items [get]
 func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.SellerRoleId {
 		context.JSON(http.StatusForbidden, gin.H{"message": "Only accessible to sellers"})
