@@ -42,9 +42,7 @@ func ResetDatabase(db *sql.DB) error {
 		return err
 	}
 
-	InitializeDatabase(db)
-
-	return nil
+	return InitializeDatabase(db)
 }
 
 func InitializeDatabase(db *sql.DB) error {
