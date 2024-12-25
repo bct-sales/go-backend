@@ -103,7 +103,12 @@ func dropTable(db *sql.DB, table string) error {
 func dropView(db *sql.DB, view string) error {
 	slog.Info("Dropping view", slog.String("table", view))
 	_, err := db.Exec(fmt.Sprintf("DROP VIEW IF EXISTS %s", view))
-	return err
+
+	if err != nil {
+		return fmt.Errorf("failed to drop view %s: %v", view, err)
+	}
+
+	return nil
 }
 
 func createTables(db *sql.DB) error {
