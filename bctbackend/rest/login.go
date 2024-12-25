@@ -5,6 +5,7 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/security"
 	"database/sql"
+	"log/slog"
 	"net/http"
 
 	_ "bctbackend/docs"
@@ -34,6 +35,7 @@ func login(context *gin.Context, db *sql.DB) {
 	userId, err := models.ParseId(loginRequest.Username)
 
 	if err != nil {
+		slog.Info("Someone tried to login with invalid user ID", slog.String("userId", loginRequest.Username))
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid user ID"})
 		return
 	}
@@ -41,6 +43,7 @@ func login(context *gin.Context, db *sql.DB) {
 	password := loginRequest.Password
 
 	if err := queries.AuthenticateUser(db, userId, password); err != nil {
+		slog.Info("User failed to login", slog.String("userId", loginRequest.Username))
 		context.JSON(http.StatusUnauthorized, gin.H{"message": "Login failed"})
 		return
 	}
@@ -56,4 +59,6 @@ func login(context *gin.Context, db *sql.DB) {
 	ensureSecure := false // TODO: set to true when using HTTPS
 	context.SetCookie(security.SessionCookieName, sessionId, security.SessionDurationInSeconds, "/", "localhost", ensureSecure, true)
 	context.JSON(http.StatusOK, gin.H{"message": "Login successful"})
+
+	slog.Info("User logged in successfully", slog.String("userId", loginRequest.Username))
 }
