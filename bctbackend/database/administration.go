@@ -82,7 +82,7 @@ func removeAllTables(db *sql.DB) error {
 
 	for _, table := range tables {
 		if err := dropTable(db, table); err != nil {
-			return fmt.Errorf("failed to drop table %s: %v", table, err)
+			return err
 		}
 	}
 
@@ -92,7 +92,12 @@ func removeAllTables(db *sql.DB) error {
 func dropTable(db *sql.DB, table string) error {
 	slog.Info("Dropping table", slog.String("table", table))
 	_, err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", table))
-	return err
+
+	if err != nil {
+		return fmt.Errorf("failed to drop table %s: %v", table, err)
+	}
+
+	return nil
 }
 
 func dropView(db *sql.DB, view string) error {
