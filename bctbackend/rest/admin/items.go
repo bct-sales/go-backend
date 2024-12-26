@@ -15,7 +15,7 @@ type GetItemsFailureResponse struct {
 	Message string `json:"message"`
 }
 
-// @Summary Add a new sale
+// @Summary Get list of items.
 // @Description Returns all items. Only accessible to users with the admin role.
 // @Tags items
 // @Accept json
