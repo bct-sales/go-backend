@@ -34,7 +34,7 @@ type GetUsersFailureResponse struct {
 // @Produce json
 // @Success 200 {object} GetUsersSuccessResponse "Users successfully fetched"
 // @Failure 403 {object} GetItemsFailureResponse "Unauthorized access"
-// @Failure 500 {object} GetItemsFailureResponse "Failed to fetch items"
+// @Failure 500 {object} GetItemsFailureResponse "Internal error"
 // @Router /users [get]
 func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.AdminRoleId {
