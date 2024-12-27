@@ -40,10 +40,19 @@ import (
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func StartRestService(db *sql.DB) error {
 	router := gin.Default()
-	router.Use(cors.Default())
+	SetUpCors(router)
 	DefineEndpoints(db, router)
 
 	return router.Run("localhost:8000")
+}
+
+func SetUpCors(router *gin.Engine) {
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	// config.AllowOrigins = []string{"http://localhost:5173"}
+	config.AllowCredentials = true
+
+	router.Use(cors.New(config))
 }
 
 func DefineEndpoints(db *sql.DB, router *gin.Engine) {
