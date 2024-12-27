@@ -170,6 +170,7 @@ func createUserTable(db *sql.DB) error {
 			user_id             INTEGER NOT NULL,
 			role_id             INTEGER NOT NULL,
 			created_at          INTEGER NOT NULL,
+			last_activity       INTEGER,
 			password            TEXT NOT NULL,
 
 			PRIMARY KEY (user_id),

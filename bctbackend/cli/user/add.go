@@ -19,8 +19,9 @@ func AddUser(databasePath string, userId models.Id, role models.Id, password str
 	defer db.Close()
 
 	timestamp := time.Now().Unix()
+	var lastActivity *models.Timestamp = nil
 
-	if err := queries.AddUserWithId(db, userId, role, timestamp, password); err != nil {
+	if err := queries.AddUserWithId(db, userId, role, timestamp, lastActivity, password); err != nil {
 		return err
 	}
 

@@ -54,8 +54,10 @@ func CreateRestRouter() (*sql.DB, *gin.Engine) {
 
 func AddUserWithIdToDatabase(db *sql.DB, id models.Id, roleId models.Id) models.User {
 	password := "test"
+	createdAt := models.NewTimestamp(0)
+	var lastActivity *models.Timestamp = nil
 
-	if err := queries.AddUserWithId(db, id, roleId, 0, password); err != nil {
+	if err := queries.AddUserWithId(db, id, roleId, createdAt, lastActivity, password); err != nil {
 		panic(err)
 	}
 
@@ -69,9 +71,11 @@ func AddUserWithIdToDatabase(db *sql.DB, id models.Id, roleId models.Id) models.
 }
 
 func AddUserToDatabase(db *sql.DB, roleId models.Id) models.User {
+	createdAt := models.NewTimestamp(0)
+	var lastActivity *models.Timestamp = nil
 	password := "test"
 
-	userId, err := queries.AddUser(db, roleId, 0, password)
+	userId, err := queries.AddUser(db, roleId, createdAt, lastActivity, password)
 
 	if err != nil {
 		panic(err)

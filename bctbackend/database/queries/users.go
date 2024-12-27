@@ -12,16 +12,18 @@ func AddUserWithId(
 	userId models.Id,
 	roleId models.Id,
 	createdAt models.Timestamp,
+	lastActivity *models.Timestamp,
 	password string) error {
 
 	_, err := db.Exec(
 		`
-			INSERT INTO users (user_id, role_id, created_at, password)
-			VALUES ($1, $2, $3, $4)
+			INSERT INTO users (user_id, role_id, created_at, last_activity, password)
+			VALUES ($1, $2, $3, $4, $5)
 		`,
 		userId,
 		roleId,
 		createdAt,
+		lastActivity,
 		password,
 	)
 
@@ -36,15 +38,17 @@ func AddUser(
 	db *sql.DB,
 	roleId models.Id,
 	createdAt models.Timestamp,
+	lastActivity *models.Timestamp,
 	password string) (models.Id, error) {
 
 	result, err := db.Exec(
 		`
-			INSERT INTO users (role_id, created_at, password)
-			VALUES ($1, $2, $3)
+			INSERT INTO users (role_id, created_at, last_activity, password)
+			VALUES ($1, $2, $3, $4)
 		`,
 		roleId,
 		createdAt,
+		lastActivity,
 		password,
 	)
 
@@ -101,7 +105,7 @@ func AuthenticateUser(db *sql.DB, userId models.Id, password string) (models.Id,
 func GetUserWithId(db *sql.DB, userId models.Id) (models.User, error) {
 	row := db.QueryRow(
 		`
-			SELECT role_id, created_at, password
+			SELECT role_id, created_at, last_activity, password
 			FROM users
 			WHERE user_id = $1
 		`,
@@ -110,18 +114,20 @@ func GetUserWithId(db *sql.DB, userId models.Id) (models.User, error) {
 
 	var roleId models.Id
 	var createdAt models.Timestamp
+	var lastActivity *models.Timestamp
 	var password string
-	err := row.Scan(&roleId, &createdAt, &password)
+	err := row.Scan(&roleId, &createdAt, &lastActivity, &password)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return models.User{}, errors.New("user not found")
 	}
 
 	return models.User{
-		UserId:    userId,
-		RoleId:    roleId,
-		CreatedAt: createdAt,
-		Password:  password,
+		UserId:       userId,
+		RoleId:       roleId,
+		CreatedAt:    createdAt,
+		LastActivity: lastActivity,
+		Password:     password,
 	}, nil
 }
 

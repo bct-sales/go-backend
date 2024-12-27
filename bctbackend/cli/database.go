@@ -61,13 +61,25 @@ func resetDatabaseAndFillWithDummyData(databasePath string) error {
 	}
 
 	slog.Info("Adding admin user")
-	queries.AddUserWithId(db, 1, models.AdminRoleId, time.Now().Unix(), "abc")
+	{
+		id := models.NewId(1)
+		role := models.AdminRoleId
+		createdAt := time.Now().Unix()
+		var lastActivity *models.Timestamp = nil
+		password := "abc"
+		queries.AddUserWithId(db, id, role, createdAt, lastActivity, password)
+	}
 
 	for area := 1; area <= 12; area++ {
 		for offset := 1; offset <= 10; offset++ {
 			id := int64(area*100 + offset)
+			role := models.SellerRoleId
+			createdAt := time.Now().Unix()
+			var lastActivity *models.Timestamp = nil
+			password := fmt.Sprintf("%d", id)
+
 			slog.Info("Adding seller user", slog.Int64("id", id))
-			queries.AddUserWithId(db, id, models.SellerRoleId, time.Now().Unix(), fmt.Sprintf("%d", id))
+			queries.AddUserWithId(db, id, role, createdAt, lastActivity, password)
 		}
 	}
 

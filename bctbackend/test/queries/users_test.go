@@ -20,7 +20,7 @@ func TestAddUserWithId(t *testing.T) {
 				t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
 					db := test.OpenInitializedDatabase()
 
-					err := queries.AddUserWithId(db, userId, roleId, 0, password)
+					err := queries.AddUserWithId(db, userId, roleId, 0, nil, password)
 
 					if assert.NoError(t, err) {
 						assert.True(t, queries.UserWithIdExists(db, userId))
@@ -43,7 +43,7 @@ func TestAddUser(t *testing.T) {
 			t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
 				db := test.OpenInitializedDatabase()
 
-				userId, err := queries.AddUser(db, roleId, 0, password)
+				userId, err := queries.AddUser(db, roleId, 0, nil, password)
 
 				if assert.NoError(t, err) {
 					assert.True(t, queries.UserWithIdExists(db, userId))
@@ -59,8 +59,10 @@ func TestAuthenticatingSuccessfully(t *testing.T) {
 	password := "xyz"
 	userId := models.NewId(1)
 	roleId := models.SellerRoleId
+	createdAt := models.NewTimestamp(0)
+	var lastActivity *models.Timestamp = nil
 
-	queries.AddUserWithId(db, userId, roleId, 0, password)
+	queries.AddUserWithId(db, userId, roleId, createdAt, lastActivity, password)
 
 	actualRoleId, err := queries.AuthenticateUser(db, userId, password)
 	if assert.NoError(t, err) {
@@ -88,7 +90,7 @@ func TestAuthenticatingWrongPassword(t *testing.T) {
 	userId := models.NewId(5)
 	roleId := models.SellerRoleId
 
-	queries.AddUserWithId(db, userId, roleId, 0, password)
+	queries.AddUserWithId(db, userId, roleId, 0, nil, password)
 
 	_, err := queries.AuthenticateUser(db, userId, wrongPassword)
 	assert.Error(t, err)
@@ -101,7 +103,7 @@ func TestGetUser(t *testing.T) {
 	userId := models.NewId(1)
 	roleId := models.SellerRoleId
 
-	queries.AddUserWithId(db, userId, roleId, 0, password)
+	queries.AddUserWithId(db, userId, roleId, 0, nil, password)
 
 	user, err := queries.GetUserWithId(db, userId)
 
@@ -118,7 +120,7 @@ func TestListUsers(t *testing.T) {
 	userId := models.NewId(1)
 	roleId := models.SellerRoleId
 
-	queries.AddUserWithId(db, userId, roleId, 0, password)
+	queries.AddUserWithId(db, userId, roleId, 0, nil, password)
 
 	users, err := queries.ListUsers(db)
 
@@ -137,10 +139,10 @@ func TestUpdatePassword(t *testing.T) {
 	password2 := "abc"
 	newPassword1 := "123"
 
-	user1Id, err := queries.AddUser(db, models.SellerRoleId, 0, password1)
+	user1Id, err := queries.AddUser(db, models.SellerRoleId, 0, nil, password1)
 
 	if assert.NoError(t, err) {
-		user2Id, err := queries.AddUser(db, models.SellerRoleId, 0, password2)
+		user2Id, err := queries.AddUser(db, models.SellerRoleId, 0, nil, password2)
 
 		if assert.NoError(t, err) {
 			err := queries.UpdateUserPassword(db, user1Id, newPassword1)
