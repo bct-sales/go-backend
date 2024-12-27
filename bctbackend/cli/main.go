@@ -98,6 +98,13 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 					},
 					{
+						Name:  "dummy",
+						Usage: "resets database and populates it with dummy data; all data will be lost!",
+						Action: func(context *cli.Context) error {
+							return resetDatabaseAndFillWithDummyData(databasePath)
+						},
+					},
+					{
 						Name:  "backup",
 						Usage: "makes a backup",
 						Flags: []cli.Flag{
