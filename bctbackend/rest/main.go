@@ -10,7 +10,7 @@ import (
 	"bctbackend/security"
 	"database/sql"
 	"errors"
-	"log"
+	"log/slog"
 	"net/http"
 
 	_ "bctbackend/docs"
@@ -61,6 +61,7 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 			sessionId, err := context.Cookie(security.SessionCookieName)
 
 			if err != nil {
+				slog.Info("Unauthorized: missing session ID")
 				context.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized: missing session ID"})
 				return
 			}
@@ -68,11 +69,12 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 			sessionData, err := queries.GetSessionData(db, sessionId)
 
 			if errors.Is(err, queries.NoSessionFoundError) {
-				context.JSON(http.StatusUnauthorized, gin.H{"message": "Failed to retrieve session"})
+				slog.Info("Session not found")
+				context.JSON(http.StatusUnauthorized, gin.H{"message": "Session not found"})
 			}
 
 			if err != nil {
-				log.Println("Failed to retrieve session:", err)
+				slog.Error("Failed to retrieve session from database", slog.String("error", err.Error()))
 				context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to retrieve session"})
 				return
 			}
