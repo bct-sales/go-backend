@@ -5,6 +5,7 @@ import (
 	"bctbackend/database/queries"
 	rest "bctbackend/rest/shared"
 	"database/sql"
+	"log/slog"
 	"net/http"
 
 	_ "bctbackend/docs"
@@ -37,8 +38,11 @@ type GetUsersFailureResponse struct {
 // @Failure 500 {object} GetItemsFailureResponse "Internal error"
 // @Router /users [get]
 func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
+	slog.Info("User requested to fetch users", slog.Int64("user_id", userId), slog.Int64("role_id", roleId))
+
 	if roleId != models.AdminRoleId {
-		failureResponse := GetItemsFailureResponse{Message: "Only accessible to admins"}
+		slog.Info("User attempted to access /users but is not an admin", slog.Int64("user_id", userId), slog.Int64("role_id", roleId))
+		failureResponse := GetUsersFailureResponse{Message: "Only accessible to admins"}
 		context.JSON(http.StatusForbidden, failureResponse)
 		return
 	}
@@ -46,6 +50,7 @@ func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 	users, err := queries.ListUsers(db)
 
 	if err != nil {
+		slog.Error("Failed to fetch users", slog.String("error", err.Error()))
 		failureResponse := GetUsersFailureResponse{Message: "Failed to fetch users"}
 		context.JSON(http.StatusInternalServerError, failureResponse)
 		return
@@ -57,6 +62,7 @@ func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 		roleName, err := models.NameOfRole(user.RoleId)
 
 		if err != nil {
+			slog.Error("Failed to translate role ID to role name", slog.String("error", err.Error()))
 			failureResponse := GetUsersFailureResponse{Message: "Failed to translate role ID to role name"}
 			context.JSON(http.StatusInternalServerError, failureResponse)
 			return
