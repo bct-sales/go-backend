@@ -39,10 +39,10 @@ func TestCategoryCounts(t *testing.T) {
 		request.AddCookie(test.CreateCookie(sessionId))
 
 		router.ServeHTTP(writer, request)
-		expected := rest_admin.CategoryCountResponse{
+		expected := rest_admin.CategoryCountSuccessResponse{
 			Counts: createEmptyCategoryMap(),
 		}
-		actual := test.FromJson[rest_admin.CategoryCountResponse](writer.Body.String())
+		actual := test.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
 		assert.Equal(t, expected, *actual)
 	})
 
@@ -62,12 +62,12 @@ func TestCategoryCounts(t *testing.T) {
 			request.AddCookie(test.CreateCookie(sessionId))
 
 			router.ServeHTTP(writer, request)
-			expected := rest_admin.CategoryCountResponse{
+			expected := rest_admin.CategoryCountSuccessResponse{
 				Counts: createEmptyCategoryMap(),
 			}
 			expected.Counts[categoryId] = 1
 
-			actual := test.FromJson[rest_admin.CategoryCountResponse](writer.Body.String())
+			actual := test.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
 			assert.Equal(t, expected, *actual)
 		})
 	}
@@ -89,12 +89,12 @@ func TestCategoryCounts(t *testing.T) {
 			request.AddCookie(test.CreateCookie(sessionId))
 
 			router.ServeHTTP(writer, request)
-			expected := rest_admin.CategoryCountResponse{
+			expected := rest_admin.CategoryCountSuccessResponse{
 				Counts: createEmptyCategoryMap(),
 			}
 			expected.Counts[categoryId] = 2
 
-			actual := test.FromJson[rest_admin.CategoryCountResponse](writer.Body.String())
+			actual := test.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
 			assert.Equal(t, expected, *actual)
 		})
 	}
@@ -117,13 +117,13 @@ func TestCategoryCounts(t *testing.T) {
 				request.AddCookie(test.CreateCookie(sessionId))
 
 				router.ServeHTTP(writer, request)
-				expected := rest_admin.CategoryCountResponse{
+				expected := rest_admin.CategoryCountSuccessResponse{
 					Counts: createEmptyCategoryMap(),
 				}
 				expected.Counts[categoryId1] += 1
 				expected.Counts[categoryId2] += 1
 
-				actual := test.FromJson[rest_admin.CategoryCountResponse](writer.Body.String())
+				actual := test.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
 				assert.Equal(t, expected, *actual)
 			})
 		}

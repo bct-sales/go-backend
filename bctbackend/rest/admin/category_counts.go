@@ -11,8 +11,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type CategoryCountResponse struct {
-	Counts map[string]int64 `json:"counts"`
+type CategoryCountSuccessResponse struct {
+	Counts []CategoryCount `json:"counts"`
+}
+
+type CategoryCount struct {
+	CategoryId   models.Id `json:"category_id"`
+	CategoryName string    `json:"category_name"`
+	Count        int64     `json:"count"`
 }
 
 // @Summary Get number of items grouped by category.
@@ -20,18 +26,11 @@ type CategoryCountResponse struct {
 // @Tags items
 // @Accept json
 // @Produce json
-// @Success 200 {object} CategoryCountResponse"
+// @Success 200 {object} CategoryCountSuccessResponse
 // @Router /category-counts [get]
 func GetCategoryCounts(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.AdminRoleId {
 		context.JSON(http.StatusForbidden, gin.H{"message": "Only accessible to admins"})
-		return
-	}
-
-	categoryMap, err := queries.GetCategoryMap(db)
-
-	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch categories"})
 		return
 	}
 
@@ -42,19 +41,18 @@ func GetCategoryCounts(context *gin.Context, db *sql.DB, userId models.Id, roleI
 		return
 	}
 
-	response := CategoryCountResponse{
-		Counts: make(map[string]int64),
+	response := CategoryCountSuccessResponse{
+		Counts: []CategoryCount{},
 	}
 
 	for _, categoryCount := range categoryCounts {
-		categoryName, ok := categoryMap[categoryCount.CategoryId]
-
-		if !ok {
-			context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to find category name"})
-			return
+		translatedCategoryCount := CategoryCount{
+			CategoryId:   categoryCount.CategoryId,
+			CategoryName: categoryCount.Name,
+			Count:        categoryCount.Count,
 		}
 
-		response.Counts[categoryName] = categoryCount.Count
+		response.Counts = append(response.Counts, translatedCategoryCount)
 	}
 
 	context.IndentedJSON(http.StatusOK, response)
