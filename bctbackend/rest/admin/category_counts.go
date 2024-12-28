@@ -12,12 +12,26 @@ import (
 )
 
 type CategoryCountResponse struct {
-	Counts map[models.Id]int64 `json:"counts"`
+	Counts map[string]int64 `json:"counts"`
 }
 
+// @Summary Get number of items grouped by category.
+// @Description Returns the number of items per category.
+// @Tags items
+// @Accept json
+// @Produce json
+// @Success 200 {object} CategoryCountResponse"
+// @Router /category-counts [get]
 func GetCategoryCounts(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.AdminRoleId {
 		context.JSON(http.StatusForbidden, gin.H{"message": "Only accessible to admins"})
+		return
+	}
+
+	categoryMap, err := queries.GetCategoryMap(db)
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch categories"})
 		return
 	}
 
@@ -29,11 +43,18 @@ func GetCategoryCounts(context *gin.Context, db *sql.DB, userId models.Id, roleI
 	}
 
 	response := CategoryCountResponse{
-		Counts: make(map[models.Id]int64),
+		Counts: make(map[string]int64),
 	}
 
 	for _, categoryCount := range categoryCounts {
-		response.Counts[categoryCount.CategoryId] = categoryCount.Count
+		categoryName, ok := categoryMap[categoryCount.CategoryId]
+
+		if !ok {
+			context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to find category name"})
+			return
+		}
+
+		response.Counts[categoryName] = categoryCount.Count
 	}
 
 	context.IndentedJSON(http.StatusOK, response)
