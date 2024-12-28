@@ -10,7 +10,8 @@ import (
 const (
 	SessionIdByteLength      = 16
 	SessionCookieName        = "bct_session_id"
-	SessionDurationInSeconds = 60 * 60
+	Hour                     = 60 * 60
+	SessionDurationInSeconds = 24 * Hour // TODO
 )
 
 func HashPassword(password string, salt string) string {
