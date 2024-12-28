@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type GetItemInformationResponse struct {
+type GetItemInformationSuccessResponse struct {
 	Description  string              `json:"description" binding:"required"`
 	PriceInCents models.MoneyInCents `json:"price_in_cents" binding:"required"`
 	CategoryId   models.Id           `json:"category_id" binding:"required"`
@@ -47,7 +47,7 @@ func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 
 	hasBeenSold := saleId.SellCount > 0
 
-	response := GetItemInformationResponse{
+	response := GetItemInformationSuccessResponse{
 		Description:  saleId.Description,
 		PriceInCents: saleId.PriceInCents,
 		CategoryId:   saleId.ItemCategoryId,

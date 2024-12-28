@@ -46,7 +46,7 @@ func TestGetItemInformation(t *testing.T) {
 				router.ServeHTTP(writer, request)
 
 				if assert.Equal(t, http.StatusOK, writer.Code) {
-					response := test.FromJson[restapi.GetItemInformationResponse](writer.Body.String())
+					response := test.FromJson[restapi.GetItemInformationSuccessResponse](writer.Body.String())
 					expectedHasBeenSold := sale_count > 0
 
 					assert.Equal(t, item.Description, response.Description)
