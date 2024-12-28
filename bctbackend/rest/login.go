@@ -58,7 +58,7 @@ func login(context *gin.Context, db *sql.DB) {
 	roleId, err := queries.AuthenticateUser(db, userId, password)
 
 	if err != nil {
-		slog.Info("User failed to login", slog.String("userId", loginRequest.Username))
+		slog.Info("Failed to authenticate user", slog.String("userId", loginRequest.Username))
 		failureResponse := LoginFailureResponse{Message: "Failed to authenticate user"}
 		context.JSON(http.StatusUnauthorized, failureResponse)
 		return
