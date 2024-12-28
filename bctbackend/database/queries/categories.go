@@ -58,6 +58,22 @@ func GetCategories(db *sql.DB) ([]models.ItemCategory, error) {
 	return categories, nil
 }
 
+func GetCategoryMap(db *sql.DB) (map[models.Id]string, error) {
+	categories, err := GetCategories(db)
+
+	if err != nil {
+		return nil, err
+	}
+
+	result := make(map[models.Id]string)
+
+	for _, category := range categories {
+		result[category.CategoryId] = category.Name
+	}
+
+	return result, nil
+}
+
 func GetCategoryCounts(db *sql.DB) ([]models.ItemCategoryCount, error) {
 	rows, err := db.Query(
 		`
