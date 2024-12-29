@@ -5,6 +5,7 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/security"
 	"database/sql"
+	"errors"
 	"log/slog"
 	"net/http"
 
@@ -23,14 +24,23 @@ type LoginSuccessResponse struct {
 }
 
 type LoginFailureResponse struct {
-	Message string `json:"message"`
+	Type    string `json:"type"`
+	Details string `json:"details"`
 }
+
+const (
+	LoginFailureType_BadRequest    = "bad_request"
+	LoginFailureType_InvalidUserId = "invalid_id"
+	LoginFailureType_UnknownUser   = "unknown_user"
+	LoginFailureType_WrongPassword = "wrong_password"
+	LoginFailureType_Unknown       = "unknown"
+)
 
 // @Summary Login user
 // @Description Login user
 // @Success 200 {object} LoginSuccessResponse
 // @Failure 400 {object} LoginFailureResponse "Failed to parse request"
-// @Failure 401 {object} LoginFailureResponse "Failed to authenticate user"
+// @Failure 401 {object} LoginFailureResponse "Failure to authenticate user"
 // @Failure 500 {object} LoginFailureResponse "Internal error"
 // @Router /login [post]
 // @param username formData string true "username"
@@ -40,7 +50,7 @@ func login(context *gin.Context, db *sql.DB) {
 
 	if err := context.ShouldBind(&loginRequest); err != nil {
 		slog.Info("Failed to parse login request", slog.String("error", err.Error()))
-		failureResponse := LoginFailureResponse{Message: "Bad request: " + err.Error()}
+		failureResponse := LoginFailureResponse{Type: LoginFailureType_BadRequest, Details: err.Error()}
 		context.JSON(http.StatusBadRequest, failureResponse)
 		return
 	}
@@ -49,7 +59,7 @@ func login(context *gin.Context, db *sql.DB) {
 
 	if err != nil {
 		slog.Info("Someone tried to login with invalid user ID", slog.String("userId", loginRequest.Username))
-		failureResponse := LoginFailureResponse{Message: "Invalid user ID"}
+		failureResponse := LoginFailureResponse{Type: LoginFailureType_InvalidUserId, Details: err.Error()}
 		context.JSON(http.StatusUnauthorized, failureResponse)
 		return
 	}
@@ -58,8 +68,22 @@ func login(context *gin.Context, db *sql.DB) {
 	roleId, err := queries.AuthenticateUser(db, userId, password)
 
 	if err != nil {
-		slog.Info("Failed to authenticate user", slog.String("userId", loginRequest.Username))
-		failureResponse := LoginFailureResponse{Message: "Failed to authenticate user"}
+		if errors.Is(err, &queries.UnknownUserError{}) {
+			slog.Info("Unknown user trying to log in", slog.String("userId", loginRequest.Username))
+			failureResponse := LoginFailureResponse{Type: LoginFailureType_UnknownUser, Details: err.Error()}
+			context.JSON(http.StatusUnauthorized, failureResponse)
+			return
+		}
+
+		if errors.Is(err, &queries.WrongPasswordError{}) {
+			slog.Info("User entered wrong password", slog.String("userId", loginRequest.Username))
+			failureResponse := LoginFailureResponse{Type: LoginFailureType_WrongPassword, Details: err.Error()}
+			context.JSON(http.StatusUnauthorized, failureResponse)
+			return
+		}
+
+		slog.Error("Failed authentication for unknown reasons", slog.String("userId", loginRequest.Username), slog.String("error", err.Error()))
+		failureResponse := LoginFailureResponse{Type: LoginFailureType_Unknown, Details: err.Error()}
 		context.JSON(http.StatusUnauthorized, failureResponse)
 		return
 	}
@@ -68,7 +92,8 @@ func login(context *gin.Context, db *sql.DB) {
 	sessionId, err := queries.AddSession(db, userId, expirationTime)
 
 	if err != nil {
-		failureResponse := LoginFailureResponse{Message: "An error occurred while creating a session"}
+		slog.Error("Failed to create session", slog.String("userId", loginRequest.Username), slog.String("error", err.Error()))
+		failureResponse := LoginFailureResponse{Type: LoginFailureType_Unknown, Details: err.Error()}
 		context.AbortWithStatusJSON(http.StatusInternalServerError, failureResponse)
 		return
 	}
@@ -79,7 +104,7 @@ func login(context *gin.Context, db *sql.DB) {
 
 	if err != nil {
 		slog.Error("Failed to get role name", slog.Int64("roleId", int64(roleId)))
-		failureResponse := LoginFailureResponse{Message: "User has an unknown role"}
+		failureResponse := LoginFailureResponse{Type: LoginFailureType_Unknown, Details: err.Error()}
 		context.JSON(http.StatusInternalServerError, failureResponse)
 		return
 	}
