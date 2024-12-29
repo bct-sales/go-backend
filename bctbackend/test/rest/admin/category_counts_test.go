@@ -15,14 +15,30 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func createEmptyCategoryMap() map[models.Id]int64 {
-	result := make(map[models.Id]int64)
+func createSuccessResponse(countMap map[models.Id]int64) rest_admin.CategoryCountSuccessResponse {
+	countArray := []rest_admin.CategoryCount{}
 
 	for _, categoryId := range defs.ListCategories() {
-		result[categoryId] = 0
+		count, ok := countMap[categoryId]
+
+		if !ok {
+			count = 0
+		}
+
+		categoryName, err := defs.NameOfCategory(categoryId)
+
+		if err != nil {
+			panic(err)
+		}
+
+		countArray = append(countArray, rest_admin.CategoryCount{
+			CategoryId:   categoryId,
+			CategoryName: categoryName,
+			Count:        count,
+		})
 	}
 
-	return result
+	return rest_admin.CategoryCountSuccessResponse{Counts: countArray}
 }
 
 func TestCategoryCounts(t *testing.T) {
@@ -39,11 +55,10 @@ func TestCategoryCounts(t *testing.T) {
 		request.AddCookie(test.CreateCookie(sessionId))
 
 		router.ServeHTTP(writer, request)
-		expected := rest_admin.CategoryCountSuccessResponse{
-			Counts: createEmptyCategoryMap(),
-		}
+		countMap := map[models.Id]int64{}
+		expectedResponse := createSuccessResponse(countMap)
 		actual := test.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
-		assert.Equal(t, expected, *actual)
+		assert.Equal(t, expectedResponse, *actual)
 	})
 
 	for _, categoryId := range defs.ListCategories() {
@@ -62,10 +77,8 @@ func TestCategoryCounts(t *testing.T) {
 			request.AddCookie(test.CreateCookie(sessionId))
 
 			router.ServeHTTP(writer, request)
-			expected := rest_admin.CategoryCountSuccessResponse{
-				Counts: createEmptyCategoryMap(),
-			}
-			expected.Counts[categoryId] = 1
+			countMap := map[models.Id]int64{categoryId: 1}
+			expected := createSuccessResponse(countMap)
 
 			actual := test.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
 			assert.Equal(t, expected, *actual)
@@ -89,10 +102,8 @@ func TestCategoryCounts(t *testing.T) {
 			request.AddCookie(test.CreateCookie(sessionId))
 
 			router.ServeHTTP(writer, request)
-			expected := rest_admin.CategoryCountSuccessResponse{
-				Counts: createEmptyCategoryMap(),
-			}
-			expected.Counts[categoryId] = 2
+			countMap := map[models.Id]int64{categoryId: 2}
+			expected := createSuccessResponse(countMap)
 
 			actual := test.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
 			assert.Equal(t, expected, *actual)
@@ -117,11 +128,10 @@ func TestCategoryCounts(t *testing.T) {
 				request.AddCookie(test.CreateCookie(sessionId))
 
 				router.ServeHTTP(writer, request)
-				expected := rest_admin.CategoryCountSuccessResponse{
-					Counts: createEmptyCategoryMap(),
-				}
-				expected.Counts[categoryId1] += 1
-				expected.Counts[categoryId2] += 1
+				countMap := map[models.Id]int64{categoryId1: 0, categoryId2: 0}
+				countMap[categoryId1] += 1
+				countMap[categoryId2] += 1
+				expected := createSuccessResponse(countMap)
 
 				actual := test.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
 				assert.Equal(t, expected, *actual)
