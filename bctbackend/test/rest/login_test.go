@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLogin(t *testing.T) {
+func TestSuccessfulSellerLogin(t *testing.T) {
 	db, router := test.CreateRestRouter()
 	writer := httptest.NewRecorder()
 	defer db.Close()
