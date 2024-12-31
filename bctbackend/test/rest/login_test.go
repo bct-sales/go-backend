@@ -159,6 +159,34 @@ func TestSuccessfulCashierLogin(t *testing.T) {
 	}
 }
 
+func TestUnknownUserLogin(t *testing.T) {
+	db, router := test.CreateRestRouter()
+	writer := httptest.NewRecorder()
+	defer db.Close()
+
+	userId := models.Id(0)
+	password := "xyz"
+
+	form := url.Values{}
+	form.Add("username", models.IdToString(userId))
+	form.Add("password", password)
+
+	url := path.Login().String()
+	request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	if assert.NoError(t, err) {
+		router.ServeHTTP(writer, request)
+
+		if assert.Equal(t, http.StatusUnauthorized, writer.Code) {
+			var response map[string]string
+			if assert.NoError(t, json.Unmarshal(writer.Body.Bytes(), &response)) {
+				assert.Equal(t, "unknown_user", response["type"])
+			}
+		}
+	}
+}
+
 func TestSessionExpiration(t *testing.T) {
 	db, router := test.CreateRestRouter()
 	writer := httptest.NewRecorder()
