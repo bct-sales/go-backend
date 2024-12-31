@@ -45,8 +45,9 @@ const (
 // @Failure 401 {object} LoginFailureResponse "Failure to authenticate user"
 // @Failure 500 {object} LoginFailureResponse "Internal error"
 // @Router /login [post]
-// @param username formData string true "username"
-// @param password formData string true "password"
+// @Param username formData string true "username"
+// @Param password formData string true "password"
+// @Tags authentication
 func login(context *gin.Context, db *sql.DB) {
 	var loginRequest LoginRequest
 
