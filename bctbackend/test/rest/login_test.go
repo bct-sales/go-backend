@@ -9,6 +9,7 @@ import (
 	"bctbackend/security"
 	"bctbackend/test"
 	"bytes"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -35,26 +36,31 @@ func TestSuccessfulSellerLogin(t *testing.T) {
 	if assert.NoError(t, err) {
 		router.ServeHTTP(writer, request)
 
-		assert.Equal(t, http.StatusOK, writer.Code)
-
-		cookies := writer.Result().Cookies()
-
-		assert.NotEmpty(t, cookies, "Expected cookies to be set")
-		found := false
-		sessionId := ""
-		for _, cookie := range cookies {
-			if cookie.Name == security.SessionCookieName {
-				sessionId = cookie.Value
-				found = true
-				break
+		if assert.Equal(t, http.StatusOK, writer.Code) {
+			var response map[string]string
+			if assert.NoError(t, json.Unmarshal(writer.Body.Bytes(), &response)) {
+				assert.Equal(t, "seller", response["role"])
 			}
-		}
-		assert.True(t, found, "Expected session_id cookie to be set")
 
-		sessionData, err := queries.GetSessionById(db, sessionId)
+			cookies := writer.Result().Cookies()
 
-		if assert.NoError(t, err) {
-			assert.Equal(t, seller.UserId, sessionData.UserId)
+			assert.NotEmpty(t, cookies, "Expected cookies to be set")
+			found := false
+			sessionId := ""
+			for _, cookie := range cookies {
+				if cookie.Name == security.SessionCookieName {
+					sessionId = cookie.Value
+					found = true
+					break
+				}
+			}
+			assert.True(t, found, "Expected session_id cookie to be set")
+
+			sessionData, err := queries.GetSessionById(db, sessionId)
+
+			if assert.NoError(t, err) {
+				assert.Equal(t, seller.UserId, sessionData.UserId)
+			}
 		}
 	}
 }
@@ -77,26 +83,31 @@ func TestSuccessfulAdminLogin(t *testing.T) {
 	if assert.NoError(t, err) {
 		router.ServeHTTP(writer, request)
 
-		assert.Equal(t, http.StatusOK, writer.Code)
-
-		cookies := writer.Result().Cookies()
-
-		assert.NotEmpty(t, cookies, "Expected cookies to be set")
-		found := false
-		sessionId := ""
-		for _, cookie := range cookies {
-			if cookie.Name == security.SessionCookieName {
-				sessionId = cookie.Value
-				found = true
-				break
+		if assert.Equal(t, http.StatusOK, writer.Code) {
+			var response map[string]string
+			if assert.NoError(t, json.Unmarshal(writer.Body.Bytes(), &response)) {
+				assert.Equal(t, "admin", response["role"])
 			}
-		}
-		assert.True(t, found, "Expected session_id cookie to be set")
 
-		sessionData, err := queries.GetSessionById(db, sessionId)
+			cookies := writer.Result().Cookies()
 
-		if assert.NoError(t, err) {
-			assert.Equal(t, admin.UserId, sessionData.UserId)
+			assert.NotEmpty(t, cookies, "Expected cookies to be set")
+			found := false
+			sessionId := ""
+			for _, cookie := range cookies {
+				if cookie.Name == security.SessionCookieName {
+					sessionId = cookie.Value
+					found = true
+					break
+				}
+			}
+			assert.True(t, found, "Expected session_id cookie to be set")
+
+			sessionData, err := queries.GetSessionById(db, sessionId)
+
+			if assert.NoError(t, err) {
+				assert.Equal(t, admin.UserId, sessionData.UserId)
+			}
 		}
 	}
 }
@@ -119,26 +130,31 @@ func TestSuccessfulCashierLogin(t *testing.T) {
 	if assert.NoError(t, err) {
 		router.ServeHTTP(writer, request)
 
-		assert.Equal(t, http.StatusOK, writer.Code)
-
-		cookies := writer.Result().Cookies()
-
-		assert.NotEmpty(t, cookies, "Expected cookies to be set")
-		found := false
-		sessionId := ""
-		for _, cookie := range cookies {
-			if cookie.Name == security.SessionCookieName {
-				sessionId = cookie.Value
-				found = true
-				break
+		if assert.Equal(t, http.StatusOK, writer.Code) {
+			var response map[string]string
+			if assert.NoError(t, json.Unmarshal(writer.Body.Bytes(), &response)) {
+				assert.Equal(t, "cashier", response["role"])
 			}
-		}
-		assert.True(t, found, "Expected session_id cookie to be set")
 
-		sessionData, err := queries.GetSessionById(db, sessionId)
+			cookies := writer.Result().Cookies()
 
-		if assert.NoError(t, err) {
-			assert.Equal(t, cashier.UserId, sessionData.UserId)
+			assert.NotEmpty(t, cookies, "Expected cookies to be set")
+			found := false
+			sessionId := ""
+			for _, cookie := range cookies {
+				if cookie.Name == security.SessionCookieName {
+					sessionId = cookie.Value
+					found = true
+					break
+				}
+			}
+			assert.True(t, found, "Expected session_id cookie to be set")
+
+			sessionData, err := queries.GetSessionById(db, sessionId)
+
+			if assert.NoError(t, err) {
+				assert.Equal(t, cashier.UserId, sessionData.UserId)
+			}
 		}
 	}
 }
