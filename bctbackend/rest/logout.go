@@ -13,6 +13,10 @@ import (
 
 type LogoutPayload struct{}
 
+// @Summary Logout user.
+// @Description Logs out the user.
+// @Tags authentication
+// @Router /logout [post]
 func logout(context *gin.Context, db *sql.DB) {
 	sessionId, err := context.Cookie(security.SessionCookieName)
 
