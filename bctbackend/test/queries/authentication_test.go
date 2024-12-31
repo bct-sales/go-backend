@@ -57,5 +57,9 @@ func TestAuthenticatingWrongPassword(t *testing.T) {
 	queries.AddUserWithId(db, userId, roleId, 0, nil, password)
 
 	_, err := queries.AuthenticateUser(db, userId, wrongPassword)
-	assert.Error(t, err)
+
+	if assert.Error(t, err) {
+		assert.IsType(t, &queries.AuthenticationError{}, err)
+		assert.IsType(t, &queries.WrongPasswordError{}, errors.Unwrap(err))
+	}
 }
