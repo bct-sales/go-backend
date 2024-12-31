@@ -37,7 +37,9 @@ const (
 )
 
 // @Summary Login user
-// @Description Login user
+// @Description Login user. If successful, returns the role of the user.
+// @Description If the user is unknown, returns 401 Unauthorized with type "unknown_user".
+// @Description If the password is wrong, returns 401 Unauthorized with type "wrong_password".
 // @Success 200 {object} LoginSuccessResponse
 // @Failure 400 {object} LoginFailureResponse "Failed to parse request"
 // @Failure 401 {object} LoginFailureResponse "Failure to authenticate user"
