@@ -6,6 +6,7 @@ import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/test"
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -38,7 +39,11 @@ func TestAuthenticatingNonExistingUser(t *testing.T) {
 	assert.False(t, queries.UserWithIdExists(db, userId))
 
 	_, err := queries.AuthenticateUser(db, userId, password)
-	assert.Error(t, err)
+
+	if assert.Error(t, err) {
+		assert.IsType(t, &queries.AuthenticationError{}, err)
+		assert.IsType(t, &queries.UnknownUserError{}, errors.Unwrap(err))
+	}
 }
 
 func TestAuthenticatingWrongPassword(t *testing.T) {
