@@ -59,6 +59,48 @@ func TestSuccessfulSellerLogin(t *testing.T) {
 	}
 }
 
+func TestSuccessfulAdminLogin(t *testing.T) {
+	db, router := test.CreateRestRouter()
+	writer := httptest.NewRecorder()
+	defer db.Close()
+
+	admin := test.AddAdminToDatabase(db)
+
+	form := url.Values{}
+	form.Add("username", models.IdToString(admin.UserId))
+	form.Add("password", admin.Password)
+
+	url := path.Login().String()
+	request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	if assert.NoError(t, err) {
+		router.ServeHTTP(writer, request)
+
+		assert.Equal(t, http.StatusOK, writer.Code)
+
+		cookies := writer.Result().Cookies()
+
+		assert.NotEmpty(t, cookies, "Expected cookies to be set")
+		found := false
+		sessionId := ""
+		for _, cookie := range cookies {
+			if cookie.Name == security.SessionCookieName {
+				sessionId = cookie.Value
+				found = true
+				break
+			}
+		}
+		assert.True(t, found, "Expected session_id cookie to be set")
+
+		sessionData, err := queries.GetSessionById(db, sessionId)
+
+		if assert.NoError(t, err) {
+			assert.Equal(t, admin.UserId, sessionData.UserId)
+		}
+	}
+}
+
 func TestSessionExpiration(t *testing.T) {
 	db, router := test.CreateRestRouter()
 	writer := httptest.NewRecorder()
