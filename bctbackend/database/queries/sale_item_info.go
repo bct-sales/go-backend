@@ -13,6 +13,8 @@ type SaleItemInformation struct {
 	SellCount      int64
 }
 
+// GetSaleItemInformation retrieves information about a sale item.
+// If the item is not found, it returns an ItemNotFoundError.
 func GetSaleItemInformation(
 	db *sql.DB,
 	itemId models.Id) (*SaleItemInformation, error) {
