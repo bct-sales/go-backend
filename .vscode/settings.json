@@ -1,6 +1,10 @@
 {
     "cSpell.words": [
-        "bctbackend"
+        "bctbackend",
+        "dberr"
     ],
-    "go.buildTags": "test"
+    "go.buildTags": "test",
+    "terminal.integrated.env.linux": {
+
+    }
 }
