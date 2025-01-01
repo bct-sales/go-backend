@@ -4,17 +4,8 @@ import (
 	"bctbackend/database/models"
 	"database/sql"
 	"errors"
-	"fmt"
 	"log"
 )
-
-type NoSuchSaleError struct {
-	SaleId models.Id
-}
-
-func (err NoSuchSaleError) Error() string {
-	return fmt.Sprintf("no sale with id %v", err.SaleId)
-}
 
 func rollbackTransaction(transaction *sql.Tx, err error) error {
 	if rollbackError := transaction.Rollback(); rollbackError != nil {

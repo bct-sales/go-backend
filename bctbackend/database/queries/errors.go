@@ -21,6 +21,14 @@ type WrongPasswordError struct{}
 
 type NoSessionFoundError struct{}
 
+type NoSuchSaleError struct {
+	SaleId models.Id
+}
+
+func (err NoSuchSaleError) Error() string {
+	return fmt.Sprintf("no sale with id %v", err.SaleId)
+}
+
 func (e *ItemNotFoundError) Error() string {
 	return fmt.Sprintf("item with id %d not found", e.Id)
 }
