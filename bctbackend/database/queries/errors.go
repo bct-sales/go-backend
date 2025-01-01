@@ -19,6 +19,8 @@ type UnknownUserError struct {
 
 type WrongPasswordError struct{}
 
+type NoSessionFoundError struct{}
+
 func (e *ItemNotFoundError) Error() string {
 	return fmt.Sprintf("item with id %d not found", e.Id)
 }
@@ -41,4 +43,8 @@ func (e *UnknownUserError) Error() string {
 
 func (e *WrongPasswordError) Error() string {
 	return "wrong password"
+}
+
+func (e *NoSessionFoundError) Error() string {
+	return "no session found"
 }

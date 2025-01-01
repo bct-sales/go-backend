@@ -68,7 +68,8 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 
 			sessionData, err := queries.GetSessionData(db, sessionId)
 
-			if errors.Is(err, queries.NoSessionFoundError) {
+			var noSessionFoundError *queries.NoSessionFoundError
+			if errors.As(err, &noSessionFoundError) {
 				slog.Info("Session not found")
 				context.JSON(http.StatusUnauthorized, gin.H{"message": "Session not found"})
 			}
