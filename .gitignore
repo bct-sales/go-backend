@@ -3,3 +3,6 @@ bct.db
 coverage-data
 .env
 docs/
+*.png
+*.otf
+*.ttf
