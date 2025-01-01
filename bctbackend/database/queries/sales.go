@@ -127,6 +127,8 @@ func GetSales(db *sql.DB) ([]models.Sale, error) {
 	return sales, nil
 }
 
+// GetSaleWithId returns the sale with the given saleId.
+// A NoSuchSaleError is returned if no sale with the given saleId exists.
 func GetSaleWithId(db *sql.DB, saleId models.Id) (models.Sale, error) {
 	var sale models.Sale
 
