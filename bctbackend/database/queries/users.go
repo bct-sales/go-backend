@@ -95,7 +95,7 @@ func GetUserWithId(db *sql.DB, userId models.Id) (models.User, error) {
 	err := row.Scan(&roleId, &createdAt, &lastActivity, &password)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return models.User{}, errors.New("user not found")
+		return models.User{}, &UnknownUserError{UserId: userId}
 	}
 
 	return models.User{
