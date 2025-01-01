@@ -1,7 +1,6 @@
 package queries
 
 import (
-	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"database/sql"
 	"errors"
@@ -35,13 +34,13 @@ func AddSale(
 	itemIds []models.Id) (models.Id, error) {
 
 	if len(itemIds) == 0 {
-		return 0, &dberr.SaleMissingItemsError{}
+		return 0, &SaleMissingItemsError{}
 	}
 
 	cashier, err := GetUserWithId(db, cashierId)
 
 	if err != nil || cashier.RoleId != models.CashierRoleId {
-		return 0, &dberr.SaleRequiresCashierError{}
+		return 0, &SaleRequiresCashierError{}
 	}
 
 	transaction, err := db.Begin()

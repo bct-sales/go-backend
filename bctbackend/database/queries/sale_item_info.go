@@ -1,7 +1,6 @@
 package queries
 
 import (
-	dberr "bctbackend/database/errors"
 	models "bctbackend/database/models"
 	"database/sql"
 	"errors"
@@ -36,7 +35,7 @@ func GetSaleItemInformation(
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, &dberr.ItemNotFoundError{Id: itemId}
+		return nil, &ItemNotFoundError{Id: itemId}
 	}
 
 	if err != nil {

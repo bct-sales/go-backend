@@ -1,7 +1,6 @@
 package queries
 
 import (
-	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"database/sql"
 	"errors"
@@ -108,7 +107,7 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	err := row.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, &dberr.ItemNotFoundError{Id: itemId}
+		return nil, &ItemNotFoundError{Id: itemId}
 	}
 
 	if err != nil {
@@ -200,7 +199,7 @@ func RemoveItemWithId(db *sql.DB, itemId models.Id) error {
 	}
 
 	if !itemExists {
-		return &dberr.ItemNotFoundError{Id: itemId}
+		return &ItemNotFoundError{Id: itemId}
 	}
 
 	_, err = db.Exec(

@@ -3,7 +3,6 @@
 package queries
 
 import (
-	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/test"
@@ -42,8 +41,8 @@ func TestAuthenticatingNonExistingUser(t *testing.T) {
 	_, err := queries.AuthenticateUser(db, userId, password)
 
 	if assert.Error(t, err) {
-		assert.IsType(t, &dberr.AuthenticationError{}, err)
-		assert.IsType(t, &dberr.UnknownUserError{}, errors.Unwrap(err))
+		assert.IsType(t, &queries.AuthenticationError{}, err)
+		assert.IsType(t, &queries.UnknownUserError{}, errors.Unwrap(err))
 	}
 }
 
@@ -60,7 +59,7 @@ func TestAuthenticatingWrongPassword(t *testing.T) {
 	_, err := queries.AuthenticateUser(db, userId, wrongPassword)
 
 	if assert.Error(t, err) {
-		assert.IsType(t, &dberr.AuthenticationError{}, err)
-		assert.IsType(t, &dberr.WrongPasswordError{}, errors.Unwrap(err))
+		assert.IsType(t, &queries.AuthenticationError{}, err)
+		assert.IsType(t, &queries.WrongPasswordError{}, errors.Unwrap(err))
 	}
 }
