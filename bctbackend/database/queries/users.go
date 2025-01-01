@@ -96,8 +96,14 @@ func GetUserWithId(db *sql.DB, userId models.Id) (models.User, error) {
 	var password string
 	err := row.Scan(&roleId, &createdAt, &lastActivity, &password)
 
-	if errors.Is(err, sql.ErrNoRows) {
-		return models.User{}, &UnknownUserError{UserId: userId}
+	if err != nil {
+		var dummyResult models.User
+
+		if errors.Is(err, sql.ErrNoRows) {
+			return dummyResult, &UnknownUserError{UserId: userId}
+		}
+
+		return dummyResult, err
 	}
 
 	return models.User{
