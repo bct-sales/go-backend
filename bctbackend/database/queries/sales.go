@@ -174,7 +174,7 @@ func GetSaleItems(db *sql.DB, saleId models.Id) ([]models.Item, error) {
 	}
 
 	if !saleExists {
-		return nil, NoSuchSaleError{SaleId: saleId}
+		return nil, &NoSuchSaleError{SaleId: saleId}
 	}
 
 	rows, err := db.Query(
