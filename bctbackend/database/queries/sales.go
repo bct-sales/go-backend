@@ -1,6 +1,7 @@
 package queries
 
 import (
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"database/sql"
 	"errors"
@@ -24,6 +25,9 @@ func rollbackTransaction(transaction *sql.Tx, err error) error {
 	return err
 }
 
+// AddSale adds a sale to the database.
+// A SaleMissingItemsError is returned if itemIds is empty.
+// A SaleRequiresCashierError is returned if the cashierId does not correspond to a cashier.
 func AddSale(
 	db *sql.DB,
 	cashierId models.Id,
@@ -31,13 +35,13 @@ func AddSale(
 	itemIds []models.Id) (models.Id, error) {
 
 	if len(itemIds) == 0 {
-		return 0, fmt.Errorf("no items to add to sale")
+		return 0, &dberr.SaleMissingItemsError{}
 	}
 
 	cashier, err := GetUserWithId(db, cashierId)
 
 	if err != nil || cashier.RoleId != models.CashierRoleId {
-		return 0, fmt.Errorf("a sale can only be associated with a cashier; user %v is no cashier", cashierId)
+		return 0, &dberr.SaleRequiresCashierError{}
 	}
 
 	transaction, err := db.Begin()
