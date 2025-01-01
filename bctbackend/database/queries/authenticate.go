@@ -21,15 +21,15 @@ func AuthenticateUser(db *sql.DB, userId models.Id, password string) (models.Id,
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return 0, &AuthenticationError{Reason: &UnknownUserError{}}
+			return 0, &UnknownUserError{}
 		}
 
-		return 0, &AuthenticationError{Reason: err}
+		return 0, err
 	}
 
 	if expectedPassword == password {
 		return roleId, nil
 	} else {
-		return 0, &AuthenticationError{Reason: &WrongPasswordError{}}
+		return 0, &WrongPasswordError{}
 	}
 }

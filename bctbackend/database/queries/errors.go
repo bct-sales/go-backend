@@ -5,10 +5,6 @@ import (
 	"fmt"
 )
 
-type AuthenticationError struct {
-	Reason error
-}
-
 type ItemNotFoundError struct {
 	Id models.Id
 }
@@ -22,14 +18,6 @@ type UnknownUserError struct {
 }
 
 type WrongPasswordError struct{}
-
-func (e *AuthenticationError) Error() string {
-	return fmt.Sprintf("authentication error: %v", e.Reason)
-}
-
-func (e *AuthenticationError) Unwrap() error {
-	return e.Reason
-}
 
 func (e *ItemNotFoundError) Error() string {
 	return fmt.Sprintf("item with id %d not found", e.Id)
