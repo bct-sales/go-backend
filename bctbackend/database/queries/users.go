@@ -78,6 +78,8 @@ func UserWithIdExists(
 	return err == nil
 }
 
+// GetUserWithId retrieves a user from the database by their user ID.
+// An UnknownUserError is returned if the user does not exist.
 func GetUserWithId(db *sql.DB, userId models.Id) (models.User, error) {
 	row := db.QueryRow(
 		`
