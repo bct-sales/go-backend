@@ -3,7 +3,8 @@
 package queries
 
 import (
-	models "bctbackend/database/models"
+	dberr "bctbackend/database/errors"
+	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/defs"
 	"bctbackend/test"
@@ -191,7 +192,7 @@ func TestGetItemWithId(t *testing.T) {
 		itemId := models.NewId(1)
 		_, err := queries.GetItemWithId(db, itemId)
 
-		var itemNotFoundError *queries.ItemNotFoundError
+		var itemNotFoundError *dberr.ItemNotFoundError
 		assert.ErrorAs(t, err, &itemNotFoundError)
 	})
 
@@ -217,7 +218,7 @@ func TestRemoveItemWithId(t *testing.T) {
 		itemId := models.NewId(1)
 		err := queries.RemoveItemWithId(db, itemId)
 
-		var itemNotFoundError *queries.ItemNotFoundError
+		var itemNotFoundError *dberr.ItemNotFoundError
 		assert.ErrorAs(t, err, &itemNotFoundError)
 	})
 

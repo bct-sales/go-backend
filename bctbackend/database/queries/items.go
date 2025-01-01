@@ -1,10 +1,10 @@
 package queries
 
 import (
-	models "bctbackend/database/models"
+	dberr "bctbackend/database/errors"
+	"bctbackend/database/models"
 	"database/sql"
 	"errors"
-	"fmt"
 )
 
 func GetItems(db *sql.DB) ([]models.Item, error) {
@@ -89,18 +89,6 @@ func GetSellerItems(db *sql.DB, sellerId models.Id) ([]models.Item, error) {
 	return items, nil
 }
 
-type ItemNotFoundError struct {
-	Id models.Id
-}
-
-func (e *ItemNotFoundError) Error() string {
-	return fmt.Sprintf("item with id %d not found", e.Id)
-}
-
-func (e *ItemNotFoundError) Unwrap() error {
-	return nil
-}
-
 func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	row := db.QueryRow(`
 		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity
@@ -120,7 +108,7 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	err := row.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, &ItemNotFoundError{Id: itemId}
+		return nil, &dberr.ItemNotFoundError{Id: itemId}
 	}
 
 	if err != nil {
@@ -212,7 +200,7 @@ func RemoveItemWithId(db *sql.DB, itemId models.Id) error {
 	}
 
 	if !itemExists {
-		return &ItemNotFoundError{Id: itemId}
+		return &dberr.ItemNotFoundError{Id: itemId}
 	}
 
 	_, err = db.Exec(
