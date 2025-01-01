@@ -49,6 +49,16 @@ func ListCategories() []Id {
 	}
 }
 
+type UnknownCategoryError struct {
+	CategoryId Id
+}
+
+func (e *UnknownCategoryError) Error() string {
+	return fmt.Sprintf("unknown category id: %v", e.CategoryId)
+}
+
+// NameOfCategory returns the name of the category with the given id.
+// If the category id is unknown, an UnknownCategoryError is returned.
 func NameOfCategory(categoryId Id) (string, error) {
 	switch categoryId {
 	case Clothing50_56:
@@ -76,6 +86,6 @@ func NameOfCategory(categoryId Id) (string, error) {
 	case BabyChildEquipment:
 		return BabyChildEquipmentName, nil
 	default:
-		return "", fmt.Errorf("unknown category id: %v", categoryId)
+		return "", &UnknownCategoryError{CategoryId: categoryId}
 	}
 }
