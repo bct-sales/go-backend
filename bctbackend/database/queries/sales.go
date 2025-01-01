@@ -1,7 +1,7 @@
 package queries
 
 import (
-	models "bctbackend/database/models"
+	"bctbackend/database/models"
 	"database/sql"
 	"errors"
 	"fmt"
