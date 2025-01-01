@@ -177,13 +177,7 @@ func TestUnknownUserLogin(t *testing.T) {
 
 	if assert.NoError(t, err) {
 		router.ServeHTTP(writer, request)
-
-		if assert.Equal(t, http.StatusUnauthorized, writer.Code) {
-			var response map[string]string
-			if assert.NoError(t, json.Unmarshal(writer.Body.Bytes(), &response)) {
-				assert.Equal(t, "unknown_user", response["type"])
-			}
-		}
+		assertFailureType(t, writer, http.StatusUnauthorized, "unknown_user")
 	}
 }
 
@@ -207,13 +201,7 @@ func TestWrongPasswordLogin(t *testing.T) {
 
 		if assert.NoError(t, err) {
 			router.ServeHTTP(writer, request)
-
-			if assert.Equal(t, http.StatusUnauthorized, writer.Code) {
-				var response map[string]string
-				if assert.NoError(t, json.Unmarshal(writer.Body.Bytes(), &response)) {
-					assert.Equal(t, "wrong_password", response["type"])
-				}
-			}
+			assertFailureType(t, writer, http.StatusUnauthorized, "wrong_password")
 		}
 	}
 }
