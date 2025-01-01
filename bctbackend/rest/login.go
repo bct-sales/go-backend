@@ -71,14 +71,16 @@ func login(context *gin.Context, db *sql.DB) {
 	roleId, err := queries.AuthenticateUser(db, userId, password)
 
 	if err != nil {
-		if errors.Is(err, &queries.UnknownUserError{}) {
+		var unknownUserError *queries.UnknownUserError
+		if errors.As(err, &unknownUserError) {
 			slog.Info("Unknown user trying to log in", slog.String("userId", loginRequest.Username))
 			failureResponse := LoginFailureResponse{Type: LoginFailureType_UnknownUser, Details: err.Error()}
 			context.JSON(http.StatusUnauthorized, failureResponse)
 			return
 		}
 
-		if errors.Is(err, &queries.WrongPasswordError{}) {
+		var wrongPasswordError *queries.WrongPasswordError
+		if errors.As(err, &wrongPasswordError) {
 			slog.Info("User entered wrong password", slog.String("userId", loginRequest.Username))
 			failureResponse := LoginFailureResponse{Type: LoginFailureType_WrongPassword, Details: err.Error()}
 			context.JSON(http.StatusUnauthorized, failureResponse)
