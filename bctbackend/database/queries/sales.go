@@ -167,6 +167,16 @@ func SaleExists(db *sql.DB, saleId models.Id) (bool, error) {
 }
 
 func GetSaleItems(db *sql.DB, saleId models.Id) ([]models.Item, error) {
+	saleExists, err := SaleExists(db, saleId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !saleExists {
+		return nil, NoSuchSaleError{SaleId: saleId}
+	}
+
 	rows, err := db.Query(
 		`
 			SELECT i.item_id, i.added_at, i.description, i.price_in_cents, i.item_category_id, i.seller_id, i.donation, i.charity
