@@ -26,6 +26,7 @@ func rollbackTransaction(transaction *sql.Tx, err error) error {
 
 // AddSale adds a sale to the database.
 // A SaleMissingItemsError is returned if itemIds is empty.
+// A NoSuchUserError is returned if the cashierId does not correspond to any user.
 // A SaleRequiresCashierError is returned if the cashierId does not correspond to a cashier.
 func AddSale(
 	db *sql.DB,
@@ -39,7 +40,11 @@ func AddSale(
 
 	cashier, err := GetUserWithId(db, cashierId)
 
-	if err != nil || cashier.RoleId != models.CashierRoleId {
+	if err != nil {
+		return 0, err
+	}
+
+	if cashier.RoleId != models.CashierRoleId {
 		return 0, &SaleRequiresCashierError{}
 	}
 
