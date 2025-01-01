@@ -55,6 +55,17 @@ func SetUpCors(router *gin.Engine) {
 	router.Use(cors.New(config))
 }
 
+type FailureResponse struct {
+	Type    string `json:"type"`
+	Details string `json:"details"`
+}
+
+const (
+	FailureType_MissingSessionID = "missing_session_id"
+	FailureType_SessionNotFound  = "session_not_found"
+	FailureType_Unknown          = "unknown"
+)
+
 func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 	withUserAndRole := func(handler func(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id)) gin.HandlerFunc {
 		return func(context *gin.Context) {
@@ -62,7 +73,8 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 
 			if err != nil {
 				slog.Info("Unauthorized: missing session ID")
-				context.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized: missing session ID"})
+				failureResponse := FailureResponse{Type: FailureType_MissingSessionID, Details: err.Error()}
+				context.JSON(http.StatusUnauthorized, failureResponse)
 				return
 			}
 
@@ -71,12 +83,14 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 			var noSessionFoundError *queries.NoSessionFoundError
 			if errors.As(err, &noSessionFoundError) {
 				slog.Info("Session not found")
-				context.JSON(http.StatusUnauthorized, gin.H{"message": "Session not found"})
+				failureResponse := FailureResponse{Type: FailureType_SessionNotFound, Details: err.Error()}
+				context.JSON(http.StatusUnauthorized, failureResponse)
 			}
 
 			if err != nil {
 				slog.Error("Failed to retrieve session from database", slog.String("error", err.Error()))
-				context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to retrieve session"})
+				failureResponse := FailureResponse{Type: FailureType_Unknown, Details: err.Error()}
+				context.JSON(http.StatusInternalServerError, failureResponse)
 				return
 			}
 
