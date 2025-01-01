@@ -42,3 +42,18 @@ func TestGetSaleItems(t *testing.T) {
 		}
 	}
 }
+
+func TestGetSaleItemsOfNonexistentSale(t *testing.T) {
+	db := test.OpenInitializedDatabase()
+
+	saleId := models.Id(1)
+
+	saleExists, err := queries.SaleExists(db, saleId)
+	if assert.NoError(t, err) && assert.False(t, saleExists) {
+		_, err := queries.GetSaleItems(db, saleId)
+
+		if assert.Error(t, err) {
+			assert.IsType(t, &queries.NoSuchSaleError{}, err)
+		}
+	}
+}
