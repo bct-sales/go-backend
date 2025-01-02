@@ -53,7 +53,7 @@ func GetSessionById(
 	)
 
 	if err == sql.ErrNoRows {
-		return nil, err
+		return nil, &NoSuchSessionError{}
 	}
 
 	if err != nil {

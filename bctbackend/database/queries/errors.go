@@ -25,6 +25,10 @@ type NoSuchSaleError struct {
 	SaleId models.Id
 }
 
+type NoSuchSessionError struct {
+	SessionId models.SessionId
+}
+
 func (err NoSuchSaleError) Error() string {
 	return fmt.Sprintf("no sale with id %v", err.SaleId)
 }
@@ -55,4 +59,8 @@ func (e *WrongPasswordError) Error() string {
 
 func (e *NoSessionFoundError) Error() string {
 	return "no session found"
+}
+
+func (e *NoSuchSessionError) Error() string {
+	return fmt.Sprintf("no session with id %v", e.SessionId)
 }
