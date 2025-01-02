@@ -16,7 +16,6 @@ func assertFailureType(t *testing.T, writer *httptest.ResponseRecorder, expected
 	}
 
 	var response map[string]string
-
 	if !assert.NoError(t, json.Unmarshal(writer.Body.Bytes(), &response)) {
 		return false
 	}

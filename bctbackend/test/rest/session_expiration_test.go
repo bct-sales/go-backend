@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestSessionExpiration(t *testing.T) {
@@ -25,5 +23,5 @@ func TestSessionExpiration(t *testing.T) {
 	request.AddCookie(test.CreateCookie(sessionId))
 
 	router.ServeHTTP(writer, request)
-	assert.Equal(t, http.StatusUnauthorized, writer.Code)
+	assertFailureType(t, writer, http.StatusUnauthorized, "session_not_found")
 }
