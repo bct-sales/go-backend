@@ -168,6 +168,8 @@ func UpdateUserPassword(db *sql.DB, userId models.Id, password string) error {
 	return err
 }
 
+// CheckUserRole checks if a user has a specific role.
+// An UnknownUserError is returned if the user does not exist.
 func CheckUserRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) error {
 	user, err := GetUserWithId(db, userId)
 
