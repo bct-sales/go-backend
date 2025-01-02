@@ -33,3 +33,23 @@ func TestAddSession(t *testing.T) {
 		}
 	}
 }
+
+func TestDeleteSession(t *testing.T) {
+	db := test.OpenInitializedDatabase()
+
+	userId := test.AddUserToDatabase(db, models.AdminRoleId).UserId
+	expirationTime := models.Timestamp(0)
+	sessionId, err := queries.AddSession(db, userId, expirationTime)
+
+	if assert.NoError(t, err) {
+		err := queries.DeleteSession(db, sessionId)
+
+		if assert.NoError(t, err) {
+			_, err := queries.GetSessionById(db, sessionId)
+
+			if assert.Error(t, err) {
+				assert.IsType(t, &queries.NoSuchSessionError{}, err)
+			}
+		}
+	}
+}
