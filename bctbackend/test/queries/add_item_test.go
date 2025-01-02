@@ -64,27 +64,40 @@ func TestAddItemToDatabase(t *testing.T) {
 	}
 }
 
+func TestAddItemWithNonexistingUser(t *testing.T) {
+	db := test.OpenInitializedDatabase()
+
+	timestamp := models.NewTimestamp(0)
+	description := "description"
+	priceInCents := models.NewMoneyInCents(100)
+	itemCategoryId := models.NewId(1)
+	charity := false
+	sellerId := models.NewId(1)
+	donation := false
+
+	test.AddSellerWithIdToDatabase(db, 2)
+
+	_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+	if !assert.Error(t, error) {
+		return
+	}
+
+	count, err := queries.CountItems(db)
+	if !assert.NoError(t, err) {
+		return
+	}
+
+	if !assert.Equal(t, 0, count) {
+		return
+	}
+}
+
 func TestFailingAddItemToDatabase(t *testing.T) {
 	timestamp := models.NewTimestamp(0)
 	description := "description"
 	priceInCents := models.NewMoneyInCents(100)
 	itemCategoryId := models.NewId(1)
 	charity := false
-
-	t.Run("Nonexisting owner", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
-		test.AddSellerWithIdToDatabase(db, 2)
-
-		sellerId := models.NewId(1)
-		donation := false
-
-		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-		assert.Error(t, error)
-
-		count, err := queries.CountItems(db)
-		assert.NoError(t, err)
-		assert.Equal(t, 0, count)
-	})
 
 	t.Run("Nonexisting category", func(t *testing.T) {
 		db := test.OpenInitializedDatabase()
