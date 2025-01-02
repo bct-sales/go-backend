@@ -6,6 +6,7 @@ import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/test"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -49,5 +50,55 @@ func TestDeleteSession(t *testing.T) {
 				assert.IsType(t, &queries.NoSuchSessionError{}, err)
 			}
 		}
+	}
+}
+
+func TestDeleteExpiredSessions(t *testing.T) {
+	for cutoff := 0; cutoff < 100; cutoff += 10 {
+		testLabel := fmt.Sprintf("cutoff=%d", cutoff)
+		t.Run(testLabel, func(t *testing.T) {
+			db := test.OpenInitializedDatabase()
+
+			userId := test.AddUserToDatabase(db, models.AdminRoleId).UserId
+			expiredSessions := []models.SessionId{}
+			unexpiredSessions := []models.SessionId{}
+
+			for i := 0; i < 100; i++ {
+				expirationTime := models.Timestamp(0)
+				sessionId, err := queries.AddSession(db, userId, expirationTime)
+
+				if !assert.NoError(t, err) {
+					return
+				}
+
+				if expirationTime < models.Timestamp(cutoff) {
+					expiredSessions = append(expiredSessions, sessionId)
+				} else {
+					unexpiredSessions = append(unexpiredSessions, sessionId)
+				}
+			}
+
+			err := queries.DeleteExpiredSessions(db, models.Timestamp(cutoff))
+
+			if !assert.NoError(t, err) {
+				return
+			}
+
+			for _, sessionId := range expiredSessions {
+				_, err := queries.GetSessionById(db, sessionId)
+
+				if !assert.Error(t, err) {
+					return
+				}
+			}
+
+			for _, sessionId := range unexpiredSessions {
+				_, err := queries.GetSessionById(db, sessionId)
+
+				if !assert.NoError(t, err) {
+					return
+				}
+			}
+		})
 	}
 }
