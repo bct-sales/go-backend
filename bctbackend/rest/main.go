@@ -85,6 +85,7 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 				slog.Info("Session not found")
 				failureResponse := FailureResponse{Type: FailureType_SessionNotFound, Details: err.Error()}
 				context.JSON(http.StatusUnauthorized, failureResponse)
+				return
 			}
 
 			if err != nil {
