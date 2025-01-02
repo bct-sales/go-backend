@@ -36,6 +36,16 @@ func ParseRole(role string) (Id, error) {
 	}
 }
 
+type UnknownRoleError struct {
+	RoleId Id
+}
+
+func (e *UnknownRoleError) Error() string {
+	return fmt.Sprintf("unknown role id: %d", e.RoleId)
+}
+
+// NameOfRole returns the name of the role with the given id.
+// It returns UnknownRoleError if the role id is unknown.
 func NameOfRole(roleId Id) (string, error) {
 	switch roleId {
 	case AdminRoleId:
@@ -45,6 +55,6 @@ func NameOfRole(roleId Id) (string, error) {
 	case CashierRoleId:
 		return CashierName, nil
 	default:
-		return "", fmt.Errorf("unknown role id: %d", roleId)
+		return "", &UnknownRoleError{RoleId: roleId}
 	}
 }
