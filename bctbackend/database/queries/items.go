@@ -4,6 +4,7 @@ import (
 	"bctbackend/database/models"
 	"database/sql"
 	"errors"
+	"strings"
 )
 
 func GetItems(db *sql.DB) ([]models.Item, error) {
@@ -168,6 +169,12 @@ func AddItem(
 		charity)
 
 	if err != nil {
+		errorMessage := err.Error()
+
+		if strings.Contains(errorMessage, "items_foreign_key_item_category") {
+			return 0, &NoSuchCategoryError{CategoryId: itemCategoryId}
+		}
+
 		return 0, err
 	}
 
