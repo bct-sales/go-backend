@@ -64,7 +64,7 @@ func TestAddItemToDatabase(t *testing.T) {
 	}
 }
 
-func TestAddItemWithNonexistingUser(t *testing.T) {
+func TestAddItemWithNonexistingSeller(t *testing.T) {
 	db := test.OpenInitializedDatabase()
 
 	timestamp := models.NewTimestamp(0)
