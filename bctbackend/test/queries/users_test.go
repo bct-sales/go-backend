@@ -37,6 +37,28 @@ func TestAddUserWithId(t *testing.T) {
 	}
 }
 
+func TestAddUserWithExistingId(t *testing.T) {
+	db := test.OpenInitializedDatabase()
+
+	userId := models.NewId(1)
+	roleId := models.SellerRoleId
+	password := "xyz"
+	createdAt := models.Timestamp(0)
+	var lastAccess *models.Timestamp = nil
+
+	err := queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
+
+	if !assert.NoError(t, err) {
+		return
+	}
+
+	err = queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
+
+	if !assert.Error(t, err) {
+		return
+	}
+}
+
 func TestAddUser(t *testing.T) {
 	for _, password := range []string{"a", "xyz"} {
 		for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
