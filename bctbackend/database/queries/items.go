@@ -141,9 +141,13 @@ func AddItem(
 	donation bool,
 	charity bool) (models.Id, error) {
 
-	err := CheckUserRole(db, sellerId, models.SellerRoleId)
+	isSeller, err := CheckUserRole(db, sellerId, models.SellerRoleId)
 
 	if err != nil {
+		return 0, err
+	}
+
+	if !isSeller {
 		return 0, &ItemRequiresSellerError{}
 	}
 
