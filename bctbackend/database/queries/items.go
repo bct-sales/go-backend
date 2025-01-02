@@ -131,6 +131,9 @@ func CountItems(db *sql.DB) (int, error) {
 	return count, err
 }
 
+// AddItem adds an item to the database.
+// An UnknownUserError is returned if no user with the given sellerId exists.
+// An ItemRequiresSellerError is returned if the seller does not exist.
 func AddItem(
 	db *sql.DB,
 	addedAt models.Timestamp,
@@ -168,7 +171,13 @@ func AddItem(
 		return 0, err
 	}
 
-	return result.LastInsertId()
+	itemId, err := result.LastInsertId()
+
+	if err != nil {
+		return 0, err
+	}
+
+	return itemId, nil
 }
 
 func ItemWithIdExists(db *sql.DB, itemId models.Id) (bool, error) {
