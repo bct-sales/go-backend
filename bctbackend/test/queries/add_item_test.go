@@ -77,8 +77,9 @@ func TestAddItemWithNonexistingUser(t *testing.T) {
 
 	test.AddSellerWithIdToDatabase(db, 2)
 
-	_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-	if !assert.Error(t, error) {
+	_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+	var unknownUserError *queries.UnknownUserError
+	if !assert.ErrorAs(t, err, &unknownUserError) {
 		return
 	}
 
