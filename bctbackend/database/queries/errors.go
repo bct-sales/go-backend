@@ -32,6 +32,7 @@ type NoSuchSessionError struct {
 }
 
 func (err NoSuchSaleError) Error() string {
+func (err *NoSuchSaleError) Error() string {
 	return fmt.Sprintf("no sale with id %v", err.SaleId)
 }
 
