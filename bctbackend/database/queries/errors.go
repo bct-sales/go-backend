@@ -35,12 +35,20 @@ type NoSuchSessionError struct {
 	SessionId models.SessionId
 }
 
+type NoSuchCategoryError struct {
+	CategoryId models.Id
+}
+
 func (err *UserIdAlreadyInUseError) Error() string {
 	return fmt.Sprintf("user id %d already in use", err.UserId)
 }
 
 func (err *NoSuchSaleError) Error() string {
 	return fmt.Sprintf("no sale with id %v", err.SaleId)
+}
+
+func (err *NoSuchCategoryError) Error() string {
+	return fmt.Sprintf("no category with id %v", err.CategoryId)
 }
 
 func (e *ItemNotFoundError) Error() string {
