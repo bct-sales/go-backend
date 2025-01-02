@@ -93,30 +93,45 @@ func TestAddItemWithNonexistingSeller(t *testing.T) {
 	}
 }
 
+func TestAddItemWithNonexistingCategory(t *testing.T) {
+	db := test.OpenInitializedDatabase()
+
+	timestamp := models.NewTimestamp(0)
+	description := "description"
+	sellerId := models.NewId(1)
+	priceInCents := models.NewMoneyInCents(100)
+	charity := false
+	donation := false
+	itemCategoryId := models.NewId(100)
+
+	test.AddSellerWithIdToDatabase(db, 1)
+
+	if !assert.False(t, queries.CategoryWithIdExists(db, itemCategoryId)) {
+		return
+	}
+
+	_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+	if !assert.Error(t, error) {
+		return
+	}
+
+	count, err := queries.CountItems(db)
+
+	if !assert.NoError(t, err) {
+		return
+	}
+
+	if !assert.Equal(t, 0, count) {
+		return
+	}
+}
+
 func TestFailingAddItemToDatabase(t *testing.T) {
 	timestamp := models.NewTimestamp(0)
 	description := "description"
 	priceInCents := models.NewMoneyInCents(100)
 	itemCategoryId := models.NewId(1)
 	charity := false
-
-	t.Run("Nonexisting category", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
-		test.AddSellerWithIdToDatabase(db, 1)
-
-		sellerId := models.NewId(1)
-		donation := false
-		itemCategoryId := models.NewId(100)
-
-		assert.False(t, queries.CategoryWithIdExists(db, itemCategoryId))
-
-		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-		assert.Error(t, error)
-
-		count, err := queries.CountItems(db)
-		assert.NoError(t, err)
-		assert.Equal(t, 0, count)
-	})
 
 	t.Run("Invalid price", func(t *testing.T) {
 		db := test.OpenInitializedDatabase()
