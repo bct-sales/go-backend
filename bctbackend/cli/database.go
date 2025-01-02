@@ -71,7 +71,7 @@ func resetDatabaseAndFillWithDummyData(databasePath string) error {
 	}
 
 	for area := 1; area <= 12; area++ {
-		for offset := 1; offset <= 10; offset++ {
+		for offset := 0; offset < 10; offset++ {
 			id := int64(area*100 + offset)
 			role := models.SellerRoleId
 			createdAt := time.Now().Unix()
