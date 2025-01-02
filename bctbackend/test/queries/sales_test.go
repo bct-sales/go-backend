@@ -101,5 +101,6 @@ func TestRemoveNonexistentSale(t *testing.T) {
 
 	err := queries.RemoveSale(db, 0)
 
-	assert.ErrorIs(t, err, queries.NoSuchSaleError{})
+	var noSuchSaleError *queries.NoSuchSaleError
+	assert.ErrorAs(t, err, &noSuchSaleError)
 }

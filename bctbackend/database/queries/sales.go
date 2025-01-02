@@ -133,7 +133,7 @@ func GetSaleWithId(db *sql.DB, saleId models.Id) (models.Sale, error) {
 	).Scan(&sale.SaleId, &sale.CashierId, &sale.TransactionTime)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return sale, NoSuchSaleError{SaleId: saleId}
+		return sale, &NoSuchSaleError{SaleId: saleId}
 	}
 
 	if err != nil {
@@ -217,7 +217,7 @@ func RemoveSale(db *sql.DB, saleId models.Id) error {
 	}
 
 	if !saleExists {
-		return NoSuchSaleError{SaleId: saleId}
+		return &NoSuchSaleError{SaleId: saleId}
 	}
 
 	transaction, err := db.Begin()

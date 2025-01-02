@@ -5,6 +5,10 @@ import (
 	"fmt"
 )
 
+type UserIdAlreadyInUseError struct {
+	UserId models.Id
+}
+
 type ItemNotFoundError struct {
 	Id models.Id
 }
@@ -31,7 +35,10 @@ type NoSuchSessionError struct {
 	SessionId models.SessionId
 }
 
-func (err NoSuchSaleError) Error() string {
+func (err *UserIdAlreadyInUseError) Error() string {
+	return fmt.Sprintf("user id %d already in use", err.UserId)
+}
+
 func (err *NoSuchSaleError) Error() string {
 	return fmt.Sprintf("no sale with id %v", err.SaleId)
 }
