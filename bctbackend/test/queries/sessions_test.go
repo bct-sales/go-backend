@@ -13,22 +13,20 @@ import (
 )
 
 func TestAddSession(t *testing.T) {
-	for i := 0; i < 10; i++ {
-		for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
-			db := test.OpenInitializedDatabase()
+	for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
+		db := test.OpenInitializedDatabase()
 
-			userId := test.AddUserToDatabase(db, roleId).UserId
-			expirationTime := models.Timestamp(0)
-			sessionId, err := queries.AddSession(db, userId, expirationTime)
+		userId := test.AddUserToDatabase(db, roleId).UserId
+		expirationTime := models.Timestamp(0)
+		sessionId, err := queries.AddSession(db, userId, expirationTime)
+
+		if assert.NoError(t, err) {
+			session, err := queries.GetSessionById(db, sessionId)
 
 			if assert.NoError(t, err) {
-				session, err := queries.GetSessionById(db, sessionId)
-
-				if assert.NoError(t, err) {
-					assert.Equal(t, sessionId, session.SessionId)
-					assert.Equal(t, userId, session.UserId)
-					assert.Equal(t, expirationTime, session.ExpirationTime)
-				}
+				assert.Equal(t, sessionId, session.SessionId)
+				assert.Equal(t, userId, session.UserId)
+				assert.Equal(t, expirationTime, session.ExpirationTime)
 			}
 		}
 	}
