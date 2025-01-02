@@ -11,6 +11,8 @@ type ItemNotFoundError struct {
 
 type SaleMissingItemsError struct{}
 
+type ItemRequiresSellerError struct{}
+
 type SaleRequiresCashierError struct{}
 
 type UnknownUserError struct {
@@ -43,6 +45,10 @@ func (e *ItemNotFoundError) Unwrap() error {
 
 func (e *SaleMissingItemsError) Error() string {
 	return "sale must have at least one item"
+}
+
+func (e *ItemRequiresSellerError) Error() string {
+	return "item needs seller as owner"
 }
 
 func (e *SaleRequiresCashierError) Error() string {

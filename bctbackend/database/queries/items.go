@@ -144,7 +144,7 @@ func AddItem(
 	err := CheckUserRole(db, sellerId, models.SellerRoleId)
 
 	if err != nil {
-		return 0, err
+		return 0, &ItemRequiresSellerError{}
 	}
 
 	result, err := db.Exec(
