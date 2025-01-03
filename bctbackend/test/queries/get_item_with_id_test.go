@@ -21,7 +21,9 @@ func TestGetItemWithId(t *testing.T) {
 		_, err := queries.GetItemWithId(db, itemId)
 
 		var itemNotFoundError *queries.ItemNotFoundError
-		assert.ErrorAs(t, err, &itemNotFoundError)
+		if !assert.ErrorAs(t, err, &itemNotFoundError) {
+			return
+		}
 	})
 
 	t.Run("Existing item", func(t *testing.T) {
@@ -32,8 +34,13 @@ func TestGetItemWithId(t *testing.T) {
 		itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
 
 		item, err := queries.GetItemWithId(db, itemId)
-		if assert.NoError(t, err) {
-			assert.Equal(t, itemId, item.ItemId)
+
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		if !assert.Equal(t, itemId, item.ItemId) {
+			return
 		}
 	})
 }
