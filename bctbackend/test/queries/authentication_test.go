@@ -14,6 +14,7 @@ import (
 
 func TestAuthenticatingSuccessfully(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
 	password := "xyz"
 	userId := models.NewId(1)
@@ -31,6 +32,7 @@ func TestAuthenticatingSuccessfully(t *testing.T) {
 
 func TestAuthenticatingNonExistingUser(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
 	password := "xyz"
 	userId := models.NewId(5)
@@ -46,6 +48,7 @@ func TestAuthenticatingNonExistingUser(t *testing.T) {
 
 func TestAuthenticatingWrongPassword(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
 	password := "xyz"
 	wrongPassword := "abc"

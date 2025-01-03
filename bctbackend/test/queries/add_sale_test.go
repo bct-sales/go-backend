@@ -15,6 +15,7 @@ import (
 func TestAddSale(t *testing.T) {
 	for _, itemIndices := range [][]int{{0}, {1}, {2}, {3}, {0, 1}, {1, 2, 3}, {0, 1, 2, 3}} {
 		db := test.OpenInitializedDatabase()
+		defer db.Close()
 
 		sellerId := test.AddSellerToDatabase(db).UserId
 		cashierId := test.AddCashierToDatabase(db).UserId
@@ -69,6 +70,7 @@ func TestAddSale(t *testing.T) {
 
 func TestAddSaleWithoutItems(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
 	cashierId := test.AddCashierToDatabase(db).UserId
 	timestamp := models.NewTimestamp(0)
@@ -82,6 +84,7 @@ func TestAddSaleWithoutItems(t *testing.T) {
 
 func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
 	sellerId := test.AddSellerToDatabase(db).UserId
 	timestamp := models.NewTimestamp(0)

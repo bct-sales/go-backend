@@ -19,6 +19,7 @@ func TestAddUserWithId(t *testing.T) {
 			for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
 				t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
 					db := test.OpenInitializedDatabase()
+					defer db.Close()
 
 					err := queries.AddUserWithId(db, userId, roleId, 0, nil, password)
 
@@ -39,6 +40,7 @@ func TestAddUserWithId(t *testing.T) {
 
 func TestAddUserWithExistingId(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
 	userId := models.NewId(1)
 	roleId := models.SellerRoleId
@@ -64,6 +66,7 @@ func TestAddUser(t *testing.T) {
 		for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
 			t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
 				db := test.OpenInitializedDatabase()
+				defer db.Close()
 
 				userId, err := queries.AddUser(db, roleId, 0, nil, password)
 
@@ -77,6 +80,7 @@ func TestAddUser(t *testing.T) {
 
 func TestGetUser(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
 	password := "xyz"
 	userId := models.NewId(1)
@@ -94,6 +98,7 @@ func TestGetUser(t *testing.T) {
 
 func TestListUsers(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
 	password := "xyz"
 	userId := models.NewId(1)
@@ -113,6 +118,7 @@ func TestListUsers(t *testing.T) {
 
 func TestUpdatePassword(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
 	password1 := "xyz"
 	password2 := "abc"

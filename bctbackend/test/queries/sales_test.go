@@ -14,6 +14,7 @@ import (
 
 func TestGetSales(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
 	sellerId := test.AddSellerToDatabase(db).UserId
 	cashierId := test.AddCashierToDatabase(db).UserId
@@ -49,6 +50,7 @@ func TestGetSales(t *testing.T) {
 
 func TestSaleExists(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
 	sellerId := test.AddSellerToDatabase(db).UserId
 	cashierId := test.AddCashierToDatabase(db).UserId
@@ -64,6 +66,7 @@ func TestSaleExists(t *testing.T) {
 
 func TestRemoveSale(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
 	sellerId := test.AddSellerToDatabase(db).UserId
 	cashierId := test.AddCashierToDatabase(db).UserId
@@ -98,6 +101,7 @@ func TestRemoveSale(t *testing.T) {
 
 func TestRemoveNonexistentSale(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
 	err := queries.RemoveSale(db, 0)
 

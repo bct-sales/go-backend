@@ -66,6 +66,7 @@ func TestAddItemToDatabase(t *testing.T) {
 
 func TestAddItemWithNonexistingSeller(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
 	timestamp := models.NewTimestamp(0)
 	description := "description"
@@ -95,6 +96,7 @@ func TestAddItemWithNonexistingSeller(t *testing.T) {
 
 func TestAddItemWithNonexistingCategory(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
 	timestamp := models.NewTimestamp(0)
 	description := "description"
@@ -141,11 +143,13 @@ func TestAddItemWithNonexistingCategory(t *testing.T) {
 }
 
 func TestAddItemWithZeroPrice(t *testing.T) {
+	db := test.OpenInitializedDatabase()
+	defer db.Close()
+
 	timestamp := models.NewTimestamp(0)
 	description := "description"
 	itemCategoryId := models.NewId(1)
 	charity := false
-	db := test.OpenInitializedDatabase()
 	sellerId := test.AddSellerToDatabase(db).UserId
 	donation := false
 	priceInCents := models.NewMoneyInCents(0)
@@ -173,11 +177,13 @@ func TestAddItemWithZeroPrice(t *testing.T) {
 }
 
 func TestAddItemWithNegativePrice(t *testing.T) {
+	db := test.OpenInitializedDatabase()
+	defer db.Close()
+
 	timestamp := models.NewTimestamp(0)
 	description := "description"
 	itemCategoryId := models.NewId(1)
 	charity := false
-	db := test.OpenInitializedDatabase()
 	sellerId := test.AddSellerToDatabase(db).UserId
 	donation := false
 	priceInCents := models.NewMoneyInCents(-100)
@@ -206,6 +212,8 @@ func TestAddItemWithNegativePrice(t *testing.T) {
 
 func TestAddItemWithCashierOwner(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
+
 	timestamp := models.NewTimestamp(0)
 	description := "description"
 	sellerId := test.AddCashierToDatabase(db).UserId
@@ -237,6 +245,8 @@ func TestAddItemWithCashierOwner(t *testing.T) {
 
 func TestAddItemWithAdminOwner(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
+
 	timestamp := models.NewTimestamp(0)
 	description := "description"
 	sellerId := test.AddAdminToDatabase(db).UserId

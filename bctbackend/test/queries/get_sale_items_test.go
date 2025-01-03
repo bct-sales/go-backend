@@ -14,6 +14,7 @@ import (
 
 func TestGetSaleItems(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
 	sellerId := test.AddSellerToDatabase(db).UserId
 	cashierId := test.AddCashierToDatabase(db).UserId
@@ -45,6 +46,7 @@ func TestGetSaleItems(t *testing.T) {
 
 func TestGetSaleItemsOfNonexistentSale(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
 	saleId := models.Id(1)
 

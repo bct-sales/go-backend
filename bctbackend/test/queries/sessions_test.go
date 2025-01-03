@@ -16,6 +16,7 @@ import (
 func TestAddSession(t *testing.T) {
 	for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
 		db := test.OpenInitializedDatabase()
+		defer db.Close()
 
 		userId := test.AddUserToDatabase(db, roleId).UserId
 		expirationTime := models.Timestamp(0)
@@ -35,6 +36,7 @@ func TestAddSession(t *testing.T) {
 
 func TestDeleteSession(t *testing.T) {
 	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
 	userId := test.AddUserToDatabase(db, models.AdminRoleId).UserId
 	expirationTime := models.Timestamp(0)
@@ -58,6 +60,7 @@ func TestDeleteExpiredSessions(t *testing.T) {
 		testLabel := fmt.Sprintf("cutoff=%d", cutoff)
 		t.Run(testLabel, func(t *testing.T) {
 			db := test.OpenInitializedDatabase()
+			defer db.Close()
 
 			userId := test.AddUserToDatabase(db, models.AdminRoleId).UserId
 			expiredSessions := []models.SessionId{}
