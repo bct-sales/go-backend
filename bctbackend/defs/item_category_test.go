@@ -34,8 +34,12 @@ func TestNameOfCategory(t *testing.T) {
 		t.Run(expectedName, func(t *testing.T) {
 			actualName, err := NameOfCategory(id)
 
-			if assert.NoError(t, err) {
-				assert.Equal(t, expectedName, actualName)
+			if !assert.NoError(t, err) {
+				return
+			}
+
+			if !assert.Equal(t, expectedName, actualName) {
+				return
 			}
 		})
 	}
@@ -43,6 +47,8 @@ func TestNameOfCategory(t *testing.T) {
 	t.Run("invalid category", func(t *testing.T) {
 		_, err := NameOfCategory(Id(999))
 
-		assert.Error(t, err)
+		if !assert.Error(t, err) {
+			return
+		}
 	})
 }
