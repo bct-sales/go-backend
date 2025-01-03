@@ -12,51 +12,66 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func TestRemoveItemWithId(t *testing.T) {
-	t.Run("Nonexisting item", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
-		defer db.Close()
+func TestRemoveExistingItem(t *testing.T) {
+	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
-		itemId := models.NewId(1)
-		err := queries.RemoveItemWithId(db, itemId)
+	sellerId := test.AddSellerToDatabase(db).UserId
+	itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
 
-		var itemNotFoundError *queries.ItemNotFoundError
-		assert.ErrorAs(t, err, &itemNotFoundError)
-	})
+	err := queries.RemoveItemWithId(db, itemId)
 
-	t.Run("Existing item", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
-		defer db.Close()
+	if !assert.NoError(t, err) {
+		return
+	}
 
-		sellerId := test.AddSellerToDatabase(db).UserId
-		itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
+	itemExists, err := queries.ItemWithIdExists(db, itemId)
 
-		err := queries.RemoveItemWithId(db, itemId)
-		if assert.NoError(t, err) {
-			itemExists, err := queries.ItemWithIdExists(db, itemId)
+	if !assert.NoError(t, err) {
+		return
+	}
 
-			if assert.NoError(t, err) {
-				assert.False(t, itemExists)
-			}
-		}
-	})
+	if !assert.False(t, itemExists) {
+		return
+	}
+}
 
-	t.Run("Existing item with sale", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
-		defer db.Close()
+func TestRemoveNonexistingItem(t *testing.T) {
+	db := test.OpenInitializedDatabase()
+	defer db.Close()
 
-		sellerId := test.AddSellerToDatabase(db).UserId
-		cashierId := test.AddCashierToDatabase(db).UserId
-		itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
+	itemId := models.NewId(1)
 
-		test.AddSaleToDatabase(db, cashierId, []models.Id{itemId})
+	err := queries.RemoveItemWithId(db, itemId)
 
-		err := queries.RemoveItemWithId(db, itemId)
-		assert.Error(t, err)
+	var itemNotFoundError *queries.ItemNotFoundError
+	if !assert.ErrorAs(t, err, &itemNotFoundError) {
+		return
+	}
+}
 
-		itemExists, err := queries.ItemWithIdExists(db, itemId)
-		if assert.NoError(t, err) {
-			assert.True(t, itemExists)
-		}
-	})
+func TestRemoveSoldItem(t *testing.T) {
+	db := test.OpenInitializedDatabase()
+	defer db.Close()
+
+	sellerId := test.AddSellerToDatabase(db).UserId
+	cashierId := test.AddCashierToDatabase(db).UserId
+	itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
+
+	test.AddSaleToDatabase(db, cashierId, []models.Id{itemId})
+
+	err := queries.RemoveItemWithId(db, itemId)
+
+	if !assert.Error(t, err) {
+		return
+	}
+
+	itemExists, err := queries.ItemWithIdExists(db, itemId)
+	if !assert.NoError(t, err) {
+		return
+	}
+
+	if !assert.True(t, itemExists) {
+		return
+	}
 }
