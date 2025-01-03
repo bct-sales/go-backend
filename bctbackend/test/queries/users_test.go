@@ -23,14 +23,22 @@ func TestAddUserWithId(t *testing.T) {
 
 					err := queries.AddUserWithId(db, userId, roleId, 0, nil, password)
 
-					if assert.NoError(t, err) {
-						assert.True(t, queries.UserWithIdExists(db, userId))
+					if !assert.NoError(t, err) {
+						return
+					}
 
-						actualRoleId, err := queries.AuthenticateUser(db, userId, password)
+					if !assert.True(t, queries.UserWithIdExists(db, userId)) {
+						return
+					}
 
-						if assert.NoError(t, err) {
-							assert.Equal(t, roleId, actualRoleId)
-						}
+					actualRoleId, err := queries.AuthenticateUser(db, userId, password)
+
+					if !assert.NoError(t, err) {
+						return
+					}
+
+					if !assert.Equal(t, roleId, actualRoleId) {
+						return
 					}
 				})
 			}
@@ -70,8 +78,12 @@ func TestAddUser(t *testing.T) {
 
 				userId, err := queries.AddUser(db, roleId, 0, nil, password)
 
-				if assert.NoError(t, err) {
-					assert.True(t, queries.UserWithIdExists(db, userId))
+				if !assert.NoError(t, err) {
+					return
+				}
+
+				if !assert.True(t, queries.UserWithIdExists(db, userId)) {
+					return
 				}
 			})
 		}
@@ -90,9 +102,16 @@ func TestGetUser(t *testing.T) {
 
 	user, err := queries.GetUserWithId(db, userId)
 
-	if assert.NoError(t, err) {
-		assert.Equal(t, userId, user.UserId)
-		assert.Equal(t, roleId, user.RoleId)
+	if !assert.NoError(t, err) {
+		return
+	}
+
+	if !assert.Equal(t, userId, user.UserId) {
+		return
+	}
+
+	if !assert.Equal(t, roleId, user.RoleId) {
+		return
 	}
 }
 
@@ -108,11 +127,24 @@ func TestListUsers(t *testing.T) {
 
 	users, err := queries.ListUsers(db)
 
-	if assert.NoError(t, err) {
-		assert.Len(t, users, 1)
-		assert.Equal(t, userId, users[0].UserId)
-		assert.Equal(t, roleId, users[0].RoleId)
-		assert.Equal(t, password, users[0].Password)
+	if !assert.NoError(t, err) {
+		return
+	}
+
+	if !assert.Len(t, users, 1) {
+		return
+	}
+
+	if !assert.Equal(t, userId, users[0].UserId) {
+		return
+	}
+
+	if !assert.Equal(t, roleId, users[0].RoleId) {
+		return
+	}
+
+	if !assert.Equal(t, password, users[0].Password) {
+		return
 	}
 }
 
@@ -126,19 +158,31 @@ func TestUpdatePassword(t *testing.T) {
 
 	user1Id, err := queries.AddUser(db, models.SellerRoleId, 0, nil, password1)
 
-	if assert.NoError(t, err) {
-		user2Id, err := queries.AddUser(db, models.SellerRoleId, 0, nil, password2)
+	if !assert.NoError(t, err) {
+		return
+	}
 
-		if assert.NoError(t, err) {
-			err := queries.UpdateUserPassword(db, user1Id, newPassword1)
+	user2Id, err := queries.AddUser(db, models.SellerRoleId, 0, nil, password2)
 
-			if assert.NoError(t, err) {
-				_, err := queries.AuthenticateUser(db, user1Id, newPassword1)
-				assert.NoError(t, err)
+	if !assert.NoError(t, err) {
+		return
+	}
 
-				_, err = queries.AuthenticateUser(db, user2Id, password2)
-				assert.NoError(t, err)
-			}
-		}
+	err = queries.UpdateUserPassword(db, user1Id, newPassword1)
+
+	if !assert.NoError(t, err) {
+		return
+	}
+
+	_, err = queries.AuthenticateUser(db, user1Id, newPassword1)
+
+	if !assert.NoError(t, err) {
+		return
+	}
+
+	_, err = queries.AuthenticateUser(db, user2Id, password2)
+
+	if !assert.NoError(t, err) {
+		return
 	}
 }
