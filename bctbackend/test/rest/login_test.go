@@ -15,7 +15,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestSuccessfulSellerLogin(t *testing.T) {
@@ -31,38 +31,33 @@ func TestSuccessfulSellerLogin(t *testing.T) {
 
 	url := path.Login().String()
 	request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))
+	require.NoError(t, err)
+
 	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	router.ServeHTTP(writer, request)
+	require.Equal(t, http.StatusOK, writer.Code)
 
-	if assert.NoError(t, err) {
-		router.ServeHTTP(writer, request)
+	var response map[string]string
+	require.NoError(t, json.Unmarshal(writer.Body.Bytes(), &response))
+	require.Equal(t, "seller", response["role"])
 
-		if assert.Equal(t, http.StatusOK, writer.Code) {
-			var response map[string]string
-			if assert.NoError(t, json.Unmarshal(writer.Body.Bytes(), &response)) {
-				assert.Equal(t, "seller", response["role"])
-			}
+	cookies := writer.Result().Cookies()
+	require.NotEmpty(t, cookies, "Expected cookies to be set")
 
-			cookies := writer.Result().Cookies()
-
-			assert.NotEmpty(t, cookies, "Expected cookies to be set")
-			found := false
-			sessionId := ""
-			for _, cookie := range cookies {
-				if cookie.Name == security.SessionCookieName {
-					sessionId = cookie.Value
-					found = true
-					break
-				}
-			}
-			assert.True(t, found, "Expected session_id cookie to be set")
-
-			sessionData, err := queries.GetSessionById(db, sessionId)
-
-			if assert.NoError(t, err) {
-				assert.Equal(t, seller.UserId, sessionData.UserId)
-			}
+	found := false
+	sessionId := ""
+	for _, cookie := range cookies {
+		if cookie.Name == security.SessionCookieName {
+			sessionId = cookie.Value
+			found = true
+			break
 		}
 	}
+	require.True(t, found, "Expected session_id cookie to be set")
+
+	sessionData, err := queries.GetSessionById(db, sessionId)
+	require.NoError(t, err)
+	require.Equal(t, seller.UserId, sessionData.UserId)
 }
 
 func TestSuccessfulAdminLogin(t *testing.T) {
@@ -78,38 +73,33 @@ func TestSuccessfulAdminLogin(t *testing.T) {
 
 	url := path.Login().String()
 	request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))
+	require.NoError(t, err)
+
 	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	router.ServeHTTP(writer, request)
+	require.Equal(t, http.StatusOK, writer.Code)
 
-	if assert.NoError(t, err) {
-		router.ServeHTTP(writer, request)
+	var response map[string]string
+	require.NoError(t, json.Unmarshal(writer.Body.Bytes(), &response))
+	require.Equal(t, "admin", response["role"])
 
-		if assert.Equal(t, http.StatusOK, writer.Code) {
-			var response map[string]string
-			if assert.NoError(t, json.Unmarshal(writer.Body.Bytes(), &response)) {
-				assert.Equal(t, "admin", response["role"])
-			}
+	cookies := writer.Result().Cookies()
+	require.NotEmpty(t, cookies, "Expected cookies to be set")
 
-			cookies := writer.Result().Cookies()
-
-			assert.NotEmpty(t, cookies, "Expected cookies to be set")
-			found := false
-			sessionId := ""
-			for _, cookie := range cookies {
-				if cookie.Name == security.SessionCookieName {
-					sessionId = cookie.Value
-					found = true
-					break
-				}
-			}
-			assert.True(t, found, "Expected session_id cookie to be set")
-
-			sessionData, err := queries.GetSessionById(db, sessionId)
-
-			if assert.NoError(t, err) {
-				assert.Equal(t, admin.UserId, sessionData.UserId)
-			}
+	found := false
+	sessionId := ""
+	for _, cookie := range cookies {
+		if cookie.Name == security.SessionCookieName {
+			sessionId = cookie.Value
+			found = true
+			break
 		}
 	}
+	require.True(t, found, "Expected session_id cookie to be set")
+
+	sessionData, err := queries.GetSessionById(db, sessionId)
+	require.NoError(t, err)
+	require.Equal(t, admin.UserId, sessionData.UserId)
 }
 
 func TestSuccessfulCashierLogin(t *testing.T) {
@@ -125,38 +115,33 @@ func TestSuccessfulCashierLogin(t *testing.T) {
 
 	url := path.Login().String()
 	request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))
+	require.NoError(t, err)
+
 	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	router.ServeHTTP(writer, request)
+	require.Equal(t, http.StatusOK, writer.Code)
 
-	if assert.NoError(t, err) {
-		router.ServeHTTP(writer, request)
+	var response map[string]string
+	require.NoError(t, json.Unmarshal(writer.Body.Bytes(), &response))
+	require.Equal(t, "cashier", response["role"])
 
-		if assert.Equal(t, http.StatusOK, writer.Code) {
-			var response map[string]string
-			if assert.NoError(t, json.Unmarshal(writer.Body.Bytes(), &response)) {
-				assert.Equal(t, "cashier", response["role"])
-			}
+	cookies := writer.Result().Cookies()
+	require.NotEmpty(t, cookies, "Expected cookies to be set")
 
-			cookies := writer.Result().Cookies()
-
-			assert.NotEmpty(t, cookies, "Expected cookies to be set")
-			found := false
-			sessionId := ""
-			for _, cookie := range cookies {
-				if cookie.Name == security.SessionCookieName {
-					sessionId = cookie.Value
-					found = true
-					break
-				}
-			}
-			assert.True(t, found, "Expected session_id cookie to be set")
-
-			sessionData, err := queries.GetSessionById(db, sessionId)
-
-			if assert.NoError(t, err) {
-				assert.Equal(t, cashier.UserId, sessionData.UserId)
-			}
+	found := false
+	sessionId := ""
+	for _, cookie := range cookies {
+		if cookie.Name == security.SessionCookieName {
+			sessionId = cookie.Value
+			found = true
+			break
 		}
 	}
+	require.True(t, found, "Expected session_id cookie to be set")
+
+	sessionData, err := queries.GetSessionById(db, sessionId)
+	require.NoError(t, err)
+	require.Equal(t, cashier.UserId, sessionData.UserId)
 }
 
 func TestUnknownUserLogin(t *testing.T) {
@@ -173,12 +158,11 @@ func TestUnknownUserLogin(t *testing.T) {
 
 	url := path.Login().String()
 	request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))
-	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	require.NoError(t, err)
 
-	if assert.NoError(t, err) {
-		router.ServeHTTP(writer, request)
-		RequireFailureType(t, writer, http.StatusUnauthorized, "unknown_user")
-	}
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	router.ServeHTTP(writer, request)
+	RequireFailureType(t, writer, http.StatusUnauthorized, "unknown_user")
 }
 
 func TestWrongPasswordLogin(t *testing.T) {
@@ -190,18 +174,17 @@ func TestWrongPasswordLogin(t *testing.T) {
 	userId := seller.UserId
 	password := "wrong password"
 
-	if assert.NotEqual(t, password, seller.Password, "Bug in tests if this assertion fails") {
-		form := url.Values{}
-		form.Add("username", models.IdToString(userId))
-		form.Add("password", password)
+	require.NotEqual(t, password, seller.Password, "Bug in tests if this assertion fails")
 
-		url := path.Login().String()
-		request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))
-		request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	form := url.Values{}
+	form.Add("username", models.IdToString(userId))
+	form.Add("password", password)
 
-		if assert.NoError(t, err) {
-			router.ServeHTTP(writer, request)
-			RequireFailureType(t, writer, http.StatusUnauthorized, "wrong_password")
-		}
-	}
+	url := path.Login().String()
+	request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))
+	require.NoError(t, err)
+
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	router.ServeHTTP(writer, request)
+	RequireFailureType(t, writer, http.StatusUnauthorized, "wrong_password")
 }
