@@ -243,6 +243,18 @@ func TestAddItemWithCashierOwner(t *testing.T) {
 			return
 		}
 	}
+
+	{
+		count, err := queries.CountItems(db)
+
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		if !assert.Equal(t, 0, count) {
+			return
+		}
+	}
 }
 
 func TestAddItemWithAdminOwner(t *testing.T) {
