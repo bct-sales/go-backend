@@ -30,6 +30,10 @@ func AddUserWithId(
 	)
 
 	if err != nil {
+		if !models.IsValidRole(roleId) {
+			return &NoSuchRoleError{RoleId: roleId}
+		}
+
 		if UserWithIdExists(db, userId) {
 			return &UserIdAlreadyInUseError{UserId: userId}
 		}
