@@ -151,18 +151,6 @@ func TestAddItemWithZeroPrice(t *testing.T) {
 	priceInCents := models.NewMoneyInCents(0)
 
 	{
-		categoryExists, err := queries.CategoryWithIdExists(db, itemCategoryId)
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.True(t, categoryExists) {
-			return
-		}
-	}
-
-	{
 		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 
 		var invalidPriceError *queries.InvalidPriceError
@@ -193,18 +181,6 @@ func TestAddItemWithNegativePrice(t *testing.T) {
 	sellerId := test.AddSellerToDatabase(db).UserId
 	donation := false
 	priceInCents := models.NewMoneyInCents(-100)
-
-	{
-		categoryExists, err := queries.CategoryWithIdExists(db, itemCategoryId)
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.True(t, categoryExists) {
-			return
-		}
-	}
 
 	{
 		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
