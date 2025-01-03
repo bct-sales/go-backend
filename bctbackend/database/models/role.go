@@ -58,3 +58,7 @@ func NameOfRole(roleId Id) (string, error) {
 		return "", &UnknownRoleError{RoleId: roleId}
 	}
 }
+
+func IsValidRole(roleId Id) bool {
+	return roleId == AdminRoleId || roleId == SellerRoleId || roleId == CashierRoleId
+}
