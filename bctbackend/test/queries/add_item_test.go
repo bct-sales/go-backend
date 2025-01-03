@@ -240,19 +240,16 @@ func TestAddItemWithCashierOwner(t *testing.T) {
 	assert.Error(t, error)
 }
 
-func TestFailingAddItemToDatabase(t *testing.T) {
+func TestAddItemWithAdminOwner(t *testing.T) {
+	db := test.OpenInitializedDatabase()
 	timestamp := models.NewTimestamp(0)
 	description := "description"
+	sellerId := test.AddAdminToDatabase(db).UserId
 	priceInCents := models.NewMoneyInCents(100)
 	itemCategoryId := models.NewId(1)
 	charity := false
+	donation := false
 
-	t.Run("Admin owner", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
-		sellerId := test.AddAdminToDatabase(db).UserId
-		donation := false
-
-		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-		assert.Error(t, error)
-	})
+	_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+	assert.Error(t, error)
 }
