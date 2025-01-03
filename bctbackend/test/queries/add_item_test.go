@@ -236,8 +236,13 @@ func TestAddItemWithCashierOwner(t *testing.T) {
 	charity := false
 	donation := false
 
-	_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-	assert.Error(t, error)
+	{
+		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+
+		if !assert.Error(t, error) {
+			return
+		}
+	}
 }
 
 func TestAddItemWithAdminOwner(t *testing.T) {
@@ -250,6 +255,11 @@ func TestAddItemWithAdminOwner(t *testing.T) {
 	charity := false
 	donation := false
 
-	_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-	assert.Error(t, error)
+	{
+		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+
+		if !assert.Error(t, error) {
+			return
+		}
+	}
 }
