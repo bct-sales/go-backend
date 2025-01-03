@@ -56,6 +56,25 @@ func TestAddUserWithExistingId(t *testing.T) {
 	}
 }
 
+func TestAddUserWithInvalidRole(t *testing.T) {
+	db := test.OpenInitializedDatabase()
+	defer db.Close()
+
+	userId := models.NewId(1)
+	roleId := models.Id(10)
+	password := "xyz"
+	createdAt := models.Timestamp(0)
+	var lastAccess *models.Timestamp = nil
+
+	require.False(t, models.IsValidRole(roleId), "sanity test: role id should be invalid")
+
+	{
+		err := queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
+		var noSuchRoleError *queries.NoSuchRoleError
+		require.ErrorAs(t, err, &noSuchRoleError)
+	}
+}
+
 func TestAddUser(t *testing.T) {
 	for _, password := range []string{"a", "xyz"} {
 		for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
