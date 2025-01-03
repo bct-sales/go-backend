@@ -4,7 +4,6 @@ import (
 	"bctbackend/database/models"
 	"database/sql"
 	"errors"
-	"strings"
 )
 
 func GetItems(db *sql.DB) ([]models.Item, error) {
@@ -135,6 +134,7 @@ func CountItems(db *sql.DB) (int, error) {
 // AddItem adds an item to the database.
 // An UnknownUserError is returned if no user with the given sellerId exists.
 // An ItemRequiresSellerError is returned if the seller does not exist.
+// An NoSuchCategoryError is returned if the itemCategoryId is invalid.
 func AddItem(
 	db *sql.DB,
 	addedAt models.Timestamp,
@@ -169,9 +169,13 @@ func AddItem(
 		charity)
 
 	if err != nil {
-		errorMessage := err.Error()
+		categoryExists, err2 := CategoryWithIdExists(db, itemCategoryId)
 
-		if strings.Contains(errorMessage, "items_foreign_key_item_category") {
+		if err2 != nil {
+			return 0, err
+		}
+
+		if !categoryExists {
 			return 0, &NoSuchCategoryError{CategoryId: itemCategoryId}
 		}
 
