@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
 )
@@ -22,16 +21,13 @@ func TestAddSession(t *testing.T) {
 		userId := test.AddUserToDatabase(db, roleId).UserId
 		expirationTime := models.Timestamp(0)
 		sessionId, err := queries.AddSession(db, userId, expirationTime)
+		require.NoError(t, err)
 
-		if assert.NoError(t, err) {
-			session, err := queries.GetSessionById(db, sessionId)
-
-			if assert.NoError(t, err) {
-				assert.Equal(t, sessionId, session.SessionId)
-				assert.Equal(t, userId, session.UserId)
-				assert.Equal(t, expirationTime, session.ExpirationTime)
-			}
-		}
+		session, err := queries.GetSessionById(db, sessionId)
+		require.NoError(t, err)
+		require.Equal(t, sessionId, session.SessionId)
+		require.Equal(t, userId, session.UserId)
+		require.Equal(t, expirationTime, session.ExpirationTime)
 	}
 }
 
@@ -42,18 +38,14 @@ func TestDeleteSession(t *testing.T) {
 	userId := test.AddUserToDatabase(db, models.AdminRoleId).UserId
 	expirationTime := models.Timestamp(0)
 	sessionId, err := queries.AddSession(db, userId, expirationTime)
+	require.NoError(t, err)
 
-	if assert.NoError(t, err) {
-		err := queries.DeleteSession(db, sessionId)
+	err = queries.DeleteSession(db, sessionId)
+	require.NoError(t, err)
 
-		if assert.NoError(t, err) {
-			_, err := queries.GetSessionById(db, sessionId)
-
-			if assert.Error(t, err) {
-				assert.IsType(t, &queries.NoSuchSessionError{}, err)
-			}
-		}
-	}
+	_, err = queries.GetSessionById(db, sessionId)
+	var noSuchSessionError *queries.NoSuchSessionError
+	require.ErrorAs(t, err, &noSuchSessionError)
 }
 
 func TestDeleteExpiredSessions(t *testing.T) {
