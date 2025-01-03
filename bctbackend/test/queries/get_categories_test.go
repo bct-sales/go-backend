@@ -17,11 +17,18 @@ func TestGetCategories(t *testing.T) {
 	defer db.Close()
 
 	categories, err := queries.GetCategories(db)
-	if assert.NoError(t, err) {
-		assert.Equal(t, len(defs.ListCategories()), len(categories))
 
-		for _, category := range categories {
-			assert.Contains(t, defs.ListCategories(), category.CategoryId)
+	if !assert.NoError(t, err) {
+		return
+	}
+
+	if !assert.Equal(t, len(defs.ListCategories()), len(categories)) {
+		return
+	}
+
+	for _, category := range categories {
+		if !assert.Contains(t, defs.ListCategories(), category.CategoryId) {
+			return
 		}
 	}
 }
