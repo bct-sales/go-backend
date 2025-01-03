@@ -17,8 +17,12 @@ func TestGetItems(t *testing.T) {
 		defer db.Close()
 
 		items, err := queries.GetItems(db)
-		if assert.NoError(t, err) {
-			assert.Equal(t, 0, len(items))
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		if !assert.Equal(t, 0, len(items)) {
+			return
 		}
 	})
 
@@ -30,9 +34,17 @@ func TestGetItems(t *testing.T) {
 		itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
 
 		items, err := queries.GetItems(db)
-		if assert.NoError(t, err) {
-			assert.Equal(t, 1, len(items))
-			assert.Equal(t, itemId, items[0].ItemId)
+
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		if !assert.Equal(t, 1, len(items)) {
+			return
+		}
+
+		if !assert.Equal(t, itemId, items[0].ItemId) {
+			return
 		}
 	})
 
@@ -45,10 +57,19 @@ func TestGetItems(t *testing.T) {
 		item2Id := test.AddItemToDatabase(db, sellerId, 2).ItemId
 
 		items, err := queries.GetItems(db)
-		if assert.NoError(t, err) {
-			assert.Equal(t, 2, len(items))
-			assert.Equal(t, item1Id, items[0].ItemId)
-			assert.Equal(t, item2Id, items[1].ItemId)
+
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		if !assert.Equal(t, 2, len(items)) {
+			return
+		}
+		if !assert.Equal(t, item1Id, items[0].ItemId) {
+			return
+		}
+		if !assert.Equal(t, item2Id, items[1].ItemId) {
+			return
 		}
 	})
 }
