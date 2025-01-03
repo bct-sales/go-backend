@@ -63,6 +63,10 @@ func AddUser(
 	)
 
 	if err != nil {
+		if !models.IsValidRole(roleId) {
+			return 0, &NoSuchRoleError{RoleId: roleId}
+		}
+
 		return 0, err
 	}
 
