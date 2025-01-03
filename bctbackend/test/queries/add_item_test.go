@@ -140,6 +140,49 @@ func TestAddItemWithNonexistingCategory(t *testing.T) {
 	}
 }
 
+func TestAddItemWithInvalidPrice(t *testing.T) {
+	timestamp := models.NewTimestamp(0)
+	description := "description"
+	itemCategoryId := models.NewId(1)
+	charity := false
+	db := test.OpenInitializedDatabase()
+	sellerId := test.AddSellerToDatabase(db).UserId
+	donation := false
+	priceInCents := models.NewMoneyInCents(0)
+
+	{
+		categoryExists, err := queries.CategoryWithIdExists(db, itemCategoryId)
+
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		if !assert.True(t, categoryExists) {
+			return
+		}
+	}
+
+	{
+		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+
+		if !assert.Error(t, error) {
+			return
+		}
+	}
+
+	{
+		count, err := queries.CountItems(db)
+
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		if !assert.Equal(t, 0, count) {
+			return
+		}
+	}
+}
+
 func TestFailingAddItemToDatabase(t *testing.T) {
 	timestamp := models.NewTimestamp(0)
 	description := "description"
