@@ -226,21 +226,26 @@ func TestAddItemWithNegativePrice(t *testing.T) {
 	}
 }
 
+func TestAddItemWithCashierOwner(t *testing.T) {
+	db := test.OpenInitializedDatabase()
+	timestamp := models.NewTimestamp(0)
+	description := "description"
+	sellerId := test.AddCashierToDatabase(db).UserId
+	priceInCents := models.NewMoneyInCents(100)
+	itemCategoryId := models.NewId(1)
+	charity := false
+	donation := false
+
+	_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+	assert.Error(t, error)
+}
+
 func TestFailingAddItemToDatabase(t *testing.T) {
 	timestamp := models.NewTimestamp(0)
 	description := "description"
 	priceInCents := models.NewMoneyInCents(100)
 	itemCategoryId := models.NewId(1)
 	charity := false
-
-	t.Run("Cashier owner", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
-		sellerId := test.AddCashierToDatabase(db).UserId
-		donation := false
-
-		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-		assert.Error(t, error)
-	})
 
 	t.Run("Admin owner", func(t *testing.T) {
 		db := test.OpenInitializedDatabase()
