@@ -44,11 +44,16 @@ func TestAddUserWithExistingId(t *testing.T) {
 	createdAt := models.Timestamp(0)
 	var lastAccess *models.Timestamp = nil
 
-	err := queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
-	require.NoError(t, err)
+	{
+		err := queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
+		require.NoError(t, err)
+	}
 
-	err = queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
-	require.Error(t, err)
+	{
+		err := queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
+		var userIdAlreadyInUseError *queries.UserIdAlreadyInUseError
+		require.ErrorAs(t, err, &userIdAlreadyInUseError)
+	}
 }
 
 func TestAddUser(t *testing.T) {
