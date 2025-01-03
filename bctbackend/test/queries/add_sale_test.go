@@ -35,21 +35,33 @@ func TestAddSale(t *testing.T) {
 
 		saleId, err := queries.AddSale(db, cashierId, timestamp, saleItemIds)
 
-		if assert.NoError(t, err) {
-			actualItems, err := queries.GetSaleItems(db, saleId)
+		if !assert.NoError(t, err) {
+			return
+		}
 
-			if assert.NoError(t, err) {
-				assert.Len(t, actualItems, len(saleItemIds))
+		actualItems, err := queries.GetSaleItems(db, saleId)
 
-				for index, actualItem := range actualItems {
-					assert.Equal(t, saleItemIds[index], actualItem.ItemId)
+		if !assert.NoError(t, err) {
+			return
+		}
 
-					expectedItem, err := queries.GetItemWithId(db, saleItemIds[index])
+		if !assert.Len(t, actualItems, len(saleItemIds)) {
+			return
+		}
 
-					if assert.NoError(t, err) {
-						assert.Equal(t, *expectedItem, actualItem)
-					}
-				}
+		for index, actualItem := range actualItems {
+			if !assert.Equal(t, saleItemIds[index], actualItem.ItemId) {
+				return
+			}
+
+			expectedItem, err := queries.GetItemWithId(db, saleItemIds[index])
+
+			if !assert.NoError(t, err) {
+				return
+			}
+
+			if !assert.Equal(t, *expectedItem, actualItem) {
+				return
 			}
 		}
 	}
@@ -63,7 +75,9 @@ func TestAddSaleWithoutItems(t *testing.T) {
 
 	_, err := queries.AddSale(db, cashierId, timestamp, []models.Id{})
 
-	assert.Error(t, err)
+	if !assert.Error(t, err) {
+		return
+	}
 }
 
 func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
@@ -75,5 +89,7 @@ func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
 
 	_, err := queries.AddSale(db, sellerId, timestamp, []models.Id{itemId})
 
-	assert.Error(t, err)
+	if !assert.Error(t, err) {
+		return
+	}
 }
