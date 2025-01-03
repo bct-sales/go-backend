@@ -10,7 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestLogout(t *testing.T) {
@@ -26,6 +26,5 @@ func TestLogout(t *testing.T) {
 	request.AddCookie(test.CreateCookie(sessionId))
 
 	router.ServeHTTP(writer, request)
-
-	assert.Equal(t, http.StatusOK, writer.Code)
+	require.Equal(t, http.StatusOK, writer.Code)
 }
