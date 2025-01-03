@@ -39,6 +39,10 @@ type NoSuchCategoryError struct {
 	CategoryId models.Id
 }
 
+type InvalidPriceError struct {
+	PriceInCents models.MoneyInCents
+}
+
 func (err *UserIdAlreadyInUseError) Error() string {
 	return fmt.Sprintf("user id %d already in use", err.UserId)
 }
@@ -85,4 +89,8 @@ func (e *NoSessionFoundError) Error() string {
 
 func (e *NoSuchSessionError) Error() string {
 	return fmt.Sprintf("no session with id %v", e.SessionId)
+}
+
+func (e *InvalidPriceError) Error() string {
+	return fmt.Sprintf("price %d is invalid", e.PriceInCents)
 }
