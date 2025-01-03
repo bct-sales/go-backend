@@ -140,7 +140,7 @@ func TestAddItemWithNonexistingCategory(t *testing.T) {
 	}
 }
 
-func TestAddItemWithInvalidPrice(t *testing.T) {
+func TestAddItemWithZeroPrice(t *testing.T) {
 	timestamp := models.NewTimestamp(0)
 	description := "description"
 	itemCategoryId := models.NewId(1)
