@@ -209,7 +209,8 @@ func TestAddItemWithNegativePrice(t *testing.T) {
 	{
 		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 
-		if !assert.Error(t, error) {
+		var invalidPriceError *queries.InvalidPriceError
+		if !assert.ErrorAs(t, error, &invalidPriceError) {
 			return
 		}
 	}
