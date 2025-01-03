@@ -106,23 +106,37 @@ func TestAddItemWithNonexistingCategory(t *testing.T) {
 
 	test.AddSellerWithIdToDatabase(db, 1)
 
-	if !assert.False(t, queries.CategoryWithIdExists(db, itemCategoryId)) {
-		return
+	{
+		categoryExists, err := queries.CategoryWithIdExists(db, itemCategoryId)
+
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		if !assert.False(t, categoryExists) {
+			return
+		}
 	}
 
-	_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-	if !assert.Error(t, error) {
-		return
+	{
+		_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+
+		var noSuchCategoryError *queries.NoSuchCategoryError
+		if !assert.ErrorAs(t, err, &noSuchCategoryError) {
+			return
+		}
 	}
 
-	count, err := queries.CountItems(db)
+	{
+		count, err := queries.CountItems(db)
 
-	if !assert.NoError(t, err) {
-		return
-	}
+		if !assert.NoError(t, err) {
+			return
+		}
 
-	if !assert.Equal(t, 0, count) {
-		return
+		if !assert.Equal(t, 0, count) {
+			return
+		}
 	}
 }
 
@@ -140,14 +154,36 @@ func TestFailingAddItemToDatabase(t *testing.T) {
 		itemCategoryId := defs.Shoes
 		priceInCents := models.NewMoneyInCents(0)
 
-		assert.True(t, queries.CategoryWithIdExists(db, itemCategoryId))
+		{
+			categoryExists, err := queries.CategoryWithIdExists(db, itemCategoryId)
 
-		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-		assert.Error(t, error)
+			if !assert.NoError(t, err) {
+				return
+			}
 
-		count, err := queries.CountItems(db)
-		if assert.NoError(t, err) {
-			assert.Equal(t, 0, count)
+			if !assert.True(t, categoryExists) {
+				return
+			}
+		}
+
+		{
+			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+
+			if !assert.Error(t, error) {
+				return
+			}
+		}
+
+		{
+			count, err := queries.CountItems(db)
+
+			if !assert.NoError(t, err) {
+				return
+			}
+
+			if !assert.Equal(t, 0, count) {
+				return
+			}
 		}
 	})
 

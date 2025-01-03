@@ -3,11 +3,12 @@ package queries
 import (
 	models "bctbackend/database/models"
 	"database/sql"
+	"errors"
 )
 
 func CategoryWithIdExists(
 	db *sql.DB,
-	categoryId models.Id) bool {
+	categoryId models.Id) (bool, error) {
 
 	row := db.QueryRow(
 		`
@@ -21,7 +22,15 @@ func CategoryWithIdExists(
 	var dummy int
 	err := row.Scan(&dummy)
 
-	return err == nil
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	return true, nil
 }
 
 func GetCategories(db *sql.DB) ([]models.ItemCategory, error) {

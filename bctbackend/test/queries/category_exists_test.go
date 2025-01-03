@@ -19,7 +19,15 @@ func TestCategoryWithIdExists(t *testing.T) {
 
 	for _, categoryId := range defs.ListCategories() {
 		t.Run(fmt.Sprintf("categoryId = %d", categoryId), func(t *testing.T) {
-			assert.True(t, queries.CategoryWithIdExists(db, categoryId))
+			categoryExists, err := queries.CategoryWithIdExists(db, categoryId)
+
+			if !assert.NoError(t, err) {
+				return
+			}
+
+			if !assert.True(t, categoryExists) {
+				return
+			}
 		})
 	}
 }
