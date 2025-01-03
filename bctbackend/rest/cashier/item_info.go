@@ -67,6 +67,7 @@ func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 		if errors.As(err, &itemNotFoundError) {
 			failureResponse := GetItemInformationFailureResponse{Type: GetItemInformationFailureType_NoSuchItem, Details: err.Error()}
 			context.JSON(http.StatusNotFound, failureResponse)
+			return
 		}
 
 		failureResponse := GetItemInformationFailureResponse{Type: GetItemInformationFailureType_Unknown, Details: err.Error()}
