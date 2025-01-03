@@ -54,15 +54,23 @@ func TestGetCategoryCounts(t *testing.T) {
 		}
 
 		counts, err := queries.GetCategoryCounts(db)
-		if assert.NoError(t, err) {
-			assert.Equal(t, len(defs.ListCategories()), len(counts))
+		if !assert.NoError(t, err) {
+			return
+		}
 
-			for _, count := range counts {
-				assert.Contains(t, defs.ListCategories(), count.CategoryId)
+		if !assert.Equal(t, len(defs.ListCategories()), len(counts)) {
+			return
+		}
 
-				expectedCount := countTable[count.CategoryId]
-				actualCount := count.Count
-				assert.Equal(t, expectedCount, actualCount)
+		for _, count := range counts {
+			if !assert.Contains(t, defs.ListCategories(), count.CategoryId) {
+				return
+			}
+
+			expectedCount := countTable[count.CategoryId]
+			actualCount := count.Count
+			if !assert.Equal(t, expectedCount, actualCount) {
+				return
 			}
 		}
 	}
