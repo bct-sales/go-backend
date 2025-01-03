@@ -16,7 +16,6 @@ import (
 	"bctbackend/test"
 	rest_test "bctbackend/test/rest"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -45,16 +44,14 @@ func TestGetItemInformation(t *testing.T) {
 
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusOK, writer.Code)
 
-			if assert.Equal(t, http.StatusOK, writer.Code) {
-				response := test.FromJson[restapi.GetItemInformationSuccessResponse](writer.Body.String())
-				expectedHasBeenSold := sale_count > 0
-
-				assert.Equal(t, item.Description, response.Description)
-				assert.Equal(t, item.PriceInCents, response.PriceInCents)
-				assert.Equal(t, item.CategoryId, response.CategoryId)
-				assert.Equal(t, expectedHasBeenSold, *response.HasBeenSold)
-			}
+			response := test.FromJson[restapi.GetItemInformationSuccessResponse](writer.Body.String())
+			expectedHasBeenSold := sale_count > 0
+			require.Equal(t, item.Description, response.Description)
+			require.Equal(t, item.PriceInCents, response.PriceInCents)
+			require.Equal(t, item.CategoryId, response.CategoryId)
+			require.Equal(t, expectedHasBeenSold, *response.HasBeenSold)
 		})
 	}
 }
@@ -69,10 +66,10 @@ func TestGetItemInformationWithInvalidId(t *testing.T) {
 
 	url := path.SalesItems().WithRawItemId("abc")
 	request := test.CreateGetRequest(url)
+
 	request.AddCookie(test.CreateCookie(sessionId))
 	router.ServeHTTP(writer, request)
-
-	assert.Equal(t, http.StatusBadRequest, writer.Code)
+	require.Equal(t, http.StatusBadRequest, writer.Code)
 }
 
 func TestGetItemInformationAsSeller(t *testing.T) {
@@ -88,10 +85,10 @@ func TestGetItemInformationAsSeller(t *testing.T) {
 
 	url := path.SalesItems().WithItemId(item.ItemId)
 	request := test.CreateGetRequest(url)
+
 	request.AddCookie(test.CreateCookie(sessionId))
 	router.ServeHTTP(writer, request)
-
-	assert.Equal(t, http.StatusForbidden, writer.Code)
+	require.Equal(t, http.StatusForbidden, writer.Code)
 }
 
 func TestGetItemInformationAsAdmin(t *testing.T) {
@@ -108,10 +105,10 @@ func TestGetItemInformationAsAdmin(t *testing.T) {
 
 	url := path.SalesItems().WithItemId(item.ItemId)
 	request := test.CreateGetRequest(url)
+
 	request.AddCookie(test.CreateCookie(sessionId))
 	router.ServeHTTP(writer, request)
-
-	assert.Equal(t, http.StatusForbidden, writer.Code)
+	require.Equal(t, http.StatusForbidden, writer.Code)
 }
 
 func TestGetItemInformationWithNonexistentItem(t *testing.T) {

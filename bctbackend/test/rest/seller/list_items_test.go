@@ -11,7 +11,7 @@ import (
 	"bctbackend/rest/path"
 	"bctbackend/test"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestListSellerItems(t *testing.T) {
@@ -31,14 +31,13 @@ func TestListSellerItems(t *testing.T) {
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			request := test.CreateGetRequest(url)
+
 			request.AddCookie(test.CreateCookie(sessionId))
-
 			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusOK, writer.Code)
 
-			if assert.Equal(t, http.StatusOK, writer.Code) {
-				actual := test.FromJson[[]models.Item](writer.Body.String())
-				assert.Equal(t, expectedItems, *actual)
-			}
+			actual := test.FromJson[[]models.Item](writer.Body.String())
+			require.Equal(t, expectedItems, *actual)
 		}
 	}
 }

@@ -16,7 +16,6 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/test"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -99,12 +98,12 @@ func TestAddSellerItem(t *testing.T) {
 				Charity:     &charity,
 			}
 			request := test.CreatePostRequest(url, &payload)
+
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusBadRequest, writer.Code)
 
-			assert.Equal(t, http.StatusBadRequest, writer.Code)
 			itemsInDatabase, err := queries.GetItems(db)
-
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -132,13 +131,12 @@ func TestAddSellerItem(t *testing.T) {
 				Charity:     &charity,
 			}
 			request := test.CreatePostRequest(url, &payload)
+
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
-
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
 			itemsInDatabase, err := queries.GetItems(db)
-
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -150,7 +148,7 @@ func TestAddSellerItem(t *testing.T) {
 			donation := false
 			charity := false
 
-			assert.NotContains(t, defs.ListCategories(), categoryId)
+			require.NotContains(t, defs.ListCategories(), categoryId)
 
 			db, router := test.CreateRestRouter()
 			writer := httptest.NewRecorder()
@@ -168,13 +166,12 @@ func TestAddSellerItem(t *testing.T) {
 				Charity:     &charity,
 			}
 			request := test.CreatePostRequest(url, &payload)
+
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
-
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
 			itemsInDatabase, err := queries.GetItems(db)
-
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -186,7 +183,7 @@ func TestAddSellerItem(t *testing.T) {
 			donation := false
 			charity := false
 
-			assert.NotContains(t, defs.ListCategories(), categoryId)
+			require.NotContains(t, defs.ListCategories(), categoryId)
 
 			db, router := test.CreateRestRouter()
 			writer := httptest.NewRecorder()
@@ -205,13 +202,12 @@ func TestAddSellerItem(t *testing.T) {
 				Charity:     &charity,
 			}
 			request := test.CreatePostRequest(url, &payload)
+
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
-
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
 			itemsInDatabase, err := queries.GetItems(db)
-
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -223,7 +219,7 @@ func TestAddSellerItem(t *testing.T) {
 			donation := false
 			charity := false
 
-			assert.NotContains(t, defs.ListCategories(), categoryId)
+			require.NotContains(t, defs.ListCategories(), categoryId)
 
 			db, router := test.CreateRestRouter()
 			writer := httptest.NewRecorder()
@@ -232,7 +228,6 @@ func TestAddSellerItem(t *testing.T) {
 			seller := test.AddSellerToDatabase(db)
 			cashier := test.AddCashierToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
-
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
@@ -242,13 +237,12 @@ func TestAddSellerItem(t *testing.T) {
 				Charity:     &charity,
 			}
 			request := test.CreatePostRequest(url, &payload)
+
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
-
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
 			itemsInDatabase, err := queries.GetItems(db)
-
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -260,7 +254,7 @@ func TestAddSellerItem(t *testing.T) {
 			donation := false
 			charity := false
 
-			assert.NotContains(t, defs.ListCategories(), categoryId)
+			require.NotContains(t, defs.ListCategories(), categoryId)
 
 			db, router := test.CreateRestRouter()
 			writer := httptest.NewRecorder()
@@ -296,7 +290,7 @@ func TestAddSellerItem(t *testing.T) {
 			donation := false
 			charity := false
 
-			assert.NotContains(t, defs.ListCategories(), categoryId)
+			require.NotContains(t, defs.ListCategories(), categoryId)
 
 			db, router := test.CreateRestRouter()
 			writer := httptest.NewRecorder()
@@ -333,7 +327,7 @@ func TestAddSellerItem(t *testing.T) {
 			donation := false
 			charity := false
 
-			assert.NotContains(t, defs.ListCategories(), categoryId)
+			require.NotContains(t, defs.ListCategories(), categoryId)
 
 			db, router := test.CreateRestRouter()
 			writer := httptest.NewRecorder()

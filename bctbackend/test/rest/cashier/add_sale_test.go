@@ -9,12 +9,12 @@ import (
 
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	restapi "bctbackend/rest/cashier"
+	rest_api "bctbackend/rest/cashier"
 	"bctbackend/rest/path"
 
 	"bctbackend/test"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAddSaleItem(t *testing.T) {
@@ -27,29 +27,26 @@ func TestAddSaleItem(t *testing.T) {
 		cashier := test.AddCashierToDatabase(db)
 		item := test.AddItemToDatabase(db, seller.UserId, 1)
 		sessionId := test.AddSessionToDatabase(db, cashier.UserId)
-		payload := restapi.AddSalePayload{
+		payload := rest_api.AddSalePayload{
 			Items: []models.Id{item.ItemId},
 		}
 		url := path.Sales().String()
 		request := test.CreatePostRequest(url, &payload)
+
 		request.AddCookie(test.CreateCookie(sessionId))
-
 		router.ServeHTTP(writer, request)
+		require.Equal(t, http.StatusCreated, writer.Code)
 
-		if assert.Equal(t, http.StatusCreated, writer.Code) {
-			response := test.FromJson[restapi.AddSaleSuccessResponse](writer.Body.String())
+		response := test.FromJson[rest_api.AddSaleSuccessResponse](writer.Body.String())
 
-			sale, err := queries.GetSaleWithId(db, response.SaleId)
-			if assert.NoError(t, err) {
-				assert.Equal(t, cashier.UserId, sale.CashierId)
+		sale, err := queries.GetSaleWithId(db, response.SaleId)
+		require.NoError(t, err)
+		require.Equal(t, cashier.UserId, sale.CashierId)
 
-				saleItems, err := queries.GetSaleItems(db, sale.SaleId)
-				if assert.NoError(t, err) {
-					assert.Len(t, saleItems, 1)
-					assert.Equal(t, item.ItemId, saleItems[0].ItemId)
-				}
-			}
-		}
+		saleItems, err := queries.GetSaleItems(db, sale.SaleId)
+		require.NoError(t, err)
+		require.Len(t, saleItems, 1)
+		require.Equal(t, item.ItemId, saleItems[0].ItemId)
 	})
 
 	t.Run("Failure", func(t *testing.T) {
@@ -61,22 +58,19 @@ func TestAddSaleItem(t *testing.T) {
 			seller := test.AddSellerToDatabase(db)
 			item := test.AddItemToDatabase(db, seller.UserId, 1)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId) // Causes the operation to fail
-			payload := restapi.AddSalePayload{
+			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId},
 			}
 			url := path.Sales().String()
 			request := test.CreatePostRequest(url, &payload)
+
 			request.AddCookie(test.CreateCookie(sessionId))
-
 			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusForbidden, writer.Code)
 
-			if assert.Equal(t, http.StatusForbidden, writer.Code) {
-				sales, err := queries.GetSales(db)
-
-				if assert.NoError(t, err) {
-					assert.Empty(t, sales)
-				}
-			}
+			sales, err := queries.GetSales(db)
+			require.NoError(t, err)
+			require.Empty(t, sales)
 		})
 
 		t.Run("As admin", func(t *testing.T) {
@@ -88,22 +82,19 @@ func TestAddSaleItem(t *testing.T) {
 			seller := test.AddSellerToDatabase(db)
 			item := test.AddItemToDatabase(db, seller.UserId, 1)
 			sessionId := test.AddSessionToDatabase(db, admin.UserId) // Causes the operation to fail
-			payload := restapi.AddSalePayload{
+			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId},
 			}
 			url := path.Sales().String()
 			request := test.CreatePostRequest(url, &payload)
+
 			request.AddCookie(test.CreateCookie(sessionId))
-
 			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusForbidden, writer.Code)
 
-			if assert.Equal(t, http.StatusForbidden, writer.Code) {
-				sales, err := queries.GetSales(db)
-
-				if assert.NoError(t, err) {
-					assert.Empty(t, sales)
-				}
-			}
+			sales, err := queries.GetSales(db)
+			require.NoError(t, err)
+			require.Empty(t, sales)
 		})
 
 		t.Run("No items", func(t *testing.T) {
@@ -113,22 +104,19 @@ func TestAddSaleItem(t *testing.T) {
 
 			cashier := test.AddCashierToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
-			payload := restapi.AddSalePayload{
+			payload := rest_api.AddSalePayload{
 				Items: []models.Id{},
 			}
 			url := path.Sales().String()
 			request := test.CreatePostRequest(url, &payload)
+
 			request.AddCookie(test.CreateCookie(sessionId))
-
 			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusBadRequest, writer.Code)
 
-			if assert.Equal(t, http.StatusBadRequest, writer.Code) {
-				sales, err := queries.GetSales(db)
-
-				if assert.NoError(t, err) {
-					assert.Empty(t, sales)
-				}
-			}
+			sales, err := queries.GetSales(db)
+			require.NoError(t, err)
+			require.Empty(t, sales)
 		})
 
 		t.Run("Nonexistent item", func(t *testing.T) {
@@ -141,26 +129,22 @@ func TestAddSaleItem(t *testing.T) {
 			nonexistentItemId := models.Id(1000)
 
 			itemExists, err := queries.ItemWithIdExists(db, nonexistentItemId)
-			if assert.NoError(t, err) {
-				if assert.False(t, itemExists) {
-					payload := restapi.AddSalePayload{
-						Items: []models.Id{},
-					}
-					url := path.Sales().String()
-					request := test.CreatePostRequest(url, &payload)
-					request.AddCookie(test.CreateCookie(sessionId))
+			require.NoError(t, err)
+			require.False(t, itemExists)
 
-					router.ServeHTTP(writer, request)
-
-					if assert.Equal(t, http.StatusBadRequest, writer.Code) {
-						sales, err := queries.GetSales(db)
-
-						if assert.NoError(t, err) {
-							assert.Empty(t, sales)
-						}
-					}
-				}
+			payload := rest_api.AddSalePayload{
+				Items: []models.Id{},
 			}
+			url := path.Sales().String()
+			request := test.CreatePostRequest(url, &payload)
+
+			request.AddCookie(test.CreateCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusBadRequest, writer.Code)
+
+			sales, err := queries.GetSales(db)
+			require.NoError(t, err)
+			require.Empty(t, sales)
 		})
 
 		t.Run("Duplicate item", func(t *testing.T) {
@@ -173,22 +157,19 @@ func TestAddSaleItem(t *testing.T) {
 			item := test.AddItemToDatabase(db, seller.UserId, 1)
 			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
 
-			payload := restapi.AddSalePayload{
+			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId, item.ItemId}, // Causes the operation to fail
 			}
 			url := path.Sales().String()
 			request := test.CreatePostRequest(url, &payload)
+
 			request.AddCookie(test.CreateCookie(sessionId))
-
 			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusBadRequest, writer.Code)
 
-			if assert.Equal(t, http.StatusBadRequest, writer.Code) {
-				sales, err := queries.GetSales(db)
-
-				if assert.NoError(t, err) {
-					assert.Empty(t, sales)
-				}
-			}
+			sales, err := queries.GetSales(db)
+			require.NoError(t, err)
+			require.Empty(t, sales)
 		})
 	})
 }
