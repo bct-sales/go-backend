@@ -90,6 +90,24 @@ func TestAddUser(t *testing.T) {
 	}
 }
 
+func TestAddUserWithInvalidRole(t *testing.T) {
+	db := test.OpenInitializedDatabase()
+	defer db.Close()
+
+	roleId := models.Id(10)
+	password := "xyz"
+	createdAt := models.Timestamp(0)
+	var lastActivity *models.Timestamp = nil
+
+	require.False(t, models.IsValidRole(roleId), "sanity test: role id should be invalid")
+
+	{
+		_, err := queries.AddUser(db, roleId, createdAt, lastActivity, password)
+		var noSuchRoleError *queries.NoSuchRoleError
+		require.ErrorAs(t, err, &noSuchRoleError)
+	}
+}
+
 func TestGetUser(t *testing.T) {
 	db := test.OpenInitializedDatabase()
 	defer db.Close()
