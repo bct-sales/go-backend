@@ -47,23 +47,51 @@ func TestAddSellerItem(t *testing.T) {
 									request.AddCookie(test.CreateCookie(sessionId))
 									router.ServeHTTP(writer, request)
 
-									if assert.Equal(t, http.StatusCreated, writer.Code) {
-										response := test.FromJson[restapi.AddSellerItemResponse](writer.Body.String())
-
-										itemsInDatabase, err := queries.GetItems(db)
-										if assert.NoError(t, err) {
-											if assert.Equal(t, 1, len(itemsInDatabase)) {
-												itemInDatabase := itemsInDatabase[0]
-												assert.Equal(t, response.ItemId, itemInDatabase.ItemId)
-												assert.Equal(t, seller.UserId, itemInDatabase.SellerId)
-												assert.Equal(t, price, itemInDatabase.PriceInCents)
-												assert.Equal(t, description, itemInDatabase.Description)
-												assert.Equal(t, categoryId, itemInDatabase.CategoryId)
-												assert.Equal(t, donation, itemInDatabase.Donation)
-												assert.Equal(t, charity, itemInDatabase.Charity)
-											}
-										}
+									if !assert.Equal(t, http.StatusCreated, writer.Code) {
+										return
 									}
+
+									response := test.FromJson[restapi.AddSellerItemResponse](writer.Body.String())
+
+									itemsInDatabase, err := queries.GetItems(db)
+									if !assert.NoError(t, err) {
+										return
+									}
+
+									if !assert.Equal(t, 1, len(itemsInDatabase)) {
+										return
+									}
+
+									itemInDatabase := itemsInDatabase[0]
+
+									if !assert.Equal(t, response.ItemId, itemInDatabase.ItemId) {
+										return
+									}
+
+									if !assert.Equal(t, seller.UserId, itemInDatabase.SellerId) {
+										return
+									}
+
+									if !assert.Equal(t, price, itemInDatabase.PriceInCents) {
+										return
+									}
+
+									if !assert.Equal(t, description, itemInDatabase.Description) {
+										return
+									}
+
+									if !assert.Equal(t, categoryId, itemInDatabase.CategoryId) {
+										return
+									}
+
+									if !assert.Equal(t, donation, itemInDatabase.Donation) {
+										return
+									}
+
+									if !assert.Equal(t, charity, itemInDatabase.Charity) {
+										return
+									}
+
 								})
 							}
 						}
