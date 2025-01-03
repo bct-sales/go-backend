@@ -344,6 +344,14 @@ func ProcessCommandLineArguments(arguments []string) error {
 				},
 			},
 		},
+		ExitErrHandler: func(context *cli.Context, err error) {
+			if err != nil {
+				fmt.Fprintf(context.App.ErrWriter, "Error: %v\n", err)
+				os.Exit(1)
+			}
+
+			os.Exit(0)
+		},
 	}
 
 	if err := app.Run(arguments); err != nil {
