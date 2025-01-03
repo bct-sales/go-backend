@@ -130,8 +130,13 @@ func TestAddSellerItem(t *testing.T) {
 
 			assert.Equal(t, http.StatusBadRequest, writer.Code)
 			itemsInDatabase, err := queries.GetItems(db)
-			if assert.NoError(t, err) {
-				assert.Equal(t, 0, len(itemsInDatabase))
+
+			if !assert.NoError(t, err) {
+				return
+			}
+
+			if !assert.Equal(t, 0, len(itemsInDatabase)) {
+				return
 			}
 		})
 
@@ -163,8 +168,13 @@ func TestAddSellerItem(t *testing.T) {
 
 			assert.Equal(t, http.StatusBadRequest, writer.Code)
 			itemsInDatabase, err := queries.GetItems(db)
-			if assert.NoError(t, err) {
-				assert.Equal(t, 0, len(itemsInDatabase))
+
+			if !assert.NoError(t, err) {
+				return
+			}
+
+			if !assert.Equal(t, 0, len(itemsInDatabase)) {
+				return
 			}
 		})
 
@@ -198,8 +208,13 @@ func TestAddSellerItem(t *testing.T) {
 
 			assert.Equal(t, http.StatusBadRequest, writer.Code)
 			itemsInDatabase, err := queries.GetItems(db)
-			if assert.NoError(t, err) {
-				assert.Equal(t, 0, len(itemsInDatabase))
+
+			if !assert.NoError(t, err) {
+				return
+			}
+
+			if !assert.Equal(t, 0, len(itemsInDatabase)) {
+				return
 			}
 		})
 
@@ -232,10 +247,18 @@ func TestAddSellerItem(t *testing.T) {
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
-			assert.Equal(t, http.StatusForbidden, writer.Code)
+			if !assert.Equal(t, http.StatusForbidden, writer.Code) {
+				return
+			}
+
 			itemsInDatabase, err := queries.GetItems(db)
-			if assert.NoError(t, err) {
-				assert.Equal(t, 0, len(itemsInDatabase))
+
+			if !assert.NoError(t, err) {
+				return
+			}
+
+			if !assert.Equal(t, 0, len(itemsInDatabase)) {
+				return
 			}
 		})
 
@@ -268,10 +291,18 @@ func TestAddSellerItem(t *testing.T) {
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
-			assert.Equal(t, http.StatusForbidden, writer.Code)
+			if !assert.Equal(t, http.StatusForbidden, writer.Code) {
+				return
+			}
+
 			itemsInDatabase, err := queries.GetItems(db)
-			if assert.NoError(t, err) {
-				assert.Equal(t, 0, len(itemsInDatabase))
+
+			if !assert.NoError(t, err) {
+				return
+			}
+
+			if !assert.Equal(t, 0, len(itemsInDatabase)) {
+				return
 			}
 		})
 
@@ -303,10 +334,18 @@ func TestAddSellerItem(t *testing.T) {
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
-			assert.Equal(t, http.StatusBadRequest, writer.Code)
+			if !assert.Equal(t, http.StatusBadRequest, writer.Code) {
+				return
+			}
+
 			itemsInDatabase, err := queries.GetItems(db)
-			if assert.NoError(t, err) {
-				assert.Equal(t, 0, len(itemsInDatabase))
+
+			if !assert.NoError(t, err) {
+				return
+			}
+
+			if !assert.Equal(t, 0, len(itemsInDatabase)) {
+				return
 			}
 		})
 
@@ -339,10 +378,18 @@ func TestAddSellerItem(t *testing.T) {
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
-			assert.Equal(t, http.StatusForbidden, writer.Code)
+			if !assert.Equal(t, http.StatusForbidden, writer.Code) {
+				return
+			}
+
 			itemsInDatabase, err := queries.GetItems(db)
-			if assert.NoError(t, err) {
-				assert.Equal(t, 0, len(itemsInDatabase))
+
+			if !assert.NoError(t, err) {
+				return
+			}
+
+			if !assert.Equal(t, 0, len(itemsInDatabase)) {
+				return
 			}
 		})
 
@@ -363,24 +410,34 @@ func TestAddSellerItem(t *testing.T) {
 			nonexistentId := models.NewId(1000)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
-			if assert.False(t, queries.UserWithIdExists(db, nonexistentId)) {
-				url := path.SellerItems().WithSellerId(nonexistentId)
-				payload := restapi.AddSellerItemPayload{
-					Price:       price,
-					Description: description,
-					CategoryId:  categoryId,
-					Donation:    &donation,
-					Charity:     &charity,
-				}
-				request := test.CreatePostRequest(url, &payload)
-				request.AddCookie(test.CreateCookie(sessionId))
-				router.ServeHTTP(writer, request)
+			if !assert.False(t, queries.UserWithIdExists(db, nonexistentId)) {
+				return
+			}
 
-				assert.Equal(t, http.StatusForbidden, writer.Code)
-				itemsInDatabase, err := queries.GetItems(db)
-				if assert.NoError(t, err) {
-					assert.Equal(t, 0, len(itemsInDatabase))
-				}
+			url := path.SellerItems().WithSellerId(nonexistentId)
+			payload := restapi.AddSellerItemPayload{
+				Price:       price,
+				Description: description,
+				CategoryId:  categoryId,
+				Donation:    &donation,
+				Charity:     &charity,
+			}
+			request := test.CreatePostRequest(url, &payload)
+			request.AddCookie(test.CreateCookie(sessionId))
+			router.ServeHTTP(writer, request)
+
+			if !assert.Equal(t, http.StatusForbidden, writer.Code) {
+				return
+			}
+
+			itemsInDatabase, err := queries.GetItems(db)
+
+			if !assert.NoError(t, err) {
+				return
+			}
+
+			if !assert.Equal(t, 0, len(itemsInDatabase)) {
+				return
 			}
 		})
 	})
