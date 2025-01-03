@@ -25,8 +25,13 @@ func TestAuthenticatingSuccessfully(t *testing.T) {
 	queries.AddUserWithId(db, userId, roleId, createdAt, lastActivity, password)
 
 	actualRoleId, err := queries.AuthenticateUser(db, userId, password)
-	if assert.NoError(t, err) {
-		assert.Equal(t, roleId, actualRoleId)
+
+	if !assert.NoError(t, err) {
+		return
+	}
+
+	if !assert.Equal(t, roleId, actualRoleId) {
+		return
 	}
 }
 
@@ -37,12 +42,18 @@ func TestAuthenticatingNonExistingUser(t *testing.T) {
 	password := "xyz"
 	userId := models.NewId(5)
 
-	assert.False(t, queries.UserWithIdExists(db, userId))
+	if !assert.False(t, queries.UserWithIdExists(db, userId)) {
+		return
+	}
 
 	_, err := queries.AuthenticateUser(db, userId, password)
 
-	if assert.Error(t, err) {
-		assert.IsType(t, &queries.UnknownUserError{}, err)
+	if !assert.Error(t, err) {
+		return
+	}
+
+	if !assert.IsType(t, &queries.UnknownUserError{}, err) {
+		return
 	}
 }
 
@@ -59,7 +70,11 @@ func TestAuthenticatingWrongPassword(t *testing.T) {
 
 	_, err := queries.AuthenticateUser(db, userId, wrongPassword)
 
-	if assert.Error(t, err) {
-		assert.IsType(t, &queries.WrongPasswordError{}, err)
+	if !assert.Error(t, err) {
+		return
+	}
+
+	if !assert.IsType(t, &queries.WrongPasswordError{}, err) {
+		return
 	}
 }
