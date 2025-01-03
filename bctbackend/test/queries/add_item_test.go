@@ -183,52 +183,55 @@ func TestAddItemWithZeroPrice(t *testing.T) {
 	}
 }
 
+func TestAddItemWithNegativePrice(t *testing.T) {
+	timestamp := models.NewTimestamp(0)
+	description := "description"
+	itemCategoryId := models.NewId(1)
+	charity := false
+	db := test.OpenInitializedDatabase()
+	sellerId := test.AddSellerToDatabase(db).UserId
+	donation := false
+	priceInCents := models.NewMoneyInCents(-100)
+
+	{
+		categoryExists, err := queries.CategoryWithIdExists(db, itemCategoryId)
+
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		if !assert.True(t, categoryExists) {
+			return
+		}
+	}
+
+	{
+		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+
+		if !assert.Error(t, error) {
+			return
+		}
+	}
+
+	{
+		count, err := queries.CountItems(db)
+
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		if !assert.Equal(t, 0, count) {
+			return
+		}
+	}
+}
+
 func TestFailingAddItemToDatabase(t *testing.T) {
 	timestamp := models.NewTimestamp(0)
 	description := "description"
 	priceInCents := models.NewMoneyInCents(100)
 	itemCategoryId := models.NewId(1)
 	charity := false
-
-	t.Run("Invalid price", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
-		sellerId := test.AddSellerToDatabase(db).UserId
-		donation := false
-		itemCategoryId := defs.Shoes
-		priceInCents := models.NewMoneyInCents(0)
-
-		{
-			categoryExists, err := queries.CategoryWithIdExists(db, itemCategoryId)
-
-			if !assert.NoError(t, err) {
-				return
-			}
-
-			if !assert.True(t, categoryExists) {
-				return
-			}
-		}
-
-		{
-			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-
-			if !assert.Error(t, error) {
-				return
-			}
-		}
-
-		{
-			count, err := queries.CountItems(db)
-
-			if !assert.NoError(t, err) {
-				return
-			}
-
-			if !assert.Equal(t, 0, count) {
-				return
-			}
-		}
-	})
 
 	t.Run("Cashier owner", func(t *testing.T) {
 		db := test.OpenInitializedDatabase()
