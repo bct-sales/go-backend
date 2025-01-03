@@ -17,8 +17,13 @@ func TestCountItems(t *testing.T) {
 		defer db.Close()
 
 		count, err := queries.CountItems(db)
-		if assert.NoError(t, err) {
-			assert.Equal(t, 0, count)
+
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		if !assert.Equal(t, 0, count) {
+			return
 		}
 	})
 
@@ -30,8 +35,13 @@ func TestCountItems(t *testing.T) {
 		test.AddItemToDatabase(db, sellerId, 1)
 
 		count, err := queries.CountItems(db)
-		if assert.NoError(t, err) {
-			assert.Equal(t, 1, count)
+
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		if !assert.Equal(t, 1, count) {
+			return
 		}
 	})
 
@@ -44,8 +54,12 @@ func TestCountItems(t *testing.T) {
 		test.AddItemToDatabase(db, sellerId, 2)
 
 		count, err := queries.CountItems(db)
-		if assert.NoError(t, err) {
-			assert.Equal(t, 2, count)
+		if !assert.NoError(t, err) {
+			return
+		}
+
+		if !assert.Equal(t, 2, count) {
+			return
 		}
 	})
 }
