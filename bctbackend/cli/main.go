@@ -154,7 +154,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							roleId, err := models.ParseRole(options.user.add.role)
 							userPassword := options.user.add.password
 							if err != nil {
-								return fmt.Errorf("error while parsing role: %v", err)
+								return fmt.Errorf("invalid role %v", options.user.add.role)
 							}
 							return cli_user.AddUser(databasePath, id, roleId, userPassword)
 						},
