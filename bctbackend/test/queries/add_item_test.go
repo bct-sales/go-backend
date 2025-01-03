@@ -37,23 +37,54 @@ func TestAddItemToDatabase(t *testing.T) {
 									}
 
 									itemExists, err := queries.ItemWithIdExists(db, itemId)
-									if assert.NoError(t, err) {
-										assert.True(t, itemExists)
+
+									if !assert.NoError(t, err) {
+										return
+									}
+
+									if !assert.True(t, itemExists) {
+										return
 									}
 
 									items, err := queries.GetItems(db)
-									assert.NoError(t, err)
-									assert.Equal(t, 1, len(items))
+
+									if !assert.NoError(t, err) {
+										return
+									}
+
+									if !assert.Equal(t, 1, len(items)) {
+										return
+									}
 
 									item := items[0]
 
-									assert.Equal(t, timestamp, item.AddedAt)
-									assert.Equal(t, description, item.Description)
-									assert.Equal(t, priceInCents, item.PriceInCents)
-									assert.Equal(t, itemCategoryId, item.CategoryId)
-									assert.Equal(t, sellerId, sellerId)
-									assert.Equal(t, donation, item.Donation)
-									assert.Equal(t, charity, item.Charity)
+									if !assert.Equal(t, timestamp, item.AddedAt) {
+										return
+									}
+
+									if !assert.Equal(t, description, item.Description) {
+										return
+									}
+
+									if !assert.Equal(t, priceInCents, item.PriceInCents) {
+										return
+									}
+
+									if !assert.Equal(t, itemCategoryId, item.CategoryId) {
+										return
+									}
+
+									if !assert.Equal(t, sellerId, sellerId) {
+										return
+									}
+
+									if !assert.Equal(t, donation, item.Donation) {
+										return
+									}
+
+									if !assert.Equal(t, charity, item.Charity) {
+										return
+									}
 								})
 							}
 						}
