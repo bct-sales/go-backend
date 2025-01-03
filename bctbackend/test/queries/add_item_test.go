@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
 )
 
@@ -37,54 +37,21 @@ func TestAddItemToDatabase(t *testing.T) {
 									}
 
 									itemExists, err := queries.ItemWithIdExists(db, itemId)
-
-									if !assert.NoError(t, err) {
-										return
-									}
-
-									if !assert.True(t, itemExists) {
-										return
-									}
+									require.NoError(t, err)
+									require.True(t, itemExists)
 
 									items, err := queries.GetItems(db)
-
-									if !assert.NoError(t, err) {
-										return
-									}
-
-									if !assert.Equal(t, 1, len(items)) {
-										return
-									}
+									require.NoError(t, err)
+									require.Equal(t, 1, len(items))
 
 									item := items[0]
-
-									if !assert.Equal(t, timestamp, item.AddedAt) {
-										return
-									}
-
-									if !assert.Equal(t, description, item.Description) {
-										return
-									}
-
-									if !assert.Equal(t, priceInCents, item.PriceInCents) {
-										return
-									}
-
-									if !assert.Equal(t, itemCategoryId, item.CategoryId) {
-										return
-									}
-
-									if !assert.Equal(t, sellerId, sellerId) {
-										return
-									}
-
-									if !assert.Equal(t, donation, item.Donation) {
-										return
-									}
-
-									if !assert.Equal(t, charity, item.Charity) {
-										return
-									}
+									require.Equal(t, timestamp, item.AddedAt)
+									require.Equal(t, description, item.Description)
+									require.Equal(t, priceInCents, item.PriceInCents)
+									require.Equal(t, itemCategoryId, item.CategoryId)
+									require.Equal(t, sellerId, sellerId)
+									require.Equal(t, donation, item.Donation)
+									require.Equal(t, charity, item.Charity)
 								})
 							}
 						}
@@ -111,18 +78,11 @@ func TestAddItemWithNonexistingSeller(t *testing.T) {
 
 	_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 	var unknownUserError *queries.UnknownUserError
-	if !assert.ErrorAs(t, err, &unknownUserError) {
-		return
-	}
+	require.ErrorAs(t, err, &unknownUserError)
 
 	count, err := queries.CountItems(db)
-	if !assert.NoError(t, err) {
-		return
-	}
-
-	if !assert.Equal(t, 0, count) {
-		return
-	}
+	require.NoError(t, err)
+	require.Equal(t, 0, count)
 }
 
 func TestAddItemWithNonexistingCategory(t *testing.T) {
@@ -141,35 +101,20 @@ func TestAddItemWithNonexistingCategory(t *testing.T) {
 
 	{
 		categoryExists, err := queries.CategoryWithIdExists(db, itemCategoryId)
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.False(t, categoryExists) {
-			return
-		}
+		require.NoError(t, err)
+		require.False(t, categoryExists)
 	}
 
 	{
 		_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-
 		var noSuchCategoryError *queries.NoSuchCategoryError
-		if !assert.ErrorAs(t, err, &noSuchCategoryError) {
-			return
-		}
+		require.ErrorAs(t, err, &noSuchCategoryError)
 	}
 
 	{
 		count, err := queries.CountItems(db)
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, 0, count) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, 0, count)
 	}
 }
 
@@ -189,21 +134,13 @@ func TestAddItemWithZeroPrice(t *testing.T) {
 		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 
 		var invalidPriceError *queries.InvalidPriceError
-		if !assert.ErrorAs(t, error, &invalidPriceError) {
-			return
-		}
+		require.ErrorAs(t, error, &invalidPriceError)
 	}
 
 	{
 		count, err := queries.CountItems(db)
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, 0, count) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, 0, count)
 	}
 }
 
@@ -221,23 +158,14 @@ func TestAddItemWithNegativePrice(t *testing.T) {
 
 	{
 		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-
 		var invalidPriceError *queries.InvalidPriceError
-		if !assert.ErrorAs(t, error, &invalidPriceError) {
-			return
-		}
+		require.ErrorAs(t, error, &invalidPriceError)
 	}
 
 	{
 		count, err := queries.CountItems(db)
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, 0, count) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, 0, count)
 	}
 }
 
@@ -255,22 +183,13 @@ func TestAddItemWithCashierOwner(t *testing.T) {
 
 	{
 		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-
-		if !assert.Error(t, error) {
-			return
-		}
+		require.Error(t, error)
 	}
 
 	{
 		count, err := queries.CountItems(db)
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, 0, count) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, 0, count)
 	}
 }
 
@@ -288,21 +207,12 @@ func TestAddItemWithAdminOwner(t *testing.T) {
 
 	{
 		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-
-		if !assert.Error(t, error) {
-			return
-		}
+		require.Error(t, error)
 	}
 
 	{
 		count, err := queries.CountItems(db)
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, 0, count) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, 0, count)
 	}
 }

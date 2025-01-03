@@ -8,7 +8,7 @@ import (
 	"bctbackend/test"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
 )
 
@@ -29,18 +29,16 @@ func TestGetSaleItems(t *testing.T) {
 
 	actualItems, err := queries.GetSaleItems(db, saleId)
 
-	if assert.NoError(t, err) {
-		assert.Len(t, actualItems, len(itemIds))
+	require.NoError(t, err)
+	require.Len(t, actualItems, len(itemIds))
 
-		for index, actualItem := range actualItems {
-			assert.Equal(t, itemIds[index], actualItem.ItemId)
+	for index, actualItem := range actualItems {
+		require.Equal(t, itemIds[index], actualItem.ItemId)
 
-			expectedItem, err := queries.GetItemWithId(db, itemIds[index])
+		expectedItem, err := queries.GetItemWithId(db, itemIds[index])
 
-			if assert.NoError(t, err) {
-				assert.Equal(t, *expectedItem, actualItem)
-			}
-		}
+		require.NoError(t, err)
+		require.Equal(t, *expectedItem, actualItem)
 	}
 }
 
@@ -51,11 +49,12 @@ func TestGetSaleItemsOfNonexistentSale(t *testing.T) {
 	saleId := models.Id(1)
 
 	saleExists, err := queries.SaleExists(db, saleId)
-	if assert.NoError(t, err) && assert.False(t, saleExists) {
-		_, err := queries.GetSaleItems(db, saleId)
 
-		if assert.Error(t, err) {
-			assert.IsType(t, &queries.NoSuchSaleError{}, err)
-		}
-	}
+	require.NoError(t, err)
+	require.False(t, saleExists)
+
+	_, err = queries.GetSaleItems(db, saleId)
+
+	require.Error(t, err)
+	require.IsType(t, &queries.NoSuchSaleError{}, err)
 }

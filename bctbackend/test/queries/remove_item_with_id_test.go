@@ -8,7 +8,7 @@ import (
 	"bctbackend/test"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
 )
 
@@ -21,19 +21,11 @@ func TestRemoveExistingItem(t *testing.T) {
 
 	err := queries.RemoveItemWithId(db, itemId)
 
-	if !assert.NoError(t, err) {
-		return
-	}
+	require.NoError(t, err)
 
 	itemExists, err := queries.ItemWithIdExists(db, itemId)
-
-	if !assert.NoError(t, err) {
-		return
-	}
-
-	if !assert.False(t, itemExists) {
-		return
-	}
+	require.NoError(t, err)
+	require.False(t, itemExists)
 }
 
 func TestRemoveNonexistingItem(t *testing.T) {
@@ -45,9 +37,7 @@ func TestRemoveNonexistingItem(t *testing.T) {
 	err := queries.RemoveItemWithId(db, itemId)
 
 	var itemNotFoundError *queries.ItemNotFoundError
-	if !assert.ErrorAs(t, err, &itemNotFoundError) {
-		return
-	}
+	require.ErrorAs(t, err, &itemNotFoundError)
 }
 
 func TestRemoveSoldItem(t *testing.T) {
@@ -61,17 +51,9 @@ func TestRemoveSoldItem(t *testing.T) {
 	test.AddSaleToDatabase(db, cashierId, []models.Id{itemId})
 
 	err := queries.RemoveItemWithId(db, itemId)
-
-	if !assert.Error(t, err) {
-		return
-	}
+	require.Error(t, err)
 
 	itemExists, err := queries.ItemWithIdExists(db, itemId)
-	if !assert.NoError(t, err) {
-		return
-	}
-
-	if !assert.True(t, itemExists) {
-		return
-	}
+	require.NoError(t, err)
+	require.True(t, itemExists)
 }

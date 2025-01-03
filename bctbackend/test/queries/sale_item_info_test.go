@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
 )
 
@@ -31,13 +31,11 @@ func TestGetSaleItemInformation(t *testing.T) {
 				}
 
 				itemInformation, err := queries.GetSaleItemInformation(db, item.ItemId)
-
-				if assert.NoError(t, err) {
-					assert.Equal(t, item.Description, itemInformation.Description)
-					assert.Equal(t, item.PriceInCents, itemInformation.PriceInCents)
-					assert.Equal(t, item.CategoryId, itemInformation.ItemCategoryId)
-					assert.Equal(t, itemInformation.SellCount, int64(sellCount))
-				}
+				require.NoError(t, err)
+				require.Equal(t, item.Description, itemInformation.Description)
+				require.Equal(t, item.PriceInCents, itemInformation.PriceInCents)
+				require.Equal(t, item.CategoryId, itemInformation.ItemCategoryId)
+				require.Equal(t, itemInformation.SellCount, int64(sellCount))
 			})
 		}
 	})
@@ -49,11 +47,10 @@ func TestGetSaleItemInformation(t *testing.T) {
 		nonexistentItemId := models.Id(1)
 
 		itemExists, err := queries.ItemWithIdExists(db, nonexistentItemId)
-		if assert.NoError(t, err) {
-			if assert.False(t, itemExists) {
-				_, err := queries.GetSaleItemInformation(db, 1)
-				assert.Error(t, err)
-			}
-		}
+		require.NoError(t, err)
+		require.False(t, itemExists)
+
+		_, err = queries.GetSaleItemInformation(db, 1)
+		require.Error(t, err)
 	})
 }

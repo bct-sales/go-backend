@@ -23,7 +23,7 @@ func TestSessionExpiration(t *testing.T) {
 	request.AddCookie(test.CreateCookie(sessionId))
 
 	router.ServeHTTP(writer, request)
-	assertFailureType(t, writer, http.StatusUnauthorized, "session_not_found")
+	RequireFailureType(t, writer, http.StatusUnauthorized, "session_not_found")
 }
 
 func TestMissingSessionId(t *testing.T) {
@@ -38,5 +38,5 @@ func TestMissingSessionId(t *testing.T) {
 	request := test.CreateGetRequest(url)
 
 	router.ServeHTTP(writer, request)
-	assertFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
+	RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
 }

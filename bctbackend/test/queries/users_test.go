@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
 )
 
@@ -22,24 +22,12 @@ func TestAddUserWithId(t *testing.T) {
 					defer db.Close()
 
 					err := queries.AddUserWithId(db, userId, roleId, 0, nil, password)
-
-					if !assert.NoError(t, err) {
-						return
-					}
-
-					if !assert.True(t, queries.UserWithIdExists(db, userId)) {
-						return
-					}
+					require.NoError(t, err)
+					require.True(t, queries.UserWithIdExists(db, userId))
 
 					actualRoleId, err := queries.AuthenticateUser(db, userId, password)
-
-					if !assert.NoError(t, err) {
-						return
-					}
-
-					if !assert.Equal(t, roleId, actualRoleId) {
-						return
-					}
+					require.NoError(t, err)
+					require.Equal(t, roleId, actualRoleId)
 				})
 			}
 		}
@@ -57,16 +45,10 @@ func TestAddUserWithExistingId(t *testing.T) {
 	var lastAccess *models.Timestamp = nil
 
 	err := queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
-
-	if !assert.NoError(t, err) {
-		return
-	}
+	require.NoError(t, err)
 
 	err = queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
-
-	if !assert.Error(t, err) {
-		return
-	}
+	require.Error(t, err)
 }
 
 func TestAddUser(t *testing.T) {
@@ -77,14 +59,8 @@ func TestAddUser(t *testing.T) {
 				defer db.Close()
 
 				userId, err := queries.AddUser(db, roleId, 0, nil, password)
-
-				if !assert.NoError(t, err) {
-					return
-				}
-
-				if !assert.True(t, queries.UserWithIdExists(db, userId)) {
-					return
-				}
+				require.NoError(t, err)
+				require.True(t, queries.UserWithIdExists(db, userId))
 			})
 		}
 	}
@@ -101,18 +77,9 @@ func TestGetUser(t *testing.T) {
 	queries.AddUserWithId(db, userId, roleId, 0, nil, password)
 
 	user, err := queries.GetUserWithId(db, userId)
-
-	if !assert.NoError(t, err) {
-		return
-	}
-
-	if !assert.Equal(t, userId, user.UserId) {
-		return
-	}
-
-	if !assert.Equal(t, roleId, user.RoleId) {
-		return
-	}
+	require.NoError(t, err)
+	require.Equal(t, userId, user.UserId)
+	require.Equal(t, roleId, user.RoleId)
 }
 
 func TestListUsers(t *testing.T) {
@@ -126,26 +93,11 @@ func TestListUsers(t *testing.T) {
 	queries.AddUserWithId(db, userId, roleId, 0, nil, password)
 
 	users, err := queries.ListUsers(db)
-
-	if !assert.NoError(t, err) {
-		return
-	}
-
-	if !assert.Len(t, users, 1) {
-		return
-	}
-
-	if !assert.Equal(t, userId, users[0].UserId) {
-		return
-	}
-
-	if !assert.Equal(t, roleId, users[0].RoleId) {
-		return
-	}
-
-	if !assert.Equal(t, password, users[0].Password) {
-		return
-	}
+	require.NoError(t, err)
+	require.Len(t, users, 1)
+	require.Equal(t, userId, users[0].UserId)
+	require.Equal(t, roleId, users[0].RoleId)
+	require.Equal(t, password, users[0].Password)
 }
 
 func TestUpdatePassword(t *testing.T) {
@@ -157,32 +109,17 @@ func TestUpdatePassword(t *testing.T) {
 	newPassword1 := "123"
 
 	user1Id, err := queries.AddUser(db, models.SellerRoleId, 0, nil, password1)
-
-	if !assert.NoError(t, err) {
-		return
-	}
+	require.NoError(t, err)
 
 	user2Id, err := queries.AddUser(db, models.SellerRoleId, 0, nil, password2)
-
-	if !assert.NoError(t, err) {
-		return
-	}
+	require.NoError(t, err)
 
 	err = queries.UpdateUserPassword(db, user1Id, newPassword1)
-
-	if !assert.NoError(t, err) {
-		return
-	}
+	require.NoError(t, err)
 
 	_, err = queries.AuthenticateUser(db, user1Id, newPassword1)
-
-	if !assert.NoError(t, err) {
-		return
-	}
+	require.NoError(t, err)
 
 	_, err = queries.AuthenticateUser(db, user2Id, password2)
-
-	if !assert.NoError(t, err) {
-		return
-	}
+	require.NoError(t, err)
 }

@@ -3,97 +3,55 @@ package models
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRoleParsing(t *testing.T) {
 	t.Run("admin", func(t *testing.T) {
 		roleId, err := ParseRole("admin")
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, AdminRoleId, roleId) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, AdminRoleId, roleId)
 	})
 
 	t.Run("seller", func(t *testing.T) {
 		roleId, err := ParseRole("seller")
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, SellerRoleId, roleId) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, SellerRoleId, roleId)
 	})
 
 	t.Run("cashier", func(t *testing.T) {
 		roleId, err := ParseRole("cashier")
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, CashierRoleId, roleId) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, CashierRoleId, roleId)
 	})
 
 	t.Run("unknown", func(t *testing.T) {
 		_, err := ParseRole("invalid")
-
-		if !assert.Error(t, err) {
-			return
-		}
+		require.Error(t, err)
 	})
 }
 
 func TestNameOfRole(t *testing.T) {
 	t.Run("admin", func(t *testing.T) {
 		roleName, err := NameOfRole(AdminRoleId)
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, AdminName, roleName) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, AdminName, roleName)
 	})
 
 	t.Run("seller", func(t *testing.T) {
 		roleName, err := NameOfRole(SellerRoleId)
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, SellerName, roleName) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, SellerName, roleName)
 	})
 
 	t.Run("cashier", func(t *testing.T) {
 		roleName, err := NameOfRole(CashierRoleId)
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, CashierName, roleName) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, CashierName, roleName)
 	})
 
 	t.Run("unknown", func(t *testing.T) {
 		_, err := NameOfRole(4)
-
-		if !assert.Error(t, err) {
-			return
-		}
+		require.Error(t, err)
 	})
 }

@@ -8,7 +8,7 @@ import (
 	"bctbackend/test"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
 )
 
@@ -54,24 +54,15 @@ func TestGetCategoryCounts(t *testing.T) {
 		}
 
 		counts, err := queries.GetCategoryCounts(db)
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, len(defs.ListCategories()), len(counts)) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, len(defs.ListCategories()), len(counts))
 
 		for _, count := range counts {
-			if !assert.Contains(t, defs.ListCategories(), count.CategoryId) {
-				return
-			}
+			require.Contains(t, defs.ListCategories(), count.CategoryId)
 
 			expectedCount := countTable[count.CategoryId]
 			actualCount := count.Count
-			if !assert.Equal(t, expectedCount, actualCount) {
-				return
-			}
+			require.Equal(t, expectedCount, actualCount)
 		}
 	}
 }

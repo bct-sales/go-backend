@@ -13,7 +13,7 @@ import (
 	"bctbackend/rest/path"
 	"bctbackend/test"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestListAllItems(t *testing.T) {
@@ -30,12 +30,11 @@ func TestListAllItems(t *testing.T) {
 		request.AddCookie(test.CreateCookie(sessionId))
 
 		router.ServeHTTP(writer, request)
+		require.Equal(t, http.StatusOK, writer.Code)
 
-		if assert.Equal(t, http.StatusOK, writer.Code) {
-			expected := []models.Item{}
-			actual := test.FromJson[[]models.Item](writer.Body.String())
-			assert.Equal(t, expected, *actual)
-		}
+		expected := []models.Item{}
+		actual := test.FromJson[[]models.Item](writer.Body.String())
+		require.Equal(t, expected, *actual)
 	})
 
 	t.Run("One item", func(t *testing.T) {
@@ -49,10 +48,7 @@ func TestListAllItems(t *testing.T) {
 		sellerId := test.AddSellerToDatabase(db).UserId
 		item := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
 		itemId, err := queries.AddItem(db, item.AddedAt, item.Description, item.PriceInCents, item.CategoryId, item.SellerId, item.Donation, item.Charity)
-
-		if !assert.NoError(t, err) {
-			return
-		}
+		require.NoError(t, err)
 
 		item.ItemId = itemId
 
@@ -61,11 +57,11 @@ func TestListAllItems(t *testing.T) {
 		request.AddCookie(test.CreateCookie(sessionId))
 
 		router.ServeHTTP(writer, request)
-		assert.Equal(t, http.StatusOK, writer.Code)
+		require.Equal(t, http.StatusOK, writer.Code)
 
 		expected := []models.Item{*item}
 		actual := test.FromJson[[]models.Item](writer.Body.String())
-		assert.Equal(t, expected, *actual)
+		require.Equal(t, expected, *actual)
 	})
 
 	t.Run("Two items", func(t *testing.T) {
@@ -80,15 +76,11 @@ func TestListAllItems(t *testing.T) {
 		item2 := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
 
 		itemId, err := queries.AddItem(db, item1.AddedAt, item1.Description, item1.PriceInCents, item1.CategoryId, item1.SellerId, item1.Donation, item1.Charity)
-		if !assert.NoError(t, err) {
-			return
-		}
+		require.NoError(t, err)
 		item1.ItemId = itemId
 
 		itemId, err = queries.AddItem(db, item2.AddedAt, item2.Description, item2.PriceInCents, item2.CategoryId, item2.SellerId, item2.Donation, item2.Charity)
-		if !assert.NoError(t, err) {
-			return
-		}
+		require.NoError(t, err)
 		item2.ItemId = itemId
 
 		url := path.Items().String()
@@ -97,11 +89,11 @@ func TestListAllItems(t *testing.T) {
 
 		router.ServeHTTP(writer, request)
 
-		assert.Equal(t, http.StatusOK, writer.Code)
+		require.Equal(t, http.StatusOK, writer.Code)
 
 		expected := []models.Item{*item1, *item2}
 		actual := test.FromJson[[]models.Item](writer.Body.String())
-		assert.Equal(t, expected, *actual)
+		require.Equal(t, expected, *actual)
 	})
 }
 
@@ -126,7 +118,7 @@ func TestListAllItemsAsNonAdmin(t *testing.T) {
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
-			assert.Equal(t, http.StatusForbidden, writer.Code)
+			require.Equal(t, http.StatusForbidden, writer.Code)
 		})
 	}
 }

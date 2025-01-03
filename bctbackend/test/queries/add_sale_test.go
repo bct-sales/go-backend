@@ -8,7 +8,7 @@ import (
 	"bctbackend/test"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
 )
 
@@ -35,35 +35,18 @@ func TestAddSale(t *testing.T) {
 		timestamp := models.NewTimestamp(0)
 
 		saleId, err := queries.AddSale(db, cashierId, timestamp, saleItemIds)
-
-		if !assert.NoError(t, err) {
-			return
-		}
+		require.NoError(t, err)
 
 		actualItems, err := queries.GetSaleItems(db, saleId)
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Len(t, actualItems, len(saleItemIds)) {
-			return
-		}
+		require.NoError(t, err)
+		require.Len(t, actualItems, len(saleItemIds))
 
 		for index, actualItem := range actualItems {
-			if !assert.Equal(t, saleItemIds[index], actualItem.ItemId) {
-				return
-			}
+			require.Equal(t, saleItemIds[index], actualItem.ItemId)
 
 			expectedItem, err := queries.GetItemWithId(db, saleItemIds[index])
-
-			if !assert.NoError(t, err) {
-				return
-			}
-
-			if !assert.Equal(t, *expectedItem, actualItem) {
-				return
-			}
+			require.NoError(t, err)
+			require.Equal(t, *expectedItem, actualItem)
 		}
 	}
 }
@@ -76,10 +59,7 @@ func TestAddSaleWithoutItems(t *testing.T) {
 	timestamp := models.NewTimestamp(0)
 
 	_, err := queries.AddSale(db, cashierId, timestamp, []models.Id{})
-
-	if !assert.Error(t, err) {
-		return
-	}
+	require.Error(t, err)
 }
 
 func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
@@ -91,8 +71,5 @@ func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
 	itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
 
 	_, err := queries.AddSale(db, sellerId, timestamp, []models.Id{itemId})
-
-	if !assert.Error(t, err) {
-		return
-	}
+	require.Error(t, err)
 }

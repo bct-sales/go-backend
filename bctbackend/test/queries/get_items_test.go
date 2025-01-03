@@ -7,7 +7,7 @@ import (
 	"bctbackend/test"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
 )
 
@@ -17,13 +17,8 @@ func TestGetItems(t *testing.T) {
 		defer db.Close()
 
 		items, err := queries.GetItems(db)
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, 0, len(items)) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, 0, len(items))
 	})
 
 	t.Run("One item", func(t *testing.T) {
@@ -34,18 +29,9 @@ func TestGetItems(t *testing.T) {
 		itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
 
 		items, err := queries.GetItems(db)
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, 1, len(items)) {
-			return
-		}
-
-		if !assert.Equal(t, itemId, items[0].ItemId) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, 1, len(items))
+		require.Equal(t, itemId, items[0].ItemId)
 	})
 
 	t.Run("Two items", func(t *testing.T) {
@@ -57,19 +43,9 @@ func TestGetItems(t *testing.T) {
 		item2Id := test.AddItemToDatabase(db, sellerId, 2).ItemId
 
 		items, err := queries.GetItems(db)
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, 2, len(items)) {
-			return
-		}
-		if !assert.Equal(t, item1Id, items[0].ItemId) {
-			return
-		}
-		if !assert.Equal(t, item2Id, items[1].ItemId) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, 2, len(items))
+		require.Equal(t, item1Id, items[0].ItemId)
+		require.Equal(t, item2Id, items[1].ItemId)
 	})
 }

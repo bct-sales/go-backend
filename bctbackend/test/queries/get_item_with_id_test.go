@@ -8,7 +8,7 @@ import (
 	"bctbackend/test"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
 )
 
@@ -19,11 +19,8 @@ func TestGetItemWithId(t *testing.T) {
 
 		itemId := models.NewId(1)
 		_, err := queries.GetItemWithId(db, itemId)
-
 		var itemNotFoundError *queries.ItemNotFoundError
-		if !assert.ErrorAs(t, err, &itemNotFoundError) {
-			return
-		}
+		require.ErrorAs(t, err, &itemNotFoundError)
 	})
 
 	t.Run("Existing item", func(t *testing.T) {
@@ -34,13 +31,7 @@ func TestGetItemWithId(t *testing.T) {
 		itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
 
 		item, err := queries.GetItemWithId(db, itemId)
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, itemId, item.ItemId) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, itemId, item.ItemId)
 	})
 }

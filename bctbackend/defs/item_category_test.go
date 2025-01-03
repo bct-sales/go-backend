@@ -5,7 +5,7 @@ package defs
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNameOfCategory(t *testing.T) {
@@ -33,22 +33,13 @@ func TestNameOfCategory(t *testing.T) {
 
 		t.Run(expectedName, func(t *testing.T) {
 			actualName, err := NameOfCategory(id)
-
-			if !assert.NoError(t, err) {
-				return
-			}
-
-			if !assert.Equal(t, expectedName, actualName) {
-				return
-			}
+			require.NoError(t, err)
+			require.Equal(t, expectedName, actualName)
 		})
 	}
 
 	t.Run("invalid category", func(t *testing.T) {
 		_, err := NameOfCategory(Id(999))
-
-		if !assert.Error(t, err) {
-			return
-		}
+		require.Error(t, err)
 	})
 }

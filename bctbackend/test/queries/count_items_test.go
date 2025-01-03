@@ -7,7 +7,7 @@ import (
 	"bctbackend/test"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
 )
 
@@ -17,14 +17,8 @@ func TestCountItems(t *testing.T) {
 		defer db.Close()
 
 		count, err := queries.CountItems(db)
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, 0, count) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, 0, count)
 	})
 
 	t.Run("One item", func(t *testing.T) {
@@ -35,14 +29,8 @@ func TestCountItems(t *testing.T) {
 		test.AddItemToDatabase(db, sellerId, 1)
 
 		count, err := queries.CountItems(db)
-
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, 1, count) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, 1, count)
 	})
 
 	t.Run("Two items", func(t *testing.T) {
@@ -54,12 +42,7 @@ func TestCountItems(t *testing.T) {
 		test.AddItemToDatabase(db, sellerId, 2)
 
 		count, err := queries.CountItems(db)
-		if !assert.NoError(t, err) {
-			return
-		}
-
-		if !assert.Equal(t, 2, count) {
-			return
-		}
+		require.NoError(t, err)
+		require.Equal(t, 2, count)
 	})
 }

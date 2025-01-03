@@ -7,24 +7,17 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func assertFailureType(t *testing.T, writer *httptest.ResponseRecorder, expectedStatusCode int, expectedFailureType string) bool {
-	if !assert.Equal(t, expectedStatusCode, writer.Code) {
-		return false
-	}
+func RequireFailureType(t *testing.T, writer *httptest.ResponseRecorder, expectedStatusCode int, expectedFailureType string) {
+	require.Equal(t, expectedStatusCode, writer.Code)
 
 	var response map[string]string
-	if !assert.NoError(t, json.Unmarshal(writer.Body.Bytes(), &response)) {
-		return false
-	}
+	err := json.Unmarshal(writer.Body.Bytes(), &response)
+	require.NoError(t, err)
 
 	failureType, ok := response["type"]
-
-	if !assert.True(t, ok) {
-		return false
-	}
-
-	return assert.Equal(t, expectedFailureType, failureType)
+	require.True(t, ok)
+	require.Equal(t, expectedFailureType, failureType)
 }

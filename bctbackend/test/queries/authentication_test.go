@@ -8,7 +8,7 @@ import (
 	"bctbackend/test"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
 )
 
@@ -26,13 +26,9 @@ func TestAuthenticatingSuccessfully(t *testing.T) {
 
 	actualRoleId, err := queries.AuthenticateUser(db, userId, password)
 
-	if !assert.NoError(t, err) {
-		return
-	}
+	require.NoError(t, err)
 
-	if !assert.Equal(t, roleId, actualRoleId) {
-		return
-	}
+	require.Equal(t, roleId, actualRoleId)
 }
 
 func TestAuthenticatingNonExistingUser(t *testing.T) {
@@ -42,19 +38,12 @@ func TestAuthenticatingNonExistingUser(t *testing.T) {
 	password := "xyz"
 	userId := models.NewId(5)
 
-	if !assert.False(t, queries.UserWithIdExists(db, userId)) {
-		return
-	}
+	require.False(t, queries.UserWithIdExists(db, userId))
 
 	_, err := queries.AuthenticateUser(db, userId, password)
 
-	if !assert.Error(t, err) {
-		return
-	}
-
-	if !assert.IsType(t, &queries.UnknownUserError{}, err) {
-		return
-	}
+	require.Error(t, err)
+	require.IsType(t, &queries.UnknownUserError{}, err)
 }
 
 func TestAuthenticatingWrongPassword(t *testing.T) {
@@ -70,11 +59,6 @@ func TestAuthenticatingWrongPassword(t *testing.T) {
 
 	_, err := queries.AuthenticateUser(db, userId, wrongPassword)
 
-	if !assert.Error(t, err) {
-		return
-	}
-
-	if !assert.IsType(t, &queries.WrongPasswordError{}, err) {
-		return
-	}
+	require.Error(t, err)
+	require.IsType(t, &queries.WrongPasswordError{}, err)
 }

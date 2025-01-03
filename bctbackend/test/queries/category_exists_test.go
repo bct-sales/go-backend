@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
 )
 
@@ -21,13 +21,8 @@ func TestCategoryWithIdExists(t *testing.T) {
 		t.Run(fmt.Sprintf("categoryId = %d", categoryId), func(t *testing.T) {
 			categoryExists, err := queries.CategoryWithIdExists(db, categoryId)
 
-			if !assert.NoError(t, err) {
-				return
-			}
-
-			if !assert.True(t, categoryExists) {
-				return
-			}
+			require.NoError(t, err)
+			require.True(t, categoryExists)
 		})
 	}
 }

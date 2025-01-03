@@ -14,8 +14,10 @@ import (
 	"bctbackend/rest/path"
 
 	"bctbackend/test"
+	rest_test "bctbackend/test/rest"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetItemInformation(t *testing.T) {
@@ -117,24 +119,28 @@ func TestGetItemInformationWithNonexistentItem(t *testing.T) {
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	admin := test.AddAdminToDatabase(db)
-	seller := test.AddSellerToDatabase(db)
-	sessionId := test.AddSessionToDatabase(db, admin.UserId)
+	// Create cashier
+	cashier := test.AddCashierToDatabase(db)
+
+	// Get ID for nonexisting item
 	nonexistentItem := models.NewId(1)
 
+	// Sanity check: make sure item does not exist
 	itemExists, err := queries.ItemWithIdExists(db, nonexistentItem)
+	require.NoError(t, err)
+	require.False(t, itemExists)
 
-	if !assert.NoError(t, err) {
-		if assert.False(t, itemExists) {
-			test.AddItemToDatabase(db, seller.UserId, 1)
+	// Attempt to get information for nonexistent item
+	url := path.SalesItems().WithItemId(nonexistentItem)
+	request := test.CreateGetRequest(url)
 
-			url := path.SalesItems().WithItemId(nonexistentItem)
-			request := test.CreateGetRequest(url)
+	// Act as cashier
+	sessionId := test.AddSessionToDatabase(db, cashier.UserId)
+	request.AddCookie(test.CreateCookie(sessionId))
 
-			request.AddCookie(test.CreateCookie(sessionId))
-			router.ServeHTTP(writer, request)
+	// Send request
+	router.ServeHTTP(writer, request)
 
-			assert.Equal(t, http.StatusBadRequest, writer.Code)
-		}
-	}
+	// Check response
+	rest_test.RequireFailureType(t, writer, http.StatusNotFound, "no_such_item")
 }

@@ -8,7 +8,7 @@ import (
 	"bctbackend/test"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
 )
 
@@ -33,18 +33,15 @@ func TestGetSales(t *testing.T) {
 
 	actualSales, err := queries.GetSales(db)
 
-	if assert.NoError(t, err) {
-		assert.Len(t, actualSales, len(saleIds))
+	require.NoError(t, err)
+	require.Len(t, actualSales, len(saleIds))
 
-		for _, actualSale := range actualSales {
-			assert.Equal(t, cashierId, actualSale.CashierId)
+	for _, actualSale := range actualSales {
+		require.Equal(t, cashierId, actualSale.CashierId)
 
-			saleItems, err := queries.GetSaleItems(db, actualSale.SaleId)
-
-			if assert.NoError(t, err) {
-				assert.Equal(t, 1, len(saleItems))
-			}
-		}
+		saleItems, err := queries.GetSaleItems(db, actualSale.SaleId)
+		require.NoError(t, err)
+		require.Equal(t, 1, len(saleItems))
 	}
 }
 
@@ -58,10 +55,8 @@ func TestSaleExists(t *testing.T) {
 
 	saleId := test.AddSaleToDatabase(db, cashierId, []models.Id{itemId})
 	saleExists, err := queries.SaleExists(db, saleId)
-
-	if assert.NoError(t, err) {
-		assert.True(t, saleExists)
-	}
+	require.NoError(t, err)
+	require.True(t, saleExists)
 }
 
 func TestRemoveSale(t *testing.T) {
@@ -83,20 +78,15 @@ func TestRemoveSale(t *testing.T) {
 	sale2Id := test.AddSaleToDatabase(db, cashierId, sale2ItemIds)
 
 	err := queries.RemoveSale(db, sale1Id)
+	require.NoError(t, err)
 
-	if assert.NoError(t, err) {
-		sale1Exists, err := queries.SaleExists(db, sale1Id)
+	sale1Exists, err := queries.SaleExists(db, sale1Id)
+	require.NoError(t, err)
+	require.False(t, sale1Exists)
 
-		if assert.NoError(t, err) {
-			assert.False(t, sale1Exists)
-		}
-
-		sale2Exists, err := queries.SaleExists(db, sale2Id)
-
-		if assert.NoError(t, err) {
-			assert.True(t, sale2Exists)
-		}
-	}
+	sale2Exists, err := queries.SaleExists(db, sale2Id)
+	require.NoError(t, err)
+	require.True(t, sale2Exists)
 }
 
 func TestRemoveNonexistentSale(t *testing.T) {
@@ -106,5 +96,5 @@ func TestRemoveNonexistentSale(t *testing.T) {
 	err := queries.RemoveSale(db, 0)
 
 	var noSuchSaleError *queries.NoSuchSaleError
-	assert.ErrorAs(t, err, &noSuchSaleError)
+	require.ErrorAs(t, err, &noSuchSaleError)
 }

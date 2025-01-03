@@ -177,7 +177,7 @@ func TestUnknownUserLogin(t *testing.T) {
 
 	if assert.NoError(t, err) {
 		router.ServeHTTP(writer, request)
-		assertFailureType(t, writer, http.StatusUnauthorized, "unknown_user")
+		RequireFailureType(t, writer, http.StatusUnauthorized, "unknown_user")
 	}
 }
 
@@ -201,7 +201,7 @@ func TestWrongPasswordLogin(t *testing.T) {
 
 		if assert.NoError(t, err) {
 			router.ServeHTTP(writer, request)
-			assertFailureType(t, writer, http.StatusUnauthorized, "wrong_password")
+			RequireFailureType(t, writer, http.StatusUnauthorized, "wrong_password")
 		}
 	}
 }
