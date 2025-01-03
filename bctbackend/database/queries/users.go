@@ -28,6 +28,10 @@ func AddUserWithId(
 	)
 
 	if err != nil {
+		if UserWithIdExists(db, userId) {
+			return &UserIdAlreadyInUseError{UserId: userId}
+		}
+
 		return fmt.Errorf("failed to add user with id %d: %w", userId, err)
 	}
 
