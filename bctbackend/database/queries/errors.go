@@ -39,6 +39,9 @@ type NoSuchCategoryError struct {
 	CategoryId models.Id
 }
 
+type NoSuchRoleError struct {
+	RoleId models.Id
+}
 type InvalidPriceError struct {
 	PriceInCents models.MoneyInCents
 }
@@ -89,6 +92,10 @@ func (e *NoSessionFoundError) Error() string {
 
 func (e *NoSuchSessionError) Error() string {
 	return fmt.Sprintf("no session with id %v", e.SessionId)
+}
+
+func (e *NoSuchRoleError) Error() string {
+	return fmt.Sprintf("no role with id %v", e.RoleId)
 }
 
 func (e *InvalidPriceError) Error() string {
