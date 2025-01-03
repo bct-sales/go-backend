@@ -12,7 +12,7 @@ import (
 	"bctbackend/rest/path"
 	"bctbackend/test"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func createSuccessResponse(countMap map[models.Id]int64) rest_admin.CategoryCountSuccessResponse {
@@ -58,7 +58,7 @@ func TestCategoryCounts(t *testing.T) {
 		countMap := map[models.Id]int64{}
 		expectedResponse := createSuccessResponse(countMap)
 		actual := test.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
-		assert.Equal(t, expectedResponse, *actual)
+		require.Equal(t, expectedResponse, *actual)
 	})
 
 	for _, categoryId := range defs.ListCategories() {
@@ -81,7 +81,7 @@ func TestCategoryCounts(t *testing.T) {
 			expected := createSuccessResponse(countMap)
 
 			actual := test.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
-			assert.Equal(t, expected, *actual)
+			require.Equal(t, expected, *actual)
 		})
 	}
 
@@ -106,7 +106,7 @@ func TestCategoryCounts(t *testing.T) {
 			expected := createSuccessResponse(countMap)
 
 			actual := test.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
-			assert.Equal(t, expected, *actual)
+			require.Equal(t, expected, *actual)
 		})
 	}
 
@@ -134,7 +134,7 @@ func TestCategoryCounts(t *testing.T) {
 				expected := createSuccessResponse(countMap)
 
 				actual := test.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
-				assert.Equal(t, expected, *actual)
+				require.Equal(t, expected, *actual)
 			})
 		}
 	}
