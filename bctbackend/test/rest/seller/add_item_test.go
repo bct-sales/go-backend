@@ -17,6 +17,7 @@ import (
 	"bctbackend/test"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAddSellerItem(t *testing.T) {
@@ -47,51 +48,24 @@ func TestAddSellerItem(t *testing.T) {
 									request.AddCookie(test.CreateCookie(sessionId))
 									router.ServeHTTP(writer, request)
 
-									if !assert.Equal(t, http.StatusCreated, writer.Code) {
-										return
-									}
+									require.Equal(t, http.StatusCreated, writer.Code)
 
 									response := test.FromJson[restapi.AddSellerItemResponse](writer.Body.String())
 
 									itemsInDatabase, err := queries.GetItems(db)
-									if !assert.NoError(t, err) {
-										return
-									}
 
-									if !assert.Equal(t, 1, len(itemsInDatabase)) {
-										return
-									}
+									require.NoError(t, err)
+									require.Equal(t, 1, len(itemsInDatabase))
 
 									itemInDatabase := itemsInDatabase[0]
 
-									if !assert.Equal(t, response.ItemId, itemInDatabase.ItemId) {
-										return
-									}
-
-									if !assert.Equal(t, seller.UserId, itemInDatabase.SellerId) {
-										return
-									}
-
-									if !assert.Equal(t, price, itemInDatabase.PriceInCents) {
-										return
-									}
-
-									if !assert.Equal(t, description, itemInDatabase.Description) {
-										return
-									}
-
-									if !assert.Equal(t, categoryId, itemInDatabase.CategoryId) {
-										return
-									}
-
-									if !assert.Equal(t, donation, itemInDatabase.Donation) {
-										return
-									}
-
-									if !assert.Equal(t, charity, itemInDatabase.Charity) {
-										return
-									}
-
+									require.Equal(t, response.ItemId, itemInDatabase.ItemId)
+									require.Equal(t, seller.UserId, itemInDatabase.SellerId)
+									require.Equal(t, price, itemInDatabase.PriceInCents)
+									require.Equal(t, description, itemInDatabase.Description)
+									require.Equal(t, categoryId, itemInDatabase.CategoryId)
+									require.Equal(t, donation, itemInDatabase.Donation)
+									require.Equal(t, charity, itemInDatabase.Charity)
 								})
 							}
 						}
@@ -131,13 +105,8 @@ func TestAddSellerItem(t *testing.T) {
 			assert.Equal(t, http.StatusBadRequest, writer.Code)
 			itemsInDatabase, err := queries.GetItems(db)
 
-			if !assert.NoError(t, err) {
-				return
-			}
-
-			if !assert.Equal(t, 0, len(itemsInDatabase)) {
-				return
-			}
+			require.NoError(t, err)
+			require.Equal(t, 0, len(itemsInDatabase))
 		})
 
 		t.Run("Empty description", func(t *testing.T) {
@@ -166,16 +135,12 @@ func TestAddSellerItem(t *testing.T) {
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
-			assert.Equal(t, http.StatusBadRequest, writer.Code)
+			require.Equal(t, http.StatusBadRequest, writer.Code)
+
 			itemsInDatabase, err := queries.GetItems(db)
 
-			if !assert.NoError(t, err) {
-				return
-			}
-
-			if !assert.Equal(t, 0, len(itemsInDatabase)) {
-				return
-			}
+			require.NoError(t, err)
+			require.Equal(t, 0, len(itemsInDatabase))
 		})
 
 		t.Run("Invalid category", func(t *testing.T) {
@@ -206,16 +171,12 @@ func TestAddSellerItem(t *testing.T) {
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
-			assert.Equal(t, http.StatusBadRequest, writer.Code)
+			require.Equal(t, http.StatusBadRequest, writer.Code)
+
 			itemsInDatabase, err := queries.GetItems(db)
 
-			if !assert.NoError(t, err) {
-				return
-			}
-
-			if !assert.Equal(t, 0, len(itemsInDatabase)) {
-				return
-			}
+			require.NoError(t, err)
+			require.Equal(t, 0, len(itemsInDatabase))
 		})
 
 		t.Run("Adding seller item as admin", func(t *testing.T) {
@@ -247,19 +208,12 @@ func TestAddSellerItem(t *testing.T) {
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
-			if !assert.Equal(t, http.StatusForbidden, writer.Code) {
-				return
-			}
+			require.Equal(t, http.StatusForbidden, writer.Code)
 
 			itemsInDatabase, err := queries.GetItems(db)
 
-			if !assert.NoError(t, err) {
-				return
-			}
-
-			if !assert.Equal(t, 0, len(itemsInDatabase)) {
-				return
-			}
+			require.NoError(t, err)
+			require.Equal(t, 0, len(itemsInDatabase))
 		})
 
 		t.Run("Adding seller item as cashier", func(t *testing.T) {
@@ -291,19 +245,12 @@ func TestAddSellerItem(t *testing.T) {
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
-			if !assert.Equal(t, http.StatusForbidden, writer.Code) {
-				return
-			}
+			require.Equal(t, http.StatusForbidden, writer.Code)
 
 			itemsInDatabase, err := queries.GetItems(db)
 
-			if !assert.NoError(t, err) {
-				return
-			}
-
-			if !assert.Equal(t, 0, len(itemsInDatabase)) {
-				return
-			}
+			require.NoError(t, err)
+			require.Equal(t, 0, len(itemsInDatabase))
 		})
 
 		t.Run("Invalid url", func(t *testing.T) {
@@ -334,19 +281,12 @@ func TestAddSellerItem(t *testing.T) {
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
-			if !assert.Equal(t, http.StatusBadRequest, writer.Code) {
-				return
-			}
+			require.Equal(t, http.StatusBadRequest, writer.Code)
 
 			itemsInDatabase, err := queries.GetItems(db)
 
-			if !assert.NoError(t, err) {
-				return
-			}
-
-			if !assert.Equal(t, 0, len(itemsInDatabase)) {
-				return
-			}
+			require.NoError(t, err)
+			require.Equal(t, 0, len(itemsInDatabase))
 		})
 
 		t.Run("Adding as different seller", func(t *testing.T) {
@@ -378,19 +318,12 @@ func TestAddSellerItem(t *testing.T) {
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
-			if !assert.Equal(t, http.StatusForbidden, writer.Code) {
-				return
-			}
+			require.Equal(t, http.StatusForbidden, writer.Code)
 
 			itemsInDatabase, err := queries.GetItems(db)
 
-			if !assert.NoError(t, err) {
-				return
-			}
-
-			if !assert.Equal(t, 0, len(itemsInDatabase)) {
-				return
-			}
+			require.NoError(t, err)
+			require.Equal(t, 0, len(itemsInDatabase))
 		})
 
 		t.Run("Adding as nonexistent seller", func(t *testing.T) {
@@ -410,9 +343,7 @@ func TestAddSellerItem(t *testing.T) {
 			nonexistentId := models.NewId(1000)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
-			if !assert.False(t, queries.UserWithIdExists(db, nonexistentId)) {
-				return
-			}
+			require.False(t, queries.UserWithIdExists(db, nonexistentId))
 
 			url := path.SellerItems().WithSellerId(nonexistentId)
 			payload := restapi.AddSellerItemPayload{
@@ -426,19 +357,12 @@ func TestAddSellerItem(t *testing.T) {
 			request.AddCookie(test.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
-			if !assert.Equal(t, http.StatusForbidden, writer.Code) {
-				return
-			}
+			require.Equal(t, http.StatusForbidden, writer.Code)
 
 			itemsInDatabase, err := queries.GetItems(db)
 
-			if !assert.NoError(t, err) {
-				return
-			}
-
-			if !assert.Equal(t, 0, len(itemsInDatabase)) {
-				return
-			}
+			require.NoError(t, err)
+			require.Equal(t, 0, len(itemsInDatabase))
 		})
 	})
 }
