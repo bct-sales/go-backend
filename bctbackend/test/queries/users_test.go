@@ -56,7 +56,7 @@ func TestAddUserWithExistingId(t *testing.T) {
 	}
 }
 
-func TestAddUserWithInvalidRole(t *testing.T) {
+func TestAddUserWithIdWithInvalidRole(t *testing.T) {
 	db := test.OpenInitializedDatabase()
 	defer db.Close()
 
