@@ -135,6 +135,7 @@ func CountItems(db *sql.DB) (int, error) {
 // An UnknownUserError is returned if no user with the given sellerId exists.
 // An ItemRequiresSellerError is returned if the seller does not exist.
 // An NoSuchCategoryError is returned if the itemCategoryId is invalid.
+// An InvalidPriceError is returned if the priceInCents is invalid.
 func AddItem(
 	db *sql.DB,
 	addedAt models.Timestamp,
@@ -144,6 +145,10 @@ func AddItem(
 	sellerId models.Id,
 	donation bool,
 	charity bool) (models.Id, error) {
+
+	if priceInCents <= 0 {
+		return 0, &InvalidPriceError{PriceInCents: priceInCents}
+	}
 
 	isSeller, err := CheckUserRole(db, sellerId, models.SellerRoleId)
 
