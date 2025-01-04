@@ -5,7 +5,6 @@ import (
 	cli_category "bctbackend/cli/category"
 	cli_item "bctbackend/cli/item"
 	cli_user "bctbackend/cli/user"
-	"bctbackend/database/models"
 	"fmt"
 	"os"
 
@@ -151,12 +150,9 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							id := options.user.add.id
-							roleId, err := models.ParseRole(options.user.add.role)
+							role := options.user.add.role
 							userPassword := options.user.add.password
-							if err != nil {
-								return fmt.Errorf("invalid role %v", options.user.add.role)
-							}
-							return cli_user.AddUser(databasePath, id, roleId, userPassword)
+							return cli_user.AddUser(databasePath, id, role, userPassword)
 						},
 					},
 					{

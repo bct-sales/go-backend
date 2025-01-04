@@ -11,24 +11,26 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func AddUser(databasePath string, userId models.Id, role models.Id, password string) error {
+func AddUser(databasePath string, userId models.Id, role string, password string) error {
 	db, err := database.ConnectToDatabase(databasePath)
-
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to connect to database: %v", err)
 	}
 
 	defer db.Close()
 
+	roleId, err := models.ParseRole(role)
+	if err != nil {
+		return fmt.Errorf("invalid role %v", role)
+	}
+
 	timestamp := time.Now().Unix()
 	var lastActivity *models.Timestamp = nil
 
-	if err := queries.AddUserWithId(db, userId, role, timestamp, lastActivity, password); err != nil {
-		{
-			var userIdAlreadyInUseError *queries.UserIdAlreadyInUseError
-			if errors.As(err, &userIdAlreadyInUseError) {
-				return fmt.Errorf("user ID %d is already in use", userId)
-			}
+	if err := queries.AddUserWithId(db, userId, roleId, timestamp, lastActivity, password); err != nil {
+		var userIdAlreadyInUseError *queries.UserIdAlreadyInUseError
+		if errors.As(err, &userIdAlreadyInUseError) {
+			return fmt.Errorf("user ID %d is already in use", userId)
 		}
 
 		return err
