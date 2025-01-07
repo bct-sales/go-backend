@@ -160,9 +160,13 @@ func AddItemInCategoryToDatabase(db *sql.DB, sellerId models.Id, itemCategoryId 
 }
 
 func AddSaleToDatabase(db *sql.DB, cashierId models.Id, itemIds []models.Id) models.Id {
-	timestamp := models.NewTimestamp(0)
+	transactionTime := models.NewTimestamp(0)
 
-	saleId, err := queries.AddSale(db, cashierId, timestamp, itemIds)
+	return AddSaleAtTimeToDatabase(db, cashierId, itemIds, transactionTime)
+}
+
+func AddSaleAtTimeToDatabase(db *sql.DB, cashierId models.Id, itemIds []models.Id, transactionTime models.Timestamp) models.Id {
+	saleId, err := queries.AddSale(db, cashierId, transactionTime, itemIds)
 
 	if err != nil {
 		panic(err)
