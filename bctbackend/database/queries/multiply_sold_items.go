@@ -28,9 +28,9 @@ func GetMultiplySoldItems(db *sql.DB) ([]MultiplySoldItem, error) {
 			INNER JOIN item_categories category ON item.item_category_id = category.item_category_id
 			INNER JOIN sale_items sale_item ON item.item_id = sale_item.item_id
 			INNER JOIN sales sale ON sale_item.sale_id = sale.sale_id
-			WHERE (SELECT COUNT(sale_item.sale_id)
-			       FROM items item
-				   INNER JOIN sale_items sale_item ON item.item_id = sale_item.item_id) > 1
+			WHERE (SELECT COUNT(*)
+			       FROM sale_items si
+				   WHERE si.item_id = item.item_id) > 1
 			ORDER BY item.item_id, sale.sale_id
 		`,
 	)
