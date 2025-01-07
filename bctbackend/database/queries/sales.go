@@ -257,3 +257,36 @@ func RemoveSale(db *sql.DB, saleId models.Id) error {
 
 	return nil
 }
+
+func GetSoldItems(db *sql.DB) ([]models.Item, error) {
+	rows, err := db.Query(
+		`
+			SELECT DISTINCT i.item_id, i.added_at, i.description, i.price_in_cents, i.item_category_id, i.seller_id, i.donation, i.charity
+			FROM sale_items si
+			INNER JOIN items i ON si.item_id = i.item_id
+			INNER JOIN sales s ON si.sale_id = s.sale_id
+			ORDER BY s.transaction_time DESC, i.item_id ASC
+		`,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var items []models.Item
+	for rows.Next() {
+		var item models.Item
+
+		err := rows.Scan(&item.ItemId, &item.AddedAt, &item.Description, &item.PriceInCents, &item.CategoryId, &item.SellerId, &item.Donation, &item.Charity)
+
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, item)
+	}
+
+	return items, nil
+}
