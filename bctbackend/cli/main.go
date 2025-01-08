@@ -6,6 +6,7 @@ import (
 	cli_item "bctbackend/cli/item"
 	cli_user "bctbackend/cli/user"
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -77,6 +78,21 @@ func ProcessCommandLineArguments(arguments []string) error {
 	}
 
 	app := &cli.App{
+		Name:  "bctbackend",
+		Usage: "Backend for the BCT sales site",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:  "verbose",
+				Usage: "enable verbose output",
+				Action: func(context *cli.Context, verbose bool) error {
+					if verbose {
+						fmt.Print("Verbose output enabled\n")
+						slog.SetLogLoggerLevel(slog.LevelDebug)
+					}
+					return nil
+				},
+			},
+		},
 		Commands: []*cli.Command{
 			{
 				Name:  "server",
