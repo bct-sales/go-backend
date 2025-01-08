@@ -38,6 +38,7 @@ func GetCategories(db *sql.DB) ([]models.ItemCategory, error) {
 		`
 			SELECT item_category_id, name
 			FROM item_categories
+			ORDER BY item_category_id
 		`,
 	)
 
