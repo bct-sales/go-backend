@@ -6,7 +6,6 @@ import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/test"
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
