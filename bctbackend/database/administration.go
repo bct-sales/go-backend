@@ -34,6 +34,7 @@ func ConnectToDatabase(path string) (*sql.DB, error) {
 		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "enabling foreign keys"}
 	}
 
+	slog.Debug("Connected to database", slog.String("path", path))
 	return db, nil
 }
 
@@ -90,7 +91,7 @@ func removeAllTables(db *sql.DB) error {
 }
 
 func dropTable(db *sql.DB, table string) error {
-	slog.Info("Dropping table", slog.String("table", table))
+	slog.Debug("Dropping table", slog.String("table", table))
 	_, err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", table))
 
 	if err != nil {
@@ -101,7 +102,7 @@ func dropTable(db *sql.DB, table string) error {
 }
 
 func dropView(db *sql.DB, view string) error {
-	slog.Info("Dropping view", slog.String("table", view))
+	slog.Debug("Dropping view", slog.String("table", view))
 	_, err := db.Exec(fmt.Sprintf("DROP VIEW IF EXISTS %s", view))
 
 	if err != nil {
@@ -144,7 +145,7 @@ func createTables(db *sql.DB) error {
 }
 
 func createRoleTable(db *sql.DB) error {
-	slog.Info("Creating roles table")
+	slog.Debug("Creating roles table")
 
 	_, err := db.Exec(`
 		CREATE TABLE roles (
@@ -163,7 +164,7 @@ func createRoleTable(db *sql.DB) error {
 }
 
 func createUserTable(db *sql.DB) error {
-	slog.Info("Creating users table")
+	slog.Debug("Creating users table")
 
 	_, err := db.Exec(`
 		CREATE TABLE users (
@@ -186,7 +187,7 @@ func createUserTable(db *sql.DB) error {
 }
 
 func createItemCategoryTable(db *sql.DB) error {
-	slog.Info("Creating item categories table")
+	slog.Debug("Creating item categories table")
 
 	_, err := db.Exec(`
 		CREATE TABLE item_categories (
@@ -205,7 +206,7 @@ func createItemCategoryTable(db *sql.DB) error {
 }
 
 func createItemTable(db *sql.DB) error {
-	slog.Info("Creating items table")
+	slog.Debug("Creating items table")
 
 	_, err := db.Exec(`
 		CREATE TABLE items (
@@ -232,7 +233,7 @@ func createItemTable(db *sql.DB) error {
 }
 
 func createSaleTable(db *sql.DB) error {
-	slog.Info("Creating sales table")
+	slog.Debug("Creating sales table")
 
 	_, err := db.Exec(`
 		CREATE TABLE sales (
@@ -253,7 +254,7 @@ func createSaleTable(db *sql.DB) error {
 }
 
 func createSaleItemsTable(db *sql.DB) error {
-	slog.Info("Creating sale items table")
+	slog.Debug("Creating sale items table")
 
 	_, err := db.Exec(`
 		CREATE TABLE sale_items (
@@ -274,7 +275,7 @@ func createSaleItemsTable(db *sql.DB) error {
 }
 
 func createSessionTable(db *sql.DB) error {
-	slog.Info("Creating sessions table")
+	slog.Debug("Creating sessions table")
 
 	_, err := db.Exec(`
 		CREATE TABLE sessions (
@@ -303,7 +304,7 @@ func createViews(db *sql.DB) error {
 }
 
 func createCategoryCountsView(db *sql.DB) error {
-	slog.Info("Creating item category counts view")
+	slog.Debug("Creating item category counts view")
 
 	_, err := db.Exec(`
 		CREATE VIEW item_category_counts AS
@@ -336,7 +337,7 @@ func populateTables(db *sql.DB) error {
 }
 
 func populateRoleTable(db *sql.DB) error {
-	slog.Info("Populating roles table")
+	slog.Debug("Populating roles table")
 
 	_, err := db.Exec(`
 			INSERT INTO roles (role_id, name)
@@ -361,7 +362,7 @@ func populateRoleTable(db *sql.DB) error {
 }
 
 func populateItemCategoryTable(db *sql.DB) error {
-	slog.Info("Populating item categories table")
+	slog.Debug("Populating item categories table")
 
 	for _, categoryId := range defs.ListCategories() {
 		categoryName, err := defs.NameOfCategory(categoryId)
