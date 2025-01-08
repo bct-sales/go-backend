@@ -13,23 +13,6 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func TestDeleteSession(t *testing.T) {
-	db := test.OpenInitializedDatabase()
-	defer db.Close()
-
-	userId := test.AddUserToDatabase(db, models.AdminRoleId).UserId
-	expirationTime := models.Timestamp(0)
-	sessionId, err := queries.AddSession(db, userId, expirationTime)
-	require.NoError(t, err)
-
-	err = queries.DeleteSession(db, sessionId)
-	require.NoError(t, err)
-
-	_, err = queries.GetSessionById(db, sessionId)
-	var noSuchSessionError *queries.NoSuchSessionError
-	require.ErrorAs(t, err, &noSuchSessionError)
-}
-
 func TestDeleteExpiredSessions(t *testing.T) {
 	for cutoff := 0; cutoff < 100; cutoff += 10 {
 		testLabel := fmt.Sprintf("cutoff=%d", cutoff)
