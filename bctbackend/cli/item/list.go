@@ -63,7 +63,7 @@ func ListItems(databasePath string) error {
 
 		return nil
 	} else {
-		err = pterm.DefaultTable.WithHasHeader().WithData(tableData).Render()
+		err = pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
 
 		if err != nil {
 			return fmt.Errorf("error while rendering table: %v", err)
