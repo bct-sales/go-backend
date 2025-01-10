@@ -36,5 +36,6 @@ func AddUser(databasePath string, userId models.Id, role string, password string
 		return err
 	}
 
+	fmt.Println("User added successfully")
 	return nil
 }
