@@ -21,6 +21,12 @@ func AddItem(
 	donation bool,
 	charity bool) error {
 
+	reportErrorFormattingOutput := func(err error) error {
+		fmt.Printf("An error occurred while trying to format the output: %v\n", err)
+		fmt.Printf("Item is still added to the database.\n")
+		return nil
+	}
+
 	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
@@ -35,10 +41,12 @@ func AddItem(
 		return err
 	}
 
+	fmt.Println("Item added successfully!")
+
 	categoryName, err := defs.NameOfCategory(categoryId)
 
 	if err != nil {
-		return fmt.Errorf("error while converting category to string: %v", err)
+		return reportErrorFormattingOutput(err)
 	}
 
 	tableData := pterm.TableData{
@@ -53,7 +61,7 @@ func AddItem(
 	err = pterm.DefaultTable.WithData(tableData).Render()
 
 	if err != nil {
-		return fmt.Errorf("error while rendering table: %v", err)
+		return reportErrorFormattingOutput(err)
 	}
 
 	return nil
