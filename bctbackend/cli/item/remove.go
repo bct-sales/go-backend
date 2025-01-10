@@ -4,6 +4,7 @@ import (
 	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"fmt"
 
 	_ "modernc.org/sqlite"
 )
@@ -24,5 +25,6 @@ func RemoveItem(
 		return err
 	}
 
+	fmt.Println("Item removed successfully")
 	return nil
 }
