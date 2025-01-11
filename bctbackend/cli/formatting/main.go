@@ -58,7 +58,7 @@ func PrintSale(db *sql.DB, saleId models.Id) error {
 
 	tableData := pterm.TableData{
 		{"Cashier", FormatId(sale.CashierId)},
-		{"Transaction Time", fmt.Sprintf("%d", sale.TransactionTime)},
+		{"Transaction Time", FormatTimestamp(sale.TransactionTime)},
 	}
 
 	for index, saleItem := range saleItems {
