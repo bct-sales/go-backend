@@ -4,10 +4,13 @@ import (
 	cli_barcode "bctbackend/cli/barcode"
 	cli_category "bctbackend/cli/category"
 	cli_item "bctbackend/cli/item"
+	cli_sale "bctbackend/cli/sale"
 	cli_user "bctbackend/cli/user"
+	"bctbackend/database/models"
 	"fmt"
 	"log/slog"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 	"github.com/urfave/cli/v2"
@@ -64,6 +67,20 @@ func ProcessCommandLineArguments(arguments []string) error {
 
 			remove struct {
 				id int64
+			}
+
+			show struct {
+				id int64
+			}
+		}
+
+		sale struct {
+			add struct {
+				cashierId int64
+			}
+
+			show struct {
+				saleId int64
 			}
 		}
 
@@ -280,6 +297,72 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Action: func(context *cli.Context) error {
 							id := options.item.remove.id
 							return cli_item.RemoveItem(databasePath, id)
+						},
+					},
+					{
+						Name:  "show",
+						Usage: "show information about an item",
+						Flags: []cli.Flag{
+							&cli.Int64Flag{
+								Name:        "id",
+								Usage:       "id of the item",
+								Destination: &options.item.show.id,
+								Required:    true,
+							},
+						},
+						Action: func(context *cli.Context) error {
+							id := options.item.show.id
+							return cli_item.ShowItem(databasePath, id)
+						},
+					},
+				},
+			},
+			{
+				Name:  "sale",
+				Usage: "sale related functionality",
+				Subcommands: []*cli.Command{
+					{
+						Name:  "add",
+						Usage: "add a new sale",
+						Flags: []cli.Flag{
+							&cli.Int64Flag{
+								Name:        "cashier",
+								Usage:       "id of the cashier",
+								Destination: &options.sale.add.cashierId,
+								Required:    true,
+							},
+						},
+						Action: func(context *cli.Context) error {
+							cashierId := options.sale.add.cashierId
+							items := []models.Id{}
+
+							for i := 0; i < context.Args().Len(); i++ {
+								itemId, err := strconv.ParseInt(context.Args().Get(i), 10, 64)
+
+								if err != nil {
+									return fmt.Errorf("failed to parse item id: %v", err)
+								}
+
+								items = append(items, itemId)
+							}
+
+							return cli_sale.AddSale(databasePath, cashierId, items)
+						},
+					},
+					{
+						Name:  "show",
+						Usage: "show a sale",
+						Flags: []cli.Flag{
+							&cli.Int64Flag{
+								Name:        "sale",
+								Usage:       "id of the sale",
+								Destination: &options.sale.show.saleId,
+								Required:    true,
+							},
+						},
+						Action: func(context *cli.Context) error {
+							saleId := options.sale.show.saleId
+							return cli_sale.ShowSale(databasePath, saleId)
 						},
 					},
 				},
