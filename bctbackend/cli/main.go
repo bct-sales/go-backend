@@ -53,6 +53,10 @@ func ProcessCommandLineArguments(arguments []string) error {
 				id       int64
 				password string
 			}
+
+			show struct {
+				id int64
+			}
 		}
 
 		item struct {
@@ -193,6 +197,22 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Usage: "list all users",
 						Action: func(context *cli.Context) error {
 							return cli_user.ListUsers(databasePath)
+						},
+					},
+					{
+						Name:  "show",
+						Usage: "show information about a user",
+						Flags: []cli.Flag{
+							&cli.Int64Flag{
+								Name:        "id",
+								Usage:       "id of the user",
+								Destination: &options.user.show.id,
+								Required:    true,
+							},
+						},
+						Action: func(context *cli.Context) error {
+							id := options.user.show.id
+							return cli_user.ShowUser(databasePath, id)
 						},
 					},
 					{
