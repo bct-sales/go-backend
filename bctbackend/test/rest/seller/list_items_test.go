@@ -21,7 +21,7 @@ func TestListSellerItems(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := test.AddSellerWithIdToDatabase(db, sellerId)
+			seller := test.AddSellerToDatabase(db, test.WithUserId(sellerId))
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
 			expectedItems := []models.Item{}

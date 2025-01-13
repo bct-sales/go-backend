@@ -28,8 +28,8 @@ func TestAddItemToDatabase(t *testing.T) {
 									db := test.OpenInitializedDatabase()
 									defer db.Close()
 
-									test.AddSellerWithIdToDatabase(db, 1)
-									test.AddSellerWithIdToDatabase(db, 2)
+									test.AddSellerToDatabase(db, test.WithUserId(1))
+									test.AddSellerToDatabase(db, test.WithUserId(2))
 
 									itemId, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 									if err != nil {
@@ -74,7 +74,7 @@ func TestAddItemWithNonexistingSeller(t *testing.T) {
 	sellerId := models.NewId(1)
 	donation := false
 
-	test.AddSellerWithIdToDatabase(db, 2)
+	test.AddSellerToDatabase(db, test.WithUserId(2))
 
 	_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 	var unknownUserError *queries.UnknownUserError
@@ -97,7 +97,7 @@ func TestAddItemWithNonexistingCategory(t *testing.T) {
 	donation := false
 	itemCategoryId := models.NewId(100)
 
-	test.AddSellerWithIdToDatabase(db, 1)
+	test.AddSellerToDatabase(db, test.WithUserId(1))
 
 	{
 		categoryExists, err := queries.CategoryWithIdExists(db, itemCategoryId)
