@@ -166,6 +166,7 @@ func SaleExists(db *sql.DB, saleId models.Id) (bool, error) {
 	return true, nil
 }
 
+// GetSaleItems lists all items associated with a specified sale.
 func GetSaleItems(db *sql.DB, saleId models.Id) ([]models.Item, error) {
 	saleExists, err := SaleExists(db, saleId)
 
@@ -258,6 +259,8 @@ func RemoveSale(db *sql.DB, saleId models.Id) error {
 	return nil
 }
 
+// GetSoldItems returns a list of all items that have been sold.
+// The items are ordered by transaction time (most recent first) and item ID (lowest first).
 func GetSoldItems(db *sql.DB) ([]models.Item, error) {
 	rows, err := db.Query(
 		`
@@ -291,6 +294,8 @@ func GetSoldItems(db *sql.DB) ([]models.Item, error) {
 	return items, nil
 }
 
+// GetItemsSoldBy returns a list of all items sold by a specified cashier.
+// The items are ordered by transaction time (most recent first) and item ID (lowest first).
 func GetItemsSoldBy(db *sql.DB, cashierId models.Id) ([]models.Item, error) {
 	rows, err := db.Query(
 		`
