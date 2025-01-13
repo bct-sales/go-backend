@@ -39,13 +39,14 @@ func ShowUser(databasePath string, userId models.Id) error {
 	case models.SellerRoleId:
 		return showSeller(db, user)
 	case models.CashierRoleId:
-		return showCashier(user)
+		return showCashier(db, user)
 	default:
 		return fmt.Errorf("unknown role id: %d", user.RoleId)
 	}
 }
 
 func showAdmin(user models.User) error {
+	pterm.DefaultSection.Println("User Data")
 	return formatting.PrintUser(user)
 }
 
@@ -64,7 +65,7 @@ func showSeller(db *sql.DB, user models.User) error {
 
 	pterm.DefaultSection.Println("Items")
 
-	err = formatting.PrintSellerItems(sellerItems)
+	err = formatting.PrintItems(sellerItems)
 	if err != nil {
 		return err
 	}
@@ -72,6 +73,19 @@ func showSeller(db *sql.DB, user models.User) error {
 	return nil
 }
 
-func showCashier(user models.User) error {
-	return formatting.PrintUser(user)
+func showCashier(db *sql.DB, user models.User) error {
+	pterm.DefaultSection.Println("User Data")
+	formatting.PrintUser(user)
+
+	soldItems, err := queries.GetItemsSoldBy(db, user.UserId)
+
+	if err != nil {
+		return err
+	}
+
+	pterm.DefaultSection.Println("Sold Items")
+
+	formatting.PrintItems(soldItems)
+
+	return nil
 }
