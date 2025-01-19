@@ -11,7 +11,7 @@ import (
 	rest_admin "bctbackend/rest/admin"
 	"bctbackend/rest/path"
 	"bctbackend/test"
-	"bctbackend/test/setup"
+	. "bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )
@@ -48,7 +48,7 @@ func TestCategoryCounts(t *testing.T) {
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
-		admin := setup.AddAdminToDatabase(db)
+		admin := AddAdminToDatabase(db)
 		sessionId := test.AddSessionToDatabase(db, admin.UserId)
 
 		url := path.CategoryCounts().String()
@@ -68,9 +68,9 @@ func TestCategoryCounts(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			admin := setup.AddAdminToDatabase(db)
-			seller := setup.AddSellerToDatabase(db)
-			setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categoryId), setup.WithDummyData(1))
+			admin := AddAdminToDatabase(db)
+			seller := AddSellerToDatabase(db)
+			AddItemToDatabase(db, seller.UserId, WithItemCategory(categoryId), WithDummyData(1))
 			sessionId := test.AddSessionToDatabase(db, admin.UserId)
 
 			url := path.CategoryCounts().String()
@@ -92,10 +92,10 @@ func TestCategoryCounts(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			admin := setup.AddAdminToDatabase(db)
-			seller := setup.AddSellerToDatabase(db)
-			setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categoryId), setup.WithDummyData(1))
-			setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categoryId), setup.WithDummyData(1))
+			admin := AddAdminToDatabase(db)
+			seller := AddSellerToDatabase(db)
+			AddItemToDatabase(db, seller.UserId, WithItemCategory(categoryId), WithDummyData(1))
+			AddItemToDatabase(db, seller.UserId, WithItemCategory(categoryId), WithDummyData(1))
 			sessionId := test.AddSessionToDatabase(db, admin.UserId)
 
 			url := path.CategoryCounts().String()
@@ -118,10 +118,10 @@ func TestCategoryCounts(t *testing.T) {
 				writer := httptest.NewRecorder()
 				defer db.Close()
 
-				admin := setup.AddAdminToDatabase(db)
-				seller := setup.AddSellerToDatabase(db)
-				setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categoryId1), setup.WithDummyData(1))
-				setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categoryId2), setup.WithDummyData(2))
+				admin := AddAdminToDatabase(db)
+				seller := AddSellerToDatabase(db)
+				AddItemToDatabase(db, seller.UserId, WithItemCategory(categoryId1), WithDummyData(1))
+				AddItemToDatabase(db, seller.UserId, WithItemCategory(categoryId2), WithDummyData(2))
 				sessionId := test.AddSessionToDatabase(db, admin.UserId)
 
 				url := path.CategoryCounts().String()
