@@ -12,7 +12,7 @@ import (
 	"bctbackend/defs"
 	"bctbackend/rest/path"
 	"bctbackend/test"
-	"bctbackend/test/setup"
+	. "bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )
@@ -23,7 +23,7 @@ func TestListAllItems(t *testing.T) {
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
-		admin := setup.AddAdminToDatabase(db)
+		admin := AddAdminToDatabase(db)
 		sessionId := test.AddSessionToDatabase(db, admin.UserId)
 
 		url := path.Items().String()
@@ -43,10 +43,10 @@ func TestListAllItems(t *testing.T) {
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
-		adminId := setup.AddAdminToDatabase(db).UserId
+		adminId := AddAdminToDatabase(db).UserId
 		sessionId := test.AddSessionToDatabase(db, adminId)
 
-		sellerId := setup.AddSellerToDatabase(db).UserId
+		sellerId := AddSellerToDatabase(db).UserId
 		item := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
 		itemId, err := queries.AddItem(db, item.AddedAt, item.Description, item.PriceInCents, item.CategoryId, item.SellerId, item.Donation, item.Charity)
 		require.NoError(t, err)
@@ -70,9 +70,9 @@ func TestListAllItems(t *testing.T) {
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
-		adminId := setup.AddAdminToDatabase(db).UserId
+		adminId := AddAdminToDatabase(db).UserId
 		sessionId := test.AddSessionToDatabase(db, adminId)
-		sellerId := setup.AddSellerToDatabase(db).UserId
+		sellerId := AddSellerToDatabase(db).UserId
 		item1 := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
 		item2 := models.NewItem(0, 100, "test item", 1000, defs.Shoes, sellerId, false, false)
 
@@ -111,7 +111,7 @@ func TestListAllItemsAsNonAdmin(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			userId := setup.AddUserToDatabase(db, roleId).UserId
+			userId := AddUserToDatabase(db, roleId).UserId
 			sessionId := test.AddSessionToDatabase(db, userId)
 
 			url := path.Items().String()

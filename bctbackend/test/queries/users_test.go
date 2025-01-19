@@ -5,7 +5,7 @@ package queries
 import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/test/setup"
+	. "bctbackend/test/setup"
 	"fmt"
 	"testing"
 
@@ -18,7 +18,7 @@ func TestAddUserWithId(t *testing.T) {
 		for _, userId := range []models.Id{1, 5} {
 			for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
 				t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
-					db := setup.OpenInitializedDatabase()
+					db := OpenInitializedDatabase()
 					defer db.Close()
 
 					err := queries.AddUserWithId(db, userId, roleId, 0, nil, password)
@@ -35,7 +35,7 @@ func TestAddUserWithId(t *testing.T) {
 }
 
 func TestAddUserWithExistingId(t *testing.T) {
-	db := setup.OpenInitializedDatabase()
+	db := OpenInitializedDatabase()
 	defer db.Close()
 
 	userId := models.NewId(1)
@@ -57,7 +57,7 @@ func TestAddUserWithExistingId(t *testing.T) {
 }
 
 func TestAddUserWithIdWithInvalidRole(t *testing.T) {
-	db := setup.OpenInitializedDatabase()
+	db := OpenInitializedDatabase()
 	defer db.Close()
 
 	userId := models.NewId(1)
@@ -79,7 +79,7 @@ func TestAddUser(t *testing.T) {
 	for _, password := range []string{"a", "xyz"} {
 		for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
 			t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
-				db := setup.OpenInitializedDatabase()
+				db := OpenInitializedDatabase()
 				defer db.Close()
 
 				userId, err := queries.AddUser(db, roleId, 0, nil, password)
@@ -91,7 +91,7 @@ func TestAddUser(t *testing.T) {
 }
 
 func TestAddUserWithInvalidRole(t *testing.T) {
-	db := setup.OpenInitializedDatabase()
+	db := OpenInitializedDatabase()
 	defer db.Close()
 
 	roleId := models.Id(10)
@@ -109,7 +109,7 @@ func TestAddUserWithInvalidRole(t *testing.T) {
 }
 
 func TestGetUser(t *testing.T) {
-	db := setup.OpenInitializedDatabase()
+	db := OpenInitializedDatabase()
 	defer db.Close()
 
 	password := "xyz"
@@ -125,7 +125,7 @@ func TestGetUser(t *testing.T) {
 }
 
 func TestListUsers(t *testing.T) {
-	db := setup.OpenInitializedDatabase()
+	db := OpenInitializedDatabase()
 	defer db.Close()
 
 	password := "xyz"
@@ -143,7 +143,7 @@ func TestListUsers(t *testing.T) {
 }
 
 func TestUpdatePassword(t *testing.T) {
-	db := setup.OpenInitializedDatabase()
+	db := OpenInitializedDatabase()
 	defer db.Close()
 
 	password1 := "xyz"

@@ -4,7 +4,7 @@ package queries
 
 import (
 	"bctbackend/database/queries"
-	"bctbackend/test/setup"
+	. "bctbackend/test/setup"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,7 +13,7 @@ import (
 
 func TestGetItems(t *testing.T) {
 	t.Run("Empty", func(t *testing.T) {
-		db := setup.OpenInitializedDatabase()
+		db := OpenInitializedDatabase()
 		defer db.Close()
 
 		items, err := queries.GetItems(db)
@@ -22,11 +22,11 @@ func TestGetItems(t *testing.T) {
 	})
 
 	t.Run("One item", func(t *testing.T) {
-		db := setup.OpenInitializedDatabase()
+		db := OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := setup.AddSellerToDatabase(db).UserId
-		itemId := setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)).ItemId
+		sellerId := AddSellerToDatabase(db).UserId
+		itemId := AddItemToDatabase(db, sellerId, WithDummyData(1)).ItemId
 
 		items, err := queries.GetItems(db)
 		require.NoError(t, err)
@@ -35,12 +35,12 @@ func TestGetItems(t *testing.T) {
 	})
 
 	t.Run("Two items", func(t *testing.T) {
-		db := setup.OpenInitializedDatabase()
+		db := OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := setup.AddSellerToDatabase(db).UserId
-		item1Id := setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)).ItemId
-		item2Id := setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(2)).ItemId
+		sellerId := AddSellerToDatabase(db).UserId
+		item1Id := AddItemToDatabase(db, sellerId, WithDummyData(1)).ItemId
+		item2Id := AddItemToDatabase(db, sellerId, WithDummyData(2)).ItemId
 
 		items, err := queries.GetItems(db)
 		require.NoError(t, err)

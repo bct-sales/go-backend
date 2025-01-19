@@ -5,7 +5,7 @@ package queries
 import (
 	"bctbackend/database/queries"
 	"bctbackend/defs"
-	"bctbackend/test/setup"
+	. "bctbackend/test/setup"
 	"fmt"
 	"testing"
 
@@ -14,7 +14,7 @@ import (
 )
 
 func TestCategoryWithIdExists(t *testing.T) {
-	db := setup.OpenInitializedDatabase()
+	db := OpenInitializedDatabase()
 	defer db.Close()
 
 	for _, categoryId := range defs.ListCategories() {

@@ -15,7 +15,7 @@ import (
 
 	"bctbackend/test"
 	rest_test "bctbackend/test/rest"
-	"bctbackend/test/setup"
+	. "bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )
@@ -30,12 +30,12 @@ func TestGetItemInformation(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := setup.AddSellerToDatabase(db)
-			cashier := setup.AddCashierToDatabase(db)
-			item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
+			seller := AddSellerToDatabase(db)
+			cashier := AddCashierToDatabase(db)
+			item := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
 
 			for i := 0; i < sale_count; i++ {
-				setup.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
+				AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
 			}
 
 			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
@@ -62,7 +62,7 @@ func TestGetItemInformationWithInvalidId(t *testing.T) {
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	cashier := setup.AddCashierToDatabase(db)
+	cashier := AddCashierToDatabase(db)
 	sessionId := test.AddSessionToDatabase(db, cashier.UserId)
 
 	url := path.SalesItems().WithRawItemId("abc")
@@ -78,11 +78,11 @@ func TestGetItemInformationAsSeller(t *testing.T) {
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	seller := setup.AddSellerToDatabase(db)
+	seller := AddSellerToDatabase(db)
 	sessionId := test.AddSessionToDatabase(db, seller.UserId)
-	item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
+	item := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
 
-	setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
+	AddItemToDatabase(db, seller.UserId, WithDummyData(1))
 
 	url := path.SalesItems().WithItemId(item.ItemId)
 	request := test.CreateGetRequest(url)
@@ -97,12 +97,12 @@ func TestGetItemInformationAsAdmin(t *testing.T) {
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	admin := setup.AddAdminToDatabase(db)
-	seller := setup.AddSellerToDatabase(db)
+	admin := AddAdminToDatabase(db)
+	seller := AddSellerToDatabase(db)
 	sessionId := test.AddSessionToDatabase(db, admin.UserId)
-	item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
+	item := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
 
-	setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
+	AddItemToDatabase(db, seller.UserId, WithDummyData(1))
 
 	url := path.SalesItems().WithItemId(item.ItemId)
 	request := test.CreateGetRequest(url)
@@ -118,7 +118,7 @@ func TestGetItemInformationWithNonexistentItem(t *testing.T) {
 	defer db.Close()
 
 	// Create cashier
-	cashier := setup.AddCashierToDatabase(db)
+	cashier := AddCashierToDatabase(db)
 
 	// Get ID for nonexisting item
 	nonexistentItem := models.NewId(1)

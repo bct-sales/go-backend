@@ -5,7 +5,7 @@ package queries
 import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/test/setup"
+	. "bctbackend/test/setup"
 	"fmt"
 	"testing"
 
@@ -17,10 +17,10 @@ func TestDeleteExpiredSessions(t *testing.T) {
 	for cutoff := 0; cutoff < 100; cutoff += 10 {
 		testLabel := fmt.Sprintf("cutoff=%d", cutoff)
 		t.Run(testLabel, func(t *testing.T) {
-			db := setup.OpenInitializedDatabase()
+			db := OpenInitializedDatabase()
 			defer db.Close()
 
-			userId := setup.AddUserToDatabase(db, models.AdminRoleId).UserId
+			userId := AddUserToDatabase(db, models.AdminRoleId).UserId
 			expiredSessions := []models.SessionId{}
 			unexpiredSessions := []models.SessionId{}
 

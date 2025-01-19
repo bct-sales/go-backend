@@ -5,7 +5,7 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/test/setup"
+	. "bctbackend/test/setup"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,7 +14,7 @@ import (
 
 func TestGetSoldItems(t *testing.T) {
 	t.Run("No items in existence", func(t *testing.T) {
-		db := setup.OpenInitializedDatabase()
+		db := OpenInitializedDatabase()
 		defer db.Close()
 
 		soldItems, err := queries.GetSoldItems(db)
@@ -23,11 +23,11 @@ func TestGetSoldItems(t *testing.T) {
 	})
 
 	t.Run("Single unsold item", func(t *testing.T) {
-		db := setup.OpenInitializedDatabase()
+		db := OpenInitializedDatabase()
 		defer db.Close()
 
-		seller := setup.AddSellerToDatabase(db)
-		setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
+		seller := AddSellerToDatabase(db)
+		AddItemToDatabase(db, seller.UserId, WithDummyData(1))
 
 		soldItems, err := queries.GetSoldItems(db)
 		require.NoError(t, err)
@@ -35,13 +35,13 @@ func TestGetSoldItems(t *testing.T) {
 	})
 
 	t.Run("Single sold item", func(t *testing.T) {
-		db := setup.OpenInitializedDatabase()
+		db := OpenInitializedDatabase()
 		defer db.Close()
 
-		seller := setup.AddSellerToDatabase(db)
-		cashier := setup.AddCashierToDatabase(db)
-		item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
-		setup.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
+		seller := AddSellerToDatabase(db)
+		cashier := AddCashierToDatabase(db)
+		item := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
+		AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
 
 		soldItems, err := queries.GetSoldItems(db)
 		require.NoError(t, err)
@@ -50,14 +50,14 @@ func TestGetSoldItems(t *testing.T) {
 	})
 
 	t.Run("Doubly sold item", func(t *testing.T) {
-		db := setup.OpenInitializedDatabase()
+		db := OpenInitializedDatabase()
 		defer db.Close()
 
-		seller := setup.AddSellerToDatabase(db)
-		cashier := setup.AddCashierToDatabase(db)
-		item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
-		setup.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
-		setup.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
+		seller := AddSellerToDatabase(db)
+		cashier := AddCashierToDatabase(db)
+		item := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
+		AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
+		AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
 
 		soldItems, err := queries.GetSoldItems(db)
 		require.NoError(t, err)
@@ -66,14 +66,14 @@ func TestGetSoldItems(t *testing.T) {
 	})
 
 	t.Run("Two sold items in single sale", func(t *testing.T) {
-		db := setup.OpenInitializedDatabase()
+		db := OpenInitializedDatabase()
 		defer db.Close()
 
-		seller := setup.AddSellerToDatabase(db)
-		cashier := setup.AddCashierToDatabase(db)
-		item1 := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
-		item2 := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(2))
-		setup.AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId, item2.ItemId})
+		seller := AddSellerToDatabase(db)
+		cashier := AddCashierToDatabase(db)
+		item1 := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
+		item2 := AddItemToDatabase(db, seller.UserId, WithDummyData(2))
+		AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId, item2.ItemId})
 
 		soldItems, err := queries.GetSoldItems(db)
 		require.NoError(t, err)
@@ -83,15 +83,15 @@ func TestGetSoldItems(t *testing.T) {
 	})
 
 	t.Run("Two sold items in separate sales", func(t *testing.T) {
-		db := setup.OpenInitializedDatabase()
+		db := OpenInitializedDatabase()
 		defer db.Close()
 
-		seller := setup.AddSellerToDatabase(db)
-		cashier := setup.AddCashierToDatabase(db)
-		item1 := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
-		item2 := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(2))
-		setup.AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId}, setup.WithTransactionTime(models.Timestamp(100)))
-		setup.AddSaleToDatabase(db, cashier.UserId, []models.Id{item2.ItemId}, setup.WithTransactionTime(models.Timestamp(200)))
+		seller := AddSellerToDatabase(db)
+		cashier := AddCashierToDatabase(db)
+		item1 := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
+		item2 := AddItemToDatabase(db, seller.UserId, WithDummyData(2))
+		AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId}, WithTransactionTime(models.Timestamp(100)))
+		AddSaleToDatabase(db, cashier.UserId, []models.Id{item2.ItemId}, WithTransactionTime(models.Timestamp(200)))
 
 		soldItems, err := queries.GetSoldItems(db)
 		require.NoError(t, err)

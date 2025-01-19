@@ -5,7 +5,7 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/test/setup"
+	. "bctbackend/test/setup"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,14 +13,14 @@ import (
 )
 
 func TestSaleExists(t *testing.T) {
-	db := setup.OpenInitializedDatabase()
+	db := OpenInitializedDatabase()
 	defer db.Close()
 
-	sellerId := setup.AddSellerToDatabase(db).UserId
-	cashierId := setup.AddCashierToDatabase(db).UserId
-	itemId := setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)).ItemId
+	sellerId := AddSellerToDatabase(db).UserId
+	cashierId := AddCashierToDatabase(db).UserId
+	itemId := AddItemToDatabase(db, sellerId, WithDummyData(1)).ItemId
 
-	saleId := setup.AddSaleToDatabase(db, cashierId, []models.Id{itemId})
+	saleId := AddSaleToDatabase(db, cashierId, []models.Id{itemId})
 	saleExists, err := queries.SaleExists(db, saleId)
 	require.NoError(t, err)
 	require.True(t, saleExists)

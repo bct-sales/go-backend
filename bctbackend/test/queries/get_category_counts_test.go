@@ -5,7 +5,7 @@ package queries
 import (
 	"bctbackend/database/queries"
 	"bctbackend/defs"
-	"bctbackend/test/setup"
+	. "bctbackend/test/setup"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -42,14 +42,14 @@ func TestGetCategoryCounts(t *testing.T) {
 	}
 
 	for _, countTable := range countTables {
-		db := setup.OpenInitializedDatabase()
+		db := OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := setup.AddSellerToDatabase(db).UserId
+		sellerId := AddSellerToDatabase(db).UserId
 
 		for categoryId, count := range countTable {
 			for i := int64(0); i < count; i++ {
-				setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1), setup.WithItemCategory(categoryId))
+				AddItemToDatabase(db, sellerId, WithDummyData(1), WithItemCategory(categoryId))
 			}
 		}
 

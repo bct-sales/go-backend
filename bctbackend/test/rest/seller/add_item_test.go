@@ -3,7 +3,7 @@
 package rest
 
 import (
-	"bctbackend/test/setup"
+	. "bctbackend/test/setup"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -33,7 +33,7 @@ func TestAddSellerItem(t *testing.T) {
 									writer := httptest.NewRecorder()
 									defer db.Close()
 
-									seller := setup.AddSellerToDatabase(db, setup.WithUserId(sellerId))
+									seller := AddSellerToDatabase(db, WithUserId(sellerId))
 									sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
 									url := path.SellerItems().WithSellerId(seller.UserId)
@@ -87,7 +87,7 @@ func TestAddSellerItem(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := setup.AddSellerToDatabase(db)
+			seller := AddSellerToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
@@ -120,7 +120,7 @@ func TestAddSellerItem(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := setup.AddSellerToDatabase(db)
+			seller := AddSellerToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
@@ -155,7 +155,7 @@ func TestAddSellerItem(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := setup.AddSellerToDatabase(db)
+			seller := AddSellerToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
@@ -190,8 +190,8 @@ func TestAddSellerItem(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := setup.AddSellerToDatabase(db)
-			admin := setup.AddAdminToDatabase(db)
+			seller := AddSellerToDatabase(db)
+			admin := AddAdminToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, admin.UserId)
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
@@ -226,8 +226,8 @@ func TestAddSellerItem(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := setup.AddSellerToDatabase(db)
-			cashier := setup.AddCashierToDatabase(db)
+			seller := AddSellerToDatabase(db)
+			cashier := AddCashierToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
@@ -261,7 +261,7 @@ func TestAddSellerItem(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := setup.AddSellerToDatabase(db)
+			seller := AddSellerToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
 			url := path.SellerItems().WithRawSellerId("a")
@@ -297,8 +297,8 @@ func TestAddSellerItem(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller1 := setup.AddSellerToDatabase(db)
-			seller2 := setup.AddSellerToDatabase(db)
+			seller1 := AddSellerToDatabase(db)
+			seller2 := AddSellerToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, seller2.UserId)
 
 			url := path.SellerItems().WithSellerId(seller1.UserId)
@@ -334,7 +334,7 @@ func TestAddSellerItem(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := setup.AddSellerToDatabase(db)
+			seller := AddSellerToDatabase(db)
 			nonexistentId := models.NewId(1000)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 

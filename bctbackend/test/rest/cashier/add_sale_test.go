@@ -13,7 +13,7 @@ import (
 	"bctbackend/rest/path"
 
 	"bctbackend/test"
-	"bctbackend/test/setup"
+	. "bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )
@@ -24,9 +24,9 @@ func TestAddSaleItem(t *testing.T) {
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
-		seller := setup.AddSellerToDatabase(db)
-		cashier := setup.AddCashierToDatabase(db)
-		item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
+		seller := AddSellerToDatabase(db)
+		cashier := AddCashierToDatabase(db)
+		item := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
 		sessionId := test.AddSessionToDatabase(db, cashier.UserId)
 		payload := rest_api.AddSalePayload{
 			Items: []models.Id{item.ItemId},
@@ -56,8 +56,8 @@ func TestAddSaleItem(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := setup.AddSellerToDatabase(db)
-			item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
+			seller := AddSellerToDatabase(db)
+			item := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
 			sessionId := test.AddSessionToDatabase(db, seller.UserId) // Causes the operation to fail
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId},
@@ -79,9 +79,9 @@ func TestAddSaleItem(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			admin := setup.AddAdminToDatabase(db)
-			seller := setup.AddSellerToDatabase(db)
-			item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
+			admin := AddAdminToDatabase(db)
+			seller := AddSellerToDatabase(db)
+			item := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
 			sessionId := test.AddSessionToDatabase(db, admin.UserId) // Causes the operation to fail
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId},
@@ -103,7 +103,7 @@ func TestAddSaleItem(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			cashier := setup.AddCashierToDatabase(db)
+			cashier := AddCashierToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{},
@@ -125,7 +125,7 @@ func TestAddSaleItem(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			cashier := setup.AddCashierToDatabase(db)
+			cashier := AddCashierToDatabase(db)
 			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
 			nonexistentItemId := models.Id(1000)
 
@@ -153,9 +153,9 @@ func TestAddSaleItem(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			cashier := setup.AddCashierToDatabase(db)
-			seller := setup.AddSellerToDatabase(db)
-			item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
+			cashier := AddCashierToDatabase(db)
+			seller := AddSellerToDatabase(db)
+			item := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
 			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
 
 			payload := rest_api.AddSalePayload{

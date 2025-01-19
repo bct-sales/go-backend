@@ -5,7 +5,7 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/test/setup"
+	. "bctbackend/test/setup"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,17 +14,17 @@ import (
 
 func TestAddSale(t *testing.T) {
 	for _, itemIndices := range [][]int{{0}, {1}, {2}, {3}, {0, 1}, {1, 2, 3}, {0, 1, 2, 3}} {
-		db := setup.OpenInitializedDatabase()
+		db := OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := setup.AddSellerToDatabase(db).UserId
-		cashierId := setup.AddCashierToDatabase(db).UserId
+		sellerId := AddSellerToDatabase(db).UserId
+		cashierId := AddCashierToDatabase(db).UserId
 
 		itemIds := []models.Id{
-			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)).ItemId,
-			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(2)).ItemId,
-			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(3)).ItemId,
-			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(4)).ItemId,
+			AddItemToDatabase(db, sellerId, WithDummyData(1)).ItemId,
+			AddItemToDatabase(db, sellerId, WithDummyData(2)).ItemId,
+			AddItemToDatabase(db, sellerId, WithDummyData(3)).ItemId,
+			AddItemToDatabase(db, sellerId, WithDummyData(4)).ItemId,
 		}
 
 		saleItemIds := make([]models.Id, len(itemIndices))
@@ -52,10 +52,10 @@ func TestAddSale(t *testing.T) {
 }
 
 func TestAddSaleWithoutItems(t *testing.T) {
-	db := setup.OpenInitializedDatabase()
+	db := OpenInitializedDatabase()
 	defer db.Close()
 
-	cashierId := setup.AddCashierToDatabase(db).UserId
+	cashierId := AddCashierToDatabase(db).UserId
 	timestamp := models.NewTimestamp(0)
 
 	_, err := queries.AddSale(db, cashierId, timestamp, []models.Id{})
@@ -63,12 +63,12 @@ func TestAddSaleWithoutItems(t *testing.T) {
 }
 
 func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
-	db := setup.OpenInitializedDatabase()
+	db := OpenInitializedDatabase()
 	defer db.Close()
 
-	sellerId := setup.AddSellerToDatabase(db).UserId
+	sellerId := AddSellerToDatabase(db).UserId
 	timestamp := models.NewTimestamp(0)
-	itemId := setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)).ItemId
+	itemId := AddItemToDatabase(db, sellerId, WithDummyData(1)).ItemId
 
 	_, err := queries.AddSale(db, sellerId, timestamp, []models.Id{itemId})
 	require.Error(t, err)

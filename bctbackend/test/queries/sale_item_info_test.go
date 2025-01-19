@@ -5,7 +5,7 @@ package queries
 import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/test/setup"
+	. "bctbackend/test/setup"
 	"fmt"
 	"testing"
 
@@ -19,15 +19,15 @@ func TestGetSaleItemInformation(t *testing.T) {
 			label := fmt.Sprintf("Sell count = %d", sellCount)
 
 			t.Run(label, func(t *testing.T) {
-				db := setup.OpenInitializedDatabase()
+				db := OpenInitializedDatabase()
 				defer db.Close()
 
-				seller := setup.AddSellerToDatabase(db)
-				cashier := setup.AddCashierToDatabase(db)
-				item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
+				seller := AddSellerToDatabase(db)
+				cashier := AddCashierToDatabase(db)
+				item := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
 
 				for i := 0; i < sellCount; i++ {
-					setup.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
+					AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
 				}
 
 				itemInformation, err := queries.GetSaleItemInformation(db, item.ItemId)
@@ -41,7 +41,7 @@ func TestGetSaleItemInformation(t *testing.T) {
 	})
 
 	t.Run("Failure", func(t *testing.T) {
-		db := setup.OpenInitializedDatabase()
+		db := OpenInitializedDatabase()
 		defer db.Close()
 
 		nonexistentItemId := models.Id(1)

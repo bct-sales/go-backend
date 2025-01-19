@@ -6,7 +6,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/defs"
-	"bctbackend/test/setup"
+	. "bctbackend/test/setup"
 	"fmt"
 	"testing"
 
@@ -25,11 +25,11 @@ func TestAddItemToDatabase(t *testing.T) {
 								test_name := fmt.Sprintf("timestamp = %d", timestamp)
 
 								t.Run(test_name, func(t *testing.T) {
-									db := setup.OpenInitializedDatabase()
+									db := OpenInitializedDatabase()
 									defer db.Close()
 
-									setup.AddSellerToDatabase(db, setup.WithUserId(1))
-									setup.AddSellerToDatabase(db, setup.WithUserId(2))
+									AddSellerToDatabase(db, WithUserId(1))
+									AddSellerToDatabase(db, WithUserId(2))
 
 									itemId, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 									if err != nil {
@@ -63,7 +63,7 @@ func TestAddItemToDatabase(t *testing.T) {
 }
 
 func TestAddItemWithNonexistingSeller(t *testing.T) {
-	db := setup.OpenInitializedDatabase()
+	db := OpenInitializedDatabase()
 	defer db.Close()
 
 	timestamp := models.NewTimestamp(0)
@@ -74,7 +74,7 @@ func TestAddItemWithNonexistingSeller(t *testing.T) {
 	sellerId := models.NewId(1)
 	donation := false
 
-	setup.AddSellerToDatabase(db, setup.WithUserId(2))
+	AddSellerToDatabase(db, WithUserId(2))
 
 	_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 	var unknownUserError *queries.UnknownUserError
@@ -86,7 +86,7 @@ func TestAddItemWithNonexistingSeller(t *testing.T) {
 }
 
 func TestAddItemWithNonexistingCategory(t *testing.T) {
-	db := setup.OpenInitializedDatabase()
+	db := OpenInitializedDatabase()
 	defer db.Close()
 
 	timestamp := models.NewTimestamp(0)
@@ -97,7 +97,7 @@ func TestAddItemWithNonexistingCategory(t *testing.T) {
 	donation := false
 	itemCategoryId := models.NewId(100)
 
-	setup.AddSellerToDatabase(db, setup.WithUserId(1))
+	AddSellerToDatabase(db, WithUserId(1))
 
 	{
 		categoryExists, err := queries.CategoryWithIdExists(db, itemCategoryId)
@@ -119,14 +119,14 @@ func TestAddItemWithNonexistingCategory(t *testing.T) {
 }
 
 func TestAddItemWithZeroPrice(t *testing.T) {
-	db := setup.OpenInitializedDatabase()
+	db := OpenInitializedDatabase()
 	defer db.Close()
 
 	timestamp := models.NewTimestamp(0)
 	description := "description"
 	itemCategoryId := models.NewId(1)
 	charity := false
-	sellerId := setup.AddSellerToDatabase(db).UserId
+	sellerId := AddSellerToDatabase(db).UserId
 	donation := false
 	priceInCents := models.NewMoneyInCents(0)
 
@@ -145,14 +145,14 @@ func TestAddItemWithZeroPrice(t *testing.T) {
 }
 
 func TestAddItemWithNegativePrice(t *testing.T) {
-	db := setup.OpenInitializedDatabase()
+	db := OpenInitializedDatabase()
 	defer db.Close()
 
 	timestamp := models.NewTimestamp(0)
 	description := "description"
 	itemCategoryId := models.NewId(1)
 	charity := false
-	sellerId := setup.AddSellerToDatabase(db).UserId
+	sellerId := AddSellerToDatabase(db).UserId
 	donation := false
 	priceInCents := models.NewMoneyInCents(-100)
 
@@ -170,12 +170,12 @@ func TestAddItemWithNegativePrice(t *testing.T) {
 }
 
 func TestAddItemWithCashierOwner(t *testing.T) {
-	db := setup.OpenInitializedDatabase()
+	db := OpenInitializedDatabase()
 	defer db.Close()
 
 	timestamp := models.NewTimestamp(0)
 	description := "description"
-	sellerId := setup.AddCashierToDatabase(db).UserId
+	sellerId := AddCashierToDatabase(db).UserId
 	priceInCents := models.NewMoneyInCents(100)
 	itemCategoryId := models.NewId(1)
 	charity := false
@@ -194,12 +194,12 @@ func TestAddItemWithCashierOwner(t *testing.T) {
 }
 
 func TestAddItemWithAdminOwner(t *testing.T) {
-	db := setup.OpenInitializedDatabase()
+	db := OpenInitializedDatabase()
 	defer db.Close()
 
 	timestamp := models.NewTimestamp(0)
 	description := "description"
-	sellerId := setup.AddAdminToDatabase(db).UserId
+	sellerId := AddAdminToDatabase(db).UserId
 	priceInCents := models.NewMoneyInCents(100)
 	itemCategoryId := models.NewId(1)
 	charity := false
