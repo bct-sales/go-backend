@@ -5,6 +5,7 @@ package queries
 import (
 	"bctbackend/database/queries"
 	"bctbackend/test"
+	"bctbackend/test/setup"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,7 +14,7 @@ import (
 
 func TestGetItems(t *testing.T) {
 	t.Run("Empty", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		items, err := queries.GetItems(db)
@@ -22,7 +23,7 @@ func TestGetItems(t *testing.T) {
 	})
 
 	t.Run("One item", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		sellerId := test.AddSellerToDatabase(db).UserId
@@ -35,7 +36,7 @@ func TestGetItems(t *testing.T) {
 	})
 
 	t.Run("Two items", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		sellerId := test.AddSellerToDatabase(db).UserId

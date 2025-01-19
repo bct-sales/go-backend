@@ -6,6 +6,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/test"
+	"bctbackend/test/setup"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,7 +14,7 @@ import (
 )
 
 func TestRemoveSale(t *testing.T) {
-	db := test.OpenInitializedDatabase()
+	db := setup.OpenInitializedDatabase()
 	defer db.Close()
 
 	sellerId := test.AddSellerToDatabase(db).UserId
@@ -43,7 +44,7 @@ func TestRemoveSale(t *testing.T) {
 }
 
 func TestRemoveNonexistentSale(t *testing.T) {
-	db := test.OpenInitializedDatabase()
+	db := setup.OpenInitializedDatabase()
 	defer db.Close()
 
 	err := queries.RemoveSale(db, 0)

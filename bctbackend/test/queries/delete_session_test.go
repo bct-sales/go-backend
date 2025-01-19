@@ -6,6 +6,7 @@ import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/test"
+	"bctbackend/test/setup"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,7 +14,7 @@ import (
 )
 
 func TestDeleteSession(t *testing.T) {
-	db := test.OpenInitializedDatabase()
+	db := setup.OpenInitializedDatabase()
 	defer db.Close()
 
 	userId := test.AddUserToDatabase(db, models.AdminRoleId).UserId

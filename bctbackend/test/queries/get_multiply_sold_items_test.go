@@ -6,6 +6,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/test"
+	"bctbackend/test/setup"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,7 +15,7 @@ import (
 
 func TestGetMultiplySoldItems(t *testing.T) {
 	t.Run("No sales", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		sellerId := test.AddSellerToDatabase(db).UserId
@@ -27,7 +28,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("No multiply sold items", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		sellerId := test.AddSellerToDatabase(db).UserId
@@ -46,7 +47,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("Item sold twice", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		sellerId := test.AddSellerToDatabase(db).UserId
@@ -72,7 +73,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("Item sold thrice", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		sellerId := test.AddSellerToDatabase(db).UserId
@@ -100,7 +101,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("Two items sold twice", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		sellerId := test.AddSellerToDatabase(db).UserId
@@ -131,7 +132,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("Sales [1], [1, 2], [1, 2, 3]", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		sellerId := test.AddSellerToDatabase(db).UserId

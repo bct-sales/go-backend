@@ -7,6 +7,7 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/defs"
 	"bctbackend/test"
+	"bctbackend/test/setup"
 	"fmt"
 	"testing"
 
@@ -25,7 +26,7 @@ func TestAddItemToDatabase(t *testing.T) {
 								test_name := fmt.Sprintf("timestamp = %d", timestamp)
 
 								t.Run(test_name, func(t *testing.T) {
-									db := test.OpenInitializedDatabase()
+									db := setup.OpenInitializedDatabase()
 									defer db.Close()
 
 									test.AddSellerToDatabase(db, test.WithUserId(1))
@@ -63,7 +64,7 @@ func TestAddItemToDatabase(t *testing.T) {
 }
 
 func TestAddItemWithNonexistingSeller(t *testing.T) {
-	db := test.OpenInitializedDatabase()
+	db := setup.OpenInitializedDatabase()
 	defer db.Close()
 
 	timestamp := models.NewTimestamp(0)
@@ -86,7 +87,7 @@ func TestAddItemWithNonexistingSeller(t *testing.T) {
 }
 
 func TestAddItemWithNonexistingCategory(t *testing.T) {
-	db := test.OpenInitializedDatabase()
+	db := setup.OpenInitializedDatabase()
 	defer db.Close()
 
 	timestamp := models.NewTimestamp(0)
@@ -119,7 +120,7 @@ func TestAddItemWithNonexistingCategory(t *testing.T) {
 }
 
 func TestAddItemWithZeroPrice(t *testing.T) {
-	db := test.OpenInitializedDatabase()
+	db := setup.OpenInitializedDatabase()
 	defer db.Close()
 
 	timestamp := models.NewTimestamp(0)
@@ -145,7 +146,7 @@ func TestAddItemWithZeroPrice(t *testing.T) {
 }
 
 func TestAddItemWithNegativePrice(t *testing.T) {
-	db := test.OpenInitializedDatabase()
+	db := setup.OpenInitializedDatabase()
 	defer db.Close()
 
 	timestamp := models.NewTimestamp(0)
@@ -170,7 +171,7 @@ func TestAddItemWithNegativePrice(t *testing.T) {
 }
 
 func TestAddItemWithCashierOwner(t *testing.T) {
-	db := test.OpenInitializedDatabase()
+	db := setup.OpenInitializedDatabase()
 	defer db.Close()
 
 	timestamp := models.NewTimestamp(0)
@@ -194,7 +195,7 @@ func TestAddItemWithCashierOwner(t *testing.T) {
 }
 
 func TestAddItemWithAdminOwner(t *testing.T) {
-	db := test.OpenInitializedDatabase()
+	db := setup.OpenInitializedDatabase()
 	defer db.Close()
 
 	timestamp := models.NewTimestamp(0)

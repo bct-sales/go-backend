@@ -6,6 +6,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/test"
+	"bctbackend/test/setup"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,7 +15,7 @@ import (
 
 func TestGetSoldItems(t *testing.T) {
 	t.Run("No items in existence", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		soldItems, err := queries.GetSoldItems(db)
@@ -23,7 +24,7 @@ func TestGetSoldItems(t *testing.T) {
 	})
 
 	t.Run("Single unsold item", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		seller := test.AddSellerToDatabase(db)
@@ -35,7 +36,7 @@ func TestGetSoldItems(t *testing.T) {
 	})
 
 	t.Run("Single sold item", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		seller := test.AddSellerToDatabase(db)
@@ -50,7 +51,7 @@ func TestGetSoldItems(t *testing.T) {
 	})
 
 	t.Run("Doubly sold item", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		seller := test.AddSellerToDatabase(db)
@@ -66,7 +67,7 @@ func TestGetSoldItems(t *testing.T) {
 	})
 
 	t.Run("Two sold items in single sale", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		seller := test.AddSellerToDatabase(db)
@@ -83,7 +84,7 @@ func TestGetSoldItems(t *testing.T) {
 	})
 
 	t.Run("Two sold items in separate sales", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		seller := test.AddSellerToDatabase(db)

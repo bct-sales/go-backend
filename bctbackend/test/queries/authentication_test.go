@@ -5,7 +5,7 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/test"
+	"bctbackend/test/setup"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,7 +13,7 @@ import (
 )
 
 func TestAuthenticatingSuccessfully(t *testing.T) {
-	db := test.OpenInitializedDatabase()
+	db := setup.OpenInitializedDatabase()
 	defer db.Close()
 
 	password := "xyz"
@@ -32,7 +32,7 @@ func TestAuthenticatingSuccessfully(t *testing.T) {
 }
 
 func TestAuthenticatingNonExistingUser(t *testing.T) {
-	db := test.OpenInitializedDatabase()
+	db := setup.OpenInitializedDatabase()
 	defer db.Close()
 
 	password := "xyz"
@@ -47,7 +47,7 @@ func TestAuthenticatingNonExistingUser(t *testing.T) {
 }
 
 func TestAuthenticatingWrongPassword(t *testing.T) {
-	db := test.OpenInitializedDatabase()
+	db := setup.OpenInitializedDatabase()
 	defer db.Close()
 
 	password := "xyz"

@@ -6,6 +6,7 @@ import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/test"
+	"bctbackend/test/setup"
 	"fmt"
 	"testing"
 
@@ -19,7 +20,7 @@ func TestGetSaleItemInformation(t *testing.T) {
 			label := fmt.Sprintf("Sell count = %d", sellCount)
 
 			t.Run(label, func(t *testing.T) {
-				db := test.OpenInitializedDatabase()
+				db := setup.OpenInitializedDatabase()
 				defer db.Close()
 
 				seller := test.AddSellerToDatabase(db)
@@ -41,7 +42,7 @@ func TestGetSaleItemInformation(t *testing.T) {
 	})
 
 	t.Run("Failure", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		nonexistentItemId := models.Id(1)

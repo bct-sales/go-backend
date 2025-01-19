@@ -3,15 +3,14 @@
 package test
 
 import (
-	database "bctbackend/database"
 	models "bctbackend/database/models"
 	queries "bctbackend/database/queries"
 	"bctbackend/defs"
 	"bctbackend/rest"
 	"bctbackend/security"
+	"bctbackend/test/setup"
 	"database/sql"
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -21,30 +20,8 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func OpenDatabase() *sql.DB {
-	db, error := sql.Open("sqlite", ":memory:")
-
-	if error != nil {
-		panic(error)
-	}
-
-	db.Exec("PRAGMA foreign_keys = 1")
-
-	return db
-}
-
-func OpenInitializedDatabase() *sql.DB {
-	db := OpenDatabase()
-
-	if err := database.InitializeDatabase(db); err != nil {
-		log.Fatalf("failed to initialize database: %v", err)
-	}
-
-	return db
-}
-
 func CreateRestRouter() (*sql.DB, *gin.Engine) {
-	db := OpenInitializedDatabase()
+	db := setup.OpenInitializedDatabase()
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	rest.DefineEndpoints(db, router)

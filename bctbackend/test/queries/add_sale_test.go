@@ -6,6 +6,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/test"
+	"bctbackend/test/setup"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,7 +15,7 @@ import (
 
 func TestAddSale(t *testing.T) {
 	for _, itemIndices := range [][]int{{0}, {1}, {2}, {3}, {0, 1}, {1, 2, 3}, {0, 1, 2, 3}} {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		sellerId := test.AddSellerToDatabase(db).UserId
@@ -52,7 +53,7 @@ func TestAddSale(t *testing.T) {
 }
 
 func TestAddSaleWithoutItems(t *testing.T) {
-	db := test.OpenInitializedDatabase()
+	db := setup.OpenInitializedDatabase()
 	defer db.Close()
 
 	cashierId := test.AddCashierToDatabase(db).UserId
@@ -63,7 +64,7 @@ func TestAddSaleWithoutItems(t *testing.T) {
 }
 
 func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
-	db := test.OpenInitializedDatabase()
+	db := setup.OpenInitializedDatabase()
 	defer db.Close()
 
 	sellerId := test.AddSellerToDatabase(db).UserId

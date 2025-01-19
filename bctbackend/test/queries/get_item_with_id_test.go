@@ -6,6 +6,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/test"
+	"bctbackend/test/setup"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,7 +15,7 @@ import (
 
 func TestGetItemWithId(t *testing.T) {
 	t.Run("Nonexisting item", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		itemId := models.NewId(1)
@@ -24,7 +25,7 @@ func TestGetItemWithId(t *testing.T) {
 	})
 
 	t.Run("Existing item", func(t *testing.T) {
-		db := test.OpenInitializedDatabase()
+		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
 		sellerId := test.AddSellerToDatabase(db).UserId
