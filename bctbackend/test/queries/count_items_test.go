@@ -26,7 +26,7 @@ func TestCountItems(t *testing.T) {
 		defer db.Close()
 
 		sellerId := test.AddSellerToDatabase(db).UserId
-		test.AddItemToDatabase(db, sellerId, 1)
+		test.AddItemToDatabase(db, sellerId, test.WithDummyData(1))
 
 		count, err := queries.CountItems(db)
 		require.NoError(t, err)
@@ -38,8 +38,8 @@ func TestCountItems(t *testing.T) {
 		defer db.Close()
 
 		sellerId := test.AddSellerToDatabase(db).UserId
-		test.AddItemToDatabase(db, sellerId, 1)
-		test.AddItemToDatabase(db, sellerId, 2)
+		test.AddItemToDatabase(db, sellerId, test.WithDummyData(1))
+		test.AddItemToDatabase(db, sellerId, test.WithDummyData(2))
 
 		count, err := queries.CountItems(db)
 		require.NoError(t, err)

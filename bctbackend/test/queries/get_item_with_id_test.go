@@ -28,7 +28,7 @@ func TestGetItemWithId(t *testing.T) {
 		defer db.Close()
 
 		sellerId := test.AddSellerToDatabase(db).UserId
-		itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
+		itemId := test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)).ItemId
 
 		item, err := queries.GetItemWithId(db, itemId)
 		require.NoError(t, err)

@@ -25,7 +25,7 @@ func TestAddSaleItem(t *testing.T) {
 
 		seller := test.AddSellerToDatabase(db)
 		cashier := test.AddCashierToDatabase(db)
-		item := test.AddItemToDatabase(db, seller.UserId, 1)
+		item := test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
 		sessionId := test.AddSessionToDatabase(db, cashier.UserId)
 		payload := rest_api.AddSalePayload{
 			Items: []models.Id{item.ItemId},
@@ -56,7 +56,7 @@ func TestAddSaleItem(t *testing.T) {
 			defer db.Close()
 
 			seller := test.AddSellerToDatabase(db)
-			item := test.AddItemToDatabase(db, seller.UserId, 1)
+			item := test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
 			sessionId := test.AddSessionToDatabase(db, seller.UserId) // Causes the operation to fail
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId},
@@ -80,7 +80,7 @@ func TestAddSaleItem(t *testing.T) {
 
 			admin := test.AddAdminToDatabase(db)
 			seller := test.AddSellerToDatabase(db)
-			item := test.AddItemToDatabase(db, seller.UserId, 1)
+			item := test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
 			sessionId := test.AddSessionToDatabase(db, admin.UserId) // Causes the operation to fail
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId},
@@ -154,7 +154,7 @@ func TestAddSaleItem(t *testing.T) {
 
 			cashier := test.AddCashierToDatabase(db)
 			seller := test.AddSellerToDatabase(db)
-			item := test.AddItemToDatabase(db, seller.UserId, 1)
+			item := test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
 			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
 
 			payload := rest_api.AddSalePayload{

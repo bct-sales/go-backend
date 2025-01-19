@@ -49,7 +49,7 @@ func TestGetCategoryCounts(t *testing.T) {
 
 		for categoryId, count := range countTable {
 			for i := int64(0); i < count; i++ {
-				test.AddItemInCategoryToDatabase(db, sellerId, categoryId)
+				test.AddItemToDatabase(db, sellerId, test.WithDummyData(1), test.WithItemCategory(categoryId))
 			}
 		}
 

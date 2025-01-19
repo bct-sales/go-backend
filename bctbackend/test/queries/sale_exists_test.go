@@ -18,7 +18,7 @@ func TestSaleExists(t *testing.T) {
 
 	sellerId := test.AddSellerToDatabase(db).UserId
 	cashierId := test.AddCashierToDatabase(db).UserId
-	itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
+	itemId := test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)).ItemId
 
 	saleId := test.AddSaleToDatabase(db, cashierId, []models.Id{itemId})
 	saleExists, err := queries.SaleExists(db, saleId)

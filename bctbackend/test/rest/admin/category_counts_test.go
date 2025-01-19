@@ -69,7 +69,7 @@ func TestCategoryCounts(t *testing.T) {
 
 			admin := test.AddAdminToDatabase(db)
 			seller := test.AddSellerToDatabase(db)
-			test.AddItemInCategoryToDatabase(db, seller.UserId, categoryId)
+			test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categoryId), test.WithDummyData(1))
 			sessionId := test.AddSessionToDatabase(db, admin.UserId)
 
 			url := path.CategoryCounts().String()
@@ -93,8 +93,8 @@ func TestCategoryCounts(t *testing.T) {
 
 			admin := test.AddAdminToDatabase(db)
 			seller := test.AddSellerToDatabase(db)
-			test.AddItemInCategoryToDatabase(db, seller.UserId, categoryId)
-			test.AddItemInCategoryToDatabase(db, seller.UserId, categoryId)
+			test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categoryId), test.WithDummyData(1))
+			test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categoryId), test.WithDummyData(1))
 			sessionId := test.AddSessionToDatabase(db, admin.UserId)
 
 			url := path.CategoryCounts().String()
@@ -119,8 +119,8 @@ func TestCategoryCounts(t *testing.T) {
 
 				admin := test.AddAdminToDatabase(db)
 				seller := test.AddSellerToDatabase(db)
-				test.AddItemInCategoryToDatabase(db, seller.UserId, categoryId1)
-				test.AddItemInCategoryToDatabase(db, seller.UserId, categoryId2)
+				test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categoryId1), test.WithDummyData(1))
+				test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categoryId2), test.WithDummyData(2))
 				sessionId := test.AddSessionToDatabase(db, admin.UserId)
 
 				url := path.CategoryCounts().String()

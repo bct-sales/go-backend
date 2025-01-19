@@ -48,7 +48,7 @@ func TestGetSalesOverview(t *testing.T) {
 		require.NoError(t, err)
 
 		seller := test.AddSellerToDatabase(db)
-		test.AddItemInCategoryToDatabase(db, seller.UserId, categories[0].CategoryId)
+		test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(1))
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -72,7 +72,7 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := test.AddSellerToDatabase(db)
-		item := test.AddItemInCategoryToDatabase(db, seller.UserId, categories[0].CategoryId)
+		item := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(1))
 		totals[item.CategoryId] += item.PriceInCents
 
 		cashier := test.AddCashierToDatabase(db)
@@ -100,10 +100,10 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := test.AddSellerToDatabase(db)
-		item1 := test.AddItemInCategoryToDatabase(db, seller.UserId, categories[0].CategoryId)
-		item2 := test.AddItemInCategoryToDatabase(db, seller.UserId, categories[0].CategoryId)
+		item1 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(1))
+		item2 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(2))
 		totals[item1.CategoryId] += item1.PriceInCents
-		totals[item2.CategoryId] += item1.PriceInCents
+		totals[item2.CategoryId] += item2.PriceInCents
 
 		cashier := test.AddCashierToDatabase(db)
 		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId, item2.ItemId})
@@ -130,10 +130,10 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := test.AddSellerToDatabase(db)
-		item1 := test.AddItemInCategoryToDatabase(db, seller.UserId, categories[0].CategoryId)
-		item2 := test.AddItemInCategoryToDatabase(db, seller.UserId, categories[1].CategoryId)
+		item1 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(1))
+		item2 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(2))
 		totals[item1.CategoryId] += item1.PriceInCents
-		totals[item2.CategoryId] += item1.PriceInCents
+		totals[item2.CategoryId] += item2.PriceInCents
 
 		cashier := test.AddCashierToDatabase(db)
 		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId, item2.ItemId})
@@ -160,10 +160,10 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := test.AddSellerToDatabase(db)
-		item1 := test.AddItemInCategoryToDatabase(db, seller.UserId, categories[0].CategoryId)
-		item2 := test.AddItemInCategoryToDatabase(db, seller.UserId, categories[0].CategoryId)
+		item1 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(1))
+		item2 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(2))
 		totals[item1.CategoryId] += item1.PriceInCents
-		totals[item2.CategoryId] += item1.PriceInCents
+		totals[item2.CategoryId] += item2.PriceInCents
 
 		cashier := test.AddCashierToDatabase(db)
 		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId})
@@ -191,10 +191,10 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := test.AddSellerToDatabase(db)
-		item1 := test.AddItemInCategoryToDatabase(db, seller.UserId, categories[0].CategoryId)
-		item2 := test.AddItemInCategoryToDatabase(db, seller.UserId, categories[1].CategoryId)
+		item1 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(1))
+		item2 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[1].CategoryId), test.WithDummyData(2))
 		totals[item1.CategoryId] += item1.PriceInCents
-		totals[item2.CategoryId] += item1.PriceInCents
+		totals[item2.CategoryId] += item2.PriceInCents
 
 		cashier := test.AddCashierToDatabase(db)
 		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId})

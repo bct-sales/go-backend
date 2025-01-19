@@ -17,7 +17,7 @@ func TestRemoveExistingItem(t *testing.T) {
 	defer db.Close()
 
 	sellerId := test.AddSellerToDatabase(db).UserId
-	itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
+	itemId := test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)).ItemId
 
 	err := queries.RemoveItemWithId(db, itemId)
 
@@ -46,7 +46,7 @@ func TestRemoveSoldItem(t *testing.T) {
 
 	sellerId := test.AddSellerToDatabase(db).UserId
 	cashierId := test.AddCashierToDatabase(db).UserId
-	itemId := test.AddItemToDatabase(db, sellerId, 1).ItemId
+	itemId := test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)).ItemId
 
 	test.AddSaleToDatabase(db, cashierId, []models.Id{itemId})
 
