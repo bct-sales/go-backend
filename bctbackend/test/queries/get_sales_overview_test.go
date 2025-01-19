@@ -49,7 +49,7 @@ func TestGetSalesOverview(t *testing.T) {
 		require.NoError(t, err)
 
 		seller := setup.AddSellerToDatabase(db)
-		test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(1))
+		setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categories[0].CategoryId), setup.WithDummyData(1))
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -73,7 +73,7 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := setup.AddSellerToDatabase(db)
-		item := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(1))
+		item := setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categories[0].CategoryId), setup.WithDummyData(1))
 		totals[item.CategoryId] += item.PriceInCents
 
 		cashier := setup.AddCashierToDatabase(db)
@@ -101,8 +101,8 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := setup.AddSellerToDatabase(db)
-		item1 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(1))
-		item2 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(2))
+		item1 := setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categories[0].CategoryId), setup.WithDummyData(1))
+		item2 := setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categories[0].CategoryId), setup.WithDummyData(2))
 		totals[item1.CategoryId] += item1.PriceInCents
 		totals[item2.CategoryId] += item2.PriceInCents
 
@@ -131,8 +131,8 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := setup.AddSellerToDatabase(db)
-		item1 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(1))
-		item2 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(2))
+		item1 := setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categories[0].CategoryId), setup.WithDummyData(1))
+		item2 := setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categories[0].CategoryId), setup.WithDummyData(2))
 		totals[item1.CategoryId] += item1.PriceInCents
 		totals[item2.CategoryId] += item2.PriceInCents
 
@@ -161,8 +161,8 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := setup.AddSellerToDatabase(db)
-		item1 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(1))
-		item2 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(2))
+		item1 := setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categories[0].CategoryId), setup.WithDummyData(1))
+		item2 := setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categories[0].CategoryId), setup.WithDummyData(2))
 		totals[item1.CategoryId] += item1.PriceInCents
 		totals[item2.CategoryId] += item2.PriceInCents
 
@@ -192,8 +192,8 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := setup.AddSellerToDatabase(db)
-		item1 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(1))
-		item2 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[1].CategoryId), test.WithDummyData(2))
+		item1 := setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categories[0].CategoryId), setup.WithDummyData(1))
+		item2 := setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categories[1].CategoryId), setup.WithDummyData(2))
 		totals[item1.CategoryId] += item1.PriceInCents
 		totals[item2.CategoryId] += item2.PriceInCents
 

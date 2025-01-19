@@ -27,7 +27,7 @@ func TestListSellerItems(t *testing.T) {
 
 			expectedItems := []models.Item{}
 			for i := 0; i < itemCount; i++ {
-				expectedItems = append(expectedItems, *test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(i)))
+				expectedItems = append(expectedItems, *setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(i)))
 			}
 
 			url := path.SellerItems().WithSellerId(seller.UserId)

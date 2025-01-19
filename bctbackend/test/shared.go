@@ -5,14 +5,12 @@ package test
 import (
 	models "bctbackend/database/models"
 	queries "bctbackend/database/queries"
-	"bctbackend/defs"
 	"bctbackend/rest"
 	"bctbackend/security"
 	"bctbackend/test/setup"
 	"database/sql"
 	"encoding/json"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -27,127 +25,6 @@ func CreateRestRouter() (*sql.DB, *gin.Engine) {
 	rest.DefineEndpoints(db, router)
 
 	return db, router
-}
-
-type AddItemData struct {
-	AddedAt      *models.Timestamp
-	Description  *string
-	PriceInCents *models.MoneyInCents
-	ItemCategory *models.Id
-	Donation     *bool
-	Charity      *bool
-}
-
-func (data *AddItemData) FillWithDefaults() {
-	if data.AddedAt == nil {
-		addedAt := models.NewTimestamp(0)
-		data.AddedAt = &addedAt
-	}
-
-	if data.Description == nil {
-		description := "description"
-		data.Description = &description
-	}
-
-	if data.PriceInCents == nil {
-		priceInCents := models.NewMoneyInCents(100)
-		data.PriceInCents = &priceInCents
-	}
-
-	if data.ItemCategory == nil {
-		itemCategory := defs.Shoes
-		data.ItemCategory = &itemCategory
-	}
-
-	if data.Donation == nil {
-		donation := false
-		data.Donation = &donation
-	}
-
-	if data.Charity == nil {
-		charity := false
-		data.Charity = &charity
-	}
-}
-
-func WithAddedAt(addedAt models.Timestamp) func(*AddItemData) {
-	return func(data *AddItemData) {
-		data.AddedAt = &addedAt
-	}
-}
-
-func WithDescription(description string) func(*AddItemData) {
-	return func(data *AddItemData) {
-		data.Description = &description
-	}
-}
-
-func WithPriceInCents(priceInCents models.MoneyInCents) func(*AddItemData) {
-	return func(data *AddItemData) {
-		data.PriceInCents = &priceInCents
-	}
-}
-
-func WithItemCategory(itemCategory models.Id) func(*AddItemData) {
-	return func(data *AddItemData) {
-		data.ItemCategory = &itemCategory
-	}
-}
-
-func WithDonation(donation bool) func(*AddItemData) {
-	return func(data *AddItemData) {
-		data.Donation = &donation
-	}
-}
-
-func WithCharity(charity bool) func(*AddItemData) {
-	return func(data *AddItemData) {
-		data.Charity = &charity
-	}
-}
-
-func WithDummyData(k int) func(*AddItemData) {
-	return func(data *AddItemData) {
-		addedAt := models.NewTimestamp(0)
-		description := "description " + strconv.Itoa(k)
-		priceInCents := models.NewMoneyInCents(100 + int64(k))
-		itemCategory := defs.Shoes
-		donation := k%2 == 0
-		charity := k%3 == 0
-
-		data.AddedAt = &addedAt
-		data.Description = &description
-		data.PriceInCents = &priceInCents
-		if data.ItemCategory == nil {
-			data.ItemCategory = &itemCategory
-		}
-		data.Donation = &donation
-		data.Charity = &charity
-	}
-}
-
-func AddItemToDatabase(db *sql.DB, sellerId models.Id, options ...func(*AddItemData)) *models.Item {
-	data := AddItemData{}
-
-	for _, option := range options {
-		option(&data)
-	}
-
-	data.FillWithDefaults()
-
-	itemId, err := queries.AddItem(db, *data.AddedAt, *data.Description, *data.PriceInCents, *data.ItemCategory, sellerId, *data.Donation, *data.Charity)
-
-	if err != nil {
-		panic(err)
-	}
-
-	item, err := queries.GetItemWithId(db, itemId)
-
-	if err != nil {
-		panic(err)
-	}
-
-	return item
 }
 
 func AddSaleToDatabase(db *sql.DB, cashierId models.Id, itemIds []models.Id) models.Id {

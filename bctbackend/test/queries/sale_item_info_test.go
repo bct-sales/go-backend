@@ -25,7 +25,7 @@ func TestGetSaleItemInformation(t *testing.T) {
 
 				seller := setup.AddSellerToDatabase(db)
 				cashier := setup.AddCashierToDatabase(db)
-				item := test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
+				item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
 
 				for i := 0; i < sellCount; i++ {
 					test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})

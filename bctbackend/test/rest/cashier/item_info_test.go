@@ -32,7 +32,7 @@ func TestGetItemInformation(t *testing.T) {
 
 			seller := setup.AddSellerToDatabase(db)
 			cashier := setup.AddCashierToDatabase(db)
-			item := test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
+			item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
 
 			for i := 0; i < sale_count; i++ {
 				test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
@@ -80,9 +80,9 @@ func TestGetItemInformationAsSeller(t *testing.T) {
 
 	seller := setup.AddSellerToDatabase(db)
 	sessionId := test.AddSessionToDatabase(db, seller.UserId)
-	item := test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
+	item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
 
-	test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
+	setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
 
 	url := path.SalesItems().WithItemId(item.ItemId)
 	request := test.CreateGetRequest(url)
@@ -100,9 +100,9 @@ func TestGetItemInformationAsAdmin(t *testing.T) {
 	admin := setup.AddAdminToDatabase(db)
 	seller := setup.AddSellerToDatabase(db)
 	sessionId := test.AddSessionToDatabase(db, admin.UserId)
-	item := test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
+	item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
 
-	test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
+	setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
 
 	url := path.SalesItems().WithItemId(item.ItemId)
 	request := test.CreateGetRequest(url)

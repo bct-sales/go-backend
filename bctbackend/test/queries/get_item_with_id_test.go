@@ -5,7 +5,6 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/test"
 	"bctbackend/test/setup"
 	"testing"
 
@@ -29,7 +28,7 @@ func TestGetItemWithId(t *testing.T) {
 		defer db.Close()
 
 		sellerId := setup.AddSellerToDatabase(db).UserId
-		itemId := test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)).ItemId
+		itemId := setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)).ItemId
 
 		item, err := queries.GetItemWithId(db, itemId)
 		require.NoError(t, err)

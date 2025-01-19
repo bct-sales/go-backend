@@ -21,10 +21,10 @@ func TestGetSales(t *testing.T) {
 	cashierId := setup.AddCashierToDatabase(db).UserId
 
 	itemIds := []models.Id{
-		test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)).ItemId,
-		test.AddItemToDatabase(db, sellerId, test.WithDummyData(2)).ItemId,
-		test.AddItemToDatabase(db, sellerId, test.WithDummyData(3)).ItemId,
-		test.AddItemToDatabase(db, sellerId, test.WithDummyData(4)).ItemId,
+		setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)).ItemId,
+		setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(2)).ItemId,
+		setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(3)).ItemId,
+		setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(4)).ItemId,
 	}
 
 	saleIds := make([]models.Id, len(itemIds))

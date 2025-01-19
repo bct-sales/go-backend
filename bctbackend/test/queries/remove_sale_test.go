@@ -20,12 +20,12 @@ func TestRemoveSale(t *testing.T) {
 	sellerId := setup.AddSellerToDatabase(db).UserId
 	cashierId := setup.AddCashierToDatabase(db).UserId
 	sale1ItemIds := []models.Id{
-		test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)).ItemId,
-		test.AddItemToDatabase(db, sellerId, test.WithDummyData(2)).ItemId,
+		setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)).ItemId,
+		setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(2)).ItemId,
 	}
 	sale2ItemIds := []models.Id{
-		test.AddItemToDatabase(db, sellerId, test.WithDummyData(3)).ItemId,
-		test.AddItemToDatabase(db, sellerId, test.WithDummyData(4)).ItemId,
+		setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(3)).ItemId,
+		setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(4)).ItemId,
 	}
 
 	sale1Id := test.AddSaleToDatabase(db, cashierId, sale1ItemIds)

@@ -19,7 +19,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		defer db.Close()
 
 		sellerId := setup.AddSellerToDatabase(db).UserId
-		test.AddItemToDatabase(db, sellerId, test.WithDummyData(1))
+		setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1))
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
 
@@ -35,7 +35,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		cashierId := setup.AddCashierToDatabase(db).UserId
 
 		itemIds := []models.Id{
-			test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)).ItemId,
+			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)).ItemId,
 		}
 
 		test.AddSaleToDatabase(db, cashierId, []models.Id{itemIds[0]})
@@ -54,7 +54,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		cashierId := setup.AddCashierToDatabase(db).UserId
 
 		items := []*models.Item{
-			test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)),
+			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)),
 		}
 
 		sale1 := test.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
@@ -80,7 +80,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		cashierId := setup.AddCashierToDatabase(db).UserId
 
 		items := []*models.Item{
-			test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)),
+			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)),
 		}
 
 		sale1 := test.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
@@ -108,8 +108,8 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		cashierId := setup.AddCashierToDatabase(db).UserId
 
 		items := []*models.Item{
-			test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)),
-			test.AddItemToDatabase(db, sellerId, test.WithDummyData(2)),
+			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)),
+			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(2)),
 		}
 
 		sale1 := test.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId, items[1].ItemId})
@@ -139,9 +139,9 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		cashierId := setup.AddCashierToDatabase(db).UserId
 
 		items := []*models.Item{
-			test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)),
-			test.AddItemToDatabase(db, sellerId, test.WithDummyData(2)),
-			test.AddItemToDatabase(db, sellerId, test.WithDummyData(3)),
+			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)),
+			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(2)),
+			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(3)),
 		}
 
 		sale1 := test.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})

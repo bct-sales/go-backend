@@ -20,10 +20,10 @@ func TestGetSaleItems(t *testing.T) {
 	sellerId := setup.AddSellerToDatabase(db).UserId
 	cashierId := setup.AddCashierToDatabase(db).UserId
 	itemIds := []models.Id{
-		test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)).ItemId,
-		test.AddItemToDatabase(db, sellerId, test.WithDummyData(2)).ItemId,
-		test.AddItemToDatabase(db, sellerId, test.WithDummyData(3)).ItemId,
-		test.AddItemToDatabase(db, sellerId, test.WithDummyData(4)).ItemId,
+		setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)).ItemId,
+		setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(2)).ItemId,
+		setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(3)).ItemId,
+		setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(4)).ItemId,
 	}
 
 	saleId := test.AddSaleToDatabase(db, cashierId, itemIds)

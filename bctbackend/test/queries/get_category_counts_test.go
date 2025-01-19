@@ -5,7 +5,6 @@ package queries
 import (
 	"bctbackend/database/queries"
 	"bctbackend/defs"
-	"bctbackend/test"
 	"bctbackend/test/setup"
 	"testing"
 
@@ -50,7 +49,7 @@ func TestGetCategoryCounts(t *testing.T) {
 
 		for categoryId, count := range countTable {
 			for i := int64(0); i < count; i++ {
-				test.AddItemToDatabase(db, sellerId, test.WithDummyData(1), test.WithItemCategory(categoryId))
+				setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1), setup.WithItemCategory(categoryId))
 			}
 		}
 

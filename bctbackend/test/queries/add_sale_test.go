@@ -5,7 +5,6 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/test"
 	"bctbackend/test/setup"
 	"testing"
 
@@ -22,10 +21,10 @@ func TestAddSale(t *testing.T) {
 		cashierId := setup.AddCashierToDatabase(db).UserId
 
 		itemIds := []models.Id{
-			test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)).ItemId,
-			test.AddItemToDatabase(db, sellerId, test.WithDummyData(2)).ItemId,
-			test.AddItemToDatabase(db, sellerId, test.WithDummyData(3)).ItemId,
-			test.AddItemToDatabase(db, sellerId, test.WithDummyData(4)).ItemId,
+			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)).ItemId,
+			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(2)).ItemId,
+			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(3)).ItemId,
+			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(4)).ItemId,
 		}
 
 		saleItemIds := make([]models.Id, len(itemIndices))
@@ -69,7 +68,7 @@ func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
 
 	sellerId := setup.AddSellerToDatabase(db).UserId
 	timestamp := models.NewTimestamp(0)
-	itemId := test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)).ItemId
+	itemId := setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)).ItemId
 
 	_, err := queries.AddSale(db, sellerId, timestamp, []models.Id{itemId})
 	require.Error(t, err)

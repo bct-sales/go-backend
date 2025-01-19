@@ -4,7 +4,6 @@ package queries
 
 import (
 	"bctbackend/database/queries"
-	"bctbackend/test"
 	"bctbackend/test/setup"
 	"testing"
 
@@ -27,7 +26,7 @@ func TestCountItems(t *testing.T) {
 		defer db.Close()
 
 		sellerId := setup.AddSellerToDatabase(db).UserId
-		test.AddItemToDatabase(db, sellerId, test.WithDummyData(1))
+		setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1))
 
 		count, err := queries.CountItems(db)
 		require.NoError(t, err)
@@ -39,8 +38,8 @@ func TestCountItems(t *testing.T) {
 		defer db.Close()
 
 		sellerId := setup.AddSellerToDatabase(db).UserId
-		test.AddItemToDatabase(db, sellerId, test.WithDummyData(1))
-		test.AddItemToDatabase(db, sellerId, test.WithDummyData(2))
+		setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1))
+		setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(2))
 
 		count, err := queries.CountItems(db)
 		require.NoError(t, err)
