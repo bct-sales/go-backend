@@ -27,22 +27,6 @@ func CreateRestRouter() (*sql.DB, *gin.Engine) {
 	return db, router
 }
 
-func AddSaleToDatabase(db *sql.DB, cashierId models.Id, itemIds []models.Id) models.Id {
-	transactionTime := models.NewTimestamp(0)
-
-	return AddSaleAtTimeToDatabase(db, cashierId, itemIds, transactionTime)
-}
-
-func AddSaleAtTimeToDatabase(db *sql.DB, cashierId models.Id, itemIds []models.Id, transactionTime models.Timestamp) models.Id {
-	saleId, err := queries.AddSale(db, cashierId, transactionTime, itemIds)
-
-	if err != nil {
-		panic(err)
-	}
-
-	return saleId
-}
-
 func ToJson(x any) string {
 	jsonData, err := json.Marshal(x)
 	if err != nil {

@@ -5,7 +5,6 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/test"
 	"bctbackend/test/setup"
 	"testing"
 
@@ -29,7 +28,7 @@ func TestGetSales(t *testing.T) {
 
 	saleIds := make([]models.Id, len(itemIds))
 	for _, itemId := range itemIds {
-		test.AddSaleToDatabase(db, cashierId, []models.Id{itemId})
+		setup.AddSaleToDatabase(db, cashierId, []models.Id{itemId})
 	}
 
 	actualSales, err := queries.GetSales(db)

@@ -5,7 +5,6 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/test"
 	"bctbackend/test/setup"
 	"testing"
 
@@ -38,7 +37,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)).ItemId,
 		}
 
-		test.AddSaleToDatabase(db, cashierId, []models.Id{itemIds[0]})
+		setup.AddSaleToDatabase(db, cashierId, []models.Id{itemIds[0]})
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
 
@@ -57,8 +56,8 @@ func TestGetMultiplySoldItems(t *testing.T) {
 			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)),
 		}
 
-		sale1 := test.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
-		sale2 := test.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
+		sale1 := setup.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
+		sale2 := setup.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
 
@@ -83,9 +82,9 @@ func TestGetMultiplySoldItems(t *testing.T) {
 			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)),
 		}
 
-		sale1 := test.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
-		sale2 := test.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
-		sale3 := test.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
+		sale1 := setup.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
+		sale2 := setup.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
+		sale3 := setup.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
 
@@ -112,8 +111,8 @@ func TestGetMultiplySoldItems(t *testing.T) {
 			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(2)),
 		}
 
-		sale1 := test.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId, items[1].ItemId})
-		sale2 := test.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId, items[1].ItemId})
+		sale1 := setup.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId, items[1].ItemId})
+		sale2 := setup.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId, items[1].ItemId})
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
 
@@ -144,9 +143,9 @@ func TestGetMultiplySoldItems(t *testing.T) {
 			setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(3)),
 		}
 
-		sale1 := test.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
-		sale2 := test.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId, items[1].ItemId})
-		sale3 := test.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId, items[1].ItemId, items[2].ItemId})
+		sale1 := setup.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
+		sale2 := setup.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId, items[1].ItemId})
+		sale3 := setup.AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId, items[1].ItemId, items[2].ItemId})
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
 

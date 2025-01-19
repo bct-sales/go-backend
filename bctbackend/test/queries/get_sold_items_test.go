@@ -5,7 +5,6 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/test"
 	"bctbackend/test/setup"
 	"testing"
 
@@ -42,7 +41,7 @@ func TestGetSoldItems(t *testing.T) {
 		seller := setup.AddSellerToDatabase(db)
 		cashier := setup.AddCashierToDatabase(db)
 		item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
-		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
+		setup.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
 
 		soldItems, err := queries.GetSoldItems(db)
 		require.NoError(t, err)
@@ -57,8 +56,8 @@ func TestGetSoldItems(t *testing.T) {
 		seller := setup.AddSellerToDatabase(db)
 		cashier := setup.AddCashierToDatabase(db)
 		item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
-		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
-		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
+		setup.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
+		setup.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
 
 		soldItems, err := queries.GetSoldItems(db)
 		require.NoError(t, err)
@@ -74,7 +73,7 @@ func TestGetSoldItems(t *testing.T) {
 		cashier := setup.AddCashierToDatabase(db)
 		item1 := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
 		item2 := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(2))
-		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId, item2.ItemId})
+		setup.AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId, item2.ItemId})
 
 		soldItems, err := queries.GetSoldItems(db)
 		require.NoError(t, err)
@@ -91,8 +90,8 @@ func TestGetSoldItems(t *testing.T) {
 		cashier := setup.AddCashierToDatabase(db)
 		item1 := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
 		item2 := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(2))
-		test.AddSaleAtTimeToDatabase(db, cashier.UserId, []models.Id{item1.ItemId}, models.Timestamp(100))
-		test.AddSaleAtTimeToDatabase(db, cashier.UserId, []models.Id{item2.ItemId}, models.Timestamp(200))
+		setup.AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId}, setup.WithTransactionTime(models.Timestamp(100)))
+		setup.AddSaleToDatabase(db, cashier.UserId, []models.Id{item2.ItemId}, setup.WithTransactionTime(models.Timestamp(200)))
 
 		soldItems, err := queries.GetSoldItems(db)
 		require.NoError(t, err)

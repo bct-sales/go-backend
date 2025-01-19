@@ -5,7 +5,6 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/test"
 	"bctbackend/test/setup"
 	"testing"
 
@@ -49,7 +48,7 @@ func TestRemoveSoldItem(t *testing.T) {
 	cashierId := setup.AddCashierToDatabase(db).UserId
 	itemId := setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)).ItemId
 
-	test.AddSaleToDatabase(db, cashierId, []models.Id{itemId})
+	setup.AddSaleToDatabase(db, cashierId, []models.Id{itemId})
 
 	err := queries.RemoveItemWithId(db, itemId)
 	require.Error(t, err)

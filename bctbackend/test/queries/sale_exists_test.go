@@ -5,7 +5,6 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/test"
 	"bctbackend/test/setup"
 	"testing"
 
@@ -21,7 +20,7 @@ func TestSaleExists(t *testing.T) {
 	cashierId := setup.AddCashierToDatabase(db).UserId
 	itemId := setup.AddItemToDatabase(db, sellerId, setup.WithDummyData(1)).ItemId
 
-	saleId := test.AddSaleToDatabase(db, cashierId, []models.Id{itemId})
+	saleId := setup.AddSaleToDatabase(db, cashierId, []models.Id{itemId})
 	saleExists, err := queries.SaleExists(db, saleId)
 	require.NoError(t, err)
 	require.True(t, saleExists)

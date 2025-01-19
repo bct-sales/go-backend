@@ -10,14 +10,33 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func AddSaleToDatabase(db *sql.DB, cashierId models.Id, itemIds []models.Id) models.Id {
-	transactionTime := models.NewTimestamp(0)
-
-	return AddSaleAtTimeToDatabase(db, cashierId, itemIds, transactionTime)
+type AddSaleData struct {
+	TransactionTime *models.Timestamp
 }
 
-func AddSaleAtTimeToDatabase(db *sql.DB, cashierId models.Id, itemIds []models.Id, transactionTime models.Timestamp) models.Id {
-	saleId, err := queries.AddSale(db, cashierId, transactionTime, itemIds)
+func WithTransactionTime(transactionTime models.Timestamp) func(*AddSaleData) {
+	return func(data *AddSaleData) {
+		data.TransactionTime = &transactionTime
+	}
+}
+
+func (data *AddSaleData) FillWithDefaults() {
+	if data.TransactionTime == nil {
+		transactionTime := models.NewTimestamp(0)
+		data.TransactionTime = &transactionTime
+	}
+}
+
+func AddSaleToDatabase(db *sql.DB, cashierId models.Id, itemIds []models.Id, options ...func(*AddSaleData)) models.Id {
+	data := AddSaleData{}
+
+	for _, option := range options {
+		option(&data)
+	}
+
+	data.FillWithDefaults()
+
+	saleId, err := queries.AddSale(db, cashierId, *data.TransactionTime, itemIds)
 
 	if err != nil {
 		panic(err)
