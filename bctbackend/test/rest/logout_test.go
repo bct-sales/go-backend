@@ -6,6 +6,7 @@ import (
 	"bctbackend/rest"
 	"bctbackend/rest/path"
 	"bctbackend/test"
+	"bctbackend/test/setup"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -18,7 +19,7 @@ func TestLogout(t *testing.T) {
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	admin := test.AddAdminToDatabase(db)
+	admin := setup.AddAdminToDatabase(db)
 	sessionId := test.AddSessionToDatabase(db, admin.UserId)
 
 	url := path.Logout().String()

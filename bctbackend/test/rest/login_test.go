@@ -8,6 +8,7 @@ import (
 	"bctbackend/rest/path"
 	"bctbackend/security"
 	"bctbackend/test"
+	"bctbackend/test/setup"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -23,7 +24,7 @@ func TestSuccessfulSellerLogin(t *testing.T) {
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	seller := test.AddSellerToDatabase(db)
+	seller := setup.AddSellerToDatabase(db)
 
 	form := url.Values{}
 	form.Add("username", models.IdToString(seller.UserId))
@@ -65,7 +66,7 @@ func TestSuccessfulAdminLogin(t *testing.T) {
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	admin := test.AddAdminToDatabase(db)
+	admin := setup.AddAdminToDatabase(db)
 
 	form := url.Values{}
 	form.Add("username", models.IdToString(admin.UserId))
@@ -107,7 +108,7 @@ func TestSuccessfulCashierLogin(t *testing.T) {
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	cashier := test.AddCashierToDatabase(db)
+	cashier := setup.AddCashierToDatabase(db)
 
 	form := url.Values{}
 	form.Add("username", models.IdToString(cashier.UserId))
@@ -170,7 +171,7 @@ func TestWrongPasswordLogin(t *testing.T) {
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	seller := test.AddSellerToDatabase(db)
+	seller := setup.AddSellerToDatabase(db)
 	userId := seller.UserId
 	password := "wrong password"
 

@@ -15,6 +15,7 @@ import (
 
 	"bctbackend/test"
 	rest_test "bctbackend/test/rest"
+	"bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )
@@ -29,8 +30,8 @@ func TestGetItemInformation(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := test.AddSellerToDatabase(db)
-			cashier := test.AddCashierToDatabase(db)
+			seller := setup.AddSellerToDatabase(db)
+			cashier := setup.AddCashierToDatabase(db)
 			item := test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
 
 			for i := 0; i < sale_count; i++ {
@@ -61,7 +62,7 @@ func TestGetItemInformationWithInvalidId(t *testing.T) {
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	cashier := test.AddCashierToDatabase(db)
+	cashier := setup.AddCashierToDatabase(db)
 	sessionId := test.AddSessionToDatabase(db, cashier.UserId)
 
 	url := path.SalesItems().WithRawItemId("abc")
@@ -77,7 +78,7 @@ func TestGetItemInformationAsSeller(t *testing.T) {
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	seller := test.AddSellerToDatabase(db)
+	seller := setup.AddSellerToDatabase(db)
 	sessionId := test.AddSessionToDatabase(db, seller.UserId)
 	item := test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
 
@@ -96,8 +97,8 @@ func TestGetItemInformationAsAdmin(t *testing.T) {
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	admin := test.AddAdminToDatabase(db)
-	seller := test.AddSellerToDatabase(db)
+	admin := setup.AddAdminToDatabase(db)
+	seller := setup.AddSellerToDatabase(db)
 	sessionId := test.AddSessionToDatabase(db, admin.UserId)
 	item := test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
 
@@ -117,7 +118,7 @@ func TestGetItemInformationWithNonexistentItem(t *testing.T) {
 	defer db.Close()
 
 	// Create cashier
-	cashier := test.AddCashierToDatabase(db)
+	cashier := setup.AddCashierToDatabase(db)
 
 	// Get ID for nonexisting item
 	nonexistentItem := models.NewId(1)

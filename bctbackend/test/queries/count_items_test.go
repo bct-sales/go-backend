@@ -26,7 +26,7 @@ func TestCountItems(t *testing.T) {
 		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := test.AddSellerToDatabase(db).UserId
+		sellerId := setup.AddSellerToDatabase(db).UserId
 		test.AddItemToDatabase(db, sellerId, test.WithDummyData(1))
 
 		count, err := queries.CountItems(db)
@@ -38,7 +38,7 @@ func TestCountItems(t *testing.T) {
 		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := test.AddSellerToDatabase(db).UserId
+		sellerId := setup.AddSellerToDatabase(db).UserId
 		test.AddItemToDatabase(db, sellerId, test.WithDummyData(1))
 		test.AddItemToDatabase(db, sellerId, test.WithDummyData(2))
 

@@ -48,7 +48,7 @@ func TestGetSalesOverview(t *testing.T) {
 		categories, err := queries.GetCategories(db)
 		require.NoError(t, err)
 
-		seller := test.AddSellerToDatabase(db)
+		seller := setup.AddSellerToDatabase(db)
 		test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(1))
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
@@ -72,11 +72,11 @@ func TestGetSalesOverview(t *testing.T) {
 
 		totals := createTotalMap(categories)
 
-		seller := test.AddSellerToDatabase(db)
+		seller := setup.AddSellerToDatabase(db)
 		item := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(1))
 		totals[item.CategoryId] += item.PriceInCents
 
-		cashier := test.AddCashierToDatabase(db)
+		cashier := setup.AddCashierToDatabase(db)
 		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
@@ -100,13 +100,13 @@ func TestGetSalesOverview(t *testing.T) {
 
 		totals := createTotalMap(categories)
 
-		seller := test.AddSellerToDatabase(db)
+		seller := setup.AddSellerToDatabase(db)
 		item1 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(1))
 		item2 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(2))
 		totals[item1.CategoryId] += item1.PriceInCents
 		totals[item2.CategoryId] += item2.PriceInCents
 
-		cashier := test.AddCashierToDatabase(db)
+		cashier := setup.AddCashierToDatabase(db)
 		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId, item2.ItemId})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
@@ -130,13 +130,13 @@ func TestGetSalesOverview(t *testing.T) {
 
 		totals := createTotalMap(categories)
 
-		seller := test.AddSellerToDatabase(db)
+		seller := setup.AddSellerToDatabase(db)
 		item1 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(1))
 		item2 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(2))
 		totals[item1.CategoryId] += item1.PriceInCents
 		totals[item2.CategoryId] += item2.PriceInCents
 
-		cashier := test.AddCashierToDatabase(db)
+		cashier := setup.AddCashierToDatabase(db)
 		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId, item2.ItemId})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
@@ -160,13 +160,13 @@ func TestGetSalesOverview(t *testing.T) {
 
 		totals := createTotalMap(categories)
 
-		seller := test.AddSellerToDatabase(db)
+		seller := setup.AddSellerToDatabase(db)
 		item1 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(1))
 		item2 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(2))
 		totals[item1.CategoryId] += item1.PriceInCents
 		totals[item2.CategoryId] += item2.PriceInCents
 
-		cashier := test.AddCashierToDatabase(db)
+		cashier := setup.AddCashierToDatabase(db)
 		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId})
 		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item2.ItemId})
 
@@ -191,13 +191,13 @@ func TestGetSalesOverview(t *testing.T) {
 
 		totals := createTotalMap(categories)
 
-		seller := test.AddSellerToDatabase(db)
+		seller := setup.AddSellerToDatabase(db)
 		item1 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[0].CategoryId), test.WithDummyData(1))
 		item2 := test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categories[1].CategoryId), test.WithDummyData(2))
 		totals[item1.CategoryId] += item1.PriceInCents
 		totals[item2.CategoryId] += item2.PriceInCents
 
-		cashier := test.AddCashierToDatabase(db)
+		cashier := setup.AddCashierToDatabase(db)
 		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId})
 		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item2.ItemId})
 

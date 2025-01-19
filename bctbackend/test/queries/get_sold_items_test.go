@@ -27,7 +27,7 @@ func TestGetSoldItems(t *testing.T) {
 		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
-		seller := test.AddSellerToDatabase(db)
+		seller := setup.AddSellerToDatabase(db)
 		test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
 
 		soldItems, err := queries.GetSoldItems(db)
@@ -39,8 +39,8 @@ func TestGetSoldItems(t *testing.T) {
 		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
-		seller := test.AddSellerToDatabase(db)
-		cashier := test.AddCashierToDatabase(db)
+		seller := setup.AddSellerToDatabase(db)
+		cashier := setup.AddCashierToDatabase(db)
 		item := test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
 		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
 
@@ -54,8 +54,8 @@ func TestGetSoldItems(t *testing.T) {
 		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
-		seller := test.AddSellerToDatabase(db)
-		cashier := test.AddCashierToDatabase(db)
+		seller := setup.AddSellerToDatabase(db)
+		cashier := setup.AddCashierToDatabase(db)
 		item := test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
 		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
 		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
@@ -70,8 +70,8 @@ func TestGetSoldItems(t *testing.T) {
 		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
-		seller := test.AddSellerToDatabase(db)
-		cashier := test.AddCashierToDatabase(db)
+		seller := setup.AddSellerToDatabase(db)
+		cashier := setup.AddCashierToDatabase(db)
 		item1 := test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
 		item2 := test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(2))
 		test.AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId, item2.ItemId})
@@ -87,8 +87,8 @@ func TestGetSoldItems(t *testing.T) {
 		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
-		seller := test.AddSellerToDatabase(db)
-		cashier := test.AddCashierToDatabase(db)
+		seller := setup.AddSellerToDatabase(db)
+		cashier := setup.AddCashierToDatabase(db)
 		item1 := test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
 		item2 := test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(2))
 		test.AddSaleAtTimeToDatabase(db, cashier.UserId, []models.Id{item1.ItemId}, models.Timestamp(100))

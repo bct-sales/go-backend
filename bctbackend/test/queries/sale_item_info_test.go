@@ -23,8 +23,8 @@ func TestGetSaleItemInformation(t *testing.T) {
 				db := setup.OpenInitializedDatabase()
 				defer db.Close()
 
-				seller := test.AddSellerToDatabase(db)
-				cashier := test.AddCashierToDatabase(db)
+				seller := setup.AddSellerToDatabase(db)
+				cashier := setup.AddCashierToDatabase(db)
 				item := test.AddItemToDatabase(db, seller.UserId, test.WithDummyData(1))
 
 				for i := 0; i < sellCount; i++ {

@@ -18,7 +18,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := test.AddSellerToDatabase(db).UserId
+		sellerId := setup.AddSellerToDatabase(db).UserId
 		test.AddItemToDatabase(db, sellerId, test.WithDummyData(1))
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
@@ -31,8 +31,8 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := test.AddSellerToDatabase(db).UserId
-		cashierId := test.AddCashierToDatabase(db).UserId
+		sellerId := setup.AddSellerToDatabase(db).UserId
+		cashierId := setup.AddCashierToDatabase(db).UserId
 
 		itemIds := []models.Id{
 			test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)).ItemId,
@@ -50,8 +50,8 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := test.AddSellerToDatabase(db).UserId
-		cashierId := test.AddCashierToDatabase(db).UserId
+		sellerId := setup.AddSellerToDatabase(db).UserId
+		cashierId := setup.AddCashierToDatabase(db).UserId
 
 		items := []*models.Item{
 			test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)),
@@ -76,8 +76,8 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := test.AddSellerToDatabase(db).UserId
-		cashierId := test.AddCashierToDatabase(db).UserId
+		sellerId := setup.AddSellerToDatabase(db).UserId
+		cashierId := setup.AddCashierToDatabase(db).UserId
 
 		items := []*models.Item{
 			test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)),
@@ -104,8 +104,8 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := test.AddSellerToDatabase(db).UserId
-		cashierId := test.AddCashierToDatabase(db).UserId
+		sellerId := setup.AddSellerToDatabase(db).UserId
+		cashierId := setup.AddCashierToDatabase(db).UserId
 
 		items := []*models.Item{
 			test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)),
@@ -135,8 +135,8 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := test.AddSellerToDatabase(db).UserId
-		cashierId := test.AddCashierToDatabase(db).UserId
+		sellerId := setup.AddSellerToDatabase(db).UserId
+		cashierId := setup.AddCashierToDatabase(db).UserId
 
 		items := []*models.Item{
 			test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)),

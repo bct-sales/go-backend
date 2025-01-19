@@ -5,6 +5,7 @@ package rest
 import (
 	"bctbackend/rest/path"
 	"bctbackend/test"
+	"bctbackend/test/setup"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -15,7 +16,7 @@ func TestSessionExpiration(t *testing.T) {
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	admin := test.AddAdminToDatabase(db)
+	admin := setup.AddAdminToDatabase(db)
 	sessionId := test.AddSessionToDatabaseWithExpiration(db, admin.UserId, -1)
 
 	url := path.Items().String()
@@ -31,7 +32,7 @@ func TestMissingSessionId(t *testing.T) {
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	admin := test.AddAdminToDatabase(db)
+	admin := setup.AddAdminToDatabase(db)
 	test.AddSessionToDatabaseWithExpiration(db, admin.UserId, -1)
 
 	url := path.Items().String()

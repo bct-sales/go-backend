@@ -46,7 +46,7 @@ func TestGetCategoryCounts(t *testing.T) {
 		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := test.AddSellerToDatabase(db).UserId
+		sellerId := setup.AddSellerToDatabase(db).UserId
 
 		for categoryId, count := range countTable {
 			for i := int64(0); i < count; i++ {

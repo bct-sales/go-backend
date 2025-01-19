@@ -11,6 +11,7 @@ import (
 	rest_admin "bctbackend/rest/admin"
 	"bctbackend/rest/path"
 	"bctbackend/test"
+	"bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )
@@ -47,7 +48,7 @@ func TestCategoryCounts(t *testing.T) {
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
-		admin := test.AddAdminToDatabase(db)
+		admin := setup.AddAdminToDatabase(db)
 		sessionId := test.AddSessionToDatabase(db, admin.UserId)
 
 		url := path.CategoryCounts().String()
@@ -67,8 +68,8 @@ func TestCategoryCounts(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			admin := test.AddAdminToDatabase(db)
-			seller := test.AddSellerToDatabase(db)
+			admin := setup.AddAdminToDatabase(db)
+			seller := setup.AddSellerToDatabase(db)
 			test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categoryId), test.WithDummyData(1))
 			sessionId := test.AddSessionToDatabase(db, admin.UserId)
 
@@ -91,8 +92,8 @@ func TestCategoryCounts(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			admin := test.AddAdminToDatabase(db)
-			seller := test.AddSellerToDatabase(db)
+			admin := setup.AddAdminToDatabase(db)
+			seller := setup.AddSellerToDatabase(db)
 			test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categoryId), test.WithDummyData(1))
 			test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categoryId), test.WithDummyData(1))
 			sessionId := test.AddSessionToDatabase(db, admin.UserId)
@@ -117,8 +118,8 @@ func TestCategoryCounts(t *testing.T) {
 				writer := httptest.NewRecorder()
 				defer db.Close()
 
-				admin := test.AddAdminToDatabase(db)
-				seller := test.AddSellerToDatabase(db)
+				admin := setup.AddAdminToDatabase(db)
+				seller := setup.AddSellerToDatabase(db)
 				test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categoryId1), test.WithDummyData(1))
 				test.AddItemToDatabase(db, seller.UserId, test.WithItemCategory(categoryId2), test.WithDummyData(2))
 				sessionId := test.AddSessionToDatabase(db, admin.UserId)

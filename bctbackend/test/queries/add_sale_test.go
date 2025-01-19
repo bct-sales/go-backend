@@ -18,8 +18,8 @@ func TestAddSale(t *testing.T) {
 		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := test.AddSellerToDatabase(db).UserId
-		cashierId := test.AddCashierToDatabase(db).UserId
+		sellerId := setup.AddSellerToDatabase(db).UserId
+		cashierId := setup.AddCashierToDatabase(db).UserId
 
 		itemIds := []models.Id{
 			test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)).ItemId,
@@ -56,7 +56,7 @@ func TestAddSaleWithoutItems(t *testing.T) {
 	db := setup.OpenInitializedDatabase()
 	defer db.Close()
 
-	cashierId := test.AddCashierToDatabase(db).UserId
+	cashierId := setup.AddCashierToDatabase(db).UserId
 	timestamp := models.NewTimestamp(0)
 
 	_, err := queries.AddSale(db, cashierId, timestamp, []models.Id{})
@@ -67,7 +67,7 @@ func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
 	db := setup.OpenInitializedDatabase()
 	defer db.Close()
 
-	sellerId := test.AddSellerToDatabase(db).UserId
+	sellerId := setup.AddSellerToDatabase(db).UserId
 	timestamp := models.NewTimestamp(0)
 	itemId := test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)).ItemId
 

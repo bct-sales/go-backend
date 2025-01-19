@@ -28,7 +28,7 @@ func TestGetItemWithId(t *testing.T) {
 		db := setup.OpenInitializedDatabase()
 		defer db.Close()
 
-		sellerId := test.AddSellerToDatabase(db).UserId
+		sellerId := setup.AddSellerToDatabase(db).UserId
 		itemId := test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)).ItemId
 
 		item, err := queries.GetItemWithId(db, itemId)

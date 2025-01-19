@@ -6,7 +6,6 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/defs"
-	"bctbackend/test"
 	"bctbackend/test/setup"
 	"fmt"
 	"testing"
@@ -29,8 +28,8 @@ func TestAddItemToDatabase(t *testing.T) {
 									db := setup.OpenInitializedDatabase()
 									defer db.Close()
 
-									test.AddSellerToDatabase(db, test.WithUserId(1))
-									test.AddSellerToDatabase(db, test.WithUserId(2))
+									setup.AddSellerToDatabase(db, setup.WithUserId(1))
+									setup.AddSellerToDatabase(db, setup.WithUserId(2))
 
 									itemId, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 									if err != nil {
@@ -75,7 +74,7 @@ func TestAddItemWithNonexistingSeller(t *testing.T) {
 	sellerId := models.NewId(1)
 	donation := false
 
-	test.AddSellerToDatabase(db, test.WithUserId(2))
+	setup.AddSellerToDatabase(db, setup.WithUserId(2))
 
 	_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 	var unknownUserError *queries.UnknownUserError
@@ -98,7 +97,7 @@ func TestAddItemWithNonexistingCategory(t *testing.T) {
 	donation := false
 	itemCategoryId := models.NewId(100)
 
-	test.AddSellerToDatabase(db, test.WithUserId(1))
+	setup.AddSellerToDatabase(db, setup.WithUserId(1))
 
 	{
 		categoryExists, err := queries.CategoryWithIdExists(db, itemCategoryId)
@@ -127,7 +126,7 @@ func TestAddItemWithZeroPrice(t *testing.T) {
 	description := "description"
 	itemCategoryId := models.NewId(1)
 	charity := false
-	sellerId := test.AddSellerToDatabase(db).UserId
+	sellerId := setup.AddSellerToDatabase(db).UserId
 	donation := false
 	priceInCents := models.NewMoneyInCents(0)
 
@@ -153,7 +152,7 @@ func TestAddItemWithNegativePrice(t *testing.T) {
 	description := "description"
 	itemCategoryId := models.NewId(1)
 	charity := false
-	sellerId := test.AddSellerToDatabase(db).UserId
+	sellerId := setup.AddSellerToDatabase(db).UserId
 	donation := false
 	priceInCents := models.NewMoneyInCents(-100)
 
@@ -176,7 +175,7 @@ func TestAddItemWithCashierOwner(t *testing.T) {
 
 	timestamp := models.NewTimestamp(0)
 	description := "description"
-	sellerId := test.AddCashierToDatabase(db).UserId
+	sellerId := setup.AddCashierToDatabase(db).UserId
 	priceInCents := models.NewMoneyInCents(100)
 	itemCategoryId := models.NewId(1)
 	charity := false
@@ -200,7 +199,7 @@ func TestAddItemWithAdminOwner(t *testing.T) {
 
 	timestamp := models.NewTimestamp(0)
 	description := "description"
-	sellerId := test.AddAdminToDatabase(db).UserId
+	sellerId := setup.AddAdminToDatabase(db).UserId
 	priceInCents := models.NewMoneyInCents(100)
 	itemCategoryId := models.NewId(1)
 	charity := false

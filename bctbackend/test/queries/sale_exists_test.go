@@ -17,8 +17,8 @@ func TestSaleExists(t *testing.T) {
 	db := setup.OpenInitializedDatabase()
 	defer db.Close()
 
-	sellerId := test.AddSellerToDatabase(db).UserId
-	cashierId := test.AddCashierToDatabase(db).UserId
+	sellerId := setup.AddSellerToDatabase(db).UserId
+	cashierId := setup.AddCashierToDatabase(db).UserId
 	itemId := test.AddItemToDatabase(db, sellerId, test.WithDummyData(1)).ItemId
 
 	saleId := test.AddSaleToDatabase(db, cashierId, []models.Id{itemId})

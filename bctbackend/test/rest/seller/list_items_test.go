@@ -10,6 +10,7 @@ import (
 	models "bctbackend/database/models"
 	"bctbackend/rest/path"
 	"bctbackend/test"
+	"bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )
@@ -21,7 +22,7 @@ func TestListSellerItems(t *testing.T) {
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := test.AddSellerToDatabase(db, test.WithUserId(sellerId))
+			seller := setup.AddSellerToDatabase(db, setup.WithUserId(sellerId))
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
 			expectedItems := []models.Item{}
