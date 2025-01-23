@@ -39,6 +39,6 @@ func IdToString(id Id) string {
 	return strconv.FormatInt(int64(id), 10)
 }
 
-func TimeStampToString(timestamp Timestamp) string {
+func TimestampToString(timestamp Timestamp) string {
 	return time.Unix(timestamp, 0).String()
 }
