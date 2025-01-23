@@ -3,6 +3,7 @@ package cli
 import (
 	cli_barcode "bctbackend/cli/barcode"
 	cli_category "bctbackend/cli/category"
+	"bctbackend/cli/csv"
 	cli_item "bctbackend/cli/item"
 	cli_sale "bctbackend/cli/sale"
 	cli_user "bctbackend/cli/user"
@@ -120,6 +121,25 @@ func ProcessCommandLineArguments(arguments []string) error {
 				Usage: "start REST api server",
 				Action: func(ctx *cli.Context) error {
 					return startRestService(databasePath)
+				},
+			},
+			{
+				Name:  "export",
+				Usage: "export data",
+				Subcommands: []*cli.Command{
+					{
+						Name:  "csv",
+						Usage: "export data as csv",
+						Subcommands: []*cli.Command{
+							{
+								Name:  "users",
+								Usage: "export users as csv",
+								Action: func(context *cli.Context) error {
+									return csv.ExportUsers(databasePath)
+								},
+							},
+						},
+					},
 				},
 			},
 			{
