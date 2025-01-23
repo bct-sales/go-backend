@@ -6,7 +6,6 @@ import (
 	"bctbackend/defs"
 	"database/sql"
 	"fmt"
-	"time"
 
 	"github.com/pterm/pterm"
 )
@@ -131,7 +130,7 @@ func FormatId(id models.Id) string {
 }
 
 func FormatTimestamp(timestamp models.Timestamp) string {
-	return time.Unix(timestamp, 0).String()
+	return models.TimeStampToString(timestamp)
 }
 
 func FormatOptionalTimestamp(lastActivity *models.Timestamp) string {
