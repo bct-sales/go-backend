@@ -42,3 +42,7 @@ func IdToString(id Id) string {
 func TimestampToString(timestamp Timestamp) string {
 	return time.Unix(timestamp, 0).String()
 }
+
+func MoneyInCentsToString(moneyInCents MoneyInCents) string {
+	return strconv.FormatInt(int64(moneyInCents), 10)
+}
