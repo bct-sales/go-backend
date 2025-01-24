@@ -138,6 +138,13 @@ func ProcessCommandLineArguments(arguments []string) error {
 									return csv.ExportUsers(databasePath)
 								},
 							},
+							{
+								Name:  "items",
+								Usage: "export items as csv",
+								Action: func(context *cli.Context) error {
+									return csv.ExportItems(databasePath)
+								},
+							},
 						},
 					},
 				},
