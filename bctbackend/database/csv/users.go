@@ -12,7 +12,8 @@ func OutputUsers(db *sql.DB, writer io.Writer) error {
 	csvWriter := csv.NewWriter(writer)
 	defer csvWriter.Flush()
 
-	err := csvWriter.Write([]string{"user_id", "role_id", "last_activity", "password"})
+	headers := []string{"user_id", "role_id", "last_activity", "password"}
+	err := csvWriter.Write(headers)
 	if err != nil {
 		return err
 	}
