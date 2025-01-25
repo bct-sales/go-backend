@@ -210,3 +210,25 @@ func CheckUserRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) (bool
 
 	return true, nil
 }
+
+func RemoveUserWithId(db *sql.DB, userId models.Id) error {
+	userExist, err := UserWithIdExists(db, userId)
+
+	if err != nil {
+		return err
+	}
+
+	if !userExist {
+		return &UnknownUserError{UserId: userId}
+	}
+
+	_, err = db.Exec(
+		`
+			DELETE FROM users
+			WHERE user_id = $1
+		`,
+		userId,
+	)
+
+	return err
+}
