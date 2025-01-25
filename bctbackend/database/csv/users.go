@@ -18,12 +18,7 @@ func OutputUsers(db *sql.DB, writer io.Writer) error {
 		return err
 	}
 
-	users, err := queries.GetUsers(db)
-	if err != nil {
-		return err
-	}
-
-	for _, user := range users {
+	writeRow := func(user *models.User) error {
 		idString := models.IdToString(user.UserId)
 		roleString, err := models.NameOfRole(user.RoleId)
 		if err != nil {
@@ -47,6 +42,12 @@ func OutputUsers(db *sql.DB, writer io.Writer) error {
 		if err != nil {
 			return err
 		}
+
+		return nil
+	}
+
+	if err := queries.GetUsers(db, writeRow); err != nil {
+		return err
 	}
 
 	return nil

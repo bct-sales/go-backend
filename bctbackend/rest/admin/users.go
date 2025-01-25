@@ -47,9 +47,8 @@ func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 		return
 	}
 
-	users, err := queries.GetUsers(db)
-
-	if err != nil {
+	users := []*models.User{}
+	if err := queries.GetUsers(db, queries.CollectTo(&users)); err != nil {
 		slog.Error("Failed to fetch users", slog.String("error", err.Error()))
 		failureResponse := GetUsersFailureResponse{Message: "Failed to fetch users"}
 		context.JSON(http.StatusInternalServerError, failureResponse)

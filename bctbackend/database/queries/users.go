@@ -129,7 +129,7 @@ func GetUserWithId(db *sql.DB, userId models.Id) (models.User, error) {
 	}, nil
 }
 
-func GetUsers(db *sql.DB) ([]models.User, error) {
+func GetUsers(db *sql.DB, receiver func(*models.User) error) error {
 	rows, err := db.Query(
 		`
 			SELECT user_id, role_id, created_at, password
@@ -138,12 +138,10 @@ func GetUsers(db *sql.DB) ([]models.User, error) {
 	)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	defer rows.Close()
-
-	users := []models.User{}
 
 	for rows.Next() {
 		var userId models.Id
@@ -151,10 +149,8 @@ func GetUsers(db *sql.DB) ([]models.User, error) {
 		var createdAt models.Timestamp
 		var password string
 
-		err = rows.Scan(&userId, &roleId, &createdAt, &password)
-
-		if err != nil {
-			return nil, err
+		if err := rows.Scan(&userId, &roleId, &createdAt, &password); err != nil {
+			return err
 		}
 
 		user := models.User{
@@ -163,10 +159,14 @@ func GetUsers(db *sql.DB) ([]models.User, error) {
 			CreatedAt: createdAt,
 			Password:  password,
 		}
-		users = append(users, user)
+
+		if err := receiver(&user); err != nil {
+			return err
+		}
+
 	}
 
-	return users, nil
+	return nil
 }
 
 func UpdateUserPassword(db *sql.DB, userId models.Id, password string) error {
