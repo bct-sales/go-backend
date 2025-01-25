@@ -157,12 +157,13 @@ func GetUsers(db *sql.DB) ([]models.User, error) {
 			return nil, err
 		}
 
-		users = append(users, models.User{
+		user := models.User{
 			UserId:    userId,
 			RoleId:    roleId,
 			CreatedAt: createdAt,
 			Password:  password,
-		})
+		}
+		users = append(users, user)
 	}
 
 	return users, nil
