@@ -18,7 +18,7 @@ func OutputUsers(db *sql.DB, writer io.Writer) error {
 		return err
 	}
 
-	users, err := queries.ListUsers(db)
+	users, err := queries.GetUsers(db)
 	if err != nil {
 		return err
 	}

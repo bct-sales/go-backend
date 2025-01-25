@@ -134,7 +134,7 @@ func TestListUsers(t *testing.T) {
 
 	queries.AddUserWithId(db, userId, roleId, 0, nil, password)
 
-	users, err := queries.ListUsers(db)
+	users, err := queries.GetUsers(db)
 	require.NoError(t, err)
 	require.Len(t, users, 1)
 	require.Equal(t, userId, users[0].UserId)

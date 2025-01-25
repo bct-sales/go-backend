@@ -21,7 +21,7 @@ func ListUsers(databasePath string) error {
 
 	defer db.Close()
 
-	users, err := queries.ListUsers(db)
+	users, err := queries.GetUsers(db)
 
 	if err != nil {
 		return fmt.Errorf("error while listing users: %v", err)

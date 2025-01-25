@@ -47,7 +47,7 @@ func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 		return
 	}
 
-	users, err := queries.ListUsers(db)
+	users, err := queries.GetUsers(db)
 
 	if err != nil {
 		slog.Error("Failed to fetch users", slog.String("error", err.Error()))

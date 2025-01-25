@@ -129,7 +129,7 @@ func GetUserWithId(db *sql.DB, userId models.Id) (models.User, error) {
 	}, nil
 }
 
-func ListUsers(db *sql.DB) ([]models.User, error) {
+func GetUsers(db *sql.DB) ([]models.User, error) {
 	rows, err := db.Query(
 		`
 			SELECT user_id, role_id, created_at, password
