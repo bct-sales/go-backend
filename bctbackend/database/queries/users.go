@@ -211,6 +211,10 @@ func CheckUserRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) (bool
 	return true, nil
 }
 
+// RemoveUserWithId removes a user from the database by their user ID.
+// An UnknownUserError is returned if the user does not exist.
+// An error is returned if the user cannot be removed, e.g., because items or sales are
+// associated with the user.
 func RemoveUserWithId(db *sql.DB, userId models.Id) error {
 	userExist, err := UserWithIdExists(db, userId)
 
