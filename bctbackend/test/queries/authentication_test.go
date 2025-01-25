@@ -38,12 +38,17 @@ func TestAuthenticatingNonExistingUser(t *testing.T) {
 	password := "xyz"
 	userId := models.NewId(5)
 
-	require.False(t, queries.UserWithIdExists(db, userId))
+	{
+		userExists, err := queries.UserWithIdExists(db, userId)
+		require.NoError(t, err)
+		require.False(t, userExists)
+	}
 
-	_, err := queries.AuthenticateUser(db, userId, password)
-
-	require.Error(t, err)
-	require.IsType(t, &queries.UnknownUserError{}, err)
+	{
+		_, err := queries.AuthenticateUser(db, userId, password)
+		require.Error(t, err)
+		require.IsType(t, &queries.UnknownUserError{}, err)
+	}
 }
 
 func TestAuthenticatingWrongPassword(t *testing.T) {

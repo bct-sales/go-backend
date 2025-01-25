@@ -338,7 +338,9 @@ func TestAddSellerItem(t *testing.T) {
 			nonexistentId := models.NewId(1000)
 			sessionId := test.AddSessionToDatabase(db, seller.UserId)
 
-			require.False(t, queries.UserWithIdExists(db, nonexistentId))
+			userExists, err := queries.UserWithIdExists(db, nonexistentId)
+			require.NoError(t, err)
+			require.False(t, userExists)
 
 			url := path.SellerItems().WithSellerId(nonexistentId)
 			payload := restapi.AddSellerItemPayload{

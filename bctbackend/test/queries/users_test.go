@@ -23,7 +23,10 @@ func TestAddUserWithId(t *testing.T) {
 
 					err := queries.AddUserWithId(db, userId, roleId, 0, nil, password)
 					require.NoError(t, err)
-					require.True(t, queries.UserWithIdExists(db, userId))
+
+					userExists, err := queries.UserWithIdExists(db, userId)
+					require.NoError(t, err)
+					require.True(t, userExists)
 
 					actualRoleId, err := queries.AuthenticateUser(db, userId, password)
 					require.NoError(t, err)
@@ -84,7 +87,10 @@ func TestAddUser(t *testing.T) {
 
 				userId, err := queries.AddUser(db, roleId, 0, nil, password)
 				require.NoError(t, err)
-				require.True(t, queries.UserWithIdExists(db, userId))
+
+				userExists, err := queries.UserWithIdExists(db, userId)
+				require.NoError(t, err)
+				require.True(t, userExists)
 			})
 		}
 	}

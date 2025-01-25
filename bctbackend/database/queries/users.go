@@ -34,7 +34,11 @@ func AddUserWithId(
 			return &NoSuchRoleError{RoleId: roleId}
 		}
 
-		if UserWithIdExists(db, userId) {
+		userExists, err := UserWithIdExists(db, userId)
+		if err != nil {
+			return err
+		}
+		if userExists {
 			return &UserIdAlreadyInUseError{UserId: userId}
 		}
 
@@ -75,7 +79,7 @@ func AddUser(
 
 func UserWithIdExists(
 	db *sql.DB,
-	userId models.Id) bool {
+	userId models.Id) (bool, error) {
 
 	row := db.QueryRow(
 		`
@@ -89,7 +93,15 @@ func UserWithIdExists(
 	var value int
 	err := row.Scan(&value)
 
-	return err == nil
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	return true, nil
 }
 
 // GetUserWithId retrieves a user from the database by their user ID.
