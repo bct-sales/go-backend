@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	. "bctbackend/test/setup"
 	"testing"
@@ -16,7 +17,8 @@ func TestGetItems(t *testing.T) {
 		db := OpenInitializedDatabase()
 		defer db.Close()
 
-		items, err := queries.GetItems(db)
+		items := []*models.Item{}
+		err := queries.GetItems(db, queries.CollectTo(&items))
 		require.NoError(t, err)
 		require.Equal(t, 0, len(items))
 	})
@@ -28,7 +30,8 @@ func TestGetItems(t *testing.T) {
 		sellerId := AddSellerToDatabase(db).UserId
 		itemId := AddItemToDatabase(db, sellerId, WithDummyData(1)).ItemId
 
-		items, err := queries.GetItems(db)
+		items := []*models.Item{}
+		err := queries.GetItems(db, queries.CollectTo(&items))
 		require.NoError(t, err)
 		require.Equal(t, 1, len(items))
 		require.Equal(t, itemId, items[0].ItemId)
@@ -42,7 +45,8 @@ func TestGetItems(t *testing.T) {
 		item1Id := AddItemToDatabase(db, sellerId, WithDummyData(1)).ItemId
 		item2Id := AddItemToDatabase(db, sellerId, WithDummyData(2)).ItemId
 
-		items, err := queries.GetItems(db)
+		items := []*models.Item{}
+		err := queries.GetItems(db, queries.CollectTo(&items))
 		require.NoError(t, err)
 		require.Equal(t, 2, len(items))
 		require.Equal(t, item1Id, items[0].ItemId)

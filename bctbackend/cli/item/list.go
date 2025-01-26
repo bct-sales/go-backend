@@ -2,6 +2,7 @@ package item
 
 import (
 	"bctbackend/database"
+	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/defs"
 	"fmt"
@@ -20,9 +21,8 @@ func ListItems(databasePath string) error {
 
 	defer db.Close()
 
-	items, err := queries.GetItems(db)
-
-	if err != nil {
+	items := []*models.Item{}
+	if err := queries.GetItems(db, queries.CollectTo(&items)); err != nil {
 		return fmt.Errorf("error while listing items: %v", err)
 	}
 

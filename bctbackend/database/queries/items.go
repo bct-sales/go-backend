@@ -6,7 +6,7 @@ import (
 	"errors"
 )
 
-func GetItems(db *sql.DB) ([]models.Item, error) {
+func GetItems(db *sql.DB, receiver func(*models.Item) error) error {
 	rows, err := db.Query(`
 		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity
 		FROM items
@@ -14,12 +14,10 @@ func GetItems(db *sql.DB) ([]models.Item, error) {
 	`)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	defer rows.Close()
-
-	items := make([]models.Item, 0)
 
 	for rows.Next() {
 		var id models.Id
@@ -34,15 +32,17 @@ func GetItems(db *sql.DB) ([]models.Item, error) {
 		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity)
 
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 
-		items = append(items, *item)
+		if err := receiver(item); err != nil {
+			return err
+		}
 	}
 
-	return items, nil
+	return nil
 }
 
 func GetSellerItems(db *sql.DB, sellerId models.Id) ([]models.Item, error) {

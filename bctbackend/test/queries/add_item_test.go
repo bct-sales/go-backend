@@ -36,11 +36,14 @@ func TestAddItemToDatabase(t *testing.T) {
 										t.Fatalf(`Failed to add item: %v`, err)
 									}
 
-									itemExists, err := queries.ItemWithIdExists(db, itemId)
-									require.NoError(t, err)
-									require.True(t, itemExists)
+									{
+										itemExists, err := queries.ItemWithIdExists(db, itemId)
+										require.NoError(t, err)
+										require.True(t, itemExists)
+									}
 
-									items, err := queries.GetItems(db)
+									items := []*models.Item{}
+									err = queries.GetItems(db, queries.CollectTo(&items))
 									require.NoError(t, err)
 									require.Equal(t, 1, len(items))
 

@@ -30,9 +30,8 @@ func GetItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 		return
 	}
 
-	items, err := queries.GetItems(db)
-
-	if err != nil {
+	items := []*models.Item{}
+	if err := queries.GetItems(db, queries.CollectTo(&items)); err != nil {
 		failureResponse := GetItemsFailureResponse{Message: "Failed to fetch items"}
 		context.JSON(http.StatusInternalServerError, failureResponse)
 		return

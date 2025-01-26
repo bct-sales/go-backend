@@ -52,13 +52,12 @@ func TestAddSellerItem(t *testing.T) {
 
 									response := test.FromJson[restapi.AddSellerItemResponse](writer.Body.String())
 
-									itemsInDatabase, err := queries.GetItems(db)
-
+									itemsInDatabase := []*models.Item{}
+									err := queries.GetItems(db, queries.CollectTo(&itemsInDatabase))
 									require.NoError(t, err)
 									require.Equal(t, 1, len(itemsInDatabase))
 
 									itemInDatabase := itemsInDatabase[0]
-
 									require.Equal(t, response.ItemId, itemInDatabase.ItemId)
 									require.Equal(t, seller.UserId, itemInDatabase.SellerId)
 									require.Equal(t, price, itemInDatabase.PriceInCents)
@@ -104,7 +103,8 @@ func TestAddSellerItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
-			itemsInDatabase, err := queries.GetItems(db)
+			itemsInDatabase := []*models.Item{}
+			err := queries.GetItems(db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -137,7 +137,8 @@ func TestAddSellerItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
-			itemsInDatabase, err := queries.GetItems(db)
+			itemsInDatabase := []*models.Item{}
+			err := queries.GetItems(db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -172,7 +173,8 @@ func TestAddSellerItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
-			itemsInDatabase, err := queries.GetItems(db)
+			itemsInDatabase := []*models.Item{}
+			err := queries.GetItems(db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -208,7 +210,8 @@ func TestAddSellerItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
-			itemsInDatabase, err := queries.GetItems(db)
+			itemsInDatabase := []*models.Item{}
+			err := queries.GetItems(db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -243,7 +246,8 @@ func TestAddSellerItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
-			itemsInDatabase, err := queries.GetItems(db)
+			itemsInDatabase := []*models.Item{}
+			err := queries.GetItems(db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -278,8 +282,8 @@ func TestAddSellerItem(t *testing.T) {
 
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
-			itemsInDatabase, err := queries.GetItems(db)
-
+			itemsInDatabase := []*models.Item{}
+			err := queries.GetItems(db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -315,8 +319,8 @@ func TestAddSellerItem(t *testing.T) {
 
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
-			itemsInDatabase, err := queries.GetItems(db)
-
+			itemsInDatabase := []*models.Item{}
+			err := queries.GetItems(db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -356,8 +360,8 @@ func TestAddSellerItem(t *testing.T) {
 
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
-			itemsInDatabase, err := queries.GetItems(db)
-
+			itemsInDatabase := []*models.Item{}
+			err = queries.GetItems(db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})

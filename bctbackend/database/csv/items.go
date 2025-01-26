@@ -19,8 +19,8 @@ func OutputItems(db *sql.DB, writer io.Writer) error {
 		return err
 	}
 
-	items, err := queries.GetItems(db)
-	if err != nil {
+	items := []*models.Item{}
+	if err := queries.GetItems(db, queries.CollectTo(&items)); err != nil {
 		return err
 	}
 
