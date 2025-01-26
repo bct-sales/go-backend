@@ -46,6 +46,10 @@ type InvalidPriceError struct {
 	PriceInCents models.MoneyInCents
 }
 
+type DuplicateItemInSaleError struct {
+	ItemId models.Id
+}
+
 func (err *UserIdAlreadyInUseError) Error() string {
 	return fmt.Sprintf("user id %d already in use", err.UserId)
 }
@@ -100,4 +104,8 @@ func (e *NoSuchRoleError) Error() string {
 
 func (e *InvalidPriceError) Error() string {
 	return fmt.Sprintf("price %d is invalid", e.PriceInCents)
+}
+
+func (e *DuplicateItemInSaleError) Error() string {
+	return fmt.Sprintf("item %d is already in sale", e.ItemId)
 }

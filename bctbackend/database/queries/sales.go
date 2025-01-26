@@ -1,6 +1,7 @@
 package queries
 
 import (
+	"bctbackend/algorithms"
 	"bctbackend/database/models"
 	"database/sql"
 	"errors"
@@ -27,6 +28,12 @@ func AddSale(
 
 	if len(itemIds) == 0 {
 		return 0, &SaleMissingItemsError{}
+	}
+
+	indexOfDuplicate := algorithms.ContainsDuplicate(itemIds)
+	if indexOfDuplicate != -1 {
+		duplicatedItemId := itemIds[indexOfDuplicate]
+		return 0, &DuplicateItemInSaleError{ItemId: duplicatedItemId}
 	}
 
 	cashier, err := GetUserWithId(db, cashierId)

@@ -83,5 +83,6 @@ func TestAddSaleWithSameItemTwice(t *testing.T) {
 	item := AddItemToDatabase(db, sellerId, WithDummyData(1))
 
 	_, err := queries.AddSale(db, sellerId, timestamp, []models.Id{item.ItemId, item.ItemId})
-	require.Error(t, err)
+	var duplicateItemError *queries.DuplicateItemInSaleError
+	require.ErrorAs(t, err, &duplicateItemError)
 }
