@@ -58,6 +58,10 @@ func ProcessCommandLineArguments(arguments []string) error {
 			show struct {
 				id int64
 			}
+
+			remove struct {
+				id int64
+			}
 		}
 
 		item struct {
@@ -217,6 +221,22 @@ func ProcessCommandLineArguments(arguments []string) error {
 							role := options.user.add.role
 							userPassword := options.user.add.password
 							return cli_user.AddUser(databasePath, id, role, userPassword)
+						},
+					},
+					{
+						Name:  "remove",
+						Usage: "remove a user",
+						Flags: []cli.Flag{
+							&cli.Int64Flag{
+								Name:        "id",
+								Usage:       "id of the user",
+								Destination: &options.user.remove.id,
+								Required:    true,
+							},
+						},
+						Action: func(context *cli.Context) error {
+							id := options.user.remove.id
+							return cli_user.RemoveUser(databasePath, id)
 						},
 					},
 					{
