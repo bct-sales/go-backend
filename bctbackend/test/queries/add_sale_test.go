@@ -73,3 +73,15 @@ func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
 	_, err := queries.AddSale(db, sellerId, timestamp, []models.Id{itemId})
 	require.Error(t, err)
 }
+
+func TestAddSaleWithSameItemTwice(t *testing.T) {
+	db := OpenInitializedDatabase()
+	defer db.Close()
+
+	sellerId := AddSellerToDatabase(db).UserId
+	timestamp := models.NewTimestamp(0)
+	item := AddItemToDatabase(db, sellerId, WithDummyData(1))
+
+	_, err := queries.AddSale(db, sellerId, timestamp, []models.Id{item.ItemId, item.ItemId})
+	require.Error(t, err)
+}
