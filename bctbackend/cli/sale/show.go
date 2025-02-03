@@ -1,4 +1,4 @@
-package user
+package sale
 
 import (
 	"bctbackend/cli/formatting"
