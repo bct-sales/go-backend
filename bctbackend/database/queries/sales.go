@@ -94,11 +94,14 @@ func AddSale(
 	return saleId, nil
 }
 
-func GetSales(db *sql.DB, receiver func(*models.Sale) error) error {
+func GetSales(db *sql.DB, receiver func(*models.SaleSummary) error) error {
 	rows, err := db.Query(
 		`
-			SELECT sale_id, cashier_id, transaction_time
+			SELECT sales.sale_id, sales.cashier_id, sales.transaction_time, COUNT(sale_items.item_id) AS item_count, SUM(items.price_in_cents) AS total_price
 			FROM sales
+			INNER JOIN sale_items ON sales.sale_id = sale_items.sale_id
+			INNER JOIN items ON sale_items.item_id = items.item_id
+			GROUP BY sales.sale_id
 		`,
 	)
 	if err != nil {
@@ -107,9 +110,9 @@ func GetSales(db *sql.DB, receiver func(*models.Sale) error) error {
 	defer rows.Close()
 
 	for rows.Next() {
-		var sale models.Sale
+		var sale models.SaleSummary
 
-		if err := rows.Scan(&sale.SaleId, &sale.CashierId, &sale.TransactionTime); err != nil {
+		if err := rows.Scan(&sale.SaleId, &sale.CashierId, &sale.TransactionTime, &sale.ItemCount, &sale.TotalPriceInCents); err != nil {
 			return err
 		}
 
