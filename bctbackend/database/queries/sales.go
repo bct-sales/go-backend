@@ -94,35 +94,31 @@ func AddSale(
 	return saleId, nil
 }
 
-func GetSales(db *sql.DB) ([]models.Sale, error) {
+func GetSales(db *sql.DB, receiver func(*models.Sale) error) error {
 	rows, err := db.Query(
 		`
 			SELECT sale_id, cashier_id, transaction_time
 			FROM sales
 		`,
 	)
-
 	if err != nil {
-		return nil, err
+		return err
 	}
-
 	defer rows.Close()
-
-	var sales []models.Sale
 
 	for rows.Next() {
 		var sale models.Sale
 
-		err := rows.Scan(&sale.SaleId, &sale.CashierId, &sale.TransactionTime)
-
-		if err != nil {
-			return nil, err
+		if err := rows.Scan(&sale.SaleId, &sale.CashierId, &sale.TransactionTime); err != nil {
+			return err
 		}
 
-		sales = append(sales, sale)
+		if err := receiver(&sale); err != nil {
+			return err
+		}
 	}
 
-	return sales, nil
+	return nil
 }
 
 // GetSaleWithId returns the sale with the given saleId.
