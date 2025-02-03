@@ -389,6 +389,13 @@ func ProcessCommandLineArguments(arguments []string) error {
 				Usage: "sale related functionality",
 				Subcommands: []*cli.Command{
 					{
+						Name:  "list",
+						Usage: "list all sales",
+						Action: func(context *cli.Context) error {
+							return cli_sale.ListSales(databasePath)
+						},
+					},
+					{
 						Name:  "add",
 						Usage: "add a new sale",
 						Flags: []cli.Flag{
