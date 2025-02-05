@@ -5,6 +5,7 @@ import (
 	"bctbackend/database/queries"
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -29,7 +30,7 @@ type AddSaleFailureResponse struct {
 // @Produce json
 // @Param AddSalePayload body AddSalePayload true "Payload containing item IDs"
 // @Success 201 {object} AddSaleSuccessResponse "Sale successfully added"
-// @Failure 400 {object} AddSaleFailureResponse "Failed to parse payload or add sale"
+// @Failure 400 {object} AddSaleFailureResponse "Failed to parse payload or add sale; item not found or duplicate item in sale"
 // @Failure 403 {object} AddSaleFailureResponse "Only accessible to cashiers"
 // @Router /sales [post]
 func AddSale(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
@@ -62,6 +63,14 @@ func AddSale(context *gin.Context, db *sql.DB, userId models.Id, roleId models.I
 			context.JSON(http.StatusBadRequest, errorResponse)
 			return
 		}
+
+		var itemNotFoundError *queries.ItemNotFoundError
+		if errors.As(err, &itemNotFoundError) {
+			errorResponse := AddSaleFailureResponse{Message: fmt.Sprint("Unknown item %d", itemNotFoundError.Id)}
+			context.JSON(http.StatusBadRequest, errorResponse)
+			return
+		}
+
 		errorResponse := AddSaleFailureResponse{Message: "Failed to add sale"}
 		context.JSON(http.StatusBadRequest, errorResponse)
 		return
