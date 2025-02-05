@@ -4,6 +4,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"database/sql"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -54,8 +55,13 @@ func AddSale(context *gin.Context, db *sql.DB, userId models.Id, roleId models.I
 		payload.Items,
 	)
 
-	// TODO recognize error (e.g., if the category does not exist) and return StatusBadRequest or InternalServerError depending on the error
 	if err != nil {
+		var duplicateItemInSaleError *queries.DuplicateItemInSaleError
+		if errors.As(err, &duplicateItemInSaleError) {
+			errorResponse := AddSaleFailureResponse{Message: "Duplicate item in sale"}
+			context.JSON(http.StatusBadRequest, errorResponse)
+			return
+		}
 		errorResponse := AddSaleFailureResponse{Message: "Failed to add sale"}
 		context.JSON(http.StatusBadRequest, errorResponse)
 		return
