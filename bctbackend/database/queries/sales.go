@@ -18,6 +18,7 @@ func rollbackTransaction(transaction *sql.Tx, err error) error {
 
 // AddSale adds a sale to the database.
 // A SaleMissingItemsError is returned if itemIds is empty.
+// An ItemNotFoundError is returned if any item ID in itemIds does not correspond to any item.
 // A NoSuchUserError is returned if the cashierId does not correspond to any user.
 // A SaleRequiresCashierError is returned if the cashierId does not correspond to a cashier.
 // A DuplicateItemInSaleError is returned if itemIds contains duplicate item IDs.
@@ -46,6 +47,17 @@ func AddSale(
 	}
 	if cashier.RoleId != models.CashierRoleId {
 		return 0, &SaleRequiresCashierError{}
+	}
+
+	// Ensure that all items exists
+	for _, itemId := range itemIds {
+		itemExists, err := ItemWithIdExists(db, itemId)
+		if err != nil {
+			return 0, err
+		}
+		if !itemExists {
+			return 0, &ItemNotFoundError{Id: itemId}
+		}
 	}
 
 	// Start a transaction.
