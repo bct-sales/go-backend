@@ -20,37 +20,41 @@ func rollbackTransaction(transaction *sql.Tx, err error) error {
 // A SaleMissingItemsError is returned if itemIds is empty.
 // A NoSuchUserError is returned if the cashierId does not correspond to any user.
 // A SaleRequiresCashierError is returned if the cashierId does not correspond to a cashier.
+// A DuplicateItemInSaleError is returned if itemIds contains duplicate item IDs.
 func AddSale(
 	db *sql.DB,
 	cashierId models.Id,
 	transactionTime models.Timestamp,
 	itemIds []models.Id) (models.Id, error) {
 
+	// Ensure there is at least one item in the sale.
 	if len(itemIds) == 0 {
 		return 0, &SaleMissingItemsError{}
 	}
 
+	// Check for duplicates in the item IDs.
 	indexOfDuplicate := algorithms.ContainsDuplicate(itemIds)
 	if indexOfDuplicate != -1 {
 		duplicatedItemId := itemIds[indexOfDuplicate]
 		return 0, &DuplicateItemInSaleError{ItemId: duplicatedItemId}
 	}
 
+	// Ensure the user exists and is a cashier.
 	cashier, err := GetUserWithId(db, cashierId)
-
 	if err != nil {
 		return 0, err
 	}
-
 	if cashier.RoleId != models.CashierRoleId {
 		return 0, &SaleRequiresCashierError{}
 	}
 
+	// Start a transaction.
 	transaction, err := db.Begin()
 	if err != nil {
 		return 0, err
 	}
 
+	// Create sale
 	result, err := transaction.Exec(
 		`
 			INSERT INTO sales(cashier_id, transaction_time)
@@ -59,17 +63,16 @@ func AddSale(
 		cashierId,
 		transactionTime,
 	)
-
 	if err != nil {
 		return 0, rollbackTransaction(transaction, err)
 	}
 
 	saleId, err := result.LastInsertId()
-
 	if err != nil {
 		return 0, rollbackTransaction(transaction, err)
 	}
 
+	// Add items to sale
 	for _, itemId := range itemIds {
 		_, err := transaction.Exec(
 			`
@@ -86,7 +89,6 @@ func AddSale(
 	}
 
 	err = transaction.Commit()
-
 	if err != nil {
 		return 0, rollbackTransaction(transaction, err)
 	}
