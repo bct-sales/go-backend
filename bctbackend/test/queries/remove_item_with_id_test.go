@@ -36,8 +36,8 @@ func TestRemoveNonexistingItem(t *testing.T) {
 
 	err := queries.RemoveItemWithId(db, itemId)
 
-	var itemNotFoundError *queries.ItemNotFoundError
-	require.ErrorAs(t, err, &itemNotFoundError)
+	var NoSuchItemError *queries.NoSuchItemError
+	require.ErrorAs(t, err, &NoSuchItemError)
 }
 
 func TestRemoveSoldItem(t *testing.T) {

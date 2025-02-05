@@ -63,8 +63,8 @@ func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 	saleId, err := queries.GetSaleItemInformation(db, itemId)
 
 	if err != nil {
-		var itemNotFoundError *queries.ItemNotFoundError
-		if errors.As(err, &itemNotFoundError) {
+		var NoSuchItemError *queries.NoSuchItemError
+		if errors.As(err, &NoSuchItemError) {
 			failureResponse := GetItemInformationFailureResponse{Type: GetItemInformationFailureType_NoSuchItem, Details: err.Error()}
 			context.JSON(http.StatusNotFound, failureResponse)
 			return

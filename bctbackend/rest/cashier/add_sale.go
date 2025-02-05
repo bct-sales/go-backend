@@ -64,9 +64,9 @@ func AddSale(context *gin.Context, db *sql.DB, userId models.Id, roleId models.I
 			return
 		}
 
-		var itemNotFoundError *queries.ItemNotFoundError
-		if errors.As(err, &itemNotFoundError) {
-			errorResponse := AddSaleFailureResponse{Message: fmt.Sprintf("Unknown item %d", itemNotFoundError.Id)}
+		var NoSuchItemError *queries.NoSuchItemError
+		if errors.As(err, &NoSuchItemError) {
+			errorResponse := AddSaleFailureResponse{Message: fmt.Sprintf("Unknown item %d", NoSuchItemError.Id)}
 			context.JSON(http.StatusBadRequest, errorResponse)
 			return
 		}

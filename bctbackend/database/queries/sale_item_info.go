@@ -14,7 +14,7 @@ type SaleItemInformation struct {
 }
 
 // GetSaleItemInformation retrieves information about a sale item.
-// If the item is not found, it returns an ItemNotFoundError.
+// If the item is not found, it returns an NoSuchItemError.
 func GetSaleItemInformation(
 	db *sql.DB,
 	itemId models.Id) (*SaleItemInformation, error) {
@@ -37,7 +37,7 @@ func GetSaleItemInformation(
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, &ItemNotFoundError{Id: itemId}
+		return nil, &NoSuchItemError{Id: itemId}
 	}
 
 	if err != nil {

@@ -19,8 +19,8 @@ func TestGetItemWithId(t *testing.T) {
 
 		itemId := models.NewId(1)
 		_, err := queries.GetItemWithId(db, itemId)
-		var itemNotFoundError *queries.ItemNotFoundError
-		require.ErrorAs(t, err, &itemNotFoundError)
+		var NoSuchItemError *queries.NoSuchItemError
+		require.ErrorAs(t, err, &NoSuchItemError)
 	})
 
 	t.Run("Existing item", func(t *testing.T) {

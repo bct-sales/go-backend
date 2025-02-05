@@ -107,7 +107,7 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	err := row.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, &ItemNotFoundError{Id: itemId}
+		return nil, &NoSuchItemError{Id: itemId}
 	}
 
 	if err != nil {
@@ -228,7 +228,7 @@ func RemoveItemWithId(db *sql.DB, itemId models.Id) error {
 	}
 
 	if !itemExists {
-		return &ItemNotFoundError{Id: itemId}
+		return &NoSuchItemError{Id: itemId}
 	}
 
 	_, err = db.Exec(

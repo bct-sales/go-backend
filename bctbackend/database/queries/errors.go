@@ -9,7 +9,7 @@ type UserIdAlreadyInUseError struct {
 	UserId models.Id
 }
 
-type ItemNotFoundError struct {
+type NoSuchItemError struct {
 	Id models.Id
 }
 
@@ -62,11 +62,11 @@ func (err *NoSuchCategoryError) Error() string {
 	return fmt.Sprintf("no category with id %v", err.CategoryId)
 }
 
-func (e *ItemNotFoundError) Error() string {
+func (e *NoSuchItemError) Error() string {
 	return fmt.Sprintf("item with id %d not found", e.Id)
 }
 
-func (e *ItemNotFoundError) Unwrap() error {
+func (e *NoSuchItemError) Unwrap() error {
 	return nil
 }
 
