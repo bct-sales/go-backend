@@ -69,7 +69,8 @@ func TestAddSaleItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
-			sales, err := queries.GetSales(db)
+			sales := []*models.SaleSummary{}
+			err := queries.GetSales(db, queries.CollectTo(&sales))
 			require.NoError(t, err)
 			require.Empty(t, sales)
 		})
@@ -93,7 +94,8 @@ func TestAddSaleItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
-			sales, err := queries.GetSales(db)
+			sales := []*models.SaleSummary{}
+			err := queries.GetSales(db, queries.CollectTo(&sales))
 			require.NoError(t, err)
 			require.Empty(t, sales)
 		})
@@ -115,7 +117,8 @@ func TestAddSaleItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
-			sales, err := queries.GetSales(db)
+			sales := []*models.SaleSummary{}
+			err := queries.GetSales(db, queries.CollectTo(&sales))
 			require.NoError(t, err)
 			require.Empty(t, sales)
 		})
@@ -143,7 +146,8 @@ func TestAddSaleItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
-			sales, err := queries.GetSales(db)
+			sales := []*models.SaleSummary{}
+			err = queries.GetSales(db, queries.CollectTo(&sales))
 			require.NoError(t, err)
 			require.Empty(t, sales)
 		})
@@ -168,7 +172,8 @@ func TestAddSaleItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
-			sales, err := queries.GetSales(db)
+			sales := []*models.SaleSummary{}
+			err := queries.GetSales(db, queries.CollectTo(&sales))
 			require.NoError(t, err)
 			require.Empty(t, sales)
 		})
