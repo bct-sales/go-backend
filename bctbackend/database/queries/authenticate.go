@@ -27,7 +27,7 @@ func AuthenticateUser(db *sql.DB, userId models.Id, password string) (models.Id,
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return 0, &UnknownUserError{}
+			return 0, &UnknownUserError{UserId: userId}
 		}
 
 		return 0, err
