@@ -12,58 +12,59 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func TestAuthenticatingSuccessfully(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+func TestAuthentication(t *testing.T) {
+	t.Run("Successful authentication", func(t *testing.T) {
+		db := OpenInitializedDatabase()
+		defer db.Close()
 
-	password := "xyz"
-	userId := models.NewId(1)
-	roleId := models.SellerRoleId
-	createdAt := models.NewTimestamp(0)
-	var lastActivity *models.Timestamp = nil
+		password := "xyz"
+		userId := models.NewId(1)
+		roleId := models.SellerRoleId
+		createdAt := models.NewTimestamp(0)
+		var lastActivity *models.Timestamp = nil
 
-	queries.AddUserWithId(db, userId, roleId, createdAt, lastActivity, password)
+		queries.AddUserWithId(db, userId, roleId, createdAt, lastActivity, password)
 
-	actualRoleId, err := queries.AuthenticateUser(db, userId, password)
+		actualRoleId, err := queries.AuthenticateUser(db, userId, password)
 
-	require.NoError(t, err)
-
-	require.Equal(t, roleId, actualRoleId)
-}
-
-func TestAuthenticatingNonExistingUser(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
-
-	password := "xyz"
-	userId := models.NewId(5)
-
-	{
-		userExists, err := queries.UserWithIdExists(db, userId)
 		require.NoError(t, err)
-		require.False(t, userExists)
-	}
 
-	{
-		_, err := queries.AuthenticateUser(db, userId, password)
+		require.Equal(t, roleId, actualRoleId)
+	})
+
+	t.Run("Authenticating non-existing user", func(t *testing.T) {
+		db := OpenInitializedDatabase()
+		defer db.Close()
+
+		password := "xyz"
+		userId := models.NewId(5)
+
+		{
+			userExists, err := queries.UserWithIdExists(db, userId)
+			require.NoError(t, err)
+			require.False(t, userExists)
+		}
+
+		{
+			_, err := queries.AuthenticateUser(db, userId, password)
+			require.Error(t, err)
+			require.IsType(t, &queries.UnknownUserError{}, err)
+		}
+	})
+
+	t.Run("Authenticating using wrong password", func(t *testing.T) {
+		db := OpenInitializedDatabase()
+		defer db.Close()
+
+		password := "xyz"
+		wrongPassword := "abc"
+		userId := models.NewId(5)
+		roleId := models.SellerRoleId
+
+		queries.AddUserWithId(db, userId, roleId, 0, nil, password)
+
+		_, err := queries.AuthenticateUser(db, userId, wrongPassword)
 		require.Error(t, err)
-		require.IsType(t, &queries.UnknownUserError{}, err)
-	}
-}
-
-func TestAuthenticatingWrongPassword(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
-
-	password := "xyz"
-	wrongPassword := "abc"
-	userId := models.NewId(5)
-	roleId := models.SellerRoleId
-
-	queries.AddUserWithId(db, userId, roleId, 0, nil, password)
-
-	_, err := queries.AuthenticateUser(db, userId, wrongPassword)
-
-	require.Error(t, err)
-	require.IsType(t, &queries.WrongPasswordError{}, err)
+		require.IsType(t, &queries.WrongPasswordError{}, err)
+	})
 }
