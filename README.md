@@ -1,6 +1,6 @@
 # Command Line Options
 
 ```bash
-$ bctbackend list users
-$ bctbackend list items
+$ bctbackend user list
+$ bctbackend item list
 ```
