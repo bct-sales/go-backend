@@ -317,6 +317,20 @@ func GetSoldItems(db *sql.DB) ([]models.Item, error) {
 // GetItemsSoldBy returns a list of all items sold by a specified cashier.
 // The items are ordered by transaction time (most recent first) and item ID (lowest first).
 func GetItemsSoldBy(db *sql.DB, cashierId models.Id) ([]models.Item, error) {
+	{
+		isCashier, err := CheckUserRole(db, cashierId, models.CashierRoleId)
+		if err != nil {
+			return nil, err
+		}
+
+		if !isCashier {
+			return nil, &InvalidRoleError{
+				UserId:         cashierId,
+				ExpectedRoleId: models.CashierRoleId,
+			}
+		}
+	}
+
 	rows, err := db.Query(
 		`
 			SELECT i.item_id, i.added_at, i.description, i.price_in_cents, i.item_category_id, i.seller_id, i.donation, i.charity
