@@ -48,7 +48,7 @@ func TestAuthentication(t *testing.T) {
 		{
 			_, err := queries.AuthenticateUser(db, userId, password)
 			require.Error(t, err)
-			require.IsType(t, &queries.UnknownUserError{}, err)
+			require.IsType(t, &queries.NoSuchUserError{}, err)
 		}
 	})
 

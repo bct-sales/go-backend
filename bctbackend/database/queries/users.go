@@ -105,7 +105,7 @@ func UserWithIdExists(
 }
 
 // GetUserWithId retrieves a user from the database by their user ID.
-// An UnknownUserError is returned if the user does not exist.
+// An NoSuchUserError is returned if the user does not exist.
 func GetUserWithId(db *sql.DB, userId models.Id) (models.User, error) {
 	row := db.QueryRow(
 		`
@@ -126,7 +126,7 @@ func GetUserWithId(db *sql.DB, userId models.Id) (models.User, error) {
 		var dummyResult models.User
 
 		if errors.Is(err, sql.ErrNoRows) {
-			return dummyResult, &UnknownUserError{UserId: userId}
+			return dummyResult, &NoSuchUserError{UserId: userId}
 		}
 
 		return dummyResult, err
@@ -196,7 +196,7 @@ func UpdateUserPassword(db *sql.DB, userId models.Id, password string) error {
 }
 
 // CheckUserRole checks if a user has a specific role.
-// An UnknownUserError is returned if the user does not exist.
+// An NoSuchUserError is returned if the user does not exist.
 func CheckUserRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) (bool, error) {
 	user, err := GetUserWithId(db, userId)
 
@@ -212,7 +212,7 @@ func CheckUserRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) (bool
 }
 
 // RemoveUserWithId removes a user from the database by their user ID.
-// An UnknownUserError is returned if the user does not exist.
+// An NoSuchUserError is returned if the user does not exist.
 // An error is returned if the user cannot be removed, e.g., because items or sales are
 // associated with the user.
 func RemoveUserWithId(db *sql.DB, userId models.Id) error {
@@ -223,7 +223,7 @@ func RemoveUserWithId(db *sql.DB, userId models.Id) error {
 	}
 
 	if !userExist {
-		return &UnknownUserError{UserId: userId}
+		return &NoSuchUserError{UserId: userId}
 	}
 
 	_, err = db.Exec(

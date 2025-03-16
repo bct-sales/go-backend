@@ -171,7 +171,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 		}
 
 		_, err := queries.GetItemsSoldBy(db, unknownCashierId)
-		var noSuchUserError *queries.UnknownUserError
+		var noSuchUserError *queries.NoSuchUserError
 		require.ErrorAs(t, err, &noSuchUserError)
 	})
 

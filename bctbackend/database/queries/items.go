@@ -132,7 +132,7 @@ func CountItems(db *sql.DB) (int, error) {
 }
 
 // AddItem adds an item to the database.
-// An UnknownUserError is returned if no user with the given sellerId exists.
+// An NoSuchUserError is returned if no user with the given sellerId exists.
 // An ItemRequiresSellerError is returned if the seller does not exist.
 // An NoSuchCategoryError is returned if the itemCategoryId is invalid.
 // An InvalidPriceError is returned if the priceInCents is invalid.

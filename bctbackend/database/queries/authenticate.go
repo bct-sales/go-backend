@@ -9,7 +9,7 @@ import (
 // AuthenticateUser authenticates a user with the given user id and password.
 // If the user is authenticated, the function returns the role id of the user.
 // If the user is not authenticated, the function returns an error.
-// If the user does not exist, the function returns an UnknownUserError.
+// If the user does not exist, the function returns an NoSuchUserError.
 // If the password is wrong, the function returns a WrongPasswordError.
 // If there is an error while querying the database, the function returns the error.
 func AuthenticateUser(db *sql.DB, userId models.Id, password string) (models.Id, error) {
@@ -27,7 +27,7 @@ func AuthenticateUser(db *sql.DB, userId models.Id, password string) (models.Id,
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return 0, &UnknownUserError{UserId: userId}
+			return 0, &NoSuchUserError{UserId: userId}
 		}
 
 		return 0, err

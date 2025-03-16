@@ -25,8 +25,8 @@ func ShowUser(databasePath string, userId models.Id) error {
 	user, err := queries.GetUserWithId(db, userId)
 
 	if err != nil {
-		var unknownUserError *queries.UnknownUserError
-		if errors.As(err, &unknownUserError) {
+		var noSuchUserError *queries.NoSuchUserError
+		if errors.As(err, &noSuchUserError) {
 			return fmt.Errorf("user with id %d does not exist", userId)
 		}
 

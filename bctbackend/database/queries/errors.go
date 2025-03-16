@@ -20,11 +20,11 @@ type ItemRequiresSellerError struct{}
 type SaleRequiresCashierError struct{}
 
 type InvalidRoleError struct {
-	UserId models.Id
+	UserId         models.Id
 	ExpectedRoleId models.Id
 }
 
-type UnknownUserError struct {
+type NoSuchUserError struct {
 	UserId models.Id
 }
 
@@ -87,7 +87,7 @@ func (e *SaleRequiresCashierError) Error() string {
 	return "sale requires a cashier"
 }
 
-func (e *UnknownUserError) Error() string {
+func (e *NoSuchUserError) Error() string {
 	return fmt.Sprintf("unknown user %d", e.UserId)
 }
 

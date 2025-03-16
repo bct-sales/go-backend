@@ -80,8 +80,8 @@ func TestAddItemWithNonexistingSeller(t *testing.T) {
 	AddSellerToDatabase(db, WithUserId(2))
 
 	_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-	var unknownUserError *queries.UnknownUserError
-	require.ErrorAs(t, err, &unknownUserError)
+	var noSuchUserError *queries.NoSuchUserError
+	require.ErrorAs(t, err, &noSuchUserError)
 
 	count, err := queries.CountItems(db)
 	require.NoError(t, err)
