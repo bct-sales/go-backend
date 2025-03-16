@@ -156,4 +156,31 @@ func TestGetItemsSoldBy(t *testing.T) {
 		require.Len(t, items, 4)
 		require.Equal(t, []models.Item{item3, item4, item1, item2}, items)
 	})
+
+	t.Run("Cashier does not exist", func(t *testing.T) {
+		db := OpenInitializedDatabase()
+		defer db.Close()
+
+		cashier := AddCashierToDatabase(db).UserId
+		unknownCashierId := cashier + 1
+
+		{
+			userExists, err := queries.UserWithIdExists(db, unknownCashierId)
+			require.NoError(t, err)
+			require.False(t, userExists)
+		}
+
+		_, err := queries.GetItemsSoldBy(db, cashier)
+		require.Error(t, err)
+	})
+
+	t.Run("Cashier does not exist", func(t *testing.T) {
+		db := OpenInitializedDatabase()
+		defer db.Close()
+
+		sellerId := AddSellerToDatabase(db).UserId
+
+		_, err := queries.GetItemsSoldBy(db, sellerId)
+		require.Error(t, err)
+	})
 }
