@@ -170,17 +170,19 @@ func TestGetItemsSoldBy(t *testing.T) {
 			require.False(t, userExists)
 		}
 
-		_, err := queries.GetItemsSoldBy(db, cashier)
-		require.Error(t, err)
+		_, err := queries.GetItemsSoldBy(db, unknownCashierId)
+		var noSuchUserError *queries.UnknownUserError
+		require.ErrorAs(t, err, &noSuchUserError)
 	})
 
-	t.Run("Cashier does not exist", func(t *testing.T) {
+	t.Run("User has wrong role", func(t *testing.T) {
 		db := OpenInitializedDatabase()
 		defer db.Close()
 
 		sellerId := AddSellerToDatabase(db).UserId
 
 		_, err := queries.GetItemsSoldBy(db, sellerId)
-		require.Error(t, err)
+		var invalidRoleError *queries.InvalidRoleError
+		require.ErrorAs(t, err, &invalidRoleError)
 	})
 }
