@@ -19,6 +19,11 @@ type ItemRequiresSellerError struct{}
 
 type SaleRequiresCashierError struct{}
 
+type InvalidRoleError struct {
+	UserId models.Id
+	ExpectedRoleId models.Id
+}
+
 type UnknownUserError struct {
 	UserId models.Id
 }
@@ -108,4 +113,8 @@ func (e *InvalidPriceError) Error() string {
 
 func (e *DuplicateItemInSaleError) Error() string {
 	return fmt.Sprintf("item %d is already in sale", e.ItemId)
+}
+
+func (e *InvalidRoleError) Error() string {
+	return fmt.Sprintf("user %d should have role %d", e.UserId, e.ExpectedRoleId)
 }
