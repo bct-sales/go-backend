@@ -46,7 +46,7 @@ func TestGetSoldItems(t *testing.T) {
 		soldItems, err := queries.GetSoldItems(db)
 		require.NoError(t, err)
 		require.Len(t, soldItems, 1)
-		require.Equal(t, item, &soldItems[0])
+		require.Equal(t, item, soldItems[0])
 	})
 
 	t.Run("Doubly sold item", func(t *testing.T) {
@@ -62,7 +62,7 @@ func TestGetSoldItems(t *testing.T) {
 		soldItems, err := queries.GetSoldItems(db)
 		require.NoError(t, err)
 		require.Len(t, soldItems, 1)
-		require.Equal(t, item, &soldItems[0])
+		require.Equal(t, item, soldItems[0])
 	})
 
 	t.Run("Two sold items in single sale", func(t *testing.T) {
@@ -78,8 +78,8 @@ func TestGetSoldItems(t *testing.T) {
 		soldItems, err := queries.GetSoldItems(db)
 		require.NoError(t, err)
 		require.Len(t, soldItems, 2)
-		require.Equal(t, item1, &soldItems[0])
-		require.Equal(t, item2, &soldItems[1])
+		require.Equal(t, item1, soldItems[0])
+		require.Equal(t, item2, soldItems[1])
 	})
 
 	t.Run("Two sold items in separate sales", func(t *testing.T) {
@@ -96,7 +96,7 @@ func TestGetSoldItems(t *testing.T) {
 		soldItems, err := queries.GetSoldItems(db)
 		require.NoError(t, err)
 		require.Len(t, soldItems, 2)
-		require.Equal(t, item1, &soldItems[1])
-		require.Equal(t, item2, &soldItems[0])
+		require.Equal(t, item1, soldItems[1])
+		require.Equal(t, item2, soldItems[0])
 	})
 }
