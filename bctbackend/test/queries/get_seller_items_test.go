@@ -41,36 +41,36 @@ func TestGetSellerItems(t *testing.T) {
 		require.Empty(t, items)
 	})
 
-	t.Run("Multiple items associated with seller", func(t *testing.T) {
+	t.Run("Multiple items associated with seller, same timestamps", func(t *testing.T) {
 		db := OpenInitializedDatabase()
 		defer db.Close()
 
 		sellerId := AddSellerToDatabase(db).UserId
 
-		item1 := AddItemToDatabase(db, sellerId, WithDummyData(0))
-		item2 := AddItemToDatabase(db, sellerId, WithDummyData(1))
-		item3 := AddItemToDatabase(db, sellerId, WithDummyData(2))
-		item4 := AddItemToDatabase(db, sellerId, WithDummyData(3))
+		item1 := AddItemToDatabase(db, sellerId, WithDummyData(0), WithAddedAt(models.NewTimestamp(0)))
+		item2 := AddItemToDatabase(db, sellerId, WithDummyData(1), WithAddedAt(models.NewTimestamp(0)))
+		item3 := AddItemToDatabase(db, sellerId, WithDummyData(2), WithAddedAt(models.NewTimestamp(0)))
+		item4 := AddItemToDatabase(db, sellerId, WithDummyData(3), WithAddedAt(models.NewTimestamp(0)))
 
 		items, err := queries.GetSellerItems(db, sellerId)
 		require.NoError(t, err)
 		require.Equal(t, []*models.Item{item1, item2, item3, item4}, items)
 	})
 
-	t.Run("Multiple items associated with seller, reordered", func(t *testing.T) {
+	t.Run("Multiple items associated with seller, different timestamps", func(t *testing.T) {
 		db := OpenInitializedDatabase()
 		defer db.Close()
 
 		sellerId := AddSellerToDatabase(db).UserId
 
-		item1 := AddItemToDatabase(db, sellerId, WithDummyData(0))
-		item2 := AddItemToDatabase(db, sellerId, WithDummyData(1))
-		item3 := AddItemToDatabase(db, sellerId, WithDummyData(2))
-		item4 := AddItemToDatabase(db, sellerId, WithDummyData(3))
+		item1 := AddItemToDatabase(db, sellerId, WithDummyData(0), WithAddedAt(models.NewTimestamp(4)))
+		item2 := AddItemToDatabase(db, sellerId, WithDummyData(1), WithAddedAt(models.NewTimestamp(3)))
+		item3 := AddItemToDatabase(db, sellerId, WithDummyData(2), WithAddedAt(models.NewTimestamp(2)))
+		item4 := AddItemToDatabase(db, sellerId, WithDummyData(3), WithAddedAt(models.NewTimestamp(1)))
 
 		items, err := queries.GetSellerItems(db, sellerId)
 		require.NoError(t, err)
-		require.Equal(t, []*models.Item{item1, item2, item3, item4}, items)
+		require.Equal(t, []*models.Item{item4, item3, item2, item1}, items)
 	})
 
 	t.Run("Unknown seller", func(t *testing.T) {
