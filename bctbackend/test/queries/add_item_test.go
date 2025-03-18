@@ -14,53 +14,55 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func TestAddItemToDatabase(t *testing.T) {
-	for _, timestamp := range []models.Timestamp{0, 1000} {
-		for _, priceInCents := range []models.MoneyInCents{50, 100} {
-			for _, itemCategoryId := range defs.ListCategories() {
-				for _, description := range []string{"desc1", "desc2"} {
-					for _, sellerId := range []models.Id{1, 2} {
-						for _, donation := range []bool{false, true} {
-							for _, charity := range []bool{false, true} {
-								test_name := fmt.Sprintf("timestamp = %d", timestamp)
+func TestAddItem(t *testing.T) {
+	t.Run("Adding item successfully", func(t *testing.T) {
+		for _, timestamp := range []models.Timestamp{0, 1000} {
+			for _, priceInCents := range []models.MoneyInCents{50, 100} {
+				for _, itemCategoryId := range defs.ListCategories() {
+					for _, description := range []string{"desc1", "desc2"} {
+						for _, sellerId := range []models.Id{1, 2} {
+							for _, donation := range []bool{false, true} {
+								for _, charity := range []bool{false, true} {
+									test_name := fmt.Sprintf("timestamp = %d", timestamp)
 
-								t.Run(test_name, func(t *testing.T) {
-									db := OpenInitializedDatabase()
-									defer db.Close()
+									t.Run(test_name, func(t *testing.T) {
+										db := OpenInitializedDatabase()
+										defer db.Close()
 
-									AddSellerToDatabase(db, WithUserId(1))
-									AddSellerToDatabase(db, WithUserId(2))
+										AddSellerToDatabase(db, WithUserId(1))
+										AddSellerToDatabase(db, WithUserId(2))
 
-									itemId, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-									require.NoError(t, err, `Failed to add item: %v`, err)
+										itemId, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+										require.NoError(t, err, `Failed to add item: %v`, err)
 
-									{
-										itemExists, err := queries.ItemWithIdExists(db, itemId)
+										{
+											itemExists, err := queries.ItemWithIdExists(db, itemId)
+											require.NoError(t, err)
+											require.True(t, itemExists)
+										}
+
+										items := []*models.Item{}
+										err = queries.GetItems(db, queries.CollectTo(&items))
 										require.NoError(t, err)
-										require.True(t, itemExists)
-									}
+										require.Equal(t, 1, len(items))
 
-									items := []*models.Item{}
-									err = queries.GetItems(db, queries.CollectTo(&items))
-									require.NoError(t, err)
-									require.Equal(t, 1, len(items))
-
-									item := items[0]
-									require.Equal(t, timestamp, item.AddedAt)
-									require.Equal(t, description, item.Description)
-									require.Equal(t, priceInCents, item.PriceInCents)
-									require.Equal(t, itemCategoryId, item.CategoryId)
-									require.Equal(t, sellerId, sellerId)
-									require.Equal(t, donation, item.Donation)
-									require.Equal(t, charity, item.Charity)
-								})
+										item := items[0]
+										require.Equal(t, timestamp, item.AddedAt)
+										require.Equal(t, description, item.Description)
+										require.Equal(t, priceInCents, item.PriceInCents)
+										require.Equal(t, itemCategoryId, item.CategoryId)
+										require.Equal(t, sellerId, sellerId)
+										require.Equal(t, donation, item.Donation)
+										require.Equal(t, charity, item.Charity)
+									})
+								}
 							}
 						}
 					}
 				}
 			}
 		}
-	}
+	})
 }
 
 func TestAddItemWithNonexistingSeller(t *testing.T) {
