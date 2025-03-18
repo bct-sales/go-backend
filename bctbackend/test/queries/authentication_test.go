@@ -26,9 +26,7 @@ func TestAuthentication(t *testing.T) {
 		queries.AddUserWithId(db, userId, roleId, createdAt, lastActivity, password)
 
 		actualRoleId, err := queries.AuthenticateUser(db, userId, password)
-
 		require.NoError(t, err)
-
 		require.Equal(t, roleId, actualRoleId)
 	})
 
@@ -47,8 +45,8 @@ func TestAuthentication(t *testing.T) {
 
 		{
 			_, err := queries.AuthenticateUser(db, userId, password)
-			require.Error(t, err)
-			require.IsType(t, &queries.NoSuchUserError{}, err)
+			var noSuchUserError *queries.NoSuchUserError
+			require.ErrorAs(t, err, &noSuchUserError)
 		}
 	})
 
@@ -64,7 +62,7 @@ func TestAuthentication(t *testing.T) {
 		queries.AddUserWithId(db, userId, roleId, 0, nil, password)
 
 		_, err := queries.AuthenticateUser(db, userId, wrongPassword)
-		require.Error(t, err)
-		require.IsType(t, &queries.WrongPasswordError{}, err)
+		var wrongPasswordError *queries.WrongPasswordError
+		require.ErrorAs(t, err, &wrongPasswordError)
 	})
 }
