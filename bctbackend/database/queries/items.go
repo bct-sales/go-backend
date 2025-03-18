@@ -96,6 +96,8 @@ func GetSellerItems(db *sql.DB, sellerId models.Id) ([]*models.Item, error) {
 	return items, nil
 }
 
+// Returns the item with the given identifier.
+// A NoSuchItemError is returned if no item with the given identifier exists.
 func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	row := db.QueryRow(`
 		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity
