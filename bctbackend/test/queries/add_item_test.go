@@ -63,159 +63,159 @@ func TestAddItem(t *testing.T) {
 			}
 		}
 	})
-}
 
-func TestAddItemWithNonexistingSeller(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+	t.Run("Failure due to nonexistent seller", func(t *testing.T) {
+		db := OpenInitializedDatabase()
+		defer db.Close()
 
-	timestamp := models.NewTimestamp(0)
-	description := "description"
-	priceInCents := models.NewMoneyInCents(100)
-	itemCategoryId := models.NewId(1)
-	charity := false
-	sellerId := models.NewId(1)
-	donation := false
+		timestamp := models.NewTimestamp(0)
+		description := "description"
+		priceInCents := models.NewMoneyInCents(100)
+		itemCategoryId := models.NewId(1)
+		charity := false
+		sellerId := models.NewId(1)
+		donation := false
 
-	AddSellerToDatabase(db, WithUserId(2))
+		AddSellerToDatabase(db, WithUserId(2))
 
-	_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-	var noSuchUserError *queries.NoSuchUserError
-	require.ErrorAs(t, err, &noSuchUserError)
-
-	count, err := queries.CountItems(db)
-	require.NoError(t, err)
-	require.Equal(t, 0, count)
-}
-
-func TestAddItemWithNonexistingCategory(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
-
-	timestamp := models.NewTimestamp(0)
-	description := "description"
-	sellerId := models.NewId(1)
-	priceInCents := models.NewMoneyInCents(100)
-	charity := false
-	donation := false
-	itemCategoryId := models.NewId(100)
-
-	AddSellerToDatabase(db, WithUserId(1))
-
-	{
-		categoryExists, err := queries.CategoryWithIdExists(db, itemCategoryId)
-		require.NoError(t, err)
-		require.False(t, categoryExists)
-	}
-
-	{
 		_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-		var noSuchCategoryError *queries.NoSuchCategoryError
-		require.ErrorAs(t, err, &noSuchCategoryError)
-	}
+		var noSuchUserError *queries.NoSuchUserError
+		require.ErrorAs(t, err, &noSuchUserError)
 
-	{
 		count, err := queries.CountItems(db)
 		require.NoError(t, err)
 		require.Equal(t, 0, count)
-	}
-}
+	})
 
-func TestAddItemWithZeroPrice(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+	t.Run("Failure due to nonexistent category", func(t *testing.T) {
+		db := OpenInitializedDatabase()
+		defer db.Close()
 
-	timestamp := models.NewTimestamp(0)
-	description := "description"
-	itemCategoryId := models.NewId(1)
-	charity := false
-	sellerId := AddSellerToDatabase(db).UserId
-	donation := false
-	priceInCents := models.NewMoneyInCents(0)
+		timestamp := models.NewTimestamp(0)
+		description := "description"
+		sellerId := models.NewId(1)
+		priceInCents := models.NewMoneyInCents(100)
+		charity := false
+		donation := false
+		itemCategoryId := models.NewId(100)
 
-	{
-		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+		AddSellerToDatabase(db, WithUserId(1))
 
-		var invalidPriceError *queries.InvalidPriceError
-		require.ErrorAs(t, error, &invalidPriceError)
-	}
+		{
+			categoryExists, err := queries.CategoryWithIdExists(db, itemCategoryId)
+			require.NoError(t, err)
+			require.False(t, categoryExists)
+		}
 
-	{
-		count, err := queries.CountItems(db)
-		require.NoError(t, err)
-		require.Equal(t, 0, count)
-	}
-}
+		{
+			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+			var noSuchCategoryError *queries.NoSuchCategoryError
+			require.ErrorAs(t, err, &noSuchCategoryError)
+		}
 
-func TestAddItemWithNegativePrice(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+		{
+			count, err := queries.CountItems(db)
+			require.NoError(t, err)
+			require.Equal(t, 0, count)
+		}
+	})
 
-	timestamp := models.NewTimestamp(0)
-	description := "description"
-	itemCategoryId := models.NewId(1)
-	charity := false
-	sellerId := AddSellerToDatabase(db).UserId
-	donation := false
-	priceInCents := models.NewMoneyInCents(-100)
+	t.Run("Failure due to zero price", func(t *testing.T) {
+		db := OpenInitializedDatabase()
+		defer db.Close()
 
-	{
-		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-		var invalidPriceError *queries.InvalidPriceError
-		require.ErrorAs(t, error, &invalidPriceError)
-	}
+		timestamp := models.NewTimestamp(0)
+		description := "description"
+		itemCategoryId := models.NewId(1)
+		charity := false
+		sellerId := AddSellerToDatabase(db).UserId
+		donation := false
+		priceInCents := models.NewMoneyInCents(0)
 
-	{
-		count, err := queries.CountItems(db)
-		require.NoError(t, err)
-		require.Equal(t, 0, count)
-	}
-}
+		{
+			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 
-func TestAddItemWithCashierOwner(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+			var invalidPriceError *queries.InvalidPriceError
+			require.ErrorAs(t, error, &invalidPriceError)
+		}
 
-	timestamp := models.NewTimestamp(0)
-	description := "description"
-	sellerId := AddCashierToDatabase(db).UserId
-	priceInCents := models.NewMoneyInCents(100)
-	itemCategoryId := models.NewId(1)
-	charity := false
-	donation := false
+		{
+			count, err := queries.CountItems(db)
+			require.NoError(t, err)
+			require.Equal(t, 0, count)
+		}
+	})
 
-	{
-		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-		require.Error(t, error)
-	}
+	t.Run("Failure due to negative price", func(t *testing.T) {
+		db := OpenInitializedDatabase()
+		defer db.Close()
 
-	{
-		count, err := queries.CountItems(db)
-		require.NoError(t, err)
-		require.Equal(t, 0, count)
-	}
-}
+		timestamp := models.NewTimestamp(0)
+		description := "description"
+		itemCategoryId := models.NewId(1)
+		charity := false
+		sellerId := AddSellerToDatabase(db).UserId
+		donation := false
+		priceInCents := models.NewMoneyInCents(-100)
 
-func TestAddItemWithAdminOwner(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+		{
+			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+			var invalidPriceError *queries.InvalidPriceError
+			require.ErrorAs(t, error, &invalidPriceError)
+		}
 
-	timestamp := models.NewTimestamp(0)
-	description := "description"
-	sellerId := AddAdminToDatabase(db).UserId
-	priceInCents := models.NewMoneyInCents(100)
-	itemCategoryId := models.NewId(1)
-	charity := false
-	donation := false
+		{
+			count, err := queries.CountItems(db)
+			require.NoError(t, err)
+			require.Equal(t, 0, count)
+		}
+	})
 
-	{
-		_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-		require.Error(t, error)
-	}
+	t.Run("Failure due to cashier owner", func(t *testing.T) {
+		db := OpenInitializedDatabase()
+		defer db.Close()
 
-	{
-		count, err := queries.CountItems(db)
-		require.NoError(t, err)
-		require.Equal(t, 0, count)
-	}
+		timestamp := models.NewTimestamp(0)
+		description := "description"
+		sellerId := AddCashierToDatabase(db).UserId
+		priceInCents := models.NewMoneyInCents(100)
+		itemCategoryId := models.NewId(1)
+		charity := false
+		donation := false
+
+		{
+			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+			require.Error(t, error)
+		}
+
+		{
+			count, err := queries.CountItems(db)
+			require.NoError(t, err)
+			require.Equal(t, 0, count)
+		}
+	})
+
+	t.Run("Failure due to admin owner", func(t *testing.T) {
+		db := OpenInitializedDatabase()
+		defer db.Close()
+
+		timestamp := models.NewTimestamp(0)
+		description := "description"
+		sellerId := AddAdminToDatabase(db).UserId
+		priceInCents := models.NewMoneyInCents(100)
+		itemCategoryId := models.NewId(1)
+		charity := false
+		donation := false
+
+		{
+			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+			require.Error(t, error)
+		}
+
+		{
+			count, err := queries.CountItems(db)
+			require.NoError(t, err)
+			require.Equal(t, 0, count)
+		}
+	})
 }
