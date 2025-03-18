@@ -45,7 +45,7 @@ func GetItems(db *sql.DB, receiver func(*models.Item) error) error {
 	return nil
 }
 
-func GetSellerItems(db *sql.DB, sellerId models.Id) ([]models.Item, error) {
+func GetSellerItems(db *sql.DB, sellerId models.Id) ([]*models.Item, error) {
 	rows, err := db.Query(
 		`
 			SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity
@@ -62,7 +62,7 @@ func GetSellerItems(db *sql.DB, sellerId models.Id) ([]models.Item, error) {
 
 	defer rows.Close()
 
-	items := make([]models.Item, 0)
+	items := make([]*models.Item, 0)
 
 	for rows.Next() {
 		var id models.Id
@@ -82,7 +82,7 @@ func GetSellerItems(db *sql.DB, sellerId models.Id) ([]models.Item, error) {
 
 		item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity)
 
-		items = append(items, *item)
+		items = append(items, item)
 	}
 
 	return items, nil

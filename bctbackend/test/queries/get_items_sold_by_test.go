@@ -58,11 +58,11 @@ func TestGetItemsSoldBy(t *testing.T) {
 		sellerId := AddSellerToDatabase(db).UserId
 		cashier := AddCashierToDatabase(db).UserId
 
-		expectedItems := []models.Item{
-			*AddItemToDatabase(db, sellerId, WithDummyData(1)),
-			*AddItemToDatabase(db, sellerId, WithDummyData(2)),
-			*AddItemToDatabase(db, sellerId, WithDummyData(3)),
-			*AddItemToDatabase(db, sellerId, WithDummyData(4)),
+		expectedItems := []*models.Item{
+			AddItemToDatabase(db, sellerId, WithDummyData(1)),
+			AddItemToDatabase(db, sellerId, WithDummyData(2)),
+			AddItemToDatabase(db, sellerId, WithDummyData(3)),
+			AddItemToDatabase(db, sellerId, WithDummyData(4)),
 		}
 
 		AddSaleToDatabase(db, cashier, []models.Id{expectedItems[0].ItemId, expectedItems[1].ItemId, expectedItems[2].ItemId, expectedItems[3].ItemId})
@@ -80,12 +80,12 @@ func TestGetItemsSoldBy(t *testing.T) {
 		sellerId := AddSellerToDatabase(db).UserId
 		cashier := AddCashierToDatabase(db).UserId
 
-		item1 := *AddItemToDatabase(db, sellerId, WithDummyData(1))
-		item2 := *AddItemToDatabase(db, sellerId, WithDummyData(2))
-		item3 := *AddItemToDatabase(db, sellerId, WithDummyData(3))
-		item4 := *AddItemToDatabase(db, sellerId, WithDummyData(4))
+		item1 := AddItemToDatabase(db, sellerId, WithDummyData(1))
+		item2 := AddItemToDatabase(db, sellerId, WithDummyData(2))
+		item3 := AddItemToDatabase(db, sellerId, WithDummyData(3))
+		item4 := AddItemToDatabase(db, sellerId, WithDummyData(4))
 
-		expectedItems := []models.Item{item1, item2, item3, item4}
+		expectedItems := []*models.Item{item1, item2, item3, item4}
 		AddSaleToDatabase(db, cashier, []models.Id{item4.ItemId, item3.ItemId, item2.ItemId, item1.ItemId})
 
 		actualItems, err := queries.GetItemsSoldBy(db, cashier)
@@ -101,10 +101,10 @@ func TestGetItemsSoldBy(t *testing.T) {
 		sellerId := AddSellerToDatabase(db).UserId
 		cashier := AddCashierToDatabase(db).UserId
 
-		item1 := *AddItemToDatabase(db, sellerId, WithDummyData(1))
-		item2 := *AddItemToDatabase(db, sellerId, WithDummyData(2))
-		item3 := *AddItemToDatabase(db, sellerId, WithDummyData(3))
-		item4 := *AddItemToDatabase(db, sellerId, WithDummyData(4))
+		item1 := AddItemToDatabase(db, sellerId, WithDummyData(1))
+		item2 := AddItemToDatabase(db, sellerId, WithDummyData(2))
+		item3 := AddItemToDatabase(db, sellerId, WithDummyData(3))
+		item4 := AddItemToDatabase(db, sellerId, WithDummyData(4))
 
 		AddSaleToDatabase(db, cashier, []models.Id{item1.ItemId, item2.ItemId})
 		AddSaleToDatabase(db, cashier, []models.Id{item3.ItemId, item4.ItemId})
@@ -112,7 +112,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 		items, err := queries.GetItemsSoldBy(db, cashier)
 		require.NoError(t, err)
 		require.Len(t, items, 4)
-		require.Equal(t, []models.Item{item1, item2, item3, item4}, items)
+		require.Equal(t, []*models.Item{item1, item2, item3, item4}, items)
 	})
 
 	t.Run("Four items in separate sales, reordered", func(t *testing.T) {
@@ -122,10 +122,10 @@ func TestGetItemsSoldBy(t *testing.T) {
 		sellerId := AddSellerToDatabase(db).UserId
 		cashier := AddCashierToDatabase(db).UserId
 
-		item1 := *AddItemToDatabase(db, sellerId, WithDummyData(1))
-		item2 := *AddItemToDatabase(db, sellerId, WithDummyData(2))
-		item3 := *AddItemToDatabase(db, sellerId, WithDummyData(3))
-		item4 := *AddItemToDatabase(db, sellerId, WithDummyData(4))
+		item1 := AddItemToDatabase(db, sellerId, WithDummyData(1))
+		item2 := AddItemToDatabase(db, sellerId, WithDummyData(2))
+		item3 := AddItemToDatabase(db, sellerId, WithDummyData(3))
+		item4 := AddItemToDatabase(db, sellerId, WithDummyData(4))
 
 		AddSaleToDatabase(db, cashier, []models.Id{item2.ItemId, item1.ItemId}, WithTransactionTime(models.NewTimestamp(1)))
 		AddSaleToDatabase(db, cashier, []models.Id{item4.ItemId, item3.ItemId}, WithTransactionTime(models.NewTimestamp(0)))
@@ -133,7 +133,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 		items, err := queries.GetItemsSoldBy(db, cashier)
 		require.NoError(t, err)
 		require.Len(t, items, 4)
-		require.Equal(t, []models.Item{item1, item2, item3, item4}, items)
+		require.Equal(t, []*models.Item{item1, item2, item3, item4}, items)
 	})
 
 	t.Run("Four items in separate sales, reordered 2", func(t *testing.T) {
@@ -143,10 +143,10 @@ func TestGetItemsSoldBy(t *testing.T) {
 		sellerId := AddSellerToDatabase(db).UserId
 		cashier := AddCashierToDatabase(db).UserId
 
-		item1 := *AddItemToDatabase(db, sellerId, WithDummyData(1))
-		item2 := *AddItemToDatabase(db, sellerId, WithDummyData(2))
-		item3 := *AddItemToDatabase(db, sellerId, WithDummyData(3))
-		item4 := *AddItemToDatabase(db, sellerId, WithDummyData(4))
+		item1 := AddItemToDatabase(db, sellerId, WithDummyData(1))
+		item2 := AddItemToDatabase(db, sellerId, WithDummyData(2))
+		item3 := AddItemToDatabase(db, sellerId, WithDummyData(3))
+		item4 := AddItemToDatabase(db, sellerId, WithDummyData(4))
 
 		AddSaleToDatabase(db, cashier, []models.Id{item2.ItemId, item1.ItemId}, WithTransactionTime(models.NewTimestamp(0)))
 		AddSaleToDatabase(db, cashier, []models.Id{item4.ItemId, item3.ItemId}, WithTransactionTime(models.NewTimestamp(1)))
@@ -154,7 +154,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 		items, err := queries.GetItemsSoldBy(db, cashier)
 		require.NoError(t, err)
 		require.Len(t, items, 4)
-		require.Equal(t, []models.Item{item3, item4, item1, item2}, items)
+		require.Equal(t, []*models.Item{item3, item4, item1, item2}, items)
 	})
 
 	t.Run("Cashier does not exist", func(t *testing.T) {

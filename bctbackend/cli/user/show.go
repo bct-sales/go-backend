@@ -78,7 +78,6 @@ func showCashier(db *sql.DB, user *models.User) error {
 	formatting.PrintUser(user)
 
 	soldItems, err := queries.GetItemsSoldBy(db, user.UserId)
-
 	if err != nil {
 		return err
 	}

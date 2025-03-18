@@ -28,7 +28,7 @@ func PrintUser(user *models.User) error {
 	return nil
 }
 
-func PrintItems(items []models.Item) error {
+func PrintItems(items []*models.Item) error {
 	tableData := pterm.TableData{
 		{"ID", "Description", "Price", "Category", "Donation", "Charity"},
 	}

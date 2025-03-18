@@ -316,7 +316,7 @@ func GetSoldItems(db *sql.DB) ([]models.Item, error) {
 
 // GetItemsSoldBy returns a list of all items sold by a specified cashier.
 // The items are ordered by transaction time (most recent first) and item ID (lowest first).
-func GetItemsSoldBy(db *sql.DB, cashierId models.Id) ([]models.Item, error) {
+func GetItemsSoldBy(db *sql.DB, cashierId models.Id) ([]*models.Item, error) {
 	{
 		isCashier, err := CheckUserRole(db, cashierId, models.CashierRoleId)
 		if err != nil {
@@ -349,7 +349,7 @@ func GetItemsSoldBy(db *sql.DB, cashierId models.Id) ([]models.Item, error) {
 
 	defer rows.Close()
 
-	var items []models.Item
+	var items []*models.Item
 	for rows.Next() {
 		var item models.Item
 
@@ -359,7 +359,7 @@ func GetItemsSoldBy(db *sql.DB, cashierId models.Id) ([]models.Item, error) {
 			return nil, err
 		}
 
-		items = append(items, item)
+		items = append(items, &item)
 	}
 
 	return items, nil
