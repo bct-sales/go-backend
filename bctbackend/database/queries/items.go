@@ -133,7 +133,7 @@ func CountItems(db *sql.DB) (int, error) {
 
 // AddItem adds an item to the database.
 // An NoSuchUserError is returned if no user with the given sellerId exists.
-// An ItemRequiresSellerError is returned if the seller does not exist.
+// An InvalidRoleError is returned if sellerId does not refer to a seller.
 // An NoSuchCategoryError is returned if the itemCategoryId is invalid.
 // An InvalidPriceError is returned if the priceInCents is invalid.
 func AddItem(
@@ -157,7 +157,7 @@ func AddItem(
 	}
 
 	if !isSeller {
-		return 0, &ItemRequiresSellerError{}
+		return 0, &InvalidRoleError{UserId: sellerId, ExpectedRoleId: models.SellerRoleId}
 	}
 
 	result, err := db.Exec(
