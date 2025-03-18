@@ -129,6 +129,7 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	return item, nil
 }
 
+// Returns the total number of items in the database.
 func CountItems(db *sql.DB) (int, error) {
 	row := db.QueryRow(`
 		SELECT COUNT(item_id)
