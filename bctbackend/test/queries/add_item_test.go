@@ -185,7 +185,8 @@ func TestAddItem(t *testing.T) {
 
 		{
 			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-			require.Error(t, error)
+			var invalidRoleError *queries.InvalidRoleError
+			require.ErrorAs(t, error, &invalidRoleError)
 		}
 
 		{
@@ -209,7 +210,8 @@ func TestAddItem(t *testing.T) {
 
 		{
 			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-			require.Error(t, error)
+			var invalidRoleError *queries.InvalidRoleError
+			require.ErrorAs(t, error, &invalidRoleError)
 		}
 
 		{
