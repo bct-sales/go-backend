@@ -12,7 +12,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func createTotalMap(categories []models.ItemCategory) map[models.Id]models.MoneyInCents {
+func createTotalMap(categories []*models.ItemCategory) map[models.Id]models.MoneyInCents {
 	totalMap := make(map[models.Id]models.MoneyInCents)
 	for _, category := range categories {
 		totalMap[category.CategoryId] = models.MoneyInCents(0)

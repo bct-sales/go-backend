@@ -33,7 +33,7 @@ func CategoryWithIdExists(
 	return true, nil
 }
 
-func GetCategories(db *sql.DB) ([]models.ItemCategory, error) {
+func GetCategories(db *sql.DB) ([]*models.ItemCategory, error) {
 	rows, err := db.Query(
 		`
 			SELECT item_category_id, name
@@ -48,7 +48,7 @@ func GetCategories(db *sql.DB) ([]models.ItemCategory, error) {
 
 	defer rows.Close()
 
-	categories := []models.ItemCategory{}
+	categories := []*models.ItemCategory{}
 
 	for rows.Next() {
 		var category models.ItemCategory
@@ -62,7 +62,7 @@ func GetCategories(db *sql.DB) ([]models.ItemCategory, error) {
 			return nil, err
 		}
 
-		categories = append(categories, category)
+		categories = append(categories, &category)
 	}
 
 	return categories, nil
