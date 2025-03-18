@@ -201,6 +201,7 @@ func AddItem(
 	return itemId, nil
 }
 
+// Returns true if an item with the given identifier exists in the database.
 func ItemWithIdExists(db *sql.DB, itemId models.Id) (bool, error) {
 	row := db.QueryRow(
 		`
