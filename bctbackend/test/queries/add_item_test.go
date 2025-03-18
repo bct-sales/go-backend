@@ -32,9 +32,7 @@ func TestAddItemToDatabase(t *testing.T) {
 									AddSellerToDatabase(db, WithUserId(2))
 
 									itemId, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity)
-									if err != nil {
-										t.Fatalf(`Failed to add item: %v`, err)
-									}
+									require.NoError(t, err, `Failed to add item: %v`, err)
 
 									{
 										itemExists, err := queries.ItemWithIdExists(db, itemId)
