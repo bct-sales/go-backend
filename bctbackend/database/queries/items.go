@@ -150,14 +150,8 @@ func AddItem(
 		return 0, &InvalidPriceError{PriceInCents: priceInCents}
 	}
 
-	isSeller, err := CheckUserRole(db, sellerId, models.SellerRoleId)
-
-	if err != nil {
+	if err := CheckUserRole(db, sellerId, models.SellerRoleId); err != nil {
 		return 0, err
-	}
-
-	if !isSeller {
-		return 0, &InvalidRoleError{UserId: sellerId, ExpectedRoleId: models.SellerRoleId}
 	}
 
 	result, err := db.Exec(

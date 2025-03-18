@@ -195,18 +195,19 @@ func UpdateUserPassword(db *sql.DB, userId models.Id, password string) error {
 
 // CheckUserRole checks if a user has a specific role.
 // An NoSuchUserError is returned if the user does not exist.
-func CheckUserRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) (bool, error) {
+// A InvalidRoleError is returned if the user has a different role.
+func CheckUserRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) error {
 	user, err := GetUserWithId(db, userId)
 
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	if user.RoleId != expectedRoleId {
-		return false, nil
+		return &InvalidRoleError{UserId: userId, ExpectedRoleId: expectedRoleId}
 	}
 
-	return true, nil
+	return nil
 }
 
 // RemoveUserWithId removes a user from the database by their user ID.
