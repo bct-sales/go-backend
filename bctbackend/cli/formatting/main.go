@@ -10,7 +10,7 @@ import (
 	"github.com/pterm/pterm"
 )
 
-func PrintUser(user models.User) error {
+func PrintUser(user *models.User) error {
 	tableData := pterm.TableData{
 		{"Property", "Value"},
 		{"ID", FormatId(user.UserId)},

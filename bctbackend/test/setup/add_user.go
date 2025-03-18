@@ -65,7 +65,7 @@ func WithLastActivity(lastActivity models.Timestamp) func(*AddUserData) {
 	}
 }
 
-func AddUserToDatabase(db *sql.DB, roleId models.Id, options ...func(*AddUserData)) models.User {
+func AddUserToDatabase(db *sql.DB, roleId models.Id, options ...func(*AddUserData)) *models.User {
 	data := AddUserData{
 		RoleId: roleId,
 	}
@@ -103,14 +103,14 @@ func AddUserToDatabase(db *sql.DB, roleId models.Id, options ...func(*AddUserDat
 	return user
 }
 
-func AddSellerToDatabase(db *sql.DB, options ...func(*AddUserData)) models.User {
+func AddSellerToDatabase(db *sql.DB, options ...func(*AddUserData)) *models.User {
 	return AddUserToDatabase(db, models.SellerRoleId, options...)
 }
 
-func AddCashierToDatabase(db *sql.DB, options ...func(*AddUserData)) models.User {
+func AddCashierToDatabase(db *sql.DB, options ...func(*AddUserData)) *models.User {
 	return AddUserToDatabase(db, models.CashierRoleId, options...)
 }
 
-func AddAdminToDatabase(db *sql.DB, options ...func(*AddUserData)) models.User {
+func AddAdminToDatabase(db *sql.DB, options ...func(*AddUserData)) *models.User {
 	return AddUserToDatabase(db, models.AdminRoleId, options...)
 }

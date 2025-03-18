@@ -45,12 +45,12 @@ func ShowUser(databasePath string, userId models.Id) error {
 	}
 }
 
-func showAdmin(user models.User) error {
+func showAdmin(user *models.User) error {
 	pterm.DefaultSection.Println("User Data")
 	return formatting.PrintUser(user)
 }
 
-func showSeller(db *sql.DB, user models.User) error {
+func showSeller(db *sql.DB, user *models.User) error {
 	pterm.DefaultSection.Println("User Data")
 
 	err := formatting.PrintUser(user)
@@ -73,7 +73,7 @@ func showSeller(db *sql.DB, user models.User) error {
 	return nil
 }
 
-func showCashier(db *sql.DB, user models.User) error {
+func showCashier(db *sql.DB, user *models.User) error {
 	pterm.DefaultSection.Println("User Data")
 	formatting.PrintUser(user)
 
