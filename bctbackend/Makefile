@@ -16,3 +16,6 @@ swagger:
 
 rest: swagger
 	go run . server
+
+build:
+	go build
