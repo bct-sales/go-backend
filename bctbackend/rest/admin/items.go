@@ -22,7 +22,7 @@ type GetItemsFailureResponse struct {
 // @Produce json
 // @Success 200 {object} []models.Item "Items successfully fetched"
 // @Failure 500 {object} GetItemsFailureResponse "Failed to fetch items"
-// @Router /items [get]
+// @Router /admin/items [get]
 func GetItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.AdminRoleId {
 		failureResponse := GetItemsFailureResponse{Message: "Only accessible to admins"}
