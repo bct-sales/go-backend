@@ -30,7 +30,7 @@ func PrintUser(user *models.User) error {
 
 func PrintItems(items []*models.Item) error {
 	tableData := pterm.TableData{
-		{"ID", "Description", "Price", "Category", "Donation", "Charity"},
+		{"ID", "Description", "Price", "Category", "Donation", "Charity", "Added At"},
 	}
 
 	for _, item := range items {
@@ -47,6 +47,7 @@ func PrintItems(items []*models.Item) error {
 			categoryName,
 			fmt.Sprintf("%t", item.Donation),
 			fmt.Sprintf("%t", item.Charity),
+			FormatTimestamp(item.AddedAt),
 		})
 	}
 
@@ -80,6 +81,7 @@ func PrintItem(db *sql.DB, itemId models.Id) error {
 		{"Seller", fmt.Sprintf("%d", item.SellerId)},
 		{"Donation", fmt.Sprintf("%t", item.Donation)},
 		{"Charity", fmt.Sprintf("%t", item.Charity)},
+		{"Added At", FormatTimestamp(item.AddedAt)},
 	}
 
 	err = pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
