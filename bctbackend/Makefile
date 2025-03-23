@@ -14,7 +14,7 @@ coverage:
 swagger:
 	swag init -g rest/main.go
 
-rest: swagger
+rest: build swagger
 	go run . server
 
 build:
