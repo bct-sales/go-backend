@@ -35,3 +35,8 @@ func Unknown(context *gin.Context, message string) {
 	response := &FailureResponse{Type: "unknown", Details: message}
 	context.JSON(http.StatusInternalServerError, response)
 }
+
+func Forbidden(context *gin.Context, message string) {
+	response := &FailureResponse{Type: "forbidden", Details: message}
+	context.JSON(http.StatusForbidden, response)
+}

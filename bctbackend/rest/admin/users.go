@@ -3,6 +3,7 @@ package admin
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/rest/failure_response"
 	rest "bctbackend/rest/shared"
 	"database/sql"
 	"log/slog"
@@ -42,16 +43,14 @@ func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 
 	if roleId != models.AdminRoleId {
 		slog.Info("User attempted to access /users but is not an admin", slog.Int64("user_id", userId), slog.Int64("role_id", roleId))
-		failureResponse := GetUsersFailureResponse{Message: "Only accessible to admins"}
-		context.JSON(http.StatusForbidden, failureResponse)
+		failure_response.Forbidden(context, "Only accessible to admins")
 		return
 	}
 
 	users := []*models.User{}
 	if err := queries.GetUsers(db, queries.CollectTo(&users)); err != nil {
 		slog.Error("Failed to fetch users", slog.String("error", err.Error()))
-		failureResponse := GetUsersFailureResponse{Message: "Failed to fetch users"}
-		context.JSON(http.StatusInternalServerError, failureResponse)
+		failure_response.Unknown(context, err.Error())
 		return
 	}
 
@@ -62,8 +61,7 @@ func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 
 		if err != nil {
 			slog.Error("Failed to translate role ID to role name", slog.String("error", err.Error()))
-			failureResponse := GetUsersFailureResponse{Message: "Failed to translate role ID to role name"}
-			context.JSON(http.StatusInternalServerError, failureResponse)
+			failure_response.Unknown(context, err.Error())
 			return
 		}
 
