@@ -34,7 +34,7 @@ type SuccessResponse struct {
 }
 
 func TestListAllItems(t *testing.T) {
-	t.Run("No items", func(t *testing.T) {
+	t.Run("Success with no items", func(t *testing.T) {
 		db, router := test.CreateRestRouter()
 		writer := httptest.NewRecorder()
 		defer db.Close()
@@ -54,7 +54,7 @@ func TestListAllItems(t *testing.T) {
 		require.Equal(t, expected, *actual)
 	})
 
-	t.Run("One item", func(t *testing.T) {
+	t.Run("Success with one item", func(t *testing.T) {
 		db, router := test.CreateRestRouter()
 		writer := httptest.NewRecorder()
 		defer db.Close()
@@ -92,7 +92,7 @@ func TestListAllItems(t *testing.T) {
 		require.Equal(t, expected, *actual)
 	})
 
-	t.Run("Two items", func(t *testing.T) {
+	t.Run("Success with wo items", func(t *testing.T) {
 		db, router := test.CreateRestRouter()
 		writer := httptest.NewRecorder()
 		defer db.Close()
@@ -142,30 +142,30 @@ func TestListAllItems(t *testing.T) {
 		actual := test.FromJson[SuccessResponse](writer.Body.String())
 		require.Equal(t, expected, *actual)
 	})
-}
 
-func TestListAllItemsAsNonAdmin(t *testing.T) {
-	for _, roleId := range []models.Id{models.SellerRoleId, models.CashierRoleId} {
-		roleString, err := models.NameOfRole(roleId)
+	t.Run("Failure due no admin role", func(t *testing.T) {
+		for _, roleId := range []models.Id{models.SellerRoleId, models.CashierRoleId} {
+			roleString, err := models.NameOfRole(roleId)
 
-		if err != nil {
-			panic(err)
+			if err != nil {
+				panic(err)
+			}
+
+			t.Run("As "+roleString, func(t *testing.T) {
+				db, router := test.CreateRestRouter()
+				writer := httptest.NewRecorder()
+				defer db.Close()
+
+				userId := AddUserToDatabase(db, roleId).UserId
+				sessionId := test.AddSessionToDatabase(db, userId)
+
+				url := path.Items().String()
+				request := test.CreateGetRequest(url)
+				request.AddCookie(test.CreateCookie(sessionId))
+				router.ServeHTTP(writer, request)
+
+				require.Equal(t, http.StatusForbidden, writer.Code)
+			})
 		}
-
-		t.Run("As "+roleString, func(t *testing.T) {
-			db, router := test.CreateRestRouter()
-			writer := httptest.NewRecorder()
-			defer db.Close()
-
-			userId := AddUserToDatabase(db, roleId).UserId
-			sessionId := test.AddSessionToDatabase(db, userId)
-
-			url := path.Items().String()
-			request := test.CreateGetRequest(url)
-			request.AddCookie(test.CreateCookie(sessionId))
-			router.ServeHTTP(writer, request)
-
-			require.Equal(t, http.StatusForbidden, writer.Code)
-		})
-	}
+	})
 }
