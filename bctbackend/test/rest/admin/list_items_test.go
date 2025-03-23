@@ -143,7 +143,7 @@ func TestListAllItems(t *testing.T) {
 		require.Equal(t, expected, *actual)
 	})
 
-	t.Run("Failure due no admin role", func(t *testing.T) {
+	t.Run("Failure due to not being admin", func(t *testing.T) {
 		for _, roleId := range []models.Id{models.SellerRoleId, models.CashierRoleId} {
 			roleString, err := models.NameOfRole(roleId)
 
