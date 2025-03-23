@@ -33,6 +33,11 @@ type SuccessResponse struct {
 	Items []Item `json:"items"`
 }
 
+type FailureResponse struct {
+	Type    string `json:"type"`
+	Message string `json:"message"`
+}
+
 func TestListAllItems(t *testing.T) {
 	t.Run("Success with no items", func(t *testing.T) {
 		db, router := test.CreateRestRouter()
@@ -165,6 +170,8 @@ func TestListAllItems(t *testing.T) {
 				router.ServeHTTP(writer, request)
 
 				require.Equal(t, http.StatusForbidden, writer.Code)
+				actual := test.FromJson[FailureResponse](writer.Body.String())
+				require.Equal(t, "forbidden", actual.Type)
 			})
 		}
 	})
