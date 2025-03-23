@@ -179,8 +179,18 @@ func GetUsers(db *sql.DB, receiver func(*models.User) error) error {
 	return nil
 }
 
+// UpdateUserPassword updates the password of a user in the database by their user ID.
+// An NoSuchUserError is returned if the user does not exist.
 func UpdateUserPassword(db *sql.DB, userId models.Id, password string) error {
-	_, err := db.Exec(
+	userExists, err := UserWithIdExists(db, userId)
+	if err != nil {
+		return err
+	}
+	if !userExists {
+		return &NoSuchUserError{UserId: userId}
+	}
+
+	_, err = db.Exec(
 		`
 			UPDATE users
 			SET password = $1
