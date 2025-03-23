@@ -17,3 +17,13 @@ func ContainsDuplicate[T comparable](values []T) int {
 
 	return -1
 }
+
+func Map[T any, U any](values []T, f func(T) U) []U {
+	result := make([]U, len(values))
+
+	for index := range values {
+		result[index] = f(values[index])
+	}
+
+	return result
+}
