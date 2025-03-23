@@ -65,7 +65,7 @@ func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 			return
 		}
 
-		createdAt := rest.FromUnix(user.CreatedAt)
+		createdAt := rest.FromTimestamp(user.CreatedAt)
 
 		userDatum := GetUsersUserData{
 			Id:        user.UserId,
