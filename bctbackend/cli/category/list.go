@@ -3,6 +3,7 @@ package user
 import (
 	"bctbackend/database"
 	"bctbackend/database/queries"
+	"errors"
 	"fmt"
 
 	"github.com/pterm/pterm"
@@ -11,12 +12,11 @@ import (
 
 func ListCategories(databasePath string) error {
 	db, err := database.ConnectToDatabase(databasePath)
-
 	if err != nil {
 		return err
 	}
 
-	defer db.Close()
+	defer func() { err = errors.Join(err, db.Close()) }()
 
 	categories, err := queries.GetCategories(db)
 	if err != nil {
@@ -38,10 +38,11 @@ func ListCategories(databasePath string) error {
 	}
 
 	err = pterm.DefaultTable.WithHasHeader().WithData(tableData).Render()
-
 	if err != nil {
-		return fmt.Errorf("error while rendering table: %w", err)
+		err = fmt.Errorf("error while rendering table: %w", err)
+		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
