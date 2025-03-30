@@ -12,7 +12,7 @@ import (
 
 func RemoveItem(
 	databasePath string,
-	itemId models.Id) error {
+	itemId models.Id) (err error) {
 
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
