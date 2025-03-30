@@ -42,7 +42,8 @@ func ListSales(databasePath string) (err error) {
 
 		saleCount++
 
-		return nil
+		err = nil
+		return err
 	}
 
 	if err := queries.GetSales(db, addToTable); err != nil {
@@ -52,7 +53,8 @@ func ListSales(databasePath string) (err error) {
 
 	if saleCount == 0 {
 		fmt.Println("No sales found")
-		return nil
+		err = nil
+		return err
 	}
 
 	err = pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
@@ -64,5 +66,6 @@ func ListSales(databasePath string) (err error) {
 
 	fmt.Printf("Number of sales listed: %d\n", saleCount)
 
-	return nil
+	err = nil
+	return err
 }
