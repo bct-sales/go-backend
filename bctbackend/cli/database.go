@@ -4,6 +4,7 @@ import (
 	database "bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"errors"
 	"fmt"
 	"log/slog"
 	"time"
@@ -47,16 +48,16 @@ func backupDatabase(databasePath string, targetPath string) error {
 	return nil
 }
 
-func resetDatabaseAndFillWithDummyData(databasePath string) error {
+func resetDatabaseAndFillWithDummyData(databasePath string) (err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %v", err)
 	}
 
-	defer db.Close()
+	defer func() { err = errors.Join(err, db.Close()) }()
 
-	if err := database.ResetDatabase(db); err != nil {
+	if err = database.ResetDatabase(db); err != nil {
 		return fmt.Errorf("failed to reset database: %v", err)
 	}
 
@@ -67,7 +68,10 @@ func resetDatabaseAndFillWithDummyData(databasePath string) error {
 		createdAt := time.Now().Unix()
 		var lastActivity *models.Timestamp = nil
 		password := "abc"
-		queries.AddUserWithId(db, id, role, createdAt, lastActivity, password)
+
+		if err = queries.AddUserWithId(db, id, role, createdAt, lastActivity, password); err != nil {
+			return err
+		}
 	}
 
 	for area := 1; area <= 12; area++ {
@@ -79,7 +83,9 @@ func resetDatabaseAndFillWithDummyData(databasePath string) error {
 			password := fmt.Sprintf("%d", id)
 
 			slog.Info("Adding seller user", slog.Int64("id", id))
-			queries.AddUserWithId(db, id, role, createdAt, lastActivity, password)
+			if err = queries.AddUserWithId(db, id, role, createdAt, lastActivity, password); err != nil {
+				return err
+			}
 		}
 	}
 
