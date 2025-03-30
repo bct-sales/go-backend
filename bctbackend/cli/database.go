@@ -90,5 +90,6 @@ func resetDatabaseAndFillWithDummyData(databasePath string) (err error) {
 		}
 	}
 
-	return nil
+	err = nil
+	return err
 }
