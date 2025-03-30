@@ -523,7 +523,9 @@ func ProcessCommandLineArguments(arguments []string) error {
 		},
 		ExitErrHandler: func(context *cli.Context, err error) {
 			if err != nil {
-				fmt.Fprintf(context.App.ErrWriter, "Error: %v\n", err)
+				if _, err = fmt.Fprintf(context.App.ErrWriter, "Error: %v\n", err); err != nil {
+					panic(err)
+				}
 				os.Exit(1)
 			}
 
