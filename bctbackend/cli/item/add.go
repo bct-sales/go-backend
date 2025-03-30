@@ -5,9 +5,11 @@ import (
 	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"errors"
 	"fmt"
 	"time"
 
+	"golang.org/x/exp/slog"
 	_ "modernc.org/sqlite"
 )
 
@@ -19,20 +21,18 @@ func AddItem(
 	sellerId models.Id,
 	donation bool,
 	charity bool,
-	frozen bool) error {
+	frozen bool) (err error) {
 
 	db, err := database.ConnectToDatabase(databasePath)
-
 	if err != nil {
 		return err
 	}
 
-	defer db.Close()
+	defer func() { err = errors.Join(err, db.Close()) }()
 
 	timestamp := time.Now().Unix()
 
 	addedItemId, err := queries.AddItem(db, timestamp, description, priceInCents, categoryId, sellerId, donation, charity, frozen)
-
 	if err != nil {
 		return err
 	}
@@ -42,8 +42,8 @@ func AddItem(
 	err = formatting.PrintItem(db, addedItemId)
 
 	if err != nil {
-		fmt.Printf("An error occurred while trying to format the output: %v\n", err)
-		fmt.Printf("Item is still added to the database.\n")
+		slog.Error("An error occurred while trying to format the output; item is still added to the database", "added item id", addedItemId, "error", err)
+		return nil
 	}
 
 	return nil
