@@ -12,7 +12,6 @@ func GetItems(db *sql.DB, receiver func(*models.Item) error) (err error) {
 		FROM items
 		ORDER BY item_id ASC
 	`)
-
 	if err != nil {
 		return err
 	}
@@ -43,7 +42,8 @@ func GetItems(db *sql.DB, receiver func(*models.Item) error) (err error) {
 		}
 	}
 
-	return nil
+	err = nil
+	return err
 }
 
 // Returns the items associated with the given seller.
