@@ -4,6 +4,7 @@ import (
 	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -12,18 +13,18 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func ListUsers(databasePath string) error {
+func ListUsers(databasePath string) (err error) {
 	db, err := database.ConnectToDatabase(databasePath)
-
 	if err != nil {
 		return err
 	}
 
-	defer db.Close()
+	defer func() { err = errors.Join(err, db.Close()) }()
 
 	users := []*models.User{}
 	if err := queries.GetUsers(db, queries.CollectTo(&users)); err != nil {
-		return fmt.Errorf("error while listing users: %v", err)
+		err = fmt.Errorf("error while listing users: %v", err)
+		return err
 	}
 
 	tableData := pterm.TableData{
@@ -38,7 +39,8 @@ func ListUsers(databasePath string) error {
 		roleString, err := models.NameOfRole(user.RoleId)
 
 		if err != nil {
-			return fmt.Errorf("error while converting role to string: %v", err)
+			err = fmt.Errorf("error while converting role to string: %v", err)
+			return err
 		}
 
 		createdAtString := time.Unix(user.CreatedAt, 0).String()
@@ -63,13 +65,13 @@ func ListUsers(databasePath string) error {
 		userCount++
 	}
 
-	err = pterm.DefaultTable.WithHasHeader().WithData(tableData).Render()
-
-	if err != nil {
-		return fmt.Errorf("error while rendering table: %v", err)
+	if err = pterm.DefaultTable.WithHasHeader().WithData(tableData).Render(); err != nil {
+		err = fmt.Errorf("error while rendering table: %v", err)
+		return err
 	}
 
 	fmt.Printf("Number of users listed: %d\n", userCount)
 
-	return nil
+	err = nil
+	return err
 }
