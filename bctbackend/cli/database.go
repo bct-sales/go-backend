@@ -12,21 +12,22 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func resetDatabase(databasePath string) error {
+func resetDatabase(databasePath string) (err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %v", err)
 	}
 
-	defer db.Close()
+	defer func() { err = errors.Join(err, db.Close()) }()
 
 	if err := database.ResetDatabase(db); err != nil {
 		return fmt.Errorf("failed to reset database: %v", err)
 	}
 
 	fmt.Println("Database reset completed successfully")
-	return nil
+	err = nil
+	return err
 }
 
 func backupDatabase(databasePath string, targetPath string) error {
