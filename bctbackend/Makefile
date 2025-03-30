@@ -19,3 +19,6 @@ rest: build swagger
 
 build:
 	go build
+
+lint:
+	golangci-lint run
