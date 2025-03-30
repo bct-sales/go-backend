@@ -50,35 +50,41 @@ func ResetDatabase(db *sql.DB) error {
 	return InitializeDatabase(db)
 }
 
-func InitializeDatabase(db *sql.DB) error {
+func InitializeDatabase(db *sql.DB) (err error) {
 	if err := createTables(db); err != nil {
-		return fmt.Errorf("failed to create tables: %v", err)
+		err = fmt.Errorf("failed to create tables: %v", err)
+		return err
 	}
 
 	if err := createViews(db); err != nil {
-		return fmt.Errorf("failed to create views: %v", err)
+		err = fmt.Errorf("failed to create views: %v", err)
+		return err
 	}
 
 	if err := populateTables(db); err != nil {
-		return fmt.Errorf("failed to populate tables: %v", err)
+		err = fmt.Errorf("failed to populate tables: %v", err)
+		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
 
-func removeAllViews(db *sql.DB) error {
+func removeAllViews(db *sql.DB) (err error) {
 	views := []string{"item_category_counts"}
 
 	for _, view := range views {
 		if err := dropView(db, view); err != nil {
-			return fmt.Errorf("failed to drop view %s: %v", view, err)
+			err = fmt.Errorf("failed to drop view %s: %v", view, err)
+			return err
 		}
 	}
 
-	return nil
+	err = nil
+	return err
 }
 
-func removeAllTables(db *sql.DB) error {
+func removeAllTables(db *sql.DB) (err error) {
 	tables := []string{"sessions", "sale_items", "sales", "items", "item_categories", "users", "roles"}
 
 	for _, table := range tables {
@@ -87,7 +93,8 @@ func removeAllTables(db *sql.DB) error {
 		}
 	}
 
-	return nil
+	err = nil
+	return err
 }
 
 func dropTable(db *sql.DB, table string) error {
@@ -95,24 +102,28 @@ func dropTable(db *sql.DB, table string) error {
 	_, err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", table))
 
 	if err != nil {
-		return fmt.Errorf("failed to drop table %s: %v", table, err)
+		err = fmt.Errorf("failed to drop table %s: %v", table, err)
+		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
 
-func dropView(db *sql.DB, view string) error {
+func dropView(db *sql.DB, view string) (err error) {
 	slog.Debug("Dropping view", slog.String("table", view))
-	_, err := db.Exec(fmt.Sprintf("DROP VIEW IF EXISTS %s", view))
+	_, err = db.Exec(fmt.Sprintf("DROP VIEW IF EXISTS %s", view))
 
 	if err != nil {
-		return fmt.Errorf("failed to drop view %s: %v", view, err)
+		err = fmt.Errorf("failed to drop view %s: %v", view, err)
+		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
 
-func createTables(db *sql.DB) error {
+func createTables(db *sql.DB) (err error) {
 	if err := createRoleTable(db); err != nil {
 		return err
 	}
@@ -141,7 +152,8 @@ func createTables(db *sql.DB) error {
 		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
 
 func createRoleTable(db *sql.DB) error {
@@ -157,10 +169,12 @@ func createRoleTable(db *sql.DB) error {
 	`)
 
 	if err != nil {
-		return fmt.Errorf("failed to create roles table: %v", err)
+		err = fmt.Errorf("failed to create roles table: %v", err)
+		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
 
 func createUserTable(db *sql.DB) error {
@@ -180,10 +194,12 @@ func createUserTable(db *sql.DB) error {
 	`)
 
 	if err != nil {
-		return fmt.Errorf("failed to create users table: %v", err)
+		err = fmt.Errorf("failed to create users table: %v", err)
+		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
 
 func createItemCategoryTable(db *sql.DB) error {
@@ -199,10 +215,12 @@ func createItemCategoryTable(db *sql.DB) error {
 	`)
 
 	if err != nil {
-		return fmt.Errorf("failed to create item categories table: %v", err)
+		err = fmt.Errorf("failed to create item categories table: %v", err)
+		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
 
 func createItemTable(db *sql.DB) error {
@@ -227,10 +245,12 @@ func createItemTable(db *sql.DB) error {
 	`)
 
 	if err != nil {
-		return fmt.Errorf("failed to create items table: %v", err)
+		err = fmt.Errorf("failed to create items table: %v", err)
+		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
 
 func createSaleTable(db *sql.DB) error {
@@ -248,10 +268,12 @@ func createSaleTable(db *sql.DB) error {
 	`)
 
 	if err != nil {
-		return fmt.Errorf("failed to create sales table: %v", err)
+		err = fmt.Errorf("failed to create sales table: %v", err)
+		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
 
 func createSaleItemsTable(db *sql.DB) error {
@@ -269,10 +291,12 @@ func createSaleItemsTable(db *sql.DB) error {
 	`)
 
 	if err != nil {
-		return fmt.Errorf("failed to create sale items table: %v", err)
+		err = fmt.Errorf("failed to create sale items table: %v", err)
+		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
 
 func createSessionTable(db *sql.DB) error {
@@ -290,10 +314,12 @@ func createSessionTable(db *sql.DB) error {
 	`)
 
 	if err != nil {
-		return fmt.Errorf("failed to create sessions table: %v", err)
+		err = fmt.Errorf("failed to create sessions table: %v", err)
+		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
 
 func createViews(db *sql.DB) error {
@@ -319,10 +345,12 @@ func createCategoryCountsView(db *sql.DB) error {
 	`)
 
 	if err != nil {
-		return fmt.Errorf("failed to create item category counts view: %v", err)
+		err = fmt.Errorf("failed to create item category counts view: %v", err)
+		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
 
 func populateTables(db *sql.DB) error {
@@ -356,10 +384,12 @@ func populateRoleTable(db *sql.DB) error {
 	)
 
 	if err != nil {
-		return fmt.Errorf("failed to populate roles: %v", err)
+		err = fmt.Errorf("failed to populate roles: %v", err)
+		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
 
 func populateItemCategoryTable(db *sql.DB) error {
@@ -369,7 +399,8 @@ func populateItemCategoryTable(db *sql.DB) error {
 		categoryName, err := defs.NameOfCategory(categoryId)
 
 		if err != nil {
-			return fmt.Errorf("failed to get category name: %v", err)
+			err = fmt.Errorf("failed to get category name: %v", err)
+			return err
 		}
 
 		_, err = db.Exec(
@@ -382,9 +413,11 @@ func populateItemCategoryTable(db *sql.DB) error {
 		)
 
 		if err != nil {
-			return fmt.Errorf("failed to populate item categories with %d %s: %v", categoryId, categoryName, err)
+			err = fmt.Errorf("failed to populate item categories with %d %s: %v", categoryId, categoryName, err)
+			return err
 		}
 	}
 
-	return nil
+	err = nil
+	return err
 }

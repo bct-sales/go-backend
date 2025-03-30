@@ -16,13 +16,15 @@ func resetDatabase(databasePath string) (err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
-		return fmt.Errorf("failed to connect to database: %v", err)
+		err = fmt.Errorf("failed to connect to database: %v", err)
+		return err
 	}
 
 	defer func() { err = errors.Join(err, db.Close()) }()
 
 	if err := database.ResetDatabase(db); err != nil {
-		return fmt.Errorf("failed to reset database: %v", err)
+		err = fmt.Errorf("failed to reset database: %v", err)
+		return err
 	}
 
 	fmt.Println("Database reset completed successfully")
@@ -36,7 +38,8 @@ func backupDatabase(databasePath string, targetPath string) error {
 	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
-		return fmt.Errorf("failed to connect to database: %v", err)
+		err = fmt.Errorf("failed to connect to database: %v", err)
+		return err
 	}
 
 	defer func() { err = errors.Join(err, db.Close()) }()
@@ -55,13 +58,15 @@ func resetDatabaseAndFillWithDummyData(databasePath string) (err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
-		return fmt.Errorf("failed to connect to database: %v", err)
+		err = fmt.Errorf("failed to connect to database: %v", err)
+		return err
 	}
 
 	defer func() { err = errors.Join(err, db.Close()) }()
 
 	if err = database.ResetDatabase(db); err != nil {
-		return fmt.Errorf("failed to reset database: %v", err)
+		err = fmt.Errorf("failed to reset database: %v", err)
+		return err
 	}
 
 	slog.Info("Adding admin user")

@@ -42,10 +42,12 @@ func AddUserWithId(
 			return &UserIdAlreadyInUseError{UserId: userId}
 		}
 
-		return fmt.Errorf("failed to add user with id %d: %w", userId, err)
+		err = fmt.Errorf("failed to add user with id %d: %w", userId, err)
+		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
 
 func AddUser(

@@ -13,7 +13,8 @@ import (
 func ShowSale(databasePath string, saleId models.Id) (err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
-		return fmt.Errorf("failed to connect to database: %v", err)
+		err = fmt.Errorf("failed to connect to database: %v", err)
+		return err
 	}
 
 	defer func() { err = errors.Join(err, db.Close()) }()

@@ -20,7 +20,8 @@ func ListCategories(databasePath string) (err error) {
 
 	categories, err := queries.GetCategories(db)
 	if err != nil {
-		return fmt.Errorf("error while listing categories: %w", err)
+		err = fmt.Errorf("error while listing categories: %w", err)
+		return err
 	}
 
 	tableData := pterm.TableData{

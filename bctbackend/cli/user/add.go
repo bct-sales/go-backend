@@ -14,14 +14,16 @@ import (
 func AddUser(databasePath string, userId models.Id, role string, password string) (err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
-		return fmt.Errorf("failed to connect to database: %v", err)
+		err = fmt.Errorf("failed to connect to database: %v", err)
+		return err
 	}
 
 	defer func() { err = errors.Join(err, db.Close()) }()
 
 	roleId, err := models.ParseRole(role)
 	if err != nil {
-		return fmt.Errorf("invalid role %v; should be admin, seller or cashier", role)
+		err = fmt.Errorf("invalid role %v; should be admin, seller or cashier", role)
+		return err
 	}
 
 	timestamp := time.Now().Unix()
@@ -30,7 +32,8 @@ func AddUser(databasePath string, userId models.Id, role string, password string
 	if err := queries.AddUserWithId(db, userId, roleId, timestamp, lastActivity, password); err != nil {
 		var userIdAlreadyInUseError *queries.UserIdAlreadyInUseError
 		if errors.As(err, &userIdAlreadyInUseError) {
-			return fmt.Errorf("user ID %d is already in use", userId)
+			err = fmt.Errorf("user ID %d is already in use", userId)
+			return err
 		}
 
 		return err
@@ -38,5 +41,5 @@ func AddUser(databasePath string, userId models.Id, role string, password string
 
 	fmt.Println("User added successfully")
 	err = nil
-	return nil
+	return err
 }

@@ -57,7 +57,8 @@ func PrintItems(items []*models.Item) error {
 		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
 
 func PrintItem(db *sql.DB, itemId models.Id) error {

@@ -22,14 +22,16 @@ func ListItems(databasePath string) (err error) {
 
 	items := []*models.Item{}
 	if err := queries.GetItems(db, queries.CollectTo(&items)); err != nil {
-		return fmt.Errorf("error while listing items: %v", err)
+		err = fmt.Errorf("error while listing items: %v", err)
+		return err
 	}
 
 	itemCount := len(items)
 
 	if itemCount > 0 {
 		if err := formatting.PrintItems(items); err != nil {
-			return fmt.Errorf("error while rendering table: %v", err)
+			err = fmt.Errorf("error while rendering table: %v", err)
+			return err
 		}
 
 		fmt.Printf("Number of items listed: %d\n", itemCount)

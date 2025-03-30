@@ -13,21 +13,22 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func ShowUser(databasePath string, userId models.Id) error {
+func ShowUser(databasePath string, userId models.Id) (err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
 		return err
 	}
 
-	defer db.Close()
+	defer func() { err = errors.Join(err, db.Close()) }()
 
 	user, err := queries.GetUserWithId(db, userId)
 
 	if err != nil {
 		var noSuchUserError *queries.NoSuchUserError
 		if errors.As(err, &noSuchUserError) {
-			return fmt.Errorf("user with id %d does not exist", userId)
+			err = fmt.Errorf("user with id %d does not exist", userId)
+			return err
 		}
 
 		return err
@@ -41,7 +42,8 @@ func ShowUser(databasePath string, userId models.Id) error {
 	case models.CashierRoleId:
 		return showCashier(db, user)
 	default:
-		return fmt.Errorf("unknown role id: %d", user.RoleId)
+		err = fmt.Errorf("unknown role id: %d", user.RoleId)
+		return err
 	}
 }
 
