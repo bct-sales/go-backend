@@ -4,6 +4,7 @@ import (
 	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -12,12 +13,12 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func ListSales(databasePath string) error {
+func ListSales(databasePath string) (err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer func() { err = errors.Join(err, db.Close()) }()
 
 	saleCount := 0
 	tableData := pterm.TableData{
@@ -45,24 +46,23 @@ func ListSales(databasePath string) error {
 	}
 
 	if err := queries.GetSales(db, addToTable); err != nil {
-		return fmt.Errorf("error while listing sales: %v", err)
+		err = fmt.Errorf("error while listing sales: %v", err)
+		return err
 	}
 
 	if saleCount == 0 {
 		fmt.Println("No sales found")
-
-		return nil
-	} else {
-		err = pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
-
-		if err != nil {
-			return fmt.Errorf("error while rendering table: %v", err)
-		}
-
-		fmt.Printf("Number of sales listed: %d\n", saleCount)
-
 		return nil
 	}
+
+	err = pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
+
+	if err != nil {
+		err = fmt.Errorf("error while rendering table: %v", err)
+		return err
+	}
+
+	fmt.Printf("Number of sales listed: %d\n", saleCount)
 
 	return nil
 }
