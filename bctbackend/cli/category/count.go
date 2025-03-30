@@ -44,5 +44,6 @@ func ListCategoryCounts(databasePath string) (err error) {
 		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
