@@ -94,7 +94,8 @@ func GetSellerItems(db *sql.DB, sellerId models.Id) (items []*models.Item, err e
 		items = append(items, item)
 	}
 
-	return items, nil
+	err = nil
+	return items, err
 }
 
 // Returns the item with the given identifier.
