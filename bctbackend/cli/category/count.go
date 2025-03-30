@@ -3,23 +3,22 @@ package user
 import (
 	"bctbackend/database"
 	"bctbackend/database/queries"
+	"errors"
 	"fmt"
 
 	"github.com/pterm/pterm"
 	_ "modernc.org/sqlite"
 )
 
-func ListCategoryCounts(databasePath string) error {
+func ListCategoryCounts(databasePath string) (err error) {
 	db, err := database.ConnectToDatabase(databasePath)
-
 	if err != nil {
 		return err
 	}
 
-	defer db.Close()
+	defer func() { err = errors.Join(err, db.Close()) }()
 
 	categoryCounts, err := queries.GetCategoryCounts(db)
-
 	if err != nil {
 		return err
 	}
@@ -40,10 +39,9 @@ func ListCategoryCounts(databasePath string) error {
 		})
 	}
 
-	err = pterm.DefaultTable.WithHasHeader().WithData(tableData).Render()
-
-	if err != nil {
-		return fmt.Errorf("error while rendering table: %w", err)
+	if err = pterm.DefaultTable.WithHasHeader().WithData(tableData).Render(); err != nil {
+		err = fmt.Errorf("error while rendering table: %w", err)
+		return err
 	}
 
 	return nil
