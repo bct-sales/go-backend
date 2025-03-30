@@ -4,24 +4,24 @@ import (
 	"bctbackend/cli/formatting"
 	"bctbackend/database"
 	"bctbackend/database/models"
+	"errors"
 
 	_ "modernc.org/sqlite"
 )
 
-func ShowItem(databasePath string, itemId models.Id) error {
+func ShowItem(databasePath string, itemId models.Id) (err error) {
 	db, err := database.ConnectToDatabase(databasePath)
-
 	if err != nil {
 		return err
 	}
 
-	defer db.Close()
+	defer func() { err = errors.Join(err, db.Close()) }()
 
 	err = formatting.PrintItem(db, itemId)
-
 	if err != nil {
 		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
