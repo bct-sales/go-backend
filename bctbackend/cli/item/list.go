@@ -5,6 +5,7 @@ import (
 	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"errors"
 	"fmt"
 
 	_ "modernc.org/sqlite"
@@ -17,7 +18,7 @@ func ListItems(databasePath string) error {
 		return err
 	}
 
-	defer db.Close()
+	defer func() { err = errors.Join(err, db.Close()) }()
 
 	items := []*models.Item{}
 	if err := queries.GetItems(db, queries.CollectTo(&items)); err != nil {
@@ -33,10 +34,12 @@ func ListItems(databasePath string) error {
 
 		fmt.Printf("Number of items listed: %d\n", itemCount)
 
-		return nil
+		err = nil
+		return err
 	} else {
 		fmt.Println("No items found")
 
-		return nil
+		err = nil
+		return err
 	}
 }
