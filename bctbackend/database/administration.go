@@ -218,6 +218,7 @@ func createItemTable(db *sql.DB) error {
 			seller_id           INTEGER NOT NULL,
 			donation            BOOLEAN NOT NULL,
 			charity             BOOLEAN NOT NULL,
+			frozen              BOOLEAN NOT NULL,
 
 			PRIMARY KEY (item_id),
 			CONSTRAINT items_foreign_key_user FOREIGN KEY (seller_id) REFERENCES users (user_id),

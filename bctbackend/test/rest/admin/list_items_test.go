@@ -27,6 +27,7 @@ type Item struct {
 	SellerId     models.Id                `json:"sellerId"`
 	Donation     bool                     `json:"donation"`
 	Charity      bool                     `json:"charity"`
+	Frozen       bool                     `json:"frozen"`
 }
 
 type SuccessResponse struct {
@@ -78,8 +79,9 @@ func TestListAllItems(t *testing.T) {
 			SellerId:     sellerId,
 			Donation:     false,
 			Charity:      false,
+			Frozen:       false,
 		}
-		itemId, err := queries.AddItem(db, models.Timestamp(addedAtTimestamp), item.Description, item.PriceInCents, item.CategoryId, item.SellerId, item.Donation, item.Charity)
+		itemId, err := queries.AddItem(db, models.Timestamp(addedAtTimestamp), item.Description, item.PriceInCents, item.CategoryId, item.SellerId, item.Donation, item.Charity, item.Frozen)
 		require.NoError(t, err)
 
 		url := path.Items().String()
@@ -114,7 +116,8 @@ func TestListAllItems(t *testing.T) {
 			CategoryId:   defs.Shoes,
 			SellerId:     sellerId,
 			Donation:     false,
-			Charity:      false}
+			Charity:      false,
+			Frozen:       false}
 		item2 := Item{
 			ItemId:       0,
 			AddedAt:      rest.FromTimestamp(addedAtTimestamp),
@@ -123,12 +126,13 @@ func TestListAllItems(t *testing.T) {
 			CategoryId:   defs.Clothing128_140,
 			SellerId:     sellerId,
 			Donation:     false,
-			Charity:      false}
+			Charity:      false,
+			Frozen:       true}
 
-		itemId1, err := queries.AddItem(db, addedAtTimestamp, item1.Description, item1.PriceInCents, item1.CategoryId, item1.SellerId, item1.Donation, item1.Charity)
+		itemId1, err := queries.AddItem(db, addedAtTimestamp, item1.Description, item1.PriceInCents, item1.CategoryId, item1.SellerId, item1.Donation, item1.Charity, item1.Frozen)
 		require.NoError(t, err)
 
-		itemId2, err := queries.AddItem(db, addedAtTimestamp, item2.Description, item2.PriceInCents, item2.CategoryId, item2.SellerId, item2.Donation, item2.Charity)
+		itemId2, err := queries.AddItem(db, addedAtTimestamp, item2.Description, item2.PriceInCents, item2.CategoryId, item2.SellerId, item2.Donation, item2.Charity, item2.Frozen)
 		require.NoError(t, err)
 
 		url := path.Items().String()

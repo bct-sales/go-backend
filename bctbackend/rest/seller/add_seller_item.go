@@ -63,6 +63,7 @@ func AddSellerItem(context *gin.Context, db *sql.DB, userId models.Id, roleId mo
 		userId,
 		*payload.Donation,
 		*payload.Charity,
+		false,
 	)
 
 	// TODO recognize error (e.g., if the category does not exist) and return StatusBadRequest or InternalServerError depending on the error

@@ -19,6 +19,7 @@ type AddItemData struct {
 	ItemCategory *models.Id
 	Donation     *bool
 	Charity      *bool
+	Frozen       *bool
 }
 
 func (data *AddItemData) FillWithDefaults() {
@@ -50,6 +51,11 @@ func (data *AddItemData) FillWithDefaults() {
 	if data.Charity == nil {
 		charity := false
 		data.Charity = &charity
+	}
+
+	if data.Frozen == nil {
+		frozen := false
+		data.Frozen = &frozen
 	}
 }
 
@@ -89,6 +95,12 @@ func WithCharity(charity bool) func(*AddItemData) {
 	}
 }
 
+func WithFrozen(frozen bool) func(*AddItemData) {
+	return func(data *AddItemData) {
+		data.Frozen = &frozen
+	}
+}
+
 func WithDummyData(k int) func(*AddItemData) {
 	return func(data *AddItemData) {
 		addedAt := models.NewTimestamp(0)
@@ -97,6 +109,7 @@ func WithDummyData(k int) func(*AddItemData) {
 		itemCategory := defs.Shoes
 		donation := k%2 == 0
 		charity := k%3 == 0
+		frozen := k%2 == 0
 
 		data.AddedAt = &addedAt
 		data.Description = &description
@@ -106,6 +119,7 @@ func WithDummyData(k int) func(*AddItemData) {
 		}
 		data.Donation = &donation
 		data.Charity = &charity
+		data.Frozen = &frozen
 	}
 }
 
@@ -118,7 +132,7 @@ func AddItemToDatabase(db *sql.DB, sellerId models.Id, options ...func(*AddItemD
 
 	data.FillWithDefaults()
 
-	itemId, err := queries.AddItem(db, *data.AddedAt, *data.Description, *data.PriceInCents, *data.ItemCategory, sellerId, *data.Donation, *data.Charity)
+	itemId, err := queries.AddItem(db, *data.AddedAt, *data.Description, *data.PriceInCents, *data.ItemCategory, sellerId, *data.Donation, *data.Charity, *data.Frozen)
 
 	if err != nil {
 		panic(err)

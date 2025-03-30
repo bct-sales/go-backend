@@ -200,7 +200,7 @@ func GetSaleItems(db *sql.DB, saleId models.Id) ([]models.Item, error) {
 
 	rows, err := db.Query(
 		`
-			SELECT i.item_id, i.added_at, i.description, i.price_in_cents, i.item_category_id, i.seller_id, i.donation, i.charity
+			SELECT i.item_id, i.added_at, i.description, i.price_in_cents, i.item_category_id, i.seller_id, i.donation, i.charity, i.frozen
 			FROM sale_items si
 			INNER JOIN items i ON si.item_id = i.item_id
 			WHERE si.sale_id = ?
@@ -218,7 +218,7 @@ func GetSaleItems(db *sql.DB, saleId models.Id) ([]models.Item, error) {
 	for rows.Next() {
 		var item models.Item
 
-		err := rows.Scan(&item.ItemId, &item.AddedAt, &item.Description, &item.PriceInCents, &item.CategoryId, &item.SellerId, &item.Donation, &item.Charity)
+		err := rows.Scan(&item.ItemId, &item.AddedAt, &item.Description, &item.PriceInCents, &item.CategoryId, &item.SellerId, &item.Donation, &item.Charity, &item.Frozen)
 
 		if err != nil {
 			return nil, err
@@ -284,7 +284,7 @@ func RemoveSale(db *sql.DB, saleId models.Id) error {
 func GetSoldItems(db *sql.DB) ([]*models.Item, error) {
 	rows, err := db.Query(
 		`
-			SELECT DISTINCT i.item_id, i.added_at, i.description, i.price_in_cents, i.item_category_id, i.seller_id, i.donation, i.charity
+			SELECT DISTINCT i.item_id, i.added_at, i.description, i.price_in_cents, i.item_category_id, i.seller_id, i.donation, i.charity, i.frozen
 			FROM sale_items si
 			INNER JOIN items i ON si.item_id = i.item_id
 			INNER JOIN sales s ON si.sale_id = s.sale_id
@@ -302,7 +302,7 @@ func GetSoldItems(db *sql.DB) ([]*models.Item, error) {
 	for rows.Next() {
 		var item models.Item
 
-		err := rows.Scan(&item.ItemId, &item.AddedAt, &item.Description, &item.PriceInCents, &item.CategoryId, &item.SellerId, &item.Donation, &item.Charity)
+		err := rows.Scan(&item.ItemId, &item.AddedAt, &item.Description, &item.PriceInCents, &item.CategoryId, &item.SellerId, &item.Donation, &item.Charity, &item.Frozen)
 
 		if err != nil {
 			return nil, err
@@ -323,7 +323,7 @@ func GetItemsSoldBy(db *sql.DB, cashierId models.Id) ([]*models.Item, error) {
 
 	rows, err := db.Query(
 		`
-			SELECT i.item_id, i.added_at, i.description, i.price_in_cents, i.item_category_id, i.seller_id, i.donation, i.charity
+			SELECT i.item_id, i.added_at, i.description, i.price_in_cents, i.item_category_id, i.seller_id, i.donation, i.charity, i.frozen
 			FROM sale_items si
 			INNER JOIN items i ON si.item_id = i.item_id
 			INNER JOIN sales s ON si.sale_id = s.sale_id
@@ -343,7 +343,7 @@ func GetItemsSoldBy(db *sql.DB, cashierId models.Id) ([]*models.Item, error) {
 	for rows.Next() {
 		var item models.Item
 
-		err := rows.Scan(&item.ItemId, &item.AddedAt, &item.Description, &item.PriceInCents, &item.CategoryId, &item.SellerId, &item.Donation, &item.Charity)
+		err := rows.Scan(&item.ItemId, &item.AddedAt, &item.Description, &item.PriceInCents, &item.CategoryId, &item.SellerId, &item.Donation, &item.Charity, &item.Frozen)
 
 		if err != nil {
 			return nil, err

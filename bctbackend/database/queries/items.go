@@ -8,7 +8,7 @@ import (
 
 func GetItems(db *sql.DB, receiver func(*models.Item) error) error {
 	rows, err := db.Query(`
-		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity
+		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen
 		FROM items
 		ORDER BY item_id ASC
 	`)
@@ -28,14 +28,15 @@ func GetItems(db *sql.DB, receiver func(*models.Item) error) error {
 		var sellerId models.Id
 		var donation bool
 		var charity bool
+		var frozen bool
 
-		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity)
+		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity, &frozen)
 
 		if err != nil {
 			return err
 		}
 
-		item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+		item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
 
 		if err := receiver(item); err != nil {
 			return err
@@ -56,7 +57,7 @@ func GetSellerItems(db *sql.DB, sellerId models.Id) ([]*models.Item, error) {
 
 	rows, err := db.Query(
 		`
-			SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity
+			SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen
 			FROM items
 			WHERE seller_id = ?
 			ORDER BY added_at, item_id ASC
@@ -81,14 +82,15 @@ func GetSellerItems(db *sql.DB, sellerId models.Id) ([]*models.Item, error) {
 		var sellerId models.Id
 		var donation bool
 		var charity bool
+		var frozen bool
 
-		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity)
+		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity, &frozen)
 
 		if err != nil {
 			return nil, err
 		}
 
-		item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+		item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
 
 		items = append(items, item)
 	}
@@ -100,7 +102,7 @@ func GetSellerItems(db *sql.DB, sellerId models.Id) ([]*models.Item, error) {
 // A NoSuchItemError is returned if no item with the given identifier exists.
 func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	row := db.QueryRow(`
-		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity
+		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen
 		FROM items
 		WHERE item_id = ?
 	`, itemId)
@@ -113,8 +115,9 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	var sellerId models.Id
 	var donation bool
 	var charity bool
+	var frozen bool
 
-	err := row.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity)
+	err := row.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity, &frozen)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, &NoSuchItemError{Id: itemId}
@@ -124,7 +127,7 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 		return nil, err
 	}
 
-	item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity)
+	item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
 
 	return item, nil
 }
@@ -155,7 +158,8 @@ func AddItem(
 	itemCategoryId models.Id,
 	sellerId models.Id,
 	donation bool,
-	charity bool) (models.Id, error) {
+	charity bool,
+	frozen bool) (models.Id, error) {
 
 	if priceInCents <= 0 {
 		return 0, &InvalidPriceError{PriceInCents: priceInCents}
@@ -167,8 +171,8 @@ func AddItem(
 
 	result, err := db.Exec(
 		`
-			INSERT INTO items (added_at, description, price_in_cents, item_category_id, seller_id, donation, charity)
-			VALUES ($1, $2, $3, $4, $5, $6, $7)
+			INSERT INTO items (added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		`,
 		addedAt,
 		description,
@@ -176,7 +180,8 @@ func AddItem(
 		itemCategoryId,
 		sellerId,
 		donation,
-		charity)
+		charity,
+		frozen)
 
 	if err != nil {
 		categoryExists, err2 := CategoryWithIdExists(db, itemCategoryId)

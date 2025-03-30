@@ -21,6 +21,7 @@ func GetMultiplySoldItems(db *sql.DB) ([]MultiplySoldItem, error) {
 				   item.seller_id,
 				   item.donation,
 				   item.charity,
+				   item.frozen,
 				   sale.sale_id,
 				   sale.cashier_id,
 				   sale.transaction_time
@@ -53,6 +54,7 @@ func GetMultiplySoldItems(db *sql.DB) ([]MultiplySoldItem, error) {
 			SellerId        models.Id
 			Donation        bool
 			Charity         bool
+			Frozen          bool
 			SaleId          models.Id
 			CashierId       models.Id
 			TransactionTime models.Timestamp
@@ -66,6 +68,7 @@ func GetMultiplySoldItems(db *sql.DB) ([]MultiplySoldItem, error) {
 			&rowData.SellerId,
 			&rowData.Donation,
 			&rowData.Charity,
+			&rowData.Frozen,
 			&rowData.SaleId,
 			&rowData.CashierId,
 			&rowData.TransactionTime,
@@ -96,6 +99,7 @@ func GetMultiplySoldItems(db *sql.DB) ([]MultiplySoldItem, error) {
 					SellerId:     rowData.SellerId,
 					Donation:     rowData.Donation,
 					Charity:      rowData.Charity,
+					Frozen:       rowData.Frozen,
 				},
 				Sales: []models.Sale{sale},
 			}

@@ -22,6 +22,7 @@ type GetItemsItemData struct {
 	SellerId     models.Id                `json:"sellerId"`
 	Donation     bool                     `json:"donation"`
 	Charity      bool                     `json:"charity"`
+	Frozen       bool                     `json:"frozen"`
 }
 
 type GetItemsSuccessResponse struct {
@@ -65,6 +66,7 @@ func GetItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 			SellerId:     item.SellerId,
 			Donation:     item.Donation,
 			Charity:      item.Charity,
+			Frozen:       item.Frozen,
 		}
 	})}
 

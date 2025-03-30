@@ -9,6 +9,7 @@ type Item struct {
 	SellerId     Id
 	Donation     bool
 	Charity      bool
+	Frozen       bool
 }
 
 func NewItem(
@@ -19,7 +20,8 @@ func NewItem(
 	categoryId Id,
 	sellerId Id,
 	donation bool,
-	charity bool) *Item {
+	charity bool,
+	frozen bool) *Item {
 
 	return &Item{
 		ItemId:       id,
@@ -30,5 +32,6 @@ func NewItem(
 		SellerId:     sellerId,
 		Donation:     donation,
 		Charity:      charity,
+		Frozen:       frozen,
 	}
 }
