@@ -11,13 +11,13 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func AddUser(databasePath string, userId models.Id, role string, password string) error {
+func AddUser(databasePath string, userId models.Id, role string, password string) (err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %v", err)
 	}
 
-	defer db.Close()
+	defer func() { err = errors.Join(err, db.Close()) }()
 
 	roleId, err := models.ParseRole(role)
 	if err != nil {
@@ -37,5 +37,6 @@ func AddUser(databasePath string, userId models.Id, role string, password string
 	}
 
 	fmt.Println("User added successfully")
+	err = nil
 	return nil
 }
