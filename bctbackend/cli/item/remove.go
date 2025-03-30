@@ -4,6 +4,7 @@ import (
 	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"errors"
 	"fmt"
 
 	_ "modernc.org/sqlite"
@@ -14,17 +15,17 @@ func RemoveItem(
 	itemId models.Id) error {
 
 	db, err := database.ConnectToDatabase(databasePath)
-
 	if err != nil {
 		return err
 	}
 
-	defer db.Close()
+	defer func() { err = errors.Join(err, db.Close()) }()
 
 	if err := queries.RemoveItemWithId(db, itemId); err != nil {
 		return err
 	}
 
 	fmt.Println("Item removed successfully")
-	return nil
+	err = nil
+	return err
 }
