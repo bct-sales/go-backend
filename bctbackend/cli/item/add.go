@@ -44,8 +44,10 @@ func AddItem(
 
 	if err != nil {
 		slog.Error("An error occurred while trying to format the output; item is still added to the database", "added item id", addedItemId, "error", err)
-		return nil
+		err = nil
+		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
