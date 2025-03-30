@@ -84,7 +84,7 @@ func GetCategoryMap(db *sql.DB) (map[models.Id]string, error) {
 	return result, nil
 }
 
-func GetCategoryCounts(db *sql.DB) ([]models.ItemCategoryCount, error) {
+func GetCategoryCounts(db *sql.DB) (counts []models.ItemCategoryCount, err error) {
 	rows, err := db.Query(
 		`
 			SELECT item_category_id, item_category_name, count
@@ -97,9 +97,9 @@ func GetCategoryCounts(db *sql.DB) ([]models.ItemCategoryCount, error) {
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() { err = errors.Join(err, rows.Close()) }()
 
-	counts := []models.ItemCategoryCount{}
+	counts = []models.ItemCategoryCount{}
 
 	for rows.Next() {
 		var count models.ItemCategoryCount
@@ -117,5 +117,5 @@ func GetCategoryCounts(db *sql.DB) ([]models.ItemCategoryCount, error) {
 		counts = append(counts, count)
 	}
 
-	return counts, nil
+	return counts, err
 }
