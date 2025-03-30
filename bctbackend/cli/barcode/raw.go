@@ -2,11 +2,12 @@ package barcode
 
 import (
 	"bctbackend/barcode"
+	"errors"
 	"image/png"
 	"os"
 )
 
-func GenerateRawBarcode(data string, outputPath string, width int, height int) error {
+func GenerateRawBarcode(data string, outputPath string, width int, height int) (err error) {
 	image, err := barcode.GenerateBarcode(data, width, height)
 
 	if err != nil {
@@ -19,7 +20,7 @@ func GenerateRawBarcode(data string, outputPath string, width int, height int) e
 		return err
 	}
 
-	defer file.Close()
+	defer func() { err = errors.Join(err, file.Close()) }()
 
 	png.Encode(file, image)
 
