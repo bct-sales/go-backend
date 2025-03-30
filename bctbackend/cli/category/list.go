@@ -10,7 +10,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func ListCategories(databasePath string) error {
+func ListCategories(databasePath string) (err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
 		return err

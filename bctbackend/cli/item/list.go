@@ -11,7 +11,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func ListItems(databasePath string) error {
+func ListItems(databasePath string) (err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {

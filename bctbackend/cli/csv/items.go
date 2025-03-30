@@ -9,7 +9,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func ExportItems(databasePath string) error {
+func ExportItems(databasePath string) (err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
 		return err
