@@ -50,7 +50,7 @@ func GetItems(db *sql.DB, receiver func(*models.Item) error) (err error) {
 // The items are ordered by their time of addition, then by id.
 // An NoSuchUserError is returned if no user with the given sellerId exists.
 // An InvalidRoleError is returned if sellerId does not refer to a seller.
-func GetSellerItems(db *sql.DB, sellerId models.Id) ([]*models.Item, error) {
+func GetSellerItems(db *sql.DB, sellerId models.Id) (items []*models.Item, err error) {
 	if err := CheckUserRole(db, sellerId, models.SellerRoleId); err != nil {
 		return nil, err
 	}
@@ -69,9 +69,9 @@ func GetSellerItems(db *sql.DB, sellerId models.Id) ([]*models.Item, error) {
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() { err = errors.Join(err, rows.Close()) }()
 
-	items := make([]*models.Item, 0)
+	items = make([]*models.Item, 0)
 
 	for rows.Next() {
 		var id models.Id
@@ -85,7 +85,6 @@ func GetSellerItems(db *sql.DB, sellerId models.Id) ([]*models.Item, error) {
 		var frozen bool
 
 		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity, &frozen)
-
 		if err != nil {
 			return nil, err
 		}
