@@ -39,14 +39,16 @@ func backupDatabase(databasePath string, targetPath string) error {
 		return fmt.Errorf("failed to connect to database: %v", err)
 	}
 
-	defer db.Close()
+	defer func() { err = errors.Join(err, db.Close()) }()
 
 	if _, err = db.Exec("VACUUM INTO ?", targetPath); err != nil {
-		return fmt.Errorf("failed to backup database %s to %s: %v", databasePath, targetPath, err)
+		err = fmt.Errorf("failed to backup database %s to %s: %v", databasePath, targetPath, err)
+		return err
 	}
 
 	fmt.Println("Database backup completed successfully")
-	return nil
+	err = nil
+	return err
 }
 
 func resetDatabaseAndFillWithDummyData(databasePath string) (err error) {
