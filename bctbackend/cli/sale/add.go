@@ -5,26 +5,29 @@ import (
 	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	_ "modernc.org/sqlite"
 )
 
-func AddSale(databasePath string, cashierId models.Id, items []models.Id) error {
+func AddSale(databasePath string, cashierId models.Id, items []models.Id) (err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %v", err)
 	}
 
-	defer db.Close()
+	defer func() { err = errors.Join(err, db.Close()) }()
 
 	timestamp := time.Now().Unix()
 
 	saleId, err := queries.AddSale(db, cashierId, timestamp, items)
 
 	if err != nil {
-		return fmt.Errorf("failed to add sale: %v", err)
+		err = fmt.Errorf("failed to add sale: %v", err)
+		return err
 	}
 
 	fmt.Println("Sale added successfully")
@@ -32,8 +35,8 @@ func AddSale(databasePath string, cashierId models.Id, items []models.Id) error 
 	err = formatting.PrintSale(db, saleId)
 
 	if err != nil {
-		fmt.Printf("An error occurred while trying to format the output: %v\n", err)
-		fmt.Printf("Sale is still added to the database.\n")
+		slog.Error("An error occurred while trying to format the output; sale is still added to the database.", "error", err)
+		return nil // Don't return an error here, as the sale is already added to the database.
 	}
 
 	return nil
