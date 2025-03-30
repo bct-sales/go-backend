@@ -36,8 +36,10 @@ func AddSale(databasePath string, cashierId models.Id, items []models.Id) (err e
 
 	if err != nil {
 		slog.Error("An error occurred while trying to format the output; sale is still added to the database.", "error", err)
-		return nil // Don't return an error here, as the sale is already added to the database.
+		err = nil
+		return err // Don't return an error here, as the sale is already added to the database.
 	}
 
-	return nil
+	err = nil
+	return err
 }
