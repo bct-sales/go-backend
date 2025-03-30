@@ -117,5 +117,6 @@ func GetCategoryCounts(db *sql.DB) (counts []models.ItemCategoryCount, err error
 		counts = append(counts, count)
 	}
 
+	err = nil
 	return counts, err
 }
