@@ -3,6 +3,7 @@ package cli
 import (
 	database "bctbackend/database"
 	rest "bctbackend/rest"
+	"errors"
 
 	_ "modernc.org/sqlite"
 )
@@ -14,7 +15,12 @@ func startRestService(databasePath string) error {
 		return err
 	}
 
-	defer db.Close()
+	defer func() { err = errors.Join(err, db.Close()) }()
 
-	return rest.StartRestService(db)
+	if err = rest.StartRestService(db); err != nil {
+		return err
+	}
+
+	err = nil
+	return err
 }
