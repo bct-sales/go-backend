@@ -4,18 +4,19 @@ import (
 	"bctbackend/cli/formatting"
 	"bctbackend/database"
 	"bctbackend/database/models"
+	"errors"
 	"fmt"
 
 	_ "modernc.org/sqlite"
 )
 
-func ShowSale(databasePath string, saleId models.Id) error {
+func ShowSale(databasePath string, saleId models.Id) (err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %v", err)
 	}
 
-	defer db.Close()
+	defer func() { err = errors.Join(err, db.Close()) }()
 
 	err = formatting.PrintSale(db, saleId)
 
@@ -23,5 +24,6 @@ func ShowSale(databasePath string, saleId models.Id) error {
 		return err
 	}
 
-	return nil
+	err = nil
+	return err
 }
