@@ -19,7 +19,10 @@ func GenerateRawBarcode(data string, outputPath string, width int, height int) (
 	}
 	defer func() { err = errors.Join(err, file.Close()) }()
 
-	err = png.Encode(file, image)
+	if err = png.Encode(file, image); err != nil {
+		return err
+	}
 
+	err = nil
 	return err
 }
