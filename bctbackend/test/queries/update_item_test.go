@@ -7,6 +7,7 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/defs"
 	. "bctbackend/test/setup"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -35,81 +36,91 @@ func TestUpdateItem(t *testing.T) {
 					for _, updateCharity := range []bool{false, true} {
 						for _, updateDonation := range []bool{false, true} {
 							for _, updateCategory := range []bool{false, true} {
-								db := OpenInitializedDatabase()
-								defer db.Close()
-
-								seller := AddSellerToDatabase(db)
-
-								item := AddItemToDatabase(
-									db,
-									seller.UserId,
-									WithAddedAt(oldAddedAt),
-									WithDescription(oldDescription),
-									WithPriceInCents(oldPriceInCents),
-									WithDonation(oldDonation),
-									WithCharity(oldCharity),
-									WithItemCategory(oldCategory),
-									WithFrozen(false),
+								testLabel := fmt.Sprintf("updateAddedAt=%v, updateDescription=%v, updatePriceInCents=%v, updateCharity=%v, updateDonation=%v, updateCategory=%v",
+									updateAddedAt,
+									updateDescription,
+									updatePriceInCents,
+									updateCharity,
+									updateDonation,
+									updateCategory,
 								)
+								t.Run(testLabel, func(t *testing.T) {
+									db := OpenInitializedDatabase()
+									defer db.Close()
 
-								var itemUpdate queries.ItemUpdate
-								expectedAddedAt := oldAddedAt
-								expectedDescription := oldDescription
-								expectedPriceInCents := oldPriceInCents
-								expectedCharity := oldCharity
-								expectedDonation := oldDonation
-								expectedCategory := oldCategory
+									seller := AddSellerToDatabase(db)
 
-								if updateAddedAt {
-									itemUpdate.AddedAt = &newAddedAt
-									expectedAddedAt = newAddedAt
-								}
+									item := AddItemToDatabase(
+										db,
+										seller.UserId,
+										WithAddedAt(oldAddedAt),
+										WithDescription(oldDescription),
+										WithPriceInCents(oldPriceInCents),
+										WithDonation(oldDonation),
+										WithCharity(oldCharity),
+										WithItemCategory(oldCategory),
+										WithFrozen(false),
+									)
 
-								if updateDescription {
-									itemUpdate.Description = &newDescription
-									expectedDescription = newDescription
-								}
+									var itemUpdate queries.ItemUpdate
+									expectedAddedAt := oldAddedAt
+									expectedDescription := oldDescription
+									expectedPriceInCents := oldPriceInCents
+									expectedCharity := oldCharity
+									expectedDonation := oldDonation
+									expectedCategory := oldCategory
 
-								if updatePriceInCents {
-									itemUpdate.PriceInCents = &newPriceInCents
-									expectedPriceInCents = newPriceInCents
-								}
+									if updateAddedAt {
+										itemUpdate.AddedAt = &newAddedAt
+										expectedAddedAt = newAddedAt
+									}
 
-								if updateCharity {
-									itemUpdate.Charity = &newCharity
-									expectedCharity = newCharity
-								}
+									if updateDescription {
+										itemUpdate.Description = &newDescription
+										expectedDescription = newDescription
+									}
 
-								if updateDonation {
-									itemUpdate.Donation = &newDonation
-									expectedDonation = newDonation
-								}
+									if updatePriceInCents {
+										itemUpdate.PriceInCents = &newPriceInCents
+										expectedPriceInCents = newPriceInCents
+									}
 
-								if updateCategory {
-									itemUpdate.CategoryId = &newCategory
-									expectedCategory = newCategory
-								}
+									if updateCharity {
+										itemUpdate.Charity = &newCharity
+										expectedCharity = newCharity
+									}
 
-								err := queries.UpdateItem(
-									db,
-									item.ItemId,
-									&itemUpdate,
-								)
+									if updateDonation {
+										itemUpdate.Donation = &newDonation
+										expectedDonation = newDonation
+									}
 
-								require.NoError(t, err)
+									if updateCategory {
+										itemUpdate.CategoryId = &newCategory
+										expectedCategory = newCategory
+									}
 
-								updatedItem, err := queries.GetItemWithId(db, item.ItemId)
-								require.NoError(t, err)
+									err := queries.UpdateItem(
+										db,
+										item.ItemId,
+										&itemUpdate,
+									)
 
-								require.Equal(t, item.ItemId, updatedItem.ItemId)
-								require.Equal(t, seller.UserId, updatedItem.SellerId)
-								require.Equal(t, expectedAddedAt, updatedItem.AddedAt)
-								require.Equal(t, expectedDescription, updatedItem.Description)
-								require.Equal(t, expectedPriceInCents, updatedItem.PriceInCents)
-								require.Equal(t, expectedCharity, updatedItem.Charity)
-								require.Equal(t, expectedDonation, updatedItem.Donation)
-								require.Equal(t, expectedCategory, updatedItem.CategoryId)
-								require.Equal(t, false, updatedItem.Frozen)
+									require.NoError(t, err)
+
+									updatedItem, err := queries.GetItemWithId(db, item.ItemId)
+									require.NoError(t, err)
+
+									require.Equal(t, item.ItemId, updatedItem.ItemId)
+									require.Equal(t, seller.UserId, updatedItem.SellerId)
+									require.Equal(t, expectedAddedAt, updatedItem.AddedAt)
+									require.Equal(t, expectedDescription, updatedItem.Description)
+									require.Equal(t, expectedPriceInCents, updatedItem.PriceInCents)
+									require.Equal(t, expectedCharity, updatedItem.Charity)
+									require.Equal(t, expectedDonation, updatedItem.Donation)
+									require.Equal(t, expectedCategory, updatedItem.CategoryId)
+									require.Equal(t, false, updatedItem.Frozen)
+								})
 							}
 						}
 					}
