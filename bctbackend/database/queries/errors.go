@@ -53,6 +53,10 @@ type DuplicateItemInSaleError struct {
 	ItemId models.Id
 }
 
+type ItemFrozenError struct {
+	Id models.Id
+}
+
 func (err *UserIdAlreadyInUseError) Error() string {
 	return fmt.Sprintf("user id %d already in use", err.UserId)
 }
@@ -111,4 +115,8 @@ func (e *DuplicateItemInSaleError) Error() string {
 
 func (e *InvalidRoleError) Error() string {
 	return fmt.Sprintf("user %d should have role %d", e.UserId, e.ExpectedRoleId)
+}
+
+func (e *ItemFrozenError) Error() string {
+	return fmt.Sprintf("item %d is frozen", e.Id)
 }

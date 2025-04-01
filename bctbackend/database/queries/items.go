@@ -4,6 +4,8 @@ import (
 	"bctbackend/database/models"
 	"database/sql"
 	"errors"
+	"fmt"
+	"strings"
 )
 
 func GetItems(db *sql.DB, receiver func(*models.Item) error) error {
@@ -274,4 +276,90 @@ func RemoveItemWithId(db *sql.DB, itemId models.Id) error {
 	)
 
 	return err
+}
+
+type ItemUpdate struct {
+	AddedAt      *models.Timestamp
+	Description  *string
+	PriceInCents *models.MoneyInCents
+	CategoryId   *models.Id
+	Donation     *bool
+	Charity      *bool
+}
+
+func UpdateItem(db *sql.DB, itemId models.Id, itemUpdate *ItemUpdate) error {
+	if itemUpdate == nil {
+		return fmt.Errorf("bug: itemUpdate is nil")
+	}
+
+	item, err := GetItemWithId(db, itemId)
+	if err != nil {
+		return err
+	}
+
+	if item.Frozen {
+		return &ItemFrozenError{Id: itemId}
+	}
+
+	sqlUpdates := []string{}
+	sqlValues := []any{}
+
+	if itemUpdate.AddedAt != nil {
+		// TODO Validate addedAt
+		sqlUpdates = append(sqlUpdates, "added_at = ?")
+		sqlValues = append(sqlValues, *itemUpdate.AddedAt)
+	}
+
+	if itemUpdate.Description != nil {
+		// TODO Validate description
+		sqlUpdates = append(sqlUpdates, "description = ?")
+		sqlValues = append(sqlValues, *itemUpdate.Description)
+	}
+
+	if itemUpdate.PriceInCents != nil {
+		// TODO Use function to validate
+		if *itemUpdate.PriceInCents <= 0 {
+			return &InvalidPriceError{PriceInCents: *itemUpdate.PriceInCents}
+		}
+
+		sqlUpdates = append(sqlUpdates, "price_in_cents = ?")
+		sqlValues = append(sqlValues, *itemUpdate.PriceInCents)
+	}
+
+	if itemUpdate.CategoryId != nil {
+		categoryExists, err := CategoryWithIdExists(db, *itemUpdate.CategoryId)
+		if err != nil {
+			return err
+		}
+
+		if !categoryExists {
+			return &NoSuchCategoryError{CategoryId: *itemUpdate.CategoryId}
+		}
+
+		sqlUpdates = append(sqlUpdates, "item_category_id = ?")
+		sqlValues = append(sqlValues, *itemUpdate.CategoryId)
+	}
+
+	if itemUpdate.Donation != nil {
+		sqlUpdates = append(sqlUpdates, "donation = ?")
+		sqlValues = append(sqlValues, *itemUpdate.Donation)
+	}
+
+	if itemUpdate.Charity != nil {
+		sqlUpdates = append(sqlUpdates, "charity = ?")
+		sqlValues = append(sqlValues, *itemUpdate.Charity)
+	}
+
+	if len(sqlUpdates) == 0 {
+		return nil
+	}
+
+	sqlValues = append(sqlValues, itemId)
+	query := fmt.Sprintf("UPDATE %s SET %s WHERE item_id = ?", "items", strings.Join(sqlUpdates, ", "))
+
+	if _, err := db.Exec(query, sqlValues...); err != nil {
+		return err
+	}
+
+	return nil
 }
