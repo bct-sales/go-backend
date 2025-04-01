@@ -310,7 +310,6 @@ func UpdateItem(db *sql.DB, itemId models.Id, itemUpdate *ItemUpdate) error {
 	}
 
 	if itemUpdate.Description != nil {
-		// TODO Validate description
 		sqlUpdates = append(sqlUpdates, "description = ?")
 		sqlValues = append(sqlValues, *itemUpdate.Description)
 	}
