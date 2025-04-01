@@ -230,6 +230,30 @@ func ItemWithIdExists(db *sql.DB, itemId models.Id) (bool, error) {
 	return true, nil
 }
 
+func ItemWithIdIsFrozen(db *sql.DB, itemId models.Id) (bool, error) {
+	row := db.QueryRow(
+		`
+			SELECT frozen
+			FROM items
+			WHERE item_id = $1
+		`,
+		itemId,
+	)
+
+	var isFrozen bool
+	err := row.Scan(&isFrozen)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return false, &NoSuchItemError{Id: itemId}
+	}
+
+	if err != nil {
+		return false, err
+	}
+
+	return isFrozen, nil
+}
+
 func RemoveItemWithId(db *sql.DB, itemId models.Id) error {
 	itemExists, err := ItemWithIdExists(db, itemId)
 
