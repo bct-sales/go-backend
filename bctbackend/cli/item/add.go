@@ -22,14 +22,14 @@ func AddItem(
 	sellerId models.Id,
 	donation bool,
 	charity bool,
-	frozen bool) (err error) {
+	frozen bool) (r_err error) {
 
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
 		return err
 	}
 
-	defer func() { err = errors.Join(err, db.Close()) }()
+	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	timestamp := time.Now().Unix()
 
@@ -44,10 +44,8 @@ func AddItem(
 
 	if err != nil {
 		slog.Error("An error occurred while trying to format the output; item is still added to the database", "added item id", addedItemId, "error", err)
-		err = nil
-		return err
+		return nil
 	}
 
-	err = nil
-	return err
+	return nil
 }

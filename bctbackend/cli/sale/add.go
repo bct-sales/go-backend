@@ -13,22 +13,20 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func AddSale(databasePath string, cashierId models.Id, items []models.Id) (err error) {
+func AddSale(databasePath string, cashierId models.Id, items []models.Id) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
-		err = fmt.Errorf("failed to connect to database: %v", err)
-		return err
+		return fmt.Errorf("failed to connect to database: %v", err)
 	}
 
-	defer func() { err = errors.Join(err, db.Close()) }()
+	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	timestamp := time.Now().Unix()
 
 	saleId, err := queries.AddSale(db, cashierId, timestamp, items)
 
 	if err != nil {
-		err = fmt.Errorf("failed to add sale: %v", err)
-		return err
+		return fmt.Errorf("failed to add sale: %v", err)
 	}
 
 	fmt.Println("Sale added successfully")
@@ -37,10 +35,8 @@ func AddSale(databasePath string, cashierId models.Id, items []models.Id) (err e
 
 	if err != nil {
 		slog.Error("An error occurred while trying to format the output; sale is still added to the database.", "error", err)
-		err = nil
-		return err // Don't return an error here, as the sale is already added to the database.
+		return nil // Don't return an error here, as the sale is already added to the database.
 	}
 
-	err = nil
-	return err
+	return nil
 }

@@ -10,14 +10,13 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func ShowSale(databasePath string, saleId models.Id) (err error) {
+func ShowSale(databasePath string, saleId models.Id) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
-		err = fmt.Errorf("failed to connect to database: %v", err)
-		return err
+		return fmt.Errorf("failed to connect to database: %v", err)
 	}
 
-	defer func() { err = errors.Join(err, db.Close()) }()
+	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	err = formatting.PrintSale(db, saleId)
 
@@ -25,6 +24,5 @@ func ShowSale(databasePath string, saleId models.Id) (err error) {
 		return err
 	}
 
-	err = nil
-	return err
+	return nil
 }

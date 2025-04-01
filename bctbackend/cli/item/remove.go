@@ -12,20 +12,19 @@ import (
 
 func RemoveItem(
 	databasePath string,
-	itemId models.Id) (err error) {
+	itemId models.Id) (r_err error) {
 
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
 		return err
 	}
 
-	defer func() { err = errors.Join(err, db.Close()) }()
+	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	if err := queries.RemoveItemWithId(db, itemId); err != nil {
 		return err
 	}
 
 	fmt.Println("Item removed successfully")
-	err = nil
-	return err
+	return nil
 }

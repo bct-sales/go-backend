@@ -13,18 +13,17 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func ListUsers(databasePath string) (err error) {
+func ListUsers(databasePath string) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
 		return err
 	}
 
-	defer func() { err = errors.Join(err, db.Close()) }()
+	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	users := []*models.User{}
 	if err := queries.GetUsers(db, queries.CollectTo(&users)); err != nil {
-		err = fmt.Errorf("error while listing users: %v", err)
-		return err
+		return fmt.Errorf("error while listing users: %v", err)
 	}
 
 	tableData := pterm.TableData{
@@ -39,8 +38,7 @@ func ListUsers(databasePath string) (err error) {
 		roleString, err := models.NameOfRole(user.RoleId)
 
 		if err != nil {
-			err = fmt.Errorf("error while converting role to string: %v", err)
-			return err
+			return fmt.Errorf("error while converting role to string: %v", err)
 		}
 
 		createdAtString := time.Unix(user.CreatedAt, 0).String()
@@ -66,12 +64,10 @@ func ListUsers(databasePath string) (err error) {
 	}
 
 	if err = pterm.DefaultTable.WithHasHeader().WithData(tableData).Render(); err != nil {
-		err = fmt.Errorf("error while rendering table: %v", err)
-		return err
+		return fmt.Errorf("error while rendering table: %v", err)
 	}
 
 	fmt.Printf("Number of users listed: %d\n", userCount)
 
-	err = nil
-	return err
+	return nil
 }

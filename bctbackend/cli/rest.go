@@ -8,19 +8,18 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func startRestService(databasePath string) error {
+func startRestService(databasePath string) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
 		return err
 	}
 
-	defer func() { err = errors.Join(err, db.Close()) }()
+	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	if err = rest.StartRestService(db); err != nil {
 		return err
 	}
 
-	err = nil
-	return err
+	return nil
 }

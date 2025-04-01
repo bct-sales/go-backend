@@ -25,6 +25,5 @@ func SetPassword(databasePath string, userId models.Id, password string) error {
 	}
 
 	fmt.Println("Password updated successfully")
-	err = nil
-	return err
+	return nil
 }

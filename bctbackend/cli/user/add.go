@@ -11,19 +11,17 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func AddUser(databasePath string, userId models.Id, role string, password string) (err error) {
+func AddUser(databasePath string, userId models.Id, role string, password string) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
-		err = fmt.Errorf("failed to connect to database: %v", err)
-		return err
+		return fmt.Errorf("failed to connect to database: %v", err)
 	}
 
-	defer func() { err = errors.Join(err, db.Close()) }()
+	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	roleId, err := models.ParseRole(role)
 	if err != nil {
-		err = fmt.Errorf("invalid role %v; should be admin, seller or cashier", role)
-		return err
+		return fmt.Errorf("invalid role %v; should be admin, seller or cashier", role)
 	}
 
 	timestamp := time.Now().Unix()
@@ -32,14 +30,12 @@ func AddUser(databasePath string, userId models.Id, role string, password string
 	if err := queries.AddUserWithId(db, userId, roleId, timestamp, lastActivity, password); err != nil {
 		var userIdAlreadyInUseError *queries.UserIdAlreadyInUseError
 		if errors.As(err, &userIdAlreadyInUseError) {
-			err = fmt.Errorf("user ID %d is already in use", userId)
-			return err
+			return fmt.Errorf("user ID %d is already in use", userId)
 		}
 
 		return err
 	}
 
 	fmt.Println("User added successfully")
-	err = nil
-	return err
+	return nil
 }

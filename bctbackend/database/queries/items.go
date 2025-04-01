@@ -6,7 +6,7 @@ import (
 	"errors"
 )
 
-func GetItems(db *sql.DB, receiver func(*models.Item) error) (err error) {
+func GetItems(db *sql.DB, receiver func(*models.Item) error) error {
 	rows, err := db.Query(`
 		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen
 		FROM items
@@ -42,8 +42,7 @@ func GetItems(db *sql.DB, receiver func(*models.Item) error) (err error) {
 		}
 	}
 
-	err = nil
-	return err
+	return nil
 }
 
 // Returns the items associated with the given seller.

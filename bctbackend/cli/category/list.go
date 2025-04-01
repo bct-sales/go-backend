@@ -10,18 +10,17 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func ListCategories(databasePath string) (err error) {
+func ListCategories(databasePath string) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
 		return err
 	}
 
-	defer func() { err = errors.Join(err, db.Close()) }()
+	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	categories, err := queries.GetCategories(db)
 	if err != nil {
-		err = fmt.Errorf("error while listing categories: %w", err)
-		return err
+		return fmt.Errorf("error while listing categories: %w", err)
 	}
 
 	tableData := pterm.TableData{
@@ -40,10 +39,8 @@ func ListCategories(databasePath string) (err error) {
 
 	err = pterm.DefaultTable.WithHasHeader().WithData(tableData).Render()
 	if err != nil {
-		err = fmt.Errorf("error while rendering table: %w", err)
-		return err
+		return fmt.Errorf("error while rendering table: %w", err)
 	}
 
-	err = nil
-	return err
+	return nil
 }

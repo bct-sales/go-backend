@@ -11,37 +11,33 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func ListItems(databasePath string) (err error) {
+func ListItems(databasePath string) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
 		return err
 	}
 
-	defer func() { err = errors.Join(err, db.Close()) }()
+	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	items := []*models.Item{}
 	if err := queries.GetItems(db, queries.CollectTo(&items)); err != nil {
-		err = fmt.Errorf("error while listing items: %v", err)
-		return err
+		return fmt.Errorf("error while listing items: %v", err)
 	}
 
 	itemCount := len(items)
 
 	if itemCount > 0 {
 		if err := formatting.PrintItems(items); err != nil {
-			err = fmt.Errorf("error while rendering table: %v", err)
-			return err
+			return fmt.Errorf("error while rendering table: %v", err)
 		}
 
 		fmt.Printf("Number of items listed: %d\n", itemCount)
 
-		err = nil
-		return err
+		return nil
 	} else {
 		fmt.Println("No items found")
 
-		err = nil
-		return err
+		return nil
 	}
 }

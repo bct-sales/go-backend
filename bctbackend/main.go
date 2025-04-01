@@ -1,7 +1,7 @@
 package main
 
 import (
-	cli "bctbackend/cli"
+	"bctbackend/cli"
 	"fmt"
 	"os"
 )

@@ -29,13 +29,11 @@ func ProcessCommandLineArguments(arguments []string) error {
 	databasePath, ok := os.LookupEnv(DatabaseEnvironmentVariable)
 
 	if !ok {
-		err = fmt.Errorf("environment variable %s not set", DatabaseEnvironmentVariable)
-		return err
+		return fmt.Errorf("environment variable %s not set", DatabaseEnvironmentVariable)
 	}
 
 	if err != nil {
-		err = fmt.Errorf("error while loading .env file: %v", err)
-		return err
+		return fmt.Errorf("error while loading .env file: %v", err)
 	}
 
 	var options struct {
@@ -424,8 +422,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 								itemId, err := strconv.ParseInt(context.Args().Get(i), 10, 64)
 
 								if err != nil {
-									err = fmt.Errorf("failed to parse item id: %v", err)
-									return err
+									return fmt.Errorf("failed to parse item id: %v", err)
 								}
 
 								items = append(items, itemId)
@@ -537,8 +534,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 	}
 
 	if err := app.Run(arguments); err != nil {
-		err = fmt.Errorf("error while processing command line arguments: %v", err)
-		return err
+		return fmt.Errorf("error while processing command line arguments: %v", err)
 	}
 
 	return nil

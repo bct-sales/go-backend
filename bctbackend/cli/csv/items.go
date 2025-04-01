@@ -9,18 +9,17 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func ExportItems(databasePath string) (err error) {
+func ExportItems(databasePath string) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
 		return err
 	}
-	defer func() { err = errors.Join(err, db.Close()) }()
+	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	err = dbcsv.OutputItems(db, os.Stdout)
 	if err != nil {
 		return err
 	}
 
-	err = nil
-	return err
+	return nil
 }

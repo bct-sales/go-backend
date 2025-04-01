@@ -13,12 +13,12 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func ListSales(databasePath string) (err error) {
+func ListSales(databasePath string) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
 		return err
 	}
-	defer func() { err = errors.Join(err, db.Close()) }()
+	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	saleCount := 0
 	tableData := pterm.TableData{
@@ -42,30 +42,25 @@ func ListSales(databasePath string) (err error) {
 
 		saleCount++
 
-		err = nil
-		return err
+		return nil
 	}
 
 	if err := queries.GetSales(db, addToTable); err != nil {
-		err = fmt.Errorf("error while listing sales: %v", err)
-		return err
+		return fmt.Errorf("error while listing sales: %v", err)
 	}
 
 	if saleCount == 0 {
 		fmt.Println("No sales found")
-		err = nil
-		return err
+		return nil
 	}
 
 	err = pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
 
 	if err != nil {
-		err = fmt.Errorf("error while rendering table: %v", err)
-		return err
+		return fmt.Errorf("error while rendering table: %v", err)
 	}
 
 	fmt.Printf("Number of sales listed: %d\n", saleCount)
 
-	err = nil
-	return err
+	return nil
 }

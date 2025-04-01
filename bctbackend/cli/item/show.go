@@ -9,19 +9,18 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func ShowItem(databasePath string, itemId models.Id) (err error) {
+func ShowItem(databasePath string, itemId models.Id) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
 		return err
 	}
 
-	defer func() { err = errors.Join(err, db.Close()) }()
+	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	err = formatting.PrintItem(db, itemId)
 	if err != nil {
 		return err
 	}
 
-	err = nil
-	return err
+	return nil
 }
