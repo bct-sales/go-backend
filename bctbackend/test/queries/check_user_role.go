@@ -1,0 +1,89 @@
+//go:build test
+
+package queries
+
+import (
+	"bctbackend/database/models"
+	"bctbackend/database/queries"
+	. "bctbackend/test/setup"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+	_ "modernc.org/sqlite"
+)
+
+type pair struct {
+	UserId models.Id
+	RoleId models.Id
+}
+
+func TestCheckUserRole(t *testing.T) {
+	t.Run("Check correct role", func(t *testing.T) {
+		sellerId := models.Id(1)
+		adminId := models.Id(2)
+		cashierId := models.Id(3)
+
+		for _, pair := range []pair{
+			{UserId: sellerId, RoleId: models.SellerRoleId},
+			{UserId: adminId, RoleId: models.AdminRoleId},
+			{UserId: cashierId, RoleId: models.CashierRoleId},
+		} {
+			roleName, err := models.NameOfRole(pair.RoleId)
+			require.NoError(t, err)
+
+			t.Run(roleName, func(t *testing.T) {
+				db := OpenInitializedDatabase()
+				defer db.Close()
+
+				AddCashierToDatabase(db, WithUserId(cashierId))
+				AddAdminToDatabase(db, WithUserId(sellerId))
+				AddSellerToDatabase(db, WithUserId(adminId))
+
+				err := queries.CheckUserRole(db, pair.UserId, pair.RoleId)
+				require.NoError(t, err)
+			})
+		}
+	})
+
+	t.Run("Check incorrect role", func(t *testing.T) {
+		sellerId := models.Id(1)
+		adminId := models.Id(2)
+		cashierId := models.Id(3)
+
+		for _, pair := range []pair{
+			{UserId: adminId, RoleId: models.SellerRoleId},
+			{UserId: cashierId, RoleId: models.SellerRoleId},
+			{UserId: sellerId, RoleId: models.AdminRoleId},
+			{UserId: cashierId, RoleId: models.AdminRoleId},
+			{UserId: sellerId, RoleId: models.CashierRoleId},
+			{UserId: adminId, RoleId: models.CashierRoleId},
+		} {
+			roleName, err := models.NameOfRole(pair.RoleId)
+			require.NoError(t, err)
+
+			t.Run(roleName, func(t *testing.T) {
+				db := OpenInitializedDatabase()
+				defer db.Close()
+
+				AddCashierToDatabase(db, WithUserId(cashierId))
+				AddAdminToDatabase(db, WithUserId(sellerId))
+				AddSellerToDatabase(db, WithUserId(adminId))
+
+				err := queries.CheckUserRole(db, pair.UserId, pair.RoleId)
+				var invalidRoleError *queries.InvalidRoleError
+				require.ErrorAs(t, err, &invalidRoleError)
+			})
+		}
+	})
+
+	t.Run("Check non-existing user", func(t *testing.T) {
+		db := OpenInitializedDatabase()
+		defer db.Close()
+
+		invalidId := models.Id(9999)
+
+		err := queries.CheckUserRole(db, invalidId, models.AdminRoleId)
+		var noSuchUserError *queries.NoSuchUserError
+		require.ErrorAs(t, err, &noSuchUserError)
+	})
+}
