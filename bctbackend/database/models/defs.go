@@ -46,3 +46,7 @@ func TimestampToString(timestamp Timestamp) string {
 func MoneyInCentsToString(moneyInCents MoneyInCents) string {
 	return strconv.FormatInt(int64(moneyInCents), 10)
 }
+
+func IsValidPrice(price MoneyInCents) bool {
+	return price > 0
+}

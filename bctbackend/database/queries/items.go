@@ -162,7 +162,7 @@ func AddItem(
 	charity bool,
 	frozen bool) (models.Id, error) {
 
-	if priceInCents <= 0 {
+	if !models.IsValidPrice(priceInCents) {
 		return 0, &InvalidPriceError{PriceInCents: priceInCents}
 	}
 
@@ -316,8 +316,7 @@ func UpdateItem(db *sql.DB, itemId models.Id, itemUpdate *ItemUpdate) error {
 	}
 
 	if itemUpdate.PriceInCents != nil {
-		// TODO Use function to validate
-		if *itemUpdate.PriceInCents <= 0 {
+		if !models.IsValidPrice(*itemUpdate.PriceInCents) {
 			return &InvalidPriceError{PriceInCents: *itemUpdate.PriceInCents}
 		}
 
