@@ -305,7 +305,6 @@ func UpdateItem(db *sql.DB, itemId models.Id, itemUpdate *ItemUpdate) error {
 	sqlValues := []any{}
 
 	if itemUpdate.AddedAt != nil {
-		// TODO Validate addedAt
 		sqlUpdates = append(sqlUpdates, "added_at = ?")
 		sqlValues = append(sqlValues, *itemUpdate.AddedAt)
 	}
