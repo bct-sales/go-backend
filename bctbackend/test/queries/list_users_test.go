@@ -12,7 +12,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func TestListUsers(t *testing.T) {
+func TestGetUsers(t *testing.T) {
 	t.Run("Single user", func(t *testing.T) {
 		db := OpenInitializedDatabase()
 		defer db.Close()
