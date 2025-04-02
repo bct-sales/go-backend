@@ -232,6 +232,30 @@ func ItemWithIdExists(db *sql.DB, itemId models.Id) (bool, error) {
 	return true, nil
 }
 
+func FreezeItem(db *sql.DB, itemId models.Id) error {
+	itemExists, err := ItemWithIdExists(db, itemId)
+	if err != nil {
+		return err
+	}
+	if !itemExists {
+		return &NoSuchItemError{Id: itemId}
+	}
+
+	_, err = db.Exec(
+		`
+			UPDATE items
+			SET frozen = TRUE
+			WHERE item_id = $1
+		`,
+		itemId,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func ItemWithIdIsFrozen(db *sql.DB, itemId models.Id) (bool, error) {
 	row := db.QueryRow(
 		`
