@@ -142,7 +142,7 @@ func GetUserWithId(db *sql.DB, userId models.Id) (*models.User, error) {
 func GetUsers(db *sql.DB, receiver func(*models.User) error) error {
 	rows, err := db.Query(
 		`
-			SELECT user_id, role_id, created_at, password
+			SELECT user_id, role_id, created_at, last_activity, password
 			FROM users
 		`,
 	)
@@ -156,7 +156,7 @@ func GetUsers(db *sql.DB, receiver func(*models.User) error) error {
 	for rows.Next() {
 		var user models.User
 
-		if err := rows.Scan(&user.UserId, &user.RoleId, &user.CreatedAt, &user.Password); err != nil {
+		if err := rows.Scan(&user.UserId, &user.RoleId, &user.CreatedAt, &user.LastActivity, &user.Password); err != nil {
 			return err
 		}
 
