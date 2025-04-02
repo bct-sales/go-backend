@@ -16,14 +16,18 @@ func TestGetUser(t *testing.T) {
 	db := OpenInitializedDatabase()
 	defer db.Close()
 
-	password := "xyz"
-	userId := models.NewId(1)
-	roleId := models.SellerRoleId
+	lastActivity := models.Timestamp(2)
+	user := models.User{
+		Password:     "xyz",
+		UserId:       models.NewId(1),
+		RoleId:       models.SellerRoleId,
+		CreatedAt:    models.Timestamp(1),
+		LastActivity: &lastActivity,
+	}
 
-	queries.AddUserWithId(db, userId, roleId, 0, nil, password)
+	user.UserId = AddUserToDatabase(db, user.RoleId, WithCreatedAt(user.CreatedAt), WithLastActivity(*user.LastActivity), WithPassword(user.Password)).UserId
 
-	user, err := queries.GetUserWithId(db, userId)
+	actual, err := queries.GetUserWithId(db, user.UserId)
 	require.NoError(t, err)
-	require.Equal(t, userId, user.UserId)
-	require.Equal(t, roleId, user.RoleId)
+	require.Equal(t, user, *actual)
 }
