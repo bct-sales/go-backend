@@ -154,20 +154,10 @@ func GetUsers(db *sql.DB, receiver func(*models.User) error) error {
 	defer rows.Close()
 
 	for rows.Next() {
-		var userId models.Id
-		var roleId models.Id
-		var createdAt models.Timestamp
-		var password string
+		var user models.User
 
-		if err := rows.Scan(&userId, &roleId, &createdAt, &password); err != nil {
+		if err := rows.Scan(&user.UserId, &user.RoleId, &user.CreatedAt, &user.Password); err != nil {
 			return err
-		}
-
-		user := models.User{
-			UserId:    userId,
-			RoleId:    roleId,
-			CreatedAt: createdAt,
-			Password:  password,
 		}
 
 		if err := receiver(&user); err != nil {
