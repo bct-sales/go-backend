@@ -13,9 +13,8 @@ import (
 	restapi "bctbackend/rest/cashier"
 	"bctbackend/rest/path"
 
-	"bctbackend/test"
-	rest_test "bctbackend/test/rest"
-	. "bctbackend/test/setup"
+	test "bctbackend/test/rest"
+	"bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )
@@ -26,28 +25,28 @@ func TestGetItemInformation(t *testing.T) {
 
 		t.Run(label, func(t *testing.T) {
 			sale_count := 0
-			db, router := test.CreateRestRouter()
+			db, router := setup.CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := AddSellerToDatabase(db)
-			cashier := AddCashierToDatabase(db)
-			item := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
+			seller := setup.AddSellerToDatabase(db)
+			cashier := setup.AddCashierToDatabase(db)
+			item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
 
 			for i := 0; i < sale_count; i++ {
-				AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
+				setup.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
 			}
 
-			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
+			sessionId := setup.AddSessionToDatabase(db, cashier.UserId)
 
 			url := path.SalesItems().WithItemId(item.ItemId)
-			request := test.CreateGetRequest(url)
+			request := setup.CreateGetRequest(url)
 
-			request.AddCookie(test.CreateCookie(sessionId))
+			request.AddCookie(setup.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			response := test.FromJson[restapi.GetItemInformationSuccessResponse](writer.Body.String())
+			response := setup.FromJson[restapi.GetItemInformationSuccessResponse](writer.Body.String())
 			expectedHasBeenSold := sale_count > 0
 			require.Equal(t, item.Description, response.Description)
 			require.Equal(t, item.PriceInCents, response.PriceInCents)
@@ -58,67 +57,67 @@ func TestGetItemInformation(t *testing.T) {
 }
 
 func TestGetItemInformationWithInvalidId(t *testing.T) {
-	db, router := test.CreateRestRouter()
+	db, router := setup.CreateRestRouter()
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	cashier := AddCashierToDatabase(db)
-	sessionId := test.AddSessionToDatabase(db, cashier.UserId)
+	cashier := setup.AddCashierToDatabase(db)
+	sessionId := setup.AddSessionToDatabase(db, cashier.UserId)
 
 	url := path.SalesItems().WithRawItemId("abc")
-	request := test.CreateGetRequest(url)
+	request := setup.CreateGetRequest(url)
 
-	request.AddCookie(test.CreateCookie(sessionId))
+	request.AddCookie(setup.CreateCookie(sessionId))
 	router.ServeHTTP(writer, request)
 	require.Equal(t, http.StatusBadRequest, writer.Code)
 }
 
 func TestGetItemInformationAsSeller(t *testing.T) {
-	db, router := test.CreateRestRouter()
+	db, router := setup.CreateRestRouter()
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	seller := AddSellerToDatabase(db)
-	sessionId := test.AddSessionToDatabase(db, seller.UserId)
-	item := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
+	seller := setup.AddSellerToDatabase(db)
+	sessionId := setup.AddSessionToDatabase(db, seller.UserId)
+	item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
 
-	AddItemToDatabase(db, seller.UserId, WithDummyData(1))
+	setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
 
 	url := path.SalesItems().WithItemId(item.ItemId)
-	request := test.CreateGetRequest(url)
+	request := setup.CreateGetRequest(url)
 
-	request.AddCookie(test.CreateCookie(sessionId))
+	request.AddCookie(setup.CreateCookie(sessionId))
 	router.ServeHTTP(writer, request)
 	require.Equal(t, http.StatusForbidden, writer.Code)
 }
 
 func TestGetItemInformationAsAdmin(t *testing.T) {
-	db, router := test.CreateRestRouter()
+	db, router := setup.CreateRestRouter()
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
-	admin := AddAdminToDatabase(db)
-	seller := AddSellerToDatabase(db)
-	sessionId := test.AddSessionToDatabase(db, admin.UserId)
-	item := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
+	admin := setup.AddAdminToDatabase(db)
+	seller := setup.AddSellerToDatabase(db)
+	sessionId := setup.AddSessionToDatabase(db, admin.UserId)
+	item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
 
-	AddItemToDatabase(db, seller.UserId, WithDummyData(1))
+	setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
 
 	url := path.SalesItems().WithItemId(item.ItemId)
-	request := test.CreateGetRequest(url)
+	request := setup.CreateGetRequest(url)
 
-	request.AddCookie(test.CreateCookie(sessionId))
+	request.AddCookie(setup.CreateCookie(sessionId))
 	router.ServeHTTP(writer, request)
 	require.Equal(t, http.StatusForbidden, writer.Code)
 }
 
 func TestGetItemInformationWithNonexistentItem(t *testing.T) {
-	db, router := test.CreateRestRouter()
+	db, router := setup.CreateRestRouter()
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
 	// Create cashier
-	cashier := AddCashierToDatabase(db)
+	cashier := setup.AddCashierToDatabase(db)
 
 	// Get ID for nonexisting item
 	nonexistentItem := models.NewId(1)
@@ -130,15 +129,15 @@ func TestGetItemInformationWithNonexistentItem(t *testing.T) {
 
 	// Attempt to get information for nonexistent item
 	url := path.SalesItems().WithItemId(nonexistentItem)
-	request := test.CreateGetRequest(url)
+	request := setup.CreateGetRequest(url)
 
 	// Act as cashier
-	sessionId := test.AddSessionToDatabase(db, cashier.UserId)
-	request.AddCookie(test.CreateCookie(sessionId))
+	sessionId := setup.AddSessionToDatabase(db, cashier.UserId)
+	request.AddCookie(setup.CreateCookie(sessionId))
 
 	// Send request
 	router.ServeHTTP(writer, request)
 
 	// Check response
-	rest_test.RequireFailureType(t, writer, http.StatusNotFound, "no_such_item")
+	test.RequireFailureType(t, writer, http.StatusNotFound, "no_such_item")
 }

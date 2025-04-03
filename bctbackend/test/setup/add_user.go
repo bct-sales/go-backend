@@ -5,21 +5,10 @@ package setup
 import (
 	models "bctbackend/database/models"
 	queries "bctbackend/database/queries"
-	"bctbackend/rest"
 	"database/sql"
 
-	gin "github.com/gin-gonic/gin"
 	_ "modernc.org/sqlite"
 )
-
-func CreateRestRouter() (*sql.DB, *gin.Engine) {
-	db := OpenInitializedDatabase()
-	gin.SetMode(gin.TestMode)
-	router := gin.New()
-	rest.DefineEndpoints(db, router)
-
-	return db, router
-}
 
 type AddUserData struct {
 	UserId       *models.Id

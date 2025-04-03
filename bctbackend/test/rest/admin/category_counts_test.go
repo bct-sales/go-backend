@@ -10,8 +10,7 @@ import (
 	"bctbackend/defs"
 	rest_admin "bctbackend/rest/admin"
 	"bctbackend/rest/path"
-	"bctbackend/test"
-	. "bctbackend/test/setup"
+	"bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )
@@ -44,69 +43,69 @@ func createSuccessResponse(countMap map[models.Id]int64) rest_admin.CategoryCoun
 
 func TestCategoryCounts(t *testing.T) {
 	t.Run("Zero items", func(t *testing.T) {
-		db, router := test.CreateRestRouter()
+		db, router := setup.CreateRestRouter()
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
-		admin := AddAdminToDatabase(db)
-		sessionId := test.AddSessionToDatabase(db, admin.UserId)
+		admin := setup.AddAdminToDatabase(db)
+		sessionId := setup.AddSessionToDatabase(db, admin.UserId)
 
 		url := path.CategoryCounts().String()
-		request := test.CreateGetRequest(url)
-		request.AddCookie(test.CreateCookie(sessionId))
+		request := setup.CreateGetRequest(url)
+		request.AddCookie(setup.CreateCookie(sessionId))
 
 		router.ServeHTTP(writer, request)
 		countMap := map[models.Id]int64{}
 		expectedResponse := createSuccessResponse(countMap)
-		actual := test.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
+		actual := setup.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
 		require.Equal(t, expectedResponse, *actual)
 	})
 
 	for _, categoryId := range defs.ListCategories() {
 		t.Run("Single item", func(t *testing.T) {
-			db, router := test.CreateRestRouter()
+			db, router := setup.CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			admin := AddAdminToDatabase(db)
-			seller := AddSellerToDatabase(db)
-			AddItemToDatabase(db, seller.UserId, WithItemCategory(categoryId), WithDummyData(1))
-			sessionId := test.AddSessionToDatabase(db, admin.UserId)
+			admin := setup.AddAdminToDatabase(db)
+			seller := setup.AddSellerToDatabase(db)
+			setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categoryId), setup.WithDummyData(1))
+			sessionId := setup.AddSessionToDatabase(db, admin.UserId)
 
 			url := path.CategoryCounts().String()
-			request := test.CreateGetRequest(url)
-			request.AddCookie(test.CreateCookie(sessionId))
+			request := setup.CreateGetRequest(url)
+			request.AddCookie(setup.CreateCookie(sessionId))
 
 			router.ServeHTTP(writer, request)
 			countMap := map[models.Id]int64{categoryId: 1}
 			expected := createSuccessResponse(countMap)
 
-			actual := test.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
+			actual := setup.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
 			require.Equal(t, expected, *actual)
 		})
 	}
 
 	for _, categoryId := range defs.ListCategories() {
 		t.Run("Two items in same category", func(t *testing.T) {
-			db, router := test.CreateRestRouter()
+			db, router := setup.CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			admin := AddAdminToDatabase(db)
-			seller := AddSellerToDatabase(db)
-			AddItemToDatabase(db, seller.UserId, WithItemCategory(categoryId), WithDummyData(1))
-			AddItemToDatabase(db, seller.UserId, WithItemCategory(categoryId), WithDummyData(1))
-			sessionId := test.AddSessionToDatabase(db, admin.UserId)
+			admin := setup.AddAdminToDatabase(db)
+			seller := setup.AddSellerToDatabase(db)
+			setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categoryId), setup.WithDummyData(1))
+			setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categoryId), setup.WithDummyData(1))
+			sessionId := setup.AddSessionToDatabase(db, admin.UserId)
 
 			url := path.CategoryCounts().String()
-			request := test.CreateGetRequest(url)
-			request.AddCookie(test.CreateCookie(sessionId))
+			request := setup.CreateGetRequest(url)
+			request.AddCookie(setup.CreateCookie(sessionId))
 
 			router.ServeHTTP(writer, request)
 			countMap := map[models.Id]int64{categoryId: 2}
 			expected := createSuccessResponse(countMap)
 
-			actual := test.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
+			actual := setup.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
 			require.Equal(t, expected, *actual)
 		})
 	}
@@ -114,19 +113,19 @@ func TestCategoryCounts(t *testing.T) {
 	for _, categoryId1 := range defs.ListCategories() {
 		for _, categoryId2 := range defs.ListCategories() {
 			t.Run("Two items in potentially probably categories", func(t *testing.T) {
-				db, router := test.CreateRestRouter()
+				db, router := setup.CreateRestRouter()
 				writer := httptest.NewRecorder()
 				defer db.Close()
 
-				admin := AddAdminToDatabase(db)
-				seller := AddSellerToDatabase(db)
-				AddItemToDatabase(db, seller.UserId, WithItemCategory(categoryId1), WithDummyData(1))
-				AddItemToDatabase(db, seller.UserId, WithItemCategory(categoryId2), WithDummyData(2))
-				sessionId := test.AddSessionToDatabase(db, admin.UserId)
+				admin := setup.AddAdminToDatabase(db)
+				seller := setup.AddSellerToDatabase(db)
+				setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categoryId1), setup.WithDummyData(1))
+				setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categoryId2), setup.WithDummyData(2))
+				sessionId := setup.AddSessionToDatabase(db, admin.UserId)
 
 				url := path.CategoryCounts().String()
-				request := test.CreateGetRequest(url)
-				request.AddCookie(test.CreateCookie(sessionId))
+				request := setup.CreateGetRequest(url)
+				request.AddCookie(setup.CreateCookie(sessionId))
 
 				router.ServeHTTP(writer, request)
 				countMap := map[models.Id]int64{categoryId1: 0, categoryId2: 0}
@@ -134,7 +133,7 @@ func TestCategoryCounts(t *testing.T) {
 				countMap[categoryId2] += 1
 				expected := createSuccessResponse(countMap)
 
-				actual := test.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
+				actual := setup.FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
 				require.Equal(t, expected, *actual)
 			})
 		}

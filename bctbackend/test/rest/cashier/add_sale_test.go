@@ -11,34 +11,32 @@ import (
 	"bctbackend/database/queries"
 	rest_api "bctbackend/rest/cashier"
 	"bctbackend/rest/path"
-
-	"bctbackend/test"
-	. "bctbackend/test/setup"
+	"bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestAddSaleItem(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		db, router := test.CreateRestRouter()
+		db, router := setup.CreateRestRouter()
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
-		seller := AddSellerToDatabase(db)
-		cashier := AddCashierToDatabase(db)
-		item := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
-		sessionId := test.AddSessionToDatabase(db, cashier.UserId)
+		seller := setup.AddSellerToDatabase(db)
+		cashier := setup.AddCashierToDatabase(db)
+		item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
+		sessionId := setup.AddSessionToDatabase(db, cashier.UserId)
 		payload := rest_api.AddSalePayload{
 			Items: []models.Id{item.ItemId},
 		}
 		url := path.Sales().String()
-		request := test.CreatePostRequest(url, &payload)
+		request := setup.CreatePostRequest(url, &payload)
 
-		request.AddCookie(test.CreateCookie(sessionId))
+		request.AddCookie(setup.CreateCookie(sessionId))
 		router.ServeHTTP(writer, request)
 		require.Equal(t, http.StatusCreated, writer.Code)
 
-		response := test.FromJson[rest_api.AddSaleSuccessResponse](writer.Body.String())
+		response := setup.FromJson[rest_api.AddSaleSuccessResponse](writer.Body.String())
 
 		sale, err := queries.GetSaleWithId(db, response.SaleId)
 		require.NoError(t, err)
@@ -52,20 +50,20 @@ func TestAddSaleItem(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("As seller", func(t *testing.T) {
-			db, router := test.CreateRestRouter()
+			db, router := setup.CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := AddSellerToDatabase(db)
-			item := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
-			sessionId := test.AddSessionToDatabase(db, seller.UserId) // Causes the operation to fail
+			seller := setup.AddSellerToDatabase(db)
+			item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
+			sessionId := setup.AddSessionToDatabase(db, seller.UserId) // Causes the operation to fail
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId},
 			}
 			url := path.Sales().String()
-			request := test.CreatePostRequest(url, &payload)
+			request := setup.CreatePostRequest(url, &payload)
 
-			request.AddCookie(test.CreateCookie(sessionId))
+			request.AddCookie(setup.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
@@ -76,21 +74,21 @@ func TestAddSaleItem(t *testing.T) {
 		})
 
 		t.Run("As admin", func(t *testing.T) {
-			db, router := test.CreateRestRouter()
+			db, router := setup.CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			admin := AddAdminToDatabase(db)
-			seller := AddSellerToDatabase(db)
-			item := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
-			sessionId := test.AddSessionToDatabase(db, admin.UserId) // Causes the operation to fail
+			admin := setup.AddAdminToDatabase(db)
+			seller := setup.AddSellerToDatabase(db)
+			item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
+			sessionId := setup.AddSessionToDatabase(db, admin.UserId) // Causes the operation to fail
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId},
 			}
 			url := path.Sales().String()
-			request := test.CreatePostRequest(url, &payload)
+			request := setup.CreatePostRequest(url, &payload)
 
-			request.AddCookie(test.CreateCookie(sessionId))
+			request.AddCookie(setup.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
@@ -101,19 +99,19 @@ func TestAddSaleItem(t *testing.T) {
 		})
 
 		t.Run("No items", func(t *testing.T) {
-			db, router := test.CreateRestRouter()
+			db, router := setup.CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			cashier := AddCashierToDatabase(db)
-			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
+			cashier := setup.AddCashierToDatabase(db)
+			sessionId := setup.AddSessionToDatabase(db, cashier.UserId)
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{},
 			}
 			url := path.Sales().String()
-			request := test.CreatePostRequest(url, &payload)
+			request := setup.CreatePostRequest(url, &payload)
 
-			request.AddCookie(test.CreateCookie(sessionId))
+			request.AddCookie(setup.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
@@ -124,12 +122,12 @@ func TestAddSaleItem(t *testing.T) {
 		})
 
 		t.Run("Nonexistent item", func(t *testing.T) {
-			db, router := test.CreateRestRouter()
+			db, router := setup.CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			cashier := AddCashierToDatabase(db)
-			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
+			cashier := setup.AddCashierToDatabase(db)
+			sessionId := setup.AddSessionToDatabase(db, cashier.UserId)
 			nonexistentItemId := models.Id(1000)
 
 			itemExists, err := queries.ItemWithIdExists(db, nonexistentItemId)
@@ -140,9 +138,9 @@ func TestAddSaleItem(t *testing.T) {
 				Items: []models.Id{},
 			}
 			url := path.Sales().String()
-			request := test.CreatePostRequest(url, &payload)
+			request := setup.CreatePostRequest(url, &payload)
 
-			request.AddCookie(test.CreateCookie(sessionId))
+			request.AddCookie(setup.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
@@ -153,22 +151,22 @@ func TestAddSaleItem(t *testing.T) {
 		})
 
 		t.Run("Duplicate item", func(t *testing.T) {
-			db, router := test.CreateRestRouter()
+			db, router := setup.CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			cashier := AddCashierToDatabase(db)
-			seller := AddSellerToDatabase(db)
-			item := AddItemToDatabase(db, seller.UserId, WithDummyData(1))
-			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
+			cashier := setup.AddCashierToDatabase(db)
+			seller := setup.AddSellerToDatabase(db)
+			item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
+			sessionId := setup.AddSessionToDatabase(db, cashier.UserId)
 
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId, item.ItemId}, // Causes the operation to fail
 			}
 			url := path.Sales().String()
-			request := test.CreatePostRequest(url, &payload)
+			request := setup.CreatePostRequest(url, &payload)
 
-			request.AddCookie(test.CreateCookie(sessionId))
+			request.AddCookie(setup.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 

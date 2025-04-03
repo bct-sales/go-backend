@@ -15,7 +15,7 @@ import (
 
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/test"
+	"bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )
@@ -29,12 +29,12 @@ func TestAddSellerItem(t *testing.T) {
 						for _, donation := range []bool{true, false} {
 							for _, charity := range []bool{true, false} {
 								t.Run(fmt.Sprintf("sellerId=%d price=%d description=%s categoryId=%d donation=%t charity=%t", sellerId, price, description, categoryId, donation, charity), func(t *testing.T) {
-									db, router := test.CreateRestRouter()
+									db, router := setup.CreateRestRouter()
 									writer := httptest.NewRecorder()
 									defer db.Close()
 
 									seller := AddSellerToDatabase(db, WithUserId(sellerId))
-									sessionId := test.AddSessionToDatabase(db, seller.UserId)
+									sessionId := setup.AddSessionToDatabase(db, seller.UserId)
 
 									url := path.SellerItems().WithSellerId(seller.UserId)
 									payload := restapi.AddSellerItemPayload{
@@ -44,13 +44,13 @@ func TestAddSellerItem(t *testing.T) {
 										Donation:    &donation,
 										Charity:     &charity,
 									}
-									request := test.CreatePostRequest(url, &payload)
-									request.AddCookie(test.CreateCookie(sessionId))
+									request := setup.CreatePostRequest(url, &payload)
+									request.AddCookie(setup.CreateCookie(sessionId))
 									router.ServeHTTP(writer, request)
 
 									require.Equal(t, http.StatusCreated, writer.Code)
 
-									response := test.FromJson[restapi.AddSellerItemResponse](writer.Body.String())
+									response := setup.FromJson[restapi.AddSellerItemResponse](writer.Body.String())
 
 									itemsInDatabase := []*models.Item{}
 									err := queries.GetItems(db, queries.CollectTo(&itemsInDatabase))
@@ -82,12 +82,12 @@ func TestAddSellerItem(t *testing.T) {
 			donation := false
 			charity := false
 
-			db, router := test.CreateRestRouter()
+			db, router := setup.CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
 			seller := AddSellerToDatabase(db)
-			sessionId := test.AddSessionToDatabase(db, seller.UserId)
+			sessionId := setup.AddSessionToDatabase(db, seller.UserId)
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
@@ -97,9 +97,9 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := test.CreatePostRequest(url, &payload)
+			request := setup.CreatePostRequest(url, &payload)
 
-			request.AddCookie(test.CreateCookie(sessionId))
+			request.AddCookie(setup.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
@@ -116,12 +116,12 @@ func TestAddSellerItem(t *testing.T) {
 			donation := false
 			charity := false
 
-			db, router := test.CreateRestRouter()
+			db, router := setup.CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
 			seller := AddSellerToDatabase(db)
-			sessionId := test.AddSessionToDatabase(db, seller.UserId)
+			sessionId := setup.AddSessionToDatabase(db, seller.UserId)
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
@@ -131,9 +131,9 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := test.CreatePostRequest(url, &payload)
+			request := setup.CreatePostRequest(url, &payload)
 
-			request.AddCookie(test.CreateCookie(sessionId))
+			request.AddCookie(setup.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
@@ -152,12 +152,12 @@ func TestAddSellerItem(t *testing.T) {
 
 			require.NotContains(t, defs.ListCategories(), categoryId)
 
-			db, router := test.CreateRestRouter()
+			db, router := setup.CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
 			seller := AddSellerToDatabase(db)
-			sessionId := test.AddSessionToDatabase(db, seller.UserId)
+			sessionId := setup.AddSessionToDatabase(db, seller.UserId)
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
@@ -167,9 +167,9 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := test.CreatePostRequest(url, &payload)
+			request := setup.CreatePostRequest(url, &payload)
 
-			request.AddCookie(test.CreateCookie(sessionId))
+			request.AddCookie(setup.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
@@ -188,13 +188,13 @@ func TestAddSellerItem(t *testing.T) {
 
 			require.NotContains(t, defs.ListCategories(), categoryId)
 
-			db, router := test.CreateRestRouter()
+			db, router := setup.CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
 			seller := AddSellerToDatabase(db)
 			admin := AddAdminToDatabase(db)
-			sessionId := test.AddSessionToDatabase(db, admin.UserId)
+			sessionId := setup.AddSessionToDatabase(db, admin.UserId)
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
@@ -204,9 +204,9 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := test.CreatePostRequest(url, &payload)
+			request := setup.CreatePostRequest(url, &payload)
 
-			request.AddCookie(test.CreateCookie(sessionId))
+			request.AddCookie(setup.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
@@ -225,13 +225,13 @@ func TestAddSellerItem(t *testing.T) {
 
 			require.NotContains(t, defs.ListCategories(), categoryId)
 
-			db, router := test.CreateRestRouter()
+			db, router := setup.CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
 			seller := AddSellerToDatabase(db)
 			cashier := AddCashierToDatabase(db)
-			sessionId := test.AddSessionToDatabase(db, cashier.UserId)
+			sessionId := setup.AddSessionToDatabase(db, cashier.UserId)
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       price,
@@ -240,9 +240,9 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := test.CreatePostRequest(url, &payload)
+			request := setup.CreatePostRequest(url, &payload)
 
-			request.AddCookie(test.CreateCookie(sessionId))
+			request.AddCookie(setup.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
@@ -261,12 +261,12 @@ func TestAddSellerItem(t *testing.T) {
 
 			require.NotContains(t, defs.ListCategories(), categoryId)
 
-			db, router := test.CreateRestRouter()
+			db, router := setup.CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
 			seller := AddSellerToDatabase(db)
-			sessionId := test.AddSessionToDatabase(db, seller.UserId)
+			sessionId := setup.AddSessionToDatabase(db, seller.UserId)
 
 			url := path.SellerItems().WithRawSellerId("a")
 			payload := restapi.AddSellerItemPayload{
@@ -276,8 +276,8 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := test.CreatePostRequest(url, &payload)
-			request.AddCookie(test.CreateCookie(sessionId))
+			request := setup.CreatePostRequest(url, &payload)
+			request.AddCookie(setup.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
 			require.Equal(t, http.StatusBadRequest, writer.Code)
@@ -297,13 +297,13 @@ func TestAddSellerItem(t *testing.T) {
 
 			require.NotContains(t, defs.ListCategories(), categoryId)
 
-			db, router := test.CreateRestRouter()
+			db, router := setup.CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
 			seller1 := AddSellerToDatabase(db)
 			seller2 := AddSellerToDatabase(db)
-			sessionId := test.AddSessionToDatabase(db, seller2.UserId)
+			sessionId := setup.AddSessionToDatabase(db, seller2.UserId)
 
 			url := path.SellerItems().WithSellerId(seller1.UserId)
 			payload := restapi.AddSellerItemPayload{
@@ -313,8 +313,8 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := test.CreatePostRequest(url, &payload)
-			request.AddCookie(test.CreateCookie(sessionId))
+			request := setup.CreatePostRequest(url, &payload)
+			request.AddCookie(setup.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
 			require.Equal(t, http.StatusForbidden, writer.Code)
@@ -334,13 +334,13 @@ func TestAddSellerItem(t *testing.T) {
 
 			require.NotContains(t, defs.ListCategories(), categoryId)
 
-			db, router := test.CreateRestRouter()
+			db, router := setup.CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
 			seller := AddSellerToDatabase(db)
 			nonexistentId := models.NewId(1000)
-			sessionId := test.AddSessionToDatabase(db, seller.UserId)
+			sessionId := setup.AddSessionToDatabase(db, seller.UserId)
 
 			userExists, err := queries.UserWithIdExists(db, nonexistentId)
 			require.NoError(t, err)
@@ -354,8 +354,8 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := test.CreatePostRequest(url, &payload)
-			request.AddCookie(test.CreateCookie(sessionId))
+			request := setup.CreatePostRequest(url, &payload)
+			request.AddCookie(setup.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
 			require.Equal(t, http.StatusForbidden, writer.Code)

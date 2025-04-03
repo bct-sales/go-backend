@@ -9,8 +9,7 @@ import (
 
 	models "bctbackend/database/models"
 	"bctbackend/rest/path"
-	"bctbackend/test"
-	. "bctbackend/test/setup"
+	"bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )
@@ -18,26 +17,26 @@ import (
 func TestListSellerItems(t *testing.T) {
 	for _, sellerId := range []models.Id{models.NewId(1), models.NewId(2), models.NewId(100)} {
 		for _, itemCount := range []int{0, 1, 5, 100} {
-			db, router := test.CreateRestRouter()
+			db, router := setup.CreateRestRouter()
 			writer := httptest.NewRecorder()
 			defer db.Close()
 
-			seller := AddSellerToDatabase(db, WithUserId(sellerId))
-			sessionId := test.AddSessionToDatabase(db, seller.UserId)
+			seller := setup.AddSellerToDatabase(db, setup.WithUserId(sellerId))
+			sessionId := setup.AddSessionToDatabase(db, seller.UserId)
 
 			expectedItems := []models.Item{}
 			for i := 0; i < itemCount; i++ {
-				expectedItems = append(expectedItems, *AddItemToDatabase(db, seller.UserId, WithDummyData(i)))
+				expectedItems = append(expectedItems, *setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(i)))
 			}
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
-			request := test.CreateGetRequest(url)
+			request := setup.CreateGetRequest(url)
 
-			request.AddCookie(test.CreateCookie(sessionId))
+			request.AddCookie(setup.CreateCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			actual := test.FromJson[[]models.Item](writer.Body.String())
+			actual := setup.FromJson[[]models.Item](writer.Body.String())
 			require.Equal(t, expectedItems, *actual)
 		}
 	}

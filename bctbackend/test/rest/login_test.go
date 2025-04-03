@@ -7,7 +7,7 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/rest/path"
 	"bctbackend/security"
-	"bctbackend/test"
+	"bctbackend/test/setup"
 	. "bctbackend/test/setup"
 	"bytes"
 	"encoding/json"
@@ -20,7 +20,7 @@ import (
 )
 
 func TestSuccessfulSellerLogin(t *testing.T) {
-	db, router := test.CreateRestRouter()
+	db, router := setup.CreateRestRouter()
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
@@ -62,7 +62,7 @@ func TestSuccessfulSellerLogin(t *testing.T) {
 }
 
 func TestSuccessfulAdminLogin(t *testing.T) {
-	db, router := test.CreateRestRouter()
+	db, router := setup.CreateRestRouter()
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
@@ -104,7 +104,7 @@ func TestSuccessfulAdminLogin(t *testing.T) {
 }
 
 func TestSuccessfulCashierLogin(t *testing.T) {
-	db, router := test.CreateRestRouter()
+	db, router := setup.CreateRestRouter()
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
@@ -146,7 +146,7 @@ func TestSuccessfulCashierLogin(t *testing.T) {
 }
 
 func TestUnknownUserLogin(t *testing.T) {
-	db, router := test.CreateRestRouter()
+	db, router := setup.CreateRestRouter()
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
@@ -167,7 +167,7 @@ func TestUnknownUserLogin(t *testing.T) {
 }
 
 func TestWrongPasswordLogin(t *testing.T) {
-	db, router := test.CreateRestRouter()
+	db, router := setup.CreateRestRouter()
 	writer := httptest.NewRecorder()
 	defer db.Close()
 
