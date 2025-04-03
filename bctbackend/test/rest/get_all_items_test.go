@@ -38,7 +38,7 @@ type FailureResponse struct {
 	Message string `json:"message"`
 }
 
-func TestListAllItems(t *testing.T) {
+func TestGetAllItems(t *testing.T) {
 	url := "/api/v1/items"
 
 	t.Run("Success with no items", func(t *testing.T) {
