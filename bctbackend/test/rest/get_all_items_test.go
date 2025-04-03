@@ -10,7 +10,6 @@ import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/defs"
-	"bctbackend/rest/path"
 	rest "bctbackend/rest/shared"
 	"bctbackend/test"
 	. "bctbackend/test/setup"
@@ -40,6 +39,8 @@ type FailureResponse struct {
 }
 
 func TestListAllItems(t *testing.T) {
+	url := "/api/v1/items"
+
 	t.Run("Success with no items", func(t *testing.T) {
 		db, router := test.CreateRestRouter()
 		writer := httptest.NewRecorder()
@@ -48,7 +49,6 @@ func TestListAllItems(t *testing.T) {
 		admin := AddAdminToDatabase(db)
 		sessionId := test.AddSessionToDatabase(db, admin.UserId)
 
-		url := path.Items().String()
 		request := test.CreateGetRequest(url)
 		request.AddCookie(test.CreateCookie(sessionId))
 
@@ -84,7 +84,6 @@ func TestListAllItems(t *testing.T) {
 		itemId, err := queries.AddItem(db, models.Timestamp(addedAtTimestamp), item.Description, item.PriceInCents, item.CategoryId, item.SellerId, item.Donation, item.Charity, item.Frozen)
 		require.NoError(t, err)
 
-		url := path.Items().String()
 		request := test.CreateGetRequest(url)
 		request.AddCookie(test.CreateCookie(sessionId))
 
@@ -135,7 +134,6 @@ func TestListAllItems(t *testing.T) {
 		itemId2, err := queries.AddItem(db, addedAtTimestamp, item2.Description, item2.PriceInCents, item2.CategoryId, item2.SellerId, item2.Donation, item2.Charity, item2.Frozen)
 		require.NoError(t, err)
 
-		url := path.Items().String()
 		request := test.CreateGetRequest(url)
 		request.AddCookie(test.CreateCookie(sessionId))
 
@@ -168,7 +166,6 @@ func TestListAllItems(t *testing.T) {
 				userId := AddUserToDatabase(db, roleId).UserId
 				sessionId := test.AddSessionToDatabase(db, userId)
 
-				url := path.Items().String()
 				request := test.CreateGetRequest(url)
 				request.AddCookie(test.CreateCookie(sessionId))
 				router.ServeHTTP(writer, request)
