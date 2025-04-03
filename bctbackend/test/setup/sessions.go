@@ -6,7 +6,7 @@ import (
 	"database/sql"
 )
 
-func AddSessionToDatabase(db *sql.DB, userId models.Id) string {
+func Session(db *sql.DB, userId models.Id) string {
 	return AddSessionToDatabaseWithExpiration(db, userId, 3600)
 }
 

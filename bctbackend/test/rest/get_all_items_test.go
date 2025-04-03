@@ -39,14 +39,13 @@ type FailureResponse struct {
 
 func TestGetAllItems(t *testing.T) {
 	url := "/api/v1/items"
-
 	t.Run("Success with no items", func(t *testing.T) {
 		db, router := setup.CreateRestRouter()
 		writer := httptest.NewRecorder()
 		defer db.Close()
 
 		admin := setup.AddAdminToDatabase(db)
-		sessionId := setup.AddSessionToDatabase(db, admin.UserId)
+		sessionId := setup.Session(db, admin.UserId)
 
 		request := setup.CreateGetRequest(url)
 		request.AddCookie(setup.CreateCookie(sessionId))
@@ -65,7 +64,7 @@ func TestGetAllItems(t *testing.T) {
 		defer db.Close()
 
 		adminId := setup.AddAdminToDatabase(db).UserId
-		sessionId := setup.AddSessionToDatabase(db, adminId)
+		sessionId := setup.Session(db, adminId)
 
 		sellerId := setup.AddSellerToDatabase(db).UserId
 		addedAtTimestamp := models.Timestamp(100)
@@ -103,7 +102,7 @@ func TestGetAllItems(t *testing.T) {
 		defer db.Close()
 
 		adminId := setup.AddAdminToDatabase(db).UserId
-		sessionId := setup.AddSessionToDatabase(db, adminId)
+		sessionId := setup.Session(db, adminId)
 		sellerId := setup.AddSellerToDatabase(db).UserId
 		addedAtTimestamp := models.Timestamp(500)
 		item1 := Item{
@@ -163,7 +162,7 @@ func TestGetAllItems(t *testing.T) {
 				defer db.Close()
 
 				userId := setup.AddUserToDatabase(db, roleId).UserId
-				sessionId := setup.AddSessionToDatabase(db, userId)
+				sessionId := setup.Session(db, userId)
 
 				request := setup.CreateGetRequest(url)
 				request.AddCookie(setup.CreateCookie(sessionId))

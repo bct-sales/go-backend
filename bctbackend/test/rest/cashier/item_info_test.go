@@ -37,7 +37,7 @@ func TestGetItemInformation(t *testing.T) {
 				setup.AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
 			}
 
-			sessionId := setup.AddSessionToDatabase(db, cashier.UserId)
+			sessionId := setup.Session(db, cashier.UserId)
 
 			url := path.SalesItems().WithItemId(item.ItemId)
 			request := setup.CreateGetRequest(url)
@@ -62,7 +62,7 @@ func TestGetItemInformationWithInvalidId(t *testing.T) {
 	defer db.Close()
 
 	cashier := setup.AddCashierToDatabase(db)
-	sessionId := setup.AddSessionToDatabase(db, cashier.UserId)
+	sessionId := setup.Session(db, cashier.UserId)
 
 	url := path.SalesItems().WithRawItemId("abc")
 	request := setup.CreateGetRequest(url)
@@ -78,7 +78,7 @@ func TestGetItemInformationAsSeller(t *testing.T) {
 	defer db.Close()
 
 	seller := setup.AddSellerToDatabase(db)
-	sessionId := setup.AddSessionToDatabase(db, seller.UserId)
+	sessionId := setup.Session(db, seller.UserId)
 	item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
 
 	setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
@@ -98,7 +98,7 @@ func TestGetItemInformationAsAdmin(t *testing.T) {
 
 	admin := setup.AddAdminToDatabase(db)
 	seller := setup.AddSellerToDatabase(db)
-	sessionId := setup.AddSessionToDatabase(db, admin.UserId)
+	sessionId := setup.Session(db, admin.UserId)
 	item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
 
 	setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
@@ -132,7 +132,7 @@ func TestGetItemInformationWithNonexistentItem(t *testing.T) {
 	request := setup.CreateGetRequest(url)
 
 	// Act as cashier
-	sessionId := setup.AddSessionToDatabase(db, cashier.UserId)
+	sessionId := setup.Session(db, cashier.UserId)
 	request.AddCookie(setup.CreateCookie(sessionId))
 
 	// Send request

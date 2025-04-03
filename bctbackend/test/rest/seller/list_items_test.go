@@ -22,7 +22,7 @@ func TestListSellerItems(t *testing.T) {
 			defer db.Close()
 
 			seller := setup.AddSellerToDatabase(db, setup.WithUserId(sellerId))
-			sessionId := setup.AddSessionToDatabase(db, seller.UserId)
+			sessionId := setup.Session(db, seller.UserId)
 
 			expectedItems := []models.Item{}
 			for i := 0; i < itemCount; i++ {

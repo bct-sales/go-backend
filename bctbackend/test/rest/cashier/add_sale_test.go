@@ -25,7 +25,7 @@ func TestAddSaleItem(t *testing.T) {
 		seller := setup.AddSellerToDatabase(db)
 		cashier := setup.AddCashierToDatabase(db)
 		item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
-		sessionId := setup.AddSessionToDatabase(db, cashier.UserId)
+		sessionId := setup.Session(db, cashier.UserId)
 		payload := rest_api.AddSalePayload{
 			Items: []models.Id{item.ItemId},
 		}
@@ -56,7 +56,7 @@ func TestAddSaleItem(t *testing.T) {
 
 			seller := setup.AddSellerToDatabase(db)
 			item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
-			sessionId := setup.AddSessionToDatabase(db, seller.UserId) // Causes the operation to fail
+			sessionId := setup.Session(db, seller.UserId) // Causes the operation to fail
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId},
 			}
@@ -81,7 +81,7 @@ func TestAddSaleItem(t *testing.T) {
 			admin := setup.AddAdminToDatabase(db)
 			seller := setup.AddSellerToDatabase(db)
 			item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
-			sessionId := setup.AddSessionToDatabase(db, admin.UserId) // Causes the operation to fail
+			sessionId := setup.Session(db, admin.UserId) // Causes the operation to fail
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId},
 			}
@@ -104,7 +104,7 @@ func TestAddSaleItem(t *testing.T) {
 			defer db.Close()
 
 			cashier := setup.AddCashierToDatabase(db)
-			sessionId := setup.AddSessionToDatabase(db, cashier.UserId)
+			sessionId := setup.Session(db, cashier.UserId)
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{},
 			}
@@ -127,7 +127,7 @@ func TestAddSaleItem(t *testing.T) {
 			defer db.Close()
 
 			cashier := setup.AddCashierToDatabase(db)
-			sessionId := setup.AddSessionToDatabase(db, cashier.UserId)
+			sessionId := setup.Session(db, cashier.UserId)
 			nonexistentItemId := models.Id(1000)
 
 			itemExists, err := queries.ItemWithIdExists(db, nonexistentItemId)
@@ -158,7 +158,7 @@ func TestAddSaleItem(t *testing.T) {
 			cashier := setup.AddCashierToDatabase(db)
 			seller := setup.AddSellerToDatabase(db)
 			item := setup.AddItemToDatabase(db, seller.UserId, setup.WithDummyData(1))
-			sessionId := setup.AddSessionToDatabase(db, cashier.UserId)
+			sessionId := setup.Session(db, cashier.UserId)
 
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId, item.ItemId}, // Causes the operation to fail

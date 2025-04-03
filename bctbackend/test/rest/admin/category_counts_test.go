@@ -48,7 +48,7 @@ func TestCategoryCounts(t *testing.T) {
 		defer db.Close()
 
 		admin := setup.AddAdminToDatabase(db)
-		sessionId := setup.AddSessionToDatabase(db, admin.UserId)
+		sessionId := setup.Session(db, admin.UserId)
 
 		url := path.CategoryCounts().String()
 		request := setup.CreateGetRequest(url)
@@ -70,7 +70,7 @@ func TestCategoryCounts(t *testing.T) {
 			admin := setup.AddAdminToDatabase(db)
 			seller := setup.AddSellerToDatabase(db)
 			setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categoryId), setup.WithDummyData(1))
-			sessionId := setup.AddSessionToDatabase(db, admin.UserId)
+			sessionId := setup.Session(db, admin.UserId)
 
 			url := path.CategoryCounts().String()
 			request := setup.CreateGetRequest(url)
@@ -95,7 +95,7 @@ func TestCategoryCounts(t *testing.T) {
 			seller := setup.AddSellerToDatabase(db)
 			setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categoryId), setup.WithDummyData(1))
 			setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categoryId), setup.WithDummyData(1))
-			sessionId := setup.AddSessionToDatabase(db, admin.UserId)
+			sessionId := setup.Session(db, admin.UserId)
 
 			url := path.CategoryCounts().String()
 			request := setup.CreateGetRequest(url)
@@ -121,7 +121,7 @@ func TestCategoryCounts(t *testing.T) {
 				seller := setup.AddSellerToDatabase(db)
 				setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categoryId1), setup.WithDummyData(1))
 				setup.AddItemToDatabase(db, seller.UserId, setup.WithItemCategory(categoryId2), setup.WithDummyData(2))
-				sessionId := setup.AddSessionToDatabase(db, admin.UserId)
+				sessionId := setup.Session(db, admin.UserId)
 
 				url := path.CategoryCounts().String()
 				request := setup.CreateGetRequest(url)
