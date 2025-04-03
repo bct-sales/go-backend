@@ -1,4 +1,4 @@
-package admin
+package rest
 
 import (
 	"bctbackend/algorithms"
@@ -41,8 +41,8 @@ type GetItemsFailureResponse struct {
 // @Produce json
 // @Success 200 {object} GetItemsSuccessResponse "Items successfully fetched"
 // @Failure 500 {object} GetItemsFailureResponse "Failed to fetch items"
-// @Router /admin/items [get]
-func GetItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
+// @Router /items [get]
+func GetAllItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.AdminRoleId {
 		failureResponse := GetItemsFailureResponse{Type: "forbidden", Message: "Only accessible to admins"}
 		context.JSON(http.StatusForbidden, failureResponse)

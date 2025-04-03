@@ -7,5 +7,5 @@ func Items() *itemsPath {
 }
 
 func (path *itemsPath) String() string {
-	return "/api/v1/admin/items"
+	return "/api/v1/items"
 }
