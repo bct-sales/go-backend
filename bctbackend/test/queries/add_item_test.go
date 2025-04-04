@@ -6,7 +6,9 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/defs"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
+	aux "bctbackend/test/helpers"
+
 	"fmt"
 	"testing"
 
@@ -27,11 +29,11 @@ func TestAddItem(t *testing.T) {
 										test_name := fmt.Sprintf("timestamp = %d", timestamp)
 
 										t.Run(test_name, func(t *testing.T) {
-											db := OpenInitializedDatabase()
-											defer db.Close()
+											setup, db := Setup()
+											defer setup.Close()
 
-											AddSellerToDatabase(db, WithUserId(1))
-											AddSellerToDatabase(db, WithUserId(2))
+											setup.Seller(aux.WithUserId(1))
+											setup.Seller(aux.WithUserId(2))
 
 											itemId, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
 											require.NoError(t, err, `Failed to add item: %v`, err)
@@ -68,8 +70,8 @@ func TestAddItem(t *testing.T) {
 	})
 
 	t.Run("Failure due to nonexistent seller", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		timestamp := models.NewTimestamp(0)
 		description := "description"
@@ -80,7 +82,7 @@ func TestAddItem(t *testing.T) {
 		donation := false
 		frozen := false
 
-		AddSellerToDatabase(db, WithUserId(2))
+		setup.Seller(aux.WithUserId(2))
 
 		_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
 		var noSuchUserError *queries.NoSuchUserError
@@ -92,8 +94,8 @@ func TestAddItem(t *testing.T) {
 	})
 
 	t.Run("Failure due to nonexistent category", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		timestamp := models.NewTimestamp(0)
 		description := "description"
@@ -104,7 +106,7 @@ func TestAddItem(t *testing.T) {
 		frozen := false
 		itemCategoryId := models.NewId(100)
 
-		AddSellerToDatabase(db, WithUserId(1))
+		setup.Seller(aux.WithUserId(1))
 
 		{
 			categoryExists, err := queries.CategoryWithIdExists(db, itemCategoryId)
@@ -126,20 +128,20 @@ func TestAddItem(t *testing.T) {
 	})
 
 	t.Run("Failure due to zero price", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		timestamp := models.NewTimestamp(0)
 		description := "description"
 		itemCategoryId := models.NewId(1)
 		charity := false
-		sellerId := AddSellerToDatabase(db).UserId
+		seller := setup.Seller()
 		donation := false
 		frozen := false
 		priceInCents := models.NewMoneyInCents(0)
 
 		{
-			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
+			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen)
 
 			var invalidPriceError *queries.InvalidPriceError
 			require.ErrorAs(t, error, &invalidPriceError)
@@ -153,20 +155,20 @@ func TestAddItem(t *testing.T) {
 	})
 
 	t.Run("Failure due to negative price", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		timestamp := models.NewTimestamp(0)
 		description := "description"
 		itemCategoryId := models.NewId(1)
 		charity := false
-		sellerId := AddSellerToDatabase(db).UserId
+		seller := setup.Seller()
 		donation := false
 		frozen := false
 		priceInCents := models.NewMoneyInCents(-100)
 
 		{
-			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
+			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen)
 			var invalidPriceError *queries.InvalidPriceError
 			require.ErrorAs(t, error, &invalidPriceError)
 		}
@@ -179,12 +181,12 @@ func TestAddItem(t *testing.T) {
 	})
 
 	t.Run("Failure due to cashier owner", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		timestamp := models.NewTimestamp(0)
 		description := "description"
-		sellerId := AddCashierToDatabase(db).UserId
+		invalidSeller := setup.Cashier()
 		priceInCents := models.NewMoneyInCents(100)
 		itemCategoryId := models.NewId(1)
 		charity := false
@@ -192,7 +194,7 @@ func TestAddItem(t *testing.T) {
 		frozen := false
 
 		{
-			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
+			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen)
 			var invalidRoleError *queries.InvalidRoleError
 			require.ErrorAs(t, error, &invalidRoleError)
 		}
@@ -205,12 +207,12 @@ func TestAddItem(t *testing.T) {
 	})
 
 	t.Run("Failure due to admin owner", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		timestamp := models.NewTimestamp(0)
 		description := "description"
-		sellerId := AddAdminToDatabase(db).UserId
+		invalidSeller := setup.Admin()
 		priceInCents := models.NewMoneyInCents(100)
 		itemCategoryId := models.NewId(1)
 		charity := false
@@ -218,7 +220,7 @@ func TestAddItem(t *testing.T) {
 		frozen := false
 
 		{
-			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
+			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen)
 			var invalidRoleError *queries.InvalidRoleError
 			require.ErrorAs(t, error, &invalidRoleError)
 		}

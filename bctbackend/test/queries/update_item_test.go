@@ -6,7 +6,8 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/defs"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
+	aux "bctbackend/test/helpers"
 	"fmt"
 	"testing"
 
@@ -45,21 +46,20 @@ func TestUpdateItem(t *testing.T) {
 									updateCategory,
 								)
 								t.Run(testLabel, func(t *testing.T) {
-									db := OpenInitializedDatabase()
-									defer db.Close()
+									setup, db := Setup()
+									defer setup.Close()
 
-									seller := AddSellerToDatabase(db)
+									seller := setup.Seller()
 
-									item := AddItemToDatabase(
-										db,
+									item := setup.Item(
 										seller.UserId,
-										WithAddedAt(oldAddedAt),
-										WithDescription(oldDescription),
-										WithPriceInCents(oldPriceInCents),
-										WithDonation(oldDonation),
-										WithCharity(oldCharity),
-										WithItemCategory(oldCategory),
-										WithFrozen(false),
+										aux.WithAddedAt(oldAddedAt),
+										aux.WithDescription(oldDescription),
+										aux.WithPriceInCents(oldPriceInCents),
+										aux.WithDonation(oldDonation),
+										aux.WithCharity(oldCharity),
+										aux.WithItemCategory(oldCategory),
+										aux.WithFrozen(false),
 									)
 
 									var itemUpdate queries.ItemUpdate
@@ -130,8 +130,8 @@ func TestUpdateItem(t *testing.T) {
 	})
 
 	t.Run("Failure due to nonexistent item", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		itemId := models.NewId(1)
 		itemUpdate := queries.ItemUpdate{}
@@ -143,15 +143,14 @@ func TestUpdateItem(t *testing.T) {
 	})
 
 	t.Run("Failure due to frozen item", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		seller := AddSellerToDatabase(db)
+		seller := setup.Seller()
 
-		item := AddItemToDatabase(
-			db,
+		item := setup.Item(
 			seller.UserId,
-			WithFrozen(true),
+			aux.WithFrozen(true),
 		)
 
 		itemUpdate := queries.ItemUpdate{}
@@ -163,15 +162,14 @@ func TestUpdateItem(t *testing.T) {
 	})
 
 	t.Run("Failure due to nil itemUpdate", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		seller := AddSellerToDatabase(db)
+		seller := setup.Seller()
 
-		item := AddItemToDatabase(
-			db,
+		item := setup.Item(
 			seller.UserId,
-			WithFrozen(false),
+			aux.WithFrozen(false),
 		)
 
 		err := queries.UpdateItem(db, item.ItemId, nil)
@@ -180,15 +178,14 @@ func TestUpdateItem(t *testing.T) {
 	})
 
 	t.Run("Failure due to invalid price", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		seller := AddSellerToDatabase(db)
+		seller := setup.Seller()
 
-		item := AddItemToDatabase(
-			db,
+		item := setup.Item(
 			seller.UserId,
-			WithFrozen(false),
+			aux.WithFrozen(false),
 		)
 
 		invalidPrice := models.MoneyInCents(-100)

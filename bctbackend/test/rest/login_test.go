@@ -7,12 +7,10 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/rest/path"
 	"bctbackend/security"
-	"bctbackend/test/setup"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
 	"bytes"
 	"encoding/json"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"testing"
 
@@ -20,11 +18,10 @@ import (
 )
 
 func TestSuccessfulSellerLogin(t *testing.T) {
-	db, router := setup.CreateRestRouter()
-	writer := httptest.NewRecorder()
-	defer db.Close()
+	setup, router, writer := SetupRestTest()
+	defer setup.Close()
 
-	seller := AddSellerToDatabase(db)
+	seller := setup.Seller()
 
 	form := url.Values{}
 	form.Add("username", models.IdToString(seller.UserId))
@@ -56,17 +53,16 @@ func TestSuccessfulSellerLogin(t *testing.T) {
 	}
 	require.True(t, found, "Expected session_id cookie to be set")
 
-	sessionData, err := queries.GetSessionById(db, sessionId)
+	sessionData, err := queries.GetSessionById(setup.Db, sessionId)
 	require.NoError(t, err)
 	require.Equal(t, seller.UserId, sessionData.UserId)
 }
 
 func TestSuccessfulAdminLogin(t *testing.T) {
-	db, router := setup.CreateRestRouter()
-	writer := httptest.NewRecorder()
-	defer db.Close()
+	setup, router, writer := SetupRestTest()
+	defer setup.Close()
 
-	admin := AddAdminToDatabase(db)
+	admin := setup.Admin()
 
 	form := url.Values{}
 	form.Add("username", models.IdToString(admin.UserId))
@@ -98,17 +94,16 @@ func TestSuccessfulAdminLogin(t *testing.T) {
 	}
 	require.True(t, found, "Expected session_id cookie to be set")
 
-	sessionData, err := queries.GetSessionById(db, sessionId)
+	sessionData, err := queries.GetSessionById(setup.Db, sessionId)
 	require.NoError(t, err)
 	require.Equal(t, admin.UserId, sessionData.UserId)
 }
 
 func TestSuccessfulCashierLogin(t *testing.T) {
-	db, router := setup.CreateRestRouter()
-	writer := httptest.NewRecorder()
-	defer db.Close()
+	setup, router, writer := SetupRestTest()
+	defer setup.Close()
 
-	cashier := AddCashierToDatabase(db)
+	cashier := setup.Cashier()
 
 	form := url.Values{}
 	form.Add("username", models.IdToString(cashier.UserId))
@@ -140,15 +135,14 @@ func TestSuccessfulCashierLogin(t *testing.T) {
 	}
 	require.True(t, found, "Expected session_id cookie to be set")
 
-	sessionData, err := queries.GetSessionById(db, sessionId)
+	sessionData, err := queries.GetSessionById(setup.Db, sessionId)
 	require.NoError(t, err)
 	require.Equal(t, cashier.UserId, sessionData.UserId)
 }
 
 func TestUnknownUserLogin(t *testing.T) {
-	db, router := setup.CreateRestRouter()
-	writer := httptest.NewRecorder()
-	defer db.Close()
+	setup, router, writer := SetupRestTest()
+	defer setup.Close()
 
 	userId := models.Id(0)
 	password := "xyz"
@@ -167,11 +161,10 @@ func TestUnknownUserLogin(t *testing.T) {
 }
 
 func TestWrongPasswordLogin(t *testing.T) {
-	db, router := setup.CreateRestRouter()
-	writer := httptest.NewRecorder()
-	defer db.Close()
+	setup, router, writer := SetupRestTest()
+	defer setup.Close()
 
-	seller := AddSellerToDatabase(db)
+	seller := setup.Seller()
 	userId := seller.UserId
 	password := "wrong password"
 

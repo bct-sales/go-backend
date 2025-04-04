@@ -4,14 +4,12 @@ package rest
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	models "bctbackend/database/models"
-	"bctbackend/database/queries"
-	"bctbackend/defs"
 	rest "bctbackend/rest/shared"
-	"bctbackend/test/setup"
+	. "bctbackend/test"
+	aux "bctbackend/test/helpers"
 
 	"github.com/stretchr/testify/require"
 )
@@ -28,6 +26,20 @@ type Item struct {
 	Frozen       bool                     `json:"frozen"`
 }
 
+func FromModel(item *models.Item) *Item {
+	return &Item{
+		ItemId:       item.ItemId,
+		AddedAt:      rest.FromTimestamp(item.AddedAt),
+		Description:  item.Description,
+		PriceInCents: item.PriceInCents,
+		CategoryId:   item.CategoryId,
+		SellerId:     item.SellerId,
+		Donation:     item.Donation,
+		Charity:      item.Charity,
+		Frozen:       item.Frozen,
+	}
+}
+
 type SuccessResponse struct {
 	Items []Item `json:"items"`
 }
@@ -40,111 +52,66 @@ type FailureResponse struct {
 func TestGetAllItems(t *testing.T) {
 	url := "/api/v1/items"
 	t.Run("Success with no items", func(t *testing.T) {
-		db, router := setup.CreateRestRouter()
-		writer := httptest.NewRecorder()
-		defer db.Close()
+		setup, router, writer := SetupRestTest()
+		defer setup.Close()
 
-		admin := setup.AddAdminToDatabase(db)
-		sessionId := setup.Session(db, admin.UserId)
+		_, sessionId := setup.LoggedIn(setup.Admin())
 
-		request := setup.CreateGetRequest(url)
-		request.AddCookie(setup.CreateCookie(sessionId))
+		request := CreateGetRequest(url)
+		request.AddCookie(CreateCookie(sessionId))
 
 		router.ServeHTTP(writer, request)
 		require.Equal(t, http.StatusOK, writer.Code)
 
 		expected := SuccessResponse{Items: []Item{}}
-		actual := setup.FromJson[SuccessResponse](writer.Body.String())
+		actual := FromJson[SuccessResponse](writer.Body.String())
 		require.Equal(t, expected, *actual)
 	})
 
 	t.Run("Success with one item", func(t *testing.T) {
-		db, router := setup.CreateRestRouter()
-		writer := httptest.NewRecorder()
-		defer db.Close()
+		setup, router, writer := SetupRestTest()
+		defer setup.Close()
 
-		adminId := setup.AddAdminToDatabase(db).UserId
-		sessionId := setup.Session(db, adminId)
+		_, sessionId := setup.LoggedIn(setup.Admin())
+		seller := setup.Seller()
 
-		sellerId := setup.AddSellerToDatabase(db).UserId
 		addedAtTimestamp := models.Timestamp(100)
-		item := Item{
-			ItemId:       0,
-			AddedAt:      rest.FromTimestamp(addedAtTimestamp),
-			Description:  "test item",
-			PriceInCents: 1000,
-			CategoryId:   defs.Shoes,
-			SellerId:     sellerId,
-			Donation:     false,
-			Charity:      false,
-			Frozen:       false,
-		}
-		itemId, err := queries.AddItem(db, models.Timestamp(addedAtTimestamp), item.Description, item.PriceInCents, item.CategoryId, item.SellerId, item.Donation, item.Charity, item.Frozen)
-		require.NoError(t, err)
+		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(addedAtTimestamp))
 
-		request := setup.CreateGetRequest(url)
-		request.AddCookie(setup.CreateCookie(sessionId))
+		request := CreateGetRequest(url)
+		request.AddCookie(CreateCookie(sessionId))
 
 		router.ServeHTTP(writer, request)
 		require.Equal(t, http.StatusOK, writer.Code)
 
-		item.ItemId = itemId
 		expected := SuccessResponse{
-			Items: []Item{item},
+			Items: []Item{*FromModel(item)},
 		}
-		actual := setup.FromJson[SuccessResponse](writer.Body.String())
+		actual := FromJson[SuccessResponse](writer.Body.String())
 		require.Equal(t, expected, *actual)
 	})
 
 	t.Run("Success with wo items", func(t *testing.T) {
-		db, router := setup.CreateRestRouter()
-		writer := httptest.NewRecorder()
-		defer db.Close()
+		setup, router, writer := SetupRestTest()
+		defer setup.Close()
 
-		adminId := setup.AddAdminToDatabase(db).UserId
-		sessionId := setup.Session(db, adminId)
-		sellerId := setup.AddSellerToDatabase(db).UserId
+		_, sessionId := setup.LoggedIn(setup.Admin())
+		seller := setup.Seller()
 		addedAtTimestamp := models.Timestamp(500)
-		item1 := Item{
-			ItemId:       0,
-			AddedAt:      rest.FromTimestamp(addedAtTimestamp),
-			Description:  "test item",
-			PriceInCents: 1000,
-			CategoryId:   defs.Shoes,
-			SellerId:     sellerId,
-			Donation:     false,
-			Charity:      false,
-			Frozen:       false}
-		item2 := Item{
-			ItemId:       0,
-			AddedAt:      rest.FromTimestamp(addedAtTimestamp),
-			Description:  "test item 2",
-			PriceInCents: 5000,
-			CategoryId:   defs.Clothing128_140,
-			SellerId:     sellerId,
-			Donation:     false,
-			Charity:      false,
-			Frozen:       true}
+		item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(addedAtTimestamp))
+		item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(addedAtTimestamp))
 
-		itemId1, err := queries.AddItem(db, addedAtTimestamp, item1.Description, item1.PriceInCents, item1.CategoryId, item1.SellerId, item1.Donation, item1.Charity, item1.Frozen)
-		require.NoError(t, err)
-
-		itemId2, err := queries.AddItem(db, addedAtTimestamp, item2.Description, item2.PriceInCents, item2.CategoryId, item2.SellerId, item2.Donation, item2.Charity, item2.Frozen)
-		require.NoError(t, err)
-
-		request := setup.CreateGetRequest(url)
-		request.AddCookie(setup.CreateCookie(sessionId))
+		request := CreateGetRequest(url)
+		request.AddCookie(CreateCookie(sessionId))
 
 		router.ServeHTTP(writer, request)
 
 		require.Equal(t, http.StatusOK, writer.Code)
 
-		item1.ItemId = itemId1
-		item2.ItemId = itemId2
 		expected := SuccessResponse{
-			Items: []Item{item1, item2},
+			Items: []Item{*FromModel(item1), *FromModel(item2)},
 		}
-		actual := setup.FromJson[SuccessResponse](writer.Body.String())
+		actual := FromJson[SuccessResponse](writer.Body.String())
 		require.Equal(t, expected, *actual)
 	})
 
@@ -157,19 +124,17 @@ func TestGetAllItems(t *testing.T) {
 			}
 
 			t.Run("As "+roleString, func(t *testing.T) {
-				db, router := setup.CreateRestRouter()
-				writer := httptest.NewRecorder()
-				defer db.Close()
+				setup, router, writer := SetupRestTest()
+				defer setup.Close()
 
-				userId := setup.AddUserToDatabase(db, roleId).UserId
-				sessionId := setup.Session(db, userId)
+				_, sessionId := setup.LoggedIn(setup.User(roleId))
 
-				request := setup.CreateGetRequest(url)
-				request.AddCookie(setup.CreateCookie(sessionId))
+				request := CreateGetRequest(url)
+				request.AddCookie(CreateCookie(sessionId))
 				router.ServeHTTP(writer, request)
 
 				require.Equal(t, http.StatusForbidden, writer.Code)
-				actual := setup.FromJson[FailureResponse](writer.Body.String())
+				actual := FromJson[FailureResponse](writer.Body.String())
 				require.Equal(t, "forbidden", actual.Type)
 			})
 		}

@@ -5,7 +5,8 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
+	aux "bctbackend/test/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,11 +15,11 @@ import (
 
 func TestGetMultiplySoldItems(t *testing.T) {
 	t.Run("No sales", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		sellerId := AddSellerToDatabase(db).UserId
-		AddItemToDatabase(db, sellerId, WithDummyData(1))
+		seller := setup.Seller()
+		setup.Item(seller.UserId, aux.WithDummyData(1))
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
 
@@ -27,17 +28,17 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("No multiply sold items", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		sellerId := AddSellerToDatabase(db).UserId
-		cashierId := AddCashierToDatabase(db).UserId
+		seller := setup.Seller()
+		cashier := setup.Cashier()
 
 		itemIds := []models.Id{
-			AddItemToDatabase(db, sellerId, WithDummyData(1)).ItemId,
+			setup.Item(seller.UserId, aux.WithDummyData(1)).ItemId,
 		}
 
-		AddSaleToDatabase(db, cashierId, []models.Id{itemIds[0]})
+		setup.Sale(cashier.UserId, []models.Id{itemIds[0]})
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
 
@@ -46,18 +47,18 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("Item sold twice", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		sellerId := AddSellerToDatabase(db).UserId
-		cashierId := AddCashierToDatabase(db).UserId
+		seller := setup.Seller()
+		cashier := setup.Cashier()
 
 		items := []*models.Item{
-			AddItemToDatabase(db, sellerId, WithDummyData(1)),
+			setup.Item(seller.UserId, aux.WithDummyData(1)),
 		}
 
-		sale1 := AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
-		sale2 := AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
+		sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemId})
+		sale2 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemId})
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
 
@@ -72,19 +73,19 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("Item sold thrice", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		sellerId := AddSellerToDatabase(db).UserId
-		cashierId := AddCashierToDatabase(db).UserId
+		seller := setup.Seller()
+		cashier := setup.Cashier()
 
 		items := []*models.Item{
-			AddItemToDatabase(db, sellerId, WithDummyData(1)),
+			setup.Item(seller.UserId, aux.WithDummyData(1)),
 		}
 
-		sale1 := AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
-		sale2 := AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
-		sale3 := AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
+		sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemId})
+		sale2 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemId})
+		sale3 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemId})
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
 
@@ -100,19 +101,19 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("Two items sold twice", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		sellerId := AddSellerToDatabase(db).UserId
-		cashierId := AddCashierToDatabase(db).UserId
+		seller := setup.Seller()
+		cashier := setup.Cashier()
 
 		items := []*models.Item{
-			AddItemToDatabase(db, sellerId, WithDummyData(1)),
-			AddItemToDatabase(db, sellerId, WithDummyData(2)),
+			setup.Item(seller.UserId, aux.WithDummyData(1)),
+			setup.Item(seller.UserId, aux.WithDummyData(2)),
 		}
 
-		sale1 := AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId, items[1].ItemId})
-		sale2 := AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId, items[1].ItemId})
+		sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemId, items[1].ItemId})
+		sale2 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemId, items[1].ItemId})
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
 
@@ -131,21 +132,21 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("Sales [1], [1, 2], [1, 2, 3]", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		sellerId := AddSellerToDatabase(db).UserId
-		cashierId := AddCashierToDatabase(db).UserId
+		seller := setup.Seller()
+		cashier := setup.Cashier()
 
 		items := []*models.Item{
-			AddItemToDatabase(db, sellerId, WithDummyData(1)),
-			AddItemToDatabase(db, sellerId, WithDummyData(2)),
-			AddItemToDatabase(db, sellerId, WithDummyData(3)),
+			setup.Item(seller.UserId, aux.WithDummyData(1)),
+			setup.Item(seller.UserId, aux.WithDummyData(2)),
+			setup.Item(seller.UserId, aux.WithDummyData(3)),
 		}
 
-		sale1 := AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId})
-		sale2 := AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId, items[1].ItemId})
-		sale3 := AddSaleToDatabase(db, cashierId, []models.Id{items[0].ItemId, items[1].ItemId, items[2].ItemId})
+		sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemId})
+		sale2 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemId, items[1].ItemId})
+		sale3 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemId, items[1].ItemId, items[2].ItemId})
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
 

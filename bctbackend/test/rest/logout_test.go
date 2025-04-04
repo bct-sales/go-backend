@@ -1,29 +1,26 @@
-//go:build setup
+//go:build test
 
 package rest
 
 import (
 	"bctbackend/rest"
 	"bctbackend/rest/path"
-	. "bctbackend/setup/setup"
+	. "bctbackend/test"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
-	"github.com/stretchr/setupify/require"
+	"github.com/stretchr/testify/require"
 )
 
 func setupLogout(t *testing.T) {
-	db, router := setup.CreateRestRouter()
-	writer := httptest.NewRecorder()
-	defer db.Close()
+	setup, router, writer := SetupRestTest()
+	defer setup.Close()
 
-	admin := AddAdminToDatabase(db)
-	sessionId := setup.AddSessionToDatabase(db, admin.UserId)
+	_, sessionId := setup.LoggedIn(setup.Admin())
 
 	url := path.Logout().String()
-	request := setup.CreatePostRequest(url, &rest.LogoutPayload{})
-	request.AddCookie(setup.CreateCookie(sessionId))
+	request := CreatePostRequest(url, &rest.LogoutPayload{})
+	request.AddCookie(CreateCookie(sessionId))
 
 	router.ServeHTTP(writer, request)
 	require.Equal(t, http.StatusOK, writer.Code)

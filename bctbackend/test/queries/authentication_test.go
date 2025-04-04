@@ -5,8 +5,9 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
 	"testing"
+
+	. "bctbackend/test"
 
 	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
@@ -14,8 +15,8 @@ import (
 
 func TestAuthentication(t *testing.T) {
 	t.Run("Successful authentication", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		password := "xyz"
 		userId := models.NewId(1)
@@ -31,8 +32,8 @@ func TestAuthentication(t *testing.T) {
 	})
 
 	t.Run("Authenticating non-existing user", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		password := "xyz"
 		userId := models.NewId(5)
@@ -51,8 +52,8 @@ func TestAuthentication(t *testing.T) {
 	})
 
 	t.Run("Authenticating using wrong password", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		password := "xyz"
 		wrongPassword := "abc"

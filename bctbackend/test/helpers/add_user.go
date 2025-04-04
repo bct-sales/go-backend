@@ -1,6 +1,6 @@
 //go:build test
 
-package setup
+package helpers
 
 import (
 	models "bctbackend/database/models"
@@ -90,16 +90,4 @@ func AddUserToDatabase(db *sql.DB, roleId models.Id, options ...func(*AddUserDat
 	}
 
 	return user
-}
-
-func AddSellerToDatabase(db *sql.DB, options ...func(*AddUserData)) *models.User {
-	return AddUserToDatabase(db, models.SellerRoleId, options...)
-}
-
-func AddCashierToDatabase(db *sql.DB, options ...func(*AddUserData)) *models.User {
-	return AddUserToDatabase(db, models.CashierRoleId, options...)
-}
-
-func AddAdminToDatabase(db *sql.DB, options ...func(*AddUserData)) *models.User {
-	return AddUserToDatabase(db, models.AdminRoleId, options...)
 }

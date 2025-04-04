@@ -5,7 +5,9 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
+	aux "bctbackend/test/helpers"
+
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,17 +16,17 @@ import (
 
 func TestAddSale(t *testing.T) {
 	for _, itemIndices := range [][]int{{0}, {1}, {2}, {3}, {0, 1}, {1, 2, 3}, {0, 1, 2, 3}} {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		sellerId := AddSellerToDatabase(db).UserId
-		cashierId := AddCashierToDatabase(db).UserId
+		seller := setup.Seller()
+		cashier := setup.Cashier()
 
 		itemIds := []models.Id{
-			AddItemToDatabase(db, sellerId, WithDummyData(1)).ItemId,
-			AddItemToDatabase(db, sellerId, WithDummyData(2)).ItemId,
-			AddItemToDatabase(db, sellerId, WithDummyData(3)).ItemId,
-			AddItemToDatabase(db, sellerId, WithDummyData(4)).ItemId,
+			setup.Item(seller.UserId, aux.WithDummyData(1)).ItemId,
+			setup.Item(seller.UserId, aux.WithDummyData(2)).ItemId,
+			setup.Item(seller.UserId, aux.WithDummyData(3)).ItemId,
+			setup.Item(seller.UserId, aux.WithDummyData(4)).ItemId,
 		}
 
 		saleItemIds := make([]models.Id, len(itemIndices))
@@ -34,7 +36,7 @@ func TestAddSale(t *testing.T) {
 
 		timestamp := models.NewTimestamp(0)
 
-		saleId, err := queries.AddSale(db, cashierId, timestamp, saleItemIds)
+		saleId, err := queries.AddSale(db, cashier.UserId, timestamp, saleItemIds)
 		require.NoError(t, err)
 
 		actualItems, err := queries.GetSaleItems(db, saleId)
@@ -52,37 +54,37 @@ func TestAddSale(t *testing.T) {
 }
 
 func TestAddSaleWithoutItems(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+	setup, db := Setup()
+	defer setup.Close()
 
-	cashierId := AddCashierToDatabase(db).UserId
+	cashier := setup.Cashier()
 	timestamp := models.NewTimestamp(0)
 
-	_, err := queries.AddSale(db, cashierId, timestamp, []models.Id{})
+	_, err := queries.AddSale(db, cashier.UserId, timestamp, []models.Id{})
 	require.Error(t, err)
 }
 
 func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+	setup, db := Setup()
+	defer setup.Close()
 
-	sellerId := AddSellerToDatabase(db).UserId
+	seller := setup.Seller()
 	timestamp := models.NewTimestamp(0)
-	itemId := AddItemToDatabase(db, sellerId, WithDummyData(1)).ItemId
+	itemId := setup.Item(seller.UserId, aux.WithDummyData(1)).ItemId
 
-	_, err := queries.AddSale(db, sellerId, timestamp, []models.Id{itemId})
+	_, err := queries.AddSale(db, seller.UserId, timestamp, []models.Id{itemId})
 	require.Error(t, err)
 }
 
 func TestAddSaleWithSameItemTwice(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+	setup, db := Setup()
+	defer setup.Close()
 
-	sellerId := AddSellerToDatabase(db).UserId
+	seller := setup.Seller()
 	timestamp := models.NewTimestamp(0)
-	item := AddItemToDatabase(db, sellerId, WithDummyData(1))
+	item := setup.Item(seller.UserId, aux.WithDummyData(1))
 
-	_, err := queries.AddSale(db, sellerId, timestamp, []models.Id{item.ItemId, item.ItemId})
+	_, err := queries.AddSale(db, seller.UserId, timestamp, []models.Id{item.ItemId, item.ItemId})
 	var duplicateItemError *queries.DuplicateItemInSaleError
 	require.ErrorAs(t, err, &duplicateItemError)
 }

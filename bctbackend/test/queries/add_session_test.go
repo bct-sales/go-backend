@@ -5,7 +5,7 @@ package queries
 import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,18 +14,18 @@ import (
 
 func TestAddSession(t *testing.T) {
 	for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		userId := AddUserToDatabase(db, roleId).UserId
+		user := setup.User(roleId)
 		expirationTime := models.Timestamp(0)
-		sessionId, err := queries.AddSession(db, userId, expirationTime)
+		sessionId, err := queries.AddSession(db, user.UserId, expirationTime)
 		require.NoError(t, err)
 
 		session, err := queries.GetSessionById(db, sessionId)
 		require.NoError(t, err)
 		require.Equal(t, sessionId, session.SessionId)
-		require.Equal(t, userId, session.UserId)
+		require.Equal(t, user.UserId, session.UserId)
 		require.Equal(t, expirationTime, session.ExpirationTime)
 	}
 }

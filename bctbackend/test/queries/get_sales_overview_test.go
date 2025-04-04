@@ -5,7 +5,8 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
+	aux "bctbackend/test/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -22,8 +23,8 @@ func createTotalMap(categories []*models.ItemCategory) map[models.Id]models.Mone
 
 func TestGetSalesOverview(t *testing.T) {
 	t.Run("Zero items", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		categories, err := queries.GetCategories(db)
 		require.NoError(t, err)
@@ -41,14 +42,14 @@ func TestGetSalesOverview(t *testing.T) {
 	})
 
 	t.Run("One item, zero sales", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		categories, err := queries.GetCategories(db)
 		require.NoError(t, err)
 
-		seller := AddSellerToDatabase(db)
-		AddItemToDatabase(db, seller.UserId, WithItemCategory(categories[0].CategoryId), WithDummyData(1))
+		seller := setup.Seller()
+		setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryId), aux.WithDummyData(1))
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -63,20 +64,20 @@ func TestGetSalesOverview(t *testing.T) {
 	})
 
 	t.Run("One sold item", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		categories, err := queries.GetCategories(db)
 		require.NoError(t, err)
 
 		totals := createTotalMap(categories)
 
-		seller := AddSellerToDatabase(db)
-		item := AddItemToDatabase(db, seller.UserId, WithItemCategory(categories[0].CategoryId), WithDummyData(1))
+		seller := setup.Seller()
+		item := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryId), aux.WithDummyData(1))
 		totals[item.CategoryId] += item.PriceInCents
 
-		cashier := AddCashierToDatabase(db)
-		AddSaleToDatabase(db, cashier.UserId, []models.Id{item.ItemId})
+		cashier := setup.Cashier()
+		setup.Sale(cashier.UserId, []models.Id{item.ItemId})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -91,22 +92,22 @@ func TestGetSalesOverview(t *testing.T) {
 	})
 
 	t.Run("Two sold same-category items in single sale", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		categories, err := queries.GetCategories(db)
 		require.NoError(t, err)
 
 		totals := createTotalMap(categories)
 
-		seller := AddSellerToDatabase(db)
-		item1 := AddItemToDatabase(db, seller.UserId, WithItemCategory(categories[0].CategoryId), WithDummyData(1))
-		item2 := AddItemToDatabase(db, seller.UserId, WithItemCategory(categories[0].CategoryId), WithDummyData(2))
+		seller := setup.Seller()
+		item1 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryId), aux.WithDummyData(1))
+		item2 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryId), aux.WithDummyData(2))
 		totals[item1.CategoryId] += item1.PriceInCents
 		totals[item2.CategoryId] += item2.PriceInCents
 
-		cashier := AddCashierToDatabase(db)
-		AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId, item2.ItemId})
+		cashier := setup.Cashier()
+		setup.Sale(cashier.UserId, []models.Id{item1.ItemId, item2.ItemId})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -121,22 +122,22 @@ func TestGetSalesOverview(t *testing.T) {
 	})
 
 	t.Run("Two sold different-category items in single sale", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		categories, err := queries.GetCategories(db)
 		require.NoError(t, err)
 
 		totals := createTotalMap(categories)
 
-		seller := AddSellerToDatabase(db)
-		item1 := AddItemToDatabase(db, seller.UserId, WithItemCategory(categories[0].CategoryId), WithDummyData(1))
-		item2 := AddItemToDatabase(db, seller.UserId, WithItemCategory(categories[0].CategoryId), WithDummyData(2))
+		seller := setup.Seller()
+		item1 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryId), aux.WithDummyData(1))
+		item2 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryId), aux.WithDummyData(2))
 		totals[item1.CategoryId] += item1.PriceInCents
 		totals[item2.CategoryId] += item2.PriceInCents
 
-		cashier := AddCashierToDatabase(db)
-		AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId, item2.ItemId})
+		cashier := setup.Cashier()
+		setup.Sale(cashier.UserId, []models.Id{item1.ItemId, item2.ItemId})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -151,23 +152,23 @@ func TestGetSalesOverview(t *testing.T) {
 	})
 
 	t.Run("Two sold same-category items in separate sales", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		categories, err := queries.GetCategories(db)
 		require.NoError(t, err)
 
 		totals := createTotalMap(categories)
 
-		seller := AddSellerToDatabase(db)
-		item1 := AddItemToDatabase(db, seller.UserId, WithItemCategory(categories[0].CategoryId), WithDummyData(1))
-		item2 := AddItemToDatabase(db, seller.UserId, WithItemCategory(categories[0].CategoryId), WithDummyData(2))
+		seller := setup.Seller()
+		item1 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryId), aux.WithDummyData(1))
+		item2 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryId), aux.WithDummyData(2))
 		totals[item1.CategoryId] += item1.PriceInCents
 		totals[item2.CategoryId] += item2.PriceInCents
 
-		cashier := AddCashierToDatabase(db)
-		AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId})
-		AddSaleToDatabase(db, cashier.UserId, []models.Id{item2.ItemId})
+		cashier := setup.Cashier()
+		setup.Sale(cashier.UserId, []models.Id{item1.ItemId})
+		setup.Sale(cashier.UserId, []models.Id{item2.ItemId})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -182,23 +183,23 @@ func TestGetSalesOverview(t *testing.T) {
 	})
 
 	t.Run("Two sold different-category items in separate sales", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		categories, err := queries.GetCategories(db)
 		require.NoError(t, err)
 
 		totals := createTotalMap(categories)
 
-		seller := AddSellerToDatabase(db)
-		item1 := AddItemToDatabase(db, seller.UserId, WithItemCategory(categories[0].CategoryId), WithDummyData(1))
-		item2 := AddItemToDatabase(db, seller.UserId, WithItemCategory(categories[1].CategoryId), WithDummyData(2))
+		seller := setup.Seller()
+		item1 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryId), aux.WithDummyData(1))
+		item2 := setup.Item(seller.UserId, aux.WithItemCategory(categories[1].CategoryId), aux.WithDummyData(2))
 		totals[item1.CategoryId] += item1.PriceInCents
 		totals[item2.CategoryId] += item2.PriceInCents
 
-		cashier := AddCashierToDatabase(db)
-		AddSaleToDatabase(db, cashier.UserId, []models.Id{item1.ItemId})
-		AddSaleToDatabase(db, cashier.UserId, []models.Id{item2.ItemId})
+		cashier := setup.Cashier()
+		setup.Sale(cashier.UserId, []models.Id{item1.ItemId})
+		setup.Sale(cashier.UserId, []models.Id{item2.ItemId})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)

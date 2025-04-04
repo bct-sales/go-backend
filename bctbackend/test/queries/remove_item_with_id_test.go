@@ -5,7 +5,8 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
+	aux "bctbackend/test/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,11 +14,11 @@ import (
 )
 
 func TestRemoveExistingItem(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+	setup, db := Setup()
+	defer setup.Close()
 
-	sellerId := AddSellerToDatabase(db).UserId
-	itemId := AddItemToDatabase(db, sellerId, WithDummyData(1)).ItemId
+	seller := setup.Seller()
+	itemId := setup.Item(seller.UserId, aux.WithDummyData(1)).ItemId
 
 	err := queries.RemoveItemWithId(db, itemId)
 
@@ -29,8 +30,8 @@ func TestRemoveExistingItem(t *testing.T) {
 }
 
 func TestRemoveNonexistingItem(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+	setup, db := Setup()
+	defer setup.Close()
 
 	itemId := models.NewId(1)
 
@@ -41,14 +42,14 @@ func TestRemoveNonexistingItem(t *testing.T) {
 }
 
 func TestRemoveSoldItem(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+	setup, db := Setup()
+	defer setup.Close()
 
-	sellerId := AddSellerToDatabase(db).UserId
-	cashierId := AddCashierToDatabase(db).UserId
-	itemId := AddItemToDatabase(db, sellerId, WithDummyData(1)).ItemId
+	seller := setup.Seller()
+	cashier := setup.Cashier()
+	itemId := setup.Item(seller.UserId, aux.WithDummyData(1)).ItemId
 
-	AddSaleToDatabase(db, cashierId, []models.Id{itemId})
+	setup.Sale(cashier.UserId, []models.Id{itemId})
 
 	err := queries.RemoveItemWithId(db, itemId)
 	require.Error(t, err)

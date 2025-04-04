@@ -5,7 +5,7 @@ package queries
 import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,12 +13,12 @@ import (
 )
 
 func TestDeleteSession(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+	setup, db := Setup()
+	defer setup.Close()
 
-	userId := AddUserToDatabase(db, models.AdminRoleId).UserId
+	user := setup.Admin()
 	expirationTime := models.Timestamp(0)
-	sessionId, err := queries.AddSession(db, userId, expirationTime)
+	sessionId, err := queries.AddSession(db, user.UserId, expirationTime)
 	require.NoError(t, err)
 
 	err = queries.DeleteSession(db, sessionId)

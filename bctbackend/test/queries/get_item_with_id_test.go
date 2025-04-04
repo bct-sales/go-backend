@@ -5,7 +5,8 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
+	aux "bctbackend/test/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,8 +15,8 @@ import (
 
 func TestGetItemWithId(t *testing.T) {
 	t.Run("Nonexisting item", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		itemId := models.NewId(1)
 		_, err := queries.GetItemWithId(db, itemId)
@@ -24,14 +25,14 @@ func TestGetItemWithId(t *testing.T) {
 	})
 
 	t.Run("Existing item", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		sellerId := AddSellerToDatabase(db).UserId
-		itemId := AddItemToDatabase(db, sellerId, WithDummyData(1)).ItemId
+		seller := setup.Seller()
+		item := setup.Item(seller.UserId, aux.WithDummyData(1))
 
-		item, err := queries.GetItemWithId(db, itemId)
+		actual, err := queries.GetItemWithId(db, item.ItemId)
 		require.NoError(t, err)
-		require.Equal(t, itemId, item.ItemId)
+		require.Equal(t, item, actual)
 	})
 }

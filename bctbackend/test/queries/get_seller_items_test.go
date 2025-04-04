@@ -5,7 +5,8 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
+	aux "bctbackend/test/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,68 +15,68 @@ import (
 
 func TestGetSellerItems(t *testing.T) {
 	t.Run("No items in database", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		sellerId := AddSellerToDatabase(db).UserId
+		seller := setup.Seller()
 
-		items, err := queries.GetSellerItems(db, sellerId)
+		items, err := queries.GetSellerItems(db, seller.UserId)
 		require.NoError(t, err)
 		require.Empty(t, items)
 	})
 
 	t.Run("Zero items associated with that seller", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		sellerWithoutItemsId := AddSellerToDatabase(db).UserId
-		sellerWithItemsId := AddSellerToDatabase(db).UserId
+		sellerWithoutItems := setup.Seller()
+		sellerWithItems := setup.Seller()
 
-		AddItemToDatabase(db, sellerWithItemsId, WithDummyData(0))
-		AddItemToDatabase(db, sellerWithItemsId, WithDummyData(1))
-		AddItemToDatabase(db, sellerWithItemsId, WithDummyData(2))
-		AddItemToDatabase(db, sellerWithItemsId, WithDummyData(3))
+		setup.Item(sellerWithItems.UserId, aux.WithDummyData(0))
+		setup.Item(sellerWithItems.UserId, aux.WithDummyData(1))
+		setup.Item(sellerWithItems.UserId, aux.WithDummyData(2))
+		setup.Item(sellerWithItems.UserId, aux.WithDummyData(3))
 
-		items, err := queries.GetSellerItems(db, sellerWithoutItemsId)
+		items, err := queries.GetSellerItems(db, sellerWithoutItems.UserId)
 		require.NoError(t, err)
 		require.Empty(t, items)
 	})
 
 	t.Run("Multiple items associated with seller, same timestamps", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		sellerId := AddSellerToDatabase(db).UserId
+		seller := setup.Seller()
 
-		item1 := AddItemToDatabase(db, sellerId, WithDummyData(0), WithAddedAt(models.NewTimestamp(0)))
-		item2 := AddItemToDatabase(db, sellerId, WithDummyData(1), WithAddedAt(models.NewTimestamp(0)))
-		item3 := AddItemToDatabase(db, sellerId, WithDummyData(2), WithAddedAt(models.NewTimestamp(0)))
-		item4 := AddItemToDatabase(db, sellerId, WithDummyData(3), WithAddedAt(models.NewTimestamp(0)))
+		item1 := setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithAddedAt(models.NewTimestamp(0)))
+		item2 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(models.NewTimestamp(0)))
+		item3 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(models.NewTimestamp(0)))
+		item4 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithAddedAt(models.NewTimestamp(0)))
 
-		items, err := queries.GetSellerItems(db, sellerId)
+		items, err := queries.GetSellerItems(db, seller.UserId)
 		require.NoError(t, err)
 		require.Equal(t, []*models.Item{item1, item2, item3, item4}, items)
 	})
 
 	t.Run("Multiple items associated with seller, different timestamps", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		sellerId := AddSellerToDatabase(db).UserId
+		seller := setup.Seller()
 
-		item1 := AddItemToDatabase(db, sellerId, WithDummyData(0), WithAddedAt(models.NewTimestamp(4)))
-		item2 := AddItemToDatabase(db, sellerId, WithDummyData(1), WithAddedAt(models.NewTimestamp(3)))
-		item3 := AddItemToDatabase(db, sellerId, WithDummyData(2), WithAddedAt(models.NewTimestamp(2)))
-		item4 := AddItemToDatabase(db, sellerId, WithDummyData(3), WithAddedAt(models.NewTimestamp(1)))
+		item1 := setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithAddedAt(models.NewTimestamp(4)))
+		item2 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(models.NewTimestamp(3)))
+		item3 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(models.NewTimestamp(2)))
+		item4 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithAddedAt(models.NewTimestamp(1)))
 
-		items, err := queries.GetSellerItems(db, sellerId)
+		items, err := queries.GetSellerItems(db, seller.UserId)
 		require.NoError(t, err)
 		require.Equal(t, []*models.Item{item4, item3, item2, item1}, items)
 	})
 
 	t.Run("Unknown seller", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		unknownSellerId := models.Id(9999)
 
@@ -91,23 +92,23 @@ func TestGetSellerItems(t *testing.T) {
 	})
 
 	t.Run("Wrong role: cashier", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		cashierId := AddCashierToDatabase(db).UserId
+		cashier := setup.Cashier()
 
-		_, err := queries.GetSellerItems(db, cashierId)
+		_, err := queries.GetSellerItems(db, cashier.UserId)
 		var invalidRoleError *queries.InvalidRoleError
 		require.ErrorAs(t, err, &invalidRoleError)
 	})
 
 	t.Run("Wrong role: admin", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		adminId := AddAdminToDatabase(db).UserId
+		admin := setup.Admin()
 
-		_, err := queries.GetSellerItems(db, adminId)
+		_, err := queries.GetSellerItems(db, admin.UserId)
 		var invalidRoleError *queries.InvalidRoleError
 		require.ErrorAs(t, err, &invalidRoleError)
 	})

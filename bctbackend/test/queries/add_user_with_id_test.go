@@ -5,9 +5,10 @@ package queries
 import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
 	"fmt"
 	"testing"
+
+	. "bctbackend/test"
 
 	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
@@ -19,8 +20,8 @@ func TestAddUserWithId(t *testing.T) {
 			for _, userId := range []models.Id{1, 5} {
 				for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
 					t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
-						db := OpenInitializedDatabase()
-						defer db.Close()
+						setup, db := Setup()
+						defer setup.Close()
 
 						err := queries.AddUserWithId(db, userId, roleId, 0, nil, password)
 						require.NoError(t, err)
@@ -39,8 +40,8 @@ func TestAddUserWithId(t *testing.T) {
 	})
 
 	t.Run("Fail due to existing user id", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		userId := models.NewId(1)
 		roleId := models.SellerRoleId
@@ -61,8 +62,8 @@ func TestAddUserWithId(t *testing.T) {
 	})
 
 	t.Run("Fail due to invalid role id", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		userId := models.NewId(1)
 		roleId := models.Id(10)

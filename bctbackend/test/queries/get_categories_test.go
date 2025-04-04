@@ -5,7 +5,7 @@ package queries
 import (
 	"bctbackend/database/queries"
 	"bctbackend/defs"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,8 +13,8 @@ import (
 )
 
 func TestGetCategories(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+	setup, db := Setup()
+	defer setup.Close()
 
 	categories, err := queries.GetCategories(db)
 

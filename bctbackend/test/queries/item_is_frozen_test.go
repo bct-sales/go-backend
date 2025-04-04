@@ -5,7 +5,8 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
+	aux "bctbackend/test/helpers"
 	"strconv"
 	"testing"
 
@@ -16,10 +17,11 @@ import (
 func TestItemIsFrozen(t *testing.T) {
 	for _, frozen := range []bool{true, false} {
 		t.Run("Frozen "+strconv.FormatBool(frozen), func(t *testing.T) {
-			db := OpenInitializedDatabase()
-			defer db.Close()
+			setup, db := Setup()
+			defer setup.Close()
 
-			item := AddItemToDatabase(db, AddSellerToDatabase(db).UserId, WithDummyData(1), WithFrozen(frozen))
+			seller := setup.Seller()
+			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(frozen))
 
 			actual, err := queries.ItemWithIdIsFrozen(db, item.ItemId)
 			require.NoError(t, err)
@@ -28,8 +30,8 @@ func TestItemIsFrozen(t *testing.T) {
 	}
 
 	t.Run("No such item", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		invalidId := models.Id(1)
 

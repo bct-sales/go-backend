@@ -5,7 +5,8 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
+	aux "bctbackend/test/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,19 +14,19 @@ import (
 )
 
 func TestGetSaleItems(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+	setup, db := Setup()
+	defer setup.Close()
 
-	sellerId := AddSellerToDatabase(db).UserId
-	cashierId := AddCashierToDatabase(db).UserId
+	seller := setup.Seller()
+	cashier := setup.Cashier()
 	itemIds := []models.Id{
-		AddItemToDatabase(db, sellerId, WithDummyData(1)).ItemId,
-		AddItemToDatabase(db, sellerId, WithDummyData(2)).ItemId,
-		AddItemToDatabase(db, sellerId, WithDummyData(3)).ItemId,
-		AddItemToDatabase(db, sellerId, WithDummyData(4)).ItemId,
+		setup.Item(seller.UserId, aux.WithDummyData(1)).ItemId,
+		setup.Item(seller.UserId, aux.WithDummyData(2)).ItemId,
+		setup.Item(seller.UserId, aux.WithDummyData(3)).ItemId,
+		setup.Item(seller.UserId, aux.WithDummyData(4)).ItemId,
 	}
 
-	saleId := AddSaleToDatabase(db, cashierId, itemIds)
+	saleId := setup.Sale(cashier.UserId, itemIds)
 
 	actualItems, err := queries.GetSaleItems(db, saleId)
 
@@ -43,8 +44,8 @@ func TestGetSaleItems(t *testing.T) {
 }
 
 func TestGetSaleItemsOfNonexistentSale(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+	setup, db := Setup()
+	defer setup.Close()
 
 	saleId := models.Id(1)
 

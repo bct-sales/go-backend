@@ -5,7 +5,7 @@ package queries
 import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,8 +13,8 @@ import (
 )
 
 func TestUpdatePassword(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+	setup, db := Setup()
+	defer setup.Close()
 
 	password1 := "xyz"
 	password2 := "abc"

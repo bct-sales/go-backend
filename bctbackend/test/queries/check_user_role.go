@@ -5,7 +5,8 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
+	aux "bctbackend/test/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -32,12 +33,12 @@ func TestCheckUserRole(t *testing.T) {
 			require.NoError(t, err)
 
 			t.Run(roleName, func(t *testing.T) {
-				db := OpenInitializedDatabase()
-				defer db.Close()
+				setup, db := Setup()
+				defer setup.Close()
 
-				AddCashierToDatabase(db, WithUserId(cashierId))
-				AddAdminToDatabase(db, WithUserId(sellerId))
-				AddSellerToDatabase(db, WithUserId(adminId))
+				setup.Cashier(aux.WithUserId(cashierId))
+				setup.Admin(aux.WithUserId(adminId))
+				setup.Seller(aux.WithUserId(sellerId))
 
 				err := queries.CheckUserRole(db, pair.UserId, pair.RoleId)
 				require.NoError(t, err)
@@ -62,12 +63,12 @@ func TestCheckUserRole(t *testing.T) {
 			require.NoError(t, err)
 
 			t.Run(roleName, func(t *testing.T) {
-				db := OpenInitializedDatabase()
-				defer db.Close()
+				setup, db := Setup()
+				defer setup.Close()
 
-				AddCashierToDatabase(db, WithUserId(cashierId))
-				AddAdminToDatabase(db, WithUserId(sellerId))
-				AddSellerToDatabase(db, WithUserId(adminId))
+				setup.Cashier(aux.WithUserId(cashierId))
+				setup.Admin(aux.WithUserId(adminId))
+				setup.Seller(aux.WithUserId(sellerId))
 
 				err := queries.CheckUserRole(db, pair.UserId, pair.RoleId)
 				var invalidRoleError *queries.InvalidRoleError
@@ -77,8 +78,8 @@ func TestCheckUserRole(t *testing.T) {
 	})
 
 	t.Run("Check non-existing user", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		invalidId := models.Id(9999)
 

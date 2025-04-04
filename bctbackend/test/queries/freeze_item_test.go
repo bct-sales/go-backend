@@ -4,7 +4,8 @@ package queries
 
 import (
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
+	aux "bctbackend/test/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,11 +14,11 @@ import (
 
 func TestFreezeItem(t *testing.T) {
 	t.Run("Successful freezing", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
-		seller := AddSellerToDatabase(db)
-		item := AddItemToDatabase(db, seller.UserId, WithDummyData(1), WithFrozen(false))
+		seller := setup.Seller()
+		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(false))
 
 		{
 			isFrozen, err := queries.ItemWithIdIsFrozen(db, item.ItemId)

@@ -1,6 +1,6 @@
 //go:build test
 
-package setup
+package helpers
 
 import (
 	database "bctbackend/database"

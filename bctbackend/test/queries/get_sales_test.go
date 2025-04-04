@@ -5,7 +5,8 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
+	aux "bctbackend/test/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,22 +14,22 @@ import (
 )
 
 func TestGetSales(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+	setup, db := Setup()
+	defer setup.Close()
 
-	sellerId := AddSellerToDatabase(db).UserId
-	cashierId := AddCashierToDatabase(db).UserId
+	seller := setup.Seller()
+	cashier := setup.Cashier()
 
 	itemIds := []models.Id{
-		AddItemToDatabase(db, sellerId, WithDummyData(1)).ItemId,
-		AddItemToDatabase(db, sellerId, WithDummyData(2)).ItemId,
-		AddItemToDatabase(db, sellerId, WithDummyData(3)).ItemId,
-		AddItemToDatabase(db, sellerId, WithDummyData(4)).ItemId,
+		setup.Item(seller.UserId, aux.WithDummyData(1)).ItemId,
+		setup.Item(seller.UserId, aux.WithDummyData(2)).ItemId,
+		setup.Item(seller.UserId, aux.WithDummyData(3)).ItemId,
+		setup.Item(seller.UserId, aux.WithDummyData(4)).ItemId,
 	}
 
 	saleIds := make([]models.Id, len(itemIds))
 	for _, itemId := range itemIds {
-		AddSaleToDatabase(db, cashierId, []models.Id{itemId})
+		setup.Sale(cashier.UserId, []models.Id{itemId})
 	}
 
 	actualSales := []*models.SaleSummary{}
@@ -37,7 +38,7 @@ func TestGetSales(t *testing.T) {
 	require.Len(t, actualSales, len(saleIds))
 
 	for _, actualSale := range actualSales {
-		require.Equal(t, cashierId, actualSale.CashierId)
+		require.Equal(t, cashier.UserId, actualSale.CashierId)
 
 		saleItems, err := queries.GetSaleItems(db, actualSale.SaleId)
 		require.NoError(t, err)

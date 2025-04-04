@@ -1,0 +1,164 @@
+//go:build test
+
+package rest
+
+import (
+	"net/http"
+	"testing"
+
+	"bctbackend/database/models"
+	"bctbackend/database/queries"
+	rest_api "bctbackend/rest/cashier"
+	. "bctbackend/test"
+	aux "bctbackend/test/helpers"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestAddSaleItem(t *testing.T) {
+	url := "/api/v1/sales"
+
+	t.Run("Success", func(t *testing.T) {
+		setup, router, writer := SetupRestTest()
+		defer setup.Close()
+
+		seller := setup.Seller()
+		cashier, sessionId := setup.LoggedIn(setup.Cashier())
+		item := setup.Item(seller.UserId, aux.WithDummyData(1))
+
+		payload := rest_api.AddSalePayload{
+			Items: []models.Id{item.ItemId},
+		}
+		request := CreatePostRequest(url, &payload)
+
+		request.AddCookie(CreateCookie(sessionId))
+		router.ServeHTTP(writer, request)
+		require.Equal(t, http.StatusCreated, writer.Code)
+
+		response := FromJson[rest_api.AddSaleSuccessResponse](writer.Body.String())
+
+		sale, err := queries.GetSaleWithId(setup.Db, response.SaleId)
+		require.NoError(t, err)
+		require.Equal(t, cashier.UserId, sale.CashierId)
+
+		saleItems, err := queries.GetSaleItems(setup.Db, sale.SaleId)
+		require.NoError(t, err)
+		require.Len(t, saleItems, 1)
+		require.Equal(t, item.ItemId, saleItems[0].ItemId)
+	})
+
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("As seller", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+
+			seller, sessionId := setup.LoggedIn(setup.Seller())
+			item := setup.Item(seller.UserId, aux.WithDummyData(1))
+
+			payload := rest_api.AddSalePayload{
+				Items: []models.Id{item.ItemId},
+			}
+			request := CreatePostRequest(url, &payload)
+
+			request.AddCookie(CreateCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusForbidden, writer.Code)
+
+			sales := []*models.SaleSummary{}
+			err := queries.GetSales(setup.Db, queries.CollectTo(&sales))
+			require.NoError(t, err)
+			require.Empty(t, sales)
+		})
+
+		t.Run("As admin", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+
+			_, sessionId := setup.LoggedIn(setup.Admin())
+			seller := setup.Seller()
+			item := setup.Item(seller.UserId, aux.WithDummyData(1))
+			payload := rest_api.AddSalePayload{
+				Items: []models.Id{item.ItemId},
+			}
+			request := CreatePostRequest(url, &payload)
+
+			request.AddCookie(CreateCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusForbidden, writer.Code)
+
+			sales := []*models.SaleSummary{}
+			err := queries.GetSales(setup.Db, queries.CollectTo(&sales))
+			require.NoError(t, err)
+			require.Empty(t, sales)
+		})
+
+		t.Run("No items", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+
+			_, sessionId := setup.LoggedIn(setup.Cashier())
+			payload := rest_api.AddSalePayload{
+				Items: []models.Id{},
+			}
+			request := CreatePostRequest(url, &payload)
+
+			request.AddCookie(CreateCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusBadRequest, writer.Code)
+
+			sales := []*models.SaleSummary{}
+			err := queries.GetSales(setup.Db, queries.CollectTo(&sales))
+			require.NoError(t, err)
+			require.Empty(t, sales)
+		})
+
+		t.Run("Nonexistent item", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+
+			_, sessionId := setup.LoggedIn(setup.Cashier())
+			nonexistentItemId := models.Id(1000)
+
+			itemExists, err := queries.ItemWithIdExists(setup.Db, nonexistentItemId)
+			require.NoError(t, err)
+			require.False(t, itemExists)
+
+			payload := rest_api.AddSalePayload{
+				Items: []models.Id{},
+			}
+			request := CreatePostRequest(url, &payload)
+
+			request.AddCookie(CreateCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusBadRequest, writer.Code)
+
+			sales := []*models.SaleSummary{}
+			err = queries.GetSales(setup.Db, queries.CollectTo(&sales))
+			require.NoError(t, err)
+			require.Empty(t, sales)
+		})
+
+		t.Run("Duplicate item", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+
+			_, sessionId := setup.LoggedIn(setup.Cashier())
+			seller := setup.Seller()
+			item := setup.Item(seller.UserId, aux.WithDummyData(1))
+
+			payload := rest_api.AddSalePayload{
+				Items: []models.Id{item.ItemId, item.ItemId},
+			}
+			request := CreatePostRequest(url, &payload)
+
+			request.AddCookie(CreateCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusBadRequest, writer.Code)
+
+			sales := []*models.SaleSummary{}
+			err := queries.GetSales(setup.Db, queries.CollectTo(&sales))
+			require.NoError(t, err)
+			require.Empty(t, sales)
+		})
+	})
+}

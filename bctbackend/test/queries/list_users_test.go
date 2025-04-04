@@ -5,7 +5,7 @@ package queries
 import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,8 +14,8 @@ import (
 
 func TestGetUsers(t *testing.T) {
 	t.Run("Single user", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		password := "xyz"
 		userId := models.NewId(1)
@@ -38,8 +38,8 @@ func TestGetUsers(t *testing.T) {
 	})
 
 	t.Run("Two users", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		user1 := models.User{
 			UserId:       models.NewId(1),

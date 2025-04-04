@@ -5,7 +5,8 @@ package queries
 import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
+	aux "bctbackend/test/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,8 +14,8 @@ import (
 )
 
 func TestGetUser(t *testing.T) {
-	db := OpenInitializedDatabase()
-	defer db.Close()
+	setup, db := Setup()
+	defer setup.Close()
 
 	lastActivity := models.Timestamp(2)
 	user := models.User{
@@ -25,7 +26,7 @@ func TestGetUser(t *testing.T) {
 		LastActivity: &lastActivity,
 	}
 
-	user.UserId = AddUserToDatabase(db, user.RoleId, WithCreatedAt(user.CreatedAt), WithLastActivity(*user.LastActivity), WithPassword(user.Password)).UserId
+	user.UserId = setup.User(user.RoleId, aux.WithCreatedAt(user.CreatedAt), aux.WithLastActivity(*user.LastActivity), aux.WithPassword(user.Password)).UserId
 
 	actual, err := queries.GetUserWithId(db, user.UserId)
 	require.NoError(t, err)

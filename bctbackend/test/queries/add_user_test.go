@@ -5,7 +5,7 @@ package queries
 import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
-	. "bctbackend/test/setup"
+	. "bctbackend/test"
 	"fmt"
 	"testing"
 
@@ -18,8 +18,8 @@ func TestAddUser(t *testing.T) {
 		for _, password := range []string{"a", "xyz"} {
 			for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
 				t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
-					db := OpenInitializedDatabase()
-					defer db.Close()
+					setup, db := Setup()
+					defer setup.Close()
 
 					userId, err := queries.AddUser(db, roleId, 0, nil, password)
 					require.NoError(t, err)
@@ -33,8 +33,8 @@ func TestAddUser(t *testing.T) {
 	})
 
 	t.Run("Fail due to invalid role", func(t *testing.T) {
-		db := OpenInitializedDatabase()
-		defer db.Close()
+		setup, db := Setup()
+		defer setup.Close()
 
 		roleId := models.Id(10)
 		password := "xyz"
