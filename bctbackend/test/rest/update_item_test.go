@@ -44,6 +44,34 @@ func TestUpdateItem(t *testing.T) {
 		require.Equal(t, expectedItem, *actualItem)
 	})
 
+	t.Run("Successfully updating as admin", func(t *testing.T) {
+		setup, router, writer := SetupRestTest()
+		defer setup.Close()
+
+		seller := setup.Seller()
+		_, sessionId := setup.LoggedIn(setup.Admin())
+		originalDescription := "old description"
+		newDescription := "new description"
+		originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithDescription(originalDescription))
+
+		url := path.Items().Id(originalItem.ItemId)
+		payload := struct {
+			Description string `json:"description"`
+		}{
+			Description: newDescription,
+		}
+		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+		router.ServeHTTP(writer, request)
+		require.Equal(t, http.StatusNoContent, writer.Code)
+
+		actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+		require.NoError(t, err)
+
+		expectedItem := *originalItem
+		expectedItem.Description = newDescription
+		require.Equal(t, expectedItem, *actualItem)
+	})
+
 	t.Run("Successfully updating price", func(t *testing.T) {
 		setup, router, writer := SetupRestTest()
 		defer setup.Close()
