@@ -55,3 +55,8 @@ func InvalidPrice(context *gin.Context, message string) {
 	response := &FailureResponse{Type: "invalid_price", Details: message}
 	context.JSON(http.StatusBadRequest, response)
 }
+
+func Unauthorized(context *gin.Context, message string) {
+	response := &FailureResponse{Type: "unauthorized", Details: message}
+	context.JSON(http.StatusUnauthorized, response)
+}
