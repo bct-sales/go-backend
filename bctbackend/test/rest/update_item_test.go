@@ -216,4 +216,29 @@ func TestUpdateItem(t *testing.T) {
 		expectedItem := *originalItem
 		require.Equal(t, expectedItem, *actualItem)
 	})
+
+	t.Run("Failing due to updating as cashier", func(t *testing.T) {
+		setup, router, writer := SetupRestTest()
+		defer setup.Close()
+
+		ownerSeller := setup.Seller()
+		_, sessionId := setup.LoggedIn(setup.Cashier())
+		originalItem := setup.Item(ownerSeller.UserId, aux.WithDummyData(1), aux.WithFrozen(true))
+
+		url := path.Items().Id(originalItem.ItemId)
+		payload := struct {
+			PriceInCents int `json:"priceInCents"`
+		}{
+			PriceInCents: 100,
+		}
+		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+		router.ServeHTTP(writer, request)
+		require.Equal(t, http.StatusUnauthorized, writer.Code)
+
+		actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+		require.NoError(t, err)
+
+		expectedItem := *originalItem
+		require.Equal(t, expectedItem, *actualItem)
+	})
 }
