@@ -31,7 +31,8 @@ type UpdateItemSuccessResponse struct {
 // @Accept json
 // @Produce json
 // @Success 204 {object} UpdateItemSuccessResponse "Items successfully updated"
-// @Failure 401 {object} failure_response.FailureResponse "Invalid item id or invalid"
+// @Failure 400 {object} failure_response.FailureResponse "Invalid item id or invalid request body"
+// @Failure 401 {object} failure_response.FailureResponse "User has no permission to update item"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to update item"
 // @Router /items/{id} [put]
 func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
@@ -61,7 +62,7 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 	}
 
 	if !(roleId == models.AdminRoleId || (roleId == models.SellerRoleId && item.SellerId == userId)) {
-		failure_response.Forbidden(context, "Only the owner of the item or an admin can update it")
+		failure_response.Unauthorized(context, "Only the owner of the item or an admin can update it")
 		return
 	}
 
