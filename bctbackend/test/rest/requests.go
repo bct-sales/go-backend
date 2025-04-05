@@ -30,6 +30,19 @@ func CreatePostRequest[T any](url string, payload *T) *http.Request {
 	return request
 }
 
+func CreatePutRequest[T any](url string, payload *T) *http.Request {
+	payloadJson := ToJson(payload)
+	request, err := http.NewRequest("PUT", url, strings.NewReader(payloadJson))
+
+	if err != nil {
+		panic(err)
+	}
+
+	request.Header.Set("Content-Type", "application/json")
+
+	return request
+}
+
 func CreateCookie(sessionId string) *http.Cookie {
 	return &http.Cookie{
 		Name:     security.SessionCookieName,
