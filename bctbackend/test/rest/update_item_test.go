@@ -70,4 +70,33 @@ func TestUpdateItem(t *testing.T) {
 		expectedItem.PriceInCents = models.MoneyInCents(newPrice)
 		require.Equal(t, expectedItem, *actualItem)
 	})
+
+	t.Run("Successfully updating charity and donation", func(t *testing.T) {
+		setup, router, writer := SetupRestTest()
+		defer setup.Close()
+
+		seller, sessionId := setup.LoggedIn(setup.Seller())
+		originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithCharity(false), aux.WithDonation(false))
+
+		url := path.Items().Id(originalItem.ItemId)
+		value := true
+		payload := struct {
+			Donation *bool `json:"donation"`
+			Charity  *bool `json:"charity"`
+		}{
+			Donation: &value,
+			Charity:  &value,
+		}
+		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+		router.ServeHTTP(writer, request)
+		require.Equal(t, http.StatusNoContent, writer.Code)
+
+		actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+		require.NoError(t, err)
+
+		expectedItem := *originalItem
+		expectedItem.Donation = true
+		expectedItem.Charity = true
+		require.Equal(t, expectedItem, *actualItem)
+	})
 }
