@@ -79,13 +79,12 @@ func TestUpdateItem(t *testing.T) {
 		originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithCharity(false), aux.WithDonation(false))
 
 		url := path.Items().Id(originalItem.ItemId)
-		value := true
 		payload := struct {
-			Donation *bool `json:"donation"`
-			Charity  *bool `json:"charity"`
+			Donation bool `json:"donation"`
+			Charity  bool `json:"charity"`
 		}{
-			Donation: &value,
-			Charity:  &value,
+			Donation: true,
+			Charity:  true,
 		}
 		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
 		router.ServeHTTP(writer, request)
@@ -97,6 +96,30 @@ func TestUpdateItem(t *testing.T) {
 		expectedItem := *originalItem
 		expectedItem.Donation = true
 		expectedItem.Charity = true
+		require.Equal(t, expectedItem, *actualItem)
+	})
+
+	t.Run("Failing to update frozen item", func(t *testing.T) {
+		setup, router, writer := SetupRestTest()
+		defer setup.Close()
+
+		seller, sessionId := setup.LoggedIn(setup.Seller())
+		originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(true))
+
+		url := path.Items().Id(originalItem.ItemId)
+		payload := struct {
+			Description string `json:"description"`
+		}{
+			Description: "updated",
+		}
+		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+		router.ServeHTTP(writer, request)
+		require.Equal(t, http.StatusForbidden, writer.Code)
+
+		actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+		require.NoError(t, err)
+
+		expectedItem := *originalItem
 		require.Equal(t, expectedItem, *actualItem)
 	})
 }
