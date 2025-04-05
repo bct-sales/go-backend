@@ -41,8 +41,7 @@ func TestAddSellerItem(t *testing.T) {
 										Donation:    &donation,
 										Charity:     &charity,
 									}
-									request := CreatePostRequest(url, &payload)
-									request.AddCookie(CreateCookie(sessionId))
+									request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 									router.ServeHTTP(writer, request)
 
 									require.Equal(t, http.StatusCreated, writer.Code)
@@ -92,9 +91,7 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload)
-
-			request.AddCookie(CreateCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
@@ -124,9 +121,7 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload)
-
-			request.AddCookie(CreateCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
@@ -158,9 +153,7 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload)
-
-			request.AddCookie(CreateCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
@@ -193,9 +186,7 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload)
-
-			request.AddCookie(CreateCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
@@ -227,9 +218,7 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload)
-
-			request.AddCookie(CreateCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
@@ -261,10 +250,8 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload)
-			request.AddCookie(CreateCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
-
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
 			itemsInDatabase := []*models.Item{}
@@ -296,8 +283,7 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload)
-			request.AddCookie(CreateCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
 			require.Equal(t, http.StatusForbidden, writer.Code)
@@ -335,8 +321,7 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload)
-			request.AddCookie(CreateCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
 			require.Equal(t, http.StatusForbidden, writer.Code)

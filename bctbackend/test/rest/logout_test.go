@@ -19,9 +19,7 @@ func setupLogout(t *testing.T) {
 	_, sessionId := setup.LoggedIn(setup.Admin())
 
 	url := path.Logout().String()
-	request := CreatePostRequest(url, &rest.LogoutPayload{})
-	request.AddCookie(CreateCookie(sessionId))
-
+	request := CreatePostRequest(url, &rest.LogoutPayload{}, WithCookie(sessionId))
 	router.ServeHTTP(writer, request)
 	require.Equal(t, http.StatusOK, writer.Code)
 }

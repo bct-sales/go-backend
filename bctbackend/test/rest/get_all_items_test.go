@@ -57,9 +57,7 @@ func TestGetAllItems(t *testing.T) {
 
 		_, sessionId := setup.LoggedIn(setup.Admin())
 
-		request := CreateGetRequest(url)
-		request.AddCookie(CreateCookie(sessionId))
-
+		request := CreateGetRequest(url, WithCookie(sessionId))
 		router.ServeHTTP(writer, request)
 		require.Equal(t, http.StatusOK, writer.Code)
 
@@ -78,9 +76,7 @@ func TestGetAllItems(t *testing.T) {
 		addedAtTimestamp := models.Timestamp(100)
 		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(addedAtTimestamp))
 
-		request := CreateGetRequest(url)
-		request.AddCookie(CreateCookie(sessionId))
-
+		request := CreateGetRequest(url, WithCookie(sessionId))
 		router.ServeHTTP(writer, request)
 		require.Equal(t, http.StatusOK, writer.Code)
 
@@ -101,9 +97,7 @@ func TestGetAllItems(t *testing.T) {
 		item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(addedAtTimestamp))
 		item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(addedAtTimestamp))
 
-		request := CreateGetRequest(url)
-		request.AddCookie(CreateCookie(sessionId))
-
+		request := CreateGetRequest(url, WithCookie(sessionId))
 		router.ServeHTTP(writer, request)
 
 		require.Equal(t, http.StatusOK, writer.Code)
@@ -129,8 +123,7 @@ func TestGetAllItems(t *testing.T) {
 
 				_, sessionId := setup.LoggedIn(setup.User(roleId))
 
-				request := CreateGetRequest(url)
-				request.AddCookie(CreateCookie(sessionId))
+				request := CreateGetRequest(url, WithCookie(sessionId))
 				router.ServeHTTP(writer, request)
 
 				require.Equal(t, http.StatusForbidden, writer.Code)

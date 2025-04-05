@@ -29,9 +29,7 @@ func TestListSellerItems(t *testing.T) {
 			}
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
-			request := CreateGetRequest(url)
-
-			request.AddCookie(CreateCookie(sessionId))
+			request := CreateGetRequest(url, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 

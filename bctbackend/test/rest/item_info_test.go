@@ -35,9 +35,7 @@ func TestGetItemInformation(t *testing.T) {
 			}
 
 			url := path.SalesItems().WithItemId(item.ItemId)
-			request := CreateGetRequest(url)
-
-			request.AddCookie(CreateCookie(sessionId))
+			request := CreateGetRequest(url, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
@@ -58,9 +56,7 @@ func TestGetItemInformationWithInvalidId(t *testing.T) {
 	_, sessionId := setup.LoggedIn(setup.Cashier())
 
 	url := path.SalesItems().WithRawItemId("abc")
-	request := CreateGetRequest(url)
-
-	request.AddCookie(CreateCookie(sessionId))
+	request := CreateGetRequest(url, WithCookie(sessionId))
 	router.ServeHTTP(writer, request)
 	require.Equal(t, http.StatusBadRequest, writer.Code)
 }
@@ -73,9 +69,7 @@ func TestGetItemInformationAsSeller(t *testing.T) {
 	item := setup.Item(seller.UserId, aux.WithDummyData(1))
 
 	url := path.SalesItems().WithItemId(item.ItemId)
-	request := CreateGetRequest(url)
-
-	request.AddCookie(CreateCookie(sessionId))
+	request := CreateGetRequest(url, WithCookie(sessionId))
 	router.ServeHTTP(writer, request)
 	require.Equal(t, http.StatusForbidden, writer.Code)
 }
@@ -89,9 +83,7 @@ func TestGetItemInformationAsAdmin(t *testing.T) {
 	item := setup.Item(seller.UserId, aux.WithDummyData(1))
 
 	url := path.SalesItems().WithItemId(item.ItemId)
-	request := CreateGetRequest(url)
-
-	request.AddCookie(CreateCookie(sessionId))
+	request := CreateGetRequest(url, WithCookie(sessionId))
 	router.ServeHTTP(writer, request)
 	require.Equal(t, http.StatusForbidden, writer.Code)
 }
@@ -113,11 +105,7 @@ func TestGetItemInformationWithNonexistentItem(t *testing.T) {
 
 	// Attempt to get information for nonexistent item
 	url := path.SalesItems().WithItemId(nonexistentItem)
-	request := CreateGetRequest(url)
-
-	// Act as cashier
-
-	request.AddCookie(CreateCookie(sessionId))
+	request := CreateGetRequest(url, WithCookie(sessionId))
 
 	// Send request
 	router.ServeHTTP(writer, request)

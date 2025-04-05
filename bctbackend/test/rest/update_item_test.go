@@ -31,8 +31,7 @@ func TestUpdateItem(t *testing.T) {
 		}{
 			Description: newDescription,
 		}
-		request := CreatePutRequest(url, &payload)
-		request.AddCookie(CreateCookie(sessionId))
+		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
 		router.ServeHTTP(writer, request)
 		require.Equal(t, http.StatusNoContent, writer.Code)
 

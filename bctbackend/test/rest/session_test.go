@@ -17,9 +17,7 @@ func TestSessionExpiration(t *testing.T) {
 	_, sessionId := setup.LoggedIn(setup.Admin(), aux.WithExpiration(-1))
 
 	url := path.Items().String()
-	request := CreateGetRequest(url)
-	request.AddCookie(CreateCookie(sessionId))
-
+	request := CreateGetRequest(url, WithCookie(sessionId))
 	router.ServeHTTP(writer, request)
 	RequireFailureType(t, writer, http.StatusUnauthorized, "session_not_found")
 }
