@@ -1,0 +1,46 @@
+//go:build test
+
+package rest
+
+import (
+	"net/http"
+	"testing"
+
+	"bctbackend/rest/path"
+	. "bctbackend/test"
+
+	"bctbackend/database/queries"
+	aux "bctbackend/test/helpers"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestUpdateItem(t *testing.T) {
+	t.Run("Successfully updating description", func(t *testing.T) {
+		setup, router, writer := SetupRestTest()
+		defer setup.Close()
+
+		seller, sessionId := setup.LoggedIn(setup.Seller())
+		originalDescription := "old description"
+		newDescription := "new description"
+		originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithDescription(originalDescription))
+
+		url := path.Items().Id(originalItem.ItemId)
+		payload := struct {
+			Description string `json:"description"`
+		}{
+			Description: newDescription,
+		}
+		request := CreatePutRequest(url, &payload)
+		request.AddCookie(CreateCookie(sessionId))
+		router.ServeHTTP(writer, request)
+		require.Equal(t, http.StatusNoContent, writer.Code)
+
+		actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+		require.NoError(t, err)
+
+		expectedItem := *originalItem
+		expectedItem.Description = newDescription
+		require.Equal(t, expectedItem, *actualItem)
+	})
+}
