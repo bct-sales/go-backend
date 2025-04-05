@@ -31,6 +31,7 @@ type UpdateItemSuccessResponse struct {
 // @Accept json
 // @Produce json
 // @Success 204 {object} UpdateItemSuccessResponse "Items successfully updated"
+// @Failure 401 {object} failure_response.FailureResponse "Invalid item id or invalid"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to update item"
 // @Router /items/{id} [put]
 func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
@@ -88,14 +89,14 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 		{
 			var itemFrozenError *queries.ItemFrozenError
 			if errors.As(err, &itemFrozenError) {
-				failure_response.Forbidden(context, err.Error())
+				failure_response.CannotUpdateFrozenItem(context, err.Error())
 				return
 			}
 		}
 		{
 			var invalidPriceError *queries.InvalidPriceError
 			if errors.As(err, &invalidPriceError) {
-				failure_response.BadRequest(context, err.Error())
+				failure_response.InvalidPrice(context, err.Error())
 				return
 			}
 		}

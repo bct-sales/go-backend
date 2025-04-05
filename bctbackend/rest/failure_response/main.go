@@ -45,3 +45,13 @@ func Forbidden(context *gin.Context, message string) {
 	response := &FailureResponse{Type: "forbidden", Details: message}
 	context.JSON(http.StatusForbidden, response)
 }
+
+func CannotUpdateFrozenItem(context *gin.Context, message string) {
+	response := &FailureResponse{Type: "item_frozen", Details: message}
+	context.JSON(http.StatusForbidden, response)
+}
+
+func InvalidPrice(context *gin.Context, message string) {
+	response := &FailureResponse{Type: "invalid_price", Details: message}
+	context.JSON(http.StatusBadRequest, response)
+}
