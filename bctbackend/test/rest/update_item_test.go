@@ -146,4 +146,21 @@ func TestUpdateItem(t *testing.T) {
 		expectedItem := *originalItem
 		require.Equal(t, expectedItem, *actualItem)
 	})
+
+	t.Run("Failing due to nonexisting item", func(t *testing.T) {
+		setup, router, writer := SetupRestTest()
+		defer setup.Close()
+
+		_, sessionId := setup.LoggedIn(setup.Seller())
+
+		url := path.Items().Id(123)
+		payload := struct {
+			PriceInCents int `json:"priceInCents"`
+		}{
+			PriceInCents: 100,
+		}
+		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+		router.ServeHTTP(writer, request)
+		require.Equal(t, http.StatusUnauthorized, writer.Code)
+	})
 }
