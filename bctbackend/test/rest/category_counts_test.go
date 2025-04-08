@@ -99,7 +99,7 @@ func TestCategoryCounts(t *testing.T) {
 
 	for _, categoryId1 := range defs.ListCategories() {
 		for _, categoryId2 := range defs.ListCategories() {
-			t.Run("Two items in potentially probably categories", func(t *testing.T) {
+			t.Run("Two items in potentially equal categories", func(t *testing.T) {
 				setup, router, writer := SetupRestTest()
 				defer setup.Close()
 
