@@ -9,6 +9,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	rest_api "bctbackend/rest/cashier"
+	"bctbackend/rest/path"
 	. "bctbackend/test"
 	aux "bctbackend/test/helpers"
 
@@ -16,7 +17,7 @@ import (
 )
 
 func TestAddSaleItem(t *testing.T) {
-	url := "/api/v1/sales"
+	url := path.Sales().String()
 
 	t.Run("Success", func(t *testing.T) {
 		setup, router, writer := SetupRestTest()
