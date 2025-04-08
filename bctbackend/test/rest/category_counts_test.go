@@ -8,6 +8,7 @@ import (
 	models "bctbackend/database/models"
 	"bctbackend/defs"
 	rest_admin "bctbackend/rest/admin"
+	"bctbackend/rest/path"
 	. "bctbackend/test"
 	aux "bctbackend/test/helpers"
 
@@ -41,7 +42,7 @@ func createSuccessResponse(countMap map[models.Id]int64) rest_admin.CategoryCoun
 }
 
 func TestCategoryCounts(t *testing.T) {
-	url := "/api/v1/category-counts"
+	url := path.CategoryCounts().String()
 
 	t.Run("Zero items", func(t *testing.T) {
 		setup, router, writer := SetupRestTest()
