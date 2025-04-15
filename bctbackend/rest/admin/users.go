@@ -35,8 +35,8 @@ type GetUsersFailureResponse struct {
 // @Accept json
 // @Produce json
 // @Success 200 {object} GetUsersSuccessResponse "Users successfully fetched"
-// @Failure 403 {object} GetItemsFailureResponse "Unauthorized access"
-// @Failure 500 {object} GetItemsFailureResponse "Internal error"
+// @Failure 403 {object} GetUsersFailureResponse "Unauthorized access"
+// @Failure 500 {object} GetUsersFailureResponse "Internal error"
 // @Router /users [get]
 func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	slog.Info("User requested to fetch users", slog.Int64("user_id", userId), slog.Int64("role_id", roleId))
