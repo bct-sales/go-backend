@@ -40,13 +40,13 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 		ItemId string `uri:"id" binding:"required"`
 	}
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
-		failure_response.BadRequest(context, err.Error())
+		failure_response.InvalidRequest(context, err.Error())
 		return
 	}
 
 	itemId, err := models.ParseId(uriParameters.ItemId)
 	if err != nil {
-		failure_response.BadRequest(context, err.Error())
+		failure_response.InvalidItemId(context, err.Error())
 		return
 	}
 
@@ -54,7 +54,7 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 	if err != nil {
 		var noSuchItemError *queries.NoSuchItemError
 		if errors.As(err, &noSuchItemError) {
-			failure_response.InvalidItemId(context, err.Error())
+			failure_response.UnknownItem(context, err.Error())
 			return
 		}
 		failure_response.Unknown(context, err.Error())
@@ -62,13 +62,13 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 	}
 
 	if !(roleId == models.AdminRoleId || (roleId == models.SellerRoleId && item.SellerId == userId)) {
-		failure_response.Unauthorized(context, "Only the owner of the item or an admin can update it")
+		failure_response.WrongRole(context, "Only the owner of the item or an admin can update it")
 		return
 	}
 
 	var payload UpdateItemData
 	if err := context.ShouldBindJSON(&payload); err != nil {
-		failure_response.BadRequest(context, err.Error())
+		failure_response.InvalidRequest(context, err.Error())
 		return
 	}
 

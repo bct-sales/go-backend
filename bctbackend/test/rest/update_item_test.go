@@ -181,7 +181,8 @@ func TestUpdateItem(t *testing.T) {
 
 		_, sessionId := setup.LoggedIn(setup.Seller())
 
-		url := path.Items().Id(123)
+		nonexistingItemId := models.Id(123)
+		url := path.Items().Id(nonexistingItemId)
 		payload := struct {
 			PriceInCents int `json:"priceInCents"`
 		}{
@@ -189,7 +190,7 @@ func TestUpdateItem(t *testing.T) {
 		}
 		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
 		router.ServeHTTP(writer, request)
-		require.Equal(t, http.StatusUnauthorized, writer.Code)
+		require.Equal(t, http.StatusNotFound, writer.Code)
 	})
 
 	t.Run("Failing due to nonowner seller", func(t *testing.T) {
@@ -208,7 +209,7 @@ func TestUpdateItem(t *testing.T) {
 		}
 		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
 		router.ServeHTTP(writer, request)
-		require.Equal(t, http.StatusUnauthorized, writer.Code)
+		require.Equal(t, http.StatusForbidden, writer.Code)
 
 		actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
 		require.NoError(t, err)
@@ -233,7 +234,7 @@ func TestUpdateItem(t *testing.T) {
 		}
 		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
 		router.ServeHTTP(writer, request)
-		require.Equal(t, http.StatusUnauthorized, writer.Code)
+		require.Equal(t, http.StatusForbidden, writer.Code)
 
 		actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
 		require.NoError(t, err)

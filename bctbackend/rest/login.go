@@ -41,12 +41,11 @@ func login(context *gin.Context, db *sql.DB) {
 
 	if err := context.ShouldBind(&loginRequest); err != nil {
 		slog.Info("Failed to parse login request", slog.String("error", err.Error()))
-		failure_response.BadRequest(context, "Failed to parse request")
+		failure_response.InvalidRequest(context, "Failed to parse request")
 		return
 	}
 
 	userId, err := models.ParseId(loginRequest.Username)
-
 	if err != nil {
 		slog.Info("Someone tried to login with an invalid user ID", slog.String("userId", loginRequest.Username))
 		failure_response.InvalidUserId(context, err.Error())

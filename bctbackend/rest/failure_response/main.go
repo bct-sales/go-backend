@@ -11,34 +11,26 @@ type FailureResponse struct {
 	Details string `json:"details"`
 }
 
-func BadRequest(context *gin.Context, message string) {
-	response := &FailureResponse{Type: "bad_request", Details: message}
+func BadRequest(context *gin.Context, errorType string, message string) {
+	response := &FailureResponse{Type: errorType, Details: message}
 	context.JSON(http.StatusBadRequest, response)
 }
 
-func InvalidUserId(context *gin.Context, message string) {
-	response := &FailureResponse{Type: "invalid_user_id", Details: message}
+// User was not authenticated
+func Unauthorized(context *gin.Context, errorType string, message string) {
+	response := &FailureResponse{Type: errorType, Details: message}
 	context.JSON(http.StatusUnauthorized, response)
 }
 
-func InvalidItemId(context *gin.Context, message string) {
-	response := &FailureResponse{Type: "invalid_item_id", Details: message}
-	context.JSON(http.StatusUnauthorized, response)
+// User was authenticated, but is not authorized to perform the action
+func Forbidden(context *gin.Context, errorType string, message string) {
+	response := &FailureResponse{Type: errorType, Details: message}
+	context.JSON(http.StatusForbidden, response)
 }
 
-func UnknownItem(context *gin.Context, message string) {
-	response := &FailureResponse{Type: "no_such_item", Details: message}
+func NotFound(context *gin.Context, errorType string, message string) {
+	response := &FailureResponse{Type: errorType, Details: message}
 	context.JSON(http.StatusNotFound, response)
-}
-
-func UnknownUser(context *gin.Context, message string) {
-	response := &FailureResponse{Type: "unknown_user", Details: message}
-	context.JSON(http.StatusUnauthorized, response)
-}
-
-func WrongPassword(context *gin.Context, message string) {
-	response := &FailureResponse{Type: "wrong_password", Details: message}
-	context.JSON(http.StatusUnauthorized, response)
 }
 
 func Unknown(context *gin.Context, message string) {
@@ -46,22 +38,47 @@ func Unknown(context *gin.Context, message string) {
 	context.JSON(http.StatusInternalServerError, response)
 }
 
-func Forbidden(context *gin.Context, message string) {
-	response := &FailureResponse{Type: "forbidden", Details: message}
-	context.JSON(http.StatusForbidden, response)
+// Could not parse request
+func InvalidRequest(context *gin.Context, message string) {
+	BadRequest(context, "invalid_request", message)
+}
+
+func InvalidUriParameters(context *gin.Context, message string) {
+	BadRequest(context, "invalid_uri_parameters", "invalid URI parameters: "+message)
+}
+
+// Ill-formed user ID, e.g., "abc" instead of "123"
+func InvalidUserId(context *gin.Context, message string) {
+	BadRequest(context, "invalid_user_id", "invalid user id: "+message)
+}
+
+// Ill-formed item ID, e.g., "abc" instead of "123"
+func InvalidItemId(context *gin.Context, message string) {
+	BadRequest(context, "invalid_item_id", "invalid item id: "+message)
+}
+
+// There is no item with the given ID
+func UnknownItem(context *gin.Context, message string) {
+	NotFound(context, "no_such_item", message)
+}
+
+// There is no user with the given ID
+func UnknownUser(context *gin.Context, message string) {
+	NotFound(context, "no_such_user", message)
+}
+
+func WrongPassword(context *gin.Context, message string) {
+	Unauthorized(context, "wrong_password", message)
 }
 
 func CannotUpdateFrozenItem(context *gin.Context, message string) {
-	response := &FailureResponse{Type: "item_frozen", Details: message}
-	context.JSON(http.StatusForbidden, response)
+	Forbidden(context, "item_frozen", message)
 }
 
 func InvalidPrice(context *gin.Context, message string) {
-	response := &FailureResponse{Type: "invalid_price", Details: message}
-	context.JSON(http.StatusBadRequest, response)
+	BadRequest(context, "invalid_price", message)
 }
 
-func Unauthorized(context *gin.Context, message string) {
-	response := &FailureResponse{Type: "unauthorized", Details: message}
-	context.JSON(http.StatusUnauthorized, response)
+func WrongRole(context *gin.Context, message string) {
+	Forbidden(context, "wrong_role", message)
 }

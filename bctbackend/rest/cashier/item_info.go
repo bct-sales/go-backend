@@ -35,7 +35,7 @@ const (
 // @Router /api/v1/sales/items/{id} [get]
 func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.CashierRoleId {
-		failure_response.Forbidden(context, "Only accessible to cashiers")
+		failure_response.WrongRole(context, "Only accessible to cashiers")
 		return
 	}
 
@@ -43,13 +43,13 @@ func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 		ItemId string `uri:"id" binding:"required"`
 	}
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
-		failure_response.BadRequest(context, "Invalid URI parameters: "+err.Error())
+		failure_response.InvalidUriParameters(context, "Invalid URI parameters: "+err.Error())
 		return
 	}
 
 	itemId, err := models.ParseId(uriParameters.ItemId)
 	if err != nil {
-		failure_response.BadRequest(context, "Cannot parse item Id: "+err.Error())
+		failure_response.InvalidItemId(context, err.Error())
 		return
 	}
 

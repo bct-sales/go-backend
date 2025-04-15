@@ -157,7 +157,7 @@ func TestUnknownUserLogin(t *testing.T) {
 
 	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	router.ServeHTTP(writer, request)
-	RequireFailureType(t, writer, http.StatusUnauthorized, "unknown_user")
+	RequireFailureType(t, writer, http.StatusNotFound, "no_such_user")
 }
 
 func TestWrongPasswordLogin(t *testing.T) {

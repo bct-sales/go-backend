@@ -38,8 +38,8 @@ func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 	slog.Info("User requested to fetch users", slog.Int64("user_id", userId), slog.Int64("role_id", roleId))
 
 	if roleId != models.AdminRoleId {
-		slog.Info("User attempted to access /users but is not an admin", slog.Int64("user_id", userId), slog.Int64("role_id", roleId))
-		failure_response.Forbidden(context, "Only accessible to admins")
+		slog.Info("Non-admin attempted to list all items", slog.Int64("user_id", userId), slog.Int64("role_id", roleId))
+		failure_response.WrongRole(context, "Only accessible to admins")
 		return
 	}
 
