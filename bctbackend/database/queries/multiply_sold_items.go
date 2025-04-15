@@ -41,7 +41,7 @@ func GetMultiplySoldItems(db *sql.DB) (r_result []MultiplySoldItem, r_err error)
 		return nil, err
 	}
 
-	defer func() { errors.Join(r_err, rows.Close()) }()
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	var multiplySoldItems []MultiplySoldItem
 

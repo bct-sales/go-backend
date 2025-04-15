@@ -108,7 +108,7 @@ func AddSale(
 	return saleId, nil
 }
 
-func GetSales(db *sql.DB, receiver func(*models.SaleSummary) error) error {
+func GetSales(db *sql.DB, receiver func(*models.SaleSummary) error) (r_err error) {
 	rows, err := db.Query(
 		`
 			SELECT sales.sale_id, sales.cashier_id, sales.transaction_time, COUNT(sale_items.item_id) AS item_count, SUM(items.price_in_cents) AS total_price
@@ -121,7 +121,7 @@ func GetSales(db *sql.DB, receiver func(*models.SaleSummary) error) error {
 	if err != nil {
 		return err
 	}
-	defer rows.Close()
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	for rows.Next() {
 		var sale models.SaleSummary
@@ -187,7 +187,7 @@ func SaleExists(db *sql.DB, saleId models.Id) (bool, error) {
 }
 
 // GetSaleItems lists all items associated with a specified sale.
-func GetSaleItems(db *sql.DB, saleId models.Id) ([]models.Item, error) {
+func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []models.Item, r_err error) {
 	saleExists, err := SaleExists(db, saleId)
 
 	if err != nil {
@@ -212,7 +212,7 @@ func GetSaleItems(db *sql.DB, saleId models.Id) ([]models.Item, error) {
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	var items []models.Item
 	for rows.Next() {
@@ -281,7 +281,7 @@ func RemoveSale(db *sql.DB, saleId models.Id) error {
 
 // GetSoldItems returns a list of all items that have been sold.
 // The items are ordered by transaction time (most recent first) and item ID (lowest first).
-func GetSoldItems(db *sql.DB) ([]*models.Item, error) {
+func GetSoldItems(db *sql.DB) (r_result []*models.Item, r_err error) {
 	rows, err := db.Query(
 		`
 			SELECT DISTINCT i.item_id, i.added_at, i.description, i.price_in_cents, i.item_category_id, i.seller_id, i.donation, i.charity, i.frozen
@@ -296,7 +296,7 @@ func GetSoldItems(db *sql.DB) ([]*models.Item, error) {
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	var items []*models.Item
 	for rows.Next() {
@@ -316,7 +316,7 @@ func GetSoldItems(db *sql.DB) ([]*models.Item, error) {
 
 // GetItemsSoldBy returns a list of all items sold by a specified cashier.
 // The items are ordered by transaction time (most recent first) and item ID (lowest first).
-func GetItemsSoldBy(db *sql.DB, cashierId models.Id) ([]*models.Item, error) {
+func GetItemsSoldBy(db *sql.DB, cashierId models.Id) (r_result []*models.Item, r_err error) {
 	if err := CheckUserRole(db, cashierId, models.CashierRoleId); err != nil {
 		return nil, err
 	}
@@ -337,7 +337,7 @@ func GetItemsSoldBy(db *sql.DB, cashierId models.Id) ([]*models.Item, error) {
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	var items []*models.Item
 	for rows.Next() {

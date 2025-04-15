@@ -3,6 +3,7 @@ package queries
 import (
 	models "bctbackend/database/models"
 	"database/sql"
+	"errors"
 )
 
 type CategorySaleTotal struct {
@@ -11,7 +12,7 @@ type CategorySaleTotal struct {
 	TotalInCents models.MoneyInCents
 }
 
-func GetSalesOverview(db *sql.DB) ([]CategorySaleTotal, error) {
+func GetSalesOverview(db *sql.DB) (r_result []CategorySaleTotal, r_err error) {
 	rows, err := db.Query(
 		`
 			SELECT item_categories.item_category_id, item_categories.name, SUM(COALESCE(i.price_in_cents, 0))
@@ -28,7 +29,7 @@ func GetSalesOverview(db *sql.DB) ([]CategorySaleTotal, error) {
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	var categorySaleTotals []CategorySaleTotal
 

@@ -50,8 +50,7 @@ func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 		return
 	}
 
-	var userData []GetUsersUserData = []GetUsersUserData{}
-
+	var userData = []GetUsersUserData{}
 	for _, user := range users {
 		roleName, err := models.NameOfRole(user.RoleId)
 

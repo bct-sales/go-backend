@@ -99,7 +99,7 @@ func GetSessionData(db *sql.DB, sessionId models.SessionId) (*SessionData, error
 	return &sessionData, nil
 }
 
-func GetSessions(db *sql.DB) ([]models.Session, error) {
+func GetSessions(db *sql.DB) (r_result []models.Session, r_err error) {
 	rows, err := db.Query(
 		`
 			SELECT session_id, user_id, expiration_time
@@ -111,7 +111,7 @@ func GetSessions(db *sql.DB) ([]models.Session, error) {
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	var sessions []models.Session
 

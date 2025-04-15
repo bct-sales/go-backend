@@ -139,7 +139,7 @@ func GetUserWithId(db *sql.DB, userId models.Id) (*models.User, error) {
 	}, nil
 }
 
-func GetUsers(db *sql.DB, receiver func(*models.User) error) error {
+func GetUsers(db *sql.DB, receiver func(*models.User) error) (r_err error) {
 	rows, err := db.Query(
 		`
 			SELECT user_id, role_id, created_at, last_activity, password
@@ -151,7 +151,7 @@ func GetUsers(db *sql.DB, receiver func(*models.User) error) error {
 		return err
 	}
 
-	defer rows.Close()
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	for rows.Next() {
 		var user models.User

@@ -75,7 +75,9 @@ func showSeller(db *sql.DB, user *models.User) error {
 
 func showCashier(db *sql.DB, user *models.User) error {
 	pterm.DefaultSection.Println("User Data")
-	formatting.PrintUser(user)
+	if err := formatting.PrintUser(user); err != nil {
+		return err
+	}
 
 	soldItems, err := queries.GetItemsSoldBy(db, user.UserId)
 	if err != nil {
@@ -84,7 +86,9 @@ func showCashier(db *sql.DB, user *models.User) error {
 
 	pterm.DefaultSection.Println("Sold Items")
 
-	formatting.PrintItems(soldItems)
+	if err := formatting.PrintItems(soldItems); err != nil {
+		return err
+	}
 
 	return nil
 }
