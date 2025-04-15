@@ -7,7 +7,7 @@ import (
 
 	models "bctbackend/database/models"
 	"bctbackend/defs"
-	rest_admin "bctbackend/rest/admin"
+	"bctbackend/rest"
 	"bctbackend/rest/path"
 	. "bctbackend/test"
 	aux "bctbackend/test/helpers"
@@ -15,8 +15,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func createSuccessResponse(countMap map[models.Id]int64) rest_admin.CategoryCountSuccessResponse {
-	countArray := []rest_admin.CategoryCount{}
+func createSuccessResponse(countMap map[models.Id]int64) rest.CategoryCountSuccessResponse {
+	countArray := []rest.CategoryCount{}
 
 	for _, categoryId := range defs.ListCategories() {
 		count, ok := countMap[categoryId]
@@ -31,14 +31,14 @@ func createSuccessResponse(countMap map[models.Id]int64) rest_admin.CategoryCoun
 			panic(err)
 		}
 
-		countArray = append(countArray, rest_admin.CategoryCount{
+		countArray = append(countArray, rest.CategoryCount{
 			CategoryId:   categoryId,
 			CategoryName: categoryName,
 			Count:        count,
 		})
 	}
 
-	return rest_admin.CategoryCountSuccessResponse{Counts: countArray}
+	return rest.CategoryCountSuccessResponse{Counts: countArray}
 }
 
 func TestCategoryCounts(t *testing.T) {
@@ -54,7 +54,7 @@ func TestCategoryCounts(t *testing.T) {
 		router.ServeHTTP(writer, request)
 		countMap := map[models.Id]int64{}
 		expectedResponse := createSuccessResponse(countMap)
-		actual := FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
+		actual := FromJson[rest.CategoryCountSuccessResponse](writer.Body.String())
 		require.Equal(t, expectedResponse, *actual)
 	})
 
@@ -72,7 +72,7 @@ func TestCategoryCounts(t *testing.T) {
 			countMap := map[models.Id]int64{categoryId: 1}
 			expected := createSuccessResponse(countMap)
 
-			actual := FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
+			actual := FromJson[rest.CategoryCountSuccessResponse](writer.Body.String())
 			require.Equal(t, expected, *actual)
 		})
 	}
@@ -92,7 +92,7 @@ func TestCategoryCounts(t *testing.T) {
 			countMap := map[models.Id]int64{categoryId: 2}
 			expected := createSuccessResponse(countMap)
 
-			actual := FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
+			actual := FromJson[rest.CategoryCountSuccessResponse](writer.Body.String())
 			require.Equal(t, expected, *actual)
 		})
 	}
@@ -115,7 +115,7 @@ func TestCategoryCounts(t *testing.T) {
 				countMap[categoryId2] += 1
 				expected := createSuccessResponse(countMap)
 
-				actual := FromJson[rest_admin.CategoryCountSuccessResponse](writer.Body.String())
+				actual := FromJson[rest.CategoryCountSuccessResponse](writer.Body.String())
 				require.Equal(t, expected, *actual)
 			})
 		}
