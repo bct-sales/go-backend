@@ -33,7 +33,7 @@ func CategoryWithIdExists(
 	return true, nil
 }
 
-func GetCategories(db *sql.DB) ([]*models.ItemCategory, error) {
+func GetCategories(db *sql.DB) (r_result []*models.ItemCategory, r_err error) {
 	rows, err := db.Query(
 		`
 			SELECT item_category_id, name
@@ -41,12 +41,11 @@ func GetCategories(db *sql.DB) ([]*models.ItemCategory, error) {
 			ORDER BY item_category_id
 		`,
 	)
-
 	if err != nil {
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	categories := []*models.ItemCategory{}
 

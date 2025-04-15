@@ -3,6 +3,7 @@ package queries
 import (
 	models "bctbackend/database/models"
 	"database/sql"
+	"errors"
 )
 
 type MultiplySoldItem struct {
@@ -10,7 +11,7 @@ type MultiplySoldItem struct {
 	Sales []models.Sale
 }
 
-func GetMultiplySoldItems(db *sql.DB) ([]MultiplySoldItem, error) {
+func GetMultiplySoldItems(db *sql.DB) (r_result []MultiplySoldItem, r_err error) {
 	rows, err := db.Query(
 		`
 			SELECT item.item_id,
@@ -40,7 +41,7 @@ func GetMultiplySoldItems(db *sql.DB) ([]MultiplySoldItem, error) {
 		return nil, err
 	}
 
-	defer rows.Close()
+	defer func() { errors.Join(r_err, rows.Close()) }()
 
 	var multiplySoldItems []MultiplySoldItem
 
