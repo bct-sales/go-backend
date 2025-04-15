@@ -25,18 +25,14 @@ type GetUsersSuccessResponse struct {
 	Users []GetUsersUserData `json:"users"`
 }
 
-type GetUsersFailureResponse struct {
-	Message string `json:"message"`
-}
-
 // @Summary Get list of users.
 // @Description Returns all users. Only accessible to users with the admin role.
 // @Tags users, admin
 // @Accept json
 // @Produce json
 // @Success 200 {object} GetUsersSuccessResponse "Users successfully fetched"
-// @Failure 403 {object} GetUsersFailureResponse "Unauthorized access"
-// @Failure 500 {object} GetUsersFailureResponse "Internal error"
+// @Failure 403 {object} failure_response.FailureResponse "Unauthorized access"
+// @Failure 500 {object} failure_response.FailureResponse "Internal error"
 // @Router /users [get]
 func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	slog.Info("User requested to fetch users", slog.Int64("user_id", userId), slog.Int64("role_id", roleId))
