@@ -26,6 +26,11 @@ func InvalidItemId(context *gin.Context, message string) {
 	context.JSON(http.StatusUnauthorized, response)
 }
 
+func UnknownItem(context *gin.Context, message string) {
+	response := &FailureResponse{Type: "no_such_item", Details: message}
+	context.JSON(http.StatusNotFound, response)
+}
+
 func UnknownUser(context *gin.Context, message string) {
 	response := &FailureResponse{Type: "unknown_user", Details: message}
 	context.JSON(http.StatusUnauthorized, response)

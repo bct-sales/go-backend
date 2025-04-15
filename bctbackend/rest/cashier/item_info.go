@@ -3,6 +3,7 @@ package seller
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/rest/failure_response"
 	"database/sql"
 	"errors"
 	"net/http"
@@ -17,11 +18,6 @@ type GetItemInformationSuccessResponse struct {
 	HasBeenSold  *bool               `json:"has_been_sold" binding:"required"`
 }
 
-type GetItemInformationFailureResponse struct {
-	Type    string `json:"type"`
-	Details string `json:"details"`
-}
-
 const (
 	GetItemInformationFailureType_BadRequest    = "bad_request"
 	GetItemInformationFailureType_InvalidItemId = "invalid_item_id"
@@ -33,14 +29,13 @@ const (
 // @Summary Get information about an item
 // @Description Get information about an item.
 // @Success 200 {object} GetItemInformationSuccessResponse
-// @Failure 400 {object} GetItemInformationFailureResponse "Failed to parse request"
-// @Failure 403 {object} GetItemInformationFailureResponse "Unauthorized"
-// @Failure 404 {object} GetItemInformationFailureResponse "Item not found"
+// @Failure 400 {object} failure_response.FailureResponse "Failed to parse request"
+// @Failure 403 {object} failure_response.FailureResponse "Unauthorized"
+// @Failure 404 {object} failure_response.FailureResponse "Item not found"
 // @Router /api/v1/sales/items/{id} [get]
 func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.CashierRoleId {
-		failureResponse := GetItemInformationFailureResponse{Type: GetItemInformationFailureType_Unauthorized, Details: "Only accessible to cashiers"}
-		context.JSON(http.StatusForbidden, failureResponse)
+		failure_response.Forbidden(context, "Only accessible to cashiers")
 		return
 	}
 
@@ -48,30 +43,25 @@ func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 		ItemId string `uri:"id" binding:"required"`
 	}
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
-		failureResponse := GetItemInformationFailureResponse{Type: GetItemInformationFailureType_BadRequest, Details: err.Error()}
-		context.JSON(http.StatusBadRequest, failureResponse)
+		failure_response.BadRequest(context, "Invalid URI parameters: "+err.Error())
 		return
 	}
 
 	itemId, err := models.ParseId(uriParameters.ItemId)
 	if err != nil {
-		failureResponse := GetItemInformationFailureResponse{Type: GetItemInformationFailureType_InvalidItemId, Details: err.Error()}
-		context.JSON(http.StatusBadRequest, failureResponse)
+		failure_response.BadRequest(context, "Cannot parse item Id: "+err.Error())
 		return
 	}
 
 	saleId, err := queries.GetSaleItemInformation(db, itemId)
-
 	if err != nil {
 		var NoSuchItemError *queries.NoSuchItemError
 		if errors.As(err, &NoSuchItemError) {
-			failureResponse := GetItemInformationFailureResponse{Type: GetItemInformationFailureType_NoSuchItem, Details: err.Error()}
-			context.JSON(http.StatusNotFound, failureResponse)
+			failure_response.UnknownItem(context, "No such item: "+err.Error())
 			return
 		}
 
-		failureResponse := GetItemInformationFailureResponse{Type: GetItemInformationFailureType_Unknown, Details: err.Error()}
-		context.JSON(http.StatusInternalServerError, failureResponse)
+		failure_response.Unknown(context, "Failed to get item information: "+err.Error())
 		return
 	}
 
