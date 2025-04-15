@@ -28,6 +28,8 @@ type CategoryCount struct {
 // @Accept json
 // @Produce json
 // @Success 200 {object} CategoryCountSuccessResponse
+// @Failure 403 {object} failure_response.FailureResponse "Unauthorized access"
+// @Failure 500 {object} failure_response.FailureResponse "Failed to fetch category counts"
 // @Router /category-counts [get]
 func GetCategoryCounts(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.AdminRoleId {
@@ -37,7 +39,7 @@ func GetCategoryCounts(context *gin.Context, db *sql.DB, userId models.Id, roleI
 
 	categoryCounts, err := queries.GetCategoryCounts(db)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch category counts"})
+		failure_response.Unknown(context, "Failed to fetch category counts: "+err.Error())
 		return
 	}
 
