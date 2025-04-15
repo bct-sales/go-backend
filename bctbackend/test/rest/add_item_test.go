@@ -331,5 +331,41 @@ func TestAddSellerItem(t *testing.T) {
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
+
+		t.Run("Not logged in", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+
+			price := models.MoneyInCents(100)
+			description := "Test Description"
+			categoryId := defs.BabyChildEquipment
+			donation := false
+			charity := false
+
+			setup.Seller()
+			nonexistentId := models.NewId(1000)
+
+			userExists, err := queries.UserWithIdExists(setup.Db, nonexistentId)
+			require.NoError(t, err)
+			require.False(t, userExists)
+
+			url := path.SellerItems().WithSellerId(nonexistentId)
+			payload := restapi.AddSellerItemPayload{
+				Price:       price,
+				Description: description,
+				CategoryId:  categoryId,
+				Donation:    &donation,
+				Charity:     &charity,
+			}
+			request := CreatePostRequest(url, &payload)
+			router.ServeHTTP(writer, request)
+
+			require.Equal(t, http.StatusUnauthorized, writer.Code)
+
+			itemsInDatabase := []*models.Item{}
+			err = queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase))
+			require.NoError(t, err)
+			require.Equal(t, 0, len(itemsInDatabase))
+		})
 	})
 }
