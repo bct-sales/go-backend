@@ -3,6 +3,7 @@ package admin
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/rest/failure_response"
 	"database/sql"
 	"net/http"
 
@@ -30,12 +31,11 @@ type CategoryCount struct {
 // @Router /category-counts [get]
 func GetCategoryCounts(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.AdminRoleId {
-		context.JSON(http.StatusForbidden, gin.H{"message": "Only accessible to admins"})
+		failure_response.WrongRole(context, "Global category counts only accessible to admins")
 		return
 	}
 
 	categoryCounts, err := queries.GetCategoryCounts(db)
-
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to fetch category counts"})
 		return
