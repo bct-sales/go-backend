@@ -51,83 +51,88 @@ type FailureResponse struct {
 
 func TestGetAllItems(t *testing.T) {
 	url := "/api/v1/items"
-	t.Run("Success with no items", func(t *testing.T) {
-		setup, router, writer := SetupRestTest()
-		defer setup.Close()
 
-		_, sessionId := setup.LoggedIn(setup.Admin())
+	t.Run("Success", func(t *testing.T) {
+		t.Run("No items", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
 
-		request := CreateGetRequest(url, WithCookie(sessionId))
-		router.ServeHTTP(writer, request)
-		require.Equal(t, http.StatusOK, writer.Code)
+			_, sessionId := setup.LoggedIn(setup.Admin())
 
-		expected := SuccessResponse{Items: []Item{}}
-		actual := FromJson[SuccessResponse](writer.Body.String())
-		require.Equal(t, expected, *actual)
-	})
+			request := CreateGetRequest(url, WithCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusOK, writer.Code)
 
-	t.Run("Success with one item", func(t *testing.T) {
-		setup, router, writer := SetupRestTest()
-		defer setup.Close()
+			expected := SuccessResponse{Items: []Item{}}
+			actual := FromJson[SuccessResponse](writer.Body.String())
+			require.Equal(t, expected, *actual)
+		})
 
-		_, sessionId := setup.LoggedIn(setup.Admin())
-		seller := setup.Seller()
+		t.Run("One item", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
 
-		addedAtTimestamp := models.Timestamp(100)
-		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(addedAtTimestamp))
+			_, sessionId := setup.LoggedIn(setup.Admin())
+			seller := setup.Seller()
 
-		request := CreateGetRequest(url, WithCookie(sessionId))
-		router.ServeHTTP(writer, request)
-		require.Equal(t, http.StatusOK, writer.Code)
+			addedAtTimestamp := models.Timestamp(100)
+			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(addedAtTimestamp))
 
-		expected := SuccessResponse{
-			Items: []Item{*FromModel(item)},
-		}
-		actual := FromJson[SuccessResponse](writer.Body.String())
-		require.Equal(t, expected, *actual)
-	})
+			request := CreateGetRequest(url, WithCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusOK, writer.Code)
 
-	t.Run("Success with wo items", func(t *testing.T) {
-		setup, router, writer := SetupRestTest()
-		defer setup.Close()
-
-		_, sessionId := setup.LoggedIn(setup.Admin())
-		seller := setup.Seller()
-		addedAtTimestamp := models.Timestamp(500)
-		item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(addedAtTimestamp))
-		item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(addedAtTimestamp))
-
-		request := CreateGetRequest(url, WithCookie(sessionId))
-		router.ServeHTTP(writer, request)
-
-		require.Equal(t, http.StatusOK, writer.Code)
-
-		expected := SuccessResponse{
-			Items: []Item{*FromModel(item1), *FromModel(item2)},
-		}
-		actual := FromJson[SuccessResponse](writer.Body.String())
-		require.Equal(t, expected, *actual)
-	})
-
-	t.Run("Failure due to not being admin", func(t *testing.T) {
-		for _, roleId := range []models.Id{models.SellerRoleId, models.CashierRoleId} {
-			roleString, err := models.NameOfRole(roleId)
-
-			if err != nil {
-				panic(err)
+			expected := SuccessResponse{
+				Items: []Item{*FromModel(item)},
 			}
+			actual := FromJson[SuccessResponse](writer.Body.String())
+			require.Equal(t, expected, *actual)
+		})
 
-			t.Run("As "+roleString, func(t *testing.T) {
-				setup, router, writer := SetupRestTest()
-				defer setup.Close()
+		t.Run("Two items", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
 
-				_, sessionId := setup.LoggedIn(setup.User(roleId))
+			_, sessionId := setup.LoggedIn(setup.Admin())
+			seller := setup.Seller()
+			addedAtTimestamp := models.Timestamp(500)
+			item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(addedAtTimestamp))
+			item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(addedAtTimestamp))
 
-				request := CreateGetRequest(url, WithCookie(sessionId))
-				router.ServeHTTP(writer, request)
+			request := CreateGetRequest(url, WithCookie(sessionId))
+			router.ServeHTTP(writer, request)
 
-				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
-			})
-		}
+			require.Equal(t, http.StatusOK, writer.Code)
+
+			expected := SuccessResponse{
+				Items: []Item{*FromModel(item1), *FromModel(item2)},
+			}
+			actual := FromJson[SuccessResponse](writer.Body.String())
+			require.Equal(t, expected, *actual)
+		})
+	})
+
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("Wrong role", func(t *testing.T) {
+			for _, roleId := range []models.Id{models.SellerRoleId, models.CashierRoleId} {
+				roleString, err := models.NameOfRole(roleId)
+
+				if err != nil {
+					panic(err)
+				}
+
+				t.Run("As "+roleString, func(t *testing.T) {
+					setup, router, writer := SetupRestTest()
+					defer setup.Close()
+
+					_, sessionId := setup.LoggedIn(setup.User(roleId))
+
+					request := CreateGetRequest(url, WithCookie(sessionId))
+					router.ServeHTTP(writer, request)
+
+					RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
+				})
+			}
+		})
 	})
 }
