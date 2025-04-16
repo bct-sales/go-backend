@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func setupLogout(t *testing.T) {
+func TestLogout(t *testing.T) {
 	setup, router, writer := SetupRestTest()
 	defer setup.Close()
 
