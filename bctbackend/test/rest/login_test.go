@@ -186,5 +186,23 @@ func TestLogin(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusUnauthorized, "wrong_password")
 		})
+
+		t.Run("Missing username", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+
+			cashier := setup.Cashier()
+
+			form := url.Values{}
+			form.Add("password", cashier.Password)
+
+			url := path.Login().String()
+			request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))
+			require.NoError(t, err)
+
+			request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_request")
+		})
 	})
 }
