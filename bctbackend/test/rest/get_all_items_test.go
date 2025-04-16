@@ -134,5 +134,15 @@ func TestGetAllItems(t *testing.T) {
 				})
 			}
 		})
+
+		t.Run("Not logged in", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+
+			request := CreateGetRequest(url)
+			router.ServeHTTP(writer, request)
+
+			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
+		})
 	})
 }
