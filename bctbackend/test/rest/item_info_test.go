@@ -60,7 +60,7 @@ func TestGetItemInformation(t *testing.T) {
 			url := path.SalesItems().WithRawItemId("abc")
 			request := CreateGetRequest(url, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			require.Equal(t, http.StatusBadRequest, writer.Code)
+			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_item_id")
 		})
 
 		t.Run("Wrong Role", func(t *testing.T) {
