@@ -39,7 +39,7 @@ func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 	}
 
 	if userId != uriSellerId {
-		failure_response.WrongUser(context, "Logged in user does not match URI seller ID")
+		failure_response.WrongSeller(context, "Logged in user does not match URI seller ID")
 		return
 	}
 
