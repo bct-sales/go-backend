@@ -3,6 +3,7 @@
 package rest
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -18,24 +19,28 @@ func TestListSellerItems(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		for _, sellerId := range []models.Id{models.NewId(1), models.NewId(2), models.NewId(100)} {
 			for _, itemCount := range []int{0, 1, 5, 100} {
-				setup, router, writer := SetupRestTest()
-				defer setup.Close()
+				testLabel := fmt.Sprintf("SellerId: %d, ItemCount: %d", sellerId, itemCount)
 
-				seller, sessionId := setup.LoggedIn(setup.Seller(aux.WithUserId(sellerId)))
+				t.Run(testLabel, func(t *testing.T) {
+					setup, router, writer := SetupRestTest()
+					defer setup.Close()
 
-				expectedItems := []models.Item{}
-				for i := 0; i < itemCount; i++ {
-					item := setup.Item(seller.UserId, aux.WithDummyData(i))
-					expectedItems = append(expectedItems, *item)
-				}
+					seller, sessionId := setup.LoggedIn(setup.Seller(aux.WithUserId(sellerId)))
 
-				url := path.SellerItems().WithSellerId(seller.UserId)
-				request := CreateGetRequest(url, WithCookie(sessionId))
-				router.ServeHTTP(writer, request)
-				require.Equal(t, http.StatusOK, writer.Code)
+					expectedItems := []models.Item{}
+					for i := 0; i < itemCount; i++ {
+						item := setup.Item(seller.UserId, aux.WithDummyData(i))
+						expectedItems = append(expectedItems, *item)
+					}
 
-				actual := FromJson[[]models.Item](writer.Body.String())
-				require.Equal(t, expectedItems, *actual)
+					url := path.SellerItems().WithSellerId(seller.UserId)
+					request := CreateGetRequest(url, WithCookie(sessionId))
+					router.ServeHTTP(writer, request)
+					require.Equal(t, http.StatusOK, writer.Code)
+
+					actual := FromJson[[]models.Item](writer.Body.String())
+					require.Equal(t, expectedItems, *actual)
+				})
 			}
 		}
 	})
@@ -48,16 +53,50 @@ func TestListSellerItems(t *testing.T) {
 			seller := setup.Seller()
 			itemCount := 10
 
-			expectedItems := []models.Item{}
 			for i := 0; i < itemCount; i++ {
-				item := setup.Item(seller.UserId, aux.WithDummyData(i))
-				expectedItems = append(expectedItems, *item)
+				setup.Item(seller.UserId, aux.WithDummyData(i))
 			}
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			request := CreateGetRequest(url)
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
+		})
+
+		t.Run("Wrong seller", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+
+			itemOwningSeller := setup.Seller()
+			_, sessionId := setup.LoggedIn(setup.Seller())
+			itemCount := 10
+
+			for i := 0; i < itemCount; i++ {
+				setup.Item(itemOwningSeller.UserId, aux.WithDummyData(i))
+			}
+
+			url := path.SellerItems().WithSellerId(itemOwningSeller.UserId)
+			request := CreateGetRequest(url, WithCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusForbidden, "wrong_seller")
+		})
+
+		t.Run("As cashier", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+
+			itemOwningSeller := setup.Seller()
+			_, sessionId := setup.LoggedIn(setup.Cashier())
+			itemCount := 10
+
+			for i := 0; i < itemCount; i++ {
+				setup.Item(itemOwningSeller.UserId, aux.WithDummyData(i))
+			}
+
+			url := path.SellerItems().WithSellerId(itemOwningSeller.UserId)
+			request := CreateGetRequest(url, WithCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 		})
 	})
 }
