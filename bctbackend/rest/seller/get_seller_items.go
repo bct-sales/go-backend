@@ -3,6 +3,7 @@ package seller
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/rest/failure_response"
 	"database/sql"
 	"net/http"
 
@@ -19,7 +20,7 @@ import (
 // @Router /seller/{seller_id}/items [get]
 func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.SellerRoleId {
-		context.JSON(http.StatusForbidden, gin.H{"message": "Only accessible to sellers"})
+		failure_response.Forbidden(context, "wrong_role", "Only accessible to sellers")
 		return
 	}
 
@@ -27,26 +28,24 @@ func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 		SellerId string `uri:"id" binding:"required"`
 	}
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid URI parameters: " + err.Error()})
+		failure_response.InvalidUriParameters(context, err.Error())
 		return
 	}
 
 	uriSellerId, err := models.ParseId(uriParameters.SellerId)
-
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Cannot parse seller Id: " + err.Error()})
+		failure_response.InvalidUserId(context, err.Error())
 		return
 	}
 
 	if userId != uriSellerId {
-		context.JSON(http.StatusForbidden, gin.H{"message": "Logged in user does not match URI seller ID"})
+		failure_response.WrongUser(context, "Logged in user does not match URI seller ID")
 		return
 	}
 
 	items, err := queries.GetSellerItems(db, uriSellerId)
-
 	if err != nil {
-		context.AbortWithStatus(http.StatusInternalServerError)
+		failure_response.Unknown(context, "Could not retrieve seller items: "+err.Error())
 		return
 	}
 
