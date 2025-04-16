@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAddSaleItem(t *testing.T) {
+func TestAddSale(t *testing.T) {
 	url := path.Sales().String()
 
 	t.Run("Success", func(t *testing.T) {
