@@ -126,7 +126,7 @@ func TestGetAllItems(t *testing.T) {
 				request := CreateGetRequest(url, WithCookie(sessionId))
 				router.ServeHTTP(writer, request)
 
-				require.Equal(t, http.StatusForbidden, writer.Code)
+				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 			})
 		}
 	})
