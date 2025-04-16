@@ -97,7 +97,7 @@ func TestAddSaleItem(t *testing.T) {
 			}
 			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			require.Equal(t, http.StatusBadRequest, writer.Code)
+			require.Equal(t, http.StatusForbidden, writer.Code)
 
 			sales := []*models.SaleSummary{}
 			err := queries.GetSales(setup.Db, queries.CollectTo(&sales))
@@ -117,11 +117,11 @@ func TestAddSaleItem(t *testing.T) {
 			require.False(t, itemExists)
 
 			payload := rest_api.AddSalePayload{
-				Items: []models.Id{},
+				Items: []models.Id{nonexistentItemId},
 			}
 			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			require.Equal(t, http.StatusBadRequest, writer.Code)
+			require.Equal(t, http.StatusNotFound, writer.Code)
 
 			sales := []*models.SaleSummary{}
 			err = queries.GetSales(setup.Db, queries.CollectTo(&sales))
@@ -142,7 +142,7 @@ func TestAddSaleItem(t *testing.T) {
 			}
 			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			require.Equal(t, http.StatusBadRequest, writer.Code)
+			require.Equal(t, http.StatusForbidden, writer.Code)
 
 			sales := []*models.SaleSummary{}
 			err := queries.GetSales(setup.Db, queries.CollectTo(&sales))

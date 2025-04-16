@@ -82,3 +82,11 @@ func InvalidPrice(context *gin.Context, message string) {
 func WrongRole(context *gin.Context, message string) {
 	Forbidden(context, "wrong_role", message)
 }
+
+func DuplicateItemInSale(context *gin.Context, message string) {
+	Forbidden(context, "duplicate_item_in_sale", message)
+}
+
+func SaleMissingItems(context *gin.Context, message string) {
+	Forbidden(context, "sale_missing_items", message)
+}

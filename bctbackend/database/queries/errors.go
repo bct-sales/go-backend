@@ -110,7 +110,7 @@ func (e *InvalidPriceError) Error() string {
 }
 
 func (e *DuplicateItemInSaleError) Error() string {
-	return fmt.Sprintf("item %d is already in sale", e.ItemId)
+	return fmt.Sprintf("item %d is duplicated in sale", e.ItemId)
 }
 
 func (e *InvalidRoleError) Error() string {
