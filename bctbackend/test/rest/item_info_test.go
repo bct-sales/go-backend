@@ -117,5 +117,24 @@ func TestGetItemInformation(t *testing.T) {
 			// Check response
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_item")
 		})
+
+		t.Run("Not logged in", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+			sale_count := 0
+
+			seller := setup.Seller()
+			cashier := setup.Cashier()
+			item := setup.Item(seller.UserId, aux.WithDummyData(1))
+
+			for i := 0; i < sale_count; i++ {
+				setup.Sale(cashier.UserId, []models.Id{item.ItemId})
+			}
+
+			url := path.SalesItems().WithItemId(item.ItemId)
+			request := CreateGetRequest(url)
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
+		})
 	})
 }
