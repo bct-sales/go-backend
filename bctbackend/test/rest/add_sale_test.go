@@ -142,7 +142,7 @@ func TestAddSale(t *testing.T) {
 			}
 			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			require.Equal(t, http.StatusForbidden, writer.Code)
+			RequireFailureType(t, writer, http.StatusForbidden, "duplicate_item_in_sale")
 
 			sales := []*models.SaleSummary{}
 			err := queries.GetSales(setup.Db, queries.CollectTo(&sales))
