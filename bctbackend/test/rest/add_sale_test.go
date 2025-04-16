@@ -121,7 +121,7 @@ func TestAddSale(t *testing.T) {
 			}
 			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			require.Equal(t, http.StatusNotFound, writer.Code)
+			RequireFailureType(t, writer, http.StatusNotFound, "no_such_item")
 
 			sales := []*models.SaleSummary{}
 			err = queries.GetSales(setup.Db, queries.CollectTo(&sales))
