@@ -204,5 +204,23 @@ func TestLogin(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_request")
 		})
+
+		t.Run("Missing password", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+
+			cashier := setup.Cashier()
+
+			form := url.Values{}
+			form.Add("username", models.IdToString(cashier.UserId))
+
+			url := path.Login().String()
+			request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))
+			require.NoError(t, err)
+
+			request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_request")
+		})
 	})
 }
