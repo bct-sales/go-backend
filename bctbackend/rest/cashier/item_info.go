@@ -18,14 +18,6 @@ type GetItemInformationSuccessResponse struct {
 	HasBeenSold  *bool               `json:"has_been_sold" binding:"required"`
 }
 
-const (
-	GetItemInformationFailureType_BadRequest    = "bad_request"
-	GetItemInformationFailureType_InvalidItemId = "invalid_item_id"
-	GetItemInformationFailureType_NoSuchItem    = "no_such_item"
-	GetItemInformationFailureType_Unauthorized  = "unauthorized"
-	GetItemInformationFailureType_Unknown       = "unknown"
-)
-
 // @Summary Get information about an item
 // @Description Get information about an item.
 // @Success 200 {object} GetItemInformationSuccessResponse
