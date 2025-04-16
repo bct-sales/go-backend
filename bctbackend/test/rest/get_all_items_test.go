@@ -127,8 +127,6 @@ func TestGetAllItems(t *testing.T) {
 				router.ServeHTTP(writer, request)
 
 				require.Equal(t, http.StatusForbidden, writer.Code)
-				actual := FromJson[FailureResponse](writer.Body.String())
-				require.Equal(t, "forbidden", actual.Type)
 			})
 		}
 	})

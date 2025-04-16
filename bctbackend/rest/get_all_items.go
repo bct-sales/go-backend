@@ -4,6 +4,7 @@ import (
 	"bctbackend/algorithms"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/rest/failure_response"
 	rest "bctbackend/rest/shared"
 	"database/sql"
 	"net/http"
@@ -29,11 +30,6 @@ type GetItemsSuccessResponse struct {
 	Items []GetItemsItemData `json:"items"`
 }
 
-type GetItemsFailureResponse struct {
-	Type    string `json:"type"`
-	Message string `json:"message"`
-}
-
 // @Summary Get list of items.
 // @Description Returns all items. Only accessible to users with the admin role.
 // @Tags items
@@ -44,15 +40,13 @@ type GetItemsFailureResponse struct {
 // @Router /items [get]
 func GetAllItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.AdminRoleId {
-		failureResponse := GetItemsFailureResponse{Type: "forbidden", Message: "Only accessible to admins"}
-		context.JSON(http.StatusForbidden, failureResponse)
+		failure_response.WrongRole(context, "Only admins can list all items")
 		return
 	}
 
 	items := []*models.Item{}
 	if err := queries.GetItems(db, queries.CollectTo(&items)); err != nil {
-		failureResponse := GetItemsFailureResponse{Message: "Failed to fetch items"}
-		context.JSON(http.StatusInternalServerError, failureResponse)
+		failure_response.Unknown(context, "Failed to get items: "+err.Error())
 		return
 	}
 
