@@ -4,12 +4,15 @@ package rest
 
 import (
 	"net/http/httptest"
+	"testing"
 
 	"bctbackend/database/models"
+	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
 	"database/sql"
 
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/require"
 )
 
 type SetupObject struct {
@@ -81,4 +84,10 @@ func (s *SetupObject) Item(seller models.Id, options ...func(*aux.AddItemData)) 
 
 func (s *SetupObject) Sale(cashier models.Id, itemIds []models.Id, options ...func(*aux.AddSaleData)) models.Id {
 	return aux.AddSaleToDatabase(s.Db, cashier, itemIds, options...)
+}
+
+func (s *SetupObject) RequireNoSuchUser(t *testing.T, userId models.Id) {
+	exists, err := queries.UserWithIdExists(s.Db, userId)
+	require.NoError(t, err)
+	require.False(t, exists)
 }
