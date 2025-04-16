@@ -47,7 +47,7 @@ func TestAddSale(t *testing.T) {
 	})
 
 	t.Run("Failure", func(t *testing.T) {
-		t.Run("As seller", func(t *testing.T) {
+		t.Run("Cannot add sale as seller", func(t *testing.T) {
 			setup, router, writer := SetupRestTest()
 			defer setup.Close()
 
@@ -67,7 +67,7 @@ func TestAddSale(t *testing.T) {
 			require.Empty(t, sales)
 		})
 
-		t.Run("As admin", func(t *testing.T) {
+		t.Run("Cannot add sale as admin", func(t *testing.T) {
 			setup, router, writer := SetupRestTest()
 			defer setup.Close()
 
@@ -87,7 +87,7 @@ func TestAddSale(t *testing.T) {
 			require.Empty(t, sales)
 		})
 
-		t.Run("No items", func(t *testing.T) {
+		t.Run("No items in sale", func(t *testing.T) {
 			setup, router, writer := SetupRestTest()
 			defer setup.Close()
 
@@ -105,7 +105,7 @@ func TestAddSale(t *testing.T) {
 			require.Empty(t, sales)
 		})
 
-		t.Run("Nonexistent item", func(t *testing.T) {
+		t.Run("Nonexistent item in sale", func(t *testing.T) {
 			setup, router, writer := SetupRestTest()
 			defer setup.Close()
 
@@ -129,7 +129,7 @@ func TestAddSale(t *testing.T) {
 			require.Empty(t, sales)
 		})
 
-		t.Run("Duplicate item", func(t *testing.T) {
+		t.Run("Duplicate item in sale", func(t *testing.T) {
 			setup, router, writer := SetupRestTest()
 			defer setup.Close()
 
