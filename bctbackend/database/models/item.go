@@ -35,3 +35,7 @@ func NewItem(
 		Frozen:       frozen,
 	}
 }
+
+func IsValidItemDescription(description string) bool {
+	return len(description) > 0
+}

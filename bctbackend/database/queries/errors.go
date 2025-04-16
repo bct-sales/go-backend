@@ -49,6 +49,10 @@ type InvalidPriceError struct {
 	PriceInCents models.MoneyInCents
 }
 
+type InvalidItemDescriptionError struct {
+	Description string
+}
+
 type DuplicateItemInSaleError struct {
 	ItemId models.Id
 }
@@ -119,4 +123,8 @@ func (e *InvalidRoleError) Error() string {
 
 func (e *ItemFrozenError) Error() string {
 	return fmt.Sprintf("item %d is frozen", e.Id)
+}
+
+func (e *InvalidItemDescriptionError) Error() string {
+	return fmt.Sprintf("invalid description \"%s\"", e.Description)
 }

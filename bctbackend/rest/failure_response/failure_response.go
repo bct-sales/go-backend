@@ -104,3 +104,15 @@ func SaleMissingItems(context *gin.Context, message string) {
 func WrongSeller(context *gin.Context, message string) {
 	Forbidden(context, "wrong_seller", message)
 }
+
+func InvalidItemDescription(context *gin.Context, message string) {
+	BadRequest(context, "invalid_description", message)
+}
+
+func MissingSessionId(context *gin.Context, message string) {
+	Unauthorized(context, "missing_session_id", message)
+}
+
+func UnknownSession(context *gin.Context, message string) {
+	Unauthorized(context, "no_such_session", message)
+}

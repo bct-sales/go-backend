@@ -166,6 +166,10 @@ func AddItem(
 		return 0, &InvalidPriceError{PriceInCents: priceInCents}
 	}
 
+	if !models.IsValidItemDescription(description) {
+		return 0, &InvalidItemDescriptionError{Description: description}
+	}
+
 	if err := CheckUserRole(db, sellerId, models.SellerRoleId); err != nil {
 		return 0, err
 	}

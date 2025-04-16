@@ -107,6 +107,14 @@ func AddSellerItem(context *gin.Context, db *sql.DB, userId models.Id, roleId mo
 			}
 		}
 
+		{
+			var invalidItemDescriptionError *queries.InvalidItemDescriptionError
+			if errors.As(err, &invalidItemDescriptionError) {
+				failure_response.InvalidItemDescription(context, err.Error())
+				return
+			}
+		}
+
 		failure_response.Unknown(context, err.Error())
 		return
 	}

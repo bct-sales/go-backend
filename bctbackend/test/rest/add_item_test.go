@@ -94,7 +94,6 @@ func TestAddSellerItem(t *testing.T) {
 			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_price")
-			require.Equal(t, http.StatusBadRequest, writer.Code)
 
 			itemsInDatabase := []*models.Item{}
 			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase))
@@ -124,6 +123,7 @@ func TestAddSellerItem(t *testing.T) {
 			}
 			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_request")
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
 			itemsInDatabase := []*models.Item{}
@@ -170,11 +170,9 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := models.NewId(1000)
+			categoryId := defs.BabyChildEquipment
 			donation := false
 			charity := false
-
-			require.NotContains(t, defs.ListCategories(), categoryId)
 
 			seller := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Admin())
@@ -189,7 +187,7 @@ func TestAddSellerItem(t *testing.T) {
 			}
 			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			require.Equal(t, http.StatusForbidden, writer.Code)
+			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
 			itemsInDatabase := []*models.Item{}
 			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase))
@@ -203,11 +201,9 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := models.NewId(1000)
+			categoryId := defs.Clothing104_116
 			donation := false
 			charity := false
-
-			require.NotContains(t, defs.ListCategories(), categoryId)
 
 			seller := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Cashier())
@@ -221,7 +217,7 @@ func TestAddSellerItem(t *testing.T) {
 			}
 			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			require.Equal(t, http.StatusForbidden, writer.Code)
+			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
 			itemsInDatabase := []*models.Item{}
 			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase))
@@ -235,11 +231,9 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := models.NewId(1000)
+			categoryId := defs.BabyChildEquipment
 			donation := false
 			charity := false
-
-			require.NotContains(t, defs.ListCategories(), categoryId)
 
 			_, sessionId := setup.LoggedIn(setup.Seller())
 
@@ -253,7 +247,7 @@ func TestAddSellerItem(t *testing.T) {
 			}
 			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			require.Equal(t, http.StatusBadRequest, writer.Code)
+			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_user_id")
 
 			itemsInDatabase := []*models.Item{}
 			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase))
@@ -267,11 +261,9 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := models.NewId(1000)
+			categoryId := defs.BabyChildEquipment
 			donation := false
 			charity := false
-
-			require.NotContains(t, defs.ListCategories(), categoryId)
 
 			seller1 := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Seller())
@@ -286,8 +278,7 @@ func TestAddSellerItem(t *testing.T) {
 			}
 			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
-
-			require.Equal(t, http.StatusForbidden, writer.Code)
+			RequireFailureType(t, writer, http.StatusForbidden, "wrong_user")
 
 			itemsInDatabase := []*models.Item{}
 			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase))
@@ -295,17 +286,15 @@ func TestAddSellerItem(t *testing.T) {
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
 
-		t.Run("Adding as nonexistent seller", func(t *testing.T) {
+		t.Run("Adding item to nonexistent seller", func(t *testing.T) {
 			setup, router, writer := SetupRestTest()
 			defer setup.Close()
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := models.NewId(1000)
+			categoryId := defs.BabyChildEquipment
 			donation := false
 			charity := false
-
-			require.NotContains(t, defs.ListCategories(), categoryId)
 
 			_, sessionId := setup.LoggedIn(setup.Seller())
 			nonexistentId := models.NewId(1000)
@@ -324,8 +313,7 @@ func TestAddSellerItem(t *testing.T) {
 			}
 			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
-
-			require.Equal(t, http.StatusForbidden, writer.Code)
+			RequireFailureType(t, writer, http.StatusForbidden, "wrong_user")
 
 			itemsInDatabase := []*models.Item{}
 			err = queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase))
@@ -333,7 +321,7 @@ func TestAddSellerItem(t *testing.T) {
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
 
-		t.Run("Not logged in", func(t *testing.T) {
+		t.Run("No session ID in cookie", func(t *testing.T) {
 			setup, router, writer := SetupRestTest()
 			defer setup.Close()
 
@@ -360,8 +348,7 @@ func TestAddSellerItem(t *testing.T) {
 			}
 			request := CreatePostRequest(url, &payload)
 			router.ServeHTTP(writer, request)
-
-			require.Equal(t, http.StatusUnauthorized, writer.Code)
+			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
 
 			itemsInDatabase := []*models.Item{}
 			err = queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase))

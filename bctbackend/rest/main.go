@@ -5,13 +5,13 @@ import (
 	"bctbackend/database/queries"
 	rest_admin "bctbackend/rest/admin"
 	rest_cashier "bctbackend/rest/cashier"
+	"bctbackend/rest/failure_response"
 	rest_path "bctbackend/rest/path"
 	rest_seller "bctbackend/rest/seller"
 	"bctbackend/security"
 	"database/sql"
 	"errors"
 	"log/slog"
-	"net/http"
 
 	_ "bctbackend/docs"
 
@@ -55,17 +55,6 @@ func SetUpCors(router *gin.Engine) {
 	router.Use(cors.New(config))
 }
 
-type FailureResponse struct {
-	Type    string `json:"type"`
-	Details string `json:"details"`
-}
-
-const (
-	FailureType_MissingSessionID = "missing_session_id"
-	FailureType_SessionNotFound  = "session_not_found"
-	FailureType_Unknown          = "unknown"
-)
-
 func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 	withUserAndRole := func(handler func(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id)) gin.HandlerFunc {
 		return func(context *gin.Context) {
@@ -73,8 +62,7 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 
 			if err != nil {
 				slog.Info("Unauthorized: missing session ID")
-				failureResponse := FailureResponse{Type: FailureType_MissingSessionID, Details: err.Error()}
-				context.JSON(http.StatusUnauthorized, failureResponse)
+				failure_response.MissingSessionId(context, err.Error())
 				return
 			}
 
@@ -83,15 +71,13 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 			var noSessionFoundError *queries.NoSessionFoundError
 			if errors.As(err, &noSessionFoundError) {
 				slog.Info("Session not found")
-				failureResponse := FailureResponse{Type: FailureType_SessionNotFound, Details: err.Error()}
-				context.JSON(http.StatusUnauthorized, failureResponse)
+				failure_response.UnknownSession(context, err.Error())
 				return
 			}
 
 			if err != nil {
 				slog.Error("Failed to retrieve session from database", slog.String("error", err.Error()))
-				failureResponse := FailureResponse{Type: FailureType_Unknown, Details: err.Error()}
-				context.JSON(http.StatusInternalServerError, failureResponse)
+				failure_response.Unknown(context, "Failed to retrieve session from database: "+err.Error())
 				return
 			}
 
