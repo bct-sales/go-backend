@@ -98,5 +98,22 @@ func TestListSellerItems(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 		})
+
+		t.Run("Invalid seller id", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+
+			seller, sessionId := setup.LoggedIn(setup.Seller())
+			itemCount := 10
+
+			for i := 0; i < itemCount; i++ {
+				setup.Item(seller.UserId, aux.WithDummyData(i))
+			}
+
+			url := path.SellerItems().WithRawSellerId("xxx")
+			request := CreateGetRequest(url, WithCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_user_id")
+		})
 	})
 }
