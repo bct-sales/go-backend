@@ -40,7 +40,7 @@ func Unknown(context *gin.Context, message string) {
 
 // Could not parse request
 func InvalidRequest(context *gin.Context, message string) {
-	BadRequest(context, "invalid_request", message)
+	BadRequest(context, "invalid_request", "invalid request: "+message)
 }
 
 func InvalidUriParameters(context *gin.Context, message string) {
@@ -67,6 +67,14 @@ func UnknownUser(context *gin.Context, message string) {
 	NotFound(context, "no_such_user", message)
 }
 
+func WrongUser(context *gin.Context, message string) {
+	Forbidden(context, "wrong_user", message)
+}
+
+func UnknownCategory(context *gin.Context, message string) {
+	NotFound(context, "no_such_category", message)
+}
+
 func WrongPassword(context *gin.Context, message string) {
 	Unauthorized(context, "wrong_password", message)
 }
@@ -87,6 +95,12 @@ func DuplicateItemInSale(context *gin.Context, message string) {
 	Forbidden(context, "duplicate_item_in_sale", message)
 }
 
+// No items in sale
 func SaleMissingItems(context *gin.Context, message string) {
 	Forbidden(context, "sale_missing_items", message)
+}
+
+// Seller trying to access other seller's data
+func WrongSeller(context *gin.Context, message string) {
+	Forbidden(context, "wrong_seller", message)
 }

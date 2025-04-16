@@ -18,6 +18,6 @@ func RequireFailureType(t *testing.T, writer *httptest.ResponseRecorder, expecte
 	require.NoError(t, err)
 
 	failureType, ok := response["type"]
-	require.True(t, ok)
-	require.Equal(t, expectedFailureType, failureType)
+	require.True(t, ok, "failure type not found in response: %s", writer.Body.String())
+	require.Equal(t, expectedFailureType, failureType, "unexpected failure type: %s", writer.Body.String())
 }

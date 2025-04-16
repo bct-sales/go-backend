@@ -35,7 +35,7 @@ func TestAddSellerItem(t *testing.T) {
 
 									url := path.SellerItems().WithSellerId(seller.UserId)
 									payload := restapi.AddSellerItemPayload{
-										Price:       price,
+										Price:       &price,
 										Description: description,
 										CategoryId:  categoryId,
 										Donation:    &donation,
@@ -85,7 +85,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
-				Price:       price,
+				Price:       &price,
 				Description: description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
@@ -93,6 +93,7 @@ func TestAddSellerItem(t *testing.T) {
 			}
 			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_price")
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
 			itemsInDatabase := []*models.Item{}
@@ -115,7 +116,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
-				Price:       price,
+				Price:       &price,
 				Description: description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
@@ -147,7 +148,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
-				Price:       price,
+				Price:       &price,
 				Description: description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
@@ -155,7 +156,7 @@ func TestAddSellerItem(t *testing.T) {
 			}
 			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			require.Equal(t, http.StatusBadRequest, writer.Code)
+			RequireFailureType(t, writer, http.StatusNotFound, "no_such_category")
 
 			itemsInDatabase := []*models.Item{}
 			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase))
@@ -180,7 +181,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
-				Price:       price,
+				Price:       &price,
 				Description: description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
@@ -212,7 +213,7 @@ func TestAddSellerItem(t *testing.T) {
 			_, sessionId := setup.LoggedIn(setup.Cashier())
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
-				Price:       price,
+				Price:       &price,
 				Description: description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
@@ -244,7 +245,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			url := path.SellerItems().WithRawSellerId("a")
 			payload := restapi.AddSellerItemPayload{
-				Price:       price,
+				Price:       &price,
 				Description: description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
@@ -277,7 +278,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			url := path.SellerItems().WithSellerId(seller1.UserId)
 			payload := restapi.AddSellerItemPayload{
-				Price:       price,
+				Price:       &price,
 				Description: description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
@@ -315,7 +316,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			url := path.SellerItems().WithSellerId(nonexistentId)
 			payload := restapi.AddSellerItemPayload{
-				Price:       price,
+				Price:       &price,
 				Description: description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
@@ -351,7 +352,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			url := path.SellerItems().WithSellerId(nonexistentId)
 			payload := restapi.AddSellerItemPayload{
-				Price:       price,
+				Price:       &price,
 				Description: description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
