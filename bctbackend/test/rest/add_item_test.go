@@ -325,20 +325,15 @@ func TestAddSellerItem(t *testing.T) {
 			setup, router, writer := SetupRestTest()
 			defer setup.Close()
 
-			price := models.MoneyInCents(100)
+			price := models.MoneyInCents(0)
 			description := "Test Description"
-			categoryId := defs.BabyChildEquipment
+			categoryId := defs.Clothing50_56
 			donation := false
 			charity := false
 
-			setup.Seller()
-			nonexistentId := models.NewId(1000)
+			seller := setup.Seller()
 
-			userExists, err := queries.UserWithIdExists(setup.Db, nonexistentId)
-			require.NoError(t, err)
-			require.False(t, userExists)
-
-			url := path.SellerItems().WithSellerId(nonexistentId)
+			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       &price,
 				Description: description,
@@ -351,7 +346,38 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
 
 			itemsInDatabase := []*models.Item{}
-			err = queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase))
+			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase))
+			require.NoError(t, err)
+			require.Equal(t, 0, len(itemsInDatabase))
+		})
+
+		t.Run("Invalid ID in cookie", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+
+			price := models.MoneyInCents(0)
+			description := "Test Description"
+			categoryId := defs.Clothing50_56
+			donation := false
+			charity := false
+
+			seller := setup.Seller()
+			invalidSessionId := "xxx"
+
+			url := path.SellerItems().WithSellerId(seller.UserId)
+			payload := restapi.AddSellerItemPayload{
+				Price:       &price,
+				Description: description,
+				CategoryId:  categoryId,
+				Donation:    &donation,
+				Charity:     &charity,
+			}
+			request := CreatePostRequest(url, &payload, WithCookie(invalidSessionId))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
+
+			itemsInDatabase := []*models.Item{}
+			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
