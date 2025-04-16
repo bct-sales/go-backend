@@ -19,8 +19,8 @@ import (
 // @Success 200 {object} []models.Item
 // @Router /seller/{seller_id}/items [get]
 func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
-	if roleId != models.SellerRoleId {
-		failure_response.Forbidden(context, "wrong_role", "Only accessible to sellers")
+	if roleId != models.SellerRoleId && roleId != models.AdminRoleId {
+		failure_response.Forbidden(context, "wrong_role", "Only accessible to sellers and admins")
 		return
 	}
 
@@ -38,7 +38,7 @@ func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 		return
 	}
 
-	if userId != uriSellerId {
+	if userId != uriSellerId && roleId != models.AdminRoleId {
 		failure_response.WrongSeller(context, "Logged in user does not match URI seller ID")
 		return
 	}
