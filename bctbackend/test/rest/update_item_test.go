@@ -17,229 +17,233 @@ import (
 )
 
 func TestUpdateItem(t *testing.T) {
-	t.Run("Successfully updating description", func(t *testing.T) {
-		setup, router, writer := SetupRestTest()
-		defer setup.Close()
+	t.Run("Success", func(t *testing.T) {
+		t.Run("Updating description", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
 
-		seller, sessionId := setup.LoggedIn(setup.Seller())
-		originalDescription := "old description"
-		newDescription := "new description"
-		originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithDescription(originalDescription))
+			seller, sessionId := setup.LoggedIn(setup.Seller())
+			originalDescription := "old description"
+			newDescription := "new description"
+			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithDescription(originalDescription))
 
-		url := path.Items().Id(originalItem.ItemId)
-		payload := struct {
-			Description string `json:"description"`
-		}{
-			Description: newDescription,
-		}
-		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
-		router.ServeHTTP(writer, request)
-		require.Equal(t, http.StatusNoContent, writer.Code)
+			url := path.Items().Id(originalItem.ItemId)
+			payload := struct {
+				Description string `json:"description"`
+			}{
+				Description: newDescription,
+			}
+			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusNoContent, writer.Code)
 
-		actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
-		require.NoError(t, err)
+			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+			require.NoError(t, err)
 
-		expectedItem := *originalItem
-		expectedItem.Description = newDescription
-		require.Equal(t, expectedItem, *actualItem)
+			expectedItem := *originalItem
+			expectedItem.Description = newDescription
+			require.Equal(t, expectedItem, *actualItem)
+		})
+
+		t.Run("Updating as admin", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+
+			seller := setup.Seller()
+			_, sessionId := setup.LoggedIn(setup.Admin())
+			originalDescription := "old description"
+			newDescription := "new description"
+			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithDescription(originalDescription))
+
+			url := path.Items().Id(originalItem.ItemId)
+			payload := struct {
+				Description string `json:"description"`
+			}{
+				Description: newDescription,
+			}
+			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusNoContent, writer.Code)
+
+			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+			require.NoError(t, err)
+
+			expectedItem := *originalItem
+			expectedItem.Description = newDescription
+			require.Equal(t, expectedItem, *actualItem)
+		})
+
+		t.Run("Updating price", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+
+			seller, sessionId := setup.LoggedIn(setup.Seller())
+			originalPrice := 100
+			newPrice := 200
+			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithPriceInCents(models.MoneyInCents(originalPrice)))
+
+			url := path.Items().Id(originalItem.ItemId)
+			payload := struct {
+				PriceInCents int `json:"priceInCents"`
+			}{
+				PriceInCents: newPrice,
+			}
+			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusNoContent, writer.Code)
+
+			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+			require.NoError(t, err)
+
+			expectedItem := *originalItem
+			expectedItem.PriceInCents = models.MoneyInCents(newPrice)
+			require.Equal(t, expectedItem, *actualItem)
+		})
+
+		t.Run("Updating charity and donation", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+
+			seller, sessionId := setup.LoggedIn(setup.Seller())
+			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithCharity(false), aux.WithDonation(false))
+
+			url := path.Items().Id(originalItem.ItemId)
+			payload := struct {
+				Donation bool `json:"donation"`
+				Charity  bool `json:"charity"`
+			}{
+				Donation: true,
+				Charity:  true,
+			}
+			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusNoContent, writer.Code)
+
+			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+			require.NoError(t, err)
+
+			expectedItem := *originalItem
+			expectedItem.Donation = true
+			expectedItem.Charity = true
+			require.Equal(t, expectedItem, *actualItem)
+		})
 	})
 
-	t.Run("Successfully updating as admin", func(t *testing.T) {
-		setup, router, writer := SetupRestTest()
-		defer setup.Close()
+	t.Run("Failures", func(t *testing.T) {
+		t.Run("Updating frozen item", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
 
-		seller := setup.Seller()
-		_, sessionId := setup.LoggedIn(setup.Admin())
-		originalDescription := "old description"
-		newDescription := "new description"
-		originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithDescription(originalDescription))
+			seller, sessionId := setup.LoggedIn(setup.Seller())
+			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(true))
 
-		url := path.Items().Id(originalItem.ItemId)
-		payload := struct {
-			Description string `json:"description"`
-		}{
-			Description: newDescription,
-		}
-		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
-		router.ServeHTTP(writer, request)
-		require.Equal(t, http.StatusNoContent, writer.Code)
+			url := path.Items().Id(originalItem.ItemId)
+			payload := struct {
+				Description string `json:"description"`
+			}{
+				Description: "updated",
+			}
+			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusForbidden, writer.Code)
 
-		actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
-		require.NoError(t, err)
+			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+			require.NoError(t, err)
 
-		expectedItem := *originalItem
-		expectedItem.Description = newDescription
-		require.Equal(t, expectedItem, *actualItem)
-	})
+			expectedItem := *originalItem
+			require.Equal(t, expectedItem, *actualItem)
+		})
 
-	t.Run("Successfully updating price", func(t *testing.T) {
-		setup, router, writer := SetupRestTest()
-		defer setup.Close()
+		t.Run("Invalid price", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
 
-		seller, sessionId := setup.LoggedIn(setup.Seller())
-		originalPrice := 100
-		newPrice := 200
-		originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithPriceInCents(models.MoneyInCents(originalPrice)))
+			seller, sessionId := setup.LoggedIn(setup.Seller())
+			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(true))
 
-		url := path.Items().Id(originalItem.ItemId)
-		payload := struct {
-			PriceInCents int `json:"priceInCents"`
-		}{
-			PriceInCents: newPrice,
-		}
-		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
-		router.ServeHTTP(writer, request)
-		require.Equal(t, http.StatusNoContent, writer.Code)
+			url := path.Items().Id(originalItem.ItemId)
+			payload := struct {
+				PriceInCents int `json:"priceInCents"`
+			}{
+				PriceInCents: -100,
+			}
+			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusForbidden, writer.Code)
 
-		actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
-		require.NoError(t, err)
+			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+			require.NoError(t, err)
 
-		expectedItem := *originalItem
-		expectedItem.PriceInCents = models.MoneyInCents(newPrice)
-		require.Equal(t, expectedItem, *actualItem)
-	})
+			expectedItem := *originalItem
+			require.Equal(t, expectedItem, *actualItem)
+		})
 
-	t.Run("Successfully updating charity and donation", func(t *testing.T) {
-		setup, router, writer := SetupRestTest()
-		defer setup.Close()
+		t.Run("Nonexisting item", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
 
-		seller, sessionId := setup.LoggedIn(setup.Seller())
-		originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithCharity(false), aux.WithDonation(false))
+			_, sessionId := setup.LoggedIn(setup.Seller())
 
-		url := path.Items().Id(originalItem.ItemId)
-		payload := struct {
-			Donation bool `json:"donation"`
-			Charity  bool `json:"charity"`
-		}{
-			Donation: true,
-			Charity:  true,
-		}
-		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
-		router.ServeHTTP(writer, request)
-		require.Equal(t, http.StatusNoContent, writer.Code)
+			nonexistingItemId := models.Id(123)
+			url := path.Items().Id(nonexistingItemId)
+			payload := struct {
+				PriceInCents int `json:"priceInCents"`
+			}{
+				PriceInCents: 100,
+			}
+			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusNotFound, writer.Code)
+		})
 
-		actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
-		require.NoError(t, err)
+		t.Run("Updating as wrong seller", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
 
-		expectedItem := *originalItem
-		expectedItem.Donation = true
-		expectedItem.Charity = true
-		require.Equal(t, expectedItem, *actualItem)
-	})
+			ownerSeller := setup.Seller()
+			_, sessionId := setup.LoggedIn(setup.Seller())
+			originalItem := setup.Item(ownerSeller.UserId, aux.WithDummyData(1), aux.WithFrozen(true))
 
-	t.Run("Failing to update frozen item", func(t *testing.T) {
-		setup, router, writer := SetupRestTest()
-		defer setup.Close()
+			url := path.Items().Id(originalItem.ItemId)
+			payload := struct {
+				PriceInCents int `json:"priceInCents"`
+			}{
+				PriceInCents: 100,
+			}
+			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusForbidden, writer.Code)
 
-		seller, sessionId := setup.LoggedIn(setup.Seller())
-		originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(true))
+			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+			require.NoError(t, err)
 
-		url := path.Items().Id(originalItem.ItemId)
-		payload := struct {
-			Description string `json:"description"`
-		}{
-			Description: "updated",
-		}
-		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
-		router.ServeHTTP(writer, request)
-		require.Equal(t, http.StatusForbidden, writer.Code)
+			expectedItem := *originalItem
+			require.Equal(t, expectedItem, *actualItem)
+		})
 
-		actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
-		require.NoError(t, err)
+		t.Run("Updating as cashier", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
 
-		expectedItem := *originalItem
-		require.Equal(t, expectedItem, *actualItem)
-	})
+			ownerSeller := setup.Seller()
+			_, sessionId := setup.LoggedIn(setup.Cashier())
+			originalItem := setup.Item(ownerSeller.UserId, aux.WithDummyData(1), aux.WithFrozen(true))
 
-	t.Run("Failing due to invalid price", func(t *testing.T) {
-		setup, router, writer := SetupRestTest()
-		defer setup.Close()
+			url := path.Items().Id(originalItem.ItemId)
+			payload := struct {
+				PriceInCents int `json:"priceInCents"`
+			}{
+				PriceInCents: 100,
+			}
+			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusForbidden, writer.Code)
 
-		seller, sessionId := setup.LoggedIn(setup.Seller())
-		originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(true))
+			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+			require.NoError(t, err)
 
-		url := path.Items().Id(originalItem.ItemId)
-		payload := struct {
-			PriceInCents int `json:"priceInCents"`
-		}{
-			PriceInCents: -100,
-		}
-		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
-		router.ServeHTTP(writer, request)
-		require.Equal(t, http.StatusForbidden, writer.Code)
-
-		actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
-		require.NoError(t, err)
-
-		expectedItem := *originalItem
-		require.Equal(t, expectedItem, *actualItem)
-	})
-
-	t.Run("Failing due to nonexisting item", func(t *testing.T) {
-		setup, router, writer := SetupRestTest()
-		defer setup.Close()
-
-		_, sessionId := setup.LoggedIn(setup.Seller())
-
-		nonexistingItemId := models.Id(123)
-		url := path.Items().Id(nonexistingItemId)
-		payload := struct {
-			PriceInCents int `json:"priceInCents"`
-		}{
-			PriceInCents: 100,
-		}
-		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
-		router.ServeHTTP(writer, request)
-		require.Equal(t, http.StatusNotFound, writer.Code)
-	})
-
-	t.Run("Failing due to nonowner seller", func(t *testing.T) {
-		setup, router, writer := SetupRestTest()
-		defer setup.Close()
-
-		ownerSeller := setup.Seller()
-		_, sessionId := setup.LoggedIn(setup.Seller())
-		originalItem := setup.Item(ownerSeller.UserId, aux.WithDummyData(1), aux.WithFrozen(true))
-
-		url := path.Items().Id(originalItem.ItemId)
-		payload := struct {
-			PriceInCents int `json:"priceInCents"`
-		}{
-			PriceInCents: 100,
-		}
-		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
-		router.ServeHTTP(writer, request)
-		require.Equal(t, http.StatusForbidden, writer.Code)
-
-		actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
-		require.NoError(t, err)
-
-		expectedItem := *originalItem
-		require.Equal(t, expectedItem, *actualItem)
-	})
-
-	t.Run("Failing due to updating as cashier", func(t *testing.T) {
-		setup, router, writer := SetupRestTest()
-		defer setup.Close()
-
-		ownerSeller := setup.Seller()
-		_, sessionId := setup.LoggedIn(setup.Cashier())
-		originalItem := setup.Item(ownerSeller.UserId, aux.WithDummyData(1), aux.WithFrozen(true))
-
-		url := path.Items().Id(originalItem.ItemId)
-		payload := struct {
-			PriceInCents int `json:"priceInCents"`
-		}{
-			PriceInCents: 100,
-		}
-		request := CreatePutRequest(url, &payload, WithCookie(sessionId))
-		router.ServeHTTP(writer, request)
-		require.Equal(t, http.StatusForbidden, writer.Code)
-
-		actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
-		require.NoError(t, err)
-
-		expectedItem := *originalItem
-		require.Equal(t, expectedItem, *actualItem)
+			expectedItem := *originalItem
+			require.Equal(t, expectedItem, *actualItem)
+		})
 	})
 }
