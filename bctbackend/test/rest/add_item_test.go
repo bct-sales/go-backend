@@ -8,8 +8,8 @@ import (
 	"testing"
 
 	"bctbackend/defs"
+	restapi "bctbackend/rest"
 	"bctbackend/rest/path"
-	restapi "bctbackend/rest/seller"
 	. "bctbackend/test"
 
 	models "bctbackend/database/models"
