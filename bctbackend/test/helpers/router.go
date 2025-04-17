@@ -10,11 +10,10 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func CreateRestRouter() (*sql.DB, *gin.Engine) {
-	db := OpenInitializedDatabase()
+func CreateRestRouter(db *sql.DB) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	rest.DefineEndpoints(db, router)
 
-	return db, router
+	return router
 }

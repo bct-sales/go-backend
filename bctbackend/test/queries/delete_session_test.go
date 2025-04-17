@@ -13,7 +13,7 @@ import (
 )
 
 func TestDeleteSession(t *testing.T) {
-	setup, db := Setup()
+	setup, db := NewDatabaseFixture()
 	defer setup.Close()
 
 	user := setup.Admin()

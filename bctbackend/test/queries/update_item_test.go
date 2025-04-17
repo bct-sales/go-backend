@@ -46,7 +46,7 @@ func TestUpdateItem(t *testing.T) {
 									updateCategory,
 								)
 								t.Run(testLabel, func(t *testing.T) {
-									setup, db := Setup()
+									setup, db := NewDatabaseFixture()
 									defer setup.Close()
 
 									seller := setup.Seller()
@@ -130,7 +130,7 @@ func TestUpdateItem(t *testing.T) {
 	})
 
 	t.Run("Failure due to nonexistent item", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		itemId := models.NewId(1)
@@ -143,7 +143,7 @@ func TestUpdateItem(t *testing.T) {
 	})
 
 	t.Run("Failure due to frozen item", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -162,7 +162,7 @@ func TestUpdateItem(t *testing.T) {
 	})
 
 	t.Run("Failure due to nil itemUpdate", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -178,7 +178,7 @@ func TestUpdateItem(t *testing.T) {
 	})
 
 	t.Run("Failure due to invalid price", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		seller := setup.Seller()

@@ -20,7 +20,7 @@ func TestGetSaleItemInformation(t *testing.T) {
 			label := fmt.Sprintf("Sell count = %d", sellCount)
 
 			t.Run(label, func(t *testing.T) {
-				setup, db := Setup()
+				setup, db := NewDatabaseFixture()
 				defer setup.Close()
 
 				seller := setup.Seller()
@@ -42,7 +42,7 @@ func TestGetSaleItemInformation(t *testing.T) {
 	})
 
 	t.Run("Failure", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		nonexistentItemId := models.Id(1)

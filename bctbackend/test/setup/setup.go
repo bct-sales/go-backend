@@ -15,84 +15,92 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type SetupObject struct {
-	Db     *sql.DB
+type DatabaseFixture struct {
+	Db *sql.DB
+}
+
+func initializeDatabaseFixture(fixture *DatabaseFixture) {
+	fixture.Db = aux.OpenInitializedDatabase()
+}
+
+func NewDatabaseFixture() (DatabaseFixture, *sql.DB) {
+	var fixture DatabaseFixture
+	initializeDatabaseFixture(&fixture)
+	return fixture, fixture.Db
+}
+
+func (f *DatabaseFixture) Close() {
+	if f.Db != nil {
+		f.Db.Close()
+	}
+	f.Db = nil
+}
+
+type RestFixture struct {
+	DatabaseFixture
 	Router *gin.Engine
 	Writer *httptest.ResponseRecorder
 }
 
-func Setup() (*SetupObject, *sql.DB) {
-	db := aux.OpenInitializedDatabase()
-
-	setup := SetupObject{
-		Db: db,
-	}
-
-	return &setup, db
+func initializeRestFixture(fixture *RestFixture) {
+	initializeDatabaseFixture(&fixture.DatabaseFixture)
+	router := aux.CreateRestRouter(fixture.DatabaseFixture.Db)
+	fixture.Router = router
+	fixture.Writer = httptest.NewRecorder()
 }
 
-func SetupRestTest() (*SetupObject, *gin.Engine, *httptest.ResponseRecorder) {
-	db, router := aux.CreateRestRouter()
-	writer := httptest.NewRecorder()
-
-	setup := SetupObject{
-		Db:     db,
-		Router: router,
-		Writer: writer,
-	}
-
-	return &setup, router, writer
+func NewRestFixture() (RestFixture, *gin.Engine, *httptest.ResponseRecorder) {
+	var fixture RestFixture
+	initializeRestFixture(&fixture)
+	return fixture, fixture.Router, fixture.Writer
 }
 
-func (s *SetupObject) Close() {
-	if s.Db != nil {
-		s.Db.Close()
-	}
-
-	s.Db = nil
-	s.Router = nil
+func (f *RestFixture) Close() {
+	f.DatabaseFixture.Close()
+	f.Router = nil
+	f.Writer = nil
 }
 
-func (s *SetupObject) User(roleId models.Id, options ...func(*aux.AddUserData)) *models.User {
+func (s DatabaseFixture) User(roleId models.Id, options ...func(*aux.AddUserData)) *models.User {
 	return aux.AddUserToDatabase(s.Db, roleId, options...)
 }
 
-func (s *SetupObject) Admin(options ...func(*aux.AddUserData)) *models.User {
+func (s DatabaseFixture) Admin(options ...func(*aux.AddUserData)) *models.User {
 	return aux.AddUserToDatabase(s.Db, models.AdminRoleId, options...)
 }
 
-func (s *SetupObject) Cashier(options ...func(*aux.AddUserData)) *models.User {
+func (s DatabaseFixture) Cashier(options ...func(*aux.AddUserData)) *models.User {
 	return aux.AddUserToDatabase(s.Db, models.CashierRoleId, options...)
 }
 
-func (s *SetupObject) Seller(options ...func(*aux.AddUserData)) *models.User {
+func (s DatabaseFixture) Seller(options ...func(*aux.AddUserData)) *models.User {
 	return aux.AddUserToDatabase(s.Db, models.SellerRoleId, options...)
 }
 
-func (s *SetupObject) Session(userId models.Id, options ...func(*aux.AddSessionData)) string {
+func (s DatabaseFixture) Session(userId models.Id, options ...func(*aux.AddSessionData)) string {
 	return aux.AddSessionToDatabase(s.Db, userId)
 }
 
-func (s *SetupObject) LoggedIn(user *models.User, options ...func(*aux.AddSessionData)) (*models.User, string) {
+func (s DatabaseFixture) LoggedIn(user *models.User, options ...func(*aux.AddSessionData)) (*models.User, string) {
 	session := aux.AddSessionToDatabase(s.Db, user.UserId, options...)
 	return user, session
 }
 
-func (s *SetupObject) Item(seller models.Id, options ...func(*aux.AddItemData)) *models.Item {
+func (s DatabaseFixture) Item(seller models.Id, options ...func(*aux.AddItemData)) *models.Item {
 	return aux.AddItemToDatabase(s.Db, seller, options...)
 }
 
-func (s *SetupObject) Sale(cashier models.Id, itemIds []models.Id, options ...func(*aux.AddSaleData)) models.Id {
+func (s DatabaseFixture) Sale(cashier models.Id, itemIds []models.Id, options ...func(*aux.AddSaleData)) models.Id {
 	return aux.AddSaleToDatabase(s.Db, cashier, itemIds, options...)
 }
 
-func (s *SetupObject) RequireNoSuchUser(t *testing.T, userId models.Id) {
+func (s DatabaseFixture) RequireNoSuchUser(t *testing.T, userId models.Id) {
 	exists, err := queries.UserWithIdExists(s.Db, userId)
 	require.NoError(t, err)
 	require.False(t, exists)
 }
 
-func (s *SetupObject) RequireNoSuchItem(t *testing.T, itemId models.Id) {
+func (s DatabaseFixture) RequireNoSuchItem(t *testing.T, itemId models.Id) {
 	exists, err := queries.ItemWithIdExists(s.Db, itemId)
 	require.NoError(t, err)
 	require.False(t, exists)

@@ -14,7 +14,7 @@ import (
 )
 
 func TestCategoryWithIdExists(t *testing.T) {
-	setup, db := Setup()
+	setup, db := NewDatabaseFixture()
 	defer setup.Close()
 
 	for _, categoryId := range defs.ListCategories() {

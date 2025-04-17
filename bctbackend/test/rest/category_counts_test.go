@@ -47,7 +47,7 @@ func TestCategoryCounts(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Zero items", func(t *testing.T) {
-			setup, router, writer := SetupRestTest()
+			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
 			_, sessionId := setup.LoggedIn(setup.Admin())
@@ -62,7 +62,7 @@ func TestCategoryCounts(t *testing.T) {
 
 		for _, categoryId := range defs.ListCategories() {
 			t.Run("Single item", func(t *testing.T) {
-				setup, router, writer := SetupRestTest()
+				setup, router, writer := NewRestFixture()
 				defer setup.Close()
 
 				_, sessionId := setup.LoggedIn(setup.Admin())
@@ -81,7 +81,7 @@ func TestCategoryCounts(t *testing.T) {
 
 		for _, categoryId := range defs.ListCategories() {
 			t.Run("Two items in same category", func(t *testing.T) {
-				setup, router, writer := SetupRestTest()
+				setup, router, writer := NewRestFixture()
 				defer setup.Close()
 
 				_, sessionId := setup.LoggedIn(setup.Admin())
@@ -102,7 +102,7 @@ func TestCategoryCounts(t *testing.T) {
 		for _, categoryId1 := range defs.ListCategories() {
 			for _, categoryId2 := range defs.ListCategories() {
 				t.Run("Two items in potentially equal categories", func(t *testing.T) {
-					setup, router, writer := SetupRestTest()
+					setup, router, writer := NewRestFixture()
 					defer setup.Close()
 
 					_, sessionId := setup.LoggedIn(setup.Admin())
@@ -126,7 +126,7 @@ func TestCategoryCounts(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Not logged in", func(t *testing.T) {
-			setup, router, writer := SetupRestTest()
+			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
 			request := CreateGetRequest(url)
@@ -136,7 +136,7 @@ func TestCategoryCounts(t *testing.T) {
 		})
 
 		t.Run("Wrong role", func(t *testing.T) {
-			setup, router, writer := SetupRestTest()
+			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
 			_, sessionId := setup.LoggedIn(setup.Seller())

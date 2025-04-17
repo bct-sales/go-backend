@@ -20,7 +20,7 @@ import (
 func TestLogin(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Seller", func(t *testing.T) {
-			setup, router, writer := SetupRestTest()
+			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -61,7 +61,7 @@ func TestLogin(t *testing.T) {
 		})
 
 		t.Run("Admin", func(t *testing.T) {
-			setup, router, writer := SetupRestTest()
+			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
 			admin := setup.Admin()
@@ -102,7 +102,7 @@ func TestLogin(t *testing.T) {
 		})
 
 		t.Run("Cashier", func(t *testing.T) {
-			setup, router, writer := SetupRestTest()
+			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
 			cashier := setup.Cashier()
@@ -145,7 +145,7 @@ func TestLogin(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Unknown login", func(t *testing.T) {
-			setup, router, writer := SetupRestTest()
+			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
 			userId := models.Id(0)
@@ -165,7 +165,7 @@ func TestLogin(t *testing.T) {
 		})
 
 		t.Run("Wrong password", func(t *testing.T) {
-			setup, router, writer := SetupRestTest()
+			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -188,7 +188,7 @@ func TestLogin(t *testing.T) {
 		})
 
 		t.Run("Missing username", func(t *testing.T) {
-			setup, router, writer := SetupRestTest()
+			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
 			cashier := setup.Cashier()
@@ -206,7 +206,7 @@ func TestLogin(t *testing.T) {
 		})
 
 		t.Run("Missing password", func(t *testing.T) {
-			setup, router, writer := SetupRestTest()
+			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
 			cashier := setup.Cashier()

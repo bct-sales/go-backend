@@ -14,7 +14,7 @@ import (
 
 func TestCountItems(t *testing.T) {
 	t.Run("Empty", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		count, err := queries.CountItems(db)
@@ -23,7 +23,7 @@ func TestCountItems(t *testing.T) {
 	})
 
 	t.Run("One item", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -35,7 +35,7 @@ func TestCountItems(t *testing.T) {
 	})
 
 	t.Run("Two items", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		seller := setup.Seller()

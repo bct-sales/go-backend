@@ -14,7 +14,7 @@ import (
 
 func TestFreezeItem(t *testing.T) {
 	t.Run("Successful freezing", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		seller := setup.Seller()

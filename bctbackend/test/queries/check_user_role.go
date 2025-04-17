@@ -33,7 +33,7 @@ func TestCheckUserRole(t *testing.T) {
 			require.NoError(t, err)
 
 			t.Run(roleName, func(t *testing.T) {
-				setup, db := Setup()
+				setup, db := NewDatabaseFixture()
 				defer setup.Close()
 
 				setup.Cashier(aux.WithUserId(cashierId))
@@ -63,7 +63,7 @@ func TestCheckUserRole(t *testing.T) {
 			require.NoError(t, err)
 
 			t.Run(roleName, func(t *testing.T) {
-				setup, db := Setup()
+				setup, db := NewDatabaseFixture()
 				defer setup.Close()
 
 				setup.Cashier(aux.WithUserId(cashierId))
@@ -78,7 +78,7 @@ func TestCheckUserRole(t *testing.T) {
 	})
 
 	t.Run("Check non-existing user", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		invalidId := models.Id(9999)

@@ -15,7 +15,7 @@ import (
 
 func TestGetItems(t *testing.T) {
 	t.Run("Empty", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		items := []*models.Item{}
@@ -25,7 +25,7 @@ func TestGetItems(t *testing.T) {
 	})
 
 	t.Run("One item", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -39,7 +39,7 @@ func TestGetItems(t *testing.T) {
 	})
 
 	t.Run("Two items", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		seller := setup.Seller()

@@ -15,7 +15,7 @@ import (
 
 func TestGetSoldItems(t *testing.T) {
 	t.Run("No items in existence", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		soldItems, err := queries.GetSoldItems(db)
@@ -24,7 +24,7 @@ func TestGetSoldItems(t *testing.T) {
 	})
 
 	t.Run("Single unsold item", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -36,7 +36,7 @@ func TestGetSoldItems(t *testing.T) {
 	})
 
 	t.Run("Single sold item", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -51,7 +51,7 @@ func TestGetSoldItems(t *testing.T) {
 	})
 
 	t.Run("Doubly sold item", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -67,7 +67,7 @@ func TestGetSoldItems(t *testing.T) {
 	})
 
 	t.Run("Two sold items in single sale", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -84,7 +84,7 @@ func TestGetSoldItems(t *testing.T) {
 	})
 
 	t.Run("Two sold items in separate sales", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		seller := setup.Seller()

@@ -54,7 +54,7 @@ func TestGetAllItems(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		t.Run("No items", func(t *testing.T) {
-			setup, router, writer := SetupRestTest()
+			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
 			_, sessionId := setup.LoggedIn(setup.Admin())
@@ -69,7 +69,7 @@ func TestGetAllItems(t *testing.T) {
 		})
 
 		t.Run("One item", func(t *testing.T) {
-			setup, router, writer := SetupRestTest()
+			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
 			_, sessionId := setup.LoggedIn(setup.Admin())
@@ -90,7 +90,7 @@ func TestGetAllItems(t *testing.T) {
 		})
 
 		t.Run("Two items", func(t *testing.T) {
-			setup, router, writer := SetupRestTest()
+			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
 			_, sessionId := setup.LoggedIn(setup.Admin())
@@ -122,7 +122,7 @@ func TestGetAllItems(t *testing.T) {
 				}
 
 				t.Run("As "+roleString, func(t *testing.T) {
-					setup, router, writer := SetupRestTest()
+					setup, router, writer := NewRestFixture()
 					defer setup.Close()
 
 					_, sessionId := setup.LoggedIn(setup.User(roleId))
@@ -136,7 +136,7 @@ func TestGetAllItems(t *testing.T) {
 		})
 
 		t.Run("Not logged in", func(t *testing.T) {
-			setup, router, writer := SetupRestTest()
+			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
 			request := CreateGetRequest(url)

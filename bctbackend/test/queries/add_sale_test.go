@@ -16,7 +16,7 @@ import (
 
 func TestAddSale(t *testing.T) {
 	for _, itemIndices := range [][]int{{0}, {1}, {2}, {3}, {0, 1}, {1, 2, 3}, {0, 1, 2, 3}} {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -54,7 +54,7 @@ func TestAddSale(t *testing.T) {
 }
 
 func TestAddSaleWithoutItems(t *testing.T) {
-	setup, db := Setup()
+	setup, db := NewDatabaseFixture()
 	defer setup.Close()
 
 	cashier := setup.Cashier()
@@ -65,7 +65,7 @@ func TestAddSaleWithoutItems(t *testing.T) {
 }
 
 func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
-	setup, db := Setup()
+	setup, db := NewDatabaseFixture()
 	defer setup.Close()
 
 	seller := setup.Seller()
@@ -77,7 +77,7 @@ func TestAddSaleWithSellerInsteadOfCashier(t *testing.T) {
 }
 
 func TestAddSaleWithSameItemTwice(t *testing.T) {
-	setup, db := Setup()
+	setup, db := NewDatabaseFixture()
 	defer setup.Close()
 
 	seller := setup.Seller()

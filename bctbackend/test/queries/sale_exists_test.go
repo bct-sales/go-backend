@@ -15,7 +15,7 @@ import (
 
 func TestSaleExists(t *testing.T) {
 	t.Run("Sale exists", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -29,7 +29,7 @@ func TestSaleExists(t *testing.T) {
 	})
 
 	t.Run("Sale does not exist", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		saleExists, err := queries.SaleExists(db, 1)

@@ -14,7 +14,7 @@ import (
 )
 
 func TestGetSaleItems(t *testing.T) {
-	setup, db := Setup()
+	setup, db := NewDatabaseFixture()
 	defer setup.Close()
 
 	seller := setup.Seller()
@@ -44,7 +44,7 @@ func TestGetSaleItems(t *testing.T) {
 }
 
 func TestGetSaleItemsOfNonexistentSale(t *testing.T) {
-	setup, db := Setup()
+	setup, db := NewDatabaseFixture()
 	defer setup.Close()
 
 	saleId := models.Id(1)

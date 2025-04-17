@@ -14,7 +14,7 @@ import (
 
 func TestAddSession(t *testing.T) {
 	for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		user := setup.User(roleId)

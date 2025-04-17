@@ -23,7 +23,7 @@ func createTotalMap(categories []*models.ItemCategory) map[models.Id]models.Mone
 
 func TestGetSalesOverview(t *testing.T) {
 	t.Run("Zero items", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		categories, err := queries.GetCategories(db)
@@ -42,7 +42,7 @@ func TestGetSalesOverview(t *testing.T) {
 	})
 
 	t.Run("One item, zero sales", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		categories, err := queries.GetCategories(db)
@@ -64,7 +64,7 @@ func TestGetSalesOverview(t *testing.T) {
 	})
 
 	t.Run("One sold item", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		categories, err := queries.GetCategories(db)
@@ -92,7 +92,7 @@ func TestGetSalesOverview(t *testing.T) {
 	})
 
 	t.Run("Two sold same-category items in single sale", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		categories, err := queries.GetCategories(db)
@@ -122,7 +122,7 @@ func TestGetSalesOverview(t *testing.T) {
 	})
 
 	t.Run("Two sold different-category items in single sale", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		categories, err := queries.GetCategories(db)
@@ -152,7 +152,7 @@ func TestGetSalesOverview(t *testing.T) {
 	})
 
 	t.Run("Two sold same-category items in separate sales", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		categories, err := queries.GetCategories(db)
@@ -183,7 +183,7 @@ func TestGetSalesOverview(t *testing.T) {
 	})
 
 	t.Run("Two sold different-category items in separate sales", func(t *testing.T) {
-		setup, db := Setup()
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		categories, err := queries.GetCategories(db)

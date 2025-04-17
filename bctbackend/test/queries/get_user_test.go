@@ -14,7 +14,7 @@ import (
 )
 
 func TestGetUser(t *testing.T) {
-	setup, db := Setup()
+	setup, db := NewDatabaseFixture()
 	defer setup.Close()
 
 	lastActivity := models.Timestamp(2)
