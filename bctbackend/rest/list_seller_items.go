@@ -1,4 +1,4 @@
-package seller
+package rest
 
 import (
 	"bctbackend/database/models"
