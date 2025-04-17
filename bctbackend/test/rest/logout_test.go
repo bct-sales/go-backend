@@ -5,7 +5,7 @@ package rest
 import (
 	"bctbackend/rest"
 	"bctbackend/rest/path"
-	. "bctbackend/test"
+	. "bctbackend/test/setup"
 	"net/http"
 	"testing"
 

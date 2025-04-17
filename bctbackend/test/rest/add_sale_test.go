@@ -10,8 +10,8 @@ import (
 	"bctbackend/database/queries"
 	rest_api "bctbackend/rest"
 	"bctbackend/rest/path"
-	. "bctbackend/test"
 	aux "bctbackend/test/helpers"
+	. "bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )

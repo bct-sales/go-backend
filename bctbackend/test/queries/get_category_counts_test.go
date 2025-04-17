@@ -5,8 +5,8 @@ package queries
 import (
 	"bctbackend/database/queries"
 	"bctbackend/defs"
-	. "bctbackend/test"
 	aux "bctbackend/test/helpers"
+	. "bctbackend/test/setup"
 	"testing"
 
 	"github.com/stretchr/testify/require"

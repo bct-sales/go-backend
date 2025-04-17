@@ -9,8 +9,8 @@ import (
 
 	models "bctbackend/database/models"
 	"bctbackend/rest/path"
-	. "bctbackend/test"
 	aux "bctbackend/test/helpers"
+	. "bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )

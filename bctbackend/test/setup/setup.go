@@ -1,6 +1,6 @@
 //go:build test
 
-package rest
+package setup
 
 import (
 	"net/http/httptest"

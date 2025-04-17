@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"testing"
 
-	. "bctbackend/test"
+	. "bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"

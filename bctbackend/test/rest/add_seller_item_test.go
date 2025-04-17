@@ -10,7 +10,7 @@ import (
 	"bctbackend/defs"
 	restapi "bctbackend/rest"
 	"bctbackend/rest/path"
-	. "bctbackend/test"
+	. "bctbackend/test/setup"
 
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"

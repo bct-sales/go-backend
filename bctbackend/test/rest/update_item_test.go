@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"bctbackend/rest/path"
-	. "bctbackend/test"
+	. "bctbackend/test/setup"
 
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"

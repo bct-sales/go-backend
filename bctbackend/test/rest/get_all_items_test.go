@@ -8,8 +8,8 @@ import (
 
 	models "bctbackend/database/models"
 	rest "bctbackend/rest/shared"
-	. "bctbackend/test"
 	aux "bctbackend/test/helpers"
+	. "bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )

@@ -7,7 +7,7 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/rest/path"
 	"bctbackend/security"
-	. "bctbackend/test"
+	. "bctbackend/test/setup"
 	"bytes"
 	"encoding/json"
 	"net/http"
