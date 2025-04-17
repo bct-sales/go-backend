@@ -30,8 +30,8 @@ type GetItemsSuccessResponse struct {
 	Items []GetItemsItemData `json:"items"`
 }
 
-// @Summary Get list of items.
-// @Description Returns all items. Only accessible to users with the admin role.
+// @Summary List all items of all sellers.
+// @Description Returns all items of all sellers. Only accessible to users with the admin role.
 // @Tags items
 // @Accept json
 // @Produce json
