@@ -26,8 +26,10 @@ type AddSaleSuccessResponse struct {
 // @Produce json
 // @Param AddSalePayload body AddSalePayload true "Payload containing item IDs"
 // @Success 201 {object} AddSaleSuccessResponse "Sale successfully added"
-// @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or add sale; item not found or duplicate item in sale"
+// @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
+// @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
 // @Failure 403 {object} failure_response.FailureResponse "Only accessible to cashiers"
+// @Failure 404 {object} failure_response.FailureResponse "Unknown item in sale"
 // @Router /sales [post]
 func AddSale(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.CashierRoleId {
