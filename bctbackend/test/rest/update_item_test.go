@@ -194,7 +194,7 @@ func TestUpdateItem(t *testing.T) {
 			}
 			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			require.Equal(t, http.StatusNotFound, writer.Code)
+			RequireFailureType(t, writer, http.StatusNotFound, "no_such_item")
 		})
 
 		t.Run("Updating as wrong seller", func(t *testing.T) {
