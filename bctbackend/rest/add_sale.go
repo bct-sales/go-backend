@@ -30,6 +30,7 @@ type AddSaleSuccessResponse struct {
 // @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
 // @Failure 403 {object} failure_response.FailureResponse "Only accessible to cashiers"
 // @Failure 404 {object} failure_response.FailureResponse "Unknown item in sale"
+// @Failure 500 {object} failure_response.FailureResponse "Internal server error"
 // @Router /sales [post]
 func AddSale(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.CashierRoleId {
