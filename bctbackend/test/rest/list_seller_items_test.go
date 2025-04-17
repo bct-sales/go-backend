@@ -88,7 +88,7 @@ func TestListSellerItems(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
 		})
 
-		t.Run("Wrong seller", func(t *testing.T) {
+		t.Run("Seller accessing other seller's items", func(t *testing.T) {
 			setup, router, writer := SetupRestTest()
 			defer setup.Close()
 
@@ -139,6 +139,20 @@ func TestListSellerItems(t *testing.T) {
 			request := CreateGetRequest(url, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_user_id")
+		})
+
+		t.Run("Listing items of nonexisting seller", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+
+			_, sessionId := setup.LoggedIn(setup.Seller())
+			nonexistentSellerId := models.NewId(1000)
+			setup.RequireNoSuchUser(t, nonexistentSellerId)
+
+			url := path.SellerItems().WithSellerId(nonexistentSellerId)
+			request := CreateGetRequest(url, WithCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusNotFound, "no_such_user")
 		})
 	})
 }
