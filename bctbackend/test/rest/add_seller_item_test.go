@@ -123,7 +123,7 @@ func TestAddSellerItem(t *testing.T) {
 			}
 			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_request")
+			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_description")
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 
 			itemsInDatabase := []*models.Item{}
