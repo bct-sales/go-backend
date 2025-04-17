@@ -213,7 +213,7 @@ func TestUpdateItem(t *testing.T) {
 			}
 			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			require.Equal(t, http.StatusForbidden, writer.Code)
+			RequireFailureType(t, writer, http.StatusForbidden, "wrong_seller")
 
 			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
 			require.NoError(t, err)
