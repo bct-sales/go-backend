@@ -34,6 +34,7 @@ type UpdateItemSuccessResponse struct {
 // @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
 // @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
 // @Failure 403 {object} failure_response.FailureResponse "Only accessible to sellers and admins, or invalid item data"
+// @Failure 404 {object} failure_response.FailureResponse "Item does not exist"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to update item"
 // @Router /items/{id} [put]
 func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
