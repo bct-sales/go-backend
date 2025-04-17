@@ -31,7 +31,9 @@ type GetUsersSuccessResponse struct {
 // @Accept json
 // @Produce json
 // @Success 200 {object} GetUsersSuccessResponse "Users successfully fetched"
-// @Failure 403 {object} failure_response.FailureResponse "Unauthorized access"
+// @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
+// @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
+// @Failure 403 {object} failure_response.FailureResponse "Only accessible to admins"
 // @Failure 500 {object} failure_response.FailureResponse "Internal error"
 // @Router /users [get]
 func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {

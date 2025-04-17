@@ -36,6 +36,8 @@ type GetItemsSuccessResponse struct {
 // @Accept json
 // @Produce json
 // @Success 200 {object} GetItemsSuccessResponse "Items successfully fetched"
+// @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
+// @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to fetch items"
 // @Router /items [get]
 func GetAllItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {

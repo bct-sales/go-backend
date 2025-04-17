@@ -30,7 +30,8 @@ type LoginSuccessResponse struct {
 // @Description If the password is wrong, returns 401 Unauthorized with type "wrong_password".
 // @Success 200 {object} LoginSuccessResponse
 // @Failure 400 {object} failure_response.FailureResponse "Failed to parse request"
-// @Failure 401 {object} failure_response.FailureResponse "Failure to authenticate user"
+// @Failure 401 {object} failure_response.FailureResponse "Failed to authenticate user"
+// @Failure 404 {object} failure_response.FailureResponse "Unknown user"
 // @Failure 500 {object} failure_response.FailureResponse "Internal error"
 // @Router /login [post]
 // @Param username formData string true "username"

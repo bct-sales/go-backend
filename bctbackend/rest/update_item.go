@@ -31,8 +31,9 @@ type UpdateItemSuccessResponse struct {
 // @Accept json
 // @Produce json
 // @Success 204 {object} UpdateItemSuccessResponse "Items successfully updated"
-// @Failure 400 {object} failure_response.FailureResponse "Invalid item id or invalid request body"
-// @Failure 401 {object} failure_response.FailureResponse "User has no permission to update item"
+// @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
+// @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
+// @Failure 403 {object} failure_response.FailureResponse "Only accessible to sellers and admins, or invalid item data"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to update item"
 // @Router /items/{id} [put]
 func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
@@ -88,7 +89,7 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 		{
 			var noSuchItemError *queries.NoSuchItemError
 			if errors.As(err, &noSuchItemError) {
-				failure_response.InvalidItemId(context, err.Error())
+				failure_response.UnknownItem(context, err.Error())
 				return
 			}
 		}
