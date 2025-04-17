@@ -19,6 +19,7 @@ import (
 // @Produce json
 // @Success 200 {object} []models.Item
 // @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
+// @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
 // @Failure 403 {object} failure_response.FailureResponse "Only accessible to owning sellers and admins"
 // @Failure 404 {object} failure_response.FailureResponse "No such user"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to fetch items"
