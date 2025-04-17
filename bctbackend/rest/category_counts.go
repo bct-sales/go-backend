@@ -28,6 +28,8 @@ type CategoryCount struct {
 // @Accept json
 // @Produce json
 // @Success 200 {object} CategoryCountSuccessResponse
+// @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
+// @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
 // @Failure 403 {object} failure_response.FailureResponse "Unauthorized access"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to fetch category counts"
 // @Router /category-counts [get]

@@ -21,8 +21,9 @@ type GetItemInformationSuccessResponse struct {
 // @Summary Get information about an item
 // @Description Get information about an item.
 // @Success 200 {object} GetItemInformationSuccessResponse
-// @Failure 400 {object} failure_response.FailureResponse "Failed to parse request"
-// @Failure 403 {object} failure_response.FailureResponse "Unauthorized"
+// @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
+// @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
+// @Failure 403 {object} failure_response.FailureResponse "Only accessible to cashiers"
 // @Failure 404 {object} failure_response.FailureResponse "Item not found"
 // @Router items/{id} [get]
 func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
