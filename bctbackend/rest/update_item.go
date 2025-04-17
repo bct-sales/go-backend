@@ -61,9 +61,13 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 		return
 	}
 
-	validRole := roleId == models.AdminRoleId || (roleId == models.SellerRoleId && item.SellerId == userId)
-	if !validRole {
-		failure_response.WrongRole(context, "Only the owner of the item or an admin can update it")
+	if roleId == models.SellerRoleId && item.SellerId != userId {
+		failure_response.WrongSeller(context, "Only the owner of the item can update it")
+		return
+	}
+
+	if roleId != models.AdminRoleId && roleId != models.SellerRoleId {
+		failure_response.WrongRole(context, "Must be seller or admin to update item")
 		return
 	}
 
