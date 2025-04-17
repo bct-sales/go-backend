@@ -3,7 +3,6 @@ package rest
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	rest_admin "bctbackend/rest/admin"
 	"bctbackend/rest/failure_response"
 	rest_path "bctbackend/rest/path"
 	rest_seller "bctbackend/rest/seller"
@@ -93,7 +92,7 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 	router.POST(rest_path.Logout().String(), func(context *gin.Context) { logout(context, db) })
 	router.GET(rest_path.Items().String(), withUserAndRole(GetAllItems))
 	router.PUT(rest_path.Items().WithRawItemId(":id"), withUserAndRole(UpdateItem))
-	router.GET(rest_path.Users().String(), withUserAndRole(rest_admin.GetUsers))
+	router.GET(rest_path.Users().String(), withUserAndRole(GetUsers))
 	router.GET(rest_path.CategoryCounts().String(), withUserAndRole(GetCategoryCounts))
 	router.GET(rest_path.SellerItems().WithRawSellerId(":id"), withUserAndRole(rest_seller.GetSellerItems))
 	router.POST(rest_path.SellerItems().WithRawSellerId(":id"), withUserAndRole(rest_seller.AddSellerItem))
