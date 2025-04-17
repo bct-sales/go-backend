@@ -154,5 +154,18 @@ func TestListSellerItems(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_user")
 		})
+
+		t.Run("Listing items of nonseller", func(t *testing.T) {
+			setup, router, writer := SetupRestTest()
+			defer setup.Close()
+
+			admin := setup.Admin()
+			_, sessionId := setup.LoggedIn(setup.Seller())
+
+			url := path.SellerItems().WithSellerId(admin.UserId)
+			request := CreateGetRequest(url, WithCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusForbidden, "wrong_user")
+		})
 	})
 }
