@@ -145,6 +145,7 @@ func TestUpdateItem(t *testing.T) {
 			}
 			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusForbidden, "item_frozen")
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
 			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
