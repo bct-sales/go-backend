@@ -84,7 +84,7 @@ func CannotUpdateFrozenItem(context *gin.Context, message string) {
 }
 
 func InvalidPrice(context *gin.Context, message string) {
-	BadRequest(context, "invalid_price", message)
+	Forbidden(context, "invalid_price", message)
 }
 
 func WrongRole(context *gin.Context, message string) {

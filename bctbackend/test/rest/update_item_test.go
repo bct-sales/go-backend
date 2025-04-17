@@ -160,7 +160,7 @@ func TestUpdateItem(t *testing.T) {
 			defer setup.Close()
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
-			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(true))
+			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1))
 
 			url := path.Items().Id(originalItem.ItemId)
 			payload := struct {
@@ -170,7 +170,7 @@ func TestUpdateItem(t *testing.T) {
 			}
 			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			require.Equal(t, http.StatusForbidden, writer.Code)
+			RequireFailureType(t, writer, http.StatusForbidden, "invalid_price")
 
 			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
 			require.NoError(t, err)
@@ -203,7 +203,7 @@ func TestUpdateItem(t *testing.T) {
 
 			ownerSeller := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Seller())
-			originalItem := setup.Item(ownerSeller.UserId, aux.WithDummyData(1), aux.WithFrozen(true))
+			originalItem := setup.Item(ownerSeller.UserId, aux.WithDummyData(1))
 
 			url := path.Items().Id(originalItem.ItemId)
 			payload := struct {
@@ -228,7 +228,7 @@ func TestUpdateItem(t *testing.T) {
 
 			ownerSeller := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Cashier())
-			originalItem := setup.Item(ownerSeller.UserId, aux.WithDummyData(1), aux.WithFrozen(true))
+			originalItem := setup.Item(ownerSeller.UserId, aux.WithDummyData(1))
 
 			url := path.Items().Id(originalItem.ItemId)
 			payload := struct {
