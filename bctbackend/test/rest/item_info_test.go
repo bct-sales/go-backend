@@ -9,7 +9,7 @@ import (
 
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	restapi "bctbackend/rest/cashier"
+	restapi "bctbackend/rest"
 	"bctbackend/rest/path"
 	. "bctbackend/test"
 	aux "bctbackend/test/helpers"

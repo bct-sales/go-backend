@@ -4,7 +4,6 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	rest_admin "bctbackend/rest/admin"
-	rest_cashier "bctbackend/rest/cashier"
 	"bctbackend/rest/failure_response"
 	rest_path "bctbackend/rest/path"
 	rest_seller "bctbackend/rest/seller"
@@ -99,5 +98,5 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 	router.GET(rest_path.SellerItems().WithRawSellerId(":id"), withUserAndRole(rest_seller.GetSellerItems))
 	router.POST(rest_path.SellerItems().WithRawSellerId(":id"), withUserAndRole(rest_seller.AddSellerItem))
 	router.POST(rest_path.Sales().String(), withUserAndRole(AddSale))
-	router.GET(rest_path.SalesItems().WithRawItemId(":id"), withUserAndRole(rest_cashier.GetItemInformation))
+	router.GET(rest_path.SalesItems().WithRawItemId(":id"), withUserAndRole(GetItemInformation))
 }
