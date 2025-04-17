@@ -28,6 +28,11 @@ type AddSellerItemResponse struct {
 // @Param seller_id path int true "Seller ID"
 // @Produce json
 // @Success 200 {object} AddSellerItemResponse
+// @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
+// @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
+// @Failure 403 {object} failure_response.FailureResponse "Only accessible to sellers and admins, or invalid item data"
+// @Failure 404 {object} failure_response.FailureResponse "No such user or category"
+// @Failure 500 {object} failure_response.FailureResponse "Failed to add item"
 // @Router /seller/{seller_id}/items [put]
 func AddSellerItem(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.SellerRoleId {
