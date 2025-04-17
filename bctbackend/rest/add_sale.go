@@ -76,6 +76,14 @@ func AddSale(context *gin.Context, db *sql.DB, userId models.Id, roleId models.I
 			}
 		}
 
+		{
+			var saleRequiresCashierError *queries.SaleRequiresCashierError
+			if errors.As(err, &saleRequiresCashierError) {
+				failure_response.Unknown(context, "Bug: should never occur as this is checked before")
+				return
+			}
+		}
+
 		failure_response.Unknown(context, "Failed to add sale: "+err.Error())
 		return
 	}
