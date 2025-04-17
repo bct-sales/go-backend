@@ -24,7 +24,7 @@ type GetItemInformationSuccessResponse struct {
 // @Failure 400 {object} failure_response.FailureResponse "Failed to parse request"
 // @Failure 403 {object} failure_response.FailureResponse "Unauthorized"
 // @Failure 404 {object} failure_response.FailureResponse "Item not found"
-// @Router /api/v1/sales/items/{id} [get]
+// @Router items/{id} [get]
 func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.CashierRoleId {
 		failure_response.WrongRole(context, "Only accessible to cashiers")
