@@ -36,7 +36,7 @@ type GetItemsSuccessResponse struct {
 // @Accept json
 // @Produce json
 // @Success 200 {object} GetItemsSuccessResponse "Items successfully fetched"
-// @Failure 500 {object} GetItemsFailureResponse "Failed to fetch items"
+// @Failure 500 {object} failure_response.FailureResponse "Failed to fetch items"
 // @Router /items [get]
 func GetAllItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.AdminRoleId {
