@@ -36,7 +36,7 @@ func TestAddSellerItem(t *testing.T) {
 									url := path.SellerItems().WithSellerId(seller.UserId)
 									payload := restapi.AddSellerItemPayload{
 										Price:       &price,
-										Description: description,
+										Description: &description,
 										CategoryId:  categoryId,
 										Donation:    &donation,
 										Charity:     &charity,
@@ -86,7 +86,7 @@ func TestAddSellerItem(t *testing.T) {
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       &price,
-				Description: description,
+				Description: &description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
@@ -116,7 +116,7 @@ func TestAddSellerItem(t *testing.T) {
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       &price,
-				Description: description,
+				Description: &description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
@@ -149,7 +149,7 @@ func TestAddSellerItem(t *testing.T) {
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       &price,
-				Description: description,
+				Description: &description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
@@ -180,7 +180,7 @@ func TestAddSellerItem(t *testing.T) {
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       &price,
-				Description: description,
+				Description: &description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
@@ -210,7 +210,7 @@ func TestAddSellerItem(t *testing.T) {
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       &price,
-				Description: description,
+				Description: &description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
@@ -240,7 +240,7 @@ func TestAddSellerItem(t *testing.T) {
 			url := path.SellerItems().WithRawSellerId("a")
 			payload := restapi.AddSellerItemPayload{
 				Price:       &price,
-				Description: description,
+				Description: &description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
@@ -271,7 +271,7 @@ func TestAddSellerItem(t *testing.T) {
 			url := path.SellerItems().WithSellerId(seller1.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       &price,
-				Description: description,
+				Description: &description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
@@ -306,7 +306,7 @@ func TestAddSellerItem(t *testing.T) {
 			url := path.SellerItems().WithSellerId(nonexistentId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       &price,
-				Description: description,
+				Description: &description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
@@ -336,7 +336,7 @@ func TestAddSellerItem(t *testing.T) {
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       &price,
-				Description: description,
+				Description: &description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
@@ -367,7 +367,7 @@ func TestAddSellerItem(t *testing.T) {
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       &price,
-				Description: description,
+				Description: &description,
 				CategoryId:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,

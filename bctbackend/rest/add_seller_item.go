@@ -13,7 +13,7 @@ import (
 
 type AddSellerItemPayload struct {
 	Price       *models.MoneyInCents `json:"price_in_cents" binding:"required"`
-	Description string               `json:"description" binding:"required"`
+	Description *string              `json:"description" binding:"required"`
 	CategoryId  models.Id            `json:"category_id" binding:"required"`
 	Donation    *bool                `json:"donation" binding:"required"` // needs to be a pointer to differentiate between false and not present
 	Charity     *bool                `json:"charity" binding:"required"`  // needs to be a pointer to differentiate between false and not present
@@ -65,7 +65,7 @@ func AddSellerItem(context *gin.Context, db *sql.DB, userId models.Id, roleId mo
 	itemId, err := queries.AddItem(
 		db,
 		timestamp,
-		payload.Description,
+		*payload.Description,
 		*payload.Price,
 		payload.CategoryId,
 		userId,
