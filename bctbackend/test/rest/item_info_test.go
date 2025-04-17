@@ -48,6 +48,29 @@ func TestGetItemInformation(t *testing.T) {
 				require.Equal(t, expectedHasBeenSold, *response.HasBeenSold)
 			})
 		}
+
+		t.Run("As admin", func(t *testing.T) {
+			setup, router, writer := NewRestFixture()
+			defer setup.Close()
+			sale_count := 5
+
+			seller := setup.Seller()
+			_, sessionId := setup.LoggedIn(setup.Admin())
+
+			item := setup.Item(seller.UserId, aux.WithDummyData(1))
+
+			url := path.SalesItems().WithItemId(item.ItemId)
+			request := CreateGetRequest(url, WithCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusOK, writer.Code)
+
+			response := FromJson[restapi.GetItemInformationSuccessResponse](writer.Body.String())
+			expectedHasBeenSold := sale_count > 0
+			require.Equal(t, item.Description, response.Description)
+			require.Equal(t, item.PriceInCents, response.PriceInCents)
+			require.Equal(t, item.CategoryId, response.CategoryId)
+			require.Equal(t, expectedHasBeenSold, *response.HasBeenSold)
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
@@ -69,20 +92,6 @@ func TestGetItemInformation(t *testing.T) {
 				defer setup.Close()
 
 				seller, sessionId := setup.LoggedIn(setup.Seller())
-				item := setup.Item(seller.UserId, aux.WithDummyData(1))
-
-				url := path.SalesItems().WithItemId(item.ItemId)
-				request := CreateGetRequest(url, WithCookie(sessionId))
-				router.ServeHTTP(writer, request)
-				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
-			})
-
-			t.Run("As admin", func(t *testing.T) {
-				setup, router, writer := NewRestFixture()
-				defer setup.Close()
-
-				_, sessionId := setup.LoggedIn(setup.Admin())
-				seller := setup.Seller()
 				item := setup.Item(seller.UserId, aux.WithDummyData(1))
 
 				url := path.SalesItems().WithItemId(item.ItemId)
