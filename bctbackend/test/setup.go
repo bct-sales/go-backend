@@ -91,3 +91,9 @@ func (s *SetupObject) RequireNoSuchUser(t *testing.T, userId models.Id) {
 	require.NoError(t, err)
 	require.False(t, exists)
 }
+
+func (s *SetupObject) RequireNoSuchItem(t *testing.T, itemId models.Id) {
+	exists, err := queries.ItemWithIdExists(s.Db, itemId)
+	require.NoError(t, err)
+	require.False(t, exists)
+}
