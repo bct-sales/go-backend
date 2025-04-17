@@ -8,7 +8,7 @@ import (
 
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	rest_api "bctbackend/rest/cashier"
+	rest_api "bctbackend/rest"
 	"bctbackend/rest/path"
 	. "bctbackend/test"
 	aux "bctbackend/test/helpers"
