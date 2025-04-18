@@ -7,6 +7,7 @@ import (
 )
 
 type SaleItemInformation struct {
+	SellerId       models.Id
 	Description    string
 	ItemCategoryId models.Id
 	PriceInCents   models.MoneyInCents
@@ -21,7 +22,7 @@ func GetSaleItemInformation(
 
 	row := db.QueryRow(
 		`
-			SELECT description, price_in_cents, item_category_id, COUNT(si.sale_id)
+			SELECT seller_id, description, price_in_cents, item_category_id, COUNT(si.sale_id)
 			FROM items i LEFT JOIN sale_items si ON i.item_id = si.item_id
 			GROUP BY i.item_id
 			HAVING i.item_id = ?
@@ -30,6 +31,7 @@ func GetSaleItemInformation(
 
 	var saleItemInformation SaleItemInformation
 	err := row.Scan(
+		&saleItemInformation.SellerId,
 		&saleItemInformation.Description,
 		&saleItemInformation.PriceInCents,
 		&saleItemInformation.ItemCategoryId,
