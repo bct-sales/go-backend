@@ -354,3 +354,46 @@ func GetItemsSoldBy(db *sql.DB, cashierId models.Id) (r_result []*models.Item, r
 
 	return items, nil
 }
+
+// GetSalesWithItem returns a list of the ids of all sales that include a specified item.
+// The ids are returned in ascending order.
+func GetSalesWithItem(db *sql.DB, itemId models.Id) (r_result []models.Id, r_err error) {
+	if itemExists, err := ItemWithIdExists(db, itemId); err != nil || !itemExists {
+		if !itemExists {
+			return nil, &NoSuchItemError{Id: itemId}
+		}
+
+		return nil, err
+	}
+
+	rows, err := db.Query(
+		`
+			SELECT sale_id
+			FROM sale_items
+			WHERE item_id = ?
+			ORDER BY sale_id ASC
+		`,
+		itemId,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
+
+	saleIds := []models.Id{}
+	for rows.Next() {
+		var saleId models.Id
+
+		err := rows.Scan(&saleId)
+
+		if err != nil {
+			return nil, err
+		}
+
+		saleIds = append(saleIds, saleId)
+	}
+
+	return saleIds, nil
+}
