@@ -164,12 +164,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 
 		cashier := setup.Cashier()
 		unknownCashierId := cashier.UserId + 1
-
-		{
-			userExists, err := queries.UserWithIdExists(db, unknownCashierId)
-			require.NoError(t, err)
-			require.False(t, userExists)
-		}
+		setup.RequireNoSuchUser(t, unknownCashierId)
 
 		_, err := queries.GetItemsSoldBy(db, unknownCashierId)
 		var noSuchUserError *queries.NoSuchUserError
