@@ -111,10 +111,7 @@ func TestAddSale(t *testing.T) {
 
 			_, sessionId := setup.LoggedIn(setup.Cashier())
 			nonexistentItemId := models.Id(1000)
-
-			itemExists, err := queries.ItemWithIdExists(setup.Db, nonexistentItemId)
-			require.NoError(t, err)
-			require.False(t, itemExists)
+			setup.RequireNoSuchItem(t, nonexistentItemId)
 
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{nonexistentItemId},
@@ -124,7 +121,7 @@ func TestAddSale(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_item")
 
 			sales := []*models.SaleSummary{}
-			err = queries.GetSales(setup.Db, queries.CollectTo(&sales))
+			err := queries.GetSales(setup.Db, queries.CollectTo(&sales))
 			require.NoError(t, err)
 			require.Empty(t, sales)
 		})
