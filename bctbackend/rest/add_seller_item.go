@@ -54,8 +54,20 @@ func AddSellerItem(context *gin.Context, db *sql.DB, userId models.Id, roleId mo
 		return
 	}
 
+	{
+		sellerExists, err := queries.UserWithIdExists(db, uriSellerId)
+		if err != nil {
+			failure_response.Unknown(context, err.Error())
+			return
+		}
+		if !sellerExists {
+			failure_response.UnknownUser(context, "Seller does not exist")
+			return
+		}
+	}
+
 	if uriSellerId != userId {
-		failure_response.WrongUser(context, "Logged in user does not match URI seller ID")
+		failure_response.WrongSeller(context, "Logged in user does not match URI seller ID")
 		return
 	}
 

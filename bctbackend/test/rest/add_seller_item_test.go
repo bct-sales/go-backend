@@ -277,7 +277,7 @@ func TestAddSellerItem(t *testing.T) {
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			RequireFailureType(t, writer, http.StatusForbidden, "wrong_user")
+			RequireFailureType(t, writer, http.StatusForbidden, "wrong_seller")
 
 			itemsInDatabase := []*models.Item{}
 			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase))
@@ -312,7 +312,7 @@ func TestAddSellerItem(t *testing.T) {
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			RequireFailureType(t, writer, http.StatusForbidden, "wrong_user")
+			RequireFailureType(t, writer, http.StatusNotFound, "no_such_user")
 
 			itemsInDatabase := []*models.Item{}
 			err = queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase))
