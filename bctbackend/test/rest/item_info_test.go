@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"bctbackend/database/models"
-	"bctbackend/database/queries"
 	restapi "bctbackend/rest"
 	"bctbackend/rest/path"
 	aux "bctbackend/test/helpers"
@@ -149,11 +148,7 @@ func TestGetItemInformation(t *testing.T) {
 
 				// Get ID for nonexisting item
 				nonexistentItem := models.NewId(1)
-
-				// Sanity check: make sure item does not exist
-				itemExists, err := queries.ItemWithIdExists(setup.Db, nonexistentItem)
-				require.NoError(t, err)
-				require.False(t, itemExists)
+				setup.RequireNoSuchItem(t, nonexistentItem)
 
 				// Attempt to get information for nonexistent item
 				url := path.SalesItems().WithItemId(nonexistentItem)
