@@ -48,10 +48,10 @@ func CreatePutRequest[T any](url string, payload *T, options ...func(*http.Reque
 	return createRequest(HTTP_VERB_PUT, url, payload, options...)
 }
 
-func createSessionCookie(sessionId string) *http.Cookie {
+func createCookie(name string, value string) *http.Cookie {
 	return &http.Cookie{
-		Name:     security.SessionCookieName,
-		Value:    sessionId,
+		Name:     name,
+		Value:    value,
 		Expires:  time.Now().Add(time.Hour),
 		Path:     "/",
 		Domain:   "localhost",
@@ -59,6 +59,10 @@ func createSessionCookie(sessionId string) *http.Cookie {
 		SameSite: http.SameSiteNoneMode,
 		Secure:   false,
 	}
+}
+
+func createSessionCookie(sessionId string) *http.Cookie {
+	return createCookie(security.SessionCookieName, sessionId)
 }
 
 func WithSessionCookie(sessionId string) func(*http.Request) {
