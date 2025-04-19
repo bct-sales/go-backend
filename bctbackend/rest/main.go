@@ -92,7 +92,7 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 	router.GET(rest_path.Items().String(), withUserAndRole(GetAllItems))
 	router.PUT(rest_path.Items().WithRawItemId(":id"), withUserAndRole(UpdateItem))
 	router.GET(rest_path.Users().String(), withUserAndRole(GetUsers))
-	router.GET(rest_path.CategoryCounts().String(), withUserAndRole(GetCategoryCounts))
+	router.GET(rest_path.CategoryCounts().String(), withUserAndRole(ListCategories))
 	router.GET(rest_path.SellerItems().WithRawSellerId(":id"), withUserAndRole(GetSellerItems))
 	router.POST(rest_path.SellerItems().WithRawSellerId(":id"), withUserAndRole(AddSellerItem))
 	router.POST(rest_path.Sales().String(), withUserAndRole(AddSale))

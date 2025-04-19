@@ -12,11 +12,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type CategoryCountSuccessResponse struct {
-	Counts []CategoryCount `json:"counts"`
+type ListCategoriesSuccessResponse struct {
+	Counts []CategoryData `json:"counts"`
 }
 
-type CategoryCount struct {
+type CategoryData struct {
 	CategoryId   models.Id `json:"category_id"`
 	CategoryName string    `json:"category_name"`
 	Count        int64     `json:"count"`
@@ -33,7 +33,7 @@ type CategoryCount struct {
 // @Failure 403 {object} failure_response.FailureResponse "Unauthorized access"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to fetch category counts"
 // @Router /category-counts [get]
-func GetCategoryCounts(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
+func ListCategories(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.AdminRoleId {
 		failure_response.WrongRole(context, "Global category counts only accessible to admins")
 		return
@@ -45,12 +45,12 @@ func GetCategoryCounts(context *gin.Context, db *sql.DB, userId models.Id, roleI
 		return
 	}
 
-	response := CategoryCountSuccessResponse{
-		Counts: []CategoryCount{},
+	response := ListCategoriesSuccessResponse{
+		Counts: []CategoryData{},
 	}
 
 	for _, categoryCount := range categoryCounts {
-		translatedCategoryCount := CategoryCount{
+		translatedCategoryCount := CategoryData{
 			CategoryId:   categoryCount.CategoryId,
 			CategoryName: categoryCount.Name,
 			Count:        categoryCount.Count,
