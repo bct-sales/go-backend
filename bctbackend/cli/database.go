@@ -4,6 +4,7 @@ import (
 	database "bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/defs"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -75,7 +76,7 @@ func resetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 	}
 
 	for area := 1; area <= 12; area++ {
-		for offset := 0; offset < 10; offset++ {
+		for offset := 0; offset < 3; offset++ {
 			id := int64(area*100 + offset)
 			role := models.SellerRoleId
 			createdAt := time.Now().Unix()
@@ -88,6 +89,11 @@ func resetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 			}
 		}
 	}
+
+	slog.Info("Adding some items")
+	queries.AddItem(db, 1, "T-Shirt", 1000, defs.Clothing140_152, 100, false, false, false)
+	queries.AddItem(db, 1, "Jeans", 1000, defs.Clothing140_152, 100, false, false, false)
+	queries.AddItem(db, 1, "Nike sneakers", 1000, defs.Shoes, 100, false, false, false)
 
 	return nil
 }
