@@ -35,14 +35,10 @@ func TestAuthentication(t *testing.T) {
 		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
-		password := "xyz"
 		userId := models.NewId(5)
+		password := "xyz"
 
-		{
-			userExists, err := queries.UserWithIdExists(db, userId)
-			require.NoError(t, err)
-			require.False(t, userExists)
-		}
+		setup.RequireNoSuchUser(t, userId)
 
 		{
 			_, err := queries.AuthenticateUser(db, userId, password)
