@@ -135,7 +135,7 @@ func TestGetAllItems(t *testing.T) {
 			}
 		})
 
-		t.Run("Not logged in", func(t *testing.T) {
+		t.Run("No cookie", func(t *testing.T) {
 			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
