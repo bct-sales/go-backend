@@ -41,7 +41,7 @@ func TestAddSellerItem(t *testing.T) {
 										Donation:    &donation,
 										Charity:     &charity,
 									}
-									request := CreatePostRequest(url, &payload, WithCookie(sessionId))
+									request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 									router.ServeHTTP(writer, request)
 
 									require.Equal(t, http.StatusCreated, writer.Code)
@@ -91,7 +91,7 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "invalid_price")
 
@@ -121,7 +121,7 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "invalid_description")
 
@@ -153,7 +153,7 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_category")
 
@@ -184,7 +184,7 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
@@ -214,7 +214,7 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
@@ -244,7 +244,7 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_user_id")
 
@@ -275,7 +275,7 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_user")
 
@@ -310,7 +310,7 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_user")
 
@@ -371,7 +371,7 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload, WithCookie(invalidSessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(invalidSessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
 

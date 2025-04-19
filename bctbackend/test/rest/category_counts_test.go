@@ -52,7 +52,7 @@ func TestCategoryCounts(t *testing.T) {
 
 			_, sessionId := setup.LoggedIn(setup.Admin())
 
-			request := CreateGetRequest(url, WithCookie(sessionId))
+			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			countMap := map[models.Id]int64{}
 			expectedResponse := createSuccessResponse(countMap)
@@ -69,7 +69,7 @@ func TestCategoryCounts(t *testing.T) {
 				seller := setup.Seller()
 				setup.Item(seller.UserId, aux.WithItemCategory(categoryId), aux.WithDummyData(1))
 
-				request := CreateGetRequest(url, WithCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				countMap := map[models.Id]int64{categoryId: 1}
 				expected := createSuccessResponse(countMap)
@@ -89,7 +89,7 @@ func TestCategoryCounts(t *testing.T) {
 				setup.Item(seller.UserId, aux.WithItemCategory(categoryId), aux.WithDummyData(1))
 				setup.Item(seller.UserId, aux.WithItemCategory(categoryId), aux.WithDummyData(1))
 
-				request := CreateGetRequest(url, WithCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				countMap := map[models.Id]int64{categoryId: 2}
 				expected := createSuccessResponse(countMap)
@@ -110,7 +110,7 @@ func TestCategoryCounts(t *testing.T) {
 					setup.Item(seller.UserId, aux.WithItemCategory(categoryId1), aux.WithDummyData(1))
 					setup.Item(seller.UserId, aux.WithItemCategory(categoryId2), aux.WithDummyData(2))
 
-					request := CreateGetRequest(url, WithCookie(sessionId))
+					request := CreateGetRequest(url, WithSessionCookie(sessionId))
 					router.ServeHTTP(writer, request)
 					countMap := map[models.Id]int64{categoryId1: 0, categoryId2: 0}
 					countMap[categoryId1] += 1
@@ -141,7 +141,7 @@ func TestCategoryCounts(t *testing.T) {
 
 			_, sessionId := setup.LoggedIn(setup.Seller())
 
-			request := CreateGetRequest(url, WithCookie(sessionId))
+			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")

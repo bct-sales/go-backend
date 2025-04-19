@@ -30,7 +30,7 @@ func TestAddSale(t *testing.T) {
 		payload := rest_api.AddSalePayload{
 			Items: []models.Id{item.ItemId},
 		}
-		request := CreatePostRequest(url, &payload, WithCookie(sessionId))
+		request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 		router.ServeHTTP(writer, request)
 		require.Equal(t, http.StatusCreated, writer.Code)
 
@@ -57,7 +57,7 @@ func TestAddSale(t *testing.T) {
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId},
 			}
-			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
@@ -77,7 +77,7 @@ func TestAddSale(t *testing.T) {
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId},
 			}
-			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
@@ -95,7 +95,7 @@ func TestAddSale(t *testing.T) {
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{},
 			}
-			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
@@ -119,7 +119,7 @@ func TestAddSale(t *testing.T) {
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{nonexistentItemId},
 			}
-			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_item")
 
@@ -140,7 +140,7 @@ func TestAddSale(t *testing.T) {
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId, item.ItemId},
 			}
-			request := CreatePostRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "duplicate_item_in_sale")
 

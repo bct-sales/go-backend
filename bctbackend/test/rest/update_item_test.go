@@ -33,7 +33,7 @@ func TestUpdateItem(t *testing.T) {
 			}{
 				Description: newDescription,
 			}
-			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
@@ -61,7 +61,7 @@ func TestUpdateItem(t *testing.T) {
 			}{
 				Description: newDescription,
 			}
-			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
@@ -88,7 +88,7 @@ func TestUpdateItem(t *testing.T) {
 			}{
 				PriceInCents: newPrice,
 			}
-			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
@@ -115,7 +115,7 @@ func TestUpdateItem(t *testing.T) {
 				Donation: true,
 				Charity:  true,
 			}
-			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
@@ -143,7 +143,7 @@ func TestUpdateItem(t *testing.T) {
 			}{
 				Description: "updated",
 			}
-			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "item_frozen")
 			require.Equal(t, http.StatusForbidden, writer.Code)
@@ -168,7 +168,7 @@ func TestUpdateItem(t *testing.T) {
 			}{
 				PriceInCents: -100,
 			}
-			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "invalid_price")
 
@@ -194,7 +194,7 @@ func TestUpdateItem(t *testing.T) {
 			}{
 				PriceInCents: 100,
 			}
-			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_item")
 		})
@@ -213,7 +213,7 @@ func TestUpdateItem(t *testing.T) {
 			}{
 				PriceInCents: 100,
 			}
-			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_seller")
 
@@ -238,7 +238,7 @@ func TestUpdateItem(t *testing.T) {
 			}{
 				PriceInCents: 100,
 			}
-			request := CreatePutRequest(url, &payload, WithCookie(sessionId))
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 

@@ -48,7 +48,7 @@ func CreatePutRequest[T any](url string, payload *T, options ...func(*http.Reque
 	return createRequest(HTTP_VERB_PUT, url, payload, options...)
 }
 
-func createCookie(sessionId string) *http.Cookie {
+func createSessionCookie(sessionId string) *http.Cookie {
 	return &http.Cookie{
 		Name:     security.SessionCookieName,
 		Value:    sessionId,
@@ -61,9 +61,9 @@ func createCookie(sessionId string) *http.Cookie {
 	}
 }
 
-func WithCookie(sessionId string) func(*http.Request) {
+func WithSessionCookie(sessionId string) func(*http.Request) {
 	return func(request *http.Request) {
-		cookie := createCookie(sessionId)
+		cookie := createSessionCookie(sessionId)
 		request.AddCookie(cookie)
 	}
 }
