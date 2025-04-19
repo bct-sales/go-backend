@@ -31,7 +31,7 @@ type GetItemInformationSuccessResponse struct {
 // @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
 // @Failure 403 {object} failure_response.FailureResponse "Only accessible to cashiers, admins and owner sellers"
 // @Failure 404 {object} failure_response.FailureResponse "Item not found"
-// @Router items/{id} [get]
+// @Router /items/{id} [get]
 func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	var uriParameters struct {
 		ItemId string `uri:"id" binding:"required"`
