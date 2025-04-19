@@ -296,13 +296,10 @@ func TestAddSellerItem(t *testing.T) {
 			charity := false
 
 			_, sessionId := setup.LoggedIn(setup.Seller())
-			nonexistentId := models.NewId(1000)
+			nonexistentUserId := models.NewId(1000)
+			setup.RequireNoSuchUser(t, nonexistentUserId)
 
-			userExists, err := queries.UserWithIdExists(setup.Db, nonexistentId)
-			require.NoError(t, err)
-			require.False(t, userExists)
-
-			url := path.SellerItems().WithSellerId(nonexistentId)
+			url := path.SellerItems().WithSellerId(nonexistentUserId)
 			payload := restapi.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
@@ -315,7 +312,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_user")
 
 			itemsInDatabase := []*models.Item{}
-			err = queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase))
+			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
