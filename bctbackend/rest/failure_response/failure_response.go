@@ -106,7 +106,7 @@ func WrongSeller(context *gin.Context, message string) {
 }
 
 func InvalidItemDescription(context *gin.Context, message string) {
-	BadRequest(context, "invalid_description", message)
+	Forbidden(context, "invalid_description", message)
 }
 
 func MissingSessionId(context *gin.Context, message string) {
