@@ -350,7 +350,7 @@ func TestAddSellerItem(t *testing.T) {
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
 
-		t.Run("Invalid ID in cookie", func(t *testing.T) {
+		t.Run("Invalid session ID in cookie", func(t *testing.T) {
 			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
