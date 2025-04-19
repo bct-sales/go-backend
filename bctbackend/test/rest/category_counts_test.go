@@ -43,7 +43,7 @@ func createSuccessResponse(countMap map[models.Id]int64) rest.ListCategoriesSucc
 }
 
 func TestCategoryCounts(t *testing.T) {
-	url := path.CategoryCounts().String()
+	url := path.Categories().String()
 
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Zero items", func(t *testing.T) {

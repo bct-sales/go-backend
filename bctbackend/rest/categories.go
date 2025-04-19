@@ -32,7 +32,7 @@ type CategoryData struct {
 // @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
 // @Failure 403 {object} failure_response.FailureResponse "Unauthorized access"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to fetch category counts"
-// @Router /category-counts [get]
+// @Router /categories [get]
 func ListCategories(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	if roleId != models.AdminRoleId {
 		failure_response.WrongRole(context, "Global category counts only accessible to admins")
