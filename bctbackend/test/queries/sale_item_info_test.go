@@ -43,13 +43,15 @@ func TestGetSaleItemInformation(t *testing.T) {
 	})
 
 	t.Run("Failure", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
+		t.Run("Nonexistent item", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
 
-		nonexistentItemId := models.Id(1000)
-		setup.RequireNoSuchItem(t, nonexistentItemId)
+			nonexistentItemId := models.Id(1000)
+			setup.RequireNoSuchItem(t, nonexistentItemId)
 
-		_, err := queries.GetSaleItemInformation(db, 1)
-		require.Error(t, err)
+			_, err := queries.GetSaleItemInformation(db, 1)
+			require.Error(t, err)
+		})
 	})
 }
