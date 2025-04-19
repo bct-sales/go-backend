@@ -167,5 +167,18 @@ func TestListSellerItems(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_user")
 		})
+
+		t.Run("Without cookie", func(t *testing.T) {
+			setup, router, writer := NewRestFixture()
+			defer setup.Close()
+
+			admin := setup.Admin()
+			setup.LoggedIn(setup.Seller())
+
+			url := path.SellerItems().WithSellerId(admin.UserId)
+			request := CreateGetRequest(url)
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
+		})
 	})
 }
