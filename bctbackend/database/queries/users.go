@@ -116,11 +116,8 @@ func GetUserWithId(db *sql.DB, userId models.Id) (*models.User, error) {
 		userId,
 	)
 
-	var roleId models.Id
-	var createdAt models.Timestamp
-	var lastActivity *models.Timestamp
-	var password string
-	err := row.Scan(&roleId, &createdAt, &lastActivity, &password)
+	user := models.User{UserId: userId}
+	err := row.Scan(&user.RoleId, &user.CreatedAt, &user.LastActivity, &user.Password)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -130,13 +127,7 @@ func GetUserWithId(db *sql.DB, userId models.Id) (*models.User, error) {
 		return nil, err
 	}
 
-	return &models.User{
-		UserId:       userId,
-		RoleId:       roleId,
-		CreatedAt:    createdAt,
-		LastActivity: lastActivity,
-		Password:     password,
-	}, nil
+	return &user, nil
 }
 
 func GetUsers(db *sql.DB, receiver func(*models.User) error) (r_err error) {
