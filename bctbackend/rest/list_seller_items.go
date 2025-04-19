@@ -13,11 +13,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type GetSellerItemsSuccessResponse struct {
+	Items []*models.Item `json:"items"`
+}
+
 // @Summary Get seller's items
 // @Description Get a seller's items
 // @Param seller_id path int true "Seller ID"
 // @Produce json
-// @Success 200 {object} []models.Item
+// @Success 200 {object} GetSellerItemsSuccessResponse "Items successfully fetched"
 // @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
 // @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
 // @Failure 403 {object} failure_response.FailureResponse "Only accessible to owning sellers and admins"
@@ -76,5 +80,6 @@ func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 		return
 	}
 
-	context.IndentedJSON(http.StatusOK, items)
+	successResponse := GetSellerItemsSuccessResponse{Items: items}
+	context.IndentedJSON(http.StatusOK, successResponse)
 }

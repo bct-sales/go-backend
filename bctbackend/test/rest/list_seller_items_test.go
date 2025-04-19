@@ -15,6 +15,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type ListSellerItemsSuccessResponse struct {
+	Items []models.Item `json:"items"`
+}
+
 func TestListSellerItems(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("View own items", func(t *testing.T) {
@@ -39,8 +43,9 @@ func TestListSellerItems(t *testing.T) {
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code)
 
-						actual := FromJson[[]models.Item](writer.Body.String())
-						require.Equal(t, expectedItems, *actual)
+						actual := FromJson[ListSellerItemsSuccessResponse](writer.Body.String())
+						require.NotNil(t, actual)
+						require.Equal(t, expectedItems, actual.Items)
 					})
 				}
 			}
@@ -65,8 +70,8 @@ func TestListSellerItems(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			actual := FromJson[[]models.Item](writer.Body.String())
-			require.Equal(t, expectedItems, *actual)
+			actual := FromJson[ListSellerItemsSuccessResponse](writer.Body.String())
+			require.Equal(t, expectedItems, actual.Items)
 		})
 	})
 
