@@ -79,12 +79,7 @@ func TestGetSellerItems(t *testing.T) {
 		defer setup.Close()
 
 		unknownSellerId := models.Id(9999)
-
-		{
-			userExists, err := queries.UserWithIdExists(db, unknownSellerId)
-			require.NoError(t, err)
-			require.False(t, userExists)
-		}
+		setup.RequireNoSuchUser(t, unknownSellerId)
 
 		_, err := queries.GetSellerItems(db, unknownSellerId)
 		var noSuchUserError *queries.NoSuchUserError
