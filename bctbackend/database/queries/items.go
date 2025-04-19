@@ -103,22 +103,13 @@ func GetSellerItems(db *sql.DB, sellerId models.Id) (items []*models.Item, err e
 // A NoSuchItemError is returned if no item with the given identifier exists.
 func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	row := db.QueryRow(`
-		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen
+		SELECT added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen
 		FROM items
 		WHERE item_id = ?
 	`, itemId)
 
-	var id models.Id
-	var addedAt models.Timestamp
-	var description string
-	var priceInCents models.MoneyInCents
-	var itemCategoryId models.Id
-	var sellerId models.Id
-	var donation bool
-	var charity bool
-	var frozen bool
-
-	err := row.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity, &frozen)
+	item := models.Item{ItemId: itemId}
+	err := row.Scan(&item.AddedAt, &item.Description, &item.PriceInCents, &item.CategoryId, &item.SellerId, &item.Donation, &item.Charity, &item.Frozen)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, &NoSuchItemError{Id: itemId}
@@ -128,9 +119,7 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 		return nil, err
 	}
 
-	item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
-
-	return item, nil
+	return &item, nil
 }
 
 // Returns the total number of items in the database.
