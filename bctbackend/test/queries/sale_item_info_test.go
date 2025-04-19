@@ -46,13 +46,10 @@ func TestGetSaleItemInformation(t *testing.T) {
 		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
-		nonexistentItemId := models.Id(1)
+		nonexistentItemId := models.Id(1000)
+		setup.RequireNoSuchItem(t, nonexistentItemId)
 
-		itemExists, err := queries.ItemWithIdExists(db, nonexistentItemId)
-		require.NoError(t, err)
-		require.False(t, itemExists)
-
-		_, err = queries.GetSaleItemInformation(db, 1)
+		_, err := queries.GetSaleItemInformation(db, 1)
 		require.Error(t, err)
 	})
 }
