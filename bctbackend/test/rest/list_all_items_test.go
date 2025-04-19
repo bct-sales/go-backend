@@ -154,5 +154,15 @@ func TestGetAllItems(t *testing.T) {
 
 			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
 		})
+
+		t.Run("Cookie without session id", func(t *testing.T) {
+			setup, router, writer := NewRestFixture()
+			defer setup.Close()
+
+			request := CreateGetRequest(url, WithCookie("whatever", "whatever"))
+			router.ServeHTTP(writer, request)
+
+			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
+		})
 	})
 }
