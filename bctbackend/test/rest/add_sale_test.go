@@ -149,5 +149,20 @@ func TestAddSale(t *testing.T) {
 			require.NoError(t, err)
 			require.Empty(t, sales)
 		})
+
+		t.Run("Without cookie", func(t *testing.T) {
+			setup, router, writer := NewRestFixture()
+			defer setup.Close()
+
+			seller := setup.Seller()
+			item := setup.Item(seller.UserId, aux.WithDummyData(1))
+
+			payload := rest_api.AddSalePayload{
+				Items: []models.Id{item.ItemId},
+			}
+			request := CreatePostRequest(url, &payload)
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
+		})
 	})
 }
