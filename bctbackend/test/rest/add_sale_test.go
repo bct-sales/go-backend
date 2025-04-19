@@ -164,5 +164,20 @@ func TestAddSale(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
 		})
+
+		t.Run("Cookie with fake session id", func(t *testing.T) {
+			setup, router, writer := NewRestFixture()
+			defer setup.Close()
+
+			seller := setup.Seller()
+			item := setup.Item(seller.UserId, aux.WithDummyData(1))
+
+			payload := rest_api.AddSalePayload{
+				Items: []models.Id{item.ItemId},
+			}
+			request := CreatePostRequest(url, &payload, WithSessionCookie("fake_session_id"))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
+		})
 	})
 }
