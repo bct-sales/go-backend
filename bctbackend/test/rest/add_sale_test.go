@@ -47,7 +47,7 @@ func TestAddSale(t *testing.T) {
 	})
 
 	t.Run("Failure", func(t *testing.T) {
-		t.Run("Cannot add sale as seller", func(t *testing.T) {
+		t.Run("Adding sale as seller", func(t *testing.T) {
 			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
@@ -67,7 +67,7 @@ func TestAddSale(t *testing.T) {
 			require.Empty(t, sales)
 		})
 
-		t.Run("Cannot add sale as admin", func(t *testing.T) {
+		t.Run("Adding sale as admin", func(t *testing.T) {
 			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
