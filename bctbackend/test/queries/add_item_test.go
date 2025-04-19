@@ -69,166 +69,168 @@ func TestAddItem(t *testing.T) {
 		}
 	})
 
-	t.Run("Failure due to nonexistent seller", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("Nonexistent seller", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
 
-		timestamp := models.NewTimestamp(0)
-		description := "description"
-		priceInCents := models.NewMoneyInCents(100)
-		itemCategoryId := models.NewId(1)
-		charity := false
-		sellerId := models.NewId(1)
-		donation := false
-		frozen := false
+			timestamp := models.NewTimestamp(0)
+			description := "description"
+			priceInCents := models.NewMoneyInCents(100)
+			itemCategoryId := models.NewId(1)
+			charity := false
+			sellerId := models.NewId(1)
+			donation := false
+			frozen := false
 
-		setup.Seller(aux.WithUserId(2))
+			setup.Seller(aux.WithUserId(2))
 
-		_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
-		var noSuchUserError *queries.NoSuchUserError
-		require.ErrorAs(t, err, &noSuchUserError)
-
-		count, err := queries.CountItems(db)
-		require.NoError(t, err)
-		require.Equal(t, 0, count)
-	})
-
-	t.Run("Failure due to nonexistent category", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
-
-		timestamp := models.NewTimestamp(0)
-		description := "description"
-		sellerId := models.NewId(1)
-		priceInCents := models.NewMoneyInCents(100)
-		charity := false
-		donation := false
-		frozen := false
-		itemCategoryId := models.NewId(100)
-
-		setup.Seller(aux.WithUserId(1))
-
-		{
-			categoryExists, err := queries.CategoryWithIdExists(db, itemCategoryId)
-			require.NoError(t, err)
-			require.False(t, categoryExists)
-		}
-
-		{
 			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
-			var noSuchCategoryError *queries.NoSuchCategoryError
-			require.ErrorAs(t, err, &noSuchCategoryError)
-		}
+			var noSuchUserError *queries.NoSuchUserError
+			require.ErrorAs(t, err, &noSuchUserError)
 
-		{
 			count, err := queries.CountItems(db)
 			require.NoError(t, err)
 			require.Equal(t, 0, count)
-		}
-	})
+		})
 
-	t.Run("Failure due to zero price", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
+		t.Run("Nonexistent category", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
 
-		timestamp := models.NewTimestamp(0)
-		description := "description"
-		itemCategoryId := models.NewId(1)
-		charity := false
-		seller := setup.Seller()
-		donation := false
-		frozen := false
-		priceInCents := models.NewMoneyInCents(0)
+			timestamp := models.NewTimestamp(0)
+			description := "description"
+			sellerId := models.NewId(1)
+			priceInCents := models.NewMoneyInCents(100)
+			charity := false
+			donation := false
+			frozen := false
+			itemCategoryId := models.NewId(100)
 
-		{
-			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen)
+			setup.Seller(aux.WithUserId(1))
 
-			var invalidPriceError *queries.InvalidPriceError
-			require.ErrorAs(t, error, &invalidPriceError)
-		}
+			{
+				categoryExists, err := queries.CategoryWithIdExists(db, itemCategoryId)
+				require.NoError(t, err)
+				require.False(t, categoryExists)
+			}
 
-		{
-			count, err := queries.CountItems(db)
-			require.NoError(t, err)
-			require.Equal(t, 0, count)
-		}
-	})
+			{
+				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
+				var noSuchCategoryError *queries.NoSuchCategoryError
+				require.ErrorAs(t, err, &noSuchCategoryError)
+			}
 
-	t.Run("Failure due to negative price", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
+			{
+				count, err := queries.CountItems(db)
+				require.NoError(t, err)
+				require.Equal(t, 0, count)
+			}
+		})
 
-		timestamp := models.NewTimestamp(0)
-		description := "description"
-		itemCategoryId := models.NewId(1)
-		charity := false
-		seller := setup.Seller()
-		donation := false
-		frozen := false
-		priceInCents := models.NewMoneyInCents(-100)
+		t.Run("Zero price", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
 
-		{
-			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen)
-			var invalidPriceError *queries.InvalidPriceError
-			require.ErrorAs(t, error, &invalidPriceError)
-		}
+			timestamp := models.NewTimestamp(0)
+			description := "description"
+			itemCategoryId := models.NewId(1)
+			charity := false
+			seller := setup.Seller()
+			donation := false
+			frozen := false
+			priceInCents := models.NewMoneyInCents(0)
 
-		{
-			count, err := queries.CountItems(db)
-			require.NoError(t, err)
-			require.Equal(t, 0, count)
-		}
-	})
+			{
+				_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen)
 
-	t.Run("Failure due to cashier owner", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
+				var invalidPriceError *queries.InvalidPriceError
+				require.ErrorAs(t, error, &invalidPriceError)
+			}
 
-		timestamp := models.NewTimestamp(0)
-		description := "description"
-		invalidSeller := setup.Cashier()
-		priceInCents := models.NewMoneyInCents(100)
-		itemCategoryId := models.NewId(1)
-		charity := false
-		donation := false
-		frozen := false
+			{
+				count, err := queries.CountItems(db)
+				require.NoError(t, err)
+				require.Equal(t, 0, count)
+			}
+		})
 
-		{
-			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen)
-			var invalidRoleError *queries.InvalidRoleError
-			require.ErrorAs(t, error, &invalidRoleError)
-		}
+		t.Run("Negative price", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
 
-		{
-			count, err := queries.CountItems(db)
-			require.NoError(t, err)
-			require.Equal(t, 0, count)
-		}
-	})
+			timestamp := models.NewTimestamp(0)
+			description := "description"
+			itemCategoryId := models.NewId(1)
+			charity := false
+			seller := setup.Seller()
+			donation := false
+			frozen := false
+			priceInCents := models.NewMoneyInCents(-100)
 
-	t.Run("Failure due to admin owner", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
+			{
+				_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen)
+				var invalidPriceError *queries.InvalidPriceError
+				require.ErrorAs(t, error, &invalidPriceError)
+			}
 
-		timestamp := models.NewTimestamp(0)
-		description := "description"
-		invalidSeller := setup.Admin()
-		priceInCents := models.NewMoneyInCents(100)
-		itemCategoryId := models.NewId(1)
-		charity := false
-		donation := false
-		frozen := false
+			{
+				count, err := queries.CountItems(db)
+				require.NoError(t, err)
+				require.Equal(t, 0, count)
+			}
+		})
 
-		{
-			_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen)
-			var invalidRoleError *queries.InvalidRoleError
-			require.ErrorAs(t, error, &invalidRoleError)
-		}
+		t.Run("Cashier owner", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
 
-		{
-			count, err := queries.CountItems(db)
-			require.NoError(t, err)
-			require.Equal(t, 0, count)
-		}
+			timestamp := models.NewTimestamp(0)
+			description := "description"
+			invalidSeller := setup.Cashier()
+			priceInCents := models.NewMoneyInCents(100)
+			itemCategoryId := models.NewId(1)
+			charity := false
+			donation := false
+			frozen := false
+
+			{
+				_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen)
+				var invalidRoleError *queries.InvalidRoleError
+				require.ErrorAs(t, error, &invalidRoleError)
+			}
+
+			{
+				count, err := queries.CountItems(db)
+				require.NoError(t, err)
+				require.Equal(t, 0, count)
+			}
+		})
+
+		t.Run("Admin owner", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			timestamp := models.NewTimestamp(0)
+			description := "description"
+			invalidSeller := setup.Admin()
+			priceInCents := models.NewMoneyInCents(100)
+			itemCategoryId := models.NewId(1)
+			charity := false
+			donation := false
+			frozen := false
+
+			{
+				_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen)
+				var invalidRoleError *queries.InvalidRoleError
+				require.ErrorAs(t, error, &invalidRoleError)
+			}
+
+			{
+				count, err := queries.CountItems(db)
+				require.NoError(t, err)
+				require.Equal(t, 0, count)
+			}
+		})
 	})
 }
