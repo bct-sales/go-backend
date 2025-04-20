@@ -130,6 +130,7 @@ func GetUserWithId(db *sql.DB, userId models.Id) (*models.User, error) {
 	return &user, nil
 }
 
+// GetUsers retrieves all users from the database.
 func GetUsers(db *sql.DB, receiver func(*models.User) error) (r_err error) {
 	rows, err := db.Query(
 		`
@@ -152,6 +153,42 @@ func GetUsers(db *sql.DB, receiver func(*models.User) error) (r_err error) {
 		}
 
 		if err := receiver(&user); err != nil {
+			return err
+		}
+
+	}
+
+	return nil
+}
+
+type UserWithItemCount struct {
+	models.User
+	ItemCount int64
+}
+
+func GetUsersWithItemCount(db *sql.DB, receiver func(*UserWithItemCount) error) (r_err error) {
+	rows, err := db.Query(
+		`
+			SELECT users.user_id, role_id, created_at, last_activity, password, COUNT(items.item_id)
+			FROM users INNER JOIN items ON users.user_id = items.user_id
+			GROUP BY users.user_id
+		`,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
+
+	for rows.Next() {
+		var userWithItemCount UserWithItemCount
+
+		if err := rows.Scan(&userWithItemCount.UserId, &userWithItemCount.RoleId, &userWithItemCount.CreatedAt, &userWithItemCount.LastActivity, &userWithItemCount.Password, &userWithItemCount.ItemCount); err != nil {
+			return err
+		}
+
+		if err := receiver(&userWithItemCount); err != nil {
 			return err
 		}
 
