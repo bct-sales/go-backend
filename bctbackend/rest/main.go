@@ -68,7 +68,7 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 			var noSessionFoundError *queries.NoSessionFoundError
 			if errors.As(err, &noSessionFoundError) {
 				slog.Info("Session not found")
-				failure_response.UnknownSession(context, err.Error())
+				failure_response.NoSuchSession(context, err.Error())
 				return
 			}
 
