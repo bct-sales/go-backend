@@ -6,3 +6,5 @@ docs/
 *.png
 *.otf
 *.ttf
+*.db-shm
+*.db-wal
