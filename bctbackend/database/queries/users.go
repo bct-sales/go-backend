@@ -192,7 +192,6 @@ func GetUsersWithItemCount(db *sql.DB, receiver func(*UserWithItemCount) error) 
 		if err := receiver(&userWithItemCount); err != nil {
 			return err
 		}
-
 	}
 
 	return nil
