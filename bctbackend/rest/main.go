@@ -81,6 +81,12 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 			userId := sessionData.UserId
 			roleId := sessionData.RoleId
 
+			now := models.Now()
+			if err := queries.UpdateLastActivity(db, userId, now); err != nil {
+				slog.Error("Failed to update last activity", slog.String("error", err.Error()))
+				// Keep going, we don't want to block the request
+			}
+
 			handler(context, db, userId, roleId)
 		}
 	}
