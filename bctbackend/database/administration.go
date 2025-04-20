@@ -24,7 +24,7 @@ func (e *DatabaseConnectionError) Unwrap() error {
 }
 
 func ConnectToDatabase(path string) (*sql.DB, error) {
-	db, err := sql.Open("sqlite", path)
+	db, err := sql.Open("sqlite", fmt.Sprintf("%s?_busy_timeout=500", path))
 	if err != nil {
 		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "opening database"}
 	}
