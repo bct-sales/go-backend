@@ -170,7 +170,7 @@ func GetUsersWithItemCount(db *sql.DB, receiver func(*UserWithItemCount) error) 
 	rows, err := db.Query(
 		`
 			SELECT users.user_id, role_id, created_at, last_activity, password, COUNT(items.item_id)
-			FROM users INNER JOIN items ON users.user_id = items.user_id
+			FROM users INNER JOIN items ON users.user_id = items.seller_id
 			GROUP BY users.user_id
 		`,
 	)
