@@ -206,21 +206,45 @@ func CheckUserRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) error
 // An error is returned if the user cannot be removed, e.g., because items or sales are
 // associated with the user.
 func RemoveUserWithId(db *sql.DB, userId models.Id) error {
-	userExist, err := UserWithIdExists(db, userId)
-
-	if err != nil {
-		return err
+	{
+		userExist, err := UserWithIdExists(db, userId)
+		if err != nil {
+			return err
+		}
+		if !userExist {
+			return &NoSuchUserError{UserId: userId}
+		}
 	}
 
-	if !userExist {
-		return &NoSuchUserError{UserId: userId}
-	}
-
-	_, err = db.Exec(
+	_, err := db.Exec(
 		`
 			DELETE FROM users
 			WHERE user_id = $1
 		`,
+		userId,
+	)
+
+	return err
+}
+
+func UpdateLastActivity(db *sql.DB, userId models.Id, lastActivity models.Timestamp) error {
+	{
+		userExist, err := UserWithIdExists(db, userId)
+		if err != nil {
+			return err
+		}
+		if !userExist {
+			return &NoSuchUserError{UserId: userId}
+		}
+	}
+
+	_, err := db.Exec(
+		`
+			UPDATE users
+			SET last_activity = $1
+			WHERE user_id = $2
+		`,
+		lastActivity,
 		userId,
 	)
 
