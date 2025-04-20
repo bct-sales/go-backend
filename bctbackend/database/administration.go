@@ -25,13 +25,16 @@ func (e *DatabaseConnectionError) Unwrap() error {
 
 func ConnectToDatabase(path string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite", path)
-
 	if err != nil {
 		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "opening database"}
 	}
 
 	if _, err := db.Exec("PRAGMA foreign_keys = ON"); err != nil {
 		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "enabling foreign keys"}
+	}
+
+	if _, err := db.Exec("PRAGMA journal_mode=WAL"); err != nil {
+		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "setting journal mode"}
 	}
 
 	slog.Debug("Connected to database", slog.String("path", path))
