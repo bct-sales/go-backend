@@ -123,7 +123,7 @@ func TestAddSellerItem(t *testing.T) {
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			RequireFailureType(t, writer, http.StatusForbidden, "invalid_description")
+			RequireFailureType(t, writer, http.StatusForbidden, "invalid_item_description")
 
 			itemsInDatabase := []*models.Item{}
 			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase))
