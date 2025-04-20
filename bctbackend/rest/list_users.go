@@ -20,6 +20,7 @@ type GetUsersUserData struct {
 	Role         string                    `json:"role"`
 	CreatedAt    rest.StructuredTimestamp  `json:"created_at"`
 	LastActivity *rest.StructuredTimestamp `json:"last_activity,omitempty"`
+	ItemCount    int64                     `json:"item_count"`
 }
 
 type GetUsersSuccessResponse struct {
@@ -46,8 +47,8 @@ func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 		return
 	}
 
-	users := []*models.User{}
-	if err := queries.GetUsers(db, queries.CollectTo(&users)); err != nil {
+	users := []*queries.UserWithItemCount{}
+	if err := queries.GetUsersWithItemCount(db, queries.CollectTo(&users)); err != nil {
 		slog.Error("Failed to fetch users", slog.String("error", err.Error()))
 		failure_response.Unknown(context, err.Error())
 		return
@@ -79,6 +80,7 @@ func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 			Role:         roleName,
 			CreatedAt:    createdAt,
 			LastActivity: lastActivity,
+			ItemCount:    user.ItemCount,
 		}
 
 		userData = append(userData, userDatum)
