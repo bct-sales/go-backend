@@ -403,14 +403,6 @@ func GetSalesWithCashier(db *sql.DB, cashierId models.Id) (r_result []*models.Sa
 		return nil, err
 	}
 
-	if cashierExists, err := UserWithIdExists(db, cashierId); err != nil || !cashierExists {
-		if !cashierExists {
-			return nil, &NoSuchUserError{UserId: cashierId}
-		}
-
-		return nil, err
-	}
-
 	rows, err := db.Query(
 		`
 			SELECT cashier_id, sale_id, transaction_time
