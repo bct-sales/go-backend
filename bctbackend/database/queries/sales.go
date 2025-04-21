@@ -397,3 +397,48 @@ func GetSalesWithItem(db *sql.DB, itemId models.Id) (r_result []models.Id, r_err
 
 	return saleIds, nil
 }
+
+func GetSalesWithCashier(db *sql.DB, cashierId models.Id) (r_result []*models.Sale, r_err error) {
+	if err := CheckUserRole(db, cashierId, models.CashierRoleId); err != nil {
+		return nil, err
+	}
+
+	if cashierExists, err := UserWithIdExists(db, cashierId); err != nil || !cashierExists {
+		if !cashierExists {
+			return nil, &NoSuchUserError{UserId: cashierId}
+		}
+
+		return nil, err
+	}
+
+	rows, err := db.Query(
+		`
+			SELECT cashier_id, sale_id, transaction_time
+			FROM sales
+			WHERE cashier_id = ?
+			ORDER BY sale_id ASC
+		`,
+		cashierId,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
+
+	sales := []*models.Sale{}
+	for rows.Next() {
+		var sale models.Sale
+
+		err := rows.Scan(&sale.CashierId, &sale.SaleId, &sale.TransactionTime)
+
+		if err != nil {
+			return nil, err
+		}
+
+		sales = append(sales, &sale)
+	}
+
+	return sales, nil
+}
