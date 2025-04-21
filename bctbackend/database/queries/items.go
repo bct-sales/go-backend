@@ -99,7 +99,7 @@ func GetSellerItems(db *sql.DB, sellerId models.Id) (r_items []*models.Item, r_e
 
 type ItemWithSaleCount struct {
 	models.Item
-	SaleCount int64
+	SaleCount int
 }
 
 // Returns the items associated with the given seller.
@@ -113,15 +113,16 @@ func GetSellerItemsWithSaleCounts(db *sql.DB, sellerId models.Id) (r_items []*It
 
 	rows, err := db.Query(
 		`
-			SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, COALESCE(COUNT(sales.sale_id), 0) AS sale_count
-			FROM items LEFT JOIN sales ON items.item_id = sales.item_id
+			SELECT items.item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, COALESCE(COUNT(sale_items.sale_id), 0) AS sale_count
+			FROM items LEFT JOIN sale_items ON items.item_id = sale_items.item_id
 			WHERE seller_id = ?
-			ORDER BY added_at, item_id ASC
+			GROUP BY items.item_id
+			ORDER BY added_at, items.item_id ASC
 		`,
 		sellerId,
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error occurred while getting seller items with sale counts: %w", err)
 	}
 
 	defer func() { err = errors.Join(err, rows.Close()) }()
@@ -138,7 +139,7 @@ func GetSellerItemsWithSaleCounts(db *sql.DB, sellerId models.Id) (r_items []*It
 		var donation bool
 		var charity bool
 		var frozen bool
-		var saleCount int64
+		var saleCount int
 
 		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity, &frozen, &saleCount)
 		if err != nil {
