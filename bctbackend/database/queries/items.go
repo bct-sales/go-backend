@@ -51,7 +51,7 @@ func GetItems(db *sql.DB, receiver func(*models.Item) error) error {
 // The items are ordered by their time of addition, then by id.
 // An NoSuchUserError is returned if no user with the given sellerId exists.
 // An InvalidRoleError is returned if sellerId does not refer to a seller.
-func GetSellerItems(db *sql.DB, sellerId models.Id) (items []*models.Item, err error) {
+func GetSellerItems(db *sql.DB, sellerId models.Id) (r_items []*models.Item, r_err error) {
 	if err := CheckUserRole(db, sellerId, models.SellerRoleId); err != nil {
 		return nil, err
 	}
@@ -65,14 +65,13 @@ func GetSellerItems(db *sql.DB, sellerId models.Id) (items []*models.Item, err e
 		`,
 		sellerId,
 	)
-
 	if err != nil {
 		return nil, err
 	}
 
-	defer func() { err = errors.Join(err, rows.Close()) }()
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
-	items = make([]*models.Item, 0)
+	items := make([]*models.Item, 0)
 
 	for rows.Next() {
 		var id models.Id
@@ -93,6 +92,65 @@ func GetSellerItems(db *sql.DB, sellerId models.Id) (items []*models.Item, err e
 		item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
 
 		items = append(items, item)
+	}
+
+	return items, nil
+}
+
+type ItemWithSaleCount struct {
+	models.Item
+	SaleCount int64
+}
+
+// Returns the items associated with the given seller.
+// The items are ordered by their time of addition, then by id.
+// An NoSuchUserError is returned if no user with the given sellerId exists.
+// An InvalidRoleError is returned if sellerId does not refer to a seller.
+func GetSellerItemsWithSaleCounts(db *sql.DB, sellerId models.Id) (r_items []*ItemWithSaleCount, r_err error) {
+	if err := CheckUserRole(db, sellerId, models.SellerRoleId); err != nil {
+		return nil, err
+	}
+
+	rows, err := db.Query(
+		`
+			SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, COALESCE(COUNT(sales.sale_id), 0) AS sale_count
+			FROM items LEFT JOIN sales ON items.item_id = sales.item_id
+			WHERE seller_id = ?
+			ORDER BY added_at, item_id ASC
+		`,
+		sellerId,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() { err = errors.Join(err, rows.Close()) }()
+
+	items := make([]*ItemWithSaleCount, 0)
+
+	for rows.Next() {
+		var id models.Id
+		var addedAt models.Timestamp
+		var description string
+		var priceInCents models.MoneyInCents
+		var itemCategoryId models.Id
+		var sellerId models.Id
+		var donation bool
+		var charity bool
+		var frozen bool
+		var saleCount int64
+
+		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity, &frozen, &saleCount)
+		if err != nil {
+			return nil, err
+		}
+
+		item := ItemWithSaleCount{
+			Item:      *models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen),
+			SaleCount: saleCount,
+		}
+
+		items = append(items, &item)
 	}
 
 	err = nil
