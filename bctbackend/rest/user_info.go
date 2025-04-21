@@ -23,7 +23,7 @@ type GetUserInformationItem struct {
 	Charity      *bool               `json:"charity" binding:"required"`
 	Donation     *bool               `json:"donation" binding:"required"`
 	Frozen       *bool               `json:"frozen" binding:"required"`
-	SaleCount    *int64              `json:"sale_count" binding:"required"`
+	SaleCount    *int                `json:"sale_count" binding:"required"`
 }
 
 type GetUserInformationSale struct {
@@ -74,13 +74,14 @@ func convertSaleToGetUserInformationSale(sale *models.Sale) *GetUserInformationS
 	}
 }
 
-// @Summary Get information about an item
-// @Description Get information about an item.
+// @Summary Get information about a user
+// @Description Get information about a user.
 // @Success 200 {object} GetItemInformationSuccessResponse
 // @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
 // @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
 // @Failure 403 {object} failure_response.FailureResponse "Only accessible to admins"
 // @Failure 404 {object} failure_response.FailureResponse "User not found"
+// @Failure 500 {object} failure_response.FailureResponse "Internal server error"
 // @Router /users/{id} [get]
 func GetUserInformation(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	var uriParameters struct {
@@ -145,7 +146,7 @@ func GetUserInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 					return
 				}
 			}
-			failure_response.Unknown(context, err.Error())
+			failure_response.Unknown(context, fmt.Errorf("failed to find information about seller: %w", err).Error())
 			return
 		}
 
