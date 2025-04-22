@@ -170,5 +170,17 @@ func TestGetUserInformation(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
 		})
+
+		t.Run("Cookie without session id", func(t *testing.T) {
+			setup, router, writer := NewRestFixture()
+			defer setup.Close()
+
+			cashier := setup.Cashier()
+
+			url := path.Users().WithUserId(cashier.UserId)
+			request := CreateGetRequest(url, WithCookie("whatever", "xxx"))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
+		})
 	})
 }
