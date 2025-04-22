@@ -182,5 +182,17 @@ func TestGetUserInformation(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
 		})
+
+		t.Run("Invalid user id", func(t *testing.T) {
+			setup, router, writer := NewRestFixture()
+			defer setup.Close()
+
+			_, sessionId := setup.LoggedIn(setup.Admin())
+
+			url := path.Users().WithRawUserId("invalid")
+			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_user_id")
+		})
 	})
 }
