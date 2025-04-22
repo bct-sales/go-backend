@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"testing"
 
+	"bctbackend/algorithms"
 	"bctbackend/database/models"
 	restapi "bctbackend/rest"
 	"bctbackend/rest/path"
@@ -110,6 +111,52 @@ func TestGetUserInformation(t *testing.T) {
 				require.Len(t, *response.Sales, 1)
 				require.Equal(t, saleId, (*response.Sales)[0].SaleId)
 			})
+
+			t.Run("Multiple sales", func(t *testing.T) {
+				for _, saleCount := range []int{2, 5, 10} {
+					testLabel := fmt.Sprintf("Sale count: %d", saleCount)
+
+					t.Run(testLabel, func(t *testing.T) {
+						setup, router, writer := NewRestFixture()
+						defer setup.Close()
+
+						seller := setup.Seller()
+						cashier := setup.Cashier()
+						_, sessionId := setup.LoggedIn(setup.Admin())
+
+						algorithms.Repeat(saleCount, func() error {
+							item := setup.Item(seller.UserId, aux.WithDummyData(1))
+							setup.Sale(cashier.UserId, []models.Id{item.ItemId})
+							return nil
+						})
+
+						url := path.Users().WithUserId(cashier.UserId)
+						request := CreateGetRequest(url, WithSessionCookie(sessionId))
+						router.ServeHTTP(writer, request)
+						require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
+
+						response := FromJson[restapi.GetCashierInformationSuccessResponse](writer.Body.String())
+						require.Equal(t, "cashier", response.Role)
+						require.Equal(t, cashier.Password, response.Password)
+						require.Equal(t, cashier.CreatedAt, response.CreatedAt)
+						require.Len(t, *response.Sales, saleCount)
+					})
+				}
+			})
+		})
+	})
+
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("No cookie", func(t *testing.T) {
+			setup, router, writer := NewRestFixture()
+			defer setup.Close()
+
+			cashier := setup.Cashier()
+
+			url := path.Users().WithUserId(cashier.UserId)
+			request := CreateGetRequest(url)
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
 		})
 	})
 }
