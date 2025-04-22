@@ -398,6 +398,10 @@ func GetSalesWithItem(db *sql.DB, itemId models.Id) (r_result []models.Id, r_err
 	return saleIds, nil
 }
 
+// GetSalesWithCashier returns a list of all sales made by a specified cashier.
+// The sales are ordered by transaction time (chronologically) and sale ID (lowest first).
+// Returns NoSuchUserError if the cashierId does not correspond to any user.
+// Returns InvalidRoleError if the cashierId does not correspond to a cashier.
 func GetSalesWithCashier(db *sql.DB, cashierId models.Id) (r_result []*models.Sale, r_err error) {
 	if err := CheckUserRole(db, cashierId, models.CashierRoleId); err != nil {
 		return nil, err
@@ -408,7 +412,7 @@ func GetSalesWithCashier(db *sql.DB, cashierId models.Id) (r_result []*models.Sa
 			SELECT cashier_id, sale_id, transaction_time
 			FROM sales
 			WHERE cashier_id = ?
-			ORDER BY sale_id ASC
+			ORDER BY transaction_time ASC, sale_id ASC
 		`,
 		cashierId,
 	)
