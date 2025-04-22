@@ -194,5 +194,19 @@ func TestGetUserInformation(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_user_id")
 		})
+
+		t.Run("Nonexistent user id", func(t *testing.T) {
+			setup, router, writer := NewRestFixture()
+			defer setup.Close()
+
+			_, sessionId := setup.LoggedIn(setup.Admin())
+			nonexistentUserId := models.Id(99999999)
+			setup.RequireNoSuchUser(t, nonexistentUserId)
+
+			url := path.Users().WithUserId(nonexistentUserId)
+			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusNotFound, "no_such_user")
+		})
 	})
 }
