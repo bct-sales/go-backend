@@ -64,4 +64,40 @@ func TestGetSalesWithCashier(t *testing.T) {
 			require.Equal(t, saleId2, sales[1].SaleId)
 		})
 	})
+
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("Unknown cashier", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			unknownCashierId := models.NewId(9999)
+			setup.RequireNoSuchUser(t, unknownCashierId)
+
+			_, err := queries.GetSalesWithCashier(db, unknownCashierId)
+			var noSuchUserError *queries.NoSuchUserError
+			require.ErrorAs(t, err, &noSuchUserError)
+		})
+
+		t.Run("User whose sales we want is an admin", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			admin := setup.Admin()
+
+			_, err := queries.GetSalesWithCashier(db, admin.UserId)
+			var invalidRoleError *queries.InvalidRoleError
+			require.ErrorAs(t, err, &invalidRoleError)
+		})
+
+		t.Run("User whose sales we want is a seller", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			seller := setup.Seller()
+
+			_, err := queries.GetSalesWithCashier(db, seller.UserId)
+			var invalidRoleError *queries.InvalidRoleError
+			require.ErrorAs(t, err, &invalidRoleError)
+		})
+	})
 }
