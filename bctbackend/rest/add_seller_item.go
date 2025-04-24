@@ -20,7 +20,7 @@ type AddSellerItemPayload struct {
 }
 
 type AddSellerItemResponse struct {
-	ItemId models.Id `json:"item_id"`
+	ItemId models.Id `json:"itemId"`
 }
 
 // @Summary Add an item as seller

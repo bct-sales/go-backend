@@ -15,29 +15,29 @@ import (
 )
 
 type GetUserInformationItem struct {
-	ItemId       models.Id                `json:"item_id" binding:"required"`
-	AddedAt      rest.StructuredTimestamp `json:"added_at" binding:"required"`
-	SellerId     models.Id                `json:"seller_id" binding:"required"`
+	ItemId       models.Id                `json:"itemId" binding:"required"`
+	AddedAt      rest.StructuredTimestamp `json:"addedAt" binding:"required"`
+	SellerId     models.Id                `json:"sellerId" binding:"required"`
 	Description  string                   `json:"description" binding:"required"`
-	PriceInCents models.MoneyInCents      `json:"price_in_cents" binding:"required"`
-	CategoryId   models.Id                `json:"category_id" binding:"required"`
+	PriceInCents models.MoneyInCents      `json:"priceInCents" binding:"required"`
+	CategoryId   models.Id                `json:"categoryId" binding:"required"`
 	Charity      *bool                    `json:"charity" binding:"required"`
 	Donation     *bool                    `json:"donation" binding:"required"`
 	Frozen       *bool                    `json:"frozen" binding:"required"`
-	SaleCount    *int                     `json:"sale_count" binding:"required"`
+	SaleCount    *int                     `json:"saleCount" binding:"required"`
 }
 
 type GetUserInformationSale struct {
-	SaleId          models.Id        `json:"sale_id" binding:"required"`
-	TransactionTime models.Timestamp `json:"transaction_time" binding:"required"`
+	SaleId          models.Id        `json:"saleId" binding:"required"`
+	TransactionTime models.Timestamp `json:"transactionTime" binding:"required"`
 }
 
 type GetUserInformationSuccessResponse struct {
-	UserId       models.Id                 `json:"user_id" binding:"required"`
+	UserId       models.Id                 `json:"userId" binding:"required"`
 	Role         string                    `json:"role" binding:"required"`
 	Password     string                    `json:"password" binding:"required"`
-	CreatedAt    rest.StructuredTimestamp  `json:"created_at" binding:"required"`
-	LastActivity *rest.StructuredTimestamp `json:"last_activity,omitempty"`
+	CreatedAt    rest.StructuredTimestamp  `json:"createdAt" binding:"required"`
+	LastActivity *rest.StructuredTimestamp `json:"lastActivity,omitempty"`
 }
 
 type GetSellerInformationSuccessResponse struct {

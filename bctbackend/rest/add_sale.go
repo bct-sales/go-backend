@@ -16,7 +16,7 @@ type AddSalePayload struct {
 }
 
 type AddSaleSuccessResponse struct {
-	SaleId models.Id `json:"sale_id"`
+	SaleId models.Id `json:"saleId"`
 }
 
 // @Summary Add a new sale
