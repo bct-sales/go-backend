@@ -15,12 +15,12 @@ import (
 )
 
 type GetUsersUserData struct {
-	Id           int64                     `json:"id"`
-	Password     string                    `json:"password"`
-	Role         string                    `json:"role"`
-	CreatedAt    rest.StructuredTimestamp  `json:"createdAt"`
-	LastActivity *rest.StructuredTimestamp `json:"lastActivity,omitempty"`
-	ItemCount    int64                     `json:"itemCount"`
+	Id           int64          `json:"id"`
+	Password     string         `json:"password"`
+	Role         string         `json:"role"`
+	CreatedAt    rest.DateTime  `json:"createdAt"`
+	LastActivity *rest.DateTime `json:"lastActivity,omitempty"`
+	ItemCount    int64          `json:"itemCount"`
 }
 
 type GetUsersSuccessResponse struct {
@@ -66,7 +66,7 @@ func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 
 		createdAt := rest.FromTimestamp(user.CreatedAt)
 
-		var lastActivity *rest.StructuredTimestamp
+		var lastActivity *rest.DateTime
 		if user.LastActivity == nil {
 			lastActivity = nil
 		} else {

@@ -15,15 +15,15 @@ import (
 )
 
 type Item struct {
-	ItemId       models.Id                `json:"itemId"`
-	AddedAt      rest.StructuredTimestamp `json:"addedAt"`
-	Description  string                   `json:"description"`
-	PriceInCents models.MoneyInCents      `json:"priceInCents"`
-	CategoryId   models.Id                `json:"categoryId"`
-	SellerId     models.Id                `json:"sellerId"`
-	Donation     bool                     `json:"donation"`
-	Charity      bool                     `json:"charity"`
-	Frozen       bool                     `json:"frozen"`
+	ItemId       models.Id           `json:"itemId"`
+	AddedAt      rest.DateTime       `json:"addedAt"`
+	Description  string              `json:"description"`
+	PriceInCents models.MoneyInCents `json:"priceInCents"`
+	CategoryId   models.Id           `json:"categoryId"`
+	SellerId     models.Id           `json:"sellerId"`
+	Donation     bool                `json:"donation"`
+	Charity      bool                `json:"charity"`
+	Frozen       bool                `json:"frozen"`
 }
 
 func FromModel(item *models.Item) *Item {

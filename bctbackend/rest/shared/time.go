@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type StructuredTimestamp struct {
+type DateTime struct {
 	Year   int `json:"year"`
 	Month  int `json:"month"`
 	Day    int `json:"day"`
@@ -14,14 +14,14 @@ type StructuredTimestamp struct {
 	Second int `json:"second"`
 }
 
-func (t StructuredTimestamp) String() string {
+func (t DateTime) String() string {
 	return fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d", t.Year, t.Month, t.Day, t.Hour, t.Minute, t.Second)
 }
 
-func FromTimestamp(unixTimestamp int64) StructuredTimestamp {
+func FromTimestamp(unixTimestamp int64) DateTime {
 	t := time.Unix(unixTimestamp, 0)
 
-	return StructuredTimestamp{
+	return DateTime{
 		Year:   t.Year(),
 		Month:  int(t.Month()),
 		Day:    t.Day(),
