@@ -15,16 +15,16 @@ import (
 )
 
 type GetUserInformationItem struct {
-	ItemId       models.Id           `json:"item_id" binding:"required"`
-	AddedAt      models.Timestamp    `json:"added_at" binding:"required"`
-	SellerId     models.Id           `json:"seller_id" binding:"required"`
-	Description  string              `json:"description" binding:"required"`
-	PriceInCents models.MoneyInCents `json:"price_in_cents" binding:"required"`
-	CategoryId   models.Id           `json:"category_id" binding:"required"`
-	Charity      *bool               `json:"charity" binding:"required"`
-	Donation     *bool               `json:"donation" binding:"required"`
-	Frozen       *bool               `json:"frozen" binding:"required"`
-	SaleCount    *int                `json:"sale_count" binding:"required"`
+	ItemId       models.Id                `json:"item_id" binding:"required"`
+	AddedAt      rest.StructuredTimestamp `json:"added_at" binding:"required"`
+	SellerId     models.Id                `json:"seller_id" binding:"required"`
+	Description  string                   `json:"description" binding:"required"`
+	PriceInCents models.MoneyInCents      `json:"price_in_cents" binding:"required"`
+	CategoryId   models.Id                `json:"category_id" binding:"required"`
+	Charity      *bool                    `json:"charity" binding:"required"`
+	Donation     *bool                    `json:"donation" binding:"required"`
+	Frozen       *bool                    `json:"frozen" binding:"required"`
+	SaleCount    *int                     `json:"sale_count" binding:"required"`
 }
 
 type GetUserInformationSale struct {
@@ -37,7 +37,7 @@ type GetUserInformationSuccessResponse struct {
 	Role         string                    `json:"role" binding:"required"`
 	Password     string                    `json:"password" binding:"required"`
 	CreatedAt    rest.StructuredTimestamp  `json:"created_at" binding:"required"`
-	LastActivity *rest.StructuredTimestamp `json:"last_activity" binding:"required"`
+	LastActivity *rest.StructuredTimestamp `json:"last_activity,omitempty"`
 }
 
 type GetSellerInformationSuccessResponse struct {
@@ -59,7 +59,7 @@ func convertItemToGetUserInformationItem(item *queries.ItemWithSaleCount) *GetUs
 		ItemId:       item.ItemId,
 		Description:  item.Description,
 		SellerId:     item.SellerId,
-		AddedAt:      item.AddedAt,
+		AddedAt:      rest.FromTimestamp(item.AddedAt),
 		PriceInCents: item.PriceInCents,
 		CategoryId:   item.CategoryId,
 		Charity:      &item.Charity,
