@@ -34,7 +34,7 @@ func TestGetUserInformation(t *testing.T) {
 			response := FromJson[restapi.GetAdminInformationSuccessResponse](writer.Body.String())
 			require.Equal(t, "admin", response.Role)
 			require.Equal(t, admin.Password, response.Password)
-			require.Equal(t, admin.CreatedAt, response.CreatedAt)
+			require.Equal(t, rest.FromTimestamp(admin.CreatedAt), response.CreatedAt)
 			require.NotNil(t, response.LastActivity)
 		})
 
