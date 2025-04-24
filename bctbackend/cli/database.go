@@ -75,6 +75,20 @@ func resetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 		}
 	}
 
+	slog.Info("Adding cashier user")
+	{
+		id := models.NewId(2)
+		role := models.CashierRoleId
+		createdAt := time.Now().Unix()
+		var lastActivity *models.Timestamp = nil
+		password := "abc"
+
+		if err = queries.AddUserWithId(db, id, role, createdAt, lastActivity, password); err != nil {
+			return err
+		}
+	}
+
+
 	for area := 1; area <= 12; area++ {
 		for offset := 0; offset < 3; offset++ {
 			id := int64(area*100 + offset)
