@@ -12,9 +12,9 @@ import (
 )
 
 type AddSellerItemPayload struct {
-	Price       *models.MoneyInCents `json:"price_in_cents" binding:"required"`
+	Price       *models.MoneyInCents `json:"priceInCents" binding:"required"`
 	Description *string              `json:"description" binding:"required"`
-	CategoryId  models.Id            `json:"category_id" binding:"required"`
+	CategoryId  models.Id            `json:"categoryId" binding:"required"`
 	Donation    *bool                `json:"donation" binding:"required"` // needs to be a pointer to differentiate between false and not present
 	Charity     *bool                `json:"charity" binding:"required"`  // needs to be a pointer to differentiate between false and not present
 }

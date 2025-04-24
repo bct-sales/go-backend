@@ -12,7 +12,7 @@ import (
 )
 
 type AddSalePayload struct {
-	Items []models.Id `json:"item_ids" binding:"required"`
+	Items []models.Id `json:"itemIds" binding:"required"`
 }
 
 type AddSaleSuccessResponse struct {

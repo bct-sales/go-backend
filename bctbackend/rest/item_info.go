@@ -12,16 +12,16 @@ import (
 )
 
 type GetItemInformationSuccessResponse struct {
-	ItemId       models.Id           `json:"item_id" binding:"required"`
-	AddedAt      models.Timestamp    `json:"added_at" binding:"required"`
-	SellerId     models.Id           `json:"seller_id" binding:"required"`
+	ItemId       models.Id           `json:"itemId" binding:"required"`
+	AddedAt      models.Timestamp    `json:"addedAt" binding:"required"`
+	SellerId     models.Id           `json:"sellerId" binding:"required"`
 	Description  string              `json:"description" binding:"required"`
-	PriceInCents models.MoneyInCents `json:"price_in_cents" binding:"required"`
-	CategoryId   models.Id           `json:"category_id" binding:"required"`
+	PriceInCents models.MoneyInCents `json:"priceInCents" binding:"required"`
+	CategoryId   models.Id           `json:"categoryId" binding:"required"`
 	Charity      *bool               `json:"charity" binding:"required"`
 	Donation     *bool               `json:"donation" binding:"required"`
 	Frozen       *bool               `json:"frozen" binding:"required"`
-	SoldIn       *[]models.Id        `json:"sold_in" binding:"required"`
+	SoldIn       *[]models.Id        `json:"soldIn" binding:"required"`
 }
 
 // @Summary Get information about an item

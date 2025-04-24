@@ -17,8 +17,8 @@ type ListCategoriesSuccessResponse struct {
 }
 
 type CategoryData struct {
-	CategoryId   models.Id `json:"category_id"`
-	CategoryName string    `json:"category_name"`
+	CategoryId   models.Id `json:"categoryId"`
+	CategoryName string    `json:"categoryName"`
 	Count        int64     `json:"count"`
 }
 

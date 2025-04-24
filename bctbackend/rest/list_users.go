@@ -18,9 +18,9 @@ type GetUsersUserData struct {
 	Id           int64                     `json:"id"`
 	Password     string                    `json:"password"`
 	Role         string                    `json:"role"`
-	CreatedAt    rest.StructuredTimestamp  `json:"created_at"`
-	LastActivity *rest.StructuredTimestamp `json:"last_activity,omitempty"`
-	ItemCount    int64                     `json:"item_count"`
+	CreatedAt    rest.StructuredTimestamp  `json:"createdAt"`
+	LastActivity *rest.StructuredTimestamp `json:"lastActivity,omitempty"`
+	ItemCount    int64                     `json:"itemCount"`
 }
 
 type GetUsersSuccessResponse struct {
