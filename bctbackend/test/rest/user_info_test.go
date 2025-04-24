@@ -11,6 +11,7 @@ import (
 	"bctbackend/database/models"
 	restapi "bctbackend/rest"
 	"bctbackend/rest/path"
+	rest "bctbackend/rest/shared"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 
@@ -138,7 +139,8 @@ func TestGetUserInformation(t *testing.T) {
 						response := FromJson[restapi.GetCashierInformationSuccessResponse](writer.Body.String())
 						require.Equal(t, "cashier", response.Role)
 						require.Equal(t, cashier.Password, response.Password)
-						require.Equal(t, cashier.CreatedAt, response.CreatedAt)
+						require.Equal(t, rest.FromTimestamp(cashier.CreatedAt), response.CreatedAt)
+						require.NotNil(t, response.Sales)
 						require.Len(t, *response.Sales, saleCount)
 					})
 				}
