@@ -88,7 +88,6 @@ func resetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 		}
 	}
 
-
 	for area := 1; area <= 12; area++ {
 		for offset := 0; offset < 3; offset++ {
 			id := int64(area*100 + offset)
@@ -107,7 +106,19 @@ func resetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 	slog.Info("Adding some items")
 	queries.AddItem(db, 1, "T-Shirt", 1000, defs.Clothing140_152, 100, false, false, false)
 	queries.AddItem(db, 1, "Jeans", 1000, defs.Clothing140_152, 100, false, false, false)
-	queries.AddItem(db, 1, "Nike sneakers", 1000, defs.Shoes, 100, false, false, false)
+	queries.AddItem(db, 1, "Nike sneakers", 2000, defs.Shoes, 100, false, false, false)
+	queries.AddItem(db, 1, "Adidas sneakers", 2000, defs.Shoes, 200, false, false, false)
+	queries.AddItem(db, 1, "Puma sneakers", 2000, defs.Shoes, 200, false, false, false)
+	queries.AddItem(db, 1, "Reebok sneakers", 2000, defs.Shoes, 200, false, false, false)
+	queries.AddItem(db, 1, "Converse sneakers", 2000, defs.Shoes, 200, false, false, false)
+	queries.AddItem(db, 1, "Vans sneakers", 2000, defs.Shoes, 200, false, false, false)
+	queries.AddItem(db, 1, "New Balance sneakers", 2000, defs.Shoes, 200, false, false, false)
+	queries.AddItem(db, 1, "Asics sneakers", 2000, defs.Shoes, 200, false, false, false)
+	queries.AddItem(db, 1, "Hoka sneakers", 2000, defs.Shoes, 200, false, false, false)
+	queries.AddItem(db, 1, "Saucony sneakers", 2000, defs.Shoes, 200, false, false, false)
+	queries.AddItem(db, 1, "Brooks sneakers", 2000, defs.Shoes, 200, false, false, false)
+	queries.AddItem(db, 1, "Mizuno sneakers", 2000, defs.Shoes, 200, false, false, false)
+	queries.AddItem(db, 1, "On sneakers", 2000, defs.Shoes, 200, false, false, false)
 
 	return nil
 }
