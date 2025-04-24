@@ -62,7 +62,7 @@ func TestGetUserInformation(t *testing.T) {
 					response := FromJson[restapi.GetSellerInformationSuccessResponse](writer.Body.String())
 					require.Equal(t, "seller", response.Role)
 					require.Equal(t, seller.Password, response.Password)
-					require.Equal(t, seller.CreatedAt, response.CreatedAt)
+					require.Equal(t, rest.FromTimestamp(seller.CreatedAt), response.CreatedAt)
 					require.Nil(t, response.LastActivity)
 					require.Len(t, *response.Items, item_count)
 				})
