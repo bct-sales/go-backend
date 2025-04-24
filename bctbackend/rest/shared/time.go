@@ -18,7 +18,7 @@ func (t DateTime) String() string {
 	return fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d", t.Year, t.Month, t.Day, t.Hour, t.Minute, t.Second)
 }
 
-func FromTimestamp(unixTimestamp int64) DateTime {
+func ConvertTimestampToDateTime(unixTimestamp int64) DateTime {
 	t := time.Unix(unixTimestamp, 0)
 
 	return DateTime{

@@ -59,7 +59,7 @@ func convertItemToGetUserInformationItem(item *queries.ItemWithSaleCount) *GetUs
 		ItemId:       item.ItemId,
 		Description:  item.Description,
 		SellerId:     item.SellerId,
-		AddedAt:      rest.FromTimestamp(item.AddedAt),
+		AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
 		PriceInCents: item.PriceInCents,
 		CategoryId:   item.CategoryId,
 		Charity:      &item.Charity,
@@ -124,8 +124,8 @@ func GetUserInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 		UserId:       user.UserId,
 		Role:         roleName,
 		Password:     user.Password,
-		CreatedAt:    rest.FromTimestamp(user.CreatedAt),
-		LastActivity: algorithms.MapOptional(user.LastActivity, rest.FromTimestamp),
+		CreatedAt:    rest.ConvertTimestampToDateTime(user.CreatedAt),
+		LastActivity: algorithms.MapOptional(user.LastActivity, rest.ConvertTimestampToDateTime),
 	}
 
 	if user.RoleId == models.AdminRoleId {

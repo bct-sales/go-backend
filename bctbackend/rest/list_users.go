@@ -64,13 +64,13 @@ func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 			return
 		}
 
-		createdAt := rest.FromTimestamp(user.CreatedAt)
+		createdAt := rest.ConvertTimestampToDateTime(user.CreatedAt)
 
 		var lastActivity *rest.DateTime
 		if user.LastActivity == nil {
 			lastActivity = nil
 		} else {
-			date := rest.FromTimestamp(*user.LastActivity)
+			date := rest.ConvertTimestampToDateTime(*user.LastActivity)
 			lastActivity = &date
 		}
 
