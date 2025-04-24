@@ -28,6 +28,16 @@ func Map[T any, U any](values []T, f func(T) U) []U {
 	return result
 }
 
+func MapOptional[T any, U any](value *T, f func(T) U) *U {
+	if value == nil {
+		return nil
+	}
+
+	result := f(*value)
+
+	return &result
+}
+
 func Repeat(count int, function func() error) error {
 	for i := 0; i < count; i++ {
 		if err := function(); err != nil {
