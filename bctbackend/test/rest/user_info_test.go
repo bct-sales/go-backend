@@ -108,7 +108,7 @@ func TestGetUserInformation(t *testing.T) {
 				response := FromJson[restapi.GetCashierInformationSuccessResponse](writer.Body.String())
 				require.Equal(t, "cashier", response.Role)
 				require.Equal(t, cashier.Password, response.Password)
-				require.Equal(t, cashier.CreatedAt, response.CreatedAt)
+				require.Equal(t, rest.FromTimestamp(cashier.CreatedAt), response.CreatedAt)
 				require.Len(t, *response.Sales, 1)
 				require.Equal(t, saleId, (*response.Sales)[0].SaleId)
 			})
