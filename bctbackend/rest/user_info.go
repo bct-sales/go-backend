@@ -5,6 +5,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/rest/failure_response"
+	rest "bctbackend/rest/shared"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -32,10 +33,11 @@ type GetUserInformationSale struct {
 }
 
 type GetUserInformationSuccessResponse struct {
-	Role         string            `json:"role" binding:"required"`
-	Password     string            `json:"password" binding:"required"`
-	CreatedAt    models.Timestamp  `json:"created_at" binding:"required"`
-	LastActivity *models.Timestamp `json:"last_activity" binding:"required"`
+	UserId       models.Id                 `json:"user_id" binding:"required"`
+	Role         string                    `json:"role" binding:"required"`
+	Password     string                    `json:"password" binding:"required"`
+	CreatedAt    rest.StructuredTimestamp  `json:"created_at" binding:"required"`
+	LastActivity *rest.StructuredTimestamp `json:"last_activity" binding:"required"`
 }
 
 type GetSellerInformationSuccessResponse struct {
@@ -118,14 +120,17 @@ func GetUserInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 		return
 	}
 
+	basicInformation := GetUserInformationSuccessResponse{
+		UserId:       user.UserId,
+		Role:         roleName,
+		Password:     user.Password,
+		CreatedAt:    rest.FromTimestamp(user.CreatedAt),
+		LastActivity: algorithms.MapOptional(user.LastActivity, rest.FromTimestamp),
+	}
+
 	if user.RoleId == models.AdminRoleId {
 		response := GetAdminInformationSuccessResponse{
-			GetUserInformationSuccessResponse: GetUserInformationSuccessResponse{
-				Role:         roleName,
-				Password:     user.Password,
-				CreatedAt:    user.CreatedAt,
-				LastActivity: user.LastActivity,
-			},
+			GetUserInformationSuccessResponse: basicInformation,
 		}
 		context.JSON(http.StatusOK, response)
 		return
@@ -153,13 +158,8 @@ func GetUserInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 		convertedItems := algorithms.Map(items, convertItemToGetUserInformationItem)
 
 		response := GetSellerInformationSuccessResponse{
-			GetUserInformationSuccessResponse: GetUserInformationSuccessResponse{
-				Role:         roleName,
-				Password:     user.Password,
-				CreatedAt:    user.CreatedAt,
-				LastActivity: user.LastActivity,
-			},
-			Items: &convertedItems,
+			GetUserInformationSuccessResponse: basicInformation,
+			Items:                             &convertedItems,
 		}
 
 		context.JSON(http.StatusOK, response)
@@ -188,13 +188,8 @@ func GetUserInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 		convertedSales := algorithms.Map(sales, convertSaleToGetUserInformationSale)
 
 		response := GetCashierInformationSuccessResponse{
-			GetUserInformationSuccessResponse: GetUserInformationSuccessResponse{
-				Role:         roleName,
-				Password:     user.Password,
-				CreatedAt:    user.CreatedAt,
-				LastActivity: user.LastActivity,
-			},
-			Sales: &convertedSales,
+			GetUserInformationSuccessResponse: basicInformation,
+			Sales:                             &convertedSales,
 		}
 		context.JSON(http.StatusOK, response)
 		return
