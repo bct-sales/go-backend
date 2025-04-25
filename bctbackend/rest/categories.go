@@ -19,7 +19,7 @@ type ListCategoriesSuccessResponse struct {
 type CategoryData struct {
 	CategoryId   models.Id `json:"categoryId"`
 	CategoryName string    `json:"categoryName"`
-	Count        int64     `json:"count"`
+	Count        *int64    `json:"count"`
 }
 
 // @Summary Get number of items grouped by category.
@@ -53,7 +53,7 @@ func ListCategories(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 		translatedCategoryCount := CategoryData{
 			CategoryId:   categoryCount.CategoryId,
 			CategoryName: categoryCount.Name,
-			Count:        categoryCount.Count,
+			Count:        &categoryCount.Count,
 		}
 
 		response.Counts = append(response.Counts, translatedCategoryCount)

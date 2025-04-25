@@ -35,7 +35,7 @@ func createSuccessResponse(countMap map[models.Id]int64) rest.ListCategoriesSucc
 		countArray = append(countArray, rest.CategoryData{
 			CategoryId:   categoryId,
 			CategoryName: categoryName,
-			Count:        count,
+			Count:        &count,
 		})
 	}
 
