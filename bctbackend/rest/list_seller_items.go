@@ -1,9 +1,11 @@
 package rest
 
 import (
+	"bctbackend/algorithms"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/rest/failure_response"
+	rest "bctbackend/rest/shared"
 	"database/sql"
 	"errors"
 	"net/http"
@@ -13,8 +15,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type GetSellerItemsItemData struct {
+	ItemId       models.Id           `json:"itemId"`
+	AddedAt      rest.DateTime       `json:"addedAt"`
+	Description  string              `json:"description"`
+	PriceInCents models.MoneyInCents `json:"priceInCents"`
+	CategoryId   models.Id           `json:"categoryId"`
+	SellerId     models.Id           `json:"sellerId"`
+	Donation     bool                `json:"donation"`
+	Charity      bool                `json:"charity"`
+	Frozen       bool                `json:"frozen"`
+}
+
 type GetSellerItemsSuccessResponse struct {
-	Items []*models.Item `json:"items"`
+	Items []*GetSellerItemsItemData `json:"items"`
 }
 
 // @Summary Get seller's items
@@ -80,6 +94,19 @@ func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 		return
 	}
 
-	successResponse := GetSellerItemsSuccessResponse{Items: items}
+	successResponse := GetSellerItemsSuccessResponse{Items: algorithms.Map(items, func(item *models.Item) *GetSellerItemsItemData {
+		return &GetSellerItemsItemData{
+			ItemId:       item.ItemId,
+			AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
+			Description:  item.Description,
+			PriceInCents: item.PriceInCents,
+			CategoryId:   item.CategoryId,
+			SellerId:     item.SellerId,
+			Donation:     item.Donation,
+			Charity:      item.Charity,
+			Frozen:       item.Frozen,
+		}
+	})}
+
 	context.IndentedJSON(http.StatusOK, successResponse)
 }
