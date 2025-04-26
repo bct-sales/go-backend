@@ -1,6 +1,6 @@
-package main
+package cli
 
-var passwords = []string{
+var Passwords = []string{
 	"aclockworkorange",
 	"adrienbrody",
 	"afghanistan",
