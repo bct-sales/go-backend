@@ -81,7 +81,7 @@ func AddUser(
 func AddUsers(db *sql.DB, callback func(add func(roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string))) error {
 	valuesString := []string{}
 	arguments := []any{}
-	tupleString := "(?, ?, ?, ?)"
+	tupleString := fmt.Sprintf("(?, %d, ?, ?, ?)", models.SellerRoleId)
 
 	add := func(roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string) {
 		valuesString = append(valuesString, tupleString)
@@ -94,7 +94,7 @@ func AddUsers(db *sql.DB, callback func(add func(roleId models.Id, createdAt mod
 		return nil
 	}
 
-	query := `INSERT INTO users (role_id, created_at, last_activity, password) VALUES ` + strings.Join(valuesString, ",")
+	query := `INSERT INTO users (user_id, role_id, created_at, last_activity, password) VALUES ` + strings.Join(valuesString, ",")
 
 	if _, err := db.Exec(query, arguments...); err != nil {
 		return err
