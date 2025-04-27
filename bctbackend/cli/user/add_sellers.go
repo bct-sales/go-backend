@@ -53,10 +53,9 @@ func determineSellersToBeCreated(zones []int, sellersPerZone int, receiver func(
 	return nil
 }
 
-func createPasswordList(seed uint64) []string {
+func createPasswordList(seed uint64, usedPasswords algorithms.Set[string]) []string {
 	rng := rand.New(rand.NewSource(seed))
-	passwords := make([]string, len(Passwords))
-	copy(passwords, Passwords)
+	passwords := algorithms.Filter(Passwords, func(password string) bool { return !usedPasswords.Contains(password) })
 	rng.Shuffle(len(passwords), func(i, j int) {
 		passwords[i], passwords[j] = passwords[j], passwords[i]
 	})
@@ -75,8 +74,13 @@ func AddSellers(databasePath string, seed uint64, zones []int, sellersPerZone in
 		return fmt.Errorf("failed to collect existing sellers: %v", err)
 	}
 
+	usedPasswords, err := collectExistingPasswords(db)
+	if err != nil {
+		return fmt.Errorf("failed to collect existing passwords: %v", err)
+	}
+
 	sellersToBeCreated := []sellerCreationData{}
-	passwords := createPasswordList(seed)
+	passwords := createPasswordList(seed, *usedPasswords)
 	passwordIndex := 0
 	err = determineSellersToBeCreated(zones, sellersPerZone, func(sellerId models.Id) error {
 		if !existingSellers.Contains(sellerId) {
