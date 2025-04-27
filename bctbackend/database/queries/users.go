@@ -78,14 +78,16 @@ func AddUser(
 	return result.LastInsertId()
 }
 
-func AddUsers(db *sql.DB, callback func(add func(roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string))) error {
+type AddUsersCallback func(addUser func(userId models.Id, roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string))
+
+func AddUsers(db *sql.DB, callback AddUsersCallback) error {
 	valuesString := []string{}
 	arguments := []any{}
-	tupleString := fmt.Sprintf("(?, %d, ?, ?, ?)", models.SellerRoleId)
+	tupleString := "(?, ?, ?, ?, ?)"
 
-	add := func(roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string) {
+	add := func(userId models.Id, roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string) {
 		valuesString = append(valuesString, tupleString)
-		arguments = append(arguments, roleId, createdAt, lastActivity, password)
+		arguments = append(arguments, userId, roleId, createdAt, lastActivity, password)
 	}
 
 	callback(add)

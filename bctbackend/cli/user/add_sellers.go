@@ -103,10 +103,11 @@ func AddSellers(databasePath string, seed uint64, zones []int, sellersPerZone in
 		return err
 	}
 
-	callback := func(add func(roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
+	callback := func(add func(sellerId models.Id, roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
 		for _, seller := range sellersToBeCreated {
 			add(
 				seller.userId,
+				models.SellerRoleId,
 				models.Now(),
 				nil,
 				seller.password,
