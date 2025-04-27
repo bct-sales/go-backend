@@ -56,7 +56,7 @@ func TestCategoryCounts(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			countMap := map[models.Id]int64{}
 			expectedResponse := createSuccessResponse(countMap)
-			actual := FromJson[rest.ListCategoriesSuccessResponse](writer.Body.String())
+			actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expectedResponse, *actual)
 		})
 
@@ -74,7 +74,7 @@ func TestCategoryCounts(t *testing.T) {
 				countMap := map[models.Id]int64{categoryId: 1}
 				expected := createSuccessResponse(countMap)
 
-				actual := FromJson[rest.ListCategoriesSuccessResponse](writer.Body.String())
+				actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 				require.Equal(t, expected, *actual)
 			})
 		}
@@ -94,7 +94,7 @@ func TestCategoryCounts(t *testing.T) {
 				countMap := map[models.Id]int64{categoryId: 2}
 				expected := createSuccessResponse(countMap)
 
-				actual := FromJson[rest.ListCategoriesSuccessResponse](writer.Body.String())
+				actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 				require.Equal(t, expected, *actual)
 			})
 		}
@@ -117,7 +117,7 @@ func TestCategoryCounts(t *testing.T) {
 					countMap[categoryId2] += 1
 					expected := createSuccessResponse(countMap)
 
-					actual := FromJson[rest.ListCategoriesSuccessResponse](writer.Body.String())
+					actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 					require.Equal(t, expected, *actual)
 				})
 			}

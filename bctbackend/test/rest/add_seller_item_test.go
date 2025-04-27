@@ -46,7 +46,7 @@ func TestAddSellerItem(t *testing.T) {
 
 									require.Equal(t, http.StatusCreated, writer.Code)
 
-									response := FromJson[restapi.AddSellerItemResponse](writer.Body.String())
+									response := FromJson[restapi.AddSellerItemResponse](t, writer.Body.String())
 
 									itemsInDatabase := []*models.Item{}
 									err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase))

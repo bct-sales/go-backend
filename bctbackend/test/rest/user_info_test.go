@@ -31,7 +31,7 @@ func TestGetUserInformation(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			response := FromJson[restapi.GetAdminInformationSuccessResponse](writer.Body.String())
+			response := FromJson[restapi.GetAdminInformationSuccessResponse](t, writer.Body.String())
 			require.Equal(t, "admin", response.Role)
 			require.Equal(t, admin.Password, response.Password)
 			require.Equal(t, rest.ConvertTimestampToDateTime(admin.CreatedAt), response.CreatedAt)
@@ -59,7 +59,7 @@ func TestGetUserInformation(t *testing.T) {
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
-					response := FromJson[restapi.GetSellerInformationSuccessResponse](writer.Body.String())
+					response := FromJson[restapi.GetSellerInformationSuccessResponse](t, writer.Body.String())
 					require.Equal(t, "seller", response.Role)
 					require.Equal(t, seller.Password, response.Password)
 					require.Equal(t, rest.ConvertTimestampToDateTime(seller.CreatedAt), response.CreatedAt)
@@ -82,7 +82,7 @@ func TestGetUserInformation(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
-				response := FromJson[restapi.GetCashierInformationSuccessResponse](writer.Body.String())
+				response := FromJson[restapi.GetCashierInformationSuccessResponse](t, writer.Body.String())
 				require.Equal(t, "cashier", response.Role)
 				require.Equal(t, cashier.Password, response.Password)
 				require.Equal(t, rest.ConvertTimestampToDateTime(cashier.CreatedAt), response.CreatedAt)
@@ -105,7 +105,7 @@ func TestGetUserInformation(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
-				response := FromJson[restapi.GetCashierInformationSuccessResponse](writer.Body.String())
+				response := FromJson[restapi.GetCashierInformationSuccessResponse](t, writer.Body.String())
 				require.Equal(t, "cashier", response.Role)
 				require.Equal(t, cashier.Password, response.Password)
 				require.Equal(t, rest.ConvertTimestampToDateTime(cashier.CreatedAt), response.CreatedAt)
@@ -136,7 +136,7 @@ func TestGetUserInformation(t *testing.T) {
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
-						response := FromJson[restapi.GetCashierInformationSuccessResponse](writer.Body.String())
+						response := FromJson[restapi.GetCashierInformationSuccessResponse](t, writer.Body.String())
 						require.Equal(t, "cashier", response.Role)
 						require.Equal(t, cashier.Password, response.Password)
 						require.Equal(t, rest.ConvertTimestampToDateTime(cashier.CreatedAt), response.CreatedAt)

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 )
 
 // AddUserWithId adds a user to the database with a specific user ID.
@@ -75,6 +76,31 @@ func AddUser(
 	}
 
 	return result.LastInsertId()
+}
+
+func AddUsers(db *sql.DB, callback func(add func(roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string))) error {
+	valuesString := []string{}
+	arguments := []any{}
+	tupleString := "(?, ?, ?, ?)"
+
+	add := func(roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string) {
+		valuesString = append(valuesString, tupleString)
+		arguments = append(arguments, roleId, createdAt, lastActivity, password)
+	}
+
+	callback(add)
+
+	if len(valuesString) == 0 {
+		return nil
+	}
+
+	query := `INSERT INTO users (role_id, created_at, last_activity, password) VALUES ` + strings.Join(valuesString, ",")
+
+	if _, err := db.Exec(query, arguments...); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func UserWithIdExists(

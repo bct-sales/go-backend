@@ -8,16 +8,14 @@ import (
 	"testing"
 
 	models "bctbackend/database/models"
+	"bctbackend/rest"
 	"bctbackend/rest/path"
+	shared "bctbackend/rest/shared"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )
-
-type ListSellerItemsSuccessResponse struct {
-	Items []models.Item `json:"items"`
-}
 
 func TestListSellerItems(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
@@ -32,10 +30,20 @@ func TestListSellerItems(t *testing.T) {
 
 						seller, sessionId := setup.LoggedIn(setup.Seller(aux.WithUserId(sellerId)))
 
-						expectedItems := []models.Item{}
+						expectedItems := []*rest.GetSellerItemsItemData{}
 						for i := 0; i < itemCount; i++ {
 							item := setup.Item(seller.UserId, aux.WithDummyData(i))
-							expectedItems = append(expectedItems, *item)
+							expectedItems = append(expectedItems, &rest.GetSellerItemsItemData{
+								ItemId:       item.ItemId,
+								Description:  item.Description,
+								PriceInCents: item.PriceInCents,
+								CategoryId:   item.CategoryId,
+								SellerId:     item.SellerId,
+								AddedAt:      shared.ConvertTimestampToDateTime(item.AddedAt),
+								Donation:     item.Donation,
+								Charity:      item.Charity,
+								Frozen:       item.Frozen,
+							})
 						}
 
 						url := path.SellerItems().WithSellerId(seller.UserId)
@@ -43,7 +51,7 @@ func TestListSellerItems(t *testing.T) {
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code)
 
-						actual := FromJson[ListSellerItemsSuccessResponse](writer.Body.String())
+						actual := FromJson[rest.GetSellerItemsSuccessResponse](t, writer.Body.String())
 						require.NotNil(t, actual)
 						require.Equal(t, expectedItems, actual.Items)
 					})
@@ -59,10 +67,20 @@ func TestListSellerItems(t *testing.T) {
 			_, sessionId := setup.LoggedIn(setup.Admin())
 			itemCount := 10
 
-			expectedItems := []models.Item{}
+			expectedItems := []*rest.GetSellerItemsItemData{}
 			for i := 0; i < itemCount; i++ {
 				item := setup.Item(seller.UserId, aux.WithDummyData(i))
-				expectedItems = append(expectedItems, *item)
+				expectedItems = append(expectedItems, &rest.GetSellerItemsItemData{
+					ItemId:       item.ItemId,
+					Description:  item.Description,
+					PriceInCents: item.PriceInCents,
+					CategoryId:   item.CategoryId,
+					SellerId:     item.SellerId,
+					AddedAt:      shared.ConvertTimestampToDateTime(item.AddedAt),
+					Donation:     item.Donation,
+					Charity:      item.Charity,
+					Frozen:       item.Frozen,
+				})
 			}
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
@@ -70,7 +88,7 @@ func TestListSellerItems(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			actual := FromJson[ListSellerItemsSuccessResponse](writer.Body.String())
+			actual := FromJson[rest.GetSellerItemsSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expectedItems, actual.Items)
 		})
 	})

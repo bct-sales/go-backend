@@ -11,7 +11,10 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"slices"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/urfave/cli/v2"
@@ -22,6 +25,44 @@ import (
 const (
 	DatabaseEnvironmentVariable = "BCT_DATABASE"
 )
+
+func parseZones(zoneStrings []string) ([]int, error) {
+	result := []int{}
+
+	for _, zoneString := range zoneStrings {
+		parts := strings.Split(zoneString, ",")
+
+		for _, part := range parts {
+			endpoints := strings.Split(part, "-")
+			if len(endpoints) == 1 {
+				zone, err := strconv.Atoi(endpoints[0])
+				if err != nil {
+					return nil, fmt.Errorf("invalid zone format: %s", part)
+				}
+				result = append(result, zone)
+			} else if len(endpoints) == 2 {
+				start, err := strconv.Atoi(endpoints[0])
+				if err != nil {
+					return nil, fmt.Errorf("invalid zone format: %s", part)
+				}
+				end, err := strconv.Atoi(endpoints[1])
+				if err != nil {
+					return nil, fmt.Errorf("invalid zone format: %s", part)
+				}
+				for i := start; i <= end; i++ {
+					result = append(result, i)
+				}
+			} else {
+				return nil, fmt.Errorf("invalid zone format: %s", part)
+			}
+		}
+	}
+
+	slices.Sort(result)
+	slices.Compact(result)
+
+	return result, nil
+}
 
 func ProcessCommandLineArguments(arguments []string) error {
 	err := godotenv.Load()
@@ -48,6 +89,12 @@ func ProcessCommandLineArguments(arguments []string) error {
 				id       int64
 				role     string
 				password string
+			}
+
+			addSellers struct {
+				seed           uint64
+				zones          []int
+				sellersPerZone int
 			}
 
 			setPassword struct {
@@ -222,6 +269,42 @@ func ProcessCommandLineArguments(arguments []string) error {
 							role := options.user.add.role
 							userPassword := options.user.add.password
 							return cli_user.AddUser(databasePath, id, role, userPassword)
+						},
+					},
+					{
+						Name:  "add-sellers",
+						Usage: "add sellers with random passwords",
+						Flags: []cli.Flag{
+							&cli.Uint64Flag{
+								Name:        "seed",
+								Usage:       "seed for the random number generator",
+								Destination: &options.user.addSellers.seed,
+								Required:    false,
+							},
+							&cli.StringSliceFlag{
+								Name:  "zones",
+								Usage: "zones for the sellers",
+							},
+							&cli.IntFlag{
+								Name:        "sellers-per-zone",
+								Usage:       "number of sellers per zone",
+								Destination: &options.user.addSellers.sellersPerZone,
+								Required:    true,
+							},
+						},
+						Action: func(context *cli.Context) error {
+							seed := options.user.addSellers.seed
+							if seed == 0 {
+								seed = uint64(time.Now().UnixNano())
+							}
+
+							zones, err := parseZones(context.StringSlice("zones"))
+							if err != nil {
+								return err
+							}
+							sellersPerZone := options.user.addSellers.sellersPerZone
+
+							return cli_user.AddSellers(databasePath, seed, zones, sellersPerZone)
 						},
 					},
 					{

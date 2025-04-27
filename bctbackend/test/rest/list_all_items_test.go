@@ -64,7 +64,7 @@ func TestGetAllItems(t *testing.T) {
 			require.Equal(t, http.StatusOK, writer.Code)
 
 			expected := SuccessResponse{Items: []Item{}}
-			actual := FromJson[SuccessResponse](writer.Body.String())
+			actual := FromJson[SuccessResponse](t, writer.Body.String())
 			require.Equal(t, expected, *actual)
 		})
 
@@ -85,7 +85,7 @@ func TestGetAllItems(t *testing.T) {
 			expected := SuccessResponse{
 				Items: []Item{*FromModel(item)},
 			}
-			actual := FromJson[SuccessResponse](writer.Body.String())
+			actual := FromJson[SuccessResponse](t, writer.Body.String())
 			require.Equal(t, expected, *actual)
 		})
 
@@ -107,7 +107,7 @@ func TestGetAllItems(t *testing.T) {
 			expected := SuccessResponse{
 				Items: []Item{*FromModel(item1), *FromModel(item2)},
 			}
-			actual := FromJson[SuccessResponse](writer.Body.String())
+			actual := FromJson[SuccessResponse](t, writer.Body.String())
 			require.Equal(t, expected, *actual)
 		})
 	})

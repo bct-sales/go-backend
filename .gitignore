@@ -8,3 +8,4 @@ docs/
 *.ttf
 *.db-shm
 *.db-wal
+make-dictionary.rb
