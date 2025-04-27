@@ -88,19 +88,22 @@ func resetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 		}
 	}
 
-	for area := 1; area <= 12; area++ {
-		for offset := 0; offset < 3; offset++ {
-			id := int64(area*100 + offset)
-			role := models.SellerRoleId
-			createdAt := time.Now().Unix()
-			var lastActivity *models.Timestamp = nil
-			password := fmt.Sprintf("%d", id)
+	slog.Info("Adding sellers")
+	addSellers := func(addUser func(userId models.Id, roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
+		for area := 1; area <= 12; area++ {
+			for offset := 0; offset != 4; offset++ {
+				userId := models.Id(area*100 + offset)
+				roleId := models.SellerRoleId
+				createdAt := time.Now().Unix()
+				var lastActivity *models.Timestamp = nil
+				password := fmt.Sprintf("%d", userId)
 
-			slog.Info("Adding seller user", slog.Int64("id", id))
-			if err = queries.AddUserWithId(db, id, role, createdAt, lastActivity, password); err != nil {
-				return err
+				addUser(userId, roleId, createdAt, lastActivity, password)
 			}
 		}
+	}
+	if err := queries.AddUsers(db, addSellers); err != nil {
+		return fmt.Errorf("failed to add sellers: %v", err)
 	}
 
 	slog.Info("Adding some items")
@@ -119,6 +122,13 @@ func resetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 	queries.AddItem(db, 1, "Brooks sneakers", 2000, defs.Shoes, 200, false, false, false)
 	queries.AddItem(db, 1, "Mizuno sneakers", 2000, defs.Shoes, 200, false, false, false)
 	queries.AddItem(db, 1, "On sneakers", 2000, defs.Shoes, 200, false, false, false)
+	queries.AddItem(db, 1, "Combat boots", 2000, defs.Shoes, 300, false, false, false)
+	queries.AddItem(db, 1, "Hiking boots", 2000, defs.Shoes, 300, false, false, false)
+	queries.AddItem(db, 1, "Winter boots", 2000, defs.Shoes, 300, false, false, false)
+	queries.AddItem(db, 1, "Rain boots", 2000, defs.Shoes, 300, false, false, false)
+	queries.AddItem(db, 1, "Snow boots", 2000, defs.Shoes, 300, false, false, false)
+	queries.AddItem(db, 1, "Bean boots", 2000, defs.Shoes, 300, false, false, false)
+	queries.AddItem(db, 1, "Cowboy boots", 2000, defs.Shoes, 300, false, false, false)
 
 	return nil
 }
