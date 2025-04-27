@@ -35,18 +35,21 @@ func parseZones(zoneStrings []string) ([]int, error) {
 		for _, part := range parts {
 			endpoints := strings.Split(part, "-")
 			if len(endpoints) == 1 {
-				zone, err := strconv.Atoi(endpoints[0])
+				zone, err := strconv.Atoi(strings.TrimSpace(endpoints[0]))
 				if err != nil {
 					return nil, fmt.Errorf("invalid zone format: %s", part)
 				}
 				result = append(result, zone)
 			} else if len(endpoints) == 2 {
-				start, err := strconv.Atoi(endpoints[0])
+				start, err := strconv.Atoi(strings.TrimSpace(endpoints[0]))
 				if err != nil {
 					return nil, fmt.Errorf("invalid zone format: %s", part)
 				}
-				end, err := strconv.Atoi(endpoints[1])
+				end, err := strconv.Atoi(strings.TrimSpace(endpoints[1]))
 				if err != nil {
+					return nil, fmt.Errorf("invalid zone format: %s", part)
+				}
+				if start >= end {
 					return nil, fmt.Errorf("invalid zone format: %s", part)
 				}
 				for i := start; i <= end; i++ {
@@ -59,7 +62,7 @@ func parseZones(zoneStrings []string) ([]int, error) {
 	}
 
 	slices.Sort(result)
-	slices.Compact(result)
+	result = slices.Compact(result)
 
 	return result, nil
 }
@@ -282,11 +285,12 @@ func ProcessCommandLineArguments(arguments []string) error {
 								Required:    false,
 							},
 							&cli.StringSliceFlag{
-								Name:  "zones",
-								Usage: "zones for the sellers",
+								Name:     "zones",
+								Usage:    "zones for the sellers",
+								Required: true,
 							},
 							&cli.IntFlag{
-								Name:        "sellers-per-zone",
+								Name:        "per-zone",
 								Usage:       "number of sellers per zone",
 								Destination: &options.user.addSellers.sellersPerZone,
 								Required:    true,
