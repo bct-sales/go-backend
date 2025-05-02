@@ -19,7 +19,7 @@ type ListCategoriesSuccessResponse struct {
 type CategoryData struct {
 	CategoryId   models.Id `json:"categoryId"`
 	CategoryName string    `json:"categoryName"`
-	Count        *int64    `json:"count"`
+	Count        *int64    `json:"count,omitempty"`
 }
 
 // @Summary Get number of items grouped by category.
@@ -34,11 +34,17 @@ type CategoryData struct {
 // @Failure 500 {object} failure_response.FailureResponse "Failed to fetch category counts"
 // @Router /categories [get]
 func ListCategories(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
-	if roleId != models.AdminRoleId {
-		failure_response.WrongRole(context, "Global category counts only accessible to admins")
-		return
+	switch roleId {
+	case models.AdminRoleId:
+		listCategoriesAsAdmin(context, db)
+	case models.CashierRoleId:
+		failure_response.Forbidden(context, "Cashiers are not allowed to list categories")
+	case models.SellerRoleId:
+		listCategoriesAsSeller(context, db, userId)
 	}
+}
 
+func listCategoriesAsAdmin(context *gin.Context, db *sql.DB) {
 	categoryCounts, err := queries.GetCategoryCounts(db)
 	if err != nil {
 		failure_response.Unknown(context, "Failed to fetch category counts: "+err.Error())
@@ -57,6 +63,29 @@ func ListCategories(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 		}
 
 		response.Counts = append(response.Counts, translatedCategoryCount)
+	}
+
+	context.IndentedJSON(http.StatusOK, response)
+}
+
+func listCategoriesAsSeller(context *gin.Context, db *sql.DB, sellerId models.Id) {
+	categories, err := queries.GetCategories(db)
+	if err != nil {
+		failure_response.Unknown(context, "Failed to fetch categories: "+err.Error())
+		return
+	}
+
+	response := ListCategoriesSuccessResponse{
+		Counts: []CategoryData{},
+	}
+
+	for _, categoryCount := range categories {
+		data := CategoryData{
+			CategoryId:   categoryCount.CategoryId,
+			CategoryName: categoryCount.Name,
+		}
+
+		response.Counts = append(response.Counts, data)
 	}
 
 	context.IndentedJSON(http.StatusOK, response)
