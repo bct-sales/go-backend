@@ -34,5 +34,14 @@ func GeneratePdf() error {
 		},
 	}
 
-	return pdf.GeneratePdf("output.pdf", layout, labels)
+	result, err := pdf.GeneratePdf(layout, labels)
+	if err != nil {
+		return err
+	}
+
+	if err := result.WriteToFile("output.pdf"); err != nil {
+		return err
+	}
+
+	return nil
 }

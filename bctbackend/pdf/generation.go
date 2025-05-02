@@ -26,8 +26,7 @@ type LabelData struct {
 	Donation         bool
 }
 
-type pdfBuilder struct {
-	filename      string
+type PdfBuilder struct {
 	pdf           *fpdf.Fpdf
 	imageCache    map[string]string
 	layout        *ValidatedLayoutSettings
@@ -38,9 +37,30 @@ type pdfBuilder struct {
 	showGrid      bool
 }
 
-func GeneratePdf(filename string, layout *ValidatedLayoutSettings, labels []LabelData) error {
-	builder := newPdfBuilder(filename, layout, labels)
-	return builder.drawLabels()
+func GeneratePdf(layout *ValidatedLayoutSettings, labels []LabelData) (*PdfBuilder, error) {
+	builder := newPdfBuilder(layout, labels)
+
+	if err := builder.drawLabels(); err != nil {
+		return nil, err
+	}
+
+	return builder, nil
+}
+
+func (builder *PdfBuilder) WriteToFile(filename string) error {
+	if err := builder.pdf.OutputFileAndClose(filename); err != nil {
+		return fmt.Errorf("failed to save PDF: %w", err)
+	}
+
+	return nil
+}
+
+func (builder *PdfBuilder) WriteToBuffer() (*bytes.Buffer, error) {
+	var buffer bytes.Buffer
+	if err := builder.pdf.Output(&buffer); err != nil {
+		return nil, fmt.Errorf("failed to save PDF to buffer: %w", err)
+	}
+	return &buffer, nil
 }
 
 func newPdfGenerator() *fpdf.Fpdf {
@@ -52,9 +72,8 @@ func newPdfGenerator() *fpdf.Fpdf {
 	return fpdf.New(orientation, unit, paperSize, fontDirectory)
 }
 
-func newPdfBuilder(filename string, layout *ValidatedLayoutSettings, labels []LabelData) *pdfBuilder {
-	builder := pdfBuilder{
-		filename:      filename,
+func newPdfBuilder(layout *ValidatedLayoutSettings, labels []LabelData) *PdfBuilder {
+	builder := PdfBuilder{
 		imageCache:    make(map[string]string),
 		pdf:           newPdfGenerator(),
 		layout:        layout,
@@ -71,18 +90,18 @@ func newPdfBuilder(filename string, layout *ValidatedLayoutSettings, labels []La
 	return &builder
 }
 
-func (builder *pdfBuilder) addPage() {
+func (builder *PdfBuilder) addPage() {
 	orientation := "P"
 	pageSize := fpdf.SizeType{Wd: builder.layout.paperWidth, Ht: builder.layout.paperHeight}
 	builder.pdf.AddPageFormat(orientation, pageSize)
 }
 
-func (builder *pdfBuilder) registerImages() {
+func (builder *PdfBuilder) registerImages() {
 	builder.registerImage(donationImageName, DonationImageBuffer())
 	builder.registerImage(charityImageName, CharityImageBuffer())
 }
 
-func (builder *pdfBuilder) drawLabels() error {
+func (builder *PdfBuilder) drawLabels() error {
 	for _, label := range builder.labels {
 		if builder.gridWalker.IsAtStart() {
 			builder.addPage()
@@ -98,10 +117,10 @@ func (builder *pdfBuilder) drawLabels() error {
 		builder.gridWalker.Next()
 	}
 
-	return builder.pdf.OutputFileAndClose(builder.filename)
+	return nil
 }
 
-func (builder *pdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *LabelData) error {
+func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *LabelData) error {
 	builder.pdf.ClipRect(labelRectangle.Left, labelRectangle.Top, labelRectangle.Width, labelRectangle.Height, false)
 	defer builder.pdf.ClipEnd()
 
@@ -147,7 +166,7 @@ func (builder *pdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *Label
 	return nil
 }
 
-func (builder *pdfBuilder) drawCharityImage(rectangle *Rectangle) {
+func (builder *PdfBuilder) drawCharityImage(rectangle *Rectangle) {
 	imageWidth, _ := builder.determineImageSize(charityImageName)
 	x := rectangle.Right() - imageWidth
 	y := rectangle.Top
@@ -155,7 +174,7 @@ func (builder *pdfBuilder) drawCharityImage(rectangle *Rectangle) {
 	builder.drawImage(charityImageName, x, y)
 }
 
-func (builder *pdfBuilder) drawDonationImage(rectangle *Rectangle) {
+func (builder *PdfBuilder) drawDonationImage(rectangle *Rectangle) {
 	charityImageWidth, _ := builder.determineImageSize(charityImageName)
 	donationImageWidth, _ := builder.determineImageSize(donationImageName)
 	x := rectangle.Right() - charityImageWidth - donationImageWidth - 2
@@ -171,13 +190,13 @@ func formatPriceAndSeller(priceInCents int, sellerIdentifier int) string {
 	return fmt.Sprintf("€%d.%02d → %d", euros, cents, sellerIdentifier)
 }
 
-func (builder *pdfBuilder) setFont() {
+func (builder *PdfBuilder) setFont() {
 	builder.pdf.AddUTF8Font("Arial", "", "Arial.otf")
 	fontSizeInPoints := builder.pdf.UnitToPointConvert(builder.layout.fontSize)
 	builder.pdf.SetFont("Arial", "", fontSizeInPoints)
 }
 
-func (builder *pdfBuilder) registerImage(imageName string, imageBuffer *bytes.Buffer) {
+func (builder *PdfBuilder) registerImage(imageName string, imageBuffer *bytes.Buffer) {
 	imageOptions := fpdf.ImageOptions{
 		ImageType: "png",
 		ReadDpi:   true,
@@ -186,7 +205,7 @@ func (builder *pdfBuilder) registerImage(imageName string, imageBuffer *bytes.Bu
 	builder.pdf.RegisterImageOptionsReader(imageName, imageOptions, imageBuffer)
 }
 
-func (builder *pdfBuilder) generateBarcode(data string) (string, error) {
+func (builder *PdfBuilder) generateBarcode(data string) (string, error) {
 	if cached, ok := builder.imageCache[data]; ok {
 		return cached, nil
 	}
@@ -219,7 +238,7 @@ func (builder *pdfBuilder) generateBarcode(data string) (string, error) {
 	return imageName, nil
 }
 
-func (builder *pdfBuilder) drawImage(imageName string, x float64, y float64) {
+func (builder *PdfBuilder) drawImage(imageName string, x float64, y float64) {
 	imageOptions := fpdf.ImageOptions{
 		ImageType: "png",
 		ReadDpi:   true,
@@ -228,7 +247,7 @@ func (builder *pdfBuilder) drawImage(imageName string, x float64, y float64) {
 	builder.pdf.ImageOptions(imageName, x, y, -1, -1, false, imageOptions, 0, "")
 }
 
-func (builder *pdfBuilder) determineImageSize(imageName string) (float64, float64) {
+func (builder *PdfBuilder) determineImageSize(imageName string) (float64, float64) {
 	imageInfo := builder.pdf.GetImageInfo(imageName)
 	imageWidth := imageInfo.Width()
 	imageHeight := imageInfo.Height()
@@ -236,7 +255,7 @@ func (builder *pdfBuilder) determineImageSize(imageName string) (float64, float6
 	return imageWidth, imageHeight
 }
 
-func (builder *pdfBuilder) drawBarcode(data string, x float64, y float64) (string, error) {
+func (builder *PdfBuilder) drawBarcode(data string, x float64, y float64) (string, error) {
 	imageName, err := builder.generateBarcode(data)
 	if err != nil {
 		return "", err
@@ -247,24 +266,24 @@ func (builder *pdfBuilder) drawBarcode(data string, x float64, y float64) (strin
 	return imageName, nil
 }
 
-func (builder *pdfBuilder) drawText(text string, x float64, y float64) {
+func (builder *PdfBuilder) drawText(text string, x float64, y float64) {
 	builder.pdf.Text(x, y, text)
 }
 
-func (builder *pdfBuilder) drawTextInLowerLeftCorner(text string, rectangle *Rectangle) {
+func (builder *PdfBuilder) drawTextInLowerLeftCorner(text string, rectangle *Rectangle) {
 	x := rectangle.Left
 	y := rectangle.Bottom()
 	builder.pdf.Text(x, y, text)
 }
 
-func (builder *pdfBuilder) drawTextInLowerRightCorner(text string, rectangle *Rectangle) {
+func (builder *PdfBuilder) drawTextInLowerRightCorner(text string, rectangle *Rectangle) {
 	stringLength := builder.pdf.GetStringWidth(text)
 	x := rectangle.Right() - stringLength
 	y := rectangle.Bottom()
 	builder.pdf.Text(x, y, text)
 }
 
-func (builder *pdfBuilder) drawTextInTopRightCorner(text string, rectangle *Rectangle) {
+func (builder *PdfBuilder) drawTextInTopRightCorner(text string, rectangle *Rectangle) {
 	stringLength := builder.pdf.GetStringWidth(text)
 	stringHeight := builder.layout.fontSize
 	x := rectangle.Right() - stringLength
@@ -272,7 +291,7 @@ func (builder *pdfBuilder) drawTextInTopRightCorner(text string, rectangle *Rect
 	builder.pdf.Text(x, y, text)
 }
 
-func (builder *pdfBuilder) drawGrid(rectangle *Rectangle, cellSize float64) {
+func (builder *PdfBuilder) drawGrid(rectangle *Rectangle, cellSize float64) {
 	r, g, b := builder.pdf.GetDrawColor()
 	defer builder.pdf.SetDrawColor(r, g, b)
 
@@ -294,6 +313,6 @@ func (builder *pdfBuilder) drawGrid(rectangle *Rectangle, cellSize float64) {
 	}
 }
 
-func (builder *pdfBuilder) drawLabelBorder(rectangle *Rectangle) {
+func (builder *PdfBuilder) drawLabelBorder(rectangle *Rectangle) {
 	builder.pdf.Rect(rectangle.Left, rectangle.Top, rectangle.Width, rectangle.Height, "D")
 }
