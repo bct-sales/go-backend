@@ -4,7 +4,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/rest/failure_response"
-	rest_path "bctbackend/rest/path"
+	paths "bctbackend/rest/path"
 	"bctbackend/security"
 	"database/sql"
 	"errors"
@@ -93,15 +93,15 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	router.POST(rest_path.Login().String(), func(context *gin.Context) { login(context, db) })
-	router.POST(rest_path.Logout().String(), func(context *gin.Context) { logout(context, db) })
-	router.GET(rest_path.Items().String(), withUserAndRole(GetAllItems))
-	router.PUT(rest_path.Items().WithRawItemId(":id"), withUserAndRole(UpdateItem))
-	router.GET(rest_path.Users().String(), withUserAndRole(GetUsers))
-	router.GET(rest_path.Users().WithRawUserId(":id"), withUserAndRole(GetUserInformation))
-	router.GET(rest_path.Categories().String(), withUserAndRole(ListCategories))
-	router.GET(rest_path.SellerItems().WithRawSellerId(":id"), withUserAndRole(GetSellerItems))
-	router.POST(rest_path.SellerItems().WithRawSellerId(":id"), withUserAndRole(AddSellerItem))
-	router.POST(rest_path.Sales().String(), withUserAndRole(AddSale))
-	router.GET(rest_path.SalesItems().WithRawItemId(":id"), withUserAndRole(GetItemInformation))
+	router.POST(paths.Login().String(), func(context *gin.Context) { login(context, db) })
+	router.POST(paths.Logout().String(), func(context *gin.Context) { logout(context, db) })
+	router.GET(paths.Items().String(), withUserAndRole(GetAllItems))
+	router.PUT(paths.Items().WithRawItemId(":id"), withUserAndRole(UpdateItem))
+	router.GET(paths.Users().String(), withUserAndRole(GetUsers))
+	router.GET(paths.Users().WithRawUserId(":id"), withUserAndRole(GetUserInformation))
+	router.GET(paths.Categories().String(), withUserAndRole(ListCategories))
+	router.GET(paths.SellerItems().WithRawSellerId(":id"), withUserAndRole(GetSellerItems))
+	router.POST(paths.SellerItems().WithRawSellerId(":id"), withUserAndRole(AddSellerItem))
+	router.POST(paths.Sales().String(), withUserAndRole(AddSale))
+	router.GET(paths.SalesItems().WithRawItemId(":id"), withUserAndRole(GetItemInformation))
 }
