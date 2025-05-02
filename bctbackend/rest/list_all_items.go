@@ -88,7 +88,7 @@ func GetAllItems(context *gin.Context, db *sql.DB, userId models.Id, roleId mode
 		context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
 		context.Header("Pragma", "no-cache")
 
-		buffer := bytes.NewBufferString("")
+		buffer := new(bytes.Buffer)
 		if err := csv.FormatItemsAsCSV(items, buffer); err != nil {
 			failure_response.Unknown(context, "Failed to format items as CSV: "+err.Error())
 			return
