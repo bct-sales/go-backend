@@ -73,6 +73,15 @@ func GetAllItems(context *gin.Context, db *sql.DB, userId models.Id, roleId mode
 		context.IndentedJSON(http.StatusOK, response)
 		return
 
+	case "json":
+		context.Header("Content-Type", "application/json")
+		context.Header("Content-Disposition", "attachment; filename=\"items.json\"")
+		context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+		context.Header("Pragma", "no-cache")
+
+		context.IndentedJSON(http.StatusOK, items)
+		return
+
 	case "csv":
 		context.Header("Content-Type", "text/csv")
 		context.Header("Content-Disposition", "attachment; filename=\"items.csv\"")
