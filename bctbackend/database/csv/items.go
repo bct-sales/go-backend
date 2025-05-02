@@ -9,7 +9,7 @@ import (
 	"io"
 )
 
-func OutputItems(db *sql.DB, writer io.Writer) (r_err error) {
+func OutputItems(db *sql.DB, writer io.Writer) error {
 	csvWriter := csv.NewWriter(writer)
 	defer csvWriter.Flush()
 
