@@ -5,6 +5,7 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/rest/failure_response"
 	"database/sql"
+	"log/slog"
 	"net/http"
 
 	_ "bctbackend/docs"
@@ -34,17 +35,24 @@ type CategoryData struct {
 // @Failure 500 {object} failure_response.FailureResponse "Failed to fetch category counts"
 // @Router /categories [get]
 func ListCategories(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
-	switch roleId {
-	case models.AdminRoleId:
-		listCategoriesAsAdmin(context, db)
-	case models.CashierRoleId:
-		failure_response.WrongRole(context, "Cashiers are not allowed to list categories")
-	case models.SellerRoleId:
-		listCategoriesAsSeller(context, db, userId)
+	includeCounts := context.Query("counts") == "true"
+
+	if includeCounts {
+		listCategoriesWithCounts(context, db, userId, roleId)
+		return
+	} else {
+		listCategoriesWithoutCounts(context, db, userId, roleId)
+		return
 	}
 }
 
-func listCategoriesAsAdmin(context *gin.Context, db *sql.DB) {
+func listCategoriesWithCounts(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
+	if roleId != models.AdminRoleId {
+		slog.Error("Unauthorized access to category counts", "userId", userId, "roleId", roleId)
+		failure_response.WrongRole(context, "Only admins can access category counts")
+		return
+	}
+
 	categoryCounts, err := queries.GetCategoryCounts(db)
 	if err != nil {
 		failure_response.Unknown(context, "Failed to fetch category counts: "+err.Error())
@@ -68,7 +76,13 @@ func listCategoriesAsAdmin(context *gin.Context, db *sql.DB) {
 	context.IndentedJSON(http.StatusOK, response)
 }
 
-func listCategoriesAsSeller(context *gin.Context, db *sql.DB, sellerId models.Id) {
+func listCategoriesWithoutCounts(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
+	if roleId != models.AdminRoleId && roleId != models.SellerRoleId {
+		slog.Error("Unauthorized access to category counts", "userId", userId, "roleId", roleId)
+		failure_response.WrongRole(context, "Only admins and sellers can access category names")
+		return
+	}
+
 	categories, err := queries.GetCategories(db)
 	if err != nil {
 		failure_response.Unknown(context, "Failed to fetch categories: "+err.Error())

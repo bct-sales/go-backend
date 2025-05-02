@@ -135,11 +135,11 @@ func TestCategoryCounts(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
 		})
 
-		t.Run("Wrong role", func(t *testing.T) {
+		t.Run("Wrong role: cashier", func(t *testing.T) {
 			setup, router, writer := NewRestFixture()
 			defer setup.Close()
 
-			_, sessionId := setup.LoggedIn(setup.Seller())
+			_, sessionId := setup.LoggedIn(setup.Cashier())
 
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
