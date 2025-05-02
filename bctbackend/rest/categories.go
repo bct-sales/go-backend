@@ -38,7 +38,7 @@ func ListCategories(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 	case models.AdminRoleId:
 		listCategoriesAsAdmin(context, db)
 	case models.CashierRoleId:
-		failure_response.Forbidden(context, "Cashiers are not allowed to list categories")
+		failure_response.WrongRole(context, "Cashiers are not allowed to list categories")
 	case models.SellerRoleId:
 		listCategoriesAsSeller(context, db, userId)
 	}
