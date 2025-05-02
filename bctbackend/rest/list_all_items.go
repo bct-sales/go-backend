@@ -2,10 +2,12 @@ package rest
 
 import (
 	"bctbackend/algorithms"
+	"bctbackend/database/csv"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/rest/failure_response"
 	rest "bctbackend/rest/shared"
+	"bytes"
 	"database/sql"
 	"net/http"
 
@@ -52,19 +54,42 @@ func GetAllItems(context *gin.Context, db *sql.DB, userId models.Id, roleId mode
 		return
 	}
 
-	response := GetItemsSuccessResponse{Items: algorithms.Map(items, func(item *models.Item) GetItemsItemData {
-		return GetItemsItemData{
-			ItemId:       item.ItemId,
-			AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
-			Description:  item.Description,
-			PriceInCents: item.PriceInCents,
-			CategoryId:   item.CategoryId,
-			SellerId:     item.SellerId,
-			Donation:     item.Donation,
-			Charity:      item.Charity,
-			Frozen:       item.Frozen,
-		}
-	})}
+	switch context.Query("format") {
+	case "":
+		response := GetItemsSuccessResponse{Items: algorithms.Map(items, func(item *models.Item) GetItemsItemData {
+			return GetItemsItemData{
+				ItemId:       item.ItemId,
+				AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
+				Description:  item.Description,
+				PriceInCents: item.PriceInCents,
+				CategoryId:   item.CategoryId,
+				SellerId:     item.SellerId,
+				Donation:     item.Donation,
+				Charity:      item.Charity,
+				Frozen:       item.Frozen,
+			}
+		})}
 
-	context.IndentedJSON(http.StatusOK, response)
+		context.IndentedJSON(http.StatusOK, response)
+		return
+
+	case "csv":
+		context.Header("Content-Type", "text/csv")
+		context.Header("Content-Disposition", "attachment; filename=\"items.csv\"")
+		context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+		context.Header("Pragma", "no-cache")
+
+		buffer := bytes.NewBufferString("")
+		if err := csv.FormatItemsAsCSV(items, buffer); err != nil {
+			failure_response.Unknown(context, "Failed to format items as CSV: "+err.Error())
+			return
+		}
+		string := buffer.String()
+		context.String(http.StatusOK, string)
+		return
+
+	default:
+		failure_response.Unknown(context, "Unknown format: "+context.Query("format"))
+		return
+	}
 }
