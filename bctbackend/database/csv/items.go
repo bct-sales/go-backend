@@ -2,25 +2,18 @@ package csv
 
 import (
 	models "bctbackend/database/models"
-	"bctbackend/database/queries"
 	"bctbackend/defs"
-	"database/sql"
 	"encoding/csv"
 	"io"
 )
 
-func OutputItems(db *sql.DB, writer io.Writer) error {
+func OutputItems(items []*models.Item, writer io.Writer) error {
 	csvWriter := csv.NewWriter(writer)
 	defer csvWriter.Flush()
 
 	headers := []string{"item_id", "seller_id", "description", "category", "price_in_cents", "donation", "charity"}
 	err := csvWriter.Write(headers)
 	if err != nil {
-		return err
-	}
-
-	items := []*models.Item{}
-	if err := queries.GetItems(db, queries.CollectTo(&items)); err != nil {
 		return err
 	}
 
