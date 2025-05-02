@@ -23,7 +23,7 @@ func ExportItems(databasePath string) (r_err error) {
 		return err
 	}
 
-	err = dbcsv.OutputItems(items, os.Stdout)
+	err = dbcsv.FormatItemsAsCSV(items, os.Stdout)
 	if err != nil {
 		return err
 	}

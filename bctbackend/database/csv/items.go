@@ -7,7 +7,7 @@ import (
 	"io"
 )
 
-func OutputItems(items []*models.Item, writer io.Writer) error {
+func FormatItemsAsCSV(items []*models.Item, writer io.Writer) error {
 	csvWriter := csv.NewWriter(writer)
 	defer csvWriter.Flush()
 
