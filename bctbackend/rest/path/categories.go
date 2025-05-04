@@ -9,3 +9,7 @@ func Categories() *categoriesPath {
 func (path *categoriesPath) String() string {
 	return "/api/v1/categories"
 }
+
+func (path *categoriesPath) WithCounts() string {
+	return path.String() + "?counts=true"
+}
