@@ -45,7 +45,6 @@ func TestAddSellerItem(t *testing.T) {
 									router.ServeHTTP(writer, request)
 
 									require.Equal(t, http.StatusCreated, writer.Code)
-
 									response := FromJson[restapi.AddSellerItemResponse](t, writer.Body.String())
 
 									itemsInDatabase := []*models.Item{}
