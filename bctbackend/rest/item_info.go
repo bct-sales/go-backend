@@ -4,6 +4,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/rest/failure_response"
+	rest "bctbackend/rest/shared"
 	"database/sql"
 	"errors"
 	"net/http"
@@ -13,7 +14,7 @@ import (
 
 type GetItemInformationSuccessResponse struct {
 	ItemId       models.Id           `json:"itemId" binding:"required"`
-	AddedAt      models.Timestamp    `json:"addedAt" binding:"required"`
+	AddedAt      rest.DateTime       `json:"addedAt" binding:"required"`
 	SellerId     models.Id           `json:"sellerId" binding:"required"`
 	Description  string              `json:"description" binding:"required"`
 	PriceInCents models.MoneyInCents `json:"priceInCents" binding:"required"`
@@ -82,7 +83,7 @@ func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 
 	response := GetItemInformationSuccessResponse{
 		ItemId:       item.ItemId,
-		AddedAt:      item.AddedAt,
+		AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
 		SellerId:     item.SellerId,
 		Description:  item.Description,
 		PriceInCents: item.PriceInCents,
