@@ -336,6 +336,26 @@ func GetSellerItemCount(db *sql.DB, sellerId models.Id) (int64, error) {
 	return itemCount, nil
 }
 
+func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id) (int64, error) {
+	row := db.QueryRow(
+		`
+			SELECT COUNT(items.item_id)
+			FROM items
+			WHERE items.seller_id = $1 AND items.frozen
+		`,
+		sellerId,
+	)
+
+	var itemCount int64
+	err := row.Scan(&itemCount)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return itemCount, nil
+}
+
 func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id) (int64, error) {
 	row := db.QueryRow(
 		`
