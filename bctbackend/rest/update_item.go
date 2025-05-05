@@ -19,7 +19,6 @@ type UpdateItemData struct {
 	CategoryId   *models.Id           `json:"categoryId"`
 	Donation     *bool                `json:"donation"`
 	Charity      *bool                `json:"charity"`
-	Frozen       bool                 `json:"frozen"`
 }
 
 type UpdateItemSuccessResponse struct {
