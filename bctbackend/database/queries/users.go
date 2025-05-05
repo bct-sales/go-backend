@@ -335,3 +335,23 @@ func GetSellerItemCount(db *sql.DB, sellerId models.Id) (int64, error) {
 
 	return itemCount, nil
 }
+
+func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id) (int64, error) {
+	row := db.QueryRow(
+		`
+			SELECT SUM(items.price_in_cents)
+			FROM items
+			WHERE items.seller_id = $1
+		`,
+		sellerId,
+	)
+
+	var totalPrice int64
+	err := row.Scan(&totalPrice)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return totalPrice, nil
+}
