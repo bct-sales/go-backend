@@ -132,6 +132,10 @@ func ProcessCommandLineArguments(arguments []string) error {
 			show struct {
 				id int64
 			}
+
+			freeze struct {
+				id int64
+			}
 		}
 
 		sale struct {
@@ -475,6 +479,22 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Action: func(context *cli.Context) error {
 							id := options.item.show.id
 							return cli_item.ShowItem(databasePath, id)
+						},
+					},
+					{
+						Name:  "freeze",
+						Usage: "freeze an item",
+						Flags: []cli.Flag{
+							&cli.Int64Flag{
+								Name:        "id",
+								Usage:       "id of the item",
+								Destination: &options.item.freeze.id,
+								Required:    true,
+							},
+						},
+						Action: func(context *cli.Context) error {
+							id := options.item.freeze.id
+							return cli_item.FreezeItem(databasePath, id)
 						},
 					},
 				},
