@@ -6,6 +6,7 @@ import (
 	"bctbackend/rest/failure_response"
 	"database/sql"
 	"errors"
+	"log/slog"
 	"net/http"
 
 	_ "bctbackend/docs"
@@ -89,6 +90,16 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 		{
 			var noSuchItemError *queries.NoSuchItemError
 			if errors.As(err, &noSuchItemError) {
+				slog.Error(
+					"Failed to update item",
+					"itemId", itemId,
+					"description", payload.Description,
+					"priceInCents", payload.PriceInCents,
+					"categoryId", payload.CategoryId,
+					"donation", payload.Donation,
+					"charity", payload.Charity,
+					"error", err,
+				)
 				failure_response.UnknownItem(context, err.Error())
 				return
 			}
