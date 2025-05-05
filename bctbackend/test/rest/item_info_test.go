@@ -10,6 +10,7 @@ import (
 	"bctbackend/database/models"
 	restapi "bctbackend/rest"
 	"bctbackend/rest/path"
+	rest "bctbackend/rest/shared"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 
@@ -37,7 +38,7 @@ func TestGetItemInformation(t *testing.T) {
 						saleIds = append(saleIds, saleId)
 					}
 
-					url := path.SalesItems().WithItemId(item.ItemId)
+					url := path.Items().Id(item.ItemId)
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code)
@@ -48,7 +49,7 @@ func TestGetItemInformation(t *testing.T) {
 					require.Equal(t, item.CategoryId, response.CategoryId)
 					require.Equal(t, item.SellerId, response.SellerId)
 					require.Equal(t, item.ItemId, response.ItemId)
-					require.Equal(t, item.AddedAt, response.AddedAt)
+					require.Equal(t, rest.ConvertTimestampToDateTime(item.AddedAt), response.AddedAt)
 					require.Equal(t, item.Donation, *response.Donation)
 					require.Equal(t, item.Charity, *response.Charity)
 					require.Equal(t, item.Frozen, *response.Frozen)
@@ -67,7 +68,7 @@ func TestGetItemInformation(t *testing.T) {
 
 			item := setup.Item(seller.UserId, aux.WithDummyData(1))
 
-			url := path.SalesItems().WithItemId(item.ItemId)
+			url := path.Items().Id(item.ItemId)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
@@ -78,7 +79,7 @@ func TestGetItemInformation(t *testing.T) {
 			require.Equal(t, item.CategoryId, response.CategoryId)
 			require.Equal(t, item.SellerId, response.SellerId)
 			require.Equal(t, item.ItemId, response.ItemId)
-			require.Equal(t, item.AddedAt, response.AddedAt)
+			require.Equal(t, rest.ConvertTimestampToDateTime(item.AddedAt), response.AddedAt)
 			require.Equal(t, item.Donation, *response.Donation)
 			require.Equal(t, item.Charity, *response.Charity)
 			require.Equal(t, item.Frozen, *response.Frozen)
@@ -93,7 +94,7 @@ func TestGetItemInformation(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 			item := setup.Item(seller.UserId, aux.WithDummyData(1))
 
-			url := path.SalesItems().WithItemId(item.ItemId)
+			url := path.Items().Id(item.ItemId)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
@@ -104,7 +105,7 @@ func TestGetItemInformation(t *testing.T) {
 			require.Equal(t, item.CategoryId, response.CategoryId)
 			require.Equal(t, item.SellerId, response.SellerId)
 			require.Equal(t, item.ItemId, response.ItemId)
-			require.Equal(t, item.AddedAt, response.AddedAt)
+			require.Equal(t, rest.ConvertTimestampToDateTime(item.AddedAt), response.AddedAt)
 			require.Equal(t, item.Donation, *response.Donation)
 			require.Equal(t, item.Charity, *response.Charity)
 			require.Equal(t, item.Frozen, *response.Frozen)
@@ -119,7 +120,7 @@ func TestGetItemInformation(t *testing.T) {
 
 				_, sessionId := setup.LoggedIn(setup.Cashier())
 
-				url := path.SalesItems().WithRawItemId("abc")
+				url := path.Items().WithRawItemId("abc")
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				RequireFailureType(t, writer, http.StatusBadRequest, "invalid_item_id")
@@ -133,7 +134,7 @@ func TestGetItemInformation(t *testing.T) {
 				ownerSeller := setup.Seller()
 				item := setup.Item(ownerSeller.UserId, aux.WithDummyData(1))
 
-				url := path.SalesItems().WithItemId(item.ItemId)
+				url := path.Items().Id(item.ItemId)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_seller")
@@ -151,7 +152,7 @@ func TestGetItemInformation(t *testing.T) {
 				setup.RequireNoSuchItem(t, nonexistentItem)
 
 				// Attempt to get information for nonexistent item
-				url := path.SalesItems().WithItemId(nonexistentItem)
+				url := path.Items().Id(nonexistentItem)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 
 				// Send request
@@ -174,7 +175,7 @@ func TestGetItemInformation(t *testing.T) {
 					setup.Sale(cashier.UserId, []models.Id{item.ItemId})
 				}
 
-				url := path.SalesItems().WithItemId(item.ItemId)
+				url := path.Items().Id(item.ItemId)
 				request := CreateGetRequest(url)
 				router.ServeHTTP(writer, request)
 				RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
