@@ -1,5 +1,7 @@
 package algorithms
 
+import "fmt"
+
 // ContainsDuplicate returns the index of the first duplicate element in the given slice.
 // If no duplicates are found, -1 is returned.
 func ContainsDuplicate[T comparable](values []T) int {
@@ -26,6 +28,21 @@ func Map[T any, U any](values []T, f func(T) U) []U {
 	}
 
 	return result
+}
+
+func MapError[T any, U any](values []T, f func(T) (U, error)) ([]U, error) {
+	result := make([]U, len(values))
+
+	for index, value := range values {
+		transformedValue, err := f(value)
+		if err != nil {
+			return nil, fmt.Errorf("error when processing item with index %d: %v", index, err)
+		}
+
+		result[index] = transformedValue
+	}
+
+	return result, nil
 }
 
 func MapOptional[T any, U any](value *T, f func(T) U) *U {
