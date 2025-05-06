@@ -74,7 +74,7 @@ func TestGetSellerItemCount(t *testing.T) {
 			}
 		})
 
-		t.Run("As cashier", func(t *testing.T) {
+		t.Run("List items of cashier", func(t *testing.T) {
 			setup, db := NewDatabaseFixture()
 			defer setup.Close()
 
