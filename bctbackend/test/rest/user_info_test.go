@@ -148,6 +148,42 @@ func TestGetUserInformation(t *testing.T) {
 				})
 			})
 		})
+
+		t.Run("Logged in as seller", func(t *testing.T) {
+			for _, unfrozenItemCount := range []int64{0, 1, 2, 5, 10} {
+				for _, frozenItemCount := range []int64{0, 1, 2, 5, 10} {
+					testLabel := fmt.Sprintf("Unfrozen item count: %d, Frozen item count: %d", unfrozenItemCount, frozenItemCount)
+					t.Run(testLabel, func(t *testing.T) {
+						setup, router, writer := NewRestFixture()
+						defer setup.Close()
+
+						seller, sessionId := setup.LoggedIn(setup.Seller())
+						expectedTotal := models.MoneyInCents(0)
+
+						for i := int64(0); i != unfrozenItemCount; i++ {
+							price := models.NewMoneyInCents((i + 1) * 50)
+							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false), aux.WithPriceInCents(price))
+							expectedTotal += price
+						}
+
+						for i := int64(0); i != frozenItemCount; i++ {
+							price := models.NewMoneyInCents((i + 1) * 50)
+							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true), aux.WithPriceInCents(price))
+							expectedTotal += price
+						}
+
+						url := path.Users().WithUserId(seller.UserId)
+						request := CreateGetRequest(url, WithSessionCookie(sessionId))
+						router.ServeHTTP(writer, request)
+						require.Equal(t, http.StatusOK, writer.Code)
+
+						response := FromJson[restapi.GetSellerSummarySuccessResponse](t, writer.Body.String())
+						require.Equal(t, unfrozenItemCount+frozenItemCount, response.ItemCount)
+						require.Equal(t, frozenItemCount, response.FrozenItemCount)
+					})
+				}
+			}
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
