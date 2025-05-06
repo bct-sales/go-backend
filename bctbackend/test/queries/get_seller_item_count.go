@@ -73,5 +73,18 @@ func TestGetSellerItemCount(t *testing.T) {
 				require.ErrorAs(t, err, &noSuchUserError)
 			}
 		})
+
+		t.Run("As cashier", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			cashier := setup.Cashier()
+
+			_, err := queries.GetSellerItemCount(db, cashier.UserId)
+			{
+				var invalidRoleError *queries.InvalidRoleError
+				require.ErrorAs(t, err, &invalidRoleError)
+			}
+		})
 	})
 }
