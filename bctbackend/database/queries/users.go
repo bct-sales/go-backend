@@ -317,6 +317,17 @@ func UpdateLastActivity(db *sql.DB, userId models.Id, lastActivity models.Timest
 }
 
 func GetSellerItemCount(db *sql.DB, sellerId models.Id) (int64, error) {
+	// Ensure the user exists and is a seller
+	{
+		cashier, err := GetUserWithId(db, sellerId)
+		if err != nil {
+			return 0, err
+		}
+		if cashier.RoleId != models.CashierRoleId {
+			return 0, &InvalidRoleError{UserId: sellerId, ExpectedRoleId: models.SellerRoleId}
+		}
+	}
+
 	row := db.QueryRow(
 		`
 			SELECT COUNT(items.item_id)
