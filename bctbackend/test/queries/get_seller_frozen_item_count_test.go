@@ -96,6 +96,19 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 					require.ErrorAs(t, err, &invalidRoleError)
 				}
 			})
+
+			t.Run("List items of admin", func(t *testing.T) {
+				setup, db := NewDatabaseFixture()
+				defer setup.Close()
+
+				admin := setup.Admin()
+
+				_, err := queries.GetSellerFrozenItemCount(db, admin.UserId)
+				{
+					var invalidRoleError *queries.InvalidRoleError
+					require.ErrorAs(t, err, &invalidRoleError)
+				}
+			})
 		})
 	})
 }
