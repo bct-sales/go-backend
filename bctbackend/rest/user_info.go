@@ -220,11 +220,11 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 }
 
 func getUserInformationAsSeller(context *gin.Context, db *sql.DB, userId models.Id, queriedUserId models.Id) {
-	failure_response.WrongRole(context, "Only admins can access seller information")
+	failure_response.WrongRole(context, "Only admins can access other users' information")
 	return
 }
 
 func getUserInformationAsCashier(context *gin.Context, db *sql.DB, userId models.Id, queriedUserId models.Id) {
-	failure_response.WrongRole(context, "Only admins can access cashier information")
+	failure_response.WrongRole(context, "Only admins can access users' information")
 	return
 }
