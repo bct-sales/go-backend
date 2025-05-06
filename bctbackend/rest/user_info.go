@@ -86,11 +86,22 @@ func convertSaleToGetUserInformationSale(sale *models.Sale) *GetUserInformationS
 // @Failure 500 {object} failure_response.FailureResponse "Internal server error"
 // @Router /users/{id} [get]
 func GetUserInformation(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
-	if roleId != models.AdminRoleId {
-		failure_response.WrongRole(context, "Only admins can access user information")
+	if roleId == models.AdminRoleId {
+		getUserInformationAsAdmin(context, db)
+		return
+	} else if roleId == models.SellerRoleId {
+		getUserInformationAsSeller(context, db, userId)
+		return
+	} else if roleId == models.CashierRoleId {
+		getUserInformationAsCashier(context, db, userId)
+		return
+	} else {
+		failure_response.Unknown(context, fmt.Sprintf("Bug: unhandled role %d", roleId))
 		return
 	}
+}
 
+func getUserInformationAsAdmin(context *gin.Context, db *sql.DB) {
 	// Retrieve id of user whose information is being requested
 	var uriParameters struct {
 		UserId string `uri:"id" binding:"required"`
@@ -205,4 +216,14 @@ func GetUserInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 		failure_response.Unknown(context, fmt.Sprintf("Bug: unhandled role %s", roleName))
 		return
 	}
+}
+
+func getUserInformationAsSeller(context *gin.Context, db *sql.DB, userId models.Id) {
+	failure_response.WrongRole(context, "Only admins can access seller information")
+	return
+}
+
+func getUserInformationAsCashier(context *gin.Context, db *sql.DB, userId models.Id) {
+	failure_response.WrongRole(context, "Only admins can access cashier information")
+	return
 }
