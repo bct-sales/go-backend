@@ -34,5 +34,27 @@ func TestGetSellerItemCount(t *testing.T) {
 				})
 			}
 		})
+
+		t.Run("Multiple sellers", func(t *testing.T) {
+			for itemCount := range []int64{0, 1, 2, 10, 100} {
+				testLabel := fmt.Sprintf("Seller with %d items", itemCount)
+				t.Run(testLabel, func(t *testing.T) {
+					setup, db := NewDatabaseFixture()
+					defer setup.Close()
+
+					seller := setup.Seller()
+					otherSeller := setup.Seller()
+
+					for i := 0; i < itemCount; i++ {
+						setup.Item(seller.UserId, aux.WithDummyData(i))
+						setup.Item(otherSeller.UserId, aux.WithDummyData(3*i))
+					}
+
+					actual, err := queries.GetSellerItemCount(db, seller.UserId)
+					require.NoError(t, err)
+					require.Equal(t, itemCount, actual)
+				})
+			}
+		})
 	})
 }
