@@ -379,6 +379,17 @@ func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id) (int64, error) {
 }
 
 func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id) (int64, error) {
+	// Ensure the user exists and is a seller
+	{
+		cashier, err := GetUserWithId(db, sellerId)
+		if err != nil {
+			return 0, err
+		}
+		if cashier.RoleId != models.SellerRoleId {
+			return 0, &InvalidRoleError{UserId: sellerId, ExpectedRoleId: models.SellerRoleId}
+		}
+	}
+
 	row := db.QueryRow(
 		`
 			SELECT COALESCE(SUM(items.price_in_cents), 0)
