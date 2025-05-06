@@ -64,4 +64,20 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 			}
 		})
 	})
+
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("No such user", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			nonExistentSellerId := models.Id(1000)
+			setup.RequireNoSuchUser(t, nonExistentSellerId)
+
+			_, err := queries.GetSellerTotalPriceOfAllItems(db, nonExistentSellerId)
+			{
+				var noSuchUserError *queries.NoSuchUserError
+				require.ErrorAs(t, err, &noSuchUserError)
+			}
+		})
+	})
 }
