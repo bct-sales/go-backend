@@ -86,22 +86,6 @@ func convertSaleToGetUserInformationSale(sale *models.Sale) *GetUserInformationS
 // @Failure 500 {object} failure_response.FailureResponse "Internal server error"
 // @Router /users/{id} [get]
 func GetUserInformation(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
-	if roleId == models.AdminRoleId {
-		getUserInformationAsAdmin(context, db)
-		return
-	} else if roleId == models.SellerRoleId {
-		getUserInformationAsSeller(context, db, userId)
-		return
-	} else if roleId == models.CashierRoleId {
-		getUserInformationAsCashier(context, db, userId)
-		return
-	} else {
-		failure_response.Unknown(context, fmt.Sprintf("Bug: unhandled role %d", roleId))
-		return
-	}
-}
-
-func getUserInformationAsAdmin(context *gin.Context, db *sql.DB) {
 	// Retrieve id of user whose information is being requested
 	var uriParameters struct {
 		UserId string `uri:"id" binding:"required"`
@@ -117,6 +101,23 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB) {
 		failure_response.InvalidUserId(context, err.Error())
 		return
 	}
+
+	if roleId == models.AdminRoleId {
+		getUserInformationAsAdmin(context, db, queriedUserId)
+		return
+	} else if roleId == models.SellerRoleId {
+		getUserInformationAsSeller(context, db, userId, queriedUserId)
+		return
+	} else if roleId == models.CashierRoleId {
+		getUserInformationAsCashier(context, db, userId, queriedUserId)
+		return
+	} else {
+		failure_response.Unknown(context, fmt.Sprintf("Bug: unhandled role %d", roleId))
+		return
+	}
+}
+
+func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId models.Id) {
 
 	// Look up user in database
 	user, err := queries.GetUserWithId(db, queriedUserId)
@@ -218,12 +219,12 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB) {
 	}
 }
 
-func getUserInformationAsSeller(context *gin.Context, db *sql.DB, userId models.Id) {
+func getUserInformationAsSeller(context *gin.Context, db *sql.DB, userId models.Id, queriedUserId models.Id) {
 	failure_response.WrongRole(context, "Only admins can access seller information")
 	return
 }
 
-func getUserInformationAsCashier(context *gin.Context, db *sql.DB, userId models.Id) {
+func getUserInformationAsCashier(context *gin.Context, db *sql.DB, userId models.Id, queriedUserId models.Id) {
 	failure_response.WrongRole(context, "Only admins can access cashier information")
 	return
 }
