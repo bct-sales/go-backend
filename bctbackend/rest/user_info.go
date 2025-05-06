@@ -87,14 +87,14 @@ func convertSaleToGetUserInformationSale(sale *models.Sale) *GetUserInformationS
 // @Router /users/{id} [get]
 func GetUserInformation(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	var uriParameters struct {
-		ItemId string `uri:"id" binding:"required"`
+		UserId string `uri:"id" binding:"required"`
 	}
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
 		failure_response.InvalidUriParameters(context, "Invalid URI parameters: "+err.Error())
 		return
 	}
 
-	itemId, err := models.ParseId(uriParameters.ItemId)
+	itemId, err := models.ParseId(uriParameters.UserId)
 	if err != nil {
 		failure_response.InvalidUserId(context, err.Error())
 		return
