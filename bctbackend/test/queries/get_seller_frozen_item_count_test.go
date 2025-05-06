@@ -83,6 +83,19 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 					require.ErrorAs(t, err, &noSuchUserError)
 				}
 			})
+
+			t.Run("List items of cashier", func(t *testing.T) {
+				setup, db := NewDatabaseFixture()
+				defer setup.Close()
+
+				cashier := setup.Cashier()
+
+				_, err := queries.GetSellerFrozenItemCount(db, cashier.UserId)
+				{
+					var invalidRoleError *queries.InvalidRoleError
+					require.ErrorAs(t, err, &invalidRoleError)
+				}
+			})
 		})
 	})
 }
