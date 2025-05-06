@@ -54,6 +54,12 @@ type GetCashierInformationSuccessResponse struct {
 	Sales *[]*GetUserInformationSale `json:"sales" binding:"required"`
 }
 
+type GetSellerSummarySuccessResponse struct {
+	ItemCount       int64               `json:"itemCount" binding:"required"`
+	FrozenItemCount int64               `json:"frozenItemCount" binding:"required"`
+	TotalPrice      models.MoneyInCents `json:"totalPrice" binding:"required"`
+}
+
 func convertItemToGetUserInformationItem(item *queries.ItemWithSaleCount) *GetUserInformationItem {
 	return &GetUserInformationItem{
 		ItemId:       item.ItemId,
@@ -220,11 +226,46 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 }
 
 func getUserInformationAsSeller(context *gin.Context, db *sql.DB, userId models.Id, queriedUserId models.Id) {
-	failure_response.WrongRole(context, "Only admins can access other users' information")
-	return
+	if userId != queriedUserId {
+		failure_response.WrongRole(context, "Only admins can access other users' information")
+		return
+	}
+
+	itemCount, err := queries.GetSellerItemCount(db, queriedUserId)
+	if err != nil {
+		// At this point, we know that the user exists and is a seller, so no errors should ever occur
+		failure_response.Unknown(context, err.Error())
+		return
+	}
+
+	frozenItemCount, err := queries.GetSellerFrozenItemCount(db, queriedUserId)
+	if err != nil {
+		// At this point, we know that the user exists and is a seller, so no errors should ever occur
+		failure_response.Unknown(context, err.Error())
+		return
+	}
+
+	totalPrice, err := queries.GetSellerTotalPriceOfAllItems(db, queriedUserId)
+	if err != nil {
+		// At this point, we know that the user exists and is a seller, so no errors should ever occur
+		failure_response.Unknown(context, err.Error())
+		return
+	}
+
+	response := GetSellerSummarySuccessResponse{
+		ItemCount:       itemCount,
+		FrozenItemCount: frozenItemCount,
+		TotalPrice:      totalPrice,
+	}
+
+	context.JSON(http.StatusOK, response)
 }
 
 func getUserInformationAsCashier(context *gin.Context, db *sql.DB, userId models.Id, queriedUserId models.Id) {
-	failure_response.WrongRole(context, "Only admins can access users' information")
-	return
+	if userId != queriedUserId {
+		failure_response.WrongRole(context, "Only admins can access users' information")
+		return
+	}
+
+	failure_response.Forbidden(context, "not_yet_implemented", "Cashiers have no information (as of yet)")
 }
