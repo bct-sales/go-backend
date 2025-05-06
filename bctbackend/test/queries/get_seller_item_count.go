@@ -1,0 +1,38 @@
+//go:build test
+
+package queries
+
+import (
+	"bctbackend/database/queries"
+	aux "bctbackend/test/helpers"
+	. "bctbackend/test/setup"
+	"fmt"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+	_ "modernc.org/sqlite"
+)
+
+func TestGetSellerItemCount(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		t.Run("Single seller", func(t *testing.T) {
+			for itemCount := range []int64{0, 1, 2, 10, 100} {
+				testLabel := fmt.Sprintf("Seller with %d items", itemCount)
+				t.Run(testLabel, func(t *testing.T) {
+					setup, db := NewDatabaseFixture()
+					defer setup.Close()
+
+					seller := setup.Seller()
+
+					for i := 0; i < itemCount; i++ {
+						setup.Item(seller.UserId, aux.WithDummyData(i))
+					}
+
+					actual, err := queries.GetSellerItemCount(db, seller.UserId)
+					require.NoError(t, err)
+					require.Equal(t, itemCount, actual)
+				})
+			}
+		})
+	})
+}
