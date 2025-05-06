@@ -57,6 +57,22 @@ func TestGetSellerItemCount(t *testing.T) {
 				})
 			}
 		})
+
+		t.Run("Frozen items are counted", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			seller := setup.Seller()
+
+			itemCount := 10
+			for i := 0; i < itemCount; i++ {
+				setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(true))
+			}
+
+			actual, err := queries.GetSellerItemCount(db, seller.UserId)
+			require.NoError(t, err)
+			require.Equal(t, itemCount, actual)
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
