@@ -92,5 +92,18 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 				require.ErrorAs(t, err, &invalidRoleError)
 			}
 		})
+
+		t.Run("Sum of item prices of admin", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			admin := setup.Admin()
+
+			_, err := queries.GetSellerTotalPriceOfAllItems(db, admin.UserId)
+			{
+				var invalidRoleError *queries.InvalidRoleError
+				require.ErrorAs(t, err, &invalidRoleError)
+			}
+		})
 	})
 }
