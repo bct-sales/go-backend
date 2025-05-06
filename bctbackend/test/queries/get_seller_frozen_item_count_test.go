@@ -84,7 +84,7 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 				}
 			})
 
-			t.Run("List items of cashier", func(t *testing.T) {
+			t.Run("Count frozen items of cashier", func(t *testing.T) {
 				setup, db := NewDatabaseFixture()
 				defer setup.Close()
 
@@ -97,7 +97,7 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 				}
 			})
 
-			t.Run("List items of admin", func(t *testing.T) {
+			t.Run("Count frozen items of admin", func(t *testing.T) {
 				setup, db := NewDatabaseFixture()
 				defer setup.Close()
 
