@@ -210,5 +210,31 @@ func TestGetUserInformation(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_user")
 		})
+
+		t.Run("Unauthorized access", func(t *testing.T) {
+			t.Run("Logged in as seller", func(t *testing.T) {
+				setup, router, writer := NewRestFixture()
+				defer setup.Close()
+
+				seller, sessionId := setup.LoggedIn(setup.Seller())
+
+				url := path.Users().WithUserId(seller.UserId)
+				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				router.ServeHTTP(writer, request)
+				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
+			})
+
+			t.Run("Logged in as cashier", func(t *testing.T) {
+				setup, router, writer := NewRestFixture()
+				defer setup.Close()
+
+				cashier, sessionId := setup.LoggedIn(setup.Cashier())
+
+				url := path.Users().WithUserId(cashier.UserId)
+				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				router.ServeHTTP(writer, request)
+				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
+			})
+		})
 	})
 }
