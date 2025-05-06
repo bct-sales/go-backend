@@ -86,6 +86,7 @@ func convertSaleToGetUserInformationSale(sale *models.Sale) *GetUserInformationS
 // @Failure 500 {object} failure_response.FailureResponse "Internal server error"
 // @Router /users/{id} [get]
 func GetUserInformation(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
+	// Retrieve id of user whose information is being requested
 	var uriParameters struct {
 		UserId string `uri:"id" binding:"required"`
 	}
@@ -94,13 +95,13 @@ func GetUserInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 		return
 	}
 
-	itemId, err := models.ParseId(uriParameters.UserId)
+	queriedUserId, err := models.ParseId(uriParameters.UserId)
 	if err != nil {
 		failure_response.InvalidUserId(context, err.Error())
 		return
 	}
 
-	user, err := queries.GetUserWithId(db, itemId)
+	user, err := queries.GetUserWithId(db, queriedUserId)
 	if err != nil {
 		{
 			var noSuchUserError *queries.NoSuchUserError
