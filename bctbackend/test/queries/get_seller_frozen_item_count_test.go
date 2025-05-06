@@ -39,5 +39,33 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 				}
 			}
 		})
+
+		t.Run("Multiple seller", func(t *testing.T) {
+			for _, frozenItemCount := range []int64{0, 1, 2, 10, 100} {
+				for _, unfrozenItemCount := range []int64{0, 1, 2, 10, 100} {
+					testLabel := fmt.Sprintf("Seller with %d frozen items and %d unfrozen items", frozenItemCount, unfrozenItemCount)
+					t.Run(testLabel, func(t *testing.T) {
+						setup, db := NewDatabaseFixture()
+						defer setup.Close()
+
+						seller := setup.Seller()
+						otherSeller := setup.Seller()
+
+						for i := int64(0); i < frozenItemCount; i++ {
+							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true))
+							setup.Item(otherSeller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true))
+						}
+						for i := int64(0); i < unfrozenItemCount; i++ {
+							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false))
+							setup.Item(otherSeller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false))
+						}
+
+						actual, err := queries.GetSellerFrozenItemCount(db, seller.UserId)
+						require.NoError(t, err)
+						require.Equal(t, frozenItemCount, actual)
+					})
+				}
+			}
+		})
 	})
 }
