@@ -323,7 +323,7 @@ func GetSellerItemCount(db *sql.DB, sellerId models.Id) (int64, error) {
 		if err != nil {
 			return 0, err
 		}
-		if cashier.RoleId != models.CashierRoleId {
+		if cashier.RoleId != models.SellerRoleId {
 			return 0, &InvalidRoleError{UserId: sellerId, ExpectedRoleId: models.SellerRoleId}
 		}
 	}
@@ -354,7 +354,7 @@ func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id) (int64, error) {
 		if err != nil {
 			return 0, err
 		}
-		if cashier.RoleId != models.CashierRoleId {
+		if cashier.RoleId != models.SellerRoleId {
 			return 0, &InvalidRoleError{UserId: sellerId, ExpectedRoleId: models.SellerRoleId}
 		}
 	}
