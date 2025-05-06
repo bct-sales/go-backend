@@ -45,6 +45,7 @@ type NoSuchCategoryError struct {
 type NoSuchRoleError struct {
 	RoleId models.Id
 }
+
 type InvalidPriceError struct {
 	PriceInCents models.MoneyInCents
 }
