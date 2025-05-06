@@ -381,7 +381,7 @@ func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id) (int64, error) {
 func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id) (int64, error) {
 	row := db.QueryRow(
 		`
-			SELECT SUM(items.price_in_cents)
+			SELECT COALESCE(SUM(items.price_in_cents), 0)
 			FROM items
 			WHERE items.seller_id = $1
 		`,
