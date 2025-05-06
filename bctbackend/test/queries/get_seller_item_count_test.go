@@ -17,7 +17,7 @@ import (
 func TestGetSellerItemCount(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Single seller", func(t *testing.T) {
-			for itemCount := range []int64{0, 1, 2, 10, 100} {
+			for _, itemCount := range []int64{0, 1, 2, 10, 100} {
 				testLabel := fmt.Sprintf("Seller with %d items", itemCount)
 				t.Run(testLabel, func(t *testing.T) {
 					setup, db := NewDatabaseFixture()
@@ -25,8 +25,8 @@ func TestGetSellerItemCount(t *testing.T) {
 
 					seller := setup.Seller()
 
-					for i := 0; i < itemCount; i++ {
-						setup.Item(seller.UserId, aux.WithDummyData(i))
+					for i := int64(0); i < itemCount; i++ {
+						setup.Item(seller.UserId, aux.WithDummyData(int(i)))
 					}
 
 					actual, err := queries.GetSellerItemCount(db, seller.UserId)
@@ -37,7 +37,7 @@ func TestGetSellerItemCount(t *testing.T) {
 		})
 
 		t.Run("Multiple sellers", func(t *testing.T) {
-			for itemCount := range []int64{0, 1, 2, 10, 100} {
+			for _, itemCount := range []int64{0, 1, 2, 10, 100} {
 				testLabel := fmt.Sprintf("Seller with %d items", itemCount)
 				t.Run(testLabel, func(t *testing.T) {
 					setup, db := NewDatabaseFixture()
@@ -46,9 +46,9 @@ func TestGetSellerItemCount(t *testing.T) {
 					seller := setup.Seller()
 					otherSeller := setup.Seller()
 
-					for i := 0; i < itemCount; i++ {
-						setup.Item(seller.UserId, aux.WithDummyData(i))
-						setup.Item(otherSeller.UserId, aux.WithDummyData(3*i))
+					for i := int64(0); i < itemCount; i++ {
+						setup.Item(seller.UserId, aux.WithDummyData(int(i)))
+						setup.Item(otherSeller.UserId, aux.WithDummyData(int(3*i)))
 					}
 
 					actual, err := queries.GetSellerItemCount(db, seller.UserId)
@@ -64,9 +64,9 @@ func TestGetSellerItemCount(t *testing.T) {
 
 			seller := setup.Seller()
 
-			itemCount := 10
-			for i := 0; i < itemCount; i++ {
-				setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(true))
+			itemCount := int64(10)
+			for i := int64(0); i < itemCount; i++ {
+				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true))
 			}
 
 			actual, err := queries.GetSellerItemCount(db, seller.UserId)
