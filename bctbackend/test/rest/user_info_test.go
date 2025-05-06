@@ -21,7 +21,7 @@ import (
 func TestGetUserInformation(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Logged in as admin", func(t *testing.T) {
-			t.Run("Admin", func(t *testing.T) {
+			t.Run("Information about admin", func(t *testing.T) {
 				setup, router, writer := NewRestFixture()
 				defer setup.Close()
 
@@ -39,7 +39,7 @@ func TestGetUserInformation(t *testing.T) {
 				require.NotNil(t, response.LastActivity)
 			})
 
-			t.Run("Seller", func(t *testing.T) {
+			t.Run("Information about seller", func(t *testing.T) {
 				for _, item_count := range []int{0, 1, 2, 5, 10} {
 					testLabel := fmt.Sprintf("Item count: %d", item_count)
 
@@ -70,7 +70,7 @@ func TestGetUserInformation(t *testing.T) {
 				}
 			})
 
-			t.Run("Cashier", func(t *testing.T) {
+			t.Run("Information about cashier", func(t *testing.T) {
 				t.Run("Zero sales", func(t *testing.T) {
 					setup, router, writer := NewRestFixture()
 					defer setup.Close()
