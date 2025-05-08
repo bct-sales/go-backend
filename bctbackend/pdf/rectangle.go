@@ -15,11 +15,11 @@ func (r *Rectangle) Bottom() float64 {
 	return r.Top + r.Height
 }
 
-func (r *Rectangle) ShrinkUniformly(amount float64) *Rectangle {
+func (r *Rectangle) Shrink(insets Insets) *Rectangle {
 	return &Rectangle{
-		Left:   r.Left + amount,
-		Top:    r.Top + amount,
-		Width:  r.Width - 2*amount,
-		Height: r.Height - 2*amount,
+		Left:   r.Left + insets.Left,
+		Top:    r.Top + insets.Top,
+		Width:  r.Width - insets.Left - insets.Right,
+		Height: r.Height - insets.Top - insets.Bottom,
 	}
 }

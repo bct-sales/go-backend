@@ -5,8 +5,14 @@ import (
 )
 
 func GeneratePdf() error {
-	layout, err := pdf.NewLayoutSettings().SetA4PaperSize().SetPaperMargins(10.0).SetGridSize(2, 8).SetLabelMargin(2).SetLabelPadding(2).SetFontSize(5).Validate()
-
+	layout, err := pdf.NewLayoutSettings(
+		pdf.WithA4PaperSize(),
+		pdf.WithUniformPaperMargin(10.0),
+		pdf.WithGridSize(2, 8),
+		pdf.WithUniformLabelMargin(2),
+		pdf.WithUniformLabelPadding(2),
+		pdf.WithFontSize(5),
+	)
 	if err != nil {
 		return err
 	}

@@ -6,173 +6,200 @@ import (
 )
 
 type LayoutSettings struct {
-	PaperWidth        float64
-	PaperHeight       float64
-	PaperTopMargin    float64
-	PaperBottomMargin float64
-	PaperLeftMargin   float64
-	PaperRightMargin  float64
-	Columns           int
-	Rows              int
-	LabelMargin       float64
-	LabelPadding      float64
-	FontSize          float64
+	paperWidth   float64
+	paperHeight  float64
+	paperMargins Insets
+	columns      int
+	rows         int
+	labelMargins Insets
+	labelPadding Insets
+	fontSize     float64
 }
 
-type ValidatedLayoutSettings struct {
-	paperWidth        float64
-	paperHeight       float64
-	paperTopMargin    float64
-	paperBottomMargin float64
-	paperLeftMargin   float64
-	paperRightMargin  float64
-	columns           int
-	rows              int
-	labelMargin       float64
-	labelPadding      float64
-	fontSize          float64
+type layoutSettingsOption func(*LayoutSettings)
+
+func NewLayoutSettings(options ...layoutSettingsOption) (*LayoutSettings, error) {
+	var layoutSettings LayoutSettings
+
+	for _, option := range options {
+		option(&layoutSettings)
+	}
+
+	if err := Validate(&layoutSettings); err != nil {
+		return nil, err
+	}
+
+	return &layoutSettings, nil
 }
 
-func NewLayoutSettings() *LayoutSettings {
-	return &LayoutSettings{}
+func WithPaperSize(width float64, height float64) layoutSettingsOption {
+	return func(ls *LayoutSettings) {
+		ls.paperWidth = width
+		ls.paperHeight = height
+	}
 }
 
-func (ls *LayoutSettings) SetPaperSize(width float64, height float64) *LayoutSettings {
-	ls.PaperWidth = width
-	ls.PaperHeight = height
-
-	return ls
+func WithA4PaperSize() layoutSettingsOption {
+	return WithPaperSize(210.0, 297.0)
 }
 
-func (ls *LayoutSettings) SetA4PaperSize() *LayoutSettings {
-	return ls.SetPaperSize(210.0, 297.0)
+func WithPaperMargins(top float64, right float64, bottom float64, left float64) layoutSettingsOption {
+	return func(ls *LayoutSettings) {
+		ls.paperMargins = Insets{
+			Top:    top,
+			Right:  right,
+			Bottom: bottom,
+			Left:   left,
+		}
+	}
 }
 
-func (ls *LayoutSettings) SetPaperMargins(margin float64) *LayoutSettings {
-	ls.PaperTopMargin = margin
-	ls.PaperBottomMargin = margin
-	ls.PaperLeftMargin = margin
-	ls.PaperRightMargin = margin
-
-	return ls
+func WithUniformPaperMargin(margin float64) layoutSettingsOption {
+	return WithPaperMargins(margin, margin, margin, margin)
 }
 
-func (ls *LayoutSettings) SetGridSize(columns int, rows int) *LayoutSettings {
-	ls.Columns = columns
-	ls.Rows = rows
-
-	return ls
+func WithGridSize(columns int, rows int) layoutSettingsOption {
+	return func(ls *LayoutSettings) {
+		ls.columns = columns
+		ls.rows = rows
+	}
 }
 
-func (ls *LayoutSettings) SetLabelMargin(margin float64) *LayoutSettings {
-	ls.LabelMargin = margin
-
-	return ls
+func WithLabelMargins(top float64, right float64, bottom float64, left float64) layoutSettingsOption {
+	return func(ls *LayoutSettings) {
+		ls.labelMargins = Insets{
+			Top:    top,
+			Right:  right,
+			Bottom: bottom,
+			Left:   left,
+		}
+	}
 }
 
-func (ls *LayoutSettings) SetLabelPadding(padding float64) *LayoutSettings {
-	ls.LabelPadding = padding
-
-	return ls
+func WithUniformLabelMargin(margin float64) layoutSettingsOption {
+	return WithLabelMargins(margin, margin, margin, margin)
 }
 
-func (ls *LayoutSettings) SetFontSize(size float64) *LayoutSettings {
-	ls.FontSize = size
-
-	return ls
+func WithLabelPadding(top float64, right float64, bottom float64, left float64) layoutSettingsOption {
+	return func(ls *LayoutSettings) {
+		ls.labelPadding = Insets{
+			Top:    top,
+			Right:  right,
+			Bottom: bottom,
+			Left:   left,
+		}
+	}
 }
 
-func (ls *LayoutSettings) Validate() (*ValidatedLayoutSettings, error) {
+func WithUniformLabelPadding(padding float64) layoutSettingsOption {
+	return WithLabelPadding(padding, padding, padding, padding)
+}
+
+func WithFontSize(size float64) layoutSettingsOption {
+	return func(ls *LayoutSettings) {
+		ls.fontSize = size
+	}
+}
+
+func Validate(layoutSettings *LayoutSettings) error {
 	var errs []error
 
-	if ls.PaperWidth <= 0 {
+	if layoutSettings.paperWidth <= 0 {
 		errs = append(errs, fmt.Errorf("paper width must be greater than 0"))
 	}
 
-	if ls.PaperHeight <= 0 {
+	if layoutSettings.paperHeight <= 0 {
 		errs = append(errs, fmt.Errorf("paper height must be greater than 0"))
 	}
 
-	if ls.PaperTopMargin < 0 {
+	if layoutSettings.paperMargins.Top < 0 {
 		errs = append(errs, fmt.Errorf("paper top margin must be greater than or equal to 0"))
 	}
 
-	if ls.PaperBottomMargin < 0 {
+	if layoutSettings.paperMargins.Bottom < 0 {
 		errs = append(errs, fmt.Errorf("paper bottom margin must be greater than or equal to 0"))
 	}
 
-	if ls.PaperLeftMargin < 0 {
+	if layoutSettings.paperMargins.Left < 0 {
 		errs = append(errs, fmt.Errorf("paper left margin must be greater than or equal to 0"))
 	}
 
-	if ls.PaperRightMargin < 0 {
+	if layoutSettings.paperMargins.Right < 0 {
 		errs = append(errs, fmt.Errorf("paper right margin must be greater than or equal to 0"))
 	}
 
-	if ls.Columns <= 0 {
+	if layoutSettings.columns <= 0 {
 		errs = append(errs, fmt.Errorf("number of columns must be greater than 0"))
 	}
 
-	if ls.Rows <= 0 {
+	if layoutSettings.rows <= 0 {
 		errs = append(errs, fmt.Errorf("number of rows must be greater than 0"))
 	}
 
-	if ls.LabelMargin < 0 {
-		errs = append(errs, fmt.Errorf("label margin must be greater than or equal to 0"))
+	if layoutSettings.labelMargins.Top < 0 {
+		errs = append(errs, fmt.Errorf("top label margin must be greater than or equal to 0"))
 	}
 
-	if ls.LabelPadding < 0 {
-		errs = append(errs, fmt.Errorf("label padding must be greater than or equal to 0"))
+	if layoutSettings.labelMargins.Bottom < 0 {
+		errs = append(errs, fmt.Errorf("bottom label margin must be greater than or equal to 0"))
 	}
 
-	if ls.FontSize <= 0 {
+	if layoutSettings.labelMargins.Left < 0 {
+		errs = append(errs, fmt.Errorf("left label margin must be greater than or equal to 0"))
+	}
+
+	if layoutSettings.labelMargins.Right < 0 {
+		errs = append(errs, fmt.Errorf("right label margin must be greater than or equal to 0"))
+	}
+
+	if layoutSettings.labelPadding.Top < 0 {
+		errs = append(errs, fmt.Errorf("top label padding must be greater than or equal to 0"))
+	}
+
+	if layoutSettings.labelPadding.Bottom < 0 {
+		errs = append(errs, fmt.Errorf("bottom label padding must be greater than or equal to 0"))
+	}
+
+	if layoutSettings.labelPadding.Left < 0 {
+		errs = append(errs, fmt.Errorf("left label padding must be greater than or equal to 0"))
+	}
+
+	if layoutSettings.labelPadding.Right < 0 {
+		errs = append(errs, fmt.Errorf("right label padding must be greater than or equal to 0"))
+	}
+
+	if layoutSettings.fontSize <= 0 {
 		errs = append(errs, fmt.Errorf("font size must be greater than 0"))
 	}
 
-	if len(errs) > 0 {
-		return nil, errors.Join(errs...)
-	}
-
-	return &ValidatedLayoutSettings{
-		paperWidth:        ls.PaperWidth,
-		paperHeight:       ls.PaperHeight,
-		paperTopMargin:    ls.PaperTopMargin,
-		paperBottomMargin: ls.PaperBottomMargin,
-		paperLeftMargin:   ls.PaperLeftMargin,
-		paperRightMargin:  ls.PaperRightMargin,
-		columns:           ls.Columns,
-		rows:              ls.Rows,
-		labelMargin:       ls.LabelMargin,
-		labelPadding:      ls.LabelPadding,
-		fontSize:          ls.FontSize,
-	}, nil
+	return errors.Join(errs...)
 }
 
-func (ls *ValidatedLayoutSettings) GetColumnWidth() float64 {
-	return (ls.paperWidth - ls.paperLeftMargin - ls.paperRightMargin) / float64(ls.columns)
+func (ls *LayoutSettings) GetColumnWidth() float64 {
+	return (ls.paperWidth - ls.paperMargins.Left - ls.paperMargins.Right) / float64(ls.columns)
 }
 
-func (ls *ValidatedLayoutSettings) GetRowHeight() float64 {
-	return (ls.paperHeight - ls.paperTopMargin - ls.paperBottomMargin) / float64(ls.rows)
+func (ls *LayoutSettings) GetRowHeight() float64 {
+	return (ls.paperHeight - ls.paperMargins.Top - ls.paperMargins.Bottom) / float64(ls.rows)
 }
 
-func (ls *ValidatedLayoutSettings) GetRectangle(column int, row int) *Rectangle {
+func (ls *LayoutSettings) GetRectangle(column int, row int) *Rectangle {
 	return (&Rectangle{
-		Left:   ls.paperLeftMargin + float64(column)*ls.GetColumnWidth(),
-		Top:    ls.paperTopMargin + float64(row)*ls.GetRowHeight(),
+		Left:   ls.paperMargins.Left + float64(column)*ls.GetColumnWidth(),
+		Top:    ls.paperMargins.Top + float64(row)*ls.GetRowHeight(),
 		Width:  ls.GetColumnWidth(),
 		Height: ls.GetRowHeight(),
-	}).ShrinkUniformly(ls.labelMargin)
+	}).Shrink(ls.labelMargins)
 }
 
-func (ls *ValidatedLayoutSettings) GetColumns() int {
+func (ls *LayoutSettings) GetColumns() int {
 	return ls.columns
 }
 
-func (ls *ValidatedLayoutSettings) GetRows() int {
+func (ls *LayoutSettings) GetRows() int {
 	return ls.rows
 }
 
-func IsA4Size(layout *ValidatedLayoutSettings) bool {
+func IsA4Size(layout *LayoutSettings) bool {
 	return layout.paperWidth == 210.0 && layout.paperHeight == 297.0
 }

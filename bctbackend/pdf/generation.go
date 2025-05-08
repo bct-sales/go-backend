@@ -29,7 +29,7 @@ type LabelData struct {
 type PdfBuilder struct {
 	pdf           *fpdf.Fpdf
 	imageCache    map[string]string
-	layout        *ValidatedLayoutSettings
+	layout        *LayoutSettings
 	gridWalker    *GridWalker
 	labels        []*LabelData
 	barcodeWidth  int
@@ -37,7 +37,7 @@ type PdfBuilder struct {
 	showGrid      bool
 }
 
-func GeneratePdf(layout *ValidatedLayoutSettings, labels []*LabelData) (*PdfBuilder, error) {
+func GeneratePdf(layout *LayoutSettings, labels []*LabelData) (*PdfBuilder, error) {
 	builder := newPdfBuilder(layout, labels)
 
 	if err := builder.drawLabels(); err != nil {
@@ -72,7 +72,7 @@ func newPdfGenerator() *fpdf.Fpdf {
 	return fpdf.New(orientation, unit, paperSize, fontDirectory)
 }
 
-func newPdfBuilder(layout *ValidatedLayoutSettings, labels []*LabelData) *PdfBuilder {
+func newPdfBuilder(layout *LayoutSettings, labels []*LabelData) *PdfBuilder {
 	builder := PdfBuilder{
 		imageCache:    make(map[string]string),
 		pdf:           newPdfGenerator(),
@@ -130,7 +130,7 @@ func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *Label
 		builder.drawGrid(labelRectangle, 5)
 	}
 
-	rectangle := labelRectangle.ShrinkUniformly(builder.layout.labelPadding)
+	rectangle := labelRectangle.Shrink(builder.layout.labelPadding)
 
 	barcodeX := rectangle.Left
 	barcodeY := rectangle.Top

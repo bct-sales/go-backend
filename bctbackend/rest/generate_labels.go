@@ -43,7 +43,14 @@ func GenerateLabels(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 		return
 	}
 
-	settings, err := pdf.NewLayoutSettings().SetA4PaperSize().SetPaperMargins(10.0).SetGridSize(2, 8).SetLabelMargin(2).SetLabelPadding(2).SetFontSize(5).Validate()
+	settings, err := pdf.NewLayoutSettings(
+		pdf.WithA4PaperSize(),
+		pdf.WithGridSize(2, 8),
+		pdf.WithUniformLabelMargin(2),
+		pdf.WithUniformLabelPadding(2),
+		pdf.WithFontSize(5),
+	)
+
 	if err != nil {
 		// TODO Better error handling
 		failure_response.InvalidRequest(context, "Failed to parse layout settings: "+err.Error())
