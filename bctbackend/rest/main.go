@@ -104,7 +104,5 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 	router.POST(paths.SellerItems().WithRawSellerId(":id"), withUserAndRole(AddSellerItem))
 	router.POST(paths.Sales().String(), withUserAndRole(AddSale))
 	router.GET(paths.Items().WithRawItemId(":id"), withUserAndRole(GetItemInformation))
-	router.POST(paths.Labels().WithRawSellerId(":id"), withUserAndRole(GenerateLabels))
-	router.GET(paths.Labels().WithRawSellerId(":id"), withUserAndRole(GenerateLabels))
-	// router.POST(paths.Labels().WithRawSellerId(":id"), func(context *gin.Context) { GenerateLabels(context, db, 100, models.SellerRoleId) })
+	router.POST(paths.Labels().String(), withUserAndRole(GenerateLabels))
 }

@@ -11,7 +11,7 @@ func GeneratePdf() error {
 		return err
 	}
 
-	labels := []pdf.LabelData{
+	labels := []*pdf.LabelData{
 		{
 			BarcodeData:      "1x",
 			Description:      "Test Product",

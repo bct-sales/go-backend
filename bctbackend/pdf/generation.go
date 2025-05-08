@@ -31,13 +31,13 @@ type PdfBuilder struct {
 	imageCache    map[string]string
 	layout        *ValidatedLayoutSettings
 	gridWalker    *GridWalker
-	labels        []LabelData
+	labels        []*LabelData
 	barcodeWidth  int
 	barcodeHeight int
 	showGrid      bool
 }
 
-func GeneratePdf(layout *ValidatedLayoutSettings, labels []LabelData) (*PdfBuilder, error) {
+func GeneratePdf(layout *ValidatedLayoutSettings, labels []*LabelData) (*PdfBuilder, error) {
 	builder := newPdfBuilder(layout, labels)
 
 	if err := builder.drawLabels(); err != nil {
@@ -72,7 +72,7 @@ func newPdfGenerator() *fpdf.Fpdf {
 	return fpdf.New(orientation, unit, paperSize, fontDirectory)
 }
 
-func newPdfBuilder(layout *ValidatedLayoutSettings, labels []LabelData) *PdfBuilder {
+func newPdfBuilder(layout *ValidatedLayoutSettings, labels []*LabelData) *PdfBuilder {
 	builder := PdfBuilder{
 		imageCache:    make(map[string]string),
 		pdf:           newPdfGenerator(),
@@ -109,7 +109,7 @@ func (builder *PdfBuilder) drawLabels() error {
 
 		rectangle := builder.layout.GetRectangle(builder.gridWalker.CurrentColumn, builder.gridWalker.CurrentRow)
 
-		err := builder.drawLabel(rectangle, &label)
+		err := builder.drawLabel(rectangle, label)
 		if err != nil {
 			return err
 		}
