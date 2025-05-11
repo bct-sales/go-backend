@@ -183,7 +183,7 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 }
 
 // Returns all items with the given ids.
-func GetItemsWithIds(db *sql.DB, itemIds []models.Id) ([]*models.Item, error) {
+func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (map[models.Id]*models.Item, error) {
 	// Handle the special case of zero items efficiently
 	if len(itemIds) == 0 {
 		return nil, nil
@@ -206,7 +206,7 @@ func GetItemsWithIds(db *sql.DB, itemIds []models.Id) ([]*models.Item, error) {
 	}
 	defer rows.Close()
 
-	var items []*models.Item
+	items := make(map[models.Id]*models.Item)
 	for rows.Next() {
 		var id models.Id
 		var addedAt models.Timestamp
@@ -224,7 +224,7 @@ func GetItemsWithIds(db *sql.DB, itemIds []models.Id) ([]*models.Item, error) {
 		}
 
 		item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
-		items = append(items, item)
+		items[id] = item
 	}
 
 	return items, nil
