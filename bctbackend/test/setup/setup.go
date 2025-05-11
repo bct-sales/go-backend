@@ -105,3 +105,11 @@ func (s DatabaseFixture) RequireNoSuchItem(t *testing.T, itemId models.Id) {
 	require.NoError(t, err)
 	require.False(t, exists)
 }
+
+func (s DatabaseFixture) RequireFrozen(t *testing.T, saleId ...models.Id) {
+	for _, id := range saleId {
+		frozen, err := queries.ItemWithIdIsFrozen(s.Db, id)
+		require.NoError(t, err)
+		require.True(t, frozen)
+	}
+}
