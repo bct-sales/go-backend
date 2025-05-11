@@ -366,6 +366,27 @@ func FreezeItem(db *sql.DB, itemId models.Id) error {
 	return nil
 }
 
+func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) error {
+	if len(itemIds) == 0 {
+		return nil
+	}
+
+	// Set up SQL query
+	query := fmt.Sprintf(`
+		UPDATE items
+		SET frozen = ?
+		WHERE item_id IN (%s)
+	`, placeholderString(len(itemIds)))
+	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
+	sqlValues := append([]any{frozen}, convertedItemIds...)
+
+	if _, err := db.Exec(query, sqlValues...); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func ItemWithIdIsFrozen(db *sql.DB, itemId models.Id) (bool, error) {
 	row := db.QueryRow(
 		`
