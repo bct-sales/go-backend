@@ -342,6 +342,31 @@ func ItemWithIdExists(db *sql.DB, itemId models.Id) (bool, error) {
 	return true, nil
 }
 
+func CheckItemsExistence(db *sql.DB, itemIds []models.Id) (bool, error) {
+	if len(itemIds) == 0 {
+		return true, nil
+	}
+
+	// Set up SQL query
+	query := fmt.Sprintf(`
+		SELECT COUNT(item_id)
+		FROM items
+		WHERE item_id IN (%s)
+	`, placeholderString(len(itemIds)))
+
+	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
+	row := db.QueryRow(query, convertedItemIds...)
+
+	var count int
+	err := row.Scan(&count)
+
+	if err != nil {
+		return false, err
+	}
+
+	return count == len(itemIds), nil
+}
+
 func FreezeItem(db *sql.DB, itemId models.Id) error {
 	itemExists, err := ItemWithIdExists(db, itemId)
 	if err != nil {
