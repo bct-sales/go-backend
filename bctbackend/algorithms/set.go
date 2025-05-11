@@ -4,8 +4,14 @@ type Set[T comparable] struct {
 	elements map[T]struct{}
 }
 
-func NewSet[T comparable]() *Set[T] {
-	return &Set[T]{elements: make(map[T]struct{})}
+func NewSet[T comparable](initialElements ...T) *Set[T] {
+	result := Set[T]{elements: make(map[T]struct{})}
+
+	for _, element := range initialElements {
+		result.Add(element)
+	}
+
+	return &result
 }
 
 func (s *Set[T]) Add(element T) {
@@ -19,4 +25,8 @@ func (s *Set[T]) Remove(element T) {
 func (s *Set[T]) Contains(element T) bool {
 	_, exists := s.elements[element]
 	return exists
+}
+
+func (s *Set[T]) Len() int {
+	return len(s.elements)
 }
