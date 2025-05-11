@@ -30,3 +30,9 @@ func (s *Set[T]) Contains(element T) bool {
 func (s *Set[T]) Len() int {
 	return len(s.elements)
 }
+
+func (s *Set[T]) ForEach(callback func(element T)) {
+	for element := range s.elements {
+		callback(element)
+	}
+}
