@@ -194,6 +194,8 @@ func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (map[models.Id]*models.Ite
 		placeholders[i] = "?"
 	}
 
+	// Set up SQL query
+	// Note that this does not detect nonexistent items, we deal with that later
 	query := fmt.Sprintf(`
 		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen
 		FROM items
@@ -225,6 +227,18 @@ func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (map[models.Id]*models.Ite
 
 		item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
 		items[id] = item
+	}
+
+	// Check if all requested items were found
+	if len(items) != len(itemIds) {
+		for _, itemId := range itemIds {
+			if _, ok := items[itemId]; !ok {
+				return nil, &NoSuchItemError{Id: itemId}
+			}
+		}
+
+		// If we get past the loop, it means that all items were found
+		// but there were duplicates in the requested IDs, which is not an error
 	}
 
 	return items, nil
