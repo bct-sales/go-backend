@@ -1,6 +1,7 @@
 package queries
 
 import (
+	"bctbackend/algorithms"
 	"bctbackend/database/models"
 	"database/sql"
 	"errors"
@@ -179,6 +180,54 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	}
 
 	return &item, nil
+}
+
+// Returns all items with the given ids.
+func GetItemsWithIds(db *sql.DB, itemIds []models.Id) ([]*models.Item, error) {
+	// Handle the special case of zero items efficiently
+	if len(itemIds) == 0 {
+		return nil, nil
+	}
+
+	placeholders := make([]string, len(itemIds))
+	for i := range itemIds {
+		placeholders[i] = "?"
+	}
+
+	query := fmt.Sprintf(`
+		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen
+		FROM items
+		WHERE item_id IN (%s)
+	`, strings.Join(placeholders, ", "))
+	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
+	rows, err := db.Query(query, convertedItemIds...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var items []*models.Item
+	for rows.Next() {
+		var id models.Id
+		var addedAt models.Timestamp
+		var description string
+		var priceInCents models.MoneyInCents
+		var itemCategoryId models.Id
+		var sellerId models.Id
+		var donation bool
+		var charity bool
+		var frozen bool
+
+		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity, &frozen)
+		if err != nil {
+			return nil, err
+		}
+
+		item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
+		items = append(items, item)
+	}
+
+	return items, nil
 }
 
 // Returns the total number of items in the database.
