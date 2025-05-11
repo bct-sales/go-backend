@@ -9,7 +9,6 @@ import (
 	"bctbackend/rest/failure_response"
 	"database/sql"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"strconv"
 
@@ -51,14 +50,9 @@ func GenerateLabels(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 		return
 	}
 
-	slog.Info("Generating labels", "itemIds", payload.ItemIds)
-
-	createLabelData := func(itemId models.Id) (*pdf.LabelData, error) {
-		return createLabelDataFromItemId(db, itemId)
-	}
-	labelData, err := algorithms.MapError(payload.ItemIds, createLabelData)
+	labelData, err := collectLabelData(db, payload.ItemIds)
 	if err != nil {
-		failure_response.Unknown(context, "Failed to create label data: "+err.Error())
+		failure_response.Unknown(context, "Failed to collect label data: "+err.Error())
 		return
 	}
 
@@ -103,6 +97,19 @@ func GenerateLabels(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 	context.Header("Content-Disposition", "attachment; filename=labels.pdf")
 	context.Header("Content-Length", strconv.Itoa(len(buffer.Bytes())))
 	context.Data(http.StatusOK, "application/pdf", buffer.Bytes())
+}
+
+func collectLabelData(db *sql.DB, itemIds []models.Id) ([]*pdf.LabelData, error) {
+	createLabelData := func(itemId models.Id) (*pdf.LabelData, error) {
+		return createLabelDataFromItemId(db, itemId)
+	}
+
+	labelData, err := algorithms.MapError(itemIds, createLabelData)
+	if err != nil {
+		return nil, err
+	}
+
+	return labelData, nil
 }
 
 func createLabelDataFromItemId(db *sql.DB, itemId models.Id) (*pdf.LabelData, error) {
