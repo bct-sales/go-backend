@@ -14,17 +14,7 @@ import (
 )
 
 func TestGetItemWithId(t *testing.T) {
-	t.Run("Nonexisting item", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
-
-		itemId := models.NewId(1)
-		_, err := queries.GetItemWithId(db, itemId)
-		var NoSuchItemError *queries.NoSuchItemError
-		require.ErrorAs(t, err, &NoSuchItemError)
-	})
-
-	t.Run("Existing item", func(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
 		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
@@ -34,5 +24,17 @@ func TestGetItemWithId(t *testing.T) {
 		actual, err := queries.GetItemWithId(db, item.ItemId)
 		require.NoError(t, err)
 		require.Equal(t, item, actual)
+	})
+
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("Nonexisting item", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			itemId := models.NewId(1)
+			_, err := queries.GetItemWithId(db, itemId)
+			var NoSuchItemError *queries.NoSuchItemError
+			require.ErrorAs(t, err, &NoSuchItemError)
+		})
 	})
 }
