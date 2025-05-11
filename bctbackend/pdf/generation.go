@@ -121,6 +121,14 @@ func (builder *PdfBuilder) drawLabels() error {
 }
 
 func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *LabelData) error {
+	if labelRectangle == nil {
+		return fmt.Errorf("label rectangle is nil")
+	}
+
+	if labelData == nil {
+		return fmt.Errorf("label data is nil")
+	}
+
 	builder.pdf.ClipRect(labelRectangle.Left, labelRectangle.Top, labelRectangle.Width, labelRectangle.Height, false)
 	defer builder.pdf.ClipEnd()
 
