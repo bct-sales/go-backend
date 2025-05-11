@@ -16,7 +16,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type Insets struct {
+	Top    float64 `json:"top"`
+	Bottom float64 `json:"bottom"`
+	Left   float64 `json:"left"`
+	Right  float64 `json:"right"`
+}
+
+type Layout struct {
+	PaperWidth   float64 `json:"paperWidth"`
+	PaperHeight  float64 `json:"paperHeight"`
+	PaperMargins Insets  `json:"paperMargins"`
+	Columns      int     `json:"columns"`
+	Rows         int     `json:"rows"`
+	LabelMargins Insets  `json:"labelMargins"`
+	LabelPadding Insets  `json:"labelPadding"`
+	FontSize     float64 `json:"fontSize"`
+}
+
 type GenerateLabelsPayload struct {
+	Layout  Layout      `json:"layout"`
 	ItemIds []models.Id `json:"itemIds"`
 }
 
@@ -44,13 +63,25 @@ func GenerateLabels(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 	}
 
 	settings, err := pdf.NewLayoutSettings(
-		pdf.WithA4PaperSize(),
-		pdf.WithGridSize(2, 8),
-		pdf.WithUniformLabelMargin(2),
-		pdf.WithUniformLabelPadding(2),
+		pdf.WithPaperSize(
+			payload.Layout.PaperWidth,
+			payload.Layout.PaperHeight,
+		),
+		pdf.WithGridSize(payload.Layout.Columns, payload.Layout.Rows),
+		pdf.WithLabelMargins(
+			payload.Layout.LabelMargins.Top,
+			payload.Layout.LabelMargins.Right,
+			payload.Layout.LabelMargins.Bottom,
+			payload.Layout.LabelMargins.Left,
+		),
+		pdf.WithLabelPadding(
+			payload.Layout.LabelPadding.Top,
+			payload.Layout.LabelPadding.Right,
+			payload.Layout.LabelPadding.Bottom,
+			payload.Layout.LabelPadding.Left,
+		),
 		pdf.WithFontSize(5),
 	)
-
 	if err != nil {
 		// TODO Better error handling
 		failure_response.InvalidRequest(context, "Failed to parse layout settings: "+err.Error())
