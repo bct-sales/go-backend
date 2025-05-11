@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/algorithms"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -25,6 +26,8 @@ func TestGetItemsWithIds(t *testing.T) {
 			[]models.Id{1, 2, 3},
 			[]models.Id{1, 2, 3, 4},
 			[]models.Id{1, 2, 4},
+			[]models.Id{1, 1},
+			[]models.Id{1, 2, 3, 1, 2, 3},
 		}
 		for _, selection := range selections {
 			testLabel := fmt.Sprintf("Selection: %v", selection)
@@ -41,7 +44,7 @@ func TestGetItemsWithIds(t *testing.T) {
 				actual, err := queries.GetItemsWithIds(db, selection)
 				require.NoError(t, err)
 
-				require.Len(t, actual, len(selection))
+				require.Equal(t, algorithms.NewSet(selection...).Len(), len(actual))
 				for _, itemId := range selection {
 					item, ok := actual[itemId]
 					require.True(t, ok, "Item not found in result")
