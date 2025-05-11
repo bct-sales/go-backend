@@ -189,18 +189,13 @@ func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (map[models.Id]*models.Ite
 		return nil, nil
 	}
 
-	placeholders := make([]string, len(itemIds))
-	for i := range itemIds {
-		placeholders[i] = "?"
-	}
-
 	// Set up SQL query
 	// Note that this does not detect nonexistent items, we deal with that later
 	query := fmt.Sprintf(`
 		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen
 		FROM items
 		WHERE item_id IN (%s)
-	`, strings.Join(placeholders, ", "))
+	`, placeholderString(len(itemIds)))
 	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
 	rows, err := db.Query(query, convertedItemIds...)
 	if err != nil {
