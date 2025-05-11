@@ -100,8 +100,17 @@ func GenerateLabels(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 }
 
 func collectLabelData(db *sql.DB, itemIds []models.Id) ([]*pdf.LabelData, error) {
+	itemTable, err := queries.GetItemsWithIds(db, itemIds)
+	if err != nil {
+		return nil, err
+	}
+
 	createLabelData := func(itemId models.Id) (*pdf.LabelData, error) {
-		return createLabelDataFromItemId(db, itemId)
+		item, ok := itemTable[itemId]
+		if !ok {
+			return nil, fmt.Errorf("bug: item with id %d not found; should never occur: this error should have be caught earlier", itemId)
+		}
+		return createLabelDataFromItem(item)
 	}
 
 	labelData, err := algorithms.MapError(itemIds, createLabelData)
@@ -110,15 +119,6 @@ func collectLabelData(db *sql.DB, itemIds []models.Id) ([]*pdf.LabelData, error)
 	}
 
 	return labelData, nil
-}
-
-func createLabelDataFromItemId(db *sql.DB, itemId models.Id) (*pdf.LabelData, error) {
-	item, err := queries.GetItemWithId(db, itemId)
-	if err != nil {
-		return nil, err
-	}
-
-	return createLabelDataFromItem(item)
 }
 
 func createLabelDataFromItem(item *models.Item) (*pdf.LabelData, error) {
