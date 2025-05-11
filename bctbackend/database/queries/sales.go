@@ -56,7 +56,7 @@ func AddSale(
 			return 0, err
 		}
 		if !itemExists {
-			return 0, &NoSuchItemError{Id: itemId}
+			return 0, &NoSuchItemError{Id: &itemId}
 		}
 	}
 
@@ -360,7 +360,7 @@ func GetItemsSoldBy(db *sql.DB, cashierId models.Id) (r_result []*models.Item, r
 func GetSalesWithItem(db *sql.DB, itemId models.Id) (r_result []models.Id, r_err error) {
 	if itemExists, err := ItemWithIdExists(db, itemId); err != nil || !itemExists {
 		if !itemExists {
-			return nil, &NoSuchItemError{Id: itemId}
+			return nil, &NoSuchItemError{Id: &itemId}
 		}
 
 		return nil, err

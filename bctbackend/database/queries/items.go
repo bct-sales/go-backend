@@ -172,7 +172,7 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	err := row.Scan(&item.AddedAt, &item.Description, &item.PriceInCents, &item.CategoryId, &item.SellerId, &item.Donation, &item.Charity, &item.Frozen)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, &NoSuchItemError{Id: itemId}
+		return nil, &NoSuchItemError{Id: &itemId}
 	}
 
 	if err != nil {
@@ -228,7 +228,7 @@ func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (map[models.Id]*models.Ite
 	if len(items) != len(itemIds) {
 		for _, itemId := range itemIds {
 			if _, ok := items[itemId]; !ok {
-				return nil, &NoSuchItemError{Id: itemId}
+				return nil, &NoSuchItemError{Id: &itemId}
 			}
 		}
 
@@ -373,7 +373,7 @@ func FreezeItem(db *sql.DB, itemId models.Id) error {
 		return err
 	}
 	if !itemExists {
-		return &NoSuchItemError{Id: itemId}
+		return &NoSuchItemError{Id: &itemId}
 	}
 
 	_, err = db.Exec(
@@ -394,6 +394,15 @@ func FreezeItem(db *sql.DB, itemId models.Id) error {
 func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) error {
 	if len(itemIds) == 0 {
 		return nil
+	}
+
+	// Check if all items exist
+	allItemsExist, err := CheckItemsExistence(db, itemIds)
+	if err != nil {
+		return err
+	}
+	if !allItemsExist {
+		return &NoSuchItemError{Id: &itemIds[0]}
 	}
 
 	// Set up SQL query
@@ -426,7 +435,7 @@ func ItemWithIdIsFrozen(db *sql.DB, itemId models.Id) (bool, error) {
 	err := row.Scan(&isFrozen)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return false, &NoSuchItemError{Id: itemId}
+		return false, &NoSuchItemError{Id: &itemId}
 	}
 
 	if err != nil {
@@ -444,7 +453,7 @@ func RemoveItemWithId(db *sql.DB, itemId models.Id) error {
 	}
 
 	if !itemExists {
-		return &NoSuchItemError{Id: itemId}
+		return &NoSuchItemError{Id: &itemId}
 	}
 
 	_, err = db.Exec(

@@ -139,7 +139,7 @@ func TestUpdateItem(t *testing.T) {
 
 		var noSuchItemError *queries.NoSuchItemError
 		require.ErrorAs(t, err, &noSuchItemError)
-		require.Equal(t, itemId, noSuchItemError.Id)
+		require.Equal(t, itemId, *noSuchItemError.Id)
 	})
 
 	t.Run("Failure due to frozen item", func(t *testing.T) {

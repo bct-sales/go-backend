@@ -39,7 +39,7 @@ func GetSaleItemInformation(
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, &NoSuchItemError{Id: itemId}
+		return nil, &NoSuchItemError{Id: &itemId}
 	}
 
 	if err != nil {

@@ -10,7 +10,7 @@ type UserIdAlreadyInUseError struct {
 }
 
 type NoSuchItemError struct {
-	Id models.Id
+	Id *models.Id
 }
 
 type SaleMissingItemsError struct{}
@@ -75,7 +75,11 @@ func (err *NoSuchCategoryError) Error() string {
 }
 
 func (e *NoSuchItemError) Error() string {
-	return fmt.Sprintf("item with id %d not found", e.Id)
+	if e.Id == nil {
+		return "item not found"
+	} else {
+		return fmt.Sprintf("item with id %d not found", e.Id)
+	}
 }
 
 func (e *NoSuchItemError) Unwrap() error {
