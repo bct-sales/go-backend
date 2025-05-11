@@ -402,7 +402,7 @@ func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) err
 		return err
 	}
 	if !allItemsExist {
-		return &NoSuchItemError{Id: &itemIds[0]}
+		return &NoSuchItemError{Id: nil}
 	}
 
 	// Set up SQL query
