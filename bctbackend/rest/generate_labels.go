@@ -94,6 +94,11 @@ func GenerateLabels(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 		return
 	}
 
+	if err := queries.UpdateFreezeStatusOfItems(db, payload.ItemIds, true); err != nil {
+		failure_response.Unknown(context, "Failed to freeze items: "+err.Error())
+		return
+	}
+
 	context.Header("Content-Disposition", "attachment; filename=labels.pdf")
 	context.Header("Content-Length", strconv.Itoa(len(buffer.Bytes())))
 	context.Data(http.StatusOK, "application/pdf", buffer.Bytes())
