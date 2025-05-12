@@ -116,3 +116,7 @@ func MissingSessionId(context *gin.Context, message string) {
 func NoSuchSession(context *gin.Context, message string) {
 	Unauthorized(context, "no_such_session", message)
 }
+
+func MissingItems(context *gin.Context, message string) {
+	Forbidden(context, "missing_items", message)
+}
