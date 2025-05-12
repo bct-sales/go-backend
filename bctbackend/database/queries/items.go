@@ -403,7 +403,7 @@ func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) err
 	return nil
 }
 
-func ItemWithIdIsFrozen(db *sql.DB, itemId models.Id) (bool, error) {
+func IsItemFrozen(db *sql.DB, itemId models.Id) (bool, error) {
 	row := db.QueryRow(
 		`
 			SELECT frozen

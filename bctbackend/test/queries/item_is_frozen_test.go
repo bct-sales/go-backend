@@ -23,7 +23,7 @@ func TestItemIsFrozen(t *testing.T) {
 			seller := setup.Seller()
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(frozen))
 
-			actual, err := queries.ItemWithIdIsFrozen(db, item.ItemId)
+			actual, err := queries.IsItemFrozen(db, item.ItemId)
 			require.NoError(t, err)
 			require.Equal(t, frozen, actual)
 		})
@@ -35,7 +35,7 @@ func TestItemIsFrozen(t *testing.T) {
 
 		invalidId := models.Id(1)
 
-		_, err := queries.ItemWithIdIsFrozen(db, invalidId)
+		_, err := queries.IsItemFrozen(db, invalidId)
 		var noSuchItemError *queries.NoSuchItemError
 		require.ErrorAs(t, err, &noSuchItemError)
 	})
