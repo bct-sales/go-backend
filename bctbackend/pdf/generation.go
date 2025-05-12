@@ -98,10 +98,16 @@ func newPdfBuilder(layout *LayoutSettings, labels []*LabelData) (*PdfBuilder, er
 	return &builder, nil
 }
 
-func (builder *PdfBuilder) addPage() {
+func (builder *PdfBuilder) addPage() error {
 	orientation := "P"
 	pageSize := fpdf.SizeType{Wd: builder.layout.paperWidth, Ht: builder.layout.paperHeight}
+
 	builder.pdf.AddPageFormat(orientation, pageSize)
+	if err := builder.pdf.Error(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (builder *PdfBuilder) registerImages() error {
@@ -119,7 +125,9 @@ func (builder *PdfBuilder) registerImages() error {
 func (builder *PdfBuilder) drawLabels() error {
 	for _, label := range builder.labels {
 		if builder.gridWalker.IsAtStart() {
-			builder.addPage()
+			if err := builder.addPage(); err != nil {
+				return err
+			}
 		}
 
 		rectangle := builder.layout.GetRectangle(builder.gridWalker.CurrentColumn, builder.gridWalker.CurrentRow)
@@ -162,7 +170,6 @@ func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *Label
 	barcodeX := rectangle.Left
 	barcodeY := rectangle.Top
 	barcodeImageName, err := builder.drawBarcode(labelData.BarcodeData, barcodeX, barcodeY)
-
 	if err != nil {
 		return err
 	}
@@ -218,7 +225,7 @@ func (builder *PdfBuilder) drawCharityImage(rectangle *Rectangle) error {
 	y := rectangle.Top
 
 	if err := builder.drawImage(charityImageName, x, y); err != nil {
-		return err
+		return fmt.Errorf("failed to draw charity image: %v", err)
 	}
 
 	return nil
@@ -227,12 +234,12 @@ func (builder *PdfBuilder) drawCharityImage(rectangle *Rectangle) error {
 func (builder *PdfBuilder) drawDonationImage(rectangle *Rectangle) error {
 	charityImageWidth, _, err := builder.determineImageSize(charityImageName)
 	if err != nil {
-		return fmt.Errorf("failed to draw charity image: %v", err)
+		return fmt.Errorf("failed to draw donation image: %v", err)
 	}
 
 	donationImageWidth, _, err := builder.determineImageSize(donationImageName)
 	if err != nil {
-		return fmt.Errorf("failed to draw charity image: %v", err)
+		return fmt.Errorf("failed to draw donation image: %v", err)
 	}
 
 	x := rectangle.Right() - charityImageWidth - donationImageWidth - 2
@@ -334,7 +341,6 @@ func (builder *PdfBuilder) drawImage(imageName string, x float64, y float64) err
 
 func (builder *PdfBuilder) determineImageSize(imageName string) (float64, float64, error) {
 	imageInfo := builder.pdf.GetImageInfo(imageName)
-
 	if imageInfo == nil {
 		return 0, 0, fmt.Errorf("failed to get image info for %s", imageName)
 	}
