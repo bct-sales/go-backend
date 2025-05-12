@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
@@ -50,6 +51,20 @@ func TestFreezeItem(t *testing.T) {
 				require.NoError(t, err)
 				require.True(t, isFrozen)
 			}
+		})
+	})
+
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("Freezing non-existent item", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			nonexistentItemId := models.Id(1000)
+			setup.RequireNoSuchItem(t, nonexistentItemId)
+
+			err := queries.FreezeItem(db, nonexistentItemId)
+			var noSuchItemError *queries.NoSuchItemError
+			require.ErrorAs(t, err, &noSuchItemError)
 		})
 	})
 }
