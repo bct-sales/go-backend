@@ -210,5 +210,26 @@ func TestGenerateLabels(t *testing.T) {
 				setup.RequireNotFrozen(t, item.ItemId)
 			}
 		})
+
+		t.Run("Without cookie", func(t *testing.T) {
+			setup, router, writer := NewRestFixture()
+			defer setup.Close()
+
+			seller, _ := setup.LoggedIn(setup.Seller())
+
+			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false))
+
+			url := path.Labels().String()
+			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
+				Layout:  defaultLayout,
+				ItemIds: []models.Id{items[0].ItemId},
+			})
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
+
+			for _, item := range items {
+				setup.RequireNotFrozen(t, item.ItemId)
+			}
+		})
 	})
 }
