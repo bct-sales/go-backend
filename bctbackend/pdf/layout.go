@@ -104,73 +104,29 @@ func WithFontSize(size float64) layoutSettingsOption {
 func Validate(layoutSettings *LayoutSettings) error {
 	var errs []error
 
-	if layoutSettings.paperWidth <= 0 {
-		errs = append(errs, fmt.Errorf("paper width must be greater than 0"))
+	errorIf := func(condition bool, message string) {
+		if condition {
+			errs = append(errs, fmt.Errorf("%s", message))
+		}
 	}
 
-	if layoutSettings.paperHeight <= 0 {
-		errs = append(errs, fmt.Errorf("paper height must be greater than 0"))
-	}
-
-	if layoutSettings.paperMargins.Top < 0 {
-		errs = append(errs, fmt.Errorf("paper top margin must be greater than or equal to 0"))
-	}
-
-	if layoutSettings.paperMargins.Bottom < 0 {
-		errs = append(errs, fmt.Errorf("paper bottom margin must be greater than or equal to 0"))
-	}
-
-	if layoutSettings.paperMargins.Left < 0 {
-		errs = append(errs, fmt.Errorf("paper left margin must be greater than or equal to 0"))
-	}
-
-	if layoutSettings.paperMargins.Right < 0 {
-		errs = append(errs, fmt.Errorf("paper right margin must be greater than or equal to 0"))
-	}
-
-	if layoutSettings.columns <= 0 {
-		errs = append(errs, fmt.Errorf("number of columns must be greater than 0"))
-	}
-
-	if layoutSettings.rows <= 0 {
-		errs = append(errs, fmt.Errorf("number of rows must be greater than 0"))
-	}
-
-	if layoutSettings.labelMargins.Top < 0 {
-		errs = append(errs, fmt.Errorf("top label margin must be greater than or equal to 0"))
-	}
-
-	if layoutSettings.labelMargins.Bottom < 0 {
-		errs = append(errs, fmt.Errorf("bottom label margin must be greater than or equal to 0"))
-	}
-
-	if layoutSettings.labelMargins.Left < 0 {
-		errs = append(errs, fmt.Errorf("left label margin must be greater than or equal to 0"))
-	}
-
-	if layoutSettings.labelMargins.Right < 0 {
-		errs = append(errs, fmt.Errorf("right label margin must be greater than or equal to 0"))
-	}
-
-	if layoutSettings.labelPadding.Top < 0 {
-		errs = append(errs, fmt.Errorf("top label padding must be greater than or equal to 0"))
-	}
-
-	if layoutSettings.labelPadding.Bottom < 0 {
-		errs = append(errs, fmt.Errorf("bottom label padding must be greater than or equal to 0"))
-	}
-
-	if layoutSettings.labelPadding.Left < 0 {
-		errs = append(errs, fmt.Errorf("left label padding must be greater than or equal to 0"))
-	}
-
-	if layoutSettings.labelPadding.Right < 0 {
-		errs = append(errs, fmt.Errorf("right label padding must be greater than or equal to 0"))
-	}
-
-	if layoutSettings.fontSize <= 0 {
-		errs = append(errs, fmt.Errorf("font size must be greater than 0"))
-	}
+	errorIf(layoutSettings.paperWidth <= 0, "paper width must be greater than 0")
+	errorIf(layoutSettings.paperHeight <= 0, "paper height must be greater than 0")
+	errorIf(layoutSettings.paperMargins.Top < 0, "paper top margin must be greater than or equal to 0")
+	errorIf(layoutSettings.paperMargins.Bottom < 0, "paper bottom margin must be greater than or equal to 0")
+	errorIf(layoutSettings.paperMargins.Left < 0, "paper left margin must be greater than or equal to 0")
+	errorIf(layoutSettings.paperMargins.Right < 0, "paper right margin must be greater than or equal to 0")
+	errorIf(layoutSettings.columns <= 0, "number of columns must be greater than 0")
+	errorIf(layoutSettings.rows <= 0, "number of rows must be greater than 0")
+	errorIf(layoutSettings.labelMargins.Top < 0, "top label margin must be greater than or equal to 0")
+	errorIf(layoutSettings.labelMargins.Bottom < 0, "bottom label margin must be greater than or equal to 0")
+	errorIf(layoutSettings.labelMargins.Left < 0, "left label margin must be greater than or equal to 0")
+	errorIf(layoutSettings.labelMargins.Right < 0, "right label margin must be greater than or equal to 0")
+	errorIf(layoutSettings.labelPadding.Top < 0, "top label padding must be greater than or equal to 0")
+	errorIf(layoutSettings.labelPadding.Bottom < 0, "bottom label padding must be greater than or equal to 0")
+	errorIf(layoutSettings.labelPadding.Left < 0, "left label padding must be greater than or equal to 0")
+	errorIf(layoutSettings.labelPadding.Right < 0, "right label padding must be greater than or equal to 0")
+	errorIf(layoutSettings.fontSize <= 0, "font size must be greater than 0")
 
 	return errors.Join(errs...)
 }
