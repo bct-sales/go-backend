@@ -231,5 +231,26 @@ func TestGenerateLabels(t *testing.T) {
 				setup.RequireNotFrozen(t, item.ItemId)
 			}
 		})
+
+		t.Run("Invalid session id", func(t *testing.T) {
+			setup, router, writer := NewRestFixture()
+			defer setup.Close()
+
+			seller, _ := setup.LoggedIn(setup.Seller())
+
+			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false))
+
+			url := path.Labels().String()
+			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
+				Layout:  defaultLayout,
+				ItemIds: []models.Id{items[0].ItemId},
+			}, WithSessionCookie("fake_session_id"))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
+
+			for _, item := range items {
+				setup.RequireNotFrozen(t, item.ItemId)
+			}
+		})
 	})
 }
