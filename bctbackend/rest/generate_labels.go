@@ -106,7 +106,7 @@ func GenerateLabels(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 			payload.Layout.LabelPadding.Bottom,
 			payload.Layout.LabelPadding.Left,
 		),
-		pdf.WithFontSize(5),
+		pdf.WithFontSize(payload.Layout.FontSize),
 	)
 	if err != nil {
 		failure_response.InvalidLayout(context, "Failed to parse layout: "+err.Error())
