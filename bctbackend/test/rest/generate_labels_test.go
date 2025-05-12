@@ -95,5 +95,28 @@ func TestGenerateLabels(t *testing.T) {
 				setup.RequireNotFrozen(t, item.ItemId)
 			}
 		})
+
+		t.Run("Nonexistent item", func(t *testing.T) {
+			setup, router, writer := NewRestFixture()
+			defer setup.Close()
+
+			seller, sessionId := setup.LoggedIn(setup.Seller())
+
+			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false))
+			nonexistendItemId := models.Id(1000)
+			setup.RequireNoSuchItem(t, nonexistendItemId)
+
+			url := path.Labels().String()
+			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
+				Layout:  defaultLayout,
+				ItemIds: []models.Id{nonexistendItemId},
+			}, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusNotFound, "no_such_item")
+
+			for _, item := range items {
+				setup.RequireNotFrozen(t, item.ItemId)
+			}
+		})
 	})
 }
