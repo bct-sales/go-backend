@@ -90,6 +90,18 @@ func (s DatabaseFixture) Item(seller models.Id, options ...func(*aux.AddItemData
 	return aux.AddItemToDatabase(s.Db, seller, options...)
 }
 
+func (s DatabaseFixture) Items(seller models.Id, count int, options ...func(*aux.AddItemData)) []*models.Item {
+	items := []*models.Item{}
+
+	for i := 0; i < count; i++ {
+		updatedOptions := append([]func(*aux.AddItemData){aux.WithDummyData(i)}, options...)
+		item := s.Item(seller, updatedOptions...)
+		items = append(items, item)
+	}
+
+	return items
+}
+
 func (s DatabaseFixture) Sale(cashier models.Id, itemIds []models.Id, options ...func(*aux.AddSaleData)) models.Id {
 	return aux.AddSaleToDatabase(s.Db, cashier, itemIds, options...)
 }
