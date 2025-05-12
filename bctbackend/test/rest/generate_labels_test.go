@@ -36,7 +36,7 @@ func TestGenerateLabels(t *testing.T) {
 				defer setup.Close()
 
 				seller, sessionId := setup.LoggedIn(setup.Seller())
-				item1 := setup.Item(seller.UserId, aux.WithDummyData(1))
+				item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(false))
 
 				url := path.Labels().String()
 				request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
@@ -54,7 +54,7 @@ func TestGenerateLabels(t *testing.T) {
 
 				seller, sessionId := setup.LoggedIn(setup.Seller())
 
-				items := setup.Items(seller.UserId, 10)
+				items := setup.Items(seller.UserId, 10, aux.WithFrozen(false))
 				itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
 
 				url := path.Labels().String()
