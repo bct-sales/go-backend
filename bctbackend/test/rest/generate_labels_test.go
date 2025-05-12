@@ -543,7 +543,6 @@ func TestGenerateLabels(t *testing.T) {
 					for _, item := range items {
 						setup.RequireNotFrozen(t, item.ItemId)
 					}
-
 				})
 			}
 		})
