@@ -8,6 +8,7 @@ import (
 	"bctbackend/pdf"
 	"bctbackend/rest/failure_response"
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -57,6 +58,13 @@ func GenerateLabels(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 
 	labelData, err := collectLabelData(db, payload.ItemIds)
 	if err != nil {
+		{
+			var noSuchItemError *queries.NoSuchItemError
+			if errors.As(err, &noSuchItemError) {
+				failure_response.UnknownItem(context, err.Error())
+				return
+			}
+		}
 		failure_response.Unknown(context, "Failed to collect label data: "+err.Error())
 		return
 	}
