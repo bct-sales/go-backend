@@ -18,6 +18,17 @@ import (
 )
 
 func TestGenerateLabels(t *testing.T) {
+	defaultLayout := rest.Layout{
+		PaperWidth:   210,
+		PaperHeight:  297,
+		PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+		Columns:      2,
+		Rows:         10,
+		LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+		LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+		FontSize:     12,
+	}
+
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Single seller", func(t *testing.T) {
 			t.Run("Single item", func(t *testing.T) {
@@ -29,16 +40,7 @@ func TestGenerateLabels(t *testing.T) {
 
 				url := path.Labels().String()
 				request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
-					Layout: rest.Layout{
-						PaperWidth:   210,
-						PaperHeight:  297,
-						PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
-						Columns:      2,
-						Rows:         10,
-						LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
-						LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
-						FontSize:     12,
-					},
+					Layout:  defaultLayout,
 					ItemIds: []models.Id{item1.ItemId},
 				}, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
@@ -59,16 +61,7 @@ func TestGenerateLabels(t *testing.T) {
 
 				url := path.Labels().String()
 				request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
-					Layout: rest.Layout{
-						PaperWidth:   210,
-						PaperHeight:  297,
-						PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
-						Columns:      2,
-						Rows:         10,
-						LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
-						LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
-						FontSize:     12,
-					},
+					Layout:  defaultLayout,
 					ItemIds: itemIds,
 				}, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
