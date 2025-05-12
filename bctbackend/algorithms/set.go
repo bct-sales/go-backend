@@ -36,3 +36,11 @@ func (s *Set[T]) ForEach(callback func(element T)) {
 		callback(element)
 	}
 }
+
+func (s *Set[T]) ToSlice() []T {
+	result := make([]T, 0, len(s.elements))
+	s.ForEach(func(element T) {
+		result = append(result, element)
+	})
+	return result
+}
