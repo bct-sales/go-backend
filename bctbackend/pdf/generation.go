@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"image/png"
+	"os"
 
 	"bctbackend/barcode"
 
@@ -70,7 +71,7 @@ func newPdfGenerator() *fpdf.Fpdf {
 	orientation := "P"
 	unit := "mm"
 	paperSize := "A4" // should not be used, new pages will have an explicitly specified size
-	fontDirectory := ""
+	fontDirectory := os.Getenv("BCT_FONT_DIR")
 
 	return fpdf.New(orientation, unit, paperSize, fontDirectory)
 }
@@ -260,7 +261,7 @@ func formatPriceAndSeller(priceInCents int, sellerIdentifier int) string {
 }
 
 func (builder *PdfBuilder) setFont() error {
-	builder.pdf.AddUTF8Font("Arial", "", "Arial.otf")
+	builder.pdf.AddUTF8Font("Arial", "", "Arial.ttf")
 	if err := builder.pdf.Error(); err != nil {
 		return err
 	}
