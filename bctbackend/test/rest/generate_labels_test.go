@@ -162,5 +162,27 @@ func TestGenerateLabels(t *testing.T) {
 				setup.RequireNotFrozen(t, item.ItemId)
 			}
 		})
+
+		t.Run("As cashier", func(t *testing.T) {
+			setup, router, writer := NewRestFixture()
+			defer setup.Close()
+
+			seller := setup.Seller()
+			_, sessionId := setup.LoggedIn(setup.Cashier())
+
+			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false))
+
+			url := path.Labels().String()
+			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
+				Layout:  defaultLayout,
+				ItemIds: []models.Id{items[0].ItemId},
+			}, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
+
+			for _, item := range items {
+				setup.RequireNotFrozen(t, item.ItemId)
+			}
+		})
 	})
 }
