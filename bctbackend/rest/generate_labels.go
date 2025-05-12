@@ -65,6 +65,7 @@ func GenerateLabels(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 				return
 			}
 		}
+
 		failure_response.Unknown(context, "Failed to collect label data: "+err.Error())
 		return
 	}
