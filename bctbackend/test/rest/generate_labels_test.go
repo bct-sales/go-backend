@@ -98,6 +98,28 @@ func TestGenerateLabels(t *testing.T) {
 				setup.RequireNotFrozen(t, item.ItemId)
 			}
 		})
+
+		t.Run("Frozen items", func(t *testing.T) {
+			setup, router, writer := NewRestFixture()
+			defer setup.Close()
+
+			seller, sessionId := setup.LoggedIn(setup.Seller())
+
+			items := setup.Items(seller.UserId, 10, aux.WithFrozen(true))
+			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
+
+			url := path.Labels().String()
+			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
+				Layout:  defaultLayout,
+				ItemIds: itemIds,
+			}, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
+
+			for _, item := range items {
+				setup.RequireFrozen(t, item.ItemId)
+			}
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
