@@ -50,6 +50,11 @@ func GenerateLabels(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 		return
 	}
 
+	if len(payload.ItemIds) == 0 {
+		failure_response.MissingItems(context, "No items provided")
+		return
+	}
+
 	labelData, err := collectLabelData(db, payload.ItemIds)
 	if err != nil {
 		failure_response.Unknown(context, "Failed to collect label data: "+err.Error())
