@@ -347,6 +347,8 @@ func CheckItemsExistence(db *sql.DB, itemIds []models.Id) (bool, error) {
 		return true, nil
 	}
 
+	itemIds = algorithms.RemoveDuplicates(itemIds)
+
 	// Set up SQL query
 	query := fmt.Sprintf(`
 		SELECT COUNT(item_id)
