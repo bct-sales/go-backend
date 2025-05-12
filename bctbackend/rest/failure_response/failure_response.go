@@ -120,3 +120,7 @@ func NoSuchSession(context *gin.Context, message string) {
 func MissingItems(context *gin.Context, message string) {
 	Forbidden(context, "missing_items", message)
 }
+
+func InvalidLayout(context *gin.Context, message string) {
+	Forbidden(context, "invalid_layout", message)
+}
