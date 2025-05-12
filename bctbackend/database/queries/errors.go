@@ -78,7 +78,7 @@ func (e *NoSuchItemError) Error() string {
 	if e.Id == nil {
 		return "item not found"
 	} else {
-		return fmt.Sprintf("item with id %d not found", e.Id)
+		return fmt.Sprintf("item with id %d not found", *e.Id)
 	}
 }
 
