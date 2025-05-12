@@ -3,6 +3,7 @@
 package rest
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -294,6 +295,256 @@ func TestGenerateLabels(t *testing.T) {
 
 			for _, item := range items {
 				setup.RequireNotFrozen(t, item.ItemId)
+			}
+		})
+
+		t.Run("Invalid layout", func(t *testing.T) {
+			layouts := []rest.Layout{
+				{
+					PaperWidth:   0,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      2,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   -1,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      2,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  0,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      2,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  -1,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      2,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: -10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      2,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: -10, Left: 10, Right: 10},
+					Columns:      2,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: -10, Right: 10},
+					Columns:      2,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: -10},
+					Columns:      2,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      0,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      -1,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      2,
+					Rows:         0,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      2,
+					Rows:         -1,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      2,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: -10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      2,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: -10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      2,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: -10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      2,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: -10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      2,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: -10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      2,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: -10, Left: 10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      2,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: -10, Right: 10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      2,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: -10},
+					FontSize:     12,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      2,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     0,
+				},
+				{
+					PaperWidth:   210,
+					PaperHeight:  297,
+					PaperMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					Columns:      2,
+					Rows:         10,
+					LabelMargins: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					LabelPadding: rest.Insets{Top: 10, Bottom: 10, Left: 10, Right: 10},
+					FontSize:     -1,
+				},
+			}
+
+			for _, layout := range layouts {
+				testLabel := fmt.Sprintf("Layout %v", layout)
+				t.Run(testLabel, func(t *testing.T) {
+					setup, router, writer := NewRestFixture()
+					defer setup.Close()
+
+					seller, sessionId := setup.LoggedIn(setup.Seller())
+					items := setup.Items(seller.UserId, 10, aux.WithFrozen(false))
+					itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
+
+					url := path.Labels().String()
+					request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
+						Layout:  layout,
+						ItemIds: itemIds,
+					}, WithSessionCookie(sessionId))
+					router.ServeHTTP(writer, request)
+					RequireFailureType(t, writer, http.StatusForbidden, "invalid_layout")
+
+					for _, item := range items {
+						setup.RequireNotFrozen(t, item.ItemId)
+					}
+
+				})
 			}
 		})
 	})
