@@ -38,7 +38,10 @@ type PdfBuilder struct {
 }
 
 func GeneratePdf(layout *LayoutSettings, labels []*LabelData) (*PdfBuilder, error) {
-	builder := newPdfBuilder(layout, labels)
+	builder, err := newPdfBuilder(layout, labels)
+	if err != nil {
+		return nil, err
+	}
 
 	if err := builder.drawLabels(); err != nil {
 		return nil, err
@@ -72,7 +75,7 @@ func newPdfGenerator() *fpdf.Fpdf {
 	return fpdf.New(orientation, unit, paperSize, fontDirectory)
 }
 
-func newPdfBuilder(layout *LayoutSettings, labels []*LabelData) *PdfBuilder {
+func newPdfBuilder(layout *LayoutSettings, labels []*LabelData) (*PdfBuilder, error) {
 	builder := PdfBuilder{
 		imageCache:    make(map[string]string),
 		pdf:           newPdfGenerator(),
@@ -84,10 +87,15 @@ func newPdfBuilder(layout *LayoutSettings, labels []*LabelData) *PdfBuilder {
 		showGrid:      false,
 	}
 
-	builder.setFont()
-	builder.registerImages()
+	if err := builder.setFont(); err != nil {
+		return nil, err
+	}
 
-	return &builder
+	if err := builder.registerImages(); err != nil {
+		return nil, err
+	}
+
+	return &builder, nil
 }
 
 func (builder *PdfBuilder) addPage() {
@@ -96,9 +104,16 @@ func (builder *PdfBuilder) addPage() {
 	builder.pdf.AddPageFormat(orientation, pageSize)
 }
 
-func (builder *PdfBuilder) registerImages() {
-	builder.registerImage(donationImageName, DonationImageBuffer())
-	builder.registerImage(charityImageName, CharityImageBuffer())
+func (builder *PdfBuilder) registerImages() error {
+	if err := builder.registerImage(donationImageName, DonationImageBuffer()); err != nil {
+		return err
+	}
+
+	if err := builder.registerImage(charityImageName, CharityImageBuffer()); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (builder *PdfBuilder) drawLabels() error {
@@ -132,10 +147,14 @@ func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *Label
 	builder.pdf.ClipRect(labelRectangle.Left, labelRectangle.Top, labelRectangle.Width, labelRectangle.Height, false)
 	defer builder.pdf.ClipEnd()
 
-	builder.drawLabelBorder(labelRectangle)
+	if err := builder.drawLabelBorder(labelRectangle); err != nil {
+		return err
+	}
 
 	if builder.showGrid {
-		builder.drawGrid(labelRectangle, 5)
+		if err := builder.drawGrid(labelRectangle, 5); err != nil {
+			return err
+		}
 	}
 
 	rectangle := labelRectangle.Shrink(builder.layout.labelPadding)
@@ -148,47 +167,82 @@ func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *Label
 		return err
 	}
 
-	_, barcodeHeight := builder.determineImageSize(barcodeImageName)
+	_, barcodeHeight, err := builder.determineImageSize(barcodeImageName)
+	if err != nil {
+		return fmt.Errorf("failed to determine barcode size while drawing label: %v", err)
+	}
 	descriptionX := rectangle.Left
 	descriptionY := barcodeY + barcodeHeight + builder.layout.fontSize
-	builder.drawText(labelData.Description, descriptionX, descriptionY)
+	if err := builder.drawText(labelData.Description, descriptionX, descriptionY); err != nil {
+		return err
+	}
 
 	categoryX := rectangle.Left
 	categoryY := descriptionY + builder.layout.fontSize
-	builder.drawText(labelData.Category, categoryX, categoryY)
+	if err := builder.drawText(labelData.Category, categoryX, categoryY); err != nil {
+		return err
+	}
 
 	itemIdentifierString := fmt.Sprintf("%d", labelData.ItemIdentifier)
-	builder.drawTextInLowerLeftCorner(itemIdentifierString, rectangle)
+	if err := builder.drawTextInLowerLeftCorner(itemIdentifierString, rectangle); err != nil {
+		return err
+	}
 
 	priceAndSellerString := formatPriceAndSeller(labelData.PriceInCents, labelData.SellerIdentifier)
-	builder.drawTextInLowerRightCorner(priceAndSellerString, rectangle)
+	if err := builder.drawTextInLowerRightCorner(priceAndSellerString, rectangle); err != nil {
+		return err
+	}
 
 	if labelData.Charity {
-		builder.drawCharityImage(rectangle)
+		if err := builder.drawCharityImage(rectangle); err != nil {
+			return fmt.Errorf("failed to draw label: %v", err)
+		}
 	}
 
 	if labelData.Donation {
-		builder.drawDonationImage(rectangle)
+		if err := builder.drawDonationImage(rectangle); err != nil {
+			return fmt.Errorf("failed to draw label: %v", err)
+		}
 	}
 
 	return nil
 }
 
-func (builder *PdfBuilder) drawCharityImage(rectangle *Rectangle) {
-	imageWidth, _ := builder.determineImageSize(charityImageName)
+func (builder *PdfBuilder) drawCharityImage(rectangle *Rectangle) error {
+	imageWidth, _, err := builder.determineImageSize(charityImageName)
+	if err != nil {
+		return fmt.Errorf("failed to draw charity image: %v", err)
+	}
+
 	x := rectangle.Right() - imageWidth
 	y := rectangle.Top
 
-	builder.drawImage(charityImageName, x, y)
+	if err := builder.drawImage(charityImageName, x, y); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (builder *PdfBuilder) drawDonationImage(rectangle *Rectangle) {
-	charityImageWidth, _ := builder.determineImageSize(charityImageName)
-	donationImageWidth, _ := builder.determineImageSize(donationImageName)
+func (builder *PdfBuilder) drawDonationImage(rectangle *Rectangle) error {
+	charityImageWidth, _, err := builder.determineImageSize(charityImageName)
+	if err != nil {
+		return fmt.Errorf("failed to draw charity image: %v", err)
+	}
+
+	donationImageWidth, _, err := builder.determineImageSize(donationImageName)
+	if err != nil {
+		return fmt.Errorf("failed to draw charity image: %v", err)
+	}
+
 	x := rectangle.Right() - charityImageWidth - donationImageWidth - 2
 	y := rectangle.Top
 
-	builder.drawImage(donationImageName, x, y)
+	if err := builder.drawImage(donationImageName, x, y); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func formatPriceAndSeller(priceInCents int, sellerIdentifier int) string {
@@ -198,19 +252,37 @@ func formatPriceAndSeller(priceInCents int, sellerIdentifier int) string {
 	return fmt.Sprintf("€%d.%02d → %d", euros, cents, sellerIdentifier)
 }
 
-func (builder *PdfBuilder) setFont() {
+func (builder *PdfBuilder) setFont() error {
 	builder.pdf.AddUTF8Font("Arial", "", "Arial.otf")
+	if err := builder.pdf.Error(); err != nil {
+		return err
+	}
+
 	fontSizeInPoints := builder.pdf.UnitToPointConvert(builder.layout.fontSize)
+	if err := builder.pdf.Error(); err != nil {
+		return err
+	}
+
 	builder.pdf.SetFont("Arial", "", fontSizeInPoints)
+	if err := builder.pdf.Error(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (builder *PdfBuilder) registerImage(imageName string, imageBuffer *bytes.Buffer) {
+func (builder *PdfBuilder) registerImage(imageName string, imageBuffer *bytes.Buffer) error {
 	imageOptions := fpdf.ImageOptions{
 		ImageType: "png",
 		ReadDpi:   true,
 	}
 
 	builder.pdf.RegisterImageOptionsReader(imageName, imageOptions, imageBuffer)
+	if err := builder.pdf.Error(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (builder *PdfBuilder) generateBarcode(data string) (string, error) {
@@ -226,9 +298,7 @@ func (builder *PdfBuilder) generateBarcode(data string) (string, error) {
 
 	// Convert image to PNG format, still in memory
 	var buffer bytes.Buffer
-	err = png.Encode(&buffer, barcode)
-
-	if err != nil {
+	if err := png.Encode(&buffer, barcode); err != nil {
 		return "", fmt.Errorf("failed to encode barcode as PNG: %w", err)
 	}
 
@@ -237,7 +307,9 @@ func (builder *PdfBuilder) generateBarcode(data string) (string, error) {
 	imageName := fmt.Sprintf("barcode_%d", imageIndex)
 
 	// Register image
-	builder.registerImage(imageName, &buffer)
+	if err := builder.registerImage(imageName, &buffer); err != nil {
+		return "", err
+	}
 
 	// Cache image
 	builder.imageCache[data] = imageName
@@ -246,21 +318,31 @@ func (builder *PdfBuilder) generateBarcode(data string) (string, error) {
 	return imageName, nil
 }
 
-func (builder *PdfBuilder) drawImage(imageName string, x float64, y float64) {
+func (builder *PdfBuilder) drawImage(imageName string, x float64, y float64) error {
 	imageOptions := fpdf.ImageOptions{
 		ImageType: "png",
 		ReadDpi:   true,
 	}
 
 	builder.pdf.ImageOptions(imageName, x, y, -1, -1, false, imageOptions, 0, "")
+	if err := builder.pdf.Error(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (builder *PdfBuilder) determineImageSize(imageName string) (float64, float64) {
+func (builder *PdfBuilder) determineImageSize(imageName string) (float64, float64, error) {
 	imageInfo := builder.pdf.GetImageInfo(imageName)
+
+	if imageInfo == nil {
+		return 0, 0, fmt.Errorf("failed to get image info for %s", imageName)
+	}
+
 	imageWidth := imageInfo.Width()
 	imageHeight := imageInfo.Height()
 
-	return imageWidth, imageHeight
+	return imageWidth, imageHeight, nil
 }
 
 func (builder *PdfBuilder) drawBarcode(data string, x float64, y float64) (string, error) {
@@ -269,41 +351,69 @@ func (builder *PdfBuilder) drawBarcode(data string, x float64, y float64) (strin
 		return "", err
 	}
 
-	builder.drawImage(imageName, x, y)
+	if err := builder.drawImage(imageName, x, y); err != nil {
+		return "", err
+	}
 
 	return imageName, nil
 }
 
-func (builder *PdfBuilder) drawText(text string, x float64, y float64) {
+func (builder *PdfBuilder) drawText(text string, x float64, y float64) error {
 	builder.pdf.Text(x, y, text)
+	if err := builder.pdf.Error(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (builder *PdfBuilder) drawTextInLowerLeftCorner(text string, rectangle *Rectangle) {
+func (builder *PdfBuilder) drawTextInLowerLeftCorner(text string, rectangle *Rectangle) error {
 	x := rectangle.Left
 	y := rectangle.Bottom()
+
 	builder.pdf.Text(x, y, text)
+	if err := builder.pdf.Error(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (builder *PdfBuilder) drawTextInLowerRightCorner(text string, rectangle *Rectangle) {
+func (builder *PdfBuilder) drawTextInLowerRightCorner(text string, rectangle *Rectangle) error {
 	stringLength := builder.pdf.GetStringWidth(text)
 	x := rectangle.Right() - stringLength
 	y := rectangle.Bottom()
+
 	builder.pdf.Text(x, y, text)
+	if err := builder.pdf.Error(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (builder *PdfBuilder) drawTextInTopRightCorner(text string, rectangle *Rectangle) {
+func (builder *PdfBuilder) drawTextInTopRightCorner(text string, rectangle *Rectangle) error {
 	stringLength := builder.pdf.GetStringWidth(text)
 	stringHeight := builder.layout.fontSize
 	x := rectangle.Right() - stringLength
 	y := rectangle.Top + stringHeight
+
 	builder.pdf.Text(x, y, text)
+	if err := builder.pdf.Error(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (builder *PdfBuilder) drawGrid(rectangle *Rectangle, cellSize float64) {
+func (builder *PdfBuilder) drawGrid(rectangle *Rectangle, cellSize float64) error {
 	r, g, b := builder.pdf.GetDrawColor()
 	defer builder.pdf.SetDrawColor(r, g, b)
 
 	builder.pdf.SetDrawColor(128, 128, 128)
+	if err := builder.pdf.Error(); err != nil {
+		return err
+	}
 
 	left := rectangle.Left
 	top := rectangle.Top
@@ -313,14 +423,27 @@ func (builder *PdfBuilder) drawGrid(rectangle *Rectangle, cellSize float64) {
 	for dx := 0.0; dx < rectangle.Width; dx += cellSize {
 		x := rectangle.Left + dx
 		builder.pdf.Line(x, top, x, bottom)
+		if err := builder.pdf.Error(); err != nil {
+			return err
+		}
 	}
 
 	for dy := 0.0; dy < rectangle.Height; dy += cellSize {
 		y := rectangle.Top + dy
 		builder.pdf.Line(left, y, right, y)
+		if err := builder.pdf.Error(); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
-func (builder *PdfBuilder) drawLabelBorder(rectangle *Rectangle) {
+func (builder *PdfBuilder) drawLabelBorder(rectangle *Rectangle) error {
 	builder.pdf.Rect(rectangle.Left, rectangle.Top, rectangle.Width, rectangle.Height, "D")
+	if err := builder.pdf.Error(); err != nil {
+		return err
+	}
+
+	return nil
 }
