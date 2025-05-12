@@ -11,7 +11,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -126,8 +125,13 @@ func GenerateLabels(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 	}
 
 	context.Header("Content-Disposition", "attachment; filename=labels.pdf")
-	context.Header("Content-Length", strconv.Itoa(len(buffer.Bytes())))
-	context.Data(http.StatusOK, "application/pdf", buffer.Bytes())
+	context.DataFromReader(
+		http.StatusOK,
+		int64(buffer.Len()),
+		"application/pdf",
+		buffer,
+		map[string]string{"Content-Disposition": "attachment; filename=labels.pdf"},
+	)
 }
 
 func collectLabelData(db *sql.DB, itemTable map[models.Id]*models.Item, itemIds []models.Id) ([]*pdf.LabelData, error) {
