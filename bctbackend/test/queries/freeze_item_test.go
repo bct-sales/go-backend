@@ -22,10 +22,23 @@ func TestFreezeItem(t *testing.T) {
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(false))
 
 			{
+				err := queries.FreezeItem(db, item.ItemId)
+				require.NoError(t, err)
+			}
+
+			{
 				isFrozen, err := queries.IsItemFrozen(db, item.ItemId)
 				require.NoError(t, err)
-				require.False(t, isFrozen)
+				require.True(t, isFrozen)
 			}
+		})
+
+		t.Run("Freezing already unfrozen item", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			seller := setup.Seller()
+			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(true))
 
 			{
 				err := queries.FreezeItem(db, item.ItemId)
