@@ -125,3 +125,11 @@ func (s DatabaseFixture) RequireFrozen(t *testing.T, saleId ...models.Id) {
 		require.True(t, frozen)
 	}
 }
+
+func (s DatabaseFixture) RequireNotFrozen(t *testing.T, saleId ...models.Id) {
+	for _, id := range saleId {
+		frozen, err := queries.ItemWithIdIsFrozen(s.Db, id)
+		require.NoError(t, err)
+		require.False(t, frozen)
+	}
+}
