@@ -168,8 +168,15 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 		WHERE item_id = ?
 	`, itemId)
 
-	item := models.Item{ItemId: itemId}
-	err := row.Scan(&item.AddedAt, &item.Description, &item.PriceInCents, &item.CategoryId, &item.SellerId, &item.Donation, &item.Charity, &item.Frozen)
+	var addedAt models.Timestamp
+	var description string
+	var priceInCents models.MoneyInCents
+	var categoryId models.Id
+	var sellerId models.Id
+	var donation bool
+	var charity bool
+	var frozen bool
+	err := row.Scan(&addedAt, &description, &priceInCents, &categoryId, &sellerId, &donation, &charity, &frozen)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, &NoSuchItemError{Id: &itemId}
@@ -179,7 +186,9 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 		return nil, err
 	}
 
-	return &item, nil
+	item := models.NewItem(itemId, addedAt, description, priceInCents, categoryId, sellerId, donation, charity, frozen)
+
+	return item, nil
 }
 
 // Returns all items with the given ids.
