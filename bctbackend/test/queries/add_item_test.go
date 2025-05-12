@@ -26,39 +26,41 @@ func TestAddItem(t *testing.T) {
 							for _, donation := range []bool{false, true} {
 								for _, charity := range []bool{false, true} {
 									for _, frozen := range []bool{false, true} {
-										test_name := fmt.Sprintf("timestamp = %d", timestamp)
+										for _, hidden := range []bool{false, true} {
+											test_name := fmt.Sprintf("timestamp = %d", timestamp)
 
-										t.Run(test_name, func(t *testing.T) {
-											setup, db := NewDatabaseFixture()
-											defer setup.Close()
+											t.Run(test_name, func(t *testing.T) {
+												setup, db := NewDatabaseFixture()
+												defer setup.Close()
 
-											setup.Seller(aux.WithUserId(1))
-											setup.Seller(aux.WithUserId(2))
+												setup.Seller(aux.WithUserId(1))
+												setup.Seller(aux.WithUserId(2))
 
-											itemId, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
-											require.NoError(t, err, `Failed to add item: %v`, err)
+												itemId, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
+												require.NoError(t, err, `Failed to add item: %v`, err)
 
-											{
-												itemExists, err := queries.ItemWithIdExists(db, itemId)
+												{
+													itemExists, err := queries.ItemWithIdExists(db, itemId)
+													require.NoError(t, err)
+													require.True(t, itemExists)
+												}
+
+												items := []*models.Item{}
+												err = queries.GetItems(db, queries.CollectTo(&items))
 												require.NoError(t, err)
-												require.True(t, itemExists)
-											}
+												require.Equal(t, 1, len(items))
 
-											items := []*models.Item{}
-											err = queries.GetItems(db, queries.CollectTo(&items))
-											require.NoError(t, err)
-											require.Equal(t, 1, len(items))
-
-											item := items[0]
-											require.Equal(t, timestamp, item.AddedAt)
-											require.Equal(t, description, item.Description)
-											require.Equal(t, priceInCents, item.PriceInCents)
-											require.Equal(t, itemCategoryId, item.CategoryId)
-											require.Equal(t, sellerId, sellerId)
-											require.Equal(t, donation, item.Donation)
-											require.Equal(t, charity, item.Charity)
-											require.Equal(t, frozen, item.Frozen)
-										})
+												item := items[0]
+												require.Equal(t, timestamp, item.AddedAt)
+												require.Equal(t, description, item.Description)
+												require.Equal(t, priceInCents, item.PriceInCents)
+												require.Equal(t, itemCategoryId, item.CategoryId)
+												require.Equal(t, sellerId, sellerId)
+												require.Equal(t, donation, item.Donation)
+												require.Equal(t, charity, item.Charity)
+												require.Equal(t, frozen, item.Frozen)
+											})
+										}
 									}
 								}
 							}
@@ -82,10 +84,11 @@ func TestAddItem(t *testing.T) {
 			sellerId := models.NewId(1)
 			donation := false
 			frozen := false
+			hidden := false
 
 			setup.Seller(aux.WithUserId(2))
 
-			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
+			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
 			var noSuchUserError *queries.NoSuchUserError
 			require.ErrorAs(t, err, &noSuchUserError)
 
@@ -105,6 +108,7 @@ func TestAddItem(t *testing.T) {
 			charity := false
 			donation := false
 			frozen := false
+			hidden := false
 			itemCategoryId := models.NewId(100)
 
 			setup.Seller(aux.WithUserId(1))
@@ -116,7 +120,7 @@ func TestAddItem(t *testing.T) {
 			}
 
 			{
-				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen)
+				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
 				var noSuchCategoryError *queries.NoSuchCategoryError
 				require.ErrorAs(t, err, &noSuchCategoryError)
 			}
@@ -139,10 +143,11 @@ func TestAddItem(t *testing.T) {
 			seller := setup.Seller()
 			donation := false
 			frozen := false
+			hidden := false
 			priceInCents := models.NewMoneyInCents(0)
 
 			{
-				_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen)
+				_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
 
 				var invalidPriceError *queries.InvalidPriceError
 				require.ErrorAs(t, error, &invalidPriceError)
@@ -166,10 +171,11 @@ func TestAddItem(t *testing.T) {
 			seller := setup.Seller()
 			donation := false
 			frozen := false
+			hidden := false
 			priceInCents := models.NewMoneyInCents(-100)
 
 			{
-				_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen)
+				_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
 				var invalidPriceError *queries.InvalidPriceError
 				require.ErrorAs(t, error, &invalidPriceError)
 			}
@@ -193,9 +199,10 @@ func TestAddItem(t *testing.T) {
 			charity := false
 			donation := false
 			frozen := false
+			hidden := false
 
 			{
-				_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen)
+				_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen, hidden)
 				var invalidRoleError *queries.InvalidRoleError
 				require.ErrorAs(t, error, &invalidRoleError)
 			}
@@ -219,9 +226,10 @@ func TestAddItem(t *testing.T) {
 			charity := false
 			donation := false
 			frozen := false
+			hidden := false
 
 			{
-				_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen)
+				_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen, hidden)
 				var invalidRoleError *queries.InvalidRoleError
 				require.ErrorAs(t, error, &invalidRoleError)
 			}

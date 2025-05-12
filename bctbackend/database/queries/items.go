@@ -275,7 +275,8 @@ func AddItem(
 	sellerId models.Id,
 	donation bool,
 	charity bool,
-	frozen bool) (models.Id, error) {
+	frozen bool,
+	hidden bool) (models.Id, error) {
 
 	if !models.IsValidPrice(priceInCents) {
 		return 0, &InvalidPriceError{PriceInCents: priceInCents}
@@ -291,8 +292,8 @@ func AddItem(
 
 	result, err := db.Exec(
 		`
-			INSERT INTO items (added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+			INSERT INTO items (added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		`,
 		addedAt,
 		description,
@@ -301,7 +302,9 @@ func AddItem(
 		sellerId,
 		donation,
 		charity,
-		frozen)
+		frozen,
+		hidden,
+	)
 
 	if err != nil {
 		categoryExists, err2 := CategoryWithIdExists(db, itemCategoryId)

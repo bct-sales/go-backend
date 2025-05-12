@@ -22,7 +22,8 @@ func AddItem(
 	sellerId models.Id,
 	donation bool,
 	charity bool,
-	frozen bool) (r_err error) {
+	frozen bool,
+	hidden bool) (r_err error) {
 
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
@@ -33,7 +34,7 @@ func AddItem(
 
 	timestamp := time.Now().Unix()
 
-	addedItemId, err := queries.AddItem(db, timestamp, description, priceInCents, categoryId, sellerId, donation, charity, frozen)
+	addedItemId, err := queries.AddItem(db, timestamp, description, priceInCents, categoryId, sellerId, donation, charity, frozen, hidden)
 	if err != nil {
 		return err
 	}

@@ -89,6 +89,7 @@ func AddSellerItem(context *gin.Context, db *sql.DB, userId models.Id, roleId mo
 		*payload.Donation,
 		*payload.Charity,
 		false,
+		false,
 	)
 
 	if err != nil {

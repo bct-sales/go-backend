@@ -20,6 +20,7 @@ type AddItemData struct {
 	Donation     *bool
 	Charity      *bool
 	Frozen       *bool
+	Hidden       *bool
 }
 
 func (data *AddItemData) FillWithDefaults() {
@@ -56,6 +57,11 @@ func (data *AddItemData) FillWithDefaults() {
 	if data.Frozen == nil {
 		frozen := false
 		data.Frozen = &frozen
+	}
+
+	if data.Hidden == nil {
+		hidden := false
+		data.Hidden = &hidden
 	}
 }
 
@@ -101,6 +107,12 @@ func WithFrozen(frozen bool) func(*AddItemData) {
 	}
 }
 
+func WithHidden(hidden bool) func(*AddItemData) {
+	return func(data *AddItemData) {
+		data.Hidden = &hidden
+	}
+}
+
 func WithDummyData(k int) func(*AddItemData) {
 	return func(data *AddItemData) {
 		addedAt := models.NewTimestamp(0)
@@ -132,7 +144,7 @@ func AddItemToDatabase(db *sql.DB, sellerId models.Id, options ...func(*AddItemD
 
 	data.FillWithDefaults()
 
-	itemId, err := queries.AddItem(db, *data.AddedAt, *data.Description, *data.PriceInCents, *data.ItemCategory, sellerId, *data.Donation, *data.Charity, *data.Frozen)
+	itemId, err := queries.AddItem(db, *data.AddedAt, *data.Description, *data.PriceInCents, *data.ItemCategory, sellerId, *data.Donation, *data.Charity, *data.Frozen, *data.Hidden)
 
 	if err != nil {
 		panic(err)

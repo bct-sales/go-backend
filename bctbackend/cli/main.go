@@ -123,6 +123,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 				donation    bool
 				charity     bool
 				frozen      bool
+				hidden      bool
 			}
 
 			remove struct {
@@ -440,6 +441,12 @@ func ProcessCommandLineArguments(arguments []string) error {
 								Destination: &options.item.add.frozen,
 								Value:       false,
 							},
+							&cli.BoolFlag{
+								Name:        "hidden",
+								Usage:       "is the item hidden?",
+								Destination: &options.item.add.hidden,
+								Value:       false,
+							},
 						},
 						Action: func(context *cli.Context) error {
 							description := options.item.add.description
@@ -449,8 +456,9 @@ func ProcessCommandLineArguments(arguments []string) error {
 							donation := options.item.add.donation
 							charity := options.item.add.charity
 							frozen := options.item.add.frozen
+							hidden := options.item.add.hidden
 
-							return cli_item.AddItem(databasePath, description, price, category, seller, donation, charity, frozen)
+							return cli_item.AddItem(databasePath, description, price, category, seller, donation, charity, frozen, hidden)
 						},
 					},
 					{
