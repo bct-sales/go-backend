@@ -76,3 +76,8 @@ func Filter[T any](values []T, predicate func(T) bool) []T {
 
 	return result
 }
+
+func RemoveDuplicates[T comparable](values []T) []T {
+	set := NewSet(values...)
+	return set.ToSlice()
+}
