@@ -87,6 +87,12 @@ func GenerateLabels(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 			payload.Layout.PaperWidth,
 			payload.Layout.PaperHeight,
 		),
+		pdf.WithPaperMargins(
+			payload.Layout.PaperMargins.Top,
+			payload.Layout.PaperMargins.Right,
+			payload.Layout.PaperMargins.Bottom,
+			payload.Layout.PaperMargins.Left,
+		),
 		pdf.WithGridSize(payload.Layout.Columns, payload.Layout.Rows),
 		pdf.WithLabelMargins(
 			payload.Layout.LabelMargins.Top,
