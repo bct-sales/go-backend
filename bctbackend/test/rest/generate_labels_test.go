@@ -47,9 +47,7 @@ func TestGenerateLabels(t *testing.T) {
 				require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 				setup.RequireFrozen(t, item1.ItemId)
 			})
-		})
 
-		t.Run("Single seller", func(t *testing.T) {
 			t.Run("10 items", func(t *testing.T) {
 				setup, router, writer := NewRestFixture()
 				defer setup.Close()
