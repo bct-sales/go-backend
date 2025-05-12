@@ -341,15 +341,24 @@ func GetItemsSoldBy(db *sql.DB, cashierId models.Id) (r_result []*models.Item, r
 
 	var items []*models.Item
 	for rows.Next() {
-		var item models.Item
+		var itemId models.Id
+		var addedAt models.Timestamp
+		var description string
+		var priceInCents models.MoneyInCents
+		var categoryId models.Id
+		var sellerId models.Id
+		var donation bool
+		var charity bool
+		var frozen bool
 
-		err := rows.Scan(&item.ItemId, &item.AddedAt, &item.Description, &item.PriceInCents, &item.CategoryId, &item.SellerId, &item.Donation, &item.Charity, &item.Frozen)
+		err := rows.Scan(&itemId, &addedAt, &description, &priceInCents, &categoryId, &sellerId, &donation, &charity, &frozen)
 
 		if err != nil {
 			return nil, err
 		}
 
-		items = append(items, &item)
+		item := models.NewItem(itemId, addedAt, description, priceInCents, categoryId, sellerId, donation, charity, frozen)
+		items = append(items, item)
 	}
 
 	return items, nil
