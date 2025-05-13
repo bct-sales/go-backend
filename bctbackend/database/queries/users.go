@@ -166,11 +166,9 @@ func GetUsers(db *sql.DB, receiver func(*models.User) error) (r_err error) {
 			FROM users
 		`,
 	)
-
 	if err != nil {
 		return err
 	}
-
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	for rows.Next() {
