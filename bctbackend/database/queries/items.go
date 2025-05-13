@@ -381,10 +381,6 @@ func CheckItemsExistence(db *sql.DB, itemIds []models.Id) (bool, error) {
 	return count == len(itemIds), nil
 }
 
-func FreezeItem(db *sql.DB, itemId models.Id) error {
-	return UpdateFreezeStatusOfItems(db, []models.Id{itemId}, true)
-}
-
 func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) (r_err error) {
 	if len(itemIds) == 0 {
 		return nil
