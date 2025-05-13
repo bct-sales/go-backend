@@ -43,4 +43,22 @@ func TestContainsHiddenItems(t *testing.T) {
 			require.True(t, result)
 		})
 	})
+
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("Nonexistent item", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			seller := setup.Seller()
+			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
+			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
+			nonexistentItemId := models.Id(1000)
+			setup.RequireNoSuchItem(t, nonexistentItemId)
+			itemIds = append(itemIds, nonexistentItemId)
+
+			_, err := queries.ContainsHiddenItems(db, itemIds)
+			var noSuchItemError *queries.NoSuchItemError
+			require.ErrorAs(t, err, &noSuchItemError)
+		})
+	})
 }
