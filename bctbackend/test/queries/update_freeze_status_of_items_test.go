@@ -61,5 +61,28 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 			err := queries.UpdateFreezeStatusOfItems(db, []models.Id{1}, true)
 			require.Error(t, err)
 		})
+
+		t.Run("Frozen item", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			seller := setup.Seller()
+
+			itemIds := []models.Id{}
+			for i := 0; i != 10; i++ {
+				itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false)).ItemId)
+			}
+			itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(10), aux.WithFrozen(false), aux.WithHidden(true)).ItemId)
+
+			err := queries.UpdateFreezeStatusOfItems(db, itemIds, true)
+			var itemHiddenError *queries.ItemHiddenError
+			require.ErrorAs(t, err, &itemHiddenError)
+
+			for _, itemId := range itemIds {
+				isFrozen, err := queries.IsItemFrozen(db, itemId)
+				assert.NoError(t, err)
+				assert.Equal(t, false, isFrozen, "item with id %d should not be frozen", itemId)
+			}
+		})
 	})
 }

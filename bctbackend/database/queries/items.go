@@ -385,32 +385,80 @@ func FreezeItem(db *sql.DB, itemId models.Id) error {
 	return UpdateFreezeStatusOfItems(db, []models.Id{itemId}, true)
 }
 
-func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) error {
+func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) (r_err error) {
 	if len(itemIds) == 0 {
 		return nil
 	}
 
-	// Check if all items exist
-	allItemsExist, err := CheckItemsExistence(db, itemIds)
+	itemIds = algorithms.RemoveDuplicates(itemIds)
+	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
+
+	transaction, err := db.Begin()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
-	if !allItemsExist {
-		return &NoSuchItemError{Id: nil}
+	transactionCommitted := false
+	defer func() {
+		if !transactionCommitted {
+			r_err = errors.Join(r_err, transaction.Rollback())
+		}
+	}()
+
+	// Check if all items exist and none are hidden
+	{
+		query := fmt.Sprintf(`
+			SELECT hidden, COUNT(item_id)
+			FROM items
+			WHERE item_id IN (%s)
+			GROUP BY hidden
+		`, placeholderString(len(itemIds)))
+
+		rows, err := transaction.Query(query, convertedItemIds...)
+		if err != nil {
+			return fmt.Errorf("failed to query items: %w", err)
+		}
+		defer func() { r_err = errors.Join(r_err, rows.Close()) }()
+
+		totalCount := 0
+		for rows.Next() {
+			var hidden bool
+			var count int
+
+			err = rows.Scan(&hidden, &count)
+			if err != nil {
+				return fmt.Errorf("failed to scan items: %w", err)
+			}
+
+			if hidden && count > 0 {
+				return &ItemHiddenError{}
+			}
+
+			totalCount += count
+		}
+
+		if totalCount != len(itemIds) {
+			return &NoSuchItemError{Id: nil}
+		}
 	}
 
-	// Set up SQL query
 	query := fmt.Sprintf(`
 		UPDATE items
 		SET frozen = ?
 		WHERE item_id IN (%s)
 	`, placeholderString(len(itemIds)))
-	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
+
 	sqlValues := append([]any{frozen}, convertedItemIds...)
 
-	if _, err := db.Exec(query, sqlValues...); err != nil {
+	if _, err := transaction.Exec(query, sqlValues...); err != nil {
 		return err
 	}
+
+	if err := transaction.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	// Signals that no rollback is needed
+	transactionCommitted = true
 
 	return nil
 }
