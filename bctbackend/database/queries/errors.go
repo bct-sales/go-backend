@@ -62,6 +62,8 @@ type ItemFrozenError struct {
 	Id models.Id
 }
 
+type ItemHiddenError struct{}
+
 func (err *UserIdAlreadyInUseError) Error() string {
 	return fmt.Sprintf("user id %d already in use", err.UserId)
 }
@@ -128,6 +130,10 @@ func (e *InvalidRoleError) Error() string {
 
 func (e *ItemFrozenError) Error() string {
 	return fmt.Sprintf("item %d is frozen", e.Id)
+}
+
+func (e *ItemHiddenError) Error() string {
+	return fmt.Sprintf("an item was hidden")
 }
 
 func (e *InvalidItemDescriptionError) Error() string {
