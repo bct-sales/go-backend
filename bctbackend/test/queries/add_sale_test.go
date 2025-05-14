@@ -69,7 +69,7 @@ func TestAddSale(t *testing.T) {
 
 			seller := setup.Seller()
 			timestamp := models.NewTimestamp(0)
-			itemId := setup.Item(seller.UserId, aux.WithDummyData(1)).ItemId
+			itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemId
 
 			_, err := queries.AddSale(db, seller.UserId, timestamp, []models.Id{itemId})
 			require.Error(t, err)
@@ -82,7 +82,7 @@ func TestAddSale(t *testing.T) {
 			seller := setup.Seller()
 			admin := setup.Admin()
 			timestamp := models.NewTimestamp(0)
-			itemId := setup.Item(seller.UserId, aux.WithDummyData(1)).ItemId
+			itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemId
 
 			_, err := queries.AddSale(db, admin.UserId, timestamp, []models.Id{itemId})
 			require.Error(t, err)
@@ -94,7 +94,7 @@ func TestAddSale(t *testing.T) {
 
 			seller := setup.Seller()
 			timestamp := models.NewTimestamp(0)
-			item := setup.Item(seller.UserId, aux.WithDummyData(1))
+			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			_, err := queries.AddSale(db, seller.UserId, timestamp, []models.Id{item.ItemId, item.ItemId})
 			var duplicateItemError *queries.DuplicateItemInSaleError
