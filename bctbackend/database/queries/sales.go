@@ -49,19 +49,19 @@ func AddSale(
 		return 0, &SaleRequiresCashierError{}
 	}
 
-	// Check that all items exist and are not hidden.
-	containsHiddenItems, err := ContainsHiddenItems(db, itemIds)
-	if err != nil {
-		return 0, err
-	}
-	if containsHiddenItems {
-		return 0, &ItemHiddenError{}
-	}
-
 	// Start a transaction.
 	transaction, err := db.Begin()
 	if err != nil {
 		return 0, err
+	}
+
+	// Check that all items exist and are not hidden.
+	containsHiddenItems, err := ContainsHiddenItems(transaction, itemIds)
+	if err != nil {
+		return 0, rollbackTransaction(transaction, err)
+	}
+	if containsHiddenItems {
+		return 0, rollbackTransaction(transaction, &ItemHiddenError{})
 	}
 
 	// Create sale
