@@ -25,7 +25,7 @@ func TestUpdateItem(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 			originalDescription := "old description"
 			newDescription := "new description"
-			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithDescription(originalDescription))
+			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithDescription(originalDescription), aux.WithHidden(false))
 
 			url := path.Items().Id(originalItem.ItemId)
 			payload := struct {
@@ -53,7 +53,7 @@ func TestUpdateItem(t *testing.T) {
 			_, sessionId := setup.LoggedIn(setup.Admin())
 			originalDescription := "old description"
 			newDescription := "new description"
-			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithDescription(originalDescription))
+			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithDescription(originalDescription), aux.WithHidden(false))
 
 			url := path.Items().Id(originalItem.ItemId)
 			payload := struct {
@@ -80,7 +80,7 @@ func TestUpdateItem(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 			originalPrice := 100
 			newPrice := 200
-			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithPriceInCents(models.MoneyInCents(originalPrice)))
+			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithPriceInCents(models.MoneyInCents(originalPrice)), aux.WithHidden(false))
 
 			url := path.Items().Id(originalItem.ItemId)
 			payload := struct {
@@ -105,7 +105,7 @@ func TestUpdateItem(t *testing.T) {
 			defer setup.Close()
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
-			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithCharity(false), aux.WithDonation(false))
+			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithCharity(false), aux.WithDonation(false), aux.WithHidden(false))
 
 			url := path.Items().Id(originalItem.ItemId)
 			payload := struct {
@@ -135,7 +135,7 @@ func TestUpdateItem(t *testing.T) {
 			defer setup.Close()
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
-			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(true))
+			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(true), aux.WithHidden(false))
 
 			url := path.Items().Id(originalItem.ItemId)
 			payload := struct {
@@ -160,7 +160,7 @@ func TestUpdateItem(t *testing.T) {
 			defer setup.Close()
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
-			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1))
+			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			url := path.Items().Id(originalItem.ItemId)
 			payload := struct {
@@ -205,7 +205,7 @@ func TestUpdateItem(t *testing.T) {
 
 			ownerSeller := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Seller())
-			originalItem := setup.Item(ownerSeller.UserId, aux.WithDummyData(1))
+			originalItem := setup.Item(ownerSeller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			url := path.Items().Id(originalItem.ItemId)
 			payload := struct {
@@ -230,7 +230,7 @@ func TestUpdateItem(t *testing.T) {
 
 			ownerSeller := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Cashier())
-			originalItem := setup.Item(ownerSeller.UserId, aux.WithDummyData(1))
+			originalItem := setup.Item(ownerSeller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			url := path.Items().Id(originalItem.ItemId)
 			payload := struct {

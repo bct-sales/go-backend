@@ -20,12 +20,12 @@ func TestRemoveSale(t *testing.T) {
 	seller := setup.Seller()
 	cashier := setup.Cashier()
 	sale1ItemIds := []models.Id{
-		setup.Item(seller.UserId, aux.WithDummyData(1)).ItemId,
-		setup.Item(seller.UserId, aux.WithDummyData(2)).ItemId,
+		setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemId,
+		setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false)).ItemId,
 	}
 	sale2ItemIds := []models.Id{
-		setup.Item(seller.UserId, aux.WithDummyData(3)).ItemId,
-		setup.Item(seller.UserId, aux.WithDummyData(4)).ItemId,
+		setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false)).ItemId,
+		setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false)).ItemId,
 	}
 
 	sale1Id := setup.Sale(cashier.UserId, sale1ItemIds)

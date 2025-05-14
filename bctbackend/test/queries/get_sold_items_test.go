@@ -28,7 +28,7 @@ func TestGetSoldItems(t *testing.T) {
 		defer setup.Close()
 
 		seller := setup.Seller()
-		setup.Item(seller.UserId, aux.WithDummyData(1))
+		setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 		soldItems, err := queries.GetSoldItems(db)
 		require.NoError(t, err)
@@ -41,7 +41,7 @@ func TestGetSoldItems(t *testing.T) {
 
 		seller := setup.Seller()
 		cashier := setup.Cashier()
-		item := setup.Item(seller.UserId, aux.WithDummyData(1))
+		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 		setup.Sale(cashier.UserId, []models.Id{item.ItemId})
 
 		soldItems, err := queries.GetSoldItems(db)
@@ -56,7 +56,7 @@ func TestGetSoldItems(t *testing.T) {
 
 		seller := setup.Seller()
 		cashier := setup.Cashier()
-		item := setup.Item(seller.UserId, aux.WithDummyData(1))
+		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 		setup.Sale(cashier.UserId, []models.Id{item.ItemId})
 		setup.Sale(cashier.UserId, []models.Id{item.ItemId})
 
@@ -72,8 +72,8 @@ func TestGetSoldItems(t *testing.T) {
 
 		seller := setup.Seller()
 		cashier := setup.Cashier()
-		item1 := setup.Item(seller.UserId, aux.WithDummyData(1))
-		item2 := setup.Item(seller.UserId, aux.WithDummyData(2))
+		item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+		item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false))
 		setup.Sale(cashier.UserId, []models.Id{item1.ItemId, item2.ItemId})
 
 		soldItems, err := queries.GetSoldItems(db)
@@ -89,8 +89,8 @@ func TestGetSoldItems(t *testing.T) {
 
 		seller := setup.Seller()
 		cashier := setup.Cashier()
-		item1 := setup.Item(seller.UserId, aux.WithDummyData(1))
-		item2 := setup.Item(seller.UserId, aux.WithDummyData(2))
+		item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+		item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false))
 		setup.Sale(cashier.UserId, []models.Id{item1.ItemId}, aux.WithTransactionTime(models.Timestamp(100)))
 		setup.Sale(cashier.UserId, []models.Id{item2.ItemId}, aux.WithTransactionTime(models.Timestamp(200)))
 

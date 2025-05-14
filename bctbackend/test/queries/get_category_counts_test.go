@@ -50,7 +50,7 @@ func TestGetCategoryCounts(t *testing.T) {
 
 		for categoryId, count := range countTable {
 			for i := int64(0); i < count; i++ {
-				setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithItemCategory(categoryId))
+				setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithItemCategory(categoryId), aux.WithHidden(false))
 			}
 		}
 

@@ -60,6 +60,7 @@ func TestUpdateItem(t *testing.T) {
 										aux.WithCharity(oldCharity),
 										aux.WithItemCategory(oldCategory),
 										aux.WithFrozen(false),
+										aux.WithHidden(false),
 									)
 
 									var itemUpdate queries.ItemUpdate
@@ -151,6 +152,7 @@ func TestUpdateItem(t *testing.T) {
 		item := setup.Item(
 			seller.UserId,
 			aux.WithFrozen(true),
+			aux.WithHidden(false),
 		)
 
 		itemUpdate := queries.ItemUpdate{}
@@ -170,6 +172,7 @@ func TestUpdateItem(t *testing.T) {
 		item := setup.Item(
 			seller.UserId,
 			aux.WithFrozen(false),
+			aux.WithHidden(false),
 		)
 
 		err := queries.UpdateItem(db, item.ItemId, nil)
@@ -186,6 +189,7 @@ func TestUpdateItem(t *testing.T) {
 		item := setup.Item(
 			seller.UserId,
 			aux.WithFrozen(false),
+			aux.WithHidden(false),
 		)
 
 		invalidPrice := models.MoneyInCents(-100)

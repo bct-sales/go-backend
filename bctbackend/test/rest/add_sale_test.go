@@ -25,7 +25,7 @@ func TestAddSale(t *testing.T) {
 
 		seller := setup.Seller()
 		cashier, sessionId := setup.LoggedIn(setup.Cashier())
-		item := setup.Item(seller.UserId, aux.WithDummyData(1))
+		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 		payload := rest_api.AddSalePayload{
 			Items: []models.Id{item.ItemId},
@@ -52,7 +52,7 @@ func TestAddSale(t *testing.T) {
 			defer setup.Close()
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
-			item := setup.Item(seller.UserId, aux.WithDummyData(1))
+			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId},
@@ -73,7 +73,7 @@ func TestAddSale(t *testing.T) {
 
 			_, sessionId := setup.LoggedIn(setup.Admin())
 			seller := setup.Seller()
-			item := setup.Item(seller.UserId, aux.WithDummyData(1))
+			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId},
 			}
@@ -132,7 +132,7 @@ func TestAddSale(t *testing.T) {
 
 			_, sessionId := setup.LoggedIn(setup.Cashier())
 			seller := setup.Seller()
-			item := setup.Item(seller.UserId, aux.WithDummyData(1))
+			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId, item.ItemId},
@@ -152,7 +152,7 @@ func TestAddSale(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			item := setup.Item(seller.UserId, aux.WithDummyData(1))
+			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId},
@@ -167,7 +167,7 @@ func TestAddSale(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			item := setup.Item(seller.UserId, aux.WithDummyData(1))
+			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{item.ItemId},

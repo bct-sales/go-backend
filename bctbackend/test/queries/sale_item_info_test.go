@@ -25,7 +25,7 @@ func TestGetSaleItemInformation(t *testing.T) {
 
 				seller := setup.Seller()
 				cashier := setup.Cashier()
-				item := setup.Item(seller.UserId, aux.WithDummyData(1))
+				item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 				for i := 0; i < sellCount; i++ {
 					setup.Sale(cashier.UserId, []models.Id{item.ItemId})

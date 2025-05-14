@@ -32,10 +32,10 @@ func TestGetSellerItems(t *testing.T) {
 		sellerWithoutItems := setup.Seller()
 		sellerWithItems := setup.Seller()
 
-		setup.Item(sellerWithItems.UserId, aux.WithDummyData(0))
-		setup.Item(sellerWithItems.UserId, aux.WithDummyData(1))
-		setup.Item(sellerWithItems.UserId, aux.WithDummyData(2))
-		setup.Item(sellerWithItems.UserId, aux.WithDummyData(3))
+		setup.Item(sellerWithItems.UserId, aux.WithDummyData(0), aux.WithHidden(false))
+		setup.Item(sellerWithItems.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+		setup.Item(sellerWithItems.UserId, aux.WithDummyData(2), aux.WithHidden(false))
+		setup.Item(sellerWithItems.UserId, aux.WithDummyData(3), aux.WithHidden(false))
 
 		items, err := queries.GetSellerItems(db, sellerWithoutItems.UserId)
 		require.NoError(t, err)
@@ -48,10 +48,10 @@ func TestGetSellerItems(t *testing.T) {
 
 		seller := setup.Seller()
 
-		item1 := setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithAddedAt(models.NewTimestamp(0)))
-		item2 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(models.NewTimestamp(0)))
-		item3 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(models.NewTimestamp(0)))
-		item4 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithAddedAt(models.NewTimestamp(0)))
+		item1 := setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithAddedAt(models.NewTimestamp(0)), aux.WithHidden(false))
+		item2 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(models.NewTimestamp(0)), aux.WithHidden(false))
+		item3 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(models.NewTimestamp(0)), aux.WithHidden(false))
+		item4 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithAddedAt(models.NewTimestamp(0)), aux.WithHidden(false))
 
 		items, err := queries.GetSellerItems(db, seller.UserId)
 		require.NoError(t, err)
@@ -64,10 +64,10 @@ func TestGetSellerItems(t *testing.T) {
 
 		seller := setup.Seller()
 
-		item1 := setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithAddedAt(models.NewTimestamp(4)))
-		item2 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(models.NewTimestamp(3)))
-		item3 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(models.NewTimestamp(2)))
-		item4 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithAddedAt(models.NewTimestamp(1)))
+		item1 := setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithAddedAt(models.NewTimestamp(4)), aux.WithHidden(false))
+		item2 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(models.NewTimestamp(3)), aux.WithHidden(false))
+		item3 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(models.NewTimestamp(2)), aux.WithHidden(false))
+		item4 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithAddedAt(models.NewTimestamp(1)), aux.WithHidden(false))
 
 		items, err := queries.GetSellerItems(db, seller.UserId)
 		require.NoError(t, err)

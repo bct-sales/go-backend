@@ -76,7 +76,7 @@ func TestGetAllItems(t *testing.T) {
 			seller := setup.Seller()
 
 			addedAtTimestamp := models.Timestamp(100)
-			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(addedAtTimestamp))
+			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(addedAtTimestamp), aux.WithHidden(false))
 
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
@@ -96,8 +96,8 @@ func TestGetAllItems(t *testing.T) {
 			_, sessionId := setup.LoggedIn(setup.Admin())
 			seller := setup.Seller()
 			addedAtTimestamp := models.Timestamp(500)
-			item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(addedAtTimestamp))
-			item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(addedAtTimestamp))
+			item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(addedAtTimestamp), aux.WithHidden(false))
+			item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(addedAtTimestamp), aux.WithHidden(false))
 
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)

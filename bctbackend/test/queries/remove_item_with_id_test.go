@@ -18,7 +18,7 @@ func TestRemoveExistingItem(t *testing.T) {
 	defer setup.Close()
 
 	seller := setup.Seller()
-	itemId := setup.Item(seller.UserId, aux.WithDummyData(1)).ItemId
+	itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemId
 
 	err := queries.RemoveItemWithId(db, itemId)
 
@@ -47,7 +47,7 @@ func TestRemoveSoldItem(t *testing.T) {
 
 	seller := setup.Seller()
 	cashier := setup.Cashier()
-	itemId := setup.Item(seller.UserId, aux.WithDummyData(1)).ItemId
+	itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemId
 
 	setup.Sale(cashier.UserId, []models.Id{itemId})
 

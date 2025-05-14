@@ -27,7 +27,7 @@ func TestGetSalesWithItem(t *testing.T) {
 				seller := setup.Seller()
 				cashier := setup.Cashier()
 
-				item := setup.Item(seller.UserId, aux.WithDummyData(1))
+				item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 				saleIds := make([]models.Id, saleCount)
 				for index := range saleIds {
@@ -47,8 +47,8 @@ func TestGetSalesWithItem(t *testing.T) {
 			seller := setup.Seller()
 			cashier := setup.Cashier()
 
-			item1 := setup.Item(seller.UserId, aux.WithDummyData(1))
-			item2 := setup.Item(seller.UserId, aux.WithDummyData(2))
+			item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+			item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false))
 
 			setup.Sale(cashier.UserId, []models.Id{item1.ItemId})
 			setup.Sale(cashier.UserId, []models.Id{item2.ItemId})
@@ -68,8 +68,8 @@ func TestGetSalesWithItem(t *testing.T) {
 			seller := setup.Seller()
 			cashier := setup.Cashier()
 
-			item1 := setup.Item(seller.UserId, aux.WithDummyData(1))
-			item2 := setup.Item(seller.UserId, aux.WithDummyData(2))
+			item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+			item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false))
 			invalidItemId := models.Id(1000)
 			setup.RequireNoSuchItem(t, invalidItemId)
 

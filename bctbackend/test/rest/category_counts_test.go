@@ -67,7 +67,7 @@ func TestCategoryCounts(t *testing.T) {
 
 				_, sessionId := setup.LoggedIn(setup.Admin())
 				seller := setup.Seller()
-				setup.Item(seller.UserId, aux.WithItemCategory(categoryId), aux.WithDummyData(1))
+				setup.Item(seller.UserId, aux.WithItemCategory(categoryId), aux.WithDummyData(1), aux.WithHidden(false))
 
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
@@ -86,8 +86,8 @@ func TestCategoryCounts(t *testing.T) {
 
 				_, sessionId := setup.LoggedIn(setup.Admin())
 				seller := setup.Seller()
-				setup.Item(seller.UserId, aux.WithItemCategory(categoryId), aux.WithDummyData(1))
-				setup.Item(seller.UserId, aux.WithItemCategory(categoryId), aux.WithDummyData(1))
+				setup.Item(seller.UserId, aux.WithItemCategory(categoryId), aux.WithDummyData(1), aux.WithHidden(false))
+				setup.Item(seller.UserId, aux.WithItemCategory(categoryId), aux.WithDummyData(1), aux.WithHidden(false))
 
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
@@ -107,8 +107,8 @@ func TestCategoryCounts(t *testing.T) {
 
 					_, sessionId := setup.LoggedIn(setup.Admin())
 					seller := setup.Seller()
-					setup.Item(seller.UserId, aux.WithItemCategory(categoryId1), aux.WithDummyData(1))
-					setup.Item(seller.UserId, aux.WithItemCategory(categoryId2), aux.WithDummyData(2))
+					setup.Item(seller.UserId, aux.WithItemCategory(categoryId1), aux.WithDummyData(1), aux.WithHidden(false))
+					setup.Item(seller.UserId, aux.WithItemCategory(categoryId2), aux.WithDummyData(2), aux.WithHidden(false))
 
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
 					router.ServeHTTP(writer, request)

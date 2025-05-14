@@ -28,7 +28,7 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 					expectedTotal := models.MoneyInCents(0)
 					for i := int64(0); i < itemCount; i++ {
 						price := models.MoneyInCents((i + 1) * 50)
-						setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price))
+						setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithHidden(false))
 						expectedTotal += price
 					}
 
@@ -52,8 +52,8 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 					expectedTotal := models.MoneyInCents(0)
 					for i := int64(0); i < itemCount; i++ {
 						price := models.MoneyInCents((i + 1) * 50)
-						setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price))
-						setup.Item(otherSeller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price))
+						setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithHidden(false))
+						setup.Item(otherSeller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithHidden(false))
 						expectedTotal += price
 					}
 

@@ -19,7 +19,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		defer setup.Close()
 
 		seller := setup.Seller()
-		setup.Item(seller.UserId, aux.WithDummyData(1))
+		setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
 
@@ -35,7 +35,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		cashier := setup.Cashier()
 
 		itemIds := []models.Id{
-			setup.Item(seller.UserId, aux.WithDummyData(1)).ItemId,
+			setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemId,
 		}
 
 		setup.Sale(cashier.UserId, []models.Id{itemIds[0]})
@@ -54,7 +54,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		cashier := setup.Cashier()
 
 		items := []*models.Item{
-			setup.Item(seller.UserId, aux.WithDummyData(1)),
+			setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)),
 		}
 
 		sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemId})
@@ -80,7 +80,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		cashier := setup.Cashier()
 
 		items := []*models.Item{
-			setup.Item(seller.UserId, aux.WithDummyData(1)),
+			setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)),
 		}
 
 		sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemId})
@@ -108,8 +108,8 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		cashier := setup.Cashier()
 
 		items := []*models.Item{
-			setup.Item(seller.UserId, aux.WithDummyData(1)),
-			setup.Item(seller.UserId, aux.WithDummyData(2)),
+			setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)),
+			setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false)),
 		}
 
 		sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemId, items[1].ItemId})
@@ -139,9 +139,9 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		cashier := setup.Cashier()
 
 		items := []*models.Item{
-			setup.Item(seller.UserId, aux.WithDummyData(1)),
-			setup.Item(seller.UserId, aux.WithDummyData(2)),
-			setup.Item(seller.UserId, aux.WithDummyData(3)),
+			setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)),
+			setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false)),
+			setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false)),
 		}
 
 		sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemId})

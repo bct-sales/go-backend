@@ -60,8 +60,7 @@ func (data *AddItemData) FillWithDefaults() {
 	}
 
 	if data.Hidden == nil {
-		hidden := false
-		data.Hidden = &hidden
+		panic("Hidden is nil")
 	}
 }
 

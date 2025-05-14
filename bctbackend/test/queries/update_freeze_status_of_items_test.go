@@ -37,7 +37,7 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 
 				itemIds := []models.Id{}
 				for i := 0; i != 10; i++ {
-					itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false)).ItemId)
+					itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemId)
 				}
 
 				err := queries.UpdateFreezeStatusOfItems(db, selection, true)
@@ -70,7 +70,7 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 
 			itemIds := []models.Id{}
 			for i := 0; i != 10; i++ {
-				itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false)).ItemId)
+				itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemId)
 			}
 			itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(10), aux.WithFrozen(false), aux.WithHidden(true)).ItemId)
 
@@ -93,7 +93,7 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 
 			itemIds := []models.Id{}
 			for i := 0; i != 10; i++ {
-				itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false)).ItemId)
+				itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemId)
 			}
 			itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(10), aux.WithFrozen(true), aux.WithHidden(true)).ItemId)
 

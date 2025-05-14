@@ -52,7 +52,7 @@ func TestGetUserInformation(t *testing.T) {
 
 						items := make([]*models.Item, item_count)
 						for i := 0; i < item_count; i++ {
-							items[i] = setup.Item(seller.UserId, aux.WithDummyData(i))
+							items[i] = setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
 						}
 
 						url := path.Users().WithUserId(seller.UserId)
@@ -98,7 +98,7 @@ func TestGetUserInformation(t *testing.T) {
 					cashier := setup.Cashier()
 					_, sessionId := setup.LoggedIn(setup.Admin())
 
-					item := setup.Item(seller.UserId, aux.WithDummyData(1))
+					item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 					saleId := setup.Sale(cashier.UserId, []models.Id{item.ItemId})
 
 					url := path.Users().WithUserId(cashier.UserId)
@@ -127,7 +127,7 @@ func TestGetUserInformation(t *testing.T) {
 							_, sessionId := setup.LoggedIn(setup.Admin())
 
 							algorithms.Repeat(saleCount, func() error {
-								item := setup.Item(seller.UserId, aux.WithDummyData(1))
+								item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 								setup.Sale(cashier.UserId, []models.Id{item.ItemId})
 								return nil
 							})
@@ -162,13 +162,13 @@ func TestGetUserInformation(t *testing.T) {
 
 						for i := int64(0); i != unfrozenItemCount; i++ {
 							price := models.NewMoneyInCents((i + 1) * 50)
-							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false), aux.WithPriceInCents(price))
+							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false), aux.WithPriceInCents(price), aux.WithHidden(false))
 							expectedTotal += price
 						}
 
 						for i := int64(0); i != frozenItemCount; i++ {
 							price := models.NewMoneyInCents((i + 1) * 50)
-							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true), aux.WithPriceInCents(price))
+							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true), aux.WithPriceInCents(price), aux.WithHidden(false))
 							expectedTotal += price
 						}
 

@@ -30,7 +30,7 @@ func TestGetItemInformation(t *testing.T) {
 
 					seller := setup.Seller()
 					cashier, sessionId := setup.LoggedIn(setup.Cashier())
-					item := setup.Item(seller.UserId, aux.WithDummyData(1))
+					item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 					saleIds := []models.Id{}
 					for i := 0; i < sale_count; i++ {
@@ -66,7 +66,7 @@ func TestGetItemInformation(t *testing.T) {
 			seller := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Admin())
 
-			item := setup.Item(seller.UserId, aux.WithDummyData(1))
+			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			url := path.Items().Id(item.ItemId)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -92,7 +92,7 @@ func TestGetItemInformation(t *testing.T) {
 			defer setup.Close()
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
-			item := setup.Item(seller.UserId, aux.WithDummyData(1))
+			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			url := path.Items().Id(item.ItemId)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -132,7 +132,7 @@ func TestGetItemInformation(t *testing.T) {
 
 				_, sessionId := setup.LoggedIn(setup.Seller())
 				ownerSeller := setup.Seller()
-				item := setup.Item(ownerSeller.UserId, aux.WithDummyData(1))
+				item := setup.Item(ownerSeller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 				url := path.Items().Id(item.ItemId)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -169,7 +169,7 @@ func TestGetItemInformation(t *testing.T) {
 
 				seller := setup.Seller()
 				cashier := setup.Cashier()
-				item := setup.Item(seller.UserId, aux.WithDummyData(1))
+				item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 				for i := 0; i < sale_count; i++ {
 					setup.Sale(cashier.UserId, []models.Id{item.ItemId})

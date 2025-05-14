@@ -21,7 +21,7 @@ func TestContainsFrozenItems(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false))
+			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
 			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
 
 			result, err := queries.ContainsFrozenItems(db, itemIds)
@@ -34,8 +34,8 @@ func TestContainsFrozenItems(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false))
-			items = append(items, setup.Item(seller.UserId, aux.WithFrozen(true)))
+			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			items = append(items, setup.Item(seller.UserId, aux.WithFrozen(true), aux.WithHidden(false)))
 			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
 
 			result, err := queries.ContainsFrozenItems(db, itemIds)
@@ -48,7 +48,7 @@ func TestContainsFrozenItems(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false))
+			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
 			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
 			itemIds = append(itemIds, itemIds...)
 
@@ -62,8 +62,8 @@ func TestContainsFrozenItems(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false))
-			items = append(items, setup.Item(seller.UserId, aux.WithFrozen(true)))
+			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			items = append(items, setup.Item(seller.UserId, aux.WithFrozen(true), aux.WithHidden(false)))
 			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
 			itemIds = append(itemIds, itemIds...)
 
@@ -77,8 +77,8 @@ func TestContainsFrozenItems(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false))
-			items = append(items, setup.Item(seller.UserId, aux.WithFrozen(true)))
+			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			items = append(items, setup.Item(seller.UserId, aux.WithFrozen(true), aux.WithHidden(false)))
 			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
 			itemIds = append(itemIds, itemIds...)
 
@@ -109,7 +109,7 @@ func TestContainsFrozenItems(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false))
+			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
 			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
 			nonexistentItemId := models.Id(1000)
 			setup.RequireNoSuchItem(t, nonexistentItemId)

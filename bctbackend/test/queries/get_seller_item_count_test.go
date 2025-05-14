@@ -26,7 +26,7 @@ func TestGetSellerItemCount(t *testing.T) {
 					seller := setup.Seller()
 
 					for i := int64(0); i < itemCount; i++ {
-						setup.Item(seller.UserId, aux.WithDummyData(int(i)))
+						setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithHidden(false))
 					}
 
 					actual, err := queries.GetSellerItemCount(db, seller.UserId)
@@ -47,8 +47,8 @@ func TestGetSellerItemCount(t *testing.T) {
 					otherSeller := setup.Seller()
 
 					for i := int64(0); i < itemCount; i++ {
-						setup.Item(seller.UserId, aux.WithDummyData(int(i)))
-						setup.Item(otherSeller.UserId, aux.WithDummyData(int(3*i)))
+						setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithHidden(false))
+						setup.Item(otherSeller.UserId, aux.WithDummyData(int(3*i)), aux.WithHidden(false))
 					}
 
 					actual, err := queries.GetSellerItemCount(db, seller.UserId)
@@ -66,7 +66,7 @@ func TestGetSellerItemCount(t *testing.T) {
 
 			itemCount := int64(10)
 			for i := int64(0); i < itemCount; i++ {
-				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true))
+				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true), aux.WithHidden(false))
 			}
 
 			actual, err := queries.GetSellerItemCount(db, seller.UserId)

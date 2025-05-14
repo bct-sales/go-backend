@@ -32,7 +32,7 @@ func TestListSellerItems(t *testing.T) {
 
 						expectedItems := []*rest.GetSellerItemsItemData{}
 						for i := 0; i < itemCount; i++ {
-							item := setup.Item(seller.UserId, aux.WithDummyData(i))
+							item := setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
 							expectedItems = append(expectedItems, &rest.GetSellerItemsItemData{
 								ItemId:       item.ItemId,
 								Description:  item.Description,
@@ -69,7 +69,7 @@ func TestListSellerItems(t *testing.T) {
 
 			expectedItems := []*rest.GetSellerItemsItemData{}
 			for i := 0; i < itemCount; i++ {
-				item := setup.Item(seller.UserId, aux.WithDummyData(i))
+				item := setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
 				expectedItems = append(expectedItems, &rest.GetSellerItemsItemData{
 					ItemId:       item.ItemId,
 					Description:  item.Description,
@@ -102,7 +102,7 @@ func TestListSellerItems(t *testing.T) {
 			itemCount := 10
 
 			for i := 0; i < itemCount; i++ {
-				setup.Item(seller.UserId, aux.WithDummyData(i))
+				setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
 			}
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
@@ -120,7 +120,7 @@ func TestListSellerItems(t *testing.T) {
 			itemCount := 10
 
 			for i := 0; i < itemCount; i++ {
-				setup.Item(itemOwningSeller.UserId, aux.WithDummyData(i))
+				setup.Item(itemOwningSeller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
 			}
 
 			url := path.SellerItems().WithSellerId(itemOwningSeller.UserId)
@@ -138,7 +138,7 @@ func TestListSellerItems(t *testing.T) {
 			itemCount := 10
 
 			for i := 0; i < itemCount; i++ {
-				setup.Item(itemOwningSeller.UserId, aux.WithDummyData(i))
+				setup.Item(itemOwningSeller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
 			}
 
 			url := path.SellerItems().WithSellerId(itemOwningSeller.UserId)
@@ -155,7 +155,7 @@ func TestListSellerItems(t *testing.T) {
 			itemCount := 10
 
 			for i := 0; i < itemCount; i++ {
-				setup.Item(seller.UserId, aux.WithDummyData(i))
+				setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
 			}
 
 			url := path.SellerItems().WithRawSellerId("xxx")

@@ -27,10 +27,10 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 						seller := setup.Seller()
 
 						for i := int64(0); i < frozenItemCount; i++ {
-							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true))
+							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true), aux.WithHidden(false))
 						}
 						for i := int64(0); i < unfrozenItemCount; i++ {
-							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false))
+							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false), aux.WithHidden(false))
 						}
 
 						actual, err := queries.GetSellerFrozenItemCount(db, seller.UserId)
@@ -53,12 +53,12 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 						otherSeller := setup.Seller()
 
 						for i := int64(0); i < frozenItemCount; i++ {
-							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true))
-							setup.Item(otherSeller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true))
+							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true), aux.WithHidden(false))
+							setup.Item(otherSeller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true), aux.WithHidden(false))
 						}
 						for i := int64(0); i < unfrozenItemCount; i++ {
-							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false))
-							setup.Item(otherSeller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false))
+							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false), aux.WithHidden(false))
+							setup.Item(otherSeller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false), aux.WithHidden(false))
 						}
 
 						actual, err := queries.GetSellerFrozenItemCount(db, seller.UserId)
