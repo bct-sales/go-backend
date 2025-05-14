@@ -63,7 +63,7 @@ func TestContainsHiddenItems(t *testing.T) {
 
 			seller := setup.Seller()
 			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-			items = append(setup.Items(seller.UserId, 10, aux.WithHidden(true)))
+			items = append(items, setup.Item(seller.UserId, aux.WithHidden(true)))
 			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
 			itemIds = append(itemIds, itemIds...)
 
