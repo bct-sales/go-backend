@@ -62,7 +62,7 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 			require.Error(t, err)
 		})
 
-		t.Run("Frozen item", func(t *testing.T) {
+		t.Run("Hidden item", func(t *testing.T) {
 			setup, db := NewDatabaseFixture()
 			defer setup.Close()
 
