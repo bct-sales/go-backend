@@ -5,16 +5,7 @@ import (
 	"bctbackend/database/models"
 	"database/sql"
 	"errors"
-	"log"
 )
-
-func rollbackTransaction(transaction *sql.Tx, err error) error {
-	if rollbackError := transaction.Rollback(); rollbackError != nil {
-		log.Fatalf("Transaction rollback failed! Transaction error: %v, rollback error: %v", err, rollbackError)
-	}
-
-	return err
-}
 
 // AddSale adds a sale to the database.
 // A SaleMissingItemsError is returned if itemIds is empty.
@@ -50,22 +41,23 @@ func AddSale(
 	}
 
 	// Start a transaction.
-	transaction, err := db.Begin()
+	transactionHelper, err := NewTransaction(db)
 	if err != nil {
 		return 0, err
 	}
+	defer transactionHelper.Rollback()
 
 	// Check that all items exist and are not hidden.
-	containsHiddenItems, err := ContainsHiddenItems(transaction, itemIds)
+	containsHiddenItems, err := ContainsHiddenItems(transactionHelper.Transaction, itemIds)
 	if err != nil {
-		return 0, rollbackTransaction(transaction, err)
+		return 0, err
 	}
 	if containsHiddenItems {
-		return 0, rollbackTransaction(transaction, &ItemHiddenError{})
+		return 0, &ItemHiddenError{}
 	}
 
 	// Create sale
-	result, err := transaction.Exec(
+	result, err := transactionHelper.Transaction.Exec(
 		`
 			INSERT INTO sales(cashier_id, transaction_time)
 			VALUES (?, ?)
@@ -74,17 +66,17 @@ func AddSale(
 		transactionTime,
 	)
 	if err != nil {
-		return 0, rollbackTransaction(transaction, err)
+		return 0, err
 	}
 
 	saleId, err := result.LastInsertId()
 	if err != nil {
-		return 0, rollbackTransaction(transaction, err)
+		return 0, err
 	}
 
 	// Add items to sale
 	for _, itemId := range itemIds {
-		_, err := transaction.Exec(
+		_, err := transactionHelper.Transaction.Exec(
 			`
 				INSERT INTO sale_items(sale_id, item_id)
 				VALUES (?, ?)
@@ -94,13 +86,13 @@ func AddSale(
 		)
 
 		if err != nil {
-			return 0, rollbackTransaction(transaction, err)
+			return 0, err
 		}
 	}
 
-	err = transaction.Commit()
+	err = transactionHelper.Transaction.Commit()
 	if err != nil {
-		return 0, rollbackTransaction(transaction, err)
+		return 0, err
 	}
 
 	return saleId, nil
@@ -239,12 +231,13 @@ func RemoveSale(db *sql.DB, saleId models.Id) error {
 		return &NoSuchSaleError{SaleId: saleId}
 	}
 
-	transaction, err := db.Begin()
+	transactionHelper, err := NewTransaction(db)
 	if err != nil {
 		return err
 	}
+	defer transactionHelper.Transaction.Rollback()
 
-	_, err = transaction.Exec(
+	_, err = transactionHelper.Transaction.Exec(
 		`
 			DELETE FROM sale_items
 			WHERE sale_id = ?
@@ -253,10 +246,10 @@ func RemoveSale(db *sql.DB, saleId models.Id) error {
 	)
 
 	if err != nil {
-		return rollbackTransaction(transaction, err)
+		return err
 	}
 
-	_, err = transaction.Exec(
+	_, err = transactionHelper.Transaction.Exec(
 		`
 			DELETE FROM sales
 			WHERE sale_id = ?
@@ -265,13 +258,13 @@ func RemoveSale(db *sql.DB, saleId models.Id) error {
 	)
 
 	if err != nil {
-		return rollbackTransaction(transaction, err)
+		return err
 	}
 
-	err = transaction.Commit()
+	err = transactionHelper.Commit()
 
 	if err != nil {
-		return rollbackTransaction(transaction, err)
+		return err
 	}
 
 	return nil
