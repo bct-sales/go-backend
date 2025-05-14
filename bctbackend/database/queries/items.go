@@ -477,6 +477,52 @@ func ContainsHiddenItems(qh QueryHandler, itemIds []models.Id) (r_result bool, r
 	return hiddenFound, nil
 }
 
+func ContainsFrozenItems(qh QueryHandler, itemIds []models.Id) (r_result bool, r_err error) {
+	if len(itemIds) == 0 {
+		return false, nil
+	}
+
+	itemIds = algorithms.RemoveDuplicates(itemIds)
+
+	query := fmt.Sprintf(`
+		SELECT frozen, COUNT(item_id)
+		FROM items
+		WHERE item_id IN (%s)
+		GROUP BY frozen
+	`, placeholderString(len(itemIds)))
+
+	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
+	rows, err := qh.Query(query, convertedItemIds...)
+	if err != nil {
+		return false, fmt.Errorf("failed to query items: %w", err)
+	}
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
+
+	totalCount := 0
+	frozenFound := false
+	for rows.Next() {
+		var hidden bool
+		var count int
+
+		err = rows.Scan(&hidden, &count)
+		if err != nil {
+			return false, fmt.Errorf("failed to scan items: %w", err)
+		}
+
+		if hidden && count > 0 {
+			frozenFound = true
+		}
+
+		totalCount += count
+	}
+
+	if totalCount != len(itemIds) {
+		return false, &NoSuchItemError{Id: nil}
+	}
+
+	return frozenFound, nil
+}
+
 func IsItemFrozen(db *sql.DB, itemId models.Id) (bool, error) {
 	row := db.QueryRow(
 		`
