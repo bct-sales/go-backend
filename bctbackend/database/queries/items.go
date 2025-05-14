@@ -431,6 +431,56 @@ func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) (r_
 	return nil
 }
 
+func UpdateHiddenStatusOfItems(db *sql.DB, itemIds []models.Id, hidden bool) (r_err error) {
+	if len(itemIds) == 0 {
+		return nil
+	}
+
+	itemIds = algorithms.RemoveDuplicates(itemIds)
+	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
+
+	transaction, err := db.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	transactionCommitted := false
+	defer func() {
+		if !transactionCommitted {
+			r_err = errors.Join(r_err, transaction.Rollback())
+		}
+	}()
+
+	// Check if all items exist and none are frozen
+	containsFrozen, err := ContainsFrozenItems(transaction, itemIds)
+	if err != nil {
+		return fmt.Errorf("failed to check for frozen items: %w", err)
+	}
+	if containsFrozen {
+		return &ItemHiddenError{}
+	}
+
+	query := fmt.Sprintf(`
+		UPDATE items
+		SET hidden = ?
+		WHERE item_id IN (%s)
+	`, placeholderString(len(itemIds)))
+
+	sqlValues := append([]any{hidden}, convertedItemIds...)
+
+	if _, err := transaction.Exec(query, sqlValues...); err != nil {
+		return err
+	}
+
+	if err := transaction.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	// Signals that no rollback is needed
+	transactionCommitted = true
+
+	return nil
+}
+
 func ContainsHiddenItems(qh QueryHandler, itemIds []models.Id) (r_result bool, r_err error) {
 	if len(itemIds) == 0 {
 		return false, nil
