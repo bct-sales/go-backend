@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/algorithms"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -16,19 +17,15 @@ import (
 
 func TestAddSale(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		for _, itemIndices := range [][]int{{0}, {1}, {2}, {3}, {0, 1}, {1, 2, 3}, {0, 1, 2, 3}} {
+		for _, itemIndices := range [][]int{{0}, {1}, {2}, {3}, {0, 1}, {1, 2, 3}, {0, 1, 2, 3}, algorithms.Range(0, 10)} {
 			setup, db := NewDatabaseFixture()
 			defer setup.Close()
 
 			seller := setup.Seller()
 			cashier := setup.Cashier()
 
-			itemIds := []models.Id{
-				setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemId,
-				setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false)).ItemId,
-				setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false)).ItemId,
-				setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false)).ItemId,
-			}
+			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
+			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
 
 			saleItemIds := make([]models.Id, len(itemIndices))
 			for index, itemIndex := range itemIndices {
