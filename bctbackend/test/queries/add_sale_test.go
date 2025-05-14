@@ -23,10 +23,10 @@ func TestAddSale(t *testing.T) {
 		cashier := setup.Cashier()
 
 		itemIds := []models.Id{
-			setup.Item(seller.UserId, aux.WithDummyData(1)).ItemId,
-			setup.Item(seller.UserId, aux.WithDummyData(2)).ItemId,
-			setup.Item(seller.UserId, aux.WithDummyData(3)).ItemId,
-			setup.Item(seller.UserId, aux.WithDummyData(4)).ItemId,
+			setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemId,
+			setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false)).ItemId,
+			setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false)).ItemId,
+			setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false)).ItemId,
 		}
 
 		saleItemIds := make([]models.Id, len(itemIndices))
