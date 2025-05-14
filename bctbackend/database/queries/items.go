@@ -432,6 +432,12 @@ func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) (r_
 }
 
 func ContainsHiddenItems(qh QueryHandler, itemIds []models.Id) (r_result bool, r_err error) {
+	if len(itemIds) == 0 {
+		return false, nil
+	}
+
+	itemIds = algorithms.RemoveDuplicates(itemIds)
+
 	query := fmt.Sprintf(`
 		SELECT hidden, COUNT(item_id)
 		FROM items
