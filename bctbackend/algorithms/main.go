@@ -81,3 +81,14 @@ func RemoveDuplicates[T comparable](values []T) []T {
 	set := NewSet(values...)
 	return set.ToSlice()
 }
+
+func Range(start, end int) []int {
+	size := max(end-start, 0)
+	result := make([]int, size)
+
+	for i := start; i != size; i++ {
+		result[i] = start + i
+	}
+
+	return result
+}
