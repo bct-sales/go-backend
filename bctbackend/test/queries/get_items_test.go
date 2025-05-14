@@ -19,7 +19,7 @@ func TestGetItems(t *testing.T) {
 		defer setup.Close()
 
 		items := []*models.Item{}
-		err := queries.GetItems(db, queries.CollectTo(&items))
+		err := queries.GetItems(db, queries.CollectTo(&items), true)
 		require.NoError(t, err)
 		require.Equal(t, 0, len(items))
 	})
@@ -32,7 +32,7 @@ func TestGetItems(t *testing.T) {
 		item := setup.Item(seller.UserId, aux.WithDummyData(1))
 
 		items := []*models.Item{}
-		err := queries.GetItems(db, queries.CollectTo(&items))
+		err := queries.GetItems(db, queries.CollectTo(&items), true)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(items))
 		require.Equal(t, item.ItemId, items[0].ItemId)
@@ -47,7 +47,7 @@ func TestGetItems(t *testing.T) {
 		item2 := setup.Item(seller.UserId, aux.WithDummyData(2))
 
 		items := []*models.Item{}
-		err := queries.GetItems(db, queries.CollectTo(&items))
+		err := queries.GetItems(db, queries.CollectTo(&items), true)
 		require.NoError(t, err)
 		require.Equal(t, 2, len(items))
 		require.Equal(t, item1.ItemId, items[0].ItemId)

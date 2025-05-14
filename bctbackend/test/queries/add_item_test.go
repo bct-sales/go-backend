@@ -46,7 +46,7 @@ func TestAddItem(t *testing.T) {
 												}
 
 												items := []*models.Item{}
-												err = queries.GetItems(db, queries.CollectTo(&items))
+												err = queries.GetItems(db, queries.CollectTo(&items), true)
 												require.NoError(t, err)
 												require.Equal(t, 1, len(items))
 
@@ -59,6 +59,7 @@ func TestAddItem(t *testing.T) {
 												require.Equal(t, donation, item.Donation)
 												require.Equal(t, charity, item.Charity)
 												require.Equal(t, frozen, item.Frozen)
+												require.Equal(t, hidden, item.Hidden)
 											})
 										}
 									}

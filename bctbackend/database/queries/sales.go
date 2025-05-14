@@ -314,7 +314,7 @@ func GetItemsSoldBy(db *sql.DB, cashierId models.Id) (r_result []*models.Item, r
 
 	rows, err := db.Query(
 		`
-			SELECT i.item_id, i.added_at, i.description, i.price_in_cents, i.item_category_id, i.seller_id, i.donation, i.charity, i.frozen
+			SELECT i.item_id, i.added_at, i.description, i.price_in_cents, i.item_category_id, i.seller_id, i.donation, i.charity, i.frozen, i.hidden
 			FROM sale_items si
 			INNER JOIN items i ON si.item_id = i.item_id
 			INNER JOIN sales s ON si.sale_id = s.sale_id
@@ -341,14 +341,15 @@ func GetItemsSoldBy(db *sql.DB, cashierId models.Id) (r_result []*models.Item, r
 		var donation bool
 		var charity bool
 		var frozen bool
+		var hidden bool
 
-		err := rows.Scan(&itemId, &addedAt, &description, &priceInCents, &categoryId, &sellerId, &donation, &charity, &frozen)
+		err := rows.Scan(&itemId, &addedAt, &description, &priceInCents, &categoryId, &sellerId, &donation, &charity, &frozen, &hidden)
 
 		if err != nil {
 			return nil, err
 		}
 
-		item := models.NewItem(itemId, addedAt, description, priceInCents, categoryId, sellerId, donation, charity, frozen)
+		item := models.NewItem(itemId, addedAt, description, priceInCents, categoryId, sellerId, donation, charity, frozen, hidden)
 		items = append(items, item)
 	}
 
