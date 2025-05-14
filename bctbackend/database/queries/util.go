@@ -14,39 +14,47 @@ func placeholderString(placeholderCount int) string {
 	return strings.Join(placeholders, ", ")
 }
 
-type TransactionHelper struct {
-	Transaction *sql.Tx
+type Transaction struct {
+	transaction *sql.Tx
 	committed   bool
 }
 
-func NewTransaction(db *sql.DB) (*TransactionHelper, error) {
+func NewTransaction(db *sql.DB) (*Transaction, error) {
 	tx, err := db.Begin()
 	if err != nil {
 		return nil, err
 	}
 
-	return &TransactionHelper{
-		Transaction: tx,
+	return &Transaction{
+		transaction: tx,
 	}, nil
 }
 
-func (th *TransactionHelper) Commit() error {
-	if err := th.Transaction.Commit(); err != nil {
+func (t *Transaction) Commit() error {
+	if err := t.transaction.Commit(); err != nil {
 		return err
 	}
 
-	th.committed = true
+	t.committed = true
 	return nil
 }
 
-func (th *TransactionHelper) Rollback() error {
-	if th.committed {
+func (t *Transaction) Rollback() error {
+	if t.committed {
 		return nil
 	}
 
-	if err := th.Transaction.Rollback(); err != nil {
+	if err := t.transaction.Rollback(); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (t *Transaction) Exec(query string, args ...any) (sql.Result, error) {
+	return t.transaction.Exec(query, args...)
+}
+
+func (t *Transaction) Query(query string, args ...any) (*sql.Rows, error) {
+	return t.transaction.Query(query, args...)
 }

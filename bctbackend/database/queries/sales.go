@@ -41,14 +41,14 @@ func AddSale(
 	}
 
 	// Start a transaction.
-	transactionHelper, err := NewTransaction(db)
+	transaction, err := NewTransaction(db)
 	if err != nil {
 		return 0, err
 	}
-	defer transactionHelper.Rollback()
+	defer transaction.Rollback()
 
 	// Check that all items exist and are not hidden.
-	containsHiddenItems, err := ContainsHiddenItems(transactionHelper.Transaction, itemIds)
+	containsHiddenItems, err := ContainsHiddenItems(transaction.transaction, itemIds)
 	if err != nil {
 		return 0, err
 	}
@@ -57,7 +57,7 @@ func AddSale(
 	}
 
 	// Create sale
-	result, err := transactionHelper.Transaction.Exec(
+	result, err := transaction.Exec(
 		`
 			INSERT INTO sales(cashier_id, transaction_time)
 			VALUES (?, ?)
@@ -76,7 +76,7 @@ func AddSale(
 
 	// Add items to sale
 	for _, itemId := range itemIds {
-		_, err := transactionHelper.Transaction.Exec(
+		_, err := transaction.Exec(
 			`
 				INSERT INTO sale_items(sale_id, item_id)
 				VALUES (?, ?)
@@ -90,7 +90,7 @@ func AddSale(
 		}
 	}
 
-	err = transactionHelper.Transaction.Commit()
+	err = transaction.transaction.Commit()
 	if err != nil {
 		return 0, err
 	}
@@ -231,13 +231,13 @@ func RemoveSale(db *sql.DB, saleId models.Id) error {
 		return &NoSuchSaleError{SaleId: saleId}
 	}
 
-	transactionHelper, err := NewTransaction(db)
+	transaction, err := NewTransaction(db)
 	if err != nil {
 		return err
 	}
-	defer transactionHelper.Transaction.Rollback()
+	defer transaction.transaction.Rollback()
 
-	_, err = transactionHelper.Transaction.Exec(
+	_, err = transaction.Exec(
 		`
 			DELETE FROM sale_items
 			WHERE sale_id = ?
@@ -249,7 +249,7 @@ func RemoveSale(db *sql.DB, saleId models.Id) error {
 		return err
 	}
 
-	_, err = transactionHelper.Transaction.Exec(
+	_, err = transaction.Exec(
 		`
 			DELETE FROM sales
 			WHERE sale_id = ?
@@ -261,7 +261,7 @@ func RemoveSale(db *sql.DB, saleId models.Id) error {
 		return err
 	}
 
-	err = transactionHelper.Commit()
+	err = transaction.Commit()
 
 	if err != nil {
 		return err
