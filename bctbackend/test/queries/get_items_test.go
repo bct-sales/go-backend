@@ -7,6 +7,7 @@ import (
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,43 +15,32 @@ import (
 )
 
 func TestGetItems(t *testing.T) {
-	t.Run("Empty", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
+	t.Run("Success", func(t *testing.T) {
+		for _, itemCount := range []int{0, 1, 2, 10} {
+			testLabel := fmt.Sprintf("Item count: %d", itemCount)
+			t.Run(testLabel, func(t *testing.T) {
+				setup, db := NewDatabaseFixture()
+				defer setup.Close()
 
-		items := []*models.Item{}
-		err := queries.GetItems(db, queries.CollectTo(&items), true)
-		require.NoError(t, err)
-		require.Equal(t, 0, len(items))
-	})
+				seller := setup.Seller()
+				items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
 
-	t.Run("One item", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
+				actualItems := []*models.Item{}
+				err := queries.GetItems(db, queries.CollectTo(&actualItems), true)
+				require.NoError(t, err)
+				require.Equal(t, itemCount, len(items))
 
-		seller := setup.Seller()
-		item := setup.Item(seller.UserId, aux.WithDummyData(1))
-
-		items := []*models.Item{}
-		err := queries.GetItems(db, queries.CollectTo(&items), true)
-		require.NoError(t, err)
-		require.Equal(t, 1, len(items))
-		require.Equal(t, item.ItemId, items[0].ItemId)
-	})
-
-	t.Run("Two items", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
-
-		seller := setup.Seller()
-		item1 := setup.Item(seller.UserId, aux.WithDummyData(1))
-		item2 := setup.Item(seller.UserId, aux.WithDummyData(2))
-
-		items := []*models.Item{}
-		err := queries.GetItems(db, queries.CollectTo(&items), true)
-		require.NoError(t, err)
-		require.Equal(t, 2, len(items))
-		require.Equal(t, item1.ItemId, items[0].ItemId)
-		require.Equal(t, item2.ItemId, items[1].ItemId)
+				for i, item := range items {
+					require.Equal(t, item.ItemId, actualItems[i].ItemId)
+					require.Equal(t, item.Description, actualItems[i].Description)
+					require.Equal(t, item.PriceInCents, actualItems[i].PriceInCents)
+					require.Equal(t, item.SellerId, actualItems[i].SellerId)
+					require.Equal(t, item.CategoryId, actualItems[i].CategoryId)
+					require.Equal(t, item.AddedAt, actualItems[i].AddedAt)
+					require.Equal(t, item.Frozen, actualItems[i].Frozen)
+					require.Equal(t, item.Hidden, actualItems[i].Hidden)
+				}
+			})
+		}
 	})
 }
