@@ -456,7 +456,7 @@ func UpdateHiddenStatusOfItems(db *sql.DB, itemIds []models.Id, hidden bool) (r_
 		return fmt.Errorf("failed to check for frozen items: %w", err)
 	}
 	if containsFrozen {
-		return &ItemHiddenError{}
+		return &ItemFrozenError{}
 	}
 
 	query := fmt.Sprintf(`
