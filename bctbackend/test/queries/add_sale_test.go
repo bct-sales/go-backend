@@ -93,10 +93,11 @@ func TestAddSale(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
+			cashier := setup.Cashier()
 			timestamp := models.NewTimestamp(0)
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-			_, err := queries.AddSale(db, seller.UserId, timestamp, []models.Id{item.ItemId, item.ItemId})
+			_, err := queries.AddSale(db, cashier.UserId, timestamp, []models.Id{item.ItemId, item.ItemId})
 			var duplicateItemError *queries.DuplicateItemInSaleError
 			require.ErrorAs(t, err, &duplicateItemError)
 		})
@@ -106,10 +107,11 @@ func TestAddSale(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
+			cashier := setup.Cashier()
 			timestamp := models.NewTimestamp(0)
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(true))
 
-			_, err := queries.AddSale(db, seller.UserId, timestamp, []models.Id{item.ItemId, item.ItemId})
+			_, err := queries.AddSale(db, cashier.UserId, timestamp, []models.Id{item.ItemId})
 			var itemHiddenError *queries.ItemHiddenError
 			require.ErrorAs(t, err, &itemHiddenError)
 		})
