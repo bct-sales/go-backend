@@ -574,27 +574,7 @@ func ContainsFrozenItems(qh QueryHandler, itemIds []models.Id) (r_result bool, r
 }
 
 func IsItemFrozen(db *sql.DB, itemId models.Id) (bool, error) {
-	row := db.QueryRow(
-		`
-			SELECT frozen
-			FROM items
-			WHERE item_id = $1
-		`,
-		itemId,
-	)
-
-	var isFrozen bool
-	err := row.Scan(&isFrozen)
-
-	if errors.Is(err, sql.ErrNoRows) {
-		return false, &NoSuchItemError{Id: &itemId}
-	}
-
-	if err != nil {
-		return false, err
-	}
-
-	return isFrozen, nil
+	return ContainsFrozenItems(db, []models.Id{itemId})
 }
 
 func RemoveItemWithId(db *sql.DB, itemId models.Id) error {
