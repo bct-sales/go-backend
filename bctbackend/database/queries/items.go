@@ -577,6 +577,10 @@ func IsItemFrozen(db *sql.DB, itemId models.Id) (bool, error) {
 	return ContainsFrozenItems(db, []models.Id{itemId})
 }
 
+func IsItemHidden(db *sql.DB, itemId models.Id) (bool, error) {
+	return ContainsHiddenItems(db, []models.Id{itemId})
+}
+
 func RemoveItemWithId(db *sql.DB, itemId models.Id) error {
 	itemExists, err := ItemWithIdExists(db, itemId)
 
