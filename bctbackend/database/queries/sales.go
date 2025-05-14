@@ -49,15 +49,13 @@ func AddSale(
 		return 0, &SaleRequiresCashierError{}
 	}
 
-	// Ensure that all items exists
-	for _, itemId := range itemIds {
-		itemExists, err := ItemWithIdExists(db, itemId)
-		if err != nil {
-			return 0, err
-		}
-		if !itemExists {
-			return 0, &NoSuchItemError{Id: &itemId}
-		}
+	// Check that all items exist and are not hidden.
+	containsHiddenItems, err := ContainsHiddenItems(db, itemIds)
+	if err != nil {
+		return 0, err
+	}
+	if containsHiddenItems {
+		return 0, &ItemHiddenError{}
 	}
 
 	// Start a transaction.
