@@ -100,5 +100,18 @@ func TestAddSale(t *testing.T) {
 			var duplicateItemError *queries.DuplicateItemInSaleError
 			require.ErrorAs(t, err, &duplicateItemError)
 		})
+
+		t.Run("Hidden item in sale", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			seller := setup.Seller()
+			timestamp := models.NewTimestamp(0)
+			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(true))
+
+			_, err := queries.AddSale(db, seller.UserId, timestamp, []models.Id{item.ItemId, item.ItemId})
+			var itemHiddenError *queries.ItemHiddenError
+			require.ErrorAs(t, err, &itemHiddenError)
+		})
 	})
 }
