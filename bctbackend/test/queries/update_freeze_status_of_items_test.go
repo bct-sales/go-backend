@@ -47,7 +47,7 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 					isFrozen, err := queries.IsItemFrozen(db, itemId)
 					expectedFrozen := slices.Contains(selection, itemId)
 					assert.NoError(t, err)
-					assert.Equal(t, expectedFrozen, isFrozen, "items[%d].frozen should be %v", itemId, expectedFrozen)
+					assert.Equal(t, expectedFrozen, isFrozen, "item [%d] should have frozen=%v", itemId, expectedFrozen)
 				}
 			})
 		}
