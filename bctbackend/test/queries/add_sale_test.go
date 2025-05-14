@@ -78,6 +78,19 @@ func TestAddSale(t *testing.T) {
 			require.Error(t, err)
 		})
 
+		t.Run("As admin", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			seller := setup.Seller()
+			admin := setup.Admin()
+			timestamp := models.NewTimestamp(0)
+			itemId := setup.Item(seller.UserId, aux.WithDummyData(1)).ItemId
+
+			_, err := queries.AddSale(db, admin.UserId, timestamp, []models.Id{itemId})
+			require.Error(t, err)
+		})
+
 		t.Run("Duplicate item in sale", func(t *testing.T) {
 			setup, db := NewDatabaseFixture()
 			defer setup.Close()
