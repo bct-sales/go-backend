@@ -18,16 +18,16 @@ import (
 func TestGetItemsWithIds(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		selections := [][]models.Id{
-			[]models.Id{},
-			[]models.Id{1},
-			[]models.Id{2},
-			[]models.Id{1, 2},
-			[]models.Id{2, 1},
-			[]models.Id{1, 2, 3},
-			[]models.Id{1, 2, 3, 4},
-			[]models.Id{1, 2, 4},
-			[]models.Id{1, 1},
-			[]models.Id{1, 2, 3, 1, 2, 3},
+			[]{},
+			[]{1},
+			[]{2},
+			[]{1, 2},
+			[]{2, 1},
+			[]{1, 2, 3},
+			[]{1, 2, 3, 4},
+			[]{1, 2, 4},
+			[]{1, 1},
+			[]{1, 2, 3, 1, 2, 3},
 		}
 		for _, selection := range selections {
 			testLabel := fmt.Sprintf("Selection: %v", selection)
