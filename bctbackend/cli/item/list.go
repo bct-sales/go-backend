@@ -11,7 +11,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func ListItems(databasePath string) (r_err error) {
+func ListItems(databasePath string, showHidden bool) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
@@ -21,7 +21,7 @@ func ListItems(databasePath string) (r_err error) {
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	items := []*models.Item{}
-	if err := queries.GetItems(db, queries.CollectTo(&items), true); err != nil {
+	if err := queries.GetItems(db, queries.CollectTo(&items), showHidden); err != nil {
 		return fmt.Errorf("error while listing items: %v", err)
 	}
 

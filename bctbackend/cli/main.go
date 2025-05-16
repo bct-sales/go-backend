@@ -124,6 +124,10 @@ func ProcessCommandLineArguments(arguments []string) error {
 				charity     bool
 			}
 
+			list struct {
+				showHidden bool
+			}
+
 			remove struct {
 				id int64
 			}
@@ -397,8 +401,18 @@ func ProcessCommandLineArguments(arguments []string) error {
 					{
 						Name:  "list",
 						Usage: "list all items",
+						Flags: []cli.Flag{
+							&cli.BoolFlag{
+								Name:        "show-hidden",
+								Usage:       "show hidden items",
+								Destination: &options.item.list.showHidden,
+								Value:       false,
+							},
+						},
 						Action: func(context *cli.Context) error {
-							return cli_item.ListItems(databasePath)
+							showHidden := options.item.list.showHidden
+
+							return cli_item.ListItems(databasePath, showHidden)
 						},
 					},
 					{
