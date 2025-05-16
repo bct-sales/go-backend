@@ -11,7 +11,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func ExportItems(databasePath string) (r_err error) {
+func ExportItems(databasePath string, includeHidden bool) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
 		return err
@@ -19,7 +19,7 @@ func ExportItems(databasePath string) (r_err error) {
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	items := []*models.Item{}
-	if err := queries.GetItems(db, queries.CollectTo(&items), false); err != nil {
+	if err := queries.GetItems(db, queries.CollectTo(&items), includeHidden); err != nil {
 		return err
 	}
 

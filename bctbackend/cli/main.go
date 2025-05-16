@@ -87,6 +87,14 @@ func ProcessCommandLineArguments(arguments []string) error {
 			}
 		}
 
+		export struct {
+			csv struct {
+				items struct {
+					showHidden bool
+				}
+			}
+		}
+
 		user struct {
 			add struct {
 				id       int64
@@ -215,8 +223,17 @@ func ProcessCommandLineArguments(arguments []string) error {
 							{
 								Name:  "items",
 								Usage: "export items as csv",
+								Flags: []cli.Flag{
+									&cli.BoolFlag{
+										Name:        "show-hidden",
+										Usage:       "show hidden items",
+										Destination: &options.export.csv.items.showHidden,
+										Value:       false,
+									},
+								},
 								Action: func(context *cli.Context) error {
-									return csv.ExportItems(databasePath)
+									showHidden := options.export.csv.items.showHidden
+									return csv.ExportItems(databasePath, showHidden)
 								},
 							},
 						},
