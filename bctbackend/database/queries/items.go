@@ -468,16 +468,11 @@ func UpdateHiddenStatusOfItems(db *sql.DB, itemIds []models.Id, hidden bool) (r_
 	itemIds = algorithms.RemoveDuplicates(itemIds)
 	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
 
-	transaction, err := db.Begin()
+	transaction, err := NewTransaction(db)
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
-	transactionCommitted := false
-	defer func() {
-		if !transactionCommitted {
-			r_err = errors.Join(r_err, transaction.Rollback())
-		}
-	}()
+	defer func() { transaction.Rollback() }()
 
 	// Check if all items exist and none are frozen
 	containsFrozen, err := ContainsFrozenItems(transaction, itemIds)
@@ -503,9 +498,6 @@ func UpdateHiddenStatusOfItems(db *sql.DB, itemIds []models.Id, hidden bool) (r_
 	if err := transaction.Commit(); err != nil {
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
-
-	// Signals that no rollback is needed
-	transactionCommitted = true
 
 	return nil
 }
