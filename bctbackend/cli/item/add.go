@@ -32,6 +32,7 @@ func AddItem(
 
 	timestamp := time.Now().Unix()
 
+	// We do not want to check the validity for frozen/hidden here, so we just set them to false
 	addedItemId, err := queries.AddItem(db, timestamp, description, priceInCents, categoryId, sellerId, donation, charity, false, false)
 	if err != nil {
 		return err
