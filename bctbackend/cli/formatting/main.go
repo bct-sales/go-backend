@@ -30,7 +30,7 @@ func PrintUser(user *models.User) error {
 
 func PrintItems(items []*models.Item) error {
 	tableData := pterm.TableData{
-		{"ID", "Description", "Price", "Category", "Donation", "Charity", "Added At", "Frozen"},
+		{"ID", "Description", "Price", "Category", "Donation", "Charity", "Added At", "Frozen", "Hidden"},
 	}
 
 	for _, item := range items {
@@ -49,6 +49,7 @@ func PrintItems(items []*models.Item) error {
 			fmt.Sprintf("%t", item.Charity),
 			FormatTimestamp(item.AddedAt),
 			fmt.Sprintf("%t", item.Frozen),
+			fmt.Sprintf("%t", item.Hidden),
 		})
 	}
 
