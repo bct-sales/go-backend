@@ -307,11 +307,12 @@ func GetSoldItems(db *sql.DB) (r_result []*models.Item, r_err error) {
 }
 
 // HasAnyBeenSold checks if any one of the given item was involved in one or more sales.
+// Does not check if items exist.
 func HasAnyBeenSold(db *sql.DB, itemIds []models.Id) (bool, error) {
 	query := fmt.Sprintf(`
 		SELECT 1
 		FROM items INNER JOIN sale_items SI ON I.item_id = SI.item_id
-		WHERE I.item_id IN (?)
+		WHERE I.item_id IN (%s)
 	`, placeholderString(len(itemIds)))
 	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
 
