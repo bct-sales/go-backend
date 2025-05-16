@@ -5,6 +5,7 @@ import (
 	"bctbackend/database/models"
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
 // AddSale adds a sale to the database.
@@ -303,6 +304,28 @@ func GetSoldItems(db *sql.DB) (r_result []*models.Item, r_err error) {
 	}
 
 	return items, nil
+}
+
+// HasAnyBeenSold checks if any one of the given item was involved in one or more sales.
+func HasAnyBeenSold(db *sql.DB, itemIds []models.Id) (bool, error) {
+	query := fmt.Sprintf(`
+		SELECT 1
+		FROM items INNER JOIN sale_items SI ON I.item_id = SI.item_id
+		WHERE I.item_id IN (?)
+	`, placeholderString(len(itemIds)))
+	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
+
+	rows, err := db.Query(query, convertedItemIds...)
+	if err != nil {
+		return false, err
+	}
+
+	count := 0
+	for rows.Next() {
+		count++
+	}
+
+	return count > 0, nil
 }
 
 // GetItemsSoldBy returns a list of all items sold by a specified cashier.
