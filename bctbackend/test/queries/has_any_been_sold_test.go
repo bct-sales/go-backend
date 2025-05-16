@@ -73,4 +73,16 @@ func TestHasAnyBeenSold(t *testing.T) {
 		require.NoError(t, err)
 		require.True(t, actual)
 	})
+
+	t.Run("Nonexistent item", func(t *testing.T) {
+		setup, db := NewDatabaseFixture()
+		defer setup.Close()
+
+		nonexistentItemId := models.NewId(1)
+		setup.RequireNoSuchItem(t, nonexistentItemId)
+
+		actual, err := queries.HasAnyBeenSold(db, []models.Id{nonexistentItemId})
+		require.NoError(t, err)
+		require.False(t, actual)
+	})
 }
