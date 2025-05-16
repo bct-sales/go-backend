@@ -4,6 +4,7 @@ import (
 	models "bctbackend/database/models"
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
 func CategoryWithIdExists(
@@ -83,14 +84,25 @@ func GetCategoryMap(db *sql.DB) (map[models.Id]string, error) {
 	return result, nil
 }
 
-func GetCategoryCounts(db *sql.DB) (counts []models.ItemCategoryCount, err error) {
-	rows, err := db.Query(
-		`
-			SELECT item_category_id, item_category_name, count
-			FROM item_category_counts
-			ORDER BY item_category_id
-		`,
-	)
+func GetCategoryCounts(db *sql.DB, includeHiddenItems bool) (counts []models.ItemCategoryCount, err error) {
+	var whereClause string
+	if includeHiddenItems {
+		whereClause = ""
+	} else {
+		whereClause = "WHERE hidden = false"
+	}
+
+	query := fmt.Sprintf(`
+		SELECT
+			item_categories.item_category_id as item_category_id,
+			item_categories.name as item_category_name,
+			COUNT(i.item_id) AS count
+		FROM item_categories
+		LEFT JOIN (SELECT * FROM items %s) as i ON item_categories.item_category_id = i.item_category_id
+		GROUP BY item_categories.item_category_id
+	`, whereClause)
+
+	rows, err := db.Query(query)
 
 	if err != nil {
 		return nil, err

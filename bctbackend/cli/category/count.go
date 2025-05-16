@@ -18,7 +18,7 @@ func ListCategoryCounts(databasePath string) (r_err error) {
 
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
-	categoryCounts, err := queries.GetCategoryCounts(db)
+	categoryCounts, err := queries.GetCategoryCounts(db, false)
 	if err != nil {
 		return err
 	}

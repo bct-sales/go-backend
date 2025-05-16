@@ -4,7 +4,6 @@ import (
 	models "bctbackend/database/models"
 	"bctbackend/defs"
 	"database/sql"
-	"errors"
 	"fmt"
 	"log/slog"
 )
@@ -56,10 +55,6 @@ func ResetDatabase(db *sql.DB) error {
 func InitializeDatabase(db *sql.DB) error {
 	if err := createTables(db); err != nil {
 		return fmt.Errorf("failed to create tables: %v", err)
-	}
-
-	if err := createViews(db); err != nil {
-		return fmt.Errorf("failed to create views: %v", err)
 	}
 
 	if err := populateTables(db); err != nil {
@@ -293,35 +288,6 @@ func createSessionTable(db *sql.DB) error {
 
 	if err != nil {
 		return fmt.Errorf("failed to create sessions table: %v", err)
-	}
-
-	return nil
-}
-
-func createViews(db *sql.DB) error {
-	err := errors.Join(
-		createCategoryCountsView(db),
-	)
-
-	return err
-}
-
-func createCategoryCountsView(db *sql.DB) error {
-	slog.Debug("Creating item category counts view")
-
-	_, err := db.Exec(`
-		CREATE VIEW item_category_counts AS
-		SELECT
-			item_categories.item_category_id as item_category_id,
-			item_categories.name as item_category_name,
-			COUNT(items.item_id) AS count
-		FROM item_categories
-		LEFT JOIN items ON item_categories.item_category_id = items.item_category_id
-		GROUP BY item_categories.item_category_id
-	`)
-
-	if err != nil {
-		return fmt.Errorf("failed to create item category counts view: %v", err)
 	}
 
 	return nil
