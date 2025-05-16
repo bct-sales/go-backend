@@ -145,6 +145,10 @@ func ProcessCommandLineArguments(arguments []string) error {
 			hide struct {
 				id int64
 			}
+
+			unhide struct {
+				id int64
+			}
 		}
 
 		sale struct {
@@ -543,6 +547,22 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Action: func(context *cli.Context) error {
 							id := options.item.hide.id
 							return cli_item.HideItem(databasePath, id)
+						},
+					},
+					{
+						Name:  "unhide",
+						Usage: "unhides an item",
+						Flags: []cli.Flag{
+							&cli.Int64Flag{
+								Name:        "id",
+								Usage:       "id of the item",
+								Destination: &options.item.unhide.id,
+								Required:    true,
+							},
+						},
+						Action: func(context *cli.Context) error {
+							id := options.item.unhide.id
+							return cli_item.UnhideItem(databasePath, id)
 						},
 					},
 				},
