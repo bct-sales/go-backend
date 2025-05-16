@@ -311,8 +311,8 @@ func GetSoldItems(db *sql.DB) (r_result []*models.Item, r_err error) {
 func HasAnyBeenSold(db *sql.DB, itemIds []models.Id) (bool, error) {
 	query := fmt.Sprintf(`
 		SELECT 1
-		FROM items INNER JOIN sale_items SI ON I.item_id = SI.item_id
-		WHERE I.item_id IN (%s)
+		FROM items INNER JOIN sale_items ON items.item_id = sale_items.item_id
+		WHERE items.item_id IN (%s)
 	`, placeholderString(len(itemIds)))
 	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
 
