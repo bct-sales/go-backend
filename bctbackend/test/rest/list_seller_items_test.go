@@ -86,7 +86,7 @@ func TestListSellerItems(t *testing.T) {
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			require.Equal(t, http.StatusOK, writer.Code)
+			require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
 			actual := FromJson[rest.GetSellerItemsSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expectedItems, actual.Items)

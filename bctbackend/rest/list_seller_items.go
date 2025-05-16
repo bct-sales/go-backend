@@ -88,7 +88,7 @@ func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 		return
 	}
 
-	items, err := queries.GetSellerItems(db, uriSellerId)
+	items, err := queries.GetSellerItems(db, uriSellerId, false)
 	if err != nil {
 		failure_response.Unknown(context, "Could not retrieve seller items: "+err.Error())
 		return
