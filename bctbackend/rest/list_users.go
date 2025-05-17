@@ -48,7 +48,7 @@ func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 	}
 
 	users := []*queries.UserWithItemCount{}
-	if err := queries.GetUsersWithItemCount(db, queries.CollectTo(&users)); err != nil {
+	if err := queries.GetUsersWithItemCount(db, queries.ExcludeHidden, queries.CollectTo(&users)); err != nil {
 		slog.Error("Failed to fetch users", slog.String("error", err.Error()))
 		failure_response.Unknown(context, err.Error())
 		return

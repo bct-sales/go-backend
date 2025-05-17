@@ -28,7 +28,7 @@ func TestGetUsersWithItemCount(t *testing.T) {
 					setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
 
 					actual := []*queries.UserWithItemCount{}
-					err := queries.GetUsersWithItemCount(db, queries.CollectTo(&actual))
+					err := queries.GetUsersWithItemCount(db, queries.IncludeHidden, queries.CollectTo(&actual))
 					require.NoError(t, err)
 					require.Len(t, actual, 1)
 					expected := &queries.UserWithItemCount{
@@ -52,7 +52,7 @@ func TestGetUsersWithItemCount(t *testing.T) {
 			setup.Items(seller3.UserId, 15, aux.WithHidden(false))
 
 			actual := []*queries.UserWithItemCount{}
-			err := queries.GetUsersWithItemCount(db, queries.CollectTo(&actual))
+			err := queries.GetUsersWithItemCount(db, queries.IncludeHidden, queries.CollectTo(&actual))
 			require.NoError(t, err)
 			require.Len(t, actual, 3)
 			expected := []*queries.UserWithItemCount{
@@ -88,7 +88,7 @@ func TestGetUsersWithItemCount(t *testing.T) {
 				setup.Items(seller3.UserId, 4, aux.WithHidden(true))
 
 				actual := []*queries.UserWithItemCount{}
-				err := queries.GetUsersWithItemCount(db, queries.CollectTo(&actual))
+				err := queries.GetUsersWithItemCount(db, queries.ExcludeHidden, queries.CollectTo(&actual))
 				require.NoError(t, err)
 				require.Len(t, actual, 3)
 				expected := []*queries.UserWithItemCount{
@@ -123,7 +123,7 @@ func TestGetUsersWithItemCount(t *testing.T) {
 				setup.Items(seller3.UserId, 4, aux.WithHidden(true))
 
 				actual := []*queries.UserWithItemCount{}
-				err := queries.GetUsersWithItemCount(db, queries.CollectTo(&actual))
+				err := queries.GetUsersWithItemCount(db, queries.IncludeHidden, queries.CollectTo(&actual))
 				require.NoError(t, err)
 				require.Len(t, actual, 3)
 				expected := []*queries.UserWithItemCount{
@@ -158,7 +158,7 @@ func TestGetUsersWithItemCount(t *testing.T) {
 				setup.Items(seller3.UserId, 4, aux.WithHidden(true))
 
 				actual := []*queries.UserWithItemCount{}
-				err := queries.GetUsersWithItemCount(db, queries.CollectTo(&actual))
+				err := queries.GetUsersWithItemCount(db, queries.OnlyHidden, queries.CollectTo(&actual))
 				require.NoError(t, err)
 				require.Len(t, actual, 3)
 				expected := []*queries.UserWithItemCount{
