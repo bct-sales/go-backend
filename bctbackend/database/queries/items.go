@@ -537,47 +537,18 @@ func PartitionItemsByHiddenStatus(db QueryHandler, itemIds []models.Id) (*algori
 	return unhidden, hidden, nil
 }
 
-func ContainsHiddenItems(qh QueryHandler, itemIds []models.Id) (r_result bool, r_err error) {
+func ContainsHiddenItems(qh QueryHandler, itemIds []models.Id) (bool, error) {
 	if len(itemIds) == 0 {
 		return false, nil
 	}
 
-	query := fmt.Sprintf(`
-		SELECT 1
-		FROM items
-		WHERE item_id IN (%s) AND hidden = true
-	`, placeholderString(len(itemIds)))
-
-	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
-	rows, err := qh.Query(query, convertedItemIds...)
+	_, hidden, err := PartitionItemsByHiddenStatus(qh, itemIds)
 	if err != nil {
-		return false, fmt.Errorf("failed to query items: %w", err)
-	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
-
-	totalCount := 0
-	hiddenFound := false
-	for rows.Next() {
-		var hidden bool
-		var count int
-
-		err = rows.Scan(&hidden, &count)
-		if err != nil {
-			return false, fmt.Errorf("failed to scan items: %w", err)
-		}
-
-		if hidden && count > 0 {
-			hiddenFound = true
-		}
-
-		totalCount += count
+		return false, err
 	}
 
-	if totalCount != len(itemIds) {
-		return false, &NoSuchItemError{Id: nil}
-	}
-
-	return hiddenFound, nil
+	containsHidden := hidden.Len() > 0
+	return containsHidden, nil
 }
 
 func ContainsFrozenItems(qh QueryHandler, itemIds []models.Id) (r_result bool, r_err error) {
