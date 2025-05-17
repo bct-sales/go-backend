@@ -74,6 +74,20 @@ func TestGetSellerItems(t *testing.T) {
 			require.NoError(t, err)
 			require.Equal(t, []*models.Item{item4, item3, item2, item1}, items)
 		})
+
+		t.Run("Only visible items", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			seller := setup.Seller()
+
+			items := setup.Items(seller.UserId, 20, aux.WithHidden(false), aux.WithAddedAt(models.NewTimestamp(0)))
+			setup.Items(seller.UserId, 10, aux.WithHidden(true), aux.WithAddedAt(models.NewTimestamp(0)))
+
+			actual, err := queries.GetSellerItems(db, seller.UserId, queries.OnlyVisibleItems)
+			require.NoError(t, err)
+			require.Equal(t, items, actual)
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
