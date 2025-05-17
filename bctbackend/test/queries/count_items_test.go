@@ -15,7 +15,7 @@ import (
 
 func TestCountItems(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		t.Run("Not including hidden items in count", func(t *testing.T) {
+		t.Run("Only visible items in count", func(t *testing.T) {
 			t.Run("No hidden items", func(t *testing.T) {
 				for _, count := range []int{0, 1, 2, 5, 10, 23} {
 					testLabel := fmt.Sprintf("%d unhidden items", count)
@@ -46,7 +46,7 @@ func TestCountItems(t *testing.T) {
 			})
 		})
 
-		t.Run("Including hidden items in count", func(t *testing.T) {
+		t.Run("All items in count", func(t *testing.T) {
 			t.Run("No hidden items", func(t *testing.T) {
 				for _, count := range []int{0, 1, 2, 5, 10, 23} {
 					testLabel := fmt.Sprintf("%d unhidden items", count)
@@ -75,6 +75,19 @@ func TestCountItems(t *testing.T) {
 				require.NoError(t, err)
 				require.Equal(t, 1, actual)
 			})
+		})
+
+		t.Run("Only hidden items in count", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			seller := setup.Seller()
+			setup.Items(seller.UserId, 10, aux.WithHidden(false))
+			setup.Items(seller.UserId, 12, aux.WithHidden(true))
+
+			actual, err := queries.CountItems(db, queries.OnlyHiddenItems)
+			require.NoError(t, err)
+			require.Equal(t, 12, actual)
 		})
 	})
 }
