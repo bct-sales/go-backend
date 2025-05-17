@@ -582,6 +582,9 @@ func PartitionItemsByFrozenStatus(db QueryHandler, itemIds []models.Id) (*algori
 	return nonfrozen, frozen, nil
 }
 
+// ContainsHiddenItems checks if any of the given items are hidden.
+// It returns true if at least one item is hidden, and false otherwise.
+// It is not an error when nonexistent items are passed in, they are simply ignored.
 func ContainsHiddenItems(qh QueryHandler, itemIds []models.Id) (bool, error) {
 	if len(itemIds) == 0 {
 		return false, nil
