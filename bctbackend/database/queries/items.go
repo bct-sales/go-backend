@@ -265,16 +265,11 @@ func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (map[models.Id]*models.Ite
 }
 
 // Returns the total number of items in the database.
-func CountItems(db *sql.DB, includeHidden bool) (int, error) {
-	query := `
+func CountItems(db *sql.DB, selection ItemSelection) (int, error) {
+	query := fmt.Sprintf(`
 		SELECT COUNT(item_id)
-		FROM items
-	`
-
-	if !includeHidden {
-		query += " WHERE hidden = false"
-	}
-
+		FROM %s
+	`, ItemsTableFor(selection))
 	row := db.QueryRow(query)
 
 	var count int

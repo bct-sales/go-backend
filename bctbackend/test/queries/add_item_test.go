@@ -93,7 +93,7 @@ func TestAddItem(t *testing.T) {
 			var noSuchUserError *queries.NoSuchUserError
 			require.ErrorAs(t, err, &noSuchUserError)
 
-			count, err := queries.CountItems(db, false)
+			count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 			require.NoError(t, err)
 			require.Equal(t, 0, count)
 		})
@@ -127,7 +127,7 @@ func TestAddItem(t *testing.T) {
 			}
 
 			{
-				count, err := queries.CountItems(db, false)
+				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
 				require.Equal(t, 0, count)
 			}
@@ -155,7 +155,7 @@ func TestAddItem(t *testing.T) {
 			}
 
 			{
-				count, err := queries.CountItems(db, false)
+				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
 				require.Equal(t, 0, count)
 			}
@@ -182,7 +182,7 @@ func TestAddItem(t *testing.T) {
 			}
 
 			{
-				count, err := queries.CountItems(db, false)
+				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
 				require.Equal(t, 0, count)
 			}
@@ -209,7 +209,7 @@ func TestAddItem(t *testing.T) {
 			}
 
 			{
-				count, err := queries.CountItems(db, false)
+				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
 				require.Equal(t, 0, count)
 			}
@@ -236,7 +236,7 @@ func TestAddItem(t *testing.T) {
 			}
 
 			{
-				count, err := queries.CountItems(db, false)
+				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
 				require.Equal(t, 0, count)
 			}

@@ -26,7 +26,7 @@ func TestCountItems(t *testing.T) {
 						seller := setup.Seller()
 						setup.Items(seller.UserId, count, aux.WithHidden(false))
 
-						actual, err := queries.CountItems(db, false)
+						actual, err := queries.CountItems(db, queries.OnlyVisibleItems)
 						require.NoError(t, err)
 						require.Equal(t, count, actual)
 					})
@@ -40,7 +40,7 @@ func TestCountItems(t *testing.T) {
 				seller := setup.Seller()
 				setup.Item(seller.UserId, aux.WithHidden(true))
 
-				actual, err := queries.CountItems(db, false)
+				actual, err := queries.CountItems(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
 				require.Equal(t, 0, actual)
 			})
@@ -57,7 +57,7 @@ func TestCountItems(t *testing.T) {
 						seller := setup.Seller()
 						setup.Items(seller.UserId, count, aux.WithHidden(false))
 
-						actual, err := queries.CountItems(db, true)
+						actual, err := queries.CountItems(db, queries.AllItems)
 						require.NoError(t, err)
 						require.Equal(t, count, actual)
 					})
@@ -71,7 +71,7 @@ func TestCountItems(t *testing.T) {
 				seller := setup.Seller()
 				setup.Item(seller.UserId, aux.WithHidden(true))
 
-				actual, err := queries.CountItems(db, true)
+				actual, err := queries.CountItems(db, queries.AllItems)
 				require.NoError(t, err)
 				require.Equal(t, 1, actual)
 			})
