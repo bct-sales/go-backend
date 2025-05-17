@@ -473,7 +473,16 @@ func UpdateHiddenStatusOfItems(db *sql.DB, itemIds []models.Id, hidden bool) (r_
 	}
 	defer func() { transaction.Rollback() }()
 
-	// Check if all items exist and none are frozen
+	// Check if all items exist
+	itemsExist, err := ItemsExist(transaction, itemIds)
+	if err != nil {
+		return err
+	}
+	if !itemsExist {
+		return &NoSuchItemError{Id: nil}
+	}
+
+	// Check if none of the items are frozen
 	containsFrozen, err := ContainsFrozenItems(transaction, itemIds)
 	if err != nil {
 		return fmt.Errorf("failed to check for frozen items: %w", err)
@@ -592,53 +601,51 @@ func ContainsFrozenItems(qh QueryHandler, itemIds []models.Id) (r_result bool, r
 		return false, nil
 	}
 
-	itemIds = algorithms.RemoveDuplicates(itemIds)
-
-	query := fmt.Sprintf(`
-		SELECT frozen, COUNT(item_id)
-		FROM items
-		WHERE item_id IN (%s)
-		GROUP BY frozen
-	`, placeholderString(len(itemIds)))
-
-	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
-	rows, err := qh.Query(query, convertedItemIds...)
+	_, frozen, err := PartitionItemsByFrozenStatus(qh, itemIds)
 	if err != nil {
-		return false, fmt.Errorf("failed to query items: %w", err)
-	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
-
-	totalCount := 0
-	frozenFound := false
-	for rows.Next() {
-		var hidden bool
-		var count int
-
-		err = rows.Scan(&hidden, &count)
-		if err != nil {
-			return false, fmt.Errorf("failed to scan items: %w", err)
-		}
-
-		if hidden && count > 0 {
-			frozenFound = true
-		}
-
-		totalCount += count
+		return false, err
 	}
 
-	if totalCount != len(itemIds) {
-		return false, &NoSuchItemError{Id: nil}
-	}
-
-	return frozenFound, nil
+	containsFrozen := frozen.Len() > 0
+	return containsFrozen, nil
 }
 
 func IsItemFrozen(db *sql.DB, itemId models.Id) (bool, error) {
-	return ContainsFrozenItems(db, []models.Id{itemId})
+	nonfrozen, frozen, err := PartitionItemsByFrozenStatus(db, []models.Id{itemId})
+	if err != nil {
+		return false, err
+	}
+
+	isFrozen := frozen.Len() > 0
+	if isFrozen {
+		return true, nil
+	}
+
+	isUnfrozen := nonfrozen.Len() > 0
+	if isUnfrozen {
+		return false, nil
+	}
+
+	return false, &NoSuchItemError{Id: &itemId}
 }
 
 func IsItemHidden(db *sql.DB, itemId models.Id) (bool, error) {
-	return ContainsHiddenItems(db, []models.Id{itemId})
+	unhidden, hidden, err := PartitionItemsByHiddenStatus(db, []models.Id{itemId})
+	if err != nil {
+		return false, err
+	}
+
+	isFrozen := hidden.Len() > 0
+	if isFrozen {
+		return true, nil
+	}
+
+	isUnfrozen := unhidden.Len() > 0
+	if isUnfrozen {
+		return false, nil
+	}
+
+	return false, &NoSuchItemError{Id: &itemId}
 }
 
 func RemoveItemWithId(db *sql.DB, itemId models.Id) error {
