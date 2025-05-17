@@ -383,7 +383,7 @@ func ItemWithIdExists(db *sql.DB, itemId models.Id) (bool, error) {
 	return true, nil
 }
 
-func CheckItemsExistence(db *sql.DB, itemIds []models.Id) (bool, error) {
+func ItemsExist(db QueryHandler, itemIds []models.Id) (bool, error) {
 	if len(itemIds) == 0 {
 		return true, nil
 	}
@@ -418,18 +418,20 @@ func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) (r_
 	itemIds = algorithms.RemoveDuplicates(itemIds)
 	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
 
-	transaction, err := db.Begin()
+	transaction, err := NewTransaction(db)
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
-	transactionCommitted := false
-	defer func() {
-		if !transactionCommitted {
-			r_err = errors.Join(r_err, transaction.Rollback())
-		}
-	}()
+	defer func() { transaction.Rollback() }()
 
-	// Check if all items exist and none are hidden
+	itemsExist, err := ItemsExist(transaction, itemIds)
+	if err != nil {
+		return err
+	}
+	if !itemsExist {
+		return &NoSuchItemError{Id: nil}
+	}
+
 	containsHidden, err := ContainsHiddenItems(transaction, itemIds)
 	if err != nil {
 		return fmt.Errorf("failed to check for hidden items: %w", err)
@@ -453,9 +455,6 @@ func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) (r_
 	if err := transaction.Commit(); err != nil {
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
-
-	// Signals that no rollback is needed
-	transactionCommitted = true
 
 	return nil
 }
