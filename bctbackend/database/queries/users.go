@@ -204,6 +204,7 @@ func GetUsersWithItemCount(db *sql.DB, receiver func(*UserWithItemCount) error) 
 			FROM users
 			LEFT JOIN items ON users.user_id = items.seller_id
 			GROUP BY users.user_id
+			ORDER BY users.user_id
 		`,
 	)
 
