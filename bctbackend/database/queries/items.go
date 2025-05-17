@@ -9,20 +9,13 @@ import (
 	"strings"
 )
 
-func GetItems(db *sql.DB, receiver func(*models.Item) error, includeHidden bool) error {
+func GetItems(db *sql.DB, receiver func(*models.Item) error, hiddenStrategy int) error {
 	// Build SQL query
-	var whereClause string
-	if includeHidden {
-		whereClause = ""
-	} else {
-		whereClause = "WHERE hidden = false"
-	}
 	query := fmt.Sprintf(`
 		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden
-		FROM items
-		%s
+		FROM %s
 		ORDER BY item_id ASC
-	`, whereClause)
+	`, ItemsTableFor(hiddenStrategy))
 
 	// Perform query
 	rows, err := db.Query(query)

@@ -28,7 +28,7 @@ func TestGetItems(t *testing.T) {
 						items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
 
 						actualItems := []*models.Item{}
-						err := queries.GetItems(db, queries.CollectTo(&actualItems), false)
+						err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.ExcludeHidden)
 						require.NoError(t, err)
 						require.Equal(t, itemCount, len(actualItems))
 
@@ -57,7 +57,7 @@ func TestGetItems(t *testing.T) {
 						setup.Items(seller.UserId, itemCount, aux.WithHidden(true))
 
 						actualItems := []*models.Item{}
-						err := queries.GetItems(db, queries.CollectTo(&actualItems), false)
+						err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.ExcludeHidden)
 						require.NoError(t, err)
 						require.Equal(t, 0, len(actualItems))
 					})

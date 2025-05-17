@@ -198,18 +198,6 @@ type UserWithItemCount struct {
 }
 
 func GetUsersWithItemCount(db *sql.DB, hiddenStrategy int, receiver func(*UserWithItemCount) error) (r_err error) {
-	var itemTable string
-	switch hiddenStrategy {
-	case IncludeHidden:
-		itemTable = "items"
-	case ExcludeHidden:
-		itemTable = "visible_items"
-	case OnlyHidden:
-		itemTable = "hidden_items"
-	default:
-		return fmt.Errorf("invalid hidden strategy: %d", hiddenStrategy)
-	}
-
 	query := fmt.Sprintf(
 		`
 			SELECT users.user_id, role_id, created_at, last_activity, password, COALESCE(COUNT(i.item_id), 0) AS item_count
@@ -217,7 +205,7 @@ func GetUsersWithItemCount(db *sql.DB, hiddenStrategy int, receiver func(*UserWi
 			GROUP BY users.user_id
 			ORDER BY users.user_id
 		`,
-		itemTable)
+		ItemsTableFor(hiddenStrategy))
 	rows, err := db.Query(query)
 
 	if err != nil {

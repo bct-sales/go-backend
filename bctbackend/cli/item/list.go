@@ -13,15 +13,20 @@ import (
 
 func ListItems(databasePath string, showHidden bool) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
-
 	if err != nil {
 		return err
 	}
-
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
+	var hiddenStrategy int
+	if showHidden {
+		hiddenStrategy = queries.IncludeHidden
+	} else {
+		hiddenStrategy = queries.ExcludeHidden
+	}
+
 	items := []*models.Item{}
-	if err := queries.GetItems(db, queries.CollectTo(&items), showHidden); err != nil {
+	if err := queries.GetItems(db, queries.CollectTo(&items), hiddenStrategy); err != nil {
 		return fmt.Errorf("error while listing items: %v", err)
 	}
 

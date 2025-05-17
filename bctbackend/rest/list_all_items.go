@@ -49,7 +49,7 @@ func GetAllItems(context *gin.Context, db *sql.DB, userId models.Id, roleId mode
 	}
 
 	items := []*models.Item{}
-	if err := queries.GetItems(db, queries.CollectTo(&items), false); err != nil {
+	if err := queries.GetItems(db, queries.CollectTo(&items), queries.ExcludeHidden); err != nil {
 		failure_response.Unknown(context, "Failed to get items: "+err.Error())
 		return
 	}

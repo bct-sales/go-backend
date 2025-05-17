@@ -12,6 +12,13 @@ import (
 )
 
 func ExportItems(databasePath string, includeHidden bool) (r_err error) {
+	var hiddenStrategy int
+	if includeHidden {
+		hiddenStrategy = queries.IncludeHidden
+	} else {
+		hiddenStrategy = queries.ExcludeHidden
+	}
+
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
 		return err
@@ -19,7 +26,7 @@ func ExportItems(databasePath string, includeHidden bool) (r_err error) {
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	items := []*models.Item{}
-	if err := queries.GetItems(db, queries.CollectTo(&items), includeHidden); err != nil {
+	if err := queries.GetItems(db, queries.CollectTo(&items), hiddenStrategy); err != nil {
 		return err
 	}
 

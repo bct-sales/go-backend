@@ -5,12 +5,6 @@ import (
 	"strings"
 )
 
-const (
-	IncludeHidden = 1
-	ExcludeHidden = 2
-	OnlyHidden    = 3
-)
-
 func placeholderString(placeholderCount int) string {
 	placeholders := make([]string, placeholderCount)
 	for i := range placeholderCount {

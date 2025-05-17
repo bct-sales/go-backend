@@ -46,7 +46,7 @@ func TestAddItem(t *testing.T) {
 												}
 
 												items := []*models.Item{}
-												err = queries.GetItems(db, queries.CollectTo(&items), true)
+												err = queries.GetItems(db, queries.CollectTo(&items), queries.IncludeHidden)
 												require.NoError(t, err)
 												require.Equal(t, 1, len(items))
 
