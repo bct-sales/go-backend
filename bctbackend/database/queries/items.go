@@ -501,6 +501,8 @@ func UpdateHiddenStatusOfItems(db *sql.DB, itemIds []models.Id, hidden bool) (r_
 	return nil
 }
 
+// PartitionItemsByHiddenStatus partitions the given item IDs into two sets: one for unhidden items and one for hidden items.
+// If an item ID does not exist in the database, it is ignored.
 func PartitionItemsByHiddenStatus(db QueryHandler, itemIds []models.Id) (*algorithms.Set[models.Id], *algorithms.Set[models.Id], error) {
 	query := fmt.Sprintf(`
 		SELECT item_id, hidden
