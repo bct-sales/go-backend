@@ -32,7 +32,7 @@ func AddSale(
 		return 0, &DuplicateItemInSaleError{ItemId: duplicatedItemId}
 	}
 
-	// Ensure the user exists and is a cashier.
+	// Ensure the user exists and is a cashier
 	cashier, err := GetUserWithId(db, cashierId)
 	if err != nil {
 		return 0, err
@@ -41,14 +41,23 @@ func AddSale(
 		return 0, &SaleRequiresCashierError{}
 	}
 
-	// Start a transaction.
+	// Start a transaction
 	transaction, err := NewTransaction(db)
 	if err != nil {
 		return 0, err
 	}
 	defer transaction.Rollback()
 
-	// Check that all items exist and are not hidden.
+	// Check if all items exist
+	exists, err := ItemsExist(transaction.transaction, itemIds)
+	if err != nil {
+		return 0, err
+	}
+	if !exists {
+		return 0, &NoSuchItemError{}
+	}
+
+	// Check if any of the items are hidden
 	containsHiddenItems, err := ContainsHiddenItems(transaction.transaction, itemIds)
 	if err != nil {
 		return 0, err
