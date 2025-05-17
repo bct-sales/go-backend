@@ -501,18 +501,49 @@ func UpdateHiddenStatusOfItems(db *sql.DB, itemIds []models.Id, hidden bool) (r_
 	return nil
 }
 
+func PartitionItemsByHiddenStatus(db QueryHandler, itemIds []models.Id) (*algorithms.Set[models.Id], *algorithms.Set[models.Id], error) {
+	query := fmt.Sprintf(`
+		SELECT item_id, hidden
+		FROM items
+		WHERE item_id IN (%s)
+	`, placeholderString(len(itemIds)))
+	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
+	rows, err := db.Query(query, convertedItemIds...)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to query items: %w", err)
+	}
+	defer func() { err = errors.Join(err, rows.Close()) }()
+
+	unhidden := algorithms.NewSet[models.Id]()
+	hidden := algorithms.NewSet[models.Id]()
+	for rows.Next() {
+		var id models.Id
+		var hiddenStatus bool
+
+		err = rows.Scan(&id, &hiddenStatus)
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to scan items: %w", err)
+		}
+
+		if hiddenStatus {
+			hidden.Add(id)
+		} else {
+			unhidden.Add(id)
+		}
+	}
+
+	return unhidden, hidden, nil
+}
+
 func ContainsHiddenItems(qh QueryHandler, itemIds []models.Id) (r_result bool, r_err error) {
 	if len(itemIds) == 0 {
 		return false, nil
 	}
 
-	itemIds = algorithms.RemoveDuplicates(itemIds)
-
 	query := fmt.Sprintf(`
-		SELECT hidden, COUNT(item_id)
+		SELECT 1
 		FROM items
-		WHERE item_id IN (%s)
-		GROUP BY hidden
+		WHERE item_id IN (%s) AND hidden = true
 	`, placeholderString(len(itemIds)))
 
 	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
