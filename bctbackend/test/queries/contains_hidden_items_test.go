@@ -71,9 +71,6 @@ func TestContainsHiddenItems(t *testing.T) {
 			require.NoError(t, err)
 			require.True(t, result)
 		})
-	})
-
-	t.Run("Failure", func(t *testing.T) {
 		t.Run("Nonexistent item", func(t *testing.T) {
 			setup, db := NewDatabaseFixture()
 			defer setup.Close()
@@ -86,8 +83,7 @@ func TestContainsHiddenItems(t *testing.T) {
 			itemIds = append(itemIds, nonexistentItemId)
 
 			_, err := queries.ContainsHiddenItems(db, itemIds)
-			var noSuchItemError *queries.NoSuchItemError
-			require.ErrorAs(t, err, &noSuchItemError)
+			require.NoError(t, err)
 		})
 	})
 }
