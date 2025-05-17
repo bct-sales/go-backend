@@ -6,6 +6,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
+	"os"
 	"strings"
 )
 
@@ -669,7 +671,8 @@ type ItemUpdate struct {
 
 func UpdateItem(db *sql.DB, itemId models.Id, itemUpdate *ItemUpdate) error {
 	if itemUpdate == nil {
-		return fmt.Errorf("bug: itemUpdate is nil")
+		slog.Error("parameter itemUpdate is nil")
+		os.Exit(1)
 	}
 
 	item, err := GetItemWithId(db, itemId)
