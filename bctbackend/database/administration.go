@@ -57,6 +57,10 @@ func InitializeDatabase(db *sql.DB) error {
 		return fmt.Errorf("failed to create tables: %v", err)
 	}
 
+	if err := createViews(db); err != nil {
+		return fmt.Errorf("failed to create views: %v", err)
+	}
+
 	if err := populateTables(db); err != nil {
 		return fmt.Errorf("failed to populate tables: %v", err)
 	}
@@ -352,6 +356,52 @@ func populateItemCategoryTable(db *sql.DB) error {
 		if err != nil {
 			return fmt.Errorf("failed to populate item categories with %d %s: %v", categoryId, categoryName, err)
 		}
+	}
+
+	return nil
+}
+
+func createViews(db *sql.DB) error {
+	if err := createVisibleItemsView(db); err != nil {
+		return fmt.Errorf("failed to create views: %v", err)
+	}
+
+	if err := createHiddenItemsView(db); err != nil {
+		return fmt.Errorf("failed to create views: %v", err)
+	}
+
+	return nil
+}
+
+func createVisibleItemsView(db *sql.DB) error {
+	slog.Debug("Creating visible items view")
+
+	_, err := db.Exec(`
+		CREATE VIEW visible_items AS
+		SELECT *
+		FROM items
+		WHERE hidden = false
+	`)
+
+	if err != nil {
+		return fmt.Errorf("failed to create visible_items view: %v", err)
+	}
+
+	return nil
+}
+
+func createHiddenItemsView(db *sql.DB) error {
+	slog.Debug("Creating visible items view")
+
+	_, err := db.Exec(`
+		CREATE VIEW hidden_items AS
+		SELECT *
+		FROM items
+		WHERE hidden = true
+	`)
+
+	if err != nil {
+		return fmt.Errorf("failed to create hidden_items view: %v", err)
 	}
 
 	return nil
