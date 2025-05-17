@@ -101,9 +101,7 @@ func TestContainsFrozenItems(t *testing.T) {
 			require.NoError(t, err)
 			require.True(t, result)
 		})
-	})
 
-	t.Run("Failure", func(t *testing.T) {
 		t.Run("Nonexistent item", func(t *testing.T) {
 			setup, db := NewDatabaseFixture()
 			defer setup.Close()
@@ -115,9 +113,9 @@ func TestContainsFrozenItems(t *testing.T) {
 			setup.RequireNoSuchItem(t, nonexistentItemId)
 			itemIds = append(itemIds, nonexistentItemId)
 
-			_, err := queries.ContainsFrozenItems(db, itemIds)
-			var noSuchItemError *queries.NoSuchItemError
-			require.ErrorAs(t, err, &noSuchItemError)
+			containsFrozen, err := queries.ContainsFrozenItems(db, itemIds)
+			require.NoError(t, err)
+			require.False(t, containsFrozen)
 		})
 	})
 }
