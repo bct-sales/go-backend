@@ -57,25 +57,19 @@ func GetItems(db *sql.DB, receiver func(*models.Item) error, itemSelection ItemS
 // The items are ordered by their time of addition, then by id.
 // An NoSuchUserError is returned if no user with the given sellerId exists.
 // An InvalidRoleError is returned if sellerId does not refer to a seller.
-func GetSellerItems(db *sql.DB, sellerId models.Id, includeHidden bool) (r_items []*models.Item, r_err error) {
+func GetSellerItems(db *sql.DB, sellerId models.Id, itemSelection ItemSelection) (r_items []*models.Item, r_err error) {
 	// Ensure that sellerId is associated with a seller
 	if err := CheckUserRole(db, sellerId, models.SellerRoleId); err != nil {
 		return nil, err
 	}
 
 	// Build SQL query
-	whereClause := "WHERE seller_id = ?"
-
-	if !includeHidden {
-		whereClause += " AND hidden = false"
-	}
-
 	query := fmt.Sprintf(`
 		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden
-		FROM items
-		%s
+		FROM %s
+		WHERE seller_id = ?
 		ORDER BY added_at, item_id ASC
-	`, whereClause)
+	`, ItemsTableFor(itemSelection))
 
 	rows, err := db.Query(query, sellerId)
 	if err != nil {

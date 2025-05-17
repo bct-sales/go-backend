@@ -21,7 +21,7 @@ func TestGetSellerItems(t *testing.T) {
 
 			seller := setup.Seller()
 
-			items, err := queries.GetSellerItems(db, seller.UserId, true)
+			items, err := queries.GetSellerItems(db, seller.UserId, queries.AllItems)
 			require.NoError(t, err)
 			require.Empty(t, items)
 		})
@@ -38,7 +38,7 @@ func TestGetSellerItems(t *testing.T) {
 			setup.Item(sellerWithItems.UserId, aux.WithDummyData(2), aux.WithHidden(false))
 			setup.Item(sellerWithItems.UserId, aux.WithDummyData(3), aux.WithHidden(false))
 
-			items, err := queries.GetSellerItems(db, sellerWithoutItems.UserId, true)
+			items, err := queries.GetSellerItems(db, sellerWithoutItems.UserId, queries.AllItems)
 			require.NoError(t, err)
 			require.Empty(t, items)
 		})
@@ -54,7 +54,7 @@ func TestGetSellerItems(t *testing.T) {
 			item3 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(models.NewTimestamp(0)), aux.WithHidden(false))
 			item4 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithAddedAt(models.NewTimestamp(0)), aux.WithHidden(false))
 
-			items, err := queries.GetSellerItems(db, seller.UserId, true)
+			items, err := queries.GetSellerItems(db, seller.UserId, queries.AllItems)
 			require.NoError(t, err)
 			require.Equal(t, []*models.Item{item1, item2, item3, item4}, items)
 		})
@@ -70,7 +70,7 @@ func TestGetSellerItems(t *testing.T) {
 			item3 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(models.NewTimestamp(2)), aux.WithHidden(false))
 			item4 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithAddedAt(models.NewTimestamp(1)), aux.WithHidden(false))
 
-			items, err := queries.GetSellerItems(db, seller.UserId, true)
+			items, err := queries.GetSellerItems(db, seller.UserId, queries.AllItems)
 			require.NoError(t, err)
 			require.Equal(t, []*models.Item{item4, item3, item2, item1}, items)
 		})
@@ -84,7 +84,7 @@ func TestGetSellerItems(t *testing.T) {
 			unknownSellerId := models.Id(9999)
 			setup.RequireNoSuchUser(t, unknownSellerId)
 
-			_, err := queries.GetSellerItems(db, unknownSellerId, true)
+			_, err := queries.GetSellerItems(db, unknownSellerId, queries.AllItems)
 			var noSuchUserError *queries.NoSuchUserError
 			require.ErrorAs(t, err, &noSuchUserError)
 		})
@@ -95,7 +95,7 @@ func TestGetSellerItems(t *testing.T) {
 
 			cashier := setup.Cashier()
 
-			_, err := queries.GetSellerItems(db, cashier.UserId, true)
+			_, err := queries.GetSellerItems(db, cashier.UserId, queries.AllItems)
 			var invalidRoleError *queries.InvalidRoleError
 			require.ErrorAs(t, err, &invalidRoleError)
 		})
@@ -106,7 +106,7 @@ func TestGetSellerItems(t *testing.T) {
 
 			admin := setup.Admin()
 
-			_, err := queries.GetSellerItems(db, admin.UserId, true)
+			_, err := queries.GetSellerItems(db, admin.UserId, queries.AllItems)
 			var invalidRoleError *queries.InvalidRoleError
 			require.ErrorAs(t, err, &invalidRoleError)
 		})
