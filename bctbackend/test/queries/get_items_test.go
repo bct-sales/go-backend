@@ -16,7 +16,7 @@ import (
 
 func TestGetItems(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		t.Run("No hidden items included", func(t *testing.T) {
+		t.Run("Get only visible items", func(t *testing.T) {
 			t.Run("No hidden items", func(t *testing.T) {
 				for _, itemCount := range []int{0, 1, 2, 10} {
 					testLabel := fmt.Sprintf("Item count: %d", itemCount)
@@ -56,6 +56,24 @@ func TestGetItems(t *testing.T) {
 					})
 				}
 			})
+		})
+
+		t.Run("Get all items", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			seller := setup.Seller()
+			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
+			items = append(items, setup.Items(seller.UserId, 10, aux.WithHidden(true))...)
+
+			actualItems := []*models.Item{}
+			err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.AllItems)
+			require.NoError(t, err)
+			require.Equal(t, 20, len(actualItems))
+
+			for i, item := range items {
+				require.Equal(t, item, actualItems[i])
+			}
 		})
 	})
 }
