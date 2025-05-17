@@ -33,14 +33,7 @@ func TestGetItems(t *testing.T) {
 						require.Equal(t, itemCount, len(actualItems))
 
 						for i, item := range items {
-							require.Equal(t, item.ItemId, actualItems[i].ItemId)
-							require.Equal(t, item.Description, actualItems[i].Description)
-							require.Equal(t, item.PriceInCents, actualItems[i].PriceInCents)
-							require.Equal(t, item.SellerId, actualItems[i].SellerId)
-							require.Equal(t, item.CategoryId, actualItems[i].CategoryId)
-							require.Equal(t, item.AddedAt, actualItems[i].AddedAt)
-							require.Equal(t, item.Frozen, actualItems[i].Frozen)
-							require.Equal(t, item.Hidden, actualItems[i].Hidden)
+							require.Equal(t, item, actualItems[i])
 						}
 					})
 				}
