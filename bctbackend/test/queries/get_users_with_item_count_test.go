@@ -27,15 +27,15 @@ func TestGetUsersWithItemCount(t *testing.T) {
 					seller := setup.Seller()
 					setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
 
-					results := []*queries.UserWithItemCount{}
-					err := queries.GetUsersWithItemCount(db, queries.CollectTo(&results))
+					actual := []*queries.UserWithItemCount{}
+					err := queries.GetUsersWithItemCount(db, queries.CollectTo(&actual))
 					require.NoError(t, err)
-					require.Len(t, results, 1)
+					require.Len(t, actual, 1)
 					expected := &queries.UserWithItemCount{
 						User:      *seller,
 						ItemCount: int64(itemCount),
 					}
-					require.Equal(t, expected, results[0])
+					require.Equal(t, expected, actual[0])
 				})
 			}
 		})
