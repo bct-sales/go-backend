@@ -75,5 +75,23 @@ func TestGetItems(t *testing.T) {
 				require.Equal(t, item, actualItems[i])
 			}
 		})
+
+		t.Run("Get only hidden items", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			seller := setup.Seller()
+			setup.Items(seller.UserId, 10, aux.WithHidden(false))
+			items := setup.Items(seller.UserId, 10, aux.WithHidden(true))
+
+			actualItems := []*models.Item{}
+			err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.OnlyHiddenItems)
+			require.NoError(t, err)
+			require.Equal(t, 10, len(actualItems))
+
+			for i, item := range items {
+				require.Equal(t, item, actualItems[i])
+			}
+		})
 	})
 }
