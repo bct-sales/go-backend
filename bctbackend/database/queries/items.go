@@ -684,6 +684,10 @@ func UpdateItem(db *sql.DB, itemId models.Id, itemUpdate *ItemUpdate) error {
 		return &ItemFrozenError{Id: itemId}
 	}
 
+	if item.Hidden {
+		return &ItemHiddenError{}
+	}
+
 	sqlUpdates := []string{}
 	sqlValues := []any{}
 
