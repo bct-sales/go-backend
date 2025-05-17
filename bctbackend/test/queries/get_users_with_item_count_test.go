@@ -39,5 +39,37 @@ func TestGetUsersWithItemCount(t *testing.T) {
 				})
 			}
 		})
+
+		t.Run("Multiple sellers", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			seller1 := setup.Seller()
+			seller2 := setup.Seller()
+			seller3 := setup.Seller()
+			setup.Items(seller1.UserId, 0, aux.WithHidden(false))
+			setup.Items(seller2.UserId, 5, aux.WithHidden(false))
+			setup.Items(seller3.UserId, 15, aux.WithHidden(false))
+
+			actual := []*queries.UserWithItemCount{}
+			err := queries.GetUsersWithItemCount(db, queries.CollectTo(&actual))
+			require.NoError(t, err)
+			require.Len(t, actual, 3)
+			expected := []*queries.UserWithItemCount{
+				{
+					User:      *seller1,
+					ItemCount: int64(0),
+				},
+				{
+					User:      *seller2,
+					ItemCount: int64(5),
+				},
+				{
+					User:      *seller3,
+					ItemCount: int64(15),
+				},
+			}
+			require.Equal(t, expected, actual)
+		})
 	})
 }
