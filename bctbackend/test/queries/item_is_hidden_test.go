@@ -30,16 +30,18 @@ func TestItemIsHidden(t *testing.T) {
 				require.Equal(t, hidden, actual)
 			})
 		}
+	})
 
+	t.Run("Failure", func(t *testing.T) {
 		t.Run("Nonexistent item", func(t *testing.T) {
 			setup, db := NewDatabaseFixture()
 			defer setup.Close()
 
 			invalidId := models.Id(1)
 
-			actual, err := queries.IsItemHidden(db, invalidId)
-			require.NoError(t, err)
-			require.False(t, actual)
+			_, err := queries.IsItemHidden(db, invalidId)
+			var noSuchItemError *queries.NoSuchItemError
+			require.ErrorAs(t, err, &noSuchItemError)
 		})
 	})
 }
