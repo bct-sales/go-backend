@@ -58,3 +58,7 @@ func (t *Transaction) Exec(query string, args ...any) (sql.Result, error) {
 func (t *Transaction) Query(query string, args ...any) (*sql.Rows, error) {
 	return t.transaction.Query(query, args...)
 }
+
+func (t *Transaction) QueryRow(query string, args ...any) *sql.Row {
+	return t.transaction.QueryRow(query, args...)
+}
