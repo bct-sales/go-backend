@@ -21,9 +21,9 @@ func TestGetSellerItems(t *testing.T) {
 
 			seller := setup.Seller()
 
-			items, err := queries.GetSellerItems(db, seller.UserId, queries.AllItems)
+			actual, err := queries.GetSellerItems(db, seller.UserId, queries.AllItems)
 			require.NoError(t, err)
-			require.Empty(t, items)
+			require.Empty(t, actual)
 		})
 
 		t.Run("Zero items associated with that seller", func(t *testing.T) {
@@ -38,9 +38,9 @@ func TestGetSellerItems(t *testing.T) {
 			setup.Item(sellerWithItems.UserId, aux.WithDummyData(2), aux.WithHidden(false))
 			setup.Item(sellerWithItems.UserId, aux.WithDummyData(3), aux.WithHidden(true))
 
-			items, err := queries.GetSellerItems(db, sellerWithoutItems.UserId, queries.AllItems)
+			actual, err := queries.GetSellerItems(db, sellerWithoutItems.UserId, queries.AllItems)
 			require.NoError(t, err)
-			require.Empty(t, items)
+			require.Empty(t, actual)
 		})
 
 		t.Run("Multiple items associated with seller, same timestamps", func(t *testing.T) {
@@ -54,9 +54,10 @@ func TestGetSellerItems(t *testing.T) {
 			item3 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(models.NewTimestamp(0)), aux.WithHidden(true))
 			item4 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithAddedAt(models.NewTimestamp(0)), aux.WithHidden(false))
 
-			items, err := queries.GetSellerItems(db, seller.UserId, queries.AllItems)
+			expected := []*models.Item{item1, item2, item3, item4}
+			actual, err := queries.GetSellerItems(db, seller.UserId, queries.AllItems)
 			require.NoError(t, err)
-			require.Equal(t, []*models.Item{item1, item2, item3, item4}, items)
+			require.Equal(t, expected, actual)
 		})
 
 		t.Run("Multiple items associated with seller, different timestamps", func(t *testing.T) {
@@ -70,9 +71,10 @@ func TestGetSellerItems(t *testing.T) {
 			item3 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(models.NewTimestamp(2)), aux.WithHidden(false))
 			item4 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithAddedAt(models.NewTimestamp(1)), aux.WithHidden(false))
 
-			items, err := queries.GetSellerItems(db, seller.UserId, queries.AllItems)
+			expected := []*models.Item{item4, item3, item2, item1}
+			actual, err := queries.GetSellerItems(db, seller.UserId, queries.AllItems)
 			require.NoError(t, err)
-			require.Equal(t, []*models.Item{item4, item3, item2, item1}, items)
+			require.Equal(t, expected, actual)
 		})
 
 		t.Run("Only visible items", func(t *testing.T) {
