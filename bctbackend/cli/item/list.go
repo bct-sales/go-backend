@@ -20,9 +20,9 @@ func ListItems(databasePath string, showHidden bool) (r_err error) {
 
 	var hiddenStrategy int
 	if showHidden {
-		hiddenStrategy = queries.IncludeHidden
+		hiddenStrategy = queries.AllItems
 	} else {
-		hiddenStrategy = queries.ExcludeHidden
+		hiddenStrategy = queries.OnlyVisibleItems
 	}
 
 	items := []*models.Item{}

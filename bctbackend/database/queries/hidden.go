@@ -7,18 +7,18 @@ import (
 )
 
 const (
-	IncludeHidden = 1
-	ExcludeHidden = 2
-	OnlyHidden    = 3
+	AllItems         = 1
+	OnlyVisibleItems = 2
+	OnlyHiddenItems  = 3
 )
 
 func ItemsTableFor(hiddenStrategy int) string {
 	switch hiddenStrategy {
-	case IncludeHidden:
+	case AllItems:
 		return "items"
-	case ExcludeHidden:
+	case OnlyVisibleItems:
 		return "visible_items"
-	case OnlyHidden:
+	case OnlyHiddenItems:
 		return "hidden_items"
 	default:
 		slog.Error("Invalid hidden strategy", "hiddenStrategy", hiddenStrategy)

@@ -48,7 +48,7 @@ func TestAddSellerItem(t *testing.T) {
 									response := FromJson[restapi.AddSellerItemResponse](t, writer.Body.String())
 
 									itemsInDatabase := []*models.Item{}
-									err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.IncludeHidden)
+									err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems)
 									require.NoError(t, err)
 									require.Equal(t, 1, len(itemsInDatabase))
 
@@ -95,7 +95,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "invalid_price")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.IncludeHidden)
+			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems)
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -125,7 +125,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "invalid_item_description")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.IncludeHidden)
+			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems)
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -157,7 +157,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_category")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.IncludeHidden)
+			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems)
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -188,7 +188,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.IncludeHidden)
+			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems)
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -218,7 +218,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.IncludeHidden)
+			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems)
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -248,7 +248,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_user_id")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.IncludeHidden)
+			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems)
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -279,7 +279,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_seller")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.IncludeHidden)
+			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems)
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -311,7 +311,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_user")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.IncludeHidden)
+			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems)
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -341,7 +341,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.IncludeHidden)
+			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems)
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -372,7 +372,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.IncludeHidden)
+			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems)
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})

@@ -14,9 +14,9 @@ import (
 func ExportItems(databasePath string, includeHidden bool) (r_err error) {
 	var hiddenStrategy int
 	if includeHidden {
-		hiddenStrategy = queries.IncludeHidden
+		hiddenStrategy = queries.AllItems
 	} else {
-		hiddenStrategy = queries.ExcludeHidden
+		hiddenStrategy = queries.OnlyVisibleItems
 	}
 
 	db, err := database.ConnectToDatabase(databasePath)
