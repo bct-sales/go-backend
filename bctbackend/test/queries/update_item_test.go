@@ -16,7 +16,7 @@ import (
 )
 
 func TestUpdateItem(t *testing.T) {
-	t.Run("Updating item successfully", func(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
 		oldAddedAt := models.Timestamp(1000)
 		oldDescription := "description"
 		oldPriceInCents := models.MoneyInCents(1000)
@@ -130,76 +130,61 @@ func TestUpdateItem(t *testing.T) {
 		}
 	})
 
-	t.Run("Failure due to nonexistent item", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("Nonexistent item", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
 
-		itemId := models.NewId(1)
-		itemUpdate := queries.ItemUpdate{}
-		err := queries.UpdateItem(db, itemId, &itemUpdate)
+			itemId := models.NewId(1)
+			itemUpdate := queries.ItemUpdate{}
+			err := queries.UpdateItem(db, itemId, &itemUpdate)
 
-		var noSuchItemError *queries.NoSuchItemError
-		require.ErrorAs(t, err, &noSuchItemError)
-		require.Equal(t, itemId, *noSuchItemError.Id)
-	})
+			var noSuchItemError *queries.NoSuchItemError
+			require.ErrorAs(t, err, &noSuchItemError)
+			require.Equal(t, itemId, *noSuchItemError.Id)
+		})
 
-	t.Run("Failure due to frozen item", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
+		t.Run("Frozen item", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
 
-		seller := setup.Seller()
+			seller := setup.Seller()
 
-		item := setup.Item(
-			seller.UserId,
-			aux.WithFrozen(true),
-			aux.WithHidden(false),
-		)
+			item := setup.Item(
+				seller.UserId,
+				aux.WithFrozen(true),
+				aux.WithHidden(false),
+			)
 
-		itemUpdate := queries.ItemUpdate{}
-		err := queries.UpdateItem(db, item.ItemId, &itemUpdate)
+			itemUpdate := queries.ItemUpdate{}
+			err := queries.UpdateItem(db, item.ItemId, &itemUpdate)
 
-		var itemFrozenError *queries.ItemFrozenError
-		require.ErrorAs(t, err, &itemFrozenError)
-		require.Equal(t, item.ItemId, itemFrozenError.Id)
-	})
+			var itemFrozenError *queries.ItemFrozenError
+			require.ErrorAs(t, err, &itemFrozenError)
+			require.Equal(t, item.ItemId, itemFrozenError.Id)
+		})
 
-	t.Run("Failure due to nil itemUpdate", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
+		t.Run("Invalid price", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
 
-		seller := setup.Seller()
+			seller := setup.Seller()
 
-		item := setup.Item(
-			seller.UserId,
-			aux.WithFrozen(false),
-			aux.WithHidden(false),
-		)
+			item := setup.Item(
+				seller.UserId,
+				aux.WithFrozen(false),
+				aux.WithHidden(false),
+			)
 
-		err := queries.UpdateItem(db, item.ItemId, nil)
+			invalidPrice := models.MoneyInCents(-100)
+			itemUpdate := queries.ItemUpdate{
+				PriceInCents: &invalidPrice,
+			}
 
-		require.Error(t, err)
-	})
+			err := queries.UpdateItem(db, item.ItemId, &itemUpdate)
 
-	t.Run("Failure due to invalid price", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
-
-		seller := setup.Seller()
-
-		item := setup.Item(
-			seller.UserId,
-			aux.WithFrozen(false),
-			aux.WithHidden(false),
-		)
-
-		invalidPrice := models.MoneyInCents(-100)
-		itemUpdate := queries.ItemUpdate{
-			PriceInCents: &invalidPrice,
-		}
-
-		err := queries.UpdateItem(db, item.ItemId, &itemUpdate)
-
-		var invalidPriceError *queries.InvalidPriceError
-		require.ErrorAs(t, err, &invalidPriceError)
+			var invalidPriceError *queries.InvalidPriceError
+			require.ErrorAs(t, err, &invalidPriceError)
+		})
 	})
 }
