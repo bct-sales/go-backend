@@ -14,97 +14,101 @@ import (
 )
 
 func TestGetSellerItems(t *testing.T) {
-	t.Run("No items in database", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
+	t.Run("Success", func(t *testing.T) {
+		t.Run("No items in database", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
 
-		seller := setup.Seller()
+			seller := setup.Seller()
 
-		items, err := queries.GetSellerItems(db, seller.UserId, true)
-		require.NoError(t, err)
-		require.Empty(t, items)
+			items, err := queries.GetSellerItems(db, seller.UserId, true)
+			require.NoError(t, err)
+			require.Empty(t, items)
+		})
+
+		t.Run("Zero items associated with that seller", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			sellerWithoutItems := setup.Seller()
+			sellerWithItems := setup.Seller()
+
+			setup.Item(sellerWithItems.UserId, aux.WithDummyData(0), aux.WithHidden(false))
+			setup.Item(sellerWithItems.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+			setup.Item(sellerWithItems.UserId, aux.WithDummyData(2), aux.WithHidden(false))
+			setup.Item(sellerWithItems.UserId, aux.WithDummyData(3), aux.WithHidden(false))
+
+			items, err := queries.GetSellerItems(db, sellerWithoutItems.UserId, true)
+			require.NoError(t, err)
+			require.Empty(t, items)
+		})
+
+		t.Run("Multiple items associated with seller, same timestamps", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			seller := setup.Seller()
+
+			item1 := setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithAddedAt(models.NewTimestamp(0)), aux.WithHidden(false))
+			item2 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(models.NewTimestamp(0)), aux.WithHidden(false))
+			item3 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(models.NewTimestamp(0)), aux.WithHidden(false))
+			item4 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithAddedAt(models.NewTimestamp(0)), aux.WithHidden(false))
+
+			items, err := queries.GetSellerItems(db, seller.UserId, true)
+			require.NoError(t, err)
+			require.Equal(t, []*models.Item{item1, item2, item3, item4}, items)
+		})
+
+		t.Run("Multiple items associated with seller, different timestamps", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			seller := setup.Seller()
+
+			item1 := setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithAddedAt(models.NewTimestamp(4)), aux.WithHidden(false))
+			item2 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(models.NewTimestamp(3)), aux.WithHidden(false))
+			item3 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(models.NewTimestamp(2)), aux.WithHidden(false))
+			item4 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithAddedAt(models.NewTimestamp(1)), aux.WithHidden(false))
+
+			items, err := queries.GetSellerItems(db, seller.UserId, true)
+			require.NoError(t, err)
+			require.Equal(t, []*models.Item{item4, item3, item2, item1}, items)
+		})
 	})
 
-	t.Run("Zero items associated with that seller", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("Unknown seller", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
 
-		sellerWithoutItems := setup.Seller()
-		sellerWithItems := setup.Seller()
+			unknownSellerId := models.Id(9999)
+			setup.RequireNoSuchUser(t, unknownSellerId)
 
-		setup.Item(sellerWithItems.UserId, aux.WithDummyData(0), aux.WithHidden(false))
-		setup.Item(sellerWithItems.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-		setup.Item(sellerWithItems.UserId, aux.WithDummyData(2), aux.WithHidden(false))
-		setup.Item(sellerWithItems.UserId, aux.WithDummyData(3), aux.WithHidden(false))
+			_, err := queries.GetSellerItems(db, unknownSellerId, true)
+			var noSuchUserError *queries.NoSuchUserError
+			require.ErrorAs(t, err, &noSuchUserError)
+		})
 
-		items, err := queries.GetSellerItems(db, sellerWithoutItems.UserId, true)
-		require.NoError(t, err)
-		require.Empty(t, items)
-	})
+		t.Run("Wrong role: cashier", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
 
-	t.Run("Multiple items associated with seller, same timestamps", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
+			cashier := setup.Cashier()
 
-		seller := setup.Seller()
+			_, err := queries.GetSellerItems(db, cashier.UserId, true)
+			var invalidRoleError *queries.InvalidRoleError
+			require.ErrorAs(t, err, &invalidRoleError)
+		})
 
-		item1 := setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithAddedAt(models.NewTimestamp(0)), aux.WithHidden(false))
-		item2 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(models.NewTimestamp(0)), aux.WithHidden(false))
-		item3 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(models.NewTimestamp(0)), aux.WithHidden(false))
-		item4 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithAddedAt(models.NewTimestamp(0)), aux.WithHidden(false))
+		t.Run("Wrong role: admin", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
 
-		items, err := queries.GetSellerItems(db, seller.UserId, true)
-		require.NoError(t, err)
-		require.Equal(t, []*models.Item{item1, item2, item3, item4}, items)
-	})
+			admin := setup.Admin()
 
-	t.Run("Multiple items associated with seller, different timestamps", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
-
-		seller := setup.Seller()
-
-		item1 := setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithAddedAt(models.NewTimestamp(4)), aux.WithHidden(false))
-		item2 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(models.NewTimestamp(3)), aux.WithHidden(false))
-		item3 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(models.NewTimestamp(2)), aux.WithHidden(false))
-		item4 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithAddedAt(models.NewTimestamp(1)), aux.WithHidden(false))
-
-		items, err := queries.GetSellerItems(db, seller.UserId, true)
-		require.NoError(t, err)
-		require.Equal(t, []*models.Item{item4, item3, item2, item1}, items)
-	})
-
-	t.Run("Unknown seller", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
-
-		unknownSellerId := models.Id(9999)
-		setup.RequireNoSuchUser(t, unknownSellerId)
-
-		_, err := queries.GetSellerItems(db, unknownSellerId, true)
-		var noSuchUserError *queries.NoSuchUserError
-		require.ErrorAs(t, err, &noSuchUserError)
-	})
-
-	t.Run("Wrong role: cashier", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
-
-		cashier := setup.Cashier()
-
-		_, err := queries.GetSellerItems(db, cashier.UserId, true)
-		var invalidRoleError *queries.InvalidRoleError
-		require.ErrorAs(t, err, &invalidRoleError)
-	})
-
-	t.Run("Wrong role: admin", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
-		defer setup.Close()
-
-		admin := setup.Admin()
-
-		_, err := queries.GetSellerItems(db, admin.UserId, true)
-		var invalidRoleError *queries.InvalidRoleError
-		require.ErrorAs(t, err, &invalidRoleError)
+			_, err := queries.GetSellerItems(db, admin.UserId, true)
+			var invalidRoleError *queries.InvalidRoleError
+			require.ErrorAs(t, err, &invalidRoleError)
+		})
 	})
 }
