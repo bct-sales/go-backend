@@ -164,6 +164,25 @@ func TestUpdateItem(t *testing.T) {
 			require.Equal(t, item.ItemId, itemFrozenError.Id)
 		})
 
+		t.Run("Hidden item", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			seller := setup.Seller()
+
+			item := setup.Item(
+				seller.UserId,
+				aux.WithFrozen(false),
+				aux.WithHidden(true),
+			)
+
+			itemUpdate := queries.ItemUpdate{}
+			err := queries.UpdateItem(db, item.ItemId, &itemUpdate)
+
+			var itemHiddenError *queries.ItemHiddenError
+			require.ErrorAs(t, err, &itemHiddenError)
+		})
+
 		t.Run("Invalid price", func(t *testing.T) {
 			setup, db := NewDatabaseFixture()
 			defer setup.Close()
