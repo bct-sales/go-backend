@@ -71,5 +71,112 @@ func TestGetUsersWithItemCount(t *testing.T) {
 			}
 			require.Equal(t, expected, actual)
 		})
+
+		t.Run("Hidden items", func(t *testing.T) {
+			t.Run("Exclude hidden items", func(t *testing.T) {
+				setup, db := NewDatabaseFixture()
+				defer setup.Close()
+
+				seller1 := setup.Seller()
+				seller2 := setup.Seller()
+				seller3 := setup.Seller()
+				setup.Items(seller1.UserId, 0, aux.WithHidden(false))
+				setup.Items(seller1.UserId, 3, aux.WithHidden(true))
+				setup.Items(seller2.UserId, 5, aux.WithHidden(false))
+				setup.Items(seller2.UserId, 5, aux.WithHidden(true))
+				setup.Items(seller3.UserId, 15, aux.WithHidden(false))
+				setup.Items(seller3.UserId, 4, aux.WithHidden(true))
+
+				actual := []*queries.UserWithItemCount{}
+				err := queries.GetUsersWithItemCount(db, queries.CollectTo(&actual))
+				require.NoError(t, err)
+				require.Len(t, actual, 3)
+				expected := []*queries.UserWithItemCount{
+					{
+						User:      *seller1,
+						ItemCount: int64(0),
+					},
+					{
+						User:      *seller2,
+						ItemCount: int64(5),
+					},
+					{
+						User:      *seller3,
+						ItemCount: int64(15),
+					},
+				}
+				require.Equal(t, expected, actual)
+			})
+
+			t.Run("Include hidden items", func(t *testing.T) {
+				setup, db := NewDatabaseFixture()
+				defer setup.Close()
+
+				seller1 := setup.Seller()
+				seller2 := setup.Seller()
+				seller3 := setup.Seller()
+				setup.Items(seller1.UserId, 0, aux.WithHidden(false))
+				setup.Items(seller1.UserId, 3, aux.WithHidden(true))
+				setup.Items(seller2.UserId, 5, aux.WithHidden(false))
+				setup.Items(seller2.UserId, 5, aux.WithHidden(true))
+				setup.Items(seller3.UserId, 15, aux.WithHidden(false))
+				setup.Items(seller3.UserId, 4, aux.WithHidden(true))
+
+				actual := []*queries.UserWithItemCount{}
+				err := queries.GetUsersWithItemCount(db, queries.CollectTo(&actual))
+				require.NoError(t, err)
+				require.Len(t, actual, 3)
+				expected := []*queries.UserWithItemCount{
+					{
+						User:      *seller1,
+						ItemCount: int64(3),
+					},
+					{
+						User:      *seller2,
+						ItemCount: int64(10),
+					},
+					{
+						User:      *seller3,
+						ItemCount: int64(19),
+					},
+				}
+				require.Equal(t, expected, actual)
+			})
+
+			t.Run("Only hidden items", func(t *testing.T) {
+				setup, db := NewDatabaseFixture()
+				defer setup.Close()
+
+				seller1 := setup.Seller()
+				seller2 := setup.Seller()
+				seller3 := setup.Seller()
+				setup.Items(seller1.UserId, 0, aux.WithHidden(false))
+				setup.Items(seller1.UserId, 3, aux.WithHidden(true))
+				setup.Items(seller2.UserId, 5, aux.WithHidden(false))
+				setup.Items(seller2.UserId, 5, aux.WithHidden(true))
+				setup.Items(seller3.UserId, 15, aux.WithHidden(false))
+				setup.Items(seller3.UserId, 4, aux.WithHidden(true))
+
+				actual := []*queries.UserWithItemCount{}
+				err := queries.GetUsersWithItemCount(db, queries.CollectTo(&actual))
+				require.NoError(t, err)
+				require.Len(t, actual, 3)
+				expected := []*queries.UserWithItemCount{
+					{
+						User:      *seller1,
+						ItemCount: int64(3),
+					},
+					{
+						User:      *seller2,
+						ItemCount: int64(5),
+					},
+					{
+						User:      *seller3,
+						ItemCount: int64(4),
+					},
+				}
+				require.Equal(t, expected, actual)
+			})
+		})
 	})
 }
