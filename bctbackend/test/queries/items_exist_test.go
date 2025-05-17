@@ -41,7 +41,7 @@ func TestCheckItemsExistence(t *testing.T) {
 						itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemId)
 					}
 
-					actual, err := queries.CheckItemsExistence(db, selection)
+					actual, err := queries.ItemsExist(db, selection)
 					require.NoError(t, err)
 					require.True(t, actual)
 				})
@@ -66,7 +66,7 @@ func TestCheckItemsExistence(t *testing.T) {
 						itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemId)
 					}
 
-					actual, err := queries.CheckItemsExistence(db, selection)
+					actual, err := queries.ItemsExist(db, selection)
 					require.NoError(t, err)
 					require.False(t, actual)
 				})
