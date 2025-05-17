@@ -12,7 +12,7 @@ import (
 )
 
 func ExportItems(databasePath string, includeHidden bool) (r_err error) {
-	var hiddenStrategy int
+	var hiddenStrategy queries.ItemSelection
 	if includeHidden {
 		hiddenStrategy = queries.AllItems
 	} else {

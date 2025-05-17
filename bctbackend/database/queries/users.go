@@ -197,7 +197,7 @@ type UserWithItemCount struct {
 	ItemCount int64
 }
 
-func GetUsersWithItemCount(db *sql.DB, hiddenStrategy int, receiver func(*UserWithItemCount) error) (r_err error) {
+func GetUsersWithItemCount(db *sql.DB, itemSelection ItemSelection, receiver func(*UserWithItemCount) error) (r_err error) {
 	query := fmt.Sprintf(
 		`
 			SELECT users.user_id, role_id, created_at, last_activity, password, COALESCE(COUNT(i.item_id), 0) AS item_count
@@ -205,7 +205,7 @@ func GetUsersWithItemCount(db *sql.DB, hiddenStrategy int, receiver func(*UserWi
 			GROUP BY users.user_id
 			ORDER BY users.user_id
 		`,
-		ItemsTableFor(hiddenStrategy))
+		ItemsTableFor(itemSelection))
 	rows, err := db.Query(query)
 
 	if err != nil {

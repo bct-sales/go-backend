@@ -6,14 +6,16 @@ import (
 	"golang.org/x/exp/slog"
 )
 
+type ItemSelection int
+
 const (
-	AllItems         = 1
-	OnlyVisibleItems = 2
-	OnlyHiddenItems  = 3
+	AllItems         ItemSelection = 1
+	OnlyVisibleItems ItemSelection = 2
+	OnlyHiddenItems  ItemSelection = 3
 )
 
-func ItemsTableFor(hiddenStrategy int) string {
-	switch hiddenStrategy {
+func ItemsTableFor(itemSelection ItemSelection) string {
+	switch itemSelection {
 	case AllItems:
 		return "items"
 	case OnlyVisibleItems:
@@ -21,7 +23,7 @@ func ItemsTableFor(hiddenStrategy int) string {
 	case OnlyHiddenItems:
 		return "hidden_items"
 	default:
-		slog.Error("Invalid hidden strategy", "hiddenStrategy", hiddenStrategy)
+		slog.Error("Invalid hidden strategy", "hiddenStrategy", itemSelection)
 		os.Exit(1)
 		return ""
 	}

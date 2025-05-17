@@ -18,7 +18,7 @@ func ListItems(databasePath string, showHidden bool) (r_err error) {
 	}
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
-	var hiddenStrategy int
+	var hiddenStrategy queries.ItemSelection
 	if showHidden {
 		hiddenStrategy = queries.AllItems
 	} else {
