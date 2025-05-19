@@ -64,6 +64,8 @@ type ItemFrozenError struct {
 
 type ItemHiddenError struct{}
 
+type InvalidCategoryNameError struct{}
+
 func (err *UserIdAlreadyInUseError) Error() string {
 	return fmt.Sprintf("user id %d already in use", err.UserId)
 }
@@ -138,4 +140,8 @@ func (e *ItemHiddenError) Error() string {
 
 func (e *InvalidItemDescriptionError) Error() string {
 	return fmt.Sprintf("invalid description \"%s\"", e.Description)
+}
+
+func (e *InvalidCategoryNameError) Error() string {
+	return "invalid category name"
 }
