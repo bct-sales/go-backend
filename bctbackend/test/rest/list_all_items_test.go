@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	models "bctbackend/database/models"
+	"bctbackend/rest/path"
 	rest "bctbackend/rest/shared"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
@@ -50,7 +51,7 @@ type FailureResponse struct {
 }
 
 func TestGetAllItems(t *testing.T) {
-	url := "/api/v1/items"
+	url := path.Items().String()
 
 	t.Run("Success", func(t *testing.T) {
 		t.Run("No items", func(t *testing.T) {
