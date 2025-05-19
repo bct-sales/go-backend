@@ -17,7 +17,7 @@ import (
 )
 
 func TestAddItem(t *testing.T) {
-	t.Run("Adding item successfully", func(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
 		for _, timestamp := range []models.Timestamp{0, 1000} {
 			for _, priceInCents := range []models.MoneyInCents{50, 100} {
 				for _, itemCategoryId := range defs.ListCategories() {
