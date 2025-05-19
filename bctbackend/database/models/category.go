@@ -32,3 +32,7 @@ func NewItemCategoryCount(
 		Count:      count,
 	}
 }
+
+func IsValidCategoryName(name string) bool {
+	return len(name) > 0
+}
