@@ -135,7 +135,7 @@ func (e *ItemFrozenError) Error() string {
 }
 
 func (e *ItemHiddenError) Error() string {
-	return fmt.Sprintf("an item was hidden")
+	return "an item was hidden"
 }
 
 func (e *InvalidItemDescriptionError) Error() string {
