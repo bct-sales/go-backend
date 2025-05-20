@@ -37,11 +37,15 @@ func AddItem(
 	if err != nil {
 		return err
 	}
-
 	fmt.Println("Item added successfully")
 
-	err = formatting.PrintItem(db, addedItemId)
+	categoryTable, err := queries.GetCategoryMap(db)
+	if err != nil {
+		slog.Error("An error occurred while trying to get the category map; item is still added to the database", "error", err)
+		return nil
+	}
 
+	err = formatting.PrintItem(db, categoryTable, addedItemId)
 	if err != nil {
 		slog.Error("An error occurred while trying to format the output; item is still added to the database", "added item id", addedItemId, "error", err)
 		return nil
