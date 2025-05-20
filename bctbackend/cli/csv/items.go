@@ -30,7 +30,12 @@ func ExportItems(databasePath string, includeHidden bool) (r_err error) {
 		return err
 	}
 
-	err = dbcsv.FormatItemsAsCSV(items, os.Stdout)
+	categoryTable, err := queries.GetCategoryMap(db)
+	if err != nil {
+		return err
+	}
+
+	err = dbcsv.FormatItemsAsCSV(items, categoryTable, os.Stdout)
 	if err != nil {
 		return err
 	}
