@@ -18,7 +18,7 @@ func TestAddUser(t *testing.T) {
 		for _, password := range []string{"a", "xyz"} {
 			for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
 				t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
-					setup, db := NewDatabaseFixture()
+					setup, db := NewDatabaseFixture(WithDefaultCategories)
 					defer setup.Close()
 
 					userId, err := queries.AddUser(db, roleId, 0, nil, password)
@@ -33,7 +33,7 @@ func TestAddUser(t *testing.T) {
 	})
 
 	t.Run("Fail due to invalid role", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		roleId := models.Id(10)

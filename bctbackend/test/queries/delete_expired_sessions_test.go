@@ -17,7 +17,7 @@ func TestDeleteExpiredSessions(t *testing.T) {
 	for cutoff := 0; cutoff < 100; cutoff += 10 {
 		testLabel := fmt.Sprintf("cutoff=%d", cutoff)
 		t.Run(testLabel, func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			user := setup.Admin()

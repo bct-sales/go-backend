@@ -13,7 +13,7 @@ import (
 )
 
 func TestUpdatePassword(t *testing.T) {
-	setup, db := NewDatabaseFixture()
+	setup, db := NewDatabaseFixture(WithDefaultCategories)
 	defer setup.Close()
 
 	password1 := "xyz"

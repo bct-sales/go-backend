@@ -28,7 +28,7 @@ func TestAddSellerItem(t *testing.T) {
 						for _, donation := range []bool{true, false} {
 							for _, charity := range []bool{true, false} {
 								t.Run(fmt.Sprintf("sellerId=%d price=%d description=%s categoryId=%d donation=%t charity=%t", sellerId, price, description, categoryId, donation, charity), func(t *testing.T) {
-									setup, router, writer := NewRestFixture()
+									setup, router, writer := NewRestFixture(WithDefaultCategories)
 									defer setup.Close()
 
 									seller, sessionId := setup.LoggedIn(setup.Seller(aux.WithUserId(sellerId)))
@@ -71,7 +71,7 @@ func TestAddSellerItem(t *testing.T) {
 
 	t.Run("Failing", func(t *testing.T) {
 		t.Run("Zero price", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			price := models.MoneyInCents(0)
@@ -101,7 +101,7 @@ func TestAddSellerItem(t *testing.T) {
 		})
 
 		t.Run("Empty description", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			price := models.MoneyInCents(100)
@@ -131,7 +131,7 @@ func TestAddSellerItem(t *testing.T) {
 		})
 
 		t.Run("Invalid category", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			price := models.MoneyInCents(100)
@@ -163,7 +163,7 @@ func TestAddSellerItem(t *testing.T) {
 		})
 
 		t.Run("Adding seller item as admin", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			price := models.MoneyInCents(100)
@@ -194,7 +194,7 @@ func TestAddSellerItem(t *testing.T) {
 		})
 
 		t.Run("Adding seller item as cashier", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			price := models.MoneyInCents(100)
@@ -224,7 +224,7 @@ func TestAddSellerItem(t *testing.T) {
 		})
 
 		t.Run("Invalid url", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			price := models.MoneyInCents(100)
@@ -254,7 +254,7 @@ func TestAddSellerItem(t *testing.T) {
 		})
 
 		t.Run("Adding as different seller", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			price := models.MoneyInCents(100)
@@ -285,7 +285,7 @@ func TestAddSellerItem(t *testing.T) {
 		})
 
 		t.Run("Adding item to nonexistent seller", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			price := models.MoneyInCents(100)
@@ -317,7 +317,7 @@ func TestAddSellerItem(t *testing.T) {
 		})
 
 		t.Run("No session ID in cookie", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			price := models.MoneyInCents(0)
@@ -347,7 +347,7 @@ func TestAddSellerItem(t *testing.T) {
 		})
 
 		t.Run("Invalid session ID in cookie", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			price := models.MoneyInCents(0)

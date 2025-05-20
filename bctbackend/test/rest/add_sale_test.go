@@ -20,7 +20,7 @@ func TestAddSale(t *testing.T) {
 	url := path.Sales().String()
 
 	t.Run("Success", func(t *testing.T) {
-		setup, router, writer := NewRestFixture()
+		setup, router, writer := NewRestFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -48,7 +48,7 @@ func TestAddSale(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Adding sale as seller", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
@@ -68,7 +68,7 @@ func TestAddSale(t *testing.T) {
 		})
 
 		t.Run("Adding sale as admin", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionId := setup.LoggedIn(setup.Admin())
@@ -88,7 +88,7 @@ func TestAddSale(t *testing.T) {
 		})
 
 		t.Run("No items in sale", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionId := setup.LoggedIn(setup.Cashier())
@@ -106,7 +106,7 @@ func TestAddSale(t *testing.T) {
 		})
 
 		t.Run("Nonexistent item in sale", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionId := setup.LoggedIn(setup.Cashier())
@@ -127,7 +127,7 @@ func TestAddSale(t *testing.T) {
 		})
 
 		t.Run("Duplicate item in sale", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionId := setup.LoggedIn(setup.Cashier())
@@ -148,7 +148,7 @@ func TestAddSale(t *testing.T) {
 		})
 
 		t.Run("Without cookie", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -163,7 +163,7 @@ func TestAddSale(t *testing.T) {
 		})
 
 		t.Run("Cookie with fake session id", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()

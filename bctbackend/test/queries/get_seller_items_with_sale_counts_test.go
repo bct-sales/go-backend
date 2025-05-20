@@ -16,7 +16,7 @@ import (
 func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Zero items", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -27,7 +27,7 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 		})
 
 		t.Run("One item in zero sales", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -49,7 +49,7 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 		})
 
 		t.Run("One item in one sale", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -65,7 +65,7 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 		})
 
 		t.Run("One item in two sales", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -84,7 +84,7 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Nonexistent seller", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			invalidSellerId := models.Id(1000)

@@ -17,7 +17,7 @@ import (
 func TestContainsHiddenItems(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("No hidden items", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -30,7 +30,7 @@ func TestContainsHiddenItems(t *testing.T) {
 		})
 
 		t.Run("One hidden item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -44,7 +44,7 @@ func TestContainsHiddenItems(t *testing.T) {
 		})
 
 		t.Run("Duplicate items, no hidden items", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -58,7 +58,7 @@ func TestContainsHiddenItems(t *testing.T) {
 		})
 
 		t.Run("Duplicate items, hidden item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -72,7 +72,7 @@ func TestContainsHiddenItems(t *testing.T) {
 			require.True(t, result)
 		})
 		t.Run("Nonexistent item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()

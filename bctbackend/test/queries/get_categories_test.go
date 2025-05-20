@@ -13,7 +13,7 @@ import (
 )
 
 func TestGetCategories(t *testing.T) {
-	setup, db := NewDatabaseFixture()
+	setup, db := NewDatabaseFixture(WithDefaultCategories)
 	defer setup.Close()
 
 	categories, err := queries.GetCategories(db)

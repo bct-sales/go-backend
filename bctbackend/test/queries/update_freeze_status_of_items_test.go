@@ -30,7 +30,7 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 		for _, selection := range selections {
 			testLabel := fmt.Sprintf("Selection: %v", selection)
 			t.Run(testLabel, func(t *testing.T) {
-				setup, db := NewDatabaseFixture()
+				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
 				seller := setup.Seller()
@@ -55,7 +55,7 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("No such item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			err := queries.UpdateFreezeStatusOfItems(db, []models.Id{1}, true)
@@ -63,7 +63,7 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 		})
 
 		t.Run("Cannot freeze hidden item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -86,7 +86,7 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 		})
 
 		t.Run("Cannot unfreeze hidden item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()

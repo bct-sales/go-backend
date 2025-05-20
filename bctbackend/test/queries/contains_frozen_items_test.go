@@ -17,7 +17,7 @@ import (
 func TestContainsFrozenItems(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("No frozen items", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -30,7 +30,7 @@ func TestContainsFrozenItems(t *testing.T) {
 		})
 
 		t.Run("One frozen item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -44,7 +44,7 @@ func TestContainsFrozenItems(t *testing.T) {
 		})
 
 		t.Run("Duplicate items, no frozen items", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -58,7 +58,7 @@ func TestContainsFrozenItems(t *testing.T) {
 		})
 
 		t.Run("Duplicate items, frozen item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -73,7 +73,7 @@ func TestContainsFrozenItems(t *testing.T) {
 		})
 
 		t.Run("Duplicate items, frozen item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -88,7 +88,7 @@ func TestContainsFrozenItems(t *testing.T) {
 		})
 
 		t.Run("Hidden items are not ignored", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -103,7 +103,7 @@ func TestContainsFrozenItems(t *testing.T) {
 		})
 
 		t.Run("Nonexistent item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()

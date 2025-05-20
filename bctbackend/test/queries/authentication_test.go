@@ -15,7 +15,7 @@ import (
 
 func TestAuthentication(t *testing.T) {
 	t.Run("Successful authentication", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		password := "xyz"
@@ -32,7 +32,7 @@ func TestAuthentication(t *testing.T) {
 	})
 
 	t.Run("Authenticating non-existing user", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		userId := models.NewId(5)
@@ -48,7 +48,7 @@ func TestAuthentication(t *testing.T) {
 	})
 
 	t.Run("Authenticating using wrong password", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		password := "xyz"

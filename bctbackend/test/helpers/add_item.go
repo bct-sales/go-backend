@@ -144,13 +144,11 @@ func AddItemToDatabase(db *sql.DB, sellerId models.Id, options ...func(*AddItemD
 	data.FillWithDefaults()
 
 	itemId, err := queries.AddItem(db, *data.AddedAt, *data.Description, *data.PriceInCents, *data.ItemCategory, sellerId, *data.Donation, *data.Charity, *data.Frozen, *data.Hidden)
-
 	if err != nil {
 		panic(err)
 	}
 
 	item, err := queries.GetItemWithId(db, itemId)
-
 	if err != nil {
 		panic(err)
 	}

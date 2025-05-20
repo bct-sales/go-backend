@@ -14,7 +14,7 @@ import (
 )
 
 func TestRemoveExistingItem(t *testing.T) {
-	setup, db := NewDatabaseFixture()
+	setup, db := NewDatabaseFixture(WithDefaultCategories)
 	defer setup.Close()
 
 	seller := setup.Seller()
@@ -30,7 +30,7 @@ func TestRemoveExistingItem(t *testing.T) {
 }
 
 func TestRemoveNonexistingItem(t *testing.T) {
-	setup, db := NewDatabaseFixture()
+	setup, db := NewDatabaseFixture(WithDefaultCategories)
 	defer setup.Close()
 
 	itemId := models.NewId(1)
@@ -42,7 +42,7 @@ func TestRemoveNonexistingItem(t *testing.T) {
 }
 
 func TestRemoveSoldItem(t *testing.T) {
-	setup, db := NewDatabaseFixture()
+	setup, db := NewDatabaseFixture(WithDefaultCategories)
 	defer setup.Close()
 
 	seller := setup.Seller()

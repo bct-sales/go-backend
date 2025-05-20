@@ -20,7 +20,7 @@ func TestGetSellerItemCount(t *testing.T) {
 			for _, itemCount := range []int64{0, 1, 2, 10, 100} {
 				testLabel := fmt.Sprintf("Seller with %d items", itemCount)
 				t.Run(testLabel, func(t *testing.T) {
-					setup, db := NewDatabaseFixture()
+					setup, db := NewDatabaseFixture(WithDefaultCategories)
 					defer setup.Close()
 
 					seller := setup.Seller()
@@ -40,7 +40,7 @@ func TestGetSellerItemCount(t *testing.T) {
 			for _, itemCount := range []int64{0, 1, 2, 10, 100} {
 				testLabel := fmt.Sprintf("Seller with %d items", itemCount)
 				t.Run(testLabel, func(t *testing.T) {
-					setup, db := NewDatabaseFixture()
+					setup, db := NewDatabaseFixture(WithDefaultCategories)
 					defer setup.Close()
 
 					seller := setup.Seller()
@@ -59,7 +59,7 @@ func TestGetSellerItemCount(t *testing.T) {
 		})
 
 		t.Run("Frozen items are counted", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -77,7 +77,7 @@ func TestGetSellerItemCount(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("No such user", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			nonExistentSellerId := models.Id(1000)
@@ -91,7 +91,7 @@ func TestGetSellerItemCount(t *testing.T) {
 		})
 
 		t.Run("Count items of cashier", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			cashier := setup.Cashier()
@@ -104,7 +104,7 @@ func TestGetSellerItemCount(t *testing.T) {
 		})
 
 		t.Run("Count items of admin", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			admin := setup.Admin()

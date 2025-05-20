@@ -14,7 +14,7 @@ import (
 )
 
 func TestRemoveSale(t *testing.T) {
-	setup, db := NewDatabaseFixture()
+	setup, db := NewDatabaseFixture(WithDefaultCategories)
 	defer setup.Close()
 
 	seller := setup.Seller()
@@ -44,7 +44,7 @@ func TestRemoveSale(t *testing.T) {
 }
 
 func TestRemoveNonexistentSale(t *testing.T) {
-	setup, db := NewDatabaseFixture()
+	setup, db := NewDatabaseFixture(WithDefaultCategories)
 	defer setup.Close()
 
 	err := queries.RemoveSale(db, 0)

@@ -14,7 +14,7 @@ import (
 )
 
 func TestGetSales(t *testing.T) {
-	setup, db := NewDatabaseFixture()
+	setup, db := NewDatabaseFixture(WithDefaultCategories)
 	defer setup.Close()
 
 	seller := setup.Seller()

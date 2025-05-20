@@ -16,7 +16,7 @@ import (
 func TestGetSellerItems(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("No items in database", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -27,7 +27,7 @@ func TestGetSellerItems(t *testing.T) {
 		})
 
 		t.Run("Zero items associated with that seller", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			sellerWithoutItems := setup.Seller()
@@ -44,7 +44,7 @@ func TestGetSellerItems(t *testing.T) {
 		})
 
 		t.Run("Multiple items associated with seller, same timestamps", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -61,7 +61,7 @@ func TestGetSellerItems(t *testing.T) {
 		})
 
 		t.Run("Multiple items associated with seller, different timestamps", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -78,7 +78,7 @@ func TestGetSellerItems(t *testing.T) {
 		})
 
 		t.Run("Only visible items", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -92,7 +92,7 @@ func TestGetSellerItems(t *testing.T) {
 		})
 
 		t.Run("Only hidden items", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -108,7 +108,7 @@ func TestGetSellerItems(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Unknown seller", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			unknownSellerId := models.Id(9999)
@@ -120,7 +120,7 @@ func TestGetSellerItems(t *testing.T) {
 		})
 
 		t.Run("Wrong role: cashier", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			cashier := setup.Cashier()
@@ -131,7 +131,7 @@ func TestGetSellerItems(t *testing.T) {
 		})
 
 		t.Run("Wrong role: admin", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			admin := setup.Admin()

@@ -55,7 +55,7 @@ func TestGetAllItems(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		t.Run("No items", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionId := setup.LoggedIn(setup.Admin())
@@ -70,7 +70,7 @@ func TestGetAllItems(t *testing.T) {
 		})
 
 		t.Run("One item", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionId := setup.LoggedIn(setup.Admin())
@@ -91,7 +91,7 @@ func TestGetAllItems(t *testing.T) {
 		})
 
 		t.Run("Two items", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionId := setup.LoggedIn(setup.Admin())
@@ -123,7 +123,7 @@ func TestGetAllItems(t *testing.T) {
 				}
 
 				t.Run("As "+roleString, func(t *testing.T) {
-					setup, router, writer := NewRestFixture()
+					setup, router, writer := NewRestFixture(WithDefaultCategories)
 					defer setup.Close()
 
 					_, sessionId := setup.LoggedIn(setup.User(roleId))
@@ -137,7 +137,7 @@ func TestGetAllItems(t *testing.T) {
 		})
 
 		t.Run("No cookie", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			request := CreateGetRequest(url)
@@ -147,7 +147,7 @@ func TestGetAllItems(t *testing.T) {
 		})
 
 		t.Run("Cookie with fake session id", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			request := CreateGetRequest(url, WithSessionCookie("fake_session_id"))
@@ -157,7 +157,7 @@ func TestGetAllItems(t *testing.T) {
 		})
 
 		t.Run("Cookie without session id", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			request := CreateGetRequest(url, WithCookie("whatever", "whatever"))

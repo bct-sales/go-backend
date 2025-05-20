@@ -302,10 +302,6 @@ func populateTables(db *sql.DB) error {
 		return err
 	}
 
-	if err := populateItemCategoryTable(db); err != nil {
-		return err
-	}
-
 	return nil
 }
 

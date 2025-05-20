@@ -11,7 +11,7 @@ import (
 )
 
 func TestSessionExpiration(t *testing.T) {
-	setup, router, writer := NewRestFixture()
+	setup, router, writer := NewRestFixture(WithDefaultCategories)
 	defer setup.Close()
 
 	_, sessionId := setup.LoggedIn(setup.Admin(), aux.WithExpiration(-1))
@@ -23,7 +23,7 @@ func TestSessionExpiration(t *testing.T) {
 }
 
 func TestMissingSessionId(t *testing.T) {
-	setup, router, writer := NewRestFixture()
+	setup, router, writer := NewRestFixture(WithDefaultCategories)
 	defer setup.Close()
 
 	setup.LoggedIn(setup.Admin(), aux.WithExpiration(-1))

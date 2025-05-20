@@ -18,7 +18,7 @@ func TestItemIsFrozen(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		for _, frozen := range []bool{true, false} {
 			t.Run("Frozen "+strconv.FormatBool(frozen), func(t *testing.T) {
-				setup, db := NewDatabaseFixture()
+				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
 				seller := setup.Seller()
@@ -33,7 +33,7 @@ func TestItemIsFrozen(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("No such item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			invalidId := models.Id(1)

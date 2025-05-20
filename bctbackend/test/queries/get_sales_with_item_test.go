@@ -21,7 +21,7 @@ func TestGetSalesWithItem(t *testing.T) {
 
 			t.Run(testLabel, func(t *testing.T) {
 				saleCount := 0
-				setup, db := NewDatabaseFixture()
+				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
 				seller := setup.Seller()
@@ -41,7 +41,7 @@ func TestGetSalesWithItem(t *testing.T) {
 		}
 
 		t.Run("Ignores other sales without the item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -62,7 +62,7 @@ func TestGetSalesWithItem(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Invalid item ID", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()

@@ -20,7 +20,7 @@ func TestCountItems(t *testing.T) {
 				for _, count := range []int{0, 1, 2, 5, 10, 23} {
 					testLabel := fmt.Sprintf("%d unhidden items", count)
 					t.Run(testLabel, func(t *testing.T) {
-						setup, db := NewDatabaseFixture()
+						setup, db := NewDatabaseFixture(WithDefaultCategories)
 						defer setup.Close()
 
 						seller := setup.Seller()
@@ -34,7 +34,7 @@ func TestCountItems(t *testing.T) {
 			})
 
 			t.Run("With hidden items", func(t *testing.T) {
-				setup, db := NewDatabaseFixture()
+				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
 				seller := setup.Seller()
@@ -51,7 +51,7 @@ func TestCountItems(t *testing.T) {
 				for _, count := range []int{0, 1, 2, 5, 10, 23} {
 					testLabel := fmt.Sprintf("%d unhidden items", count)
 					t.Run(testLabel, func(t *testing.T) {
-						setup, db := NewDatabaseFixture()
+						setup, db := NewDatabaseFixture(WithDefaultCategories)
 						defer setup.Close()
 
 						seller := setup.Seller()
@@ -65,7 +65,7 @@ func TestCountItems(t *testing.T) {
 			})
 
 			t.Run("With hidden items", func(t *testing.T) {
-				setup, db := NewDatabaseFixture()
+				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
 				seller := setup.Seller()
@@ -78,7 +78,7 @@ func TestCountItems(t *testing.T) {
 		})
 
 		t.Run("Only hidden items in count", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()

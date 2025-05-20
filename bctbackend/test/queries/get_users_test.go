@@ -14,7 +14,7 @@ import (
 
 func TestGetUsers(t *testing.T) {
 	t.Run("Single user", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		password := "xyz"
@@ -38,7 +38,7 @@ func TestGetUsers(t *testing.T) {
 	})
 
 	t.Run("Two users", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		user1 := models.User{

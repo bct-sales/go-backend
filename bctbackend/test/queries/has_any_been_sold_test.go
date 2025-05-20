@@ -16,7 +16,7 @@ import (
 
 func TestHasAnyBeenSold(t *testing.T) {
 	t.Run("Single unsold item", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -29,7 +29,7 @@ func TestHasAnyBeenSold(t *testing.T) {
 	})
 
 	t.Run("Single sold item", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -44,7 +44,7 @@ func TestHasAnyBeenSold(t *testing.T) {
 	})
 
 	t.Run("Multiple unsold items", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -58,7 +58,7 @@ func TestHasAnyBeenSold(t *testing.T) {
 	})
 
 	t.Run("Multiple unsold items", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -75,7 +75,7 @@ func TestHasAnyBeenSold(t *testing.T) {
 	})
 
 	t.Run("Nonexistent item", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		nonexistentItemId := models.NewId(1)

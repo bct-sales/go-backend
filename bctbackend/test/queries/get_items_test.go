@@ -21,7 +21,7 @@ func TestGetItems(t *testing.T) {
 				for _, itemCount := range []int{0, 1, 2, 10} {
 					testLabel := fmt.Sprintf("Item count: %d", itemCount)
 					t.Run(testLabel, func(t *testing.T) {
-						setup, db := NewDatabaseFixture()
+						setup, db := NewDatabaseFixture(WithDefaultCategories)
 						defer setup.Close()
 
 						seller := setup.Seller()
@@ -43,7 +43,7 @@ func TestGetItems(t *testing.T) {
 				for _, itemCount := range []int{0, 1, 2, 10} {
 					testLabel := fmt.Sprintf("Item count: %d", itemCount)
 					t.Run(testLabel, func(t *testing.T) {
-						setup, db := NewDatabaseFixture()
+						setup, db := NewDatabaseFixture(WithDefaultCategories)
 						defer setup.Close()
 
 						seller := setup.Seller()
@@ -59,7 +59,7 @@ func TestGetItems(t *testing.T) {
 		})
 
 		t.Run("Get all items", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -77,7 +77,7 @@ func TestGetItems(t *testing.T) {
 		})
 
 		t.Run("Get only hidden items", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()

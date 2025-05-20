@@ -46,7 +46,7 @@ func TestUpdateItem(t *testing.T) {
 									updateCategory,
 								)
 								t.Run(testLabel, func(t *testing.T) {
-									setup, db := NewDatabaseFixture()
+									setup, db := NewDatabaseFixture(WithDefaultCategories)
 									defer setup.Close()
 
 									seller := setup.Seller()
@@ -132,7 +132,7 @@ func TestUpdateItem(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Nonexistent item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			itemId := models.NewId(1)
@@ -145,7 +145,7 @@ func TestUpdateItem(t *testing.T) {
 		})
 
 		t.Run("Frozen item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -165,7 +165,7 @@ func TestUpdateItem(t *testing.T) {
 		})
 
 		t.Run("Hidden item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -184,7 +184,7 @@ func TestUpdateItem(t *testing.T) {
 		})
 
 		t.Run("Invalid price", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()

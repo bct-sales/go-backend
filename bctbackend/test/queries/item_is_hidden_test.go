@@ -19,7 +19,7 @@ func TestItemIsHidden(t *testing.T) {
 		for _, hidden := range []bool{true, false} {
 			testLabel := fmt.Sprintf("Hidden %t", hidden)
 			t.Run(testLabel, func(t *testing.T) {
-				setup, db := NewDatabaseFixture()
+				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
 				seller := setup.Seller()
@@ -34,7 +34,7 @@ func TestItemIsHidden(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Nonexistent item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			invalidId := models.Id(1)

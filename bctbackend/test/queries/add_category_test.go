@@ -14,7 +14,7 @@ import (
 
 func TestAddCategory(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		categoryName := "Test Category"
@@ -34,7 +34,7 @@ func TestAddCategory(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Invalid name", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			categoryName := ""

@@ -18,7 +18,7 @@ import (
 )
 
 func TestHeavyLoad(t *testing.T) {
-	setup, router, writer := NewRestFixture()
+	setup, router, writer := NewRestFixture(WithDefaultCategories)
 	defer setup.Close()
 
 	seller, sessionId := setup.LoggedIn(setup.Seller())

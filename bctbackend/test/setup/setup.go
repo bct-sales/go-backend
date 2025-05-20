@@ -8,6 +8,7 @@ import (
 
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/defs"
 	aux "bctbackend/test/helpers"
 	"database/sql"
 
@@ -19,14 +20,35 @@ type DatabaseFixture struct {
 	Db *sql.DB
 }
 
-func initializeDatabaseFixture(fixture *DatabaseFixture) {
+func initializeDatabaseFixture(fixture *DatabaseFixture, options ...func(*DatabaseFixture)) {
 	fixture.Db = aux.OpenInitializedDatabase()
+
+	for _, option := range options {
+		option(fixture)
+	}
 }
 
-func NewDatabaseFixture() (DatabaseFixture, *sql.DB) {
+func NewDatabaseFixture(options ...func(*DatabaseFixture)) (DatabaseFixture, *sql.DB) {
 	var fixture DatabaseFixture
-	initializeDatabaseFixture(&fixture)
+	initializeDatabaseFixture(&fixture, options...)
+
 	return fixture, fixture.Db
+}
+
+func WithDefaultCategories(fixture *DatabaseFixture) {
+	db := fixture.Db
+
+	for _, categoryId := range defs.ListCategories() {
+		categoryName, err := defs.NameOfCategory(categoryId)
+		if err != nil {
+			panic(err)
+		}
+
+		_, err = queries.AddCategory(db, categoryName)
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 
 func (f *DatabaseFixture) Close() {
@@ -42,16 +64,16 @@ type RestFixture struct {
 	Writer *httptest.ResponseRecorder
 }
 
-func initializeRestFixture(fixture *RestFixture) {
-	initializeDatabaseFixture(&fixture.DatabaseFixture)
+func initializeRestFixture(fixture *RestFixture, databaseOptions ...func(*DatabaseFixture)) {
+	initializeDatabaseFixture(&fixture.DatabaseFixture, databaseOptions...)
 	router := aux.CreateRestRouter(fixture.DatabaseFixture.Db)
 	fixture.Router = router
 	fixture.Writer = httptest.NewRecorder()
 }
 
-func NewRestFixture() (RestFixture, *gin.Engine, *httptest.ResponseRecorder) {
+func NewRestFixture(databaseOptions ...func(*DatabaseFixture)) (RestFixture, *gin.Engine, *httptest.ResponseRecorder) {
 	var fixture RestFixture
-	initializeRestFixture(&fixture)
+	initializeRestFixture(&fixture, databaseOptions...)
 	return fixture, fixture.Router, fixture.Writer
 }
 

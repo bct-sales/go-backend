@@ -20,7 +20,7 @@ func TestAddUserWithId(t *testing.T) {
 			for _, userId := range []models.Id{1, 5} {
 				for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
 					t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
-						setup, db := NewDatabaseFixture()
+						setup, db := NewDatabaseFixture(WithDefaultCategories)
 						defer setup.Close()
 
 						err := queries.AddUserWithId(db, userId, roleId, 0, nil, password)
@@ -40,7 +40,7 @@ func TestAddUserWithId(t *testing.T) {
 	})
 
 	t.Run("Fail due to existing user id", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		userId := models.NewId(1)
@@ -62,7 +62,7 @@ func TestAddUserWithId(t *testing.T) {
 	})
 
 	t.Run("Fail due to invalid role id", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		userId := models.NewId(1)

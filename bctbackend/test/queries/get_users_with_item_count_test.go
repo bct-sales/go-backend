@@ -21,7 +21,7 @@ func TestGetUsersWithItemCount(t *testing.T) {
 			for _, itemCount := range itemCounts {
 				testLabel := fmt.Sprintf("ItemCount: %d", itemCount)
 				t.Run(testLabel, func(t *testing.T) {
-					setup, db := NewDatabaseFixture()
+					setup, db := NewDatabaseFixture(WithDefaultCategories)
 					defer setup.Close()
 
 					seller := setup.Seller()
@@ -41,7 +41,7 @@ func TestGetUsersWithItemCount(t *testing.T) {
 		})
 
 		t.Run("Multiple sellers", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller1 := setup.Seller()
@@ -74,7 +74,7 @@ func TestGetUsersWithItemCount(t *testing.T) {
 
 		t.Run("Hidden items", func(t *testing.T) {
 			t.Run("Exclude hidden items", func(t *testing.T) {
-				setup, db := NewDatabaseFixture()
+				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
 				seller1 := setup.Seller()
@@ -109,7 +109,7 @@ func TestGetUsersWithItemCount(t *testing.T) {
 			})
 
 			t.Run("Include hidden items", func(t *testing.T) {
-				setup, db := NewDatabaseFixture()
+				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
 				seller1 := setup.Seller()
@@ -144,7 +144,7 @@ func TestGetUsersWithItemCount(t *testing.T) {
 			})
 
 			t.Run("Only hidden items", func(t *testing.T) {
-				setup, db := NewDatabaseFixture()
+				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
 				seller1 := setup.Seller()

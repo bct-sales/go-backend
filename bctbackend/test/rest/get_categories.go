@@ -24,7 +24,7 @@ type GetCategoriesSuccessResponse struct {
 func TestGetCategories(t *testing.T) {
 	t.Run("Without counts", func(t *testing.T) {
 		t.Run("Success", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionId := setup.LoggedIn(setup.Admin())
@@ -43,7 +43,7 @@ func TestGetCategories(t *testing.T) {
 	})
 
 	t.Run("With counts", func(t *testing.T) {
-		setup, router, writer := NewRestFixture()
+		setup, router, writer := NewRestFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		_, sessionId := setup.LoggedIn(setup.Admin())

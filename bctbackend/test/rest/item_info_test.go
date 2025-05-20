@@ -24,7 +24,7 @@ func TestGetItemInformation(t *testing.T) {
 				label := fmt.Sprintf("Sale count: %d", sale_count)
 
 				t.Run(label, func(t *testing.T) {
-					setup, router, writer := NewRestFixture()
+					setup, router, writer := NewRestFixture(WithDefaultCategories)
 					defer setup.Close()
 					sale_count := 0
 
@@ -60,7 +60,7 @@ func TestGetItemInformation(t *testing.T) {
 		})
 
 		t.Run("As admin", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -88,7 +88,7 @@ func TestGetItemInformation(t *testing.T) {
 		})
 
 		t.Run("As owning seller", func(t *testing.T) {
-			setup, router, writer := NewRestFixture()
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
@@ -115,7 +115,7 @@ func TestGetItemInformation(t *testing.T) {
 
 		t.Run("Failure", func(t *testing.T) {
 			t.Run("Invalid item ID", func(t *testing.T) {
-				setup, router, writer := NewRestFixture()
+				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionId := setup.LoggedIn(setup.Cashier())
@@ -127,7 +127,7 @@ func TestGetItemInformation(t *testing.T) {
 			})
 
 			t.Run("As nonowner seller", func(t *testing.T) {
-				setup, router, writer := NewRestFixture()
+				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionId := setup.LoggedIn(setup.Seller())
@@ -141,7 +141,7 @@ func TestGetItemInformation(t *testing.T) {
 			})
 
 			t.Run("Item does not exist", func(t *testing.T) {
-				setup, router, writer := NewRestFixture()
+				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
 				// Log in as cashier
@@ -163,7 +163,7 @@ func TestGetItemInformation(t *testing.T) {
 			})
 
 			t.Run("Not logged in", func(t *testing.T) {
-				setup, router, writer := NewRestFixture()
+				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 				sale_count := 0
 

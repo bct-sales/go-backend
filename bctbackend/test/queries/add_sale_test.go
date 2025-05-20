@@ -18,7 +18,7 @@ import (
 func TestAddSale(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		for _, itemIndices := range [][]int{{0}, {1}, {2}, {3}, {0, 1}, {1, 2, 3}, {0, 1, 2, 3}, algorithms.Range(0, 10)} {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -53,7 +53,7 @@ func TestAddSale(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Sale with no items", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			cashier := setup.Cashier()
@@ -64,7 +64,7 @@ func TestAddSale(t *testing.T) {
 		})
 
 		t.Run("As seller", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -76,7 +76,7 @@ func TestAddSale(t *testing.T) {
 		})
 
 		t.Run("As admin", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -89,7 +89,7 @@ func TestAddSale(t *testing.T) {
 		})
 
 		t.Run("Duplicate item in sale", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -103,7 +103,7 @@ func TestAddSale(t *testing.T) {
 		})
 
 		t.Run("Hidden item in sale", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()

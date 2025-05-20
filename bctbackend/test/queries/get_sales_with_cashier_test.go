@@ -16,7 +16,7 @@ import (
 func TestGetSalesWithCashier(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Zero sales", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			cashier := setup.Cashier()
@@ -27,7 +27,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 		})
 
 		t.Run("One sale", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			cashier := setup.Cashier()
@@ -45,7 +45,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 		})
 
 		t.Run("Two sales", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			cashier := setup.Cashier()
@@ -67,7 +67,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Unknown cashier", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			unknownCashierId := models.NewId(9999)
@@ -79,7 +79,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 		})
 
 		t.Run("User whose sales we want is an admin", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			admin := setup.Admin()
@@ -90,7 +90,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 		})
 
 		t.Run("User whose sales we want is a seller", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()

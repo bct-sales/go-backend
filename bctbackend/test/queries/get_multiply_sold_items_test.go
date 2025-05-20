@@ -15,7 +15,7 @@ import (
 
 func TestGetMultiplySoldItems(t *testing.T) {
 	t.Run("No sales", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -28,7 +28,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("No multiply sold items", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -47,7 +47,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("Item sold twice", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -73,7 +73,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("Item sold thrice", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -101,7 +101,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("Two items sold twice", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -132,7 +132,7 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("Sales [1], [1, 2], [1, 2, 3]", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()

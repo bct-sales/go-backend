@@ -15,7 +15,7 @@ import (
 
 func TestGetItemsSoldBy(t *testing.T) {
 	t.Run("Zero items sold", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -31,7 +31,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 	})
 
 	t.Run("Items sold by different cashier", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -53,7 +53,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 	})
 
 	t.Run("Four items in single sale", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -75,7 +75,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 	})
 
 	t.Run("Four items in single sale, reordered", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -96,7 +96,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 	})
 
 	t.Run("Four items in separate sales", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -117,7 +117,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 	})
 
 	t.Run("Four items in separate sales, reordered", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -138,7 +138,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 	})
 
 	t.Run("Four items in separate sales, reordered 2", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()
@@ -159,7 +159,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 	})
 
 	t.Run("Cashier does not exist", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		cashier := setup.Cashier()
@@ -172,7 +172,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 	})
 
 	t.Run("User has wrong role", func(t *testing.T) {
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
 		seller := setup.Seller()

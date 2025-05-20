@@ -13,7 +13,7 @@ import (
 )
 
 func TestLogout(t *testing.T) {
-	setup, router, writer := NewRestFixture()
+	setup, router, writer := NewRestFixture(WithDefaultCategories)
 	defer setup.Close()
 
 	_, sessionId := setup.LoggedIn(setup.Admin())

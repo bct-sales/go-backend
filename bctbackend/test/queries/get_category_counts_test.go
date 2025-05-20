@@ -45,7 +45,7 @@ func TestGetCategoryCounts(t *testing.T) {
 			}
 
 			for _, countTable := range countTables {
-				setup, db := NewDatabaseFixture()
+				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
 				seller := setup.Seller()
@@ -101,7 +101,7 @@ func TestGetCategoryCounts(t *testing.T) {
 				}
 
 				for _, countTable := range countTables {
-					setup, db := NewDatabaseFixture()
+					setup, db := NewDatabaseFixture(WithDefaultCategories)
 					defer setup.Close()
 
 					seller := setup.Seller()
@@ -156,7 +156,7 @@ func TestGetCategoryCounts(t *testing.T) {
 				}
 
 				for _, countTable := range countTables {
-					setup, db := NewDatabaseFixture()
+					setup, db := NewDatabaseFixture(WithDefaultCategories)
 					defer setup.Close()
 
 					seller := setup.Seller()

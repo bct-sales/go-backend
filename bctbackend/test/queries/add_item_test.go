@@ -30,7 +30,7 @@ func TestAddItem(t *testing.T) {
 											test_name := fmt.Sprintf("timestamp = %d", timestamp)
 
 											t.Run(test_name, func(t *testing.T) {
-												setup, db := NewDatabaseFixture()
+												setup, db := NewDatabaseFixture(WithDefaultCategories)
 												defer setup.Close()
 
 												setup.Seller(aux.WithUserId(1))
@@ -74,7 +74,7 @@ func TestAddItem(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Nonexistent seller", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			timestamp := models.NewTimestamp(0)
@@ -99,7 +99,7 @@ func TestAddItem(t *testing.T) {
 		})
 
 		t.Run("Nonexistent category", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			timestamp := models.NewTimestamp(0)
@@ -134,7 +134,7 @@ func TestAddItem(t *testing.T) {
 		})
 
 		t.Run("Zero price", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			timestamp := models.NewTimestamp(0)
@@ -162,7 +162,7 @@ func TestAddItem(t *testing.T) {
 		})
 
 		t.Run("Negative price", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			timestamp := models.NewTimestamp(0)
@@ -189,7 +189,7 @@ func TestAddItem(t *testing.T) {
 		})
 
 		t.Run("Cashier owner", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			timestamp := models.NewTimestamp(0)
@@ -216,7 +216,7 @@ func TestAddItem(t *testing.T) {
 		})
 
 		t.Run("Admin owner", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			timestamp := models.NewTimestamp(0)
