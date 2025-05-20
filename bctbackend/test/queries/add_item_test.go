@@ -5,9 +5,10 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/defs"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
+	"maps"
+	"slices"
 
 	"fmt"
 	"testing"
@@ -17,10 +18,12 @@ import (
 )
 
 func TestAddItem(t *testing.T) {
+	categoryKeys := slices.Collect(maps.Keys(DefaultCategoryTable()))
+
 	t.Run("Success", func(t *testing.T) {
 		for _, timestamp := range []models.Timestamp{0, 1000} {
 			for _, priceInCents := range []models.MoneyInCents{50, 100} {
-				for _, itemCategoryId := range defs.ListCategoryIds() {
+				for _, itemCategoryId := range categoryKeys {
 					for _, description := range []string{"desc1", "desc2"} {
 						for _, sellerId := range []models.Id{1, 2} {
 							for _, donation := range []bool{false, true} {
