@@ -1,7 +1,8 @@
 {
     "cSpell.words": [
         "bctbackend",
-        "dberr"
+        "dberr",
+        "pterm"
     ],
     "go.buildTags": "test",
     "terminal.integrated.env.linux": {
