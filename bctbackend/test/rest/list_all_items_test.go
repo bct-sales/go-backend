@@ -117,7 +117,6 @@ func TestGetAllItems(t *testing.T) {
 		t.Run("Wrong role", func(t *testing.T) {
 			for _, roleId := range []models.Id{models.SellerRoleId, models.CashierRoleId} {
 				roleString, err := models.NameOfRole(roleId)
-
 				if err != nil {
 					panic(err)
 				}
