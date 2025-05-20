@@ -2,12 +2,12 @@ package csv
 
 import (
 	models "bctbackend/database/models"
-	"bctbackend/defs"
 	"encoding/csv"
+	"fmt"
 	"io"
 )
 
-func FormatItemsAsCSV(items []*models.Item, writer io.Writer) error {
+func FormatItemsAsCSV(items []*models.Item, categoryTable map[models.Id]string, writer io.Writer) error {
 	csvWriter := csv.NewWriter(writer)
 	defer csvWriter.Flush()
 
@@ -22,9 +22,9 @@ func FormatItemsAsCSV(items []*models.Item, writer io.Writer) error {
 		sellerIdString := models.IdToString(item.SellerId)
 		priceString := models.MoneyInCentsToString(item.PriceInCents)
 
-		categoryString, err := defs.NameOfCategory(item.CategoryId)
-		if err != nil {
-			return err
+		categoryString, ok := categoryTable[item.CategoryId]
+		if !ok {
+			return fmt.Errorf("unknown category id: %v", item.CategoryId)
 		}
 
 		var donationString string
