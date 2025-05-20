@@ -1,9 +1,11 @@
 //go:build test
 
-package defs
+package test
 
 import (
 	"testing"
+
+	. "bctbackend/defs"
 
 	"github.com/stretchr/testify/require"
 )
