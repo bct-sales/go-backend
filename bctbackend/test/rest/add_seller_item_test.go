@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"testing"
 
-	"bctbackend/defs"
 	restapi "bctbackend/rest"
 	"bctbackend/rest/path"
 	. "bctbackend/test/setup"
@@ -20,11 +19,13 @@ import (
 )
 
 func TestAddSellerItem(t *testing.T) {
+	defaultCategoryTable := DefaultCategoryTable()
+
 	t.Run("Successful", func(t *testing.T) {
 		for _, sellerId := range []models.Id{models.NewId(1), models.NewId(2), models.NewId(100)} {
 			for _, price := range []models.MoneyInCents{1, 100, 10000} {
 				for _, description := range []string{"Xyz", "Test Description"} {
-					for _, categoryId := range defs.ListCategoryIds() {
+					for categoryId, _ := range defaultCategoryTable {
 						for _, donation := range []bool{true, false} {
 							for _, charity := range []bool{true, false} {
 								t.Run(fmt.Sprintf("sellerId=%d price=%d description=%s categoryId=%d donation=%t charity=%t", sellerId, price, description, categoryId, donation, charity), func(t *testing.T) {
@@ -76,7 +77,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(0)
 			description := "Test Description"
-			categoryId := defs.Clothing50_56
+			categoryId := CategoryId_Clothing50_56
 			donation := false
 			charity := false
 
@@ -106,7 +107,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := ""
-			categoryId := defs.Shoes
+			categoryId := CategoryId_Shoes
 			donation := false
 			charity := false
 
@@ -140,7 +141,7 @@ func TestAddSellerItem(t *testing.T) {
 			donation := false
 			charity := false
 
-			require.NotContains(t, defs.ListCategoryIds(), categoryId)
+			require.NotContains(t, defaultCategoryTable, categoryId)
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 
@@ -168,7 +169,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := defs.BabyChildEquipment
+			categoryId := CategoryId_BabyChildEquipment
 			donation := false
 			charity := false
 
@@ -199,7 +200,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := defs.Clothing104_116
+			categoryId := CategoryId_Clothing104_116
 			donation := false
 			charity := false
 
@@ -229,7 +230,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := defs.BabyChildEquipment
+			categoryId := CategoryId_BabyChildEquipment
 			donation := false
 			charity := false
 
@@ -259,7 +260,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := defs.BabyChildEquipment
+			categoryId := CategoryId_BabyChildEquipment
 			donation := false
 			charity := false
 
@@ -290,7 +291,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := defs.BabyChildEquipment
+			categoryId := CategoryId_BabyChildEquipment
 			donation := false
 			charity := false
 
@@ -322,7 +323,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(0)
 			description := "Test Description"
-			categoryId := defs.Clothing50_56
+			categoryId := CategoryId_Clothing50_56
 			donation := false
 			charity := false
 
@@ -352,7 +353,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(0)
 			description := "Test Description"
-			categoryId := defs.Clothing50_56
+			categoryId := CategoryId_Clothing50_56
 			donation := false
 			charity := false
 
