@@ -38,17 +38,10 @@ func NewDatabaseFixture(options ...func(*DatabaseFixture)) (DatabaseFixture, *sq
 func WithDefaultCategories(fixture *DatabaseFixture) {
 	db := fixture.Db
 
-	for _, categoryId := range defs.ListCategories() {
-		categoryName, err := defs.NameOfCategory(categoryId)
-		if err != nil {
-			panic(err)
-		}
-
-		_, err = queries.AddCategory(db, categoryName)
-		if err != nil {
-			panic(err)
-		}
-	}
+	defs.GenerateCategories(func(id models.Id, name string) error {
+		_, err := queries.AddCategory(db, name)
+		return err
+	})
 }
 
 func (f *DatabaseFixture) Close() {

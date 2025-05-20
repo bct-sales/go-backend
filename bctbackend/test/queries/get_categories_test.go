@@ -19,9 +19,9 @@ func TestGetCategories(t *testing.T) {
 	categories, err := queries.GetCategories(db)
 
 	require.NoError(t, err)
-	require.Equal(t, len(defs.ListCategories()), len(categories))
+	require.Equal(t, len(defs.ListCategoryIds()), len(categories))
 
 	for _, category := range categories {
-		require.Contains(t, defs.ListCategories(), category.CategoryId)
+		require.Contains(t, defs.ListCategoryIds(), category.CategoryId)
 	}
 }

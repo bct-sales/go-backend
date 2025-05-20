@@ -1,6 +1,9 @@
 package defs
 
-import "fmt"
+import (
+	"bctbackend/database/models"
+	"fmt"
+)
 
 type Id = int64
 
@@ -32,7 +35,7 @@ const (
 	BabyChildEquipmentName string = "Baby/Child Equipment"
 )
 
-func ListCategories() []Id {
+func ListCategoryIds() []Id {
 	return []Id{
 		Clothing50_56,
 		Clothing56_62,
@@ -47,6 +50,21 @@ func ListCategories() []Id {
 		Toys,
 		BabyChildEquipment,
 	}
+}
+
+func GenerateCategories(callback func(id models.Id, name string) error) error {
+	for _, id := range ListCategoryIds() {
+		name, err := NameOfCategory(id)
+		if err != nil {
+			panic(err)
+		}
+
+		if err := callback(id, name); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 type UnknownCategoryError struct {

@@ -17,7 +17,7 @@ func TestCategoryWithIdExists(t *testing.T) {
 	setup, db := NewDatabaseFixture(WithDefaultCategories)
 	defer setup.Close()
 
-	for _, categoryId := range defs.ListCategories() {
+	for _, categoryId := range defs.ListCategoryIds() {
 		t.Run(fmt.Sprintf("categoryId = %d", categoryId), func(t *testing.T) {
 			categoryExists, err := queries.CategoryWithIdExists(db, categoryId)
 

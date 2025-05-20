@@ -20,7 +20,7 @@ func TestAddItem(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		for _, timestamp := range []models.Timestamp{0, 1000} {
 			for _, priceInCents := range []models.MoneyInCents{50, 100} {
-				for _, itemCategoryId := range defs.ListCategories() {
+				for _, itemCategoryId := range defs.ListCategoryIds() {
 					for _, description := range []string{"desc1", "desc2"} {
 						for _, sellerId := range []models.Id{1, 2} {
 							for _, donation := range []bool{false, true} {

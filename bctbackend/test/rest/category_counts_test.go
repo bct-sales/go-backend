@@ -19,7 +19,7 @@ import (
 func createSuccessResponse(countMap map[models.Id]int64) rest.ListCategoriesSuccessResponse {
 	countArray := []rest.CategoryData{}
 
-	for _, categoryId := range defs.ListCategories() {
+	for _, categoryId := range defs.ListCategoryIds() {
 		count, ok := countMap[categoryId]
 
 		if !ok {
@@ -60,7 +60,7 @@ func TestCategoryCounts(t *testing.T) {
 			require.Equal(t, expectedResponse, *actual)
 		})
 
-		for _, categoryId := range defs.ListCategories() {
+		for _, categoryId := range defs.ListCategoryIds() {
 			t.Run("Single item", func(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
@@ -79,7 +79,7 @@ func TestCategoryCounts(t *testing.T) {
 			})
 		}
 
-		for _, categoryId := range defs.ListCategories() {
+		for _, categoryId := range defs.ListCategoryIds() {
 			t.Run("Two items in same category", func(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
@@ -99,8 +99,8 @@ func TestCategoryCounts(t *testing.T) {
 			})
 		}
 
-		for _, categoryId1 := range defs.ListCategories() {
-			for _, categoryId2 := range defs.ListCategories() {
+		for _, categoryId1 := range defs.ListCategoryIds() {
+			for _, categoryId2 := range defs.ListCategoryIds() {
 				t.Run("Two items in potentially equal categories", func(t *testing.T) {
 					setup, router, writer := NewRestFixture(WithDefaultCategories)
 					defer setup.Close()

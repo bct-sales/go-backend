@@ -58,10 +58,10 @@ func TestGetCategoryCounts(t *testing.T) {
 
 				counts, err := queries.GetCategoryCounts(db, true)
 				require.NoError(t, err)
-				require.Equal(t, len(defs.ListCategories()), len(counts))
+				require.Equal(t, len(defs.ListCategoryIds()), len(counts))
 
 				for _, count := range counts {
-					require.Contains(t, defs.ListCategories(), count.CategoryId)
+					require.Contains(t, defs.ListCategoryIds(), count.CategoryId)
 
 					expectedCount := countTable[count.CategoryId]
 					actualCount := count.Count
@@ -114,10 +114,10 @@ func TestGetCategoryCounts(t *testing.T) {
 
 					counts, err := queries.GetCategoryCounts(db, false)
 					require.NoError(t, err)
-					require.Equal(t, len(defs.ListCategories()), len(counts))
+					require.Equal(t, len(defs.ListCategoryIds()), len(counts))
 
 					for _, count := range counts {
-						require.Contains(t, defs.ListCategories(), count.CategoryId)
+						require.Contains(t, defs.ListCategoryIds(), count.CategoryId)
 
 						expectedCount := int64(0)
 						actualCount := count.Count
@@ -169,10 +169,10 @@ func TestGetCategoryCounts(t *testing.T) {
 
 					counts, err := queries.GetCategoryCounts(db, true)
 					require.NoError(t, err)
-					require.Equal(t, len(defs.ListCategories()), len(counts))
+					require.Equal(t, len(defs.ListCategoryIds()), len(counts))
 
 					for _, count := range counts {
-						require.Contains(t, defs.ListCategories(), count.CategoryId)
+						require.Contains(t, defs.ListCategoryIds(), count.CategoryId)
 
 						expectedCount := countTable[count.CategoryId]
 						actualCount := count.Count
