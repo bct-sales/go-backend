@@ -63,9 +63,14 @@ func showSeller(db *sql.DB, user *models.User) error {
 		return err
 	}
 
+	categoryTable, err := queries.GetCategoryMap(db)
+	if err != nil {
+		return err
+	}
+
 	pterm.DefaultSection.Println("Items")
 
-	err = formatting.PrintItems(sellerItems)
+	err = formatting.PrintItems(categoryTable, sellerItems)
 	if err != nil {
 		return err
 	}
