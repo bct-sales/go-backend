@@ -62,17 +62,16 @@ func PrintItems(items []*models.Item) error {
 	return nil
 }
 
-func PrintItem(db *sql.DB, itemId models.Id) error {
+func PrintItem(db *sql.DB, categoryTable map[models.Id]string, itemId models.Id) error {
 	item, err := queries.GetItemWithId(db, itemId)
 
 	if err != nil {
 		return err
 	}
 
-	categoryName, err := defs.NameOfCategory(item.CategoryId)
-
-	if err != nil {
-		return err
+	categoryName, ok := categoryTable[item.CategoryId]
+	if !ok {
+		return fmt.Errorf("unknown category id: %v", item.CategoryId)
 	}
 
 	tableData := pterm.TableData{
