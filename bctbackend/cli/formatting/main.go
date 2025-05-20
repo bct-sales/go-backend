@@ -3,7 +3,6 @@ package formatting
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/defs"
 	"database/sql"
 	"fmt"
 
@@ -28,16 +27,15 @@ func PrintUser(user *models.User) error {
 	return nil
 }
 
-func PrintItems(items []*models.Item) error {
+func PrintItems(categoryTable map[models.Id]string, items []*models.Item) error {
 	tableData := pterm.TableData{
 		{"ID", "Description", "Price", "Category", "Donation", "Charity", "Added At", "Frozen", "Hidden"},
 	}
 
 	for _, item := range items {
-		categoryName, err := defs.NameOfCategory(item.CategoryId)
-
-		if err != nil {
-			return err
+		categoryName, ok := categoryTable[item.CategoryId]
+		if !ok {
+			return fmt.Errorf("unknown category id: %v", item.CategoryId)
 		}
 
 		tableData = append(tableData, []string{
