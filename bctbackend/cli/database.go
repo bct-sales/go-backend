@@ -62,6 +62,14 @@ func resetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 		return fmt.Errorf("failed to reset database: %v", err)
 	}
 
+	slog.Info("Adding categories")
+	{
+		defs.GenerateCategories(func(id models.Id, name string) error {
+			_, err := queries.AddCategory(db, name)
+			return err
+		})
+	}
+
 	slog.Info("Adding admin user")
 	{
 		id := models.NewId(1)
