@@ -39,8 +39,7 @@ func WithDefaultCategories(fixture *DatabaseFixture) {
 	db := fixture.Db
 
 	defs.GenerateCategories(func(id models.Id, name string) error {
-		_, err := queries.AddCategory(db, name)
-		return err
+		return queries.AddCategory(db, id, name)
 	})
 }
 

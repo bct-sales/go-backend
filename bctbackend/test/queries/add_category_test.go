@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	. "bctbackend/test/setup"
 
@@ -14,11 +15,14 @@ import (
 
 func TestAddCategory(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		// Note the lack of WithDefaultCategories here
+		// We want to start with a clean slate
+		setup, db := NewDatabaseFixture()
 		defer setup.Close()
 
 		categoryName := "Test Category"
-		id, err := queries.AddCategory(db, categoryName)
+		id := models.Id(1)
+		err := queries.AddCategory(db, models.Id(1), categoryName)
 		require.NoError(t, err, `Failed to add category: %v`, err)
 
 		categoryExists, err := queries.CategoryWithIdExists(db, id)
@@ -37,9 +41,9 @@ func TestAddCategory(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
+			id := models.Id(1)
 			categoryName := ""
-			_, err := queries.AddCategory(db, categoryName)
-
+			err := queries.AddCategory(db, id, categoryName)
 			var invalidCategoryNameError *queries.InvalidCategoryNameError
 			require.ErrorAs(t, err, &invalidCategoryNameError)
 		})

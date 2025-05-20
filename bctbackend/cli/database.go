@@ -65,8 +65,7 @@ func resetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 	slog.Info("Adding categories")
 	{
 		defs.GenerateCategories(func(id models.Id, name string) error {
-			_, err := queries.AddCategory(db, name)
-			return err
+			return queries.AddCategory(db, id, name)
 		})
 	}
 

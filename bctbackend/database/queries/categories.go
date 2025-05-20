@@ -7,27 +7,25 @@ import (
 	"fmt"
 )
 
-func AddCategory(db *sql.DB, categoryName string) (models.Id, error) {
-	var categoryId models.Id
-
+func AddCategory(db *sql.DB, categoryId models.Id, categoryName string) error {
 	if !models.IsValidCategoryName(categoryName) {
-		return 0, &InvalidCategoryNameError{}
+		return &InvalidCategoryNameError{}
 	}
 
-	err := db.QueryRow(
+	_, err := db.Exec(
 		`
-			INSERT INTO item_categories (name)
-			VALUES ($1)
+			INSERT INTO item_categories (item_category_id, name)
+			VALUES ($1, $2)
 			RETURNING item_category_id
 		`,
+		categoryId,
 		categoryName,
-	).Scan(&categoryId)
-
+	)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	return categoryId, nil
+	return nil
 }
 
 func CategoryWithIdExists(
