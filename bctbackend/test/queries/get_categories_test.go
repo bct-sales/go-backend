@@ -4,7 +4,6 @@ package queries
 
 import (
 	"bctbackend/database/queries"
-	"bctbackend/defs"
 	. "bctbackend/test/setup"
 	"testing"
 
@@ -16,12 +15,15 @@ func TestGetCategories(t *testing.T) {
 	setup, db := NewDatabaseFixture(WithDefaultCategories)
 	defer setup.Close()
 
-	categories, err := queries.GetCategories(db)
+	categoryTable := DefaultCategoryTable()
 
+	actualCategories, err := queries.GetCategories(db)
 	require.NoError(t, err)
-	require.Equal(t, len(defs.ListCategoryIds()), len(categories))
+	require.Equal(t, len(categoryTable), len(actualCategories))
 
-	for _, category := range categories {
-		require.Contains(t, defs.ListCategoryIds(), category.CategoryId)
+	for _, actualCategory := range actualCategories {
+		expectedCategoryName, ok := categoryTable[actualCategory.CategoryId]
+		require.True(t, ok)
+		require.Equal(t, expectedCategoryName, actualCategory.Name)
 	}
 }
