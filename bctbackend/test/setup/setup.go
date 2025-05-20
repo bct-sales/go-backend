@@ -8,7 +8,6 @@ import (
 
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/defs"
 	aux "bctbackend/test/helpers"
 	"database/sql"
 
@@ -74,10 +73,12 @@ func (f *RestFixture) Close() {
 func (s DatabaseFixture) DefaultCategories() map[models.Id]string {
 	table := map[models.Id]string{}
 
-	defs.GenerateCategories(func(id models.Id, name string) error {
-		table[id] = name
-		return queries.AddCategory(s.Db, id, name)
-	})
+	categoryTable := DefaultCategoryTable()
+	for id, name := range categoryTable {
+		if err := queries.AddCategory(s.Db, id, name); err != nil {
+			panic(err)
+		}
+	}
 
 	return table
 }
