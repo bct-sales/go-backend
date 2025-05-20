@@ -2,7 +2,6 @@ package database
 
 import (
 	models "bctbackend/database/models"
-	"bctbackend/defs"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -325,33 +324,6 @@ func populateRoleTable(db *sql.DB) error {
 
 	if err != nil {
 		return fmt.Errorf("failed to populate roles: %v", err)
-	}
-
-	return nil
-}
-
-func populateItemCategoryTable(db *sql.DB) error {
-	slog.Debug("Populating item categories table")
-
-	for _, categoryId := range defs.ListCategories() {
-		categoryName, err := defs.NameOfCategory(categoryId)
-
-		if err != nil {
-			return fmt.Errorf("failed to get category name: %v", err)
-		}
-
-		_, err = db.Exec(
-			`
-				INSERT INTO item_categories (item_category_id, name)
-				VALUES ($1, $2)
-			`,
-			categoryId,
-			categoryName,
-		)
-
-		if err != nil {
-			return fmt.Errorf("failed to populate item categories with %d %s: %v", categoryId, categoryName, err)
-		}
 	}
 
 	return nil
