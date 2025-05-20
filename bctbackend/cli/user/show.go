@@ -89,9 +89,14 @@ func showCashier(db *sql.DB, user *models.User) error {
 		return err
 	}
 
+	categoryTable, err := queries.GetCategoryMap(db)
+	if err != nil {
+		return err
+	}
+
 	pterm.DefaultSection.Println("Sold Items")
 
-	if err := formatting.PrintItems(soldItems); err != nil {
+	if err := formatting.PrintItems(categoryTable, soldItems); err != nil {
 		return err
 	}
 
