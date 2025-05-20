@@ -3,14 +3,12 @@
 package rest
 
 import (
-	"database/sql"
-	"log"
+	"cmp"
 	"net/http"
+	"slices"
 	"testing"
 
 	models "bctbackend/database/models"
-	"bctbackend/database/queries"
-	"bctbackend/defs"
 	"bctbackend/rest"
 	"bctbackend/rest/path"
 	aux "bctbackend/test/helpers"
@@ -19,24 +17,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func createSuccessResponse(db *sql.DB, countMap map[models.Id]int64) rest.ListCategoriesSuccessResponse {
-	categoryTable, err := queries.GetCategoryMap(db)
-	if err != nil {
-		log.Fatalf("failed to get category map: %v", err)
-	}
-
+func createSuccessResponse(countMap map[models.Id]int64) rest.ListCategoriesSuccessResponse {
+	defaultCategoryTable := DefaultCategoryTable()
 	countArray := []rest.CategoryData{}
 
-	for _, categoryId := range defs.ListCategoryIds() {
+	for categoryId, categoryName := range defaultCategoryTable {
 		count, ok := countMap[categoryId]
 
 		if !ok {
 			count = 0
-		}
-
-		categoryName, ok := categoryTable[categoryId]
-		if !ok {
-			log.Fatalf("unknown category id: %v", categoryId)
 		}
 
 		countArray = append(countArray, rest.CategoryData{
@@ -46,11 +35,16 @@ func createSuccessResponse(db *sql.DB, countMap map[models.Id]int64) rest.ListCa
 		})
 	}
 
+	slices.SortFunc(countArray, func(a, b rest.CategoryData) int {
+		return cmp.Compare(a.CategoryId, b.CategoryId)
+	})
+
 	return rest.ListCategoriesSuccessResponse{Counts: countArray}
 }
 
 func TestCategoryCounts(t *testing.T) {
 	url := path.Categories().WithCounts()
+	defaultCategoryTable := DefaultCategoryTable()
 
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Zero items", func(t *testing.T) {
@@ -62,12 +56,21 @@ func TestCategoryCounts(t *testing.T) {
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			countMap := map[models.Id]int64{}
-			expectedResponse := createSuccessResponse(setup.Db, countMap)
-			actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
-			require.Equal(t, expectedResponse, *actual)
+			expectedResponse := createSuccessResponse(countMap)
+			actualResponse := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
+
+			require.Equal(t, len(expectedResponse.Counts), len(actualResponse.Counts))
+			for i := 0; i < len(expectedResponse.Counts); i++ {
+				expectedCount := expectedResponse.Counts[i]
+				actualCount := actualResponse.Counts[i]
+
+				require.Equal(t, expectedCount.CategoryId, actualCount.CategoryId)
+				require.Equal(t, expectedCount.CategoryName, actualCount.CategoryName)
+				require.Equal(t, expectedCount.Count, actualCount.Count)
+			}
 		})
 
-		for _, categoryId := range defs.ListCategoryIds() {
+		for categoryId, _ := range defaultCategoryTable {
 			t.Run("Single item", func(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
@@ -79,14 +82,14 @@ func TestCategoryCounts(t *testing.T) {
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				countMap := map[models.Id]int64{categoryId: 1}
-				expected := createSuccessResponse(setup.Db, countMap)
+				expected := createSuccessResponse(countMap)
 
 				actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 				require.Equal(t, expected, *actual)
 			})
 		}
 
-		for _, categoryId := range defs.ListCategoryIds() {
+		for categoryId, _ := range defaultCategoryTable {
 			t.Run("Two items in same category", func(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
@@ -99,15 +102,15 @@ func TestCategoryCounts(t *testing.T) {
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				countMap := map[models.Id]int64{categoryId: 2}
-				expected := createSuccessResponse(setup.Db, countMap)
+				expected := createSuccessResponse(countMap)
 
 				actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 				require.Equal(t, expected, *actual)
 			})
 		}
 
-		for _, categoryId1 := range defs.ListCategoryIds() {
-			for _, categoryId2 := range defs.ListCategoryIds() {
+		for categoryId1 := range defaultCategoryTable {
+			for categoryId2 := range defaultCategoryTable {
 				t.Run("Two items in potentially equal categories", func(t *testing.T) {
 					setup, router, writer := NewRestFixture(WithDefaultCategories)
 					defer setup.Close()
@@ -122,7 +125,7 @@ func TestCategoryCounts(t *testing.T) {
 					countMap := map[models.Id]int64{categoryId1: 0, categoryId2: 0}
 					countMap[categoryId1] += 1
 					countMap[categoryId2] += 1
-					expected := createSuccessResponse(setup.Db, countMap)
+					expected := createSuccessResponse(countMap)
 
 					actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 					require.Equal(t, expected, *actual)
