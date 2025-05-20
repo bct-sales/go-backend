@@ -4,6 +4,7 @@ import (
 	"bctbackend/cli/formatting"
 	"bctbackend/database"
 	"bctbackend/database/models"
+	"bctbackend/database/queries"
 	"errors"
 
 	_ "modernc.org/sqlite"
@@ -14,10 +15,14 @@ func ShowItem(databasePath string, itemId models.Id) (r_err error) {
 	if err != nil {
 		return err
 	}
-
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
-	err = formatting.PrintItem(db, itemId)
+	categoryTable, err := queries.GetCategoryMap(db)
+	if err != nil {
+		return err
+	}
+
+	err = formatting.PrintItem(db, categoryTable, itemId)
 	if err != nil {
 		return err
 	}
