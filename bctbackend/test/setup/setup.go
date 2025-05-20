@@ -36,11 +36,7 @@ func NewDatabaseFixture(options ...func(*DatabaseFixture)) (DatabaseFixture, *sq
 }
 
 func WithDefaultCategories(fixture *DatabaseFixture) {
-	db := fixture.Db
-
-	defs.GenerateCategories(func(id models.Id, name string) error {
-		return queries.AddCategory(db, id, name)
-	})
+	fixture.DefaultCategories()
 }
 
 func (f *DatabaseFixture) Close() {
@@ -73,6 +69,17 @@ func (f *RestFixture) Close() {
 	f.DatabaseFixture.Close()
 	f.Router = nil
 	f.Writer = nil
+}
+
+func (s DatabaseFixture) DefaultCategories() map[models.Id]string {
+	table := map[models.Id]string{}
+
+	defs.GenerateCategories(func(id models.Id, name string) error {
+		table[id] = name
+		return queries.AddCategory(s.Db, id, name)
+	})
+
+	return table
 }
 
 func (s DatabaseFixture) User(roleId models.Id, options ...func(*aux.AddUserData)) *models.User {
