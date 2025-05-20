@@ -54,7 +54,7 @@ func ListCategoryIds() []Id {
 
 func GenerateCategories(callback func(id models.Id, name string) error) error {
 	for _, id := range ListCategoryIds() {
-		name, err := NameOfCategory(id)
+		name, err := nameOfCategory(id)
 		if err != nil {
 			panic(err)
 		}
@@ -77,7 +77,7 @@ func (e *UnknownCategoryError) Error() string {
 
 // NameOfCategory returns the name of the category with the given id.
 // If the category id is unknown, an UnknownCategoryError is returned.
-func NameOfCategory(categoryId Id) (string, error) {
+func nameOfCategory(categoryId Id) (string, error) {
 	switch categoryId {
 	case Clothing50_56:
 		return Clothing50_56Name, nil
