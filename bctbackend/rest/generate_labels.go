@@ -4,7 +4,6 @@ import (
 	"bctbackend/algorithms"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/defs"
 	"bctbackend/pdf"
 	"bctbackend/rest/failure_response"
 	"database/sql"
@@ -146,7 +145,13 @@ func collectLabelData(db *sql.DB, itemTable map[models.Id]*models.Item, itemIds 
 		if !ok {
 			return nil, fmt.Errorf("bug: item with id %d not found; should never occur: this error should have be caught earlier", itemId)
 		}
-		return createLabelDataFromItem(item)
+
+		categoryTable, err := queries.GetCategoryMap(db)
+		if err != nil {
+			return nil, err
+		}
+
+		return createLabelDataFromItem(categoryTable, item)
 	}
 
 	labelData, err := algorithms.MapError(itemIds, createLabelData)
@@ -157,12 +162,12 @@ func collectLabelData(db *sql.DB, itemTable map[models.Id]*models.Item, itemIds 
 	return labelData, nil
 }
 
-func createLabelDataFromItem(item *models.Item) (*pdf.LabelData, error) {
+func createLabelDataFromItem(categoryTable map[models.Id]string, item *models.Item) (*pdf.LabelData, error) {
 	barcode := fmt.Sprintf("%dx", item.ItemId)
 
-	category, err := defs.NameOfCategory(item.CategoryId)
-	if err != nil {
-		return nil, err
+	category, ok := categoryTable[item.CategoryId]
+	if !ok {
+		return nil, fmt.Errorf("unknown category id: %v", item.CategoryId)
 	}
 
 	labelData := &pdf.LabelData{
