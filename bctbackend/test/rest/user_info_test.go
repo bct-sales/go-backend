@@ -126,7 +126,7 @@ func TestGetUserInformation(t *testing.T) {
 							cashier := setup.Cashier()
 							_, sessionId := setup.LoggedIn(setup.Admin())
 
-							algorithms.Repeat(saleCount, func() error {
+							algorithms.RepeatWithError(saleCount, func() error {
 								item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 								setup.Sale(cashier.UserId, []models.Id{item.ItemId})
 								return nil
@@ -175,7 +175,7 @@ func TestGetUserInformation(t *testing.T) {
 						url := path.Users().WithUserId(seller.UserId)
 						request := CreateGetRequest(url, WithSessionCookie(sessionId))
 						router.ServeHTTP(writer, request)
-						require.Equal(t, http.StatusOK, writer.Code)
+						require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
 						response := FromJson[restapi.GetSellerSummarySuccessResponse](t, writer.Body.String())
 						require.Equal(t, unfrozenItemCount+frozenItemCount, response.ItemCount)

@@ -55,7 +55,7 @@ func MapOptional[T any, U any](value *T, f func(T) U) *U {
 	return &result
 }
 
-func Repeat(count int, function func() error) error {
+func RepeatWithError(count int, function func() error) error {
 	for i := 0; i < count; i++ {
 		if err := function(); err != nil {
 			return err
@@ -63,6 +63,12 @@ func Repeat(count int, function func() error) error {
 	}
 
 	return nil
+}
+
+func Repeat(count int, function func()) {
+	for i := 0; i < count; i++ {
+		function()
+	}
 }
 
 func Filter[T any](values []T, predicate func(T) bool) []T {
