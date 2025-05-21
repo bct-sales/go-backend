@@ -35,12 +35,12 @@ func (id Id) Int64() int64 {
 	return int64(id)
 }
 
-func TimestampToString(timestamp Timestamp) string {
-	return time.Unix(timestamp, 0).String()
+func (m MoneyInCents) String() string {
+	return strconv.FormatInt(int64(m), 10)
 }
 
-func MoneyInCentsToString(moneyInCents MoneyInCents) string {
-	return strconv.FormatInt(int64(moneyInCents), 10)
+func TimestampToString(timestamp Timestamp) string {
+	return time.Unix(timestamp, 0).String()
 }
 
 func IsValidPrice(price MoneyInCents) bool {
