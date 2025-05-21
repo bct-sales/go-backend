@@ -34,7 +34,7 @@ func (data *AddItemData) FillWithDefaults() {
 	}
 
 	if data.PriceInCents == nil {
-		priceInCents := models.NewMoneyInCents(100)
+		priceInCents := models.MoneyInCents(100)
 		data.PriceInCents = &priceInCents
 	}
 
@@ -115,7 +115,7 @@ func WithDummyData(k int) func(*AddItemData) {
 	return func(data *AddItemData) {
 		addedAt := models.NewTimestamp(0)
 		description := "description " + strconv.Itoa(k)
-		priceInCents := models.NewMoneyInCents(100 + int64(k))
+		priceInCents := models.MoneyInCents(100 + int64(k))
 		itemCategory := CategoryId_Shoes
 		donation := k%2 == 0
 		charity := k%3 == 0

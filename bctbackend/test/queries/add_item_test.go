@@ -83,7 +83,7 @@ func TestAddItem(t *testing.T) {
 
 			timestamp := models.NewTimestamp(0)
 			description := "description"
-			priceInCents := models.NewMoneyInCents(100)
+			priceInCents := models.MoneyInCents(100)
 			itemCategoryId := models.Id(1)
 			charity := false
 			sellerId := models.Id(1)
@@ -109,7 +109,7 @@ func TestAddItem(t *testing.T) {
 			timestamp := models.NewTimestamp(0)
 			description := "description"
 			sellerId := models.Id(1)
-			priceInCents := models.NewMoneyInCents(100)
+			priceInCents := models.MoneyInCents(100)
 			charity := false
 			donation := false
 			frozen := false
@@ -149,7 +149,7 @@ func TestAddItem(t *testing.T) {
 			donation := false
 			frozen := false
 			hidden := false
-			priceInCents := models.NewMoneyInCents(0)
+			priceInCents := models.MoneyInCents(0)
 
 			{
 				_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
@@ -177,7 +177,7 @@ func TestAddItem(t *testing.T) {
 			donation := false
 			frozen := false
 			hidden := false
-			priceInCents := models.NewMoneyInCents(-100)
+			priceInCents := models.MoneyInCents(-100)
 
 			{
 				_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
@@ -199,7 +199,7 @@ func TestAddItem(t *testing.T) {
 			timestamp := models.NewTimestamp(0)
 			description := "description"
 			invalidSeller := setup.Cashier()
-			priceInCents := models.NewMoneyInCents(100)
+			priceInCents := models.MoneyInCents(100)
 			itemCategoryId := models.Id(1)
 			charity := false
 			donation := false
@@ -226,7 +226,7 @@ func TestAddItem(t *testing.T) {
 			timestamp := models.NewTimestamp(0)
 			description := "description"
 			invalidSeller := setup.Admin()
-			priceInCents := models.NewMoneyInCents(100)
+			priceInCents := models.MoneyInCents(100)
 			itemCategoryId := models.Id(1)
 			charity := false
 			donation := false

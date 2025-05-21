@@ -161,13 +161,13 @@ func TestGetUserInformation(t *testing.T) {
 						expectedTotal := models.MoneyInCents(0)
 
 						for i := int64(0); i != unfrozenItemCount; i++ {
-							price := models.NewMoneyInCents((i + 1) * 50)
+							price := models.MoneyInCents((i + 1) * 50)
 							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false), aux.WithPriceInCents(price), aux.WithHidden(false))
 							expectedTotal += price
 						}
 
 						for i := int64(0); i != frozenItemCount; i++ {
-							price := models.NewMoneyInCents((i + 1) * 50)
+							price := models.MoneyInCents((i + 1) * 50)
 							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true), aux.WithPriceInCents(price), aux.WithHidden(false))
 							expectedTotal += price
 						}
