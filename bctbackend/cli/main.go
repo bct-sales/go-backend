@@ -180,6 +180,13 @@ func ProcessCommandLineArguments(arguments []string) error {
 				height     int
 			}
 		}
+
+		category struct {
+			add struct {
+				id   int64
+				name string
+			}
+		}
 	}
 
 	app := &cli.App{
@@ -656,6 +663,30 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Usage: "list the number of items in each category",
 						Action: func(context *cli.Context) error {
 							return cli_category.ListCategoryCounts(databasePath)
+						},
+					},
+					{
+						Name:  "add",
+						Usage: "add a new category",
+						Flags: []cli.Flag{
+							&cli.Int64Flag{
+								Name:        "id",
+								Usage:       "id of the category",
+								Destination: &options.category.add.id,
+								Required:    true,
+							},
+							&cli.StringFlag{
+								Name:        "name",
+								Usage:       "name of the category",
+								Destination: &options.category.add.name,
+								Required:    true,
+							},
+						},
+						Action: func(context *cli.Context) error {
+							id := models.Id(options.category.add.id)
+							name := options.category.add.name
+
+							return cli_category.AddCategory(databasePath, id, name)
 						},
 					},
 				},
