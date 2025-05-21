@@ -30,7 +30,7 @@ func ListSales(databasePath string) (r_err error) {
 		cashierIdString := sale.CashierId.String()
 		transactionTimeString := sale.TransactionTime.FormattedDateTime()
 		itemCountString := strconv.Itoa(sale.ItemCount)
-		totalString := strconv.FormatFloat(float64(sale.TotalPriceInCents)/100.0, 'f', 2, 64)
+		totalString := sale.TotalPriceInCents.DecimalNotation()
 
 		tableData = append(tableData, []string{
 			saleIdString,
