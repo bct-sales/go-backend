@@ -387,7 +387,7 @@ func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id) (int64, error) {
 	return itemCount, nil
 }
 
-func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id) (int64, error) {
+func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id) (models.MoneyInCents, error) {
 	// Ensure the user exists and is a seller
 	{
 		cashier, err := GetUserWithId(db, sellerId)
@@ -408,7 +408,7 @@ func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id) (int64, error
 		sellerId,
 	)
 
-	var totalPrice int64
+	var totalPrice models.MoneyInCents
 	err := row.Scan(&totalPrice)
 
 	if err != nil {
