@@ -5,7 +5,7 @@ import (
 	cli_category "bctbackend/cli/category"
 	"bctbackend/cli/csv"
 	. "bctbackend/cli/database"
-	cli_item "bctbackend/cli/item"
+	. "bctbackend/cli/item"
 	cli_sale "bctbackend/cli/sale"
 	cli_user "bctbackend/cli/user"
 	"bctbackend/database/models"
@@ -430,7 +430,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Action: func(context *cli.Context) error {
 							showHidden := options.item.list.showHidden
 
-							return cli_item.ListItems(databasePath, showHidden)
+							return ListItems(databasePath, showHidden)
 						},
 					},
 					{
@@ -482,7 +482,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							donation := options.item.add.donation
 							charity := options.item.add.charity
 
-							return cli_item.AddItem(databasePath, description, price, categoryId, sellerId, donation, charity)
+							return AddItem(databasePath, description, price, categoryId, sellerId, donation, charity)
 						},
 					},
 					{
@@ -498,7 +498,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							id := models.Id(options.item.remove.id)
-							return cli_item.RemoveItem(databasePath, id)
+							return RemoveItem(databasePath, id)
 						},
 					},
 					{
@@ -514,7 +514,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							id := models.Id(options.item.show.id)
-							return cli_item.ShowItem(databasePath, id)
+							return ShowItem(databasePath, id)
 						},
 					},
 					{
@@ -530,7 +530,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							id := models.Id(options.item.freeze.id)
-							return cli_item.FreezeItem(databasePath, id)
+							return FreezeItem(databasePath, id)
 						},
 					},
 					{
@@ -546,7 +546,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							id := models.Id(options.item.freeze.id)
-							return cli_item.UnfreezeItem(databasePath, id)
+							return UnfreezeItem(databasePath, id)
 						},
 					},
 					{
@@ -562,7 +562,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							id := models.Id(options.item.hide.id)
-							return cli_item.HideItem(databasePath, id)
+							return HideItem(databasePath, id)
 						},
 					},
 					{
@@ -578,7 +578,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							id := models.Id(options.item.unhide.id)
-							return cli_item.UnhideItem(databasePath, id)
+							return UnhideItem(databasePath, id)
 						},
 					},
 				},
