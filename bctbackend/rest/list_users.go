@@ -41,14 +41,14 @@ type GetUsersSuccessResponse struct {
 func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
 	slog.Info(
 		"User requested to fetch users",
-		slog.Int64("user_id", models.IdToInt64(userId)),
-		slog.Int64("role_id", models.IdToInt64(roleId)))
+		slog.Int64("user_id", userId.Int64()),
+		slog.Int64("role_id", roleId.Int64()))
 
 	if roleId != models.AdminRoleId {
 		slog.Info(
 			"Non-admin attempted to list all items",
-			slog.Int64("user_id", models.IdToInt64(userId)),
-			slog.Int64("role_id", models.IdToInt64(roleId)))
+			slog.Int64("user_id", userId.Int64()),
+			slog.Int64("role_id", roleId.Int64()))
 
 		failure_response.WrongRole(context, "Only accessible to admins")
 		return
@@ -82,7 +82,7 @@ func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 		}
 
 		userDatum := GetUsersUserData{
-			Id:           models.IdToInt64(user.UserId),
+			Id:           user.UserId.Int64(),
 			Password:     user.Password,
 			Role:         roleName,
 			CreatedAt:    createdAt,

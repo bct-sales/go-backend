@@ -32,7 +32,7 @@ func ListUsers(databasePath string) (r_err error) {
 	userCount := 0
 
 	for _, user := range users {
-		idString := models.IdToString(user.UserId)
+		idString := user.UserId.String()
 
 		roleString, err := models.NameOfRole(user.RoleId)
 

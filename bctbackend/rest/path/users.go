@@ -13,7 +13,7 @@ func (path *usersPath) String() string {
 }
 
 func (path *usersPath) WithUserId(userId models.Id) string {
-	return path.WithRawUserId(models.IdToString(userId))
+	return path.WithRawUserId(userId.String())
 }
 
 func (path *usersPath) WithRawUserId(userId string) string {

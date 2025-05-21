@@ -16,5 +16,5 @@ func (path *sellerItemsPath) WithRawSellerId(id string) string {
 }
 
 func (path *sellerItemsPath) WithSellerId(sellerId models.Id) string {
-	return path.WithRawSellerId(models.IdToString(sellerId))
+	return path.WithRawSellerId(sellerId.String())
 }

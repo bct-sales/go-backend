@@ -35,12 +35,12 @@ func ParseId(string string) (Id, error) {
 	return NewId(id), nil
 }
 
-func IdToInt64(id Id) int64 {
-	return int64(id)
+func (id Id) String() string {
+	return strconv.FormatInt(int64(id), 10)
 }
 
-func IdToString(id Id) string {
-	return strconv.FormatInt(int64(id), 10)
+func (id Id) Int64() int64 {
+	return int64(id)
 }
 
 func TimestampToString(timestamp Timestamp) string {

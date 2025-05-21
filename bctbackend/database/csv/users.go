@@ -19,7 +19,7 @@ func OutputUsers(db *sql.DB, writer io.Writer) error {
 	}
 
 	writeRow := func(user *models.User) error {
-		idString := models.IdToString(user.UserId)
+		idString := user.UserId.String()
 		roleString, err := models.NameOfRole(user.RoleId)
 		if err != nil {
 			return err

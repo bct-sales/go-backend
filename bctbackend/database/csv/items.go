@@ -18,8 +18,8 @@ func FormatItemsAsCSV(items []*models.Item, categoryTable map[models.Id]string, 
 	}
 
 	for _, item := range items {
-		itemIdString := models.IdToString(item.ItemId)
-		sellerIdString := models.IdToString(item.SellerId)
+		itemIdString := item.ItemId.String()
+		sellerIdString := item.SellerId.String()
 		priceString := models.MoneyInCentsToString(item.PriceInCents)
 
 		categoryString, ok := categoryTable[item.CategoryId]

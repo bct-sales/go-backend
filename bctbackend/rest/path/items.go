@@ -16,7 +16,7 @@ func (path *itemsPath) String() string {
 }
 
 func (path *itemsPath) Id(id models.Id) string {
-	return path.WithRawItemId(models.IdToString(id))
+	return path.WithRawItemId(id.String())
 }
 
 func (path *itemsPath) WithRawItemId(id string) string {

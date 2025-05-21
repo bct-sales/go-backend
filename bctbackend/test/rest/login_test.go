@@ -26,7 +26,7 @@ func TestLogin(t *testing.T) {
 			seller := setup.Seller()
 
 			form := url.Values{}
-			form.Add("username", models.IdToString(seller.UserId))
+			form.Add("username", seller.UserId.String())
 			form.Add("password", seller.Password)
 
 			url := path.Login().String()
@@ -67,7 +67,7 @@ func TestLogin(t *testing.T) {
 			admin := setup.Admin()
 
 			form := url.Values{}
-			form.Add("username", models.IdToString(admin.UserId))
+			form.Add("username", admin.UserId.String())
 			form.Add("password", admin.Password)
 
 			url := path.Login().String()
@@ -108,7 +108,7 @@ func TestLogin(t *testing.T) {
 			cashier := setup.Cashier()
 
 			form := url.Values{}
-			form.Add("username", models.IdToString(cashier.UserId))
+			form.Add("username", cashier.UserId.String())
 			form.Add("password", cashier.Password)
 
 			url := path.Login().String()
@@ -152,7 +152,7 @@ func TestLogin(t *testing.T) {
 			password := "xyz"
 
 			form := url.Values{}
-			form.Add("username", models.IdToString(userId))
+			form.Add("username", userId.String())
 			form.Add("password", password)
 
 			url := path.Login().String()
@@ -175,7 +175,7 @@ func TestLogin(t *testing.T) {
 			require.NotEqual(t, password, seller.Password, "Bug in tests if this assertion fails")
 
 			form := url.Values{}
-			form.Add("username", models.IdToString(userId))
+			form.Add("username", userId.String())
 			form.Add("password", password)
 
 			url := path.Login().String()
@@ -212,7 +212,7 @@ func TestLogin(t *testing.T) {
 			cashier := setup.Cashier()
 
 			form := url.Values{}
-			form.Add("username", models.IdToString(cashier.UserId))
+			form.Add("username", cashier.UserId.String())
 
 			url := path.Login().String()
 			request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))

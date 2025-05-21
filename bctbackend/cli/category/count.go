@@ -2,7 +2,6 @@ package user
 
 import (
 	"bctbackend/database"
-	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"errors"
 	"fmt"
@@ -38,7 +37,7 @@ func ListCategoryCounts(databasePath string) (r_err error) {
 		if !ok {
 			return fmt.Errorf("category ID %d not found in category table", categoryId)
 		}
-		categoryIdString := models.IdToString(categoryId)
+		categoryIdString := categoryId.String()
 		count := strconv.Itoa(categoryCount)
 
 		tableData = append(tableData, []string{
