@@ -19,7 +19,7 @@ func TestGetCategoryCounts(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Without hidden items", func(t *testing.T) {
-			countTables := []map[models.Id]int64{
+			countTables := []map[models.Id]int{
 				{},
 				{
 					CategoryId_Clothing50_56: 1,
@@ -47,14 +47,14 @@ func TestGetCategoryCounts(t *testing.T) {
 				},
 			}
 
-			for _, expectedCountTable := range countTables {
+			for _, expectedCounts := range countTables {
 				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
 				seller := setup.Seller()
 
-				for categoryId, count := range expectedCountTable {
-					for i := int64(0); i < count; i++ {
+				for categoryId, count := range expectedCounts {
+					for i := 0; i < count; i++ {
 						setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithItemCategory(categoryId), aux.WithHidden(false))
 					}
 				}
@@ -63,18 +63,19 @@ func TestGetCategoryCounts(t *testing.T) {
 				require.NoError(t, err)
 				require.Equal(t, len(defaultCategoryTable), len(actualCounts))
 
-				for _, actualCount := range actualCounts {
-					require.Contains(t, defaultCategoryTable, actualCount.CategoryId)
-					expectedCount := expectedCountTable[actualCount.CategoryId]
+				for categoryId, _ := range defaultCategoryTable {
+					actualCount, ok := actualCounts[categoryId]
+					require.True(t, ok, "Category ID %d not found in actual counts", categoryId)
+					expectedCount := expectedCounts[categoryId]
 
-					require.Equal(t, expectedCount, actualCount.Count)
+					require.Equal(t, expectedCount, actualCount)
 				}
 			}
 		})
 
 		t.Run("With hidden items", func(t *testing.T) {
 			t.Run("Not including hidden items", func(t *testing.T) {
-				countTables := []map[defs.Id]int64{
+				countTables := []map[defs.Id]int{
 					{},
 					{
 						CategoryId_Clothing50_56: 1,
@@ -109,7 +110,7 @@ func TestGetCategoryCounts(t *testing.T) {
 					seller := setup.Seller()
 
 					for categoryId, count := range countTable {
-						for i := int64(0); i < count; i++ {
+						for i := 0; i < count; i++ {
 							setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithItemCategory(categoryId), aux.WithHidden(true))
 						}
 					}
@@ -118,18 +119,18 @@ func TestGetCategoryCounts(t *testing.T) {
 					require.NoError(t, err)
 					require.Equal(t, len(defaultCategoryTable), len(actualCounts))
 
-					for _, count := range actualCounts {
-						require.Contains(t, defaultCategoryTable, count.CategoryId)
+					for categoryId, _ := range defaultCategoryTable {
+						actualCount, ok := actualCounts[categoryId]
+						require.True(t, ok, "Category ID %d not found in actual counts", categoryId)
+						expectedCount := 0
 
-						expectedCount := int64(0)
-						actualCount := count.Count
 						require.Equal(t, expectedCount, actualCount)
 					}
 				}
 			})
 
 			t.Run("Including hidden items", func(t *testing.T) {
-				countTables := []map[defs.Id]int64{
+				countTables := []map[defs.Id]int{
 					{},
 					{
 						CategoryId_Clothing50_56: 1,
@@ -157,27 +158,27 @@ func TestGetCategoryCounts(t *testing.T) {
 					},
 				}
 
-				for _, countTable := range countTables {
+				for _, expectedCounts := range countTables {
 					setup, db := NewDatabaseFixture(WithDefaultCategories)
 					defer setup.Close()
 
 					seller := setup.Seller()
 
-					for categoryId, count := range countTable {
-						for i := int64(0); i < count; i++ {
+					for categoryId, count := range expectedCounts {
+						for i := 0; i < count; i++ {
 							setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithItemCategory(categoryId), aux.WithHidden(true))
 						}
 					}
 
-					counts, err := queries.GetCategoryCounts(db, true)
+					actualCounts, err := queries.GetCategoryCounts(db, true)
 					require.NoError(t, err)
-					require.Equal(t, len(defaultCategoryTable), len(counts))
+					require.Equal(t, len(defaultCategoryTable), len(actualCounts))
 
-					for _, count := range counts {
-						require.Contains(t, defaultCategoryTable, count.CategoryId)
+					for categoryId, _ := range defaultCategoryTable {
+						actualCount, ok := actualCounts[categoryId]
+						require.True(t, ok, "Category ID %d not found in actual counts", categoryId)
+						expectedCount := expectedCounts[categoryId]
 
-						expectedCount := countTable[count.CategoryId]
-						actualCount := count.Count
 						require.Equal(t, expectedCount, actualCount)
 					}
 				}

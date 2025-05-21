@@ -105,50 +105,44 @@ func GetCategoryMap(db *sql.DB) (map[models.Id]string, error) {
 	return result, nil
 }
 
-func GetCategoryCounts(db *sql.DB, includeHiddenItems bool) (counts []models.ItemCategoryCount, err error) {
-	var whereClause string
+func GetCategoryCounts(db *sql.DB, includeHiddenItems bool) (r_counts map[models.Id]int, r_err error) {
+	var hiddenStrategy ItemSelection
 	if includeHiddenItems {
-		whereClause = ""
+		hiddenStrategy = AllItems
 	} else {
-		whereClause = "WHERE hidden = false"
+		hiddenStrategy = OnlyVisibleItems
 	}
+	itemsTable := ItemsTableFor(hiddenStrategy)
 
 	query := fmt.Sprintf(`
-		SELECT
-			item_categories.item_category_id as item_category_id,
-			item_categories.name as item_category_name,
-			COUNT(i.item_id) AS count
+		SELECT item_categories.item_category_id, COUNT(i.item_id)
 		FROM item_categories
-		LEFT JOIN (SELECT * FROM items %s) as i ON item_categories.item_category_id = i.item_category_id
+		LEFT JOIN %s i ON item_categories.item_category_id = i.item_category_id
 		GROUP BY item_categories.item_category_id
-	`, whereClause)
+	`, itemsTable)
 
 	rows, err := db.Query(query)
-
 	if err != nil {
 		return nil, err
 	}
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
-	defer func() { err = errors.Join(err, rows.Close()) }()
-
-	counts = []models.ItemCategoryCount{}
+	counts := make(map[models.Id]int)
 
 	for rows.Next() {
-		var count models.ItemCategoryCount
+		var id models.Id
+		var count int
 
 		err := rows.Scan(
-			&count.CategoryId,
-			&count.Name,
-			&count.Count,
+			&id,
+			&count,
 		)
-
 		if err != nil {
 			return nil, err
 		}
 
-		counts = append(counts, count)
+		counts[id] = count
 	}
 
-	err = nil
 	return counts, err
 }

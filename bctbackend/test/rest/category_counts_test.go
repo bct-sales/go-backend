@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func createSuccessResponse(countMap map[models.Id]int64) rest.ListCategoriesSuccessResponse {
+func createSuccessResponse(countMap map[models.Id]int) rest.ListCategoriesSuccessResponse {
 	defaultCategoryTable := DefaultCategoryTable()
 	countArray := []rest.CategoryData{}
 
@@ -55,7 +55,7 @@ func TestCategoryCounts(t *testing.T) {
 
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
-			countMap := map[models.Id]int64{}
+			countMap := map[models.Id]int{}
 			expectedResponse := createSuccessResponse(countMap)
 			actualResponse := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 
@@ -81,7 +81,7 @@ func TestCategoryCounts(t *testing.T) {
 
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
-				countMap := map[models.Id]int64{categoryId: 1}
+				countMap := map[models.Id]int{categoryId: 1}
 				expected := createSuccessResponse(countMap)
 
 				actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
@@ -101,7 +101,7 @@ func TestCategoryCounts(t *testing.T) {
 
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
-				countMap := map[models.Id]int64{categoryId: 2}
+				countMap := map[models.Id]int{categoryId: 2}
 				expected := createSuccessResponse(countMap)
 
 				actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
@@ -122,7 +122,7 @@ func TestCategoryCounts(t *testing.T) {
 
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
 					router.ServeHTTP(writer, request)
-					countMap := map[models.Id]int64{categoryId1: 0, categoryId2: 0}
+					countMap := map[models.Id]int{categoryId1: 0, categoryId2: 0}
 					countMap[categoryId1] += 1
 					countMap[categoryId2] += 1
 					expected := createSuccessResponse(countMap)

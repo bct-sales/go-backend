@@ -5,8 +5,11 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/rest/failure_response"
 	"database/sql"
+	"fmt"
 	"log/slog"
+	"maps"
 	"net/http"
+	"slices"
 
 	_ "bctbackend/docs"
 
@@ -20,7 +23,7 @@ type ListCategoriesSuccessResponse struct {
 type CategoryData struct {
 	CategoryId   models.Id `json:"categoryId"`
 	CategoryName string    `json:"categoryName"`
-	Count        *int64    `json:"count,omitempty"`
+	Count        *int      `json:"count,omitempty"`
 }
 
 // @Summary Get number of items grouped by category.
@@ -59,15 +62,31 @@ func listCategoriesWithCounts(context *gin.Context, db *sql.DB, userId models.Id
 		return
 	}
 
+	categoryTable, err := queries.GetCategoryMap(db)
+	if err != nil {
+		failure_response.Unknown(context, "Failed to fetch category table: "+err.Error())
+		return
+	}
+
 	response := ListCategoriesSuccessResponse{
 		Counts: []CategoryData{},
 	}
 
-	for _, categoryCount := range categoryCounts {
+	categoryIds := slices.Collect(maps.Keys(categoryCounts))
+	slices.Sort(categoryIds)
+
+	for _, categoryId := range categoryIds {
+		categoryCount := categoryCounts[categoryId]
+		categoryName, ok := categoryTable[categoryId]
+		if !ok {
+			failure_response.Unknown(context, fmt.Sprintf("Unknown category ID %d", categoryId))
+			return
+		}
+
 		translatedCategoryCount := CategoryData{
-			CategoryId:   categoryCount.CategoryId,
-			CategoryName: categoryCount.Name,
-			Count:        &categoryCount.Count,
+			CategoryId:   categoryId,
+			CategoryName: categoryName,
+			Count:        &categoryCount,
 		}
 
 		response.Counts = append(response.Counts, translatedCategoryCount)
