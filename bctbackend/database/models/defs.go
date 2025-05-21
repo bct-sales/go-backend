@@ -2,7 +2,6 @@ package models
 
 import (
 	"strconv"
-	"time"
 )
 
 type Id int64
@@ -28,10 +27,6 @@ func (id Id) Int64() int64 {
 
 func (m MoneyInCents) String() string {
 	return strconv.FormatInt(int64(m), 10)
-}
-
-func TimestampToString(timestamp Timestamp) string {
-	return time.Unix(timestamp.Int64(), 0).String()
 }
 
 func IsValidPrice(price MoneyInCents) bool {

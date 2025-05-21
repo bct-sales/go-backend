@@ -131,7 +131,7 @@ func FormatId(id models.Id) string {
 }
 
 func FormatTimestamp(timestamp models.Timestamp) string {
-	return models.TimestampToString(timestamp)
+	return timestamp.FormattedDateTime()
 }
 
 func FormatOptionalTimestamp(lastActivity *models.Timestamp) string {

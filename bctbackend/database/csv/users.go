@@ -27,7 +27,7 @@ func OutputUsers(db *sql.DB, writer io.Writer) error {
 		var lastActivityString string
 
 		if user.LastActivity != nil {
-			lastActivityString = models.TimestampToString(*user.LastActivity)
+			lastActivityString = user.LastActivity.FormattedDateTime()
 		} else {
 			lastActivityString = "N/A"
 		}
