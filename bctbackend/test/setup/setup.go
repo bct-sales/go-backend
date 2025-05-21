@@ -70,17 +70,17 @@ func (f *RestFixture) Close() {
 	f.Writer = nil
 }
 
-func (s DatabaseFixture) DefaultCategories() map[models.Id]string {
-	table := map[models.Id]string{}
+func (s DatabaseFixture) Category(id models.Id, name string) {
+	if err := queries.AddCategory(s.Db, id, name); err != nil {
+		panic(err)
+	}
+}
 
+func (s DatabaseFixture) DefaultCategories() {
 	categoryTable := aux.DefaultCategoryTable()
 	for id, name := range categoryTable {
-		if err := queries.AddCategory(s.Db, id, name); err != nil {
-			panic(err)
-		}
+		s.Category(id, name)
 	}
-
-	return table
 }
 
 func (s DatabaseFixture) User(roleId models.Id, options ...func(*aux.AddUserData)) *models.User {
