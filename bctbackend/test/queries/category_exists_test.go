@@ -3,11 +3,9 @@
 package queries
 
 import (
+	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
-	"fmt"
-	"maps"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -15,15 +13,24 @@ import (
 )
 
 func TestCategoryWithIdExists(t *testing.T) {
-	setup, db := NewDatabaseFixture(WithDefaultCategories)
+	setup, db := NewDatabaseFixture()
 	defer setup.Close()
 
-	for categoryId := range maps.Keys(aux.DefaultCategoryTable()) {
-		t.Run(fmt.Sprintf("categoryId = %d", categoryId), func(t *testing.T) {
-			categoryExists, err := queries.CategoryWithIdExists(db, categoryId)
+	setup.Category(1, "Good")
+	setup.Category(2, "Bad")
+	setup.Category(3, "Ugly")
 
-			require.NoError(t, err)
-			require.True(t, categoryExists)
-		})
+	for i := models.Id(1); i <= 3; i++ {
+		categoryExists, err := queries.CategoryWithIdExists(db, i)
+
+		require.NoError(t, err)
+		require.True(t, categoryExists)
+	}
+
+	for i := models.Id(4); i <= 10; i++ {
+		categoryExists, err := queries.CategoryWithIdExists(db, i)
+
+		require.NoError(t, err)
+		require.False(t, categoryExists)
 	}
 }
