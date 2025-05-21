@@ -153,5 +153,5 @@ func FormatRole(roleId models.Id) string {
 }
 
 func FormatPrice(priceInCents models.MoneyInCents) string {
-	return fmt.Sprintf("$%.2f", float64(priceInCents)/100.0)
+	return fmt.Sprintf("€%s", priceInCents.DecimalNotation())
 }
