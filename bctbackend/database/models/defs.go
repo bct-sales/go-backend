@@ -5,7 +5,6 @@ import (
 )
 
 type Id int64
-type MoneyInCents int64
 
 func ParseId(string string) (Id, error) {
 	id, err := strconv.ParseInt(string, 10, 64)
@@ -23,16 +22,4 @@ func (id Id) String() string {
 
 func (id Id) Int64() int64 {
 	return int64(id)
-}
-
-func (m MoneyInCents) String() string {
-	return strconv.FormatInt(int64(m), 10)
-}
-
-func (m MoneyInCents) DecimalNotation() string {
-	return strconv.FormatFloat(float64(m)/100.0, 'f', 2, 64)
-}
-
-func IsValidPrice(price MoneyInCents) bool {
-	return price > 0
 }
