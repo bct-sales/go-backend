@@ -22,7 +22,7 @@ func TestAddSellerItem(t *testing.T) {
 	defaultCategoryTable := aux.DefaultCategoryTable()
 
 	t.Run("Successful", func(t *testing.T) {
-		for _, sellerId := range []models.Id{models.NewId(1), models.NewId(2), models.NewId(100)} {
+		for _, sellerId := range []models.Id{models.Id(1), models.Id(2), models.Id(100)} {
 			for _, price := range []models.MoneyInCents{1, 100, 10000} {
 				for _, description := range []string{"Xyz", "Test Description"} {
 					for categoryId, _ := range defaultCategoryTable {
@@ -137,7 +137,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := models.NewId(1000)
+			categoryId := models.Id(1000)
 			donation := false
 			charity := false
 
@@ -296,7 +296,7 @@ func TestAddSellerItem(t *testing.T) {
 			charity := false
 
 			_, sessionId := setup.LoggedIn(setup.Seller())
-			nonexistentUserId := models.NewId(1000)
+			nonexistentUserId := models.Id(1000)
 			setup.RequireNoSuchUser(t, nonexistentUserId)
 
 			url := path.SellerItems().WithSellerId(nonexistentUserId)

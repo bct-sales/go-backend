@@ -20,7 +20,7 @@ import (
 func TestListSellerItems(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("View own items", func(t *testing.T) {
-			for _, sellerId := range []models.Id{models.NewId(1), models.NewId(2), models.NewId(100)} {
+			for _, sellerId := range []models.Id{models.Id(1), models.Id(2), models.Id(100)} {
 				for _, itemCount := range []int{0, 1, 5, 100} {
 					testLabel := fmt.Sprintf("SellerId: %d, ItemCount: %d", sellerId, itemCount)
 
@@ -169,7 +169,7 @@ func TestListSellerItems(t *testing.T) {
 			defer setup.Close()
 
 			_, sessionId := setup.LoggedIn(setup.Seller())
-			nonexistentSellerId := models.NewId(1000)
+			nonexistentSellerId := models.Id(1000)
 			setup.RequireNoSuchUser(t, nonexistentSellerId)
 
 			url := path.SellerItems().WithSellerId(nonexistentSellerId)

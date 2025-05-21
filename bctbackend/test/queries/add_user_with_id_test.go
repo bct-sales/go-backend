@@ -43,7 +43,7 @@ func TestAddUserWithId(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		userId := models.NewId(1)
+		userId := models.Id(1)
 		roleId := models.SellerRoleId
 		password := "xyz"
 		createdAt := models.Timestamp(0)
@@ -65,7 +65,7 @@ func TestAddUserWithId(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		userId := models.NewId(1)
+		userId := models.Id(1)
 		roleId := models.Id(10)
 		password := "xyz"
 		createdAt := models.Timestamp(0)

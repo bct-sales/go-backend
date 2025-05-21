@@ -70,7 +70,7 @@ func resetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 
 	slog.Info("Adding admin user")
 	{
-		id := models.NewId(1)
+		id := models.Id(1)
 		role := models.AdminRoleId
 		createdAt := time.Now().Unix()
 		var lastActivity *models.Timestamp = nil
@@ -83,7 +83,7 @@ func resetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 
 	slog.Info("Adding cashier user")
 	{
-		id := models.NewId(2)
+		id := models.Id(2)
 		role := models.CashierRoleId
 		createdAt := time.Now().Unix()
 		var lastActivity *models.Timestamp = nil

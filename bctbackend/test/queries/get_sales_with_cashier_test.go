@@ -70,7 +70,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			unknownCashierId := models.NewId(9999)
+			unknownCashierId := models.Id(9999)
 			setup.RequireNoSuchUser(t, unknownCashierId)
 
 			_, err := queries.GetSalesWithCashier(db, unknownCashierId)

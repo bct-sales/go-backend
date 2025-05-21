@@ -33,7 +33,7 @@ func TestRemoveNonexistingItem(t *testing.T) {
 	setup, db := NewDatabaseFixture(WithDefaultCategories)
 	defer setup.Close()
 
-	itemId := models.NewId(1)
+	itemId := models.Id(1)
 
 	err := queries.RemoveItemWithId(db, itemId)
 

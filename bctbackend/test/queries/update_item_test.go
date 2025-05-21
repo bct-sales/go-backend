@@ -134,7 +134,7 @@ func TestUpdateItem(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			itemId := models.NewId(1)
+			itemId := models.Id(1)
 			itemUpdate := queries.ItemUpdate{}
 			err := queries.UpdateItem(db, itemId, &itemUpdate)
 

@@ -148,7 +148,7 @@ func TestGetItemInformation(t *testing.T) {
 				_, sessionId := setup.LoggedIn(setup.Cashier())
 
 				// Get ID for nonexisting item
-				nonexistentItem := models.NewId(1)
+				nonexistentItem := models.Id(1)
 				setup.RequireNoSuchItem(t, nonexistentItem)
 
 				// Attempt to get information for nonexistent item
