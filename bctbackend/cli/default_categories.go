@@ -4,21 +4,19 @@ import (
 	"bctbackend/database/models"
 )
 
-type Id = int64
-
 const (
-	CategoryId_Clothing50_56      Id = 1
-	CategoryId_Clothing56_62      Id = 2
-	CategoryId_Clothing68_80      Id = 3
-	CategoryId_Clothing86_92      Id = 4
-	CategoryId_Clothing92_98      Id = 5
-	CategoryId_Clothing104_116    Id = 6
-	CategoryId_Clothing122_128    Id = 7
-	CategoryId_Clothing128_140    Id = 8
-	CategoryId_Clothing140_152    Id = 9
-	CategoryId_Shoes              Id = 10
-	CategoryId_Toys               Id = 11
-	CategoryId_BabyChildEquipment Id = 12
+	CategoryId_Clothing50_56      models.Id = 1
+	CategoryId_Clothing56_62      models.Id = 2
+	CategoryId_Clothing68_80      models.Id = 3
+	CategoryId_Clothing86_92      models.Id = 4
+	CategoryId_Clothing92_98      models.Id = 5
+	CategoryId_Clothing104_116    models.Id = 6
+	CategoryId_Clothing122_128    models.Id = 7
+	CategoryId_Clothing128_140    models.Id = 8
+	CategoryId_Clothing140_152    models.Id = 9
+	CategoryId_Shoes              models.Id = 10
+	CategoryId_Toys               models.Id = 11
+	CategoryId_BabyChildEquipment models.Id = 12
 
 	CategoryName_Clothing50_56      string = "Clothing 0-3 mos (50-56)"
 	CategoryName_Clothing56_62      string = "Clothing 3-6 mos (56-62)"
@@ -34,8 +32,8 @@ const (
 	CategoryName_BabyChildEquipment string = "Baby/Child Equipment"
 )
 
-func ListCategoryIds() []Id {
-	return []Id{
+func ListCategoryIds() []models.Id {
+	return []models.Id{
 		CategoryId_Clothing50_56,
 		CategoryId_Clothing56_62,
 		CategoryId_Clothing68_80,
