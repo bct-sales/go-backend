@@ -6,7 +6,7 @@ import (
 	"bctbackend/cli/csv"
 	. "bctbackend/cli/database"
 	. "bctbackend/cli/item"
-	cli_sale "bctbackend/cli/sale"
+	. "bctbackend/cli/sale"
 	cli_user "bctbackend/cli/user"
 	"bctbackend/database/models"
 	"fmt"
@@ -591,7 +591,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "list",
 						Usage: "list all sales",
 						Action: func(context *cli.Context) error {
-							return cli_sale.ListSales(databasePath)
+							return ListSales(databasePath)
 						},
 					},
 					{
@@ -619,7 +619,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 								items = append(items, itemId)
 							}
 
-							return cli_sale.AddSale(databasePath, cashierId, items)
+							return AddSale(databasePath, cashierId, items)
 						},
 					},
 					{
@@ -635,7 +635,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							saleId := models.Id(options.sale.show.saleId)
-							return cli_sale.ShowSale(databasePath, saleId)
+							return ShowSale(databasePath, saleId)
 						},
 					},
 				},
