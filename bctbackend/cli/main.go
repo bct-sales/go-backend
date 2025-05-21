@@ -476,7 +476,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Action: func(context *cli.Context) error {
 							description := options.item.add.description
 							categoryId := models.Id(options.item.add.category)
-							price := options.item.add.price
+							price := models.MoneyInCents(options.item.add.price)
 							sellerId := models.Id(options.item.add.seller)
 							donation := options.item.add.donation
 							charity := options.item.add.charity

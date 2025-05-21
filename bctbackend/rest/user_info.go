@@ -255,7 +255,7 @@ func getUserInformationAsSeller(context *gin.Context, db *sql.DB, userId models.
 	response := GetSellerSummarySuccessResponse{
 		ItemCount:       itemCount,
 		FrozenItemCount: frozenItemCount,
-		TotalPrice:      totalPrice,
+		TotalPrice:      models.MoneyInCents(totalPrice),
 	}
 
 	context.JSON(http.StatusOK, response)

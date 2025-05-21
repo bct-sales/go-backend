@@ -6,7 +6,7 @@ import (
 )
 
 type Id int64
-type MoneyInCents = int64
+type MoneyInCents int64
 type Timestamp = int64
 
 func NewMoneyInCents(moneyInCents int64) MoneyInCents {
