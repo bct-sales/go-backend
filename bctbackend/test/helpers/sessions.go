@@ -27,7 +27,7 @@ func AddSessionToDatabase(db *sql.DB, userId models.Id, options ...func(*AddSess
 		option(data)
 	}
 
-	expirationTime := models.Now() + data.secondsBeforeExpiration
+	expirationTime := models.Now() + models.Timestamp(data.secondsBeforeExpiration)
 	sessionId, err := queries.AddSession(db, userId, expirationTime)
 
 	if err != nil {

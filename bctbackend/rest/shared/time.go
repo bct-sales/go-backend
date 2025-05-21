@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"bctbackend/database/models"
 	"fmt"
 	"time"
 )
@@ -18,8 +19,8 @@ func (t DateTime) String() string {
 	return fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d", t.Year, t.Month, t.Day, t.Hour, t.Minute, t.Second)
 }
 
-func ConvertTimestampToDateTime(unixTimestamp int64) DateTime {
-	t := time.Unix(unixTimestamp, 0)
+func ConvertTimestampToDateTime(unixTimestamp models.Timestamp) DateTime {
+	t := time.Unix(unixTimestamp.Int64(), 0)
 
 	return DateTime{
 		Year:   t.Year(),

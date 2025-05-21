@@ -7,7 +7,6 @@ import (
 	"bctbackend/database/queries"
 	"errors"
 	"fmt"
-	"time"
 
 	"log/slog"
 
@@ -30,7 +29,7 @@ func AddItem(
 
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
-	timestamp := time.Now().Unix()
+	timestamp := models.Now()
 
 	// We do not want to check the validity for frozen/hidden here, so we just set them to false
 	addedItemId, err := queries.AddItem(db, timestamp, description, priceInCents, categoryId, sellerId, donation, charity, false, false)

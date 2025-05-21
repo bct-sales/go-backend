@@ -6,7 +6,6 @@ import (
 	"bctbackend/database/queries"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/pterm/pterm"
 	_ "modernc.org/sqlite"
@@ -40,11 +39,11 @@ func ListUsers(databasePath string) (r_err error) {
 			return fmt.Errorf("error while converting role to string: %v", err)
 		}
 
-		createdAtString := time.Unix(user.CreatedAt, 0).String()
+		createdAtString := user.CreatedAt.FormattedDateTime()
 
 		var lastActivityString string
 		if user.LastActivity != nil {
-			lastActivityString = time.Unix(*user.LastActivity, 0).String()
+			lastActivityString = user.LastActivity.FormattedDateTime()
 		} else {
 			lastActivityString = "never"
 		}

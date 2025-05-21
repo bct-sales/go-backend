@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"time"
 
 	_ "modernc.org/sqlite"
 )
@@ -72,7 +71,7 @@ func resetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 	{
 		id := models.Id(1)
 		role := models.AdminRoleId
-		createdAt := time.Now().Unix()
+		createdAt := models.Now()
 		var lastActivity *models.Timestamp = nil
 		password := "abc"
 
@@ -85,7 +84,7 @@ func resetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 	{
 		id := models.Id(2)
 		role := models.CashierRoleId
-		createdAt := time.Now().Unix()
+		createdAt := models.Now()
 		var lastActivity *models.Timestamp = nil
 		password := "abc"
 
@@ -100,7 +99,7 @@ func resetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 			for offset := 0; offset != 4; offset++ {
 				userId := models.Id(area*100 + offset)
 				roleId := models.SellerRoleId
-				createdAt := time.Now().Unix()
+				createdAt := models.Now()
 				var lastActivity *models.Timestamp = nil
 				password := fmt.Sprintf("%d", userId)
 

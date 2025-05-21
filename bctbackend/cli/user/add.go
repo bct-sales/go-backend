@@ -6,7 +6,6 @@ import (
 	"bctbackend/database/queries"
 	"errors"
 	"fmt"
-	"time"
 
 	_ "modernc.org/sqlite"
 )
@@ -24,7 +23,7 @@ func AddUser(databasePath string, userId models.Id, role string, password string
 		return fmt.Errorf("invalid role %v; should be admin, seller or cashier", role)
 	}
 
-	timestamp := time.Now().Unix()
+	timestamp := models.Now()
 	var lastActivity *models.Timestamp = nil
 
 	if err := queries.AddUserWithId(db, userId, roleId, timestamp, lastActivity, password); err != nil {

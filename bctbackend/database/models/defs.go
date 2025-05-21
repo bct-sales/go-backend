@@ -7,14 +7,14 @@ import (
 
 type Id int64
 type MoneyInCents int64
-type Timestamp = int64
+type Timestamp int64
 
 func NewTimestamp(timestamp int64) Timestamp {
 	return Timestamp(timestamp)
 }
 
 func Now() Timestamp {
-	return time.Now().Unix()
+	return Timestamp(time.Now().Unix())
 }
 
 func ParseId(string string) (Id, error) {
@@ -28,7 +28,7 @@ func ParseId(string string) (Id, error) {
 }
 
 func (id Id) String() string {
-	return strconv.FormatInt(int64(id), 10)
+	return strconv.FormatInt(id.Int64(), 10)
 }
 
 func (id Id) Int64() int64 {
@@ -39,8 +39,20 @@ func (m MoneyInCents) String() string {
 	return strconv.FormatInt(int64(m), 10)
 }
 
+func (ts Timestamp) String() string {
+	return strconv.FormatInt(ts.Int64(), 10)
+}
+
+func (ts Timestamp) FormattedDateTime() string {
+	return time.Unix(ts.Int64(), 0).String()
+}
+
+func (ts Timestamp) Int64() int64 {
+	return int64(ts)
+}
+
 func TimestampToString(timestamp Timestamp) string {
-	return time.Unix(timestamp, 0).String()
+	return time.Unix(timestamp.Int64(), 0).String()
 }
 
 func IsValidPrice(price MoneyInCents) bool {

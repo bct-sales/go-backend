@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"time"
 
 	_ "modernc.org/sqlite"
 )
@@ -18,10 +17,9 @@ func AddSale(databasePath string, cashierId models.Id, items []models.Id) (r_err
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %v", err)
 	}
-
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
-	timestamp := time.Now().Unix()
+	timestamp := models.Now()
 
 	saleId, err := queries.AddSale(db, cashierId, timestamp, items)
 
