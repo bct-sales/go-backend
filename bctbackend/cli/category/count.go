@@ -23,7 +23,7 @@ func ListCategoryCounts(databasePath string) (r_err error) {
 		return err
 	}
 
-	categoryTable, err := queries.GetCategoryMap(db)
+	categoryTable, err := queries.GetCategoryNameTable(db)
 	if err != nil {
 		return err
 	}

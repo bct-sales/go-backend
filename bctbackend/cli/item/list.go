@@ -33,7 +33,7 @@ func ListItems(databasePath string, showHidden bool) (r_err error) {
 	itemCount := len(items)
 
 	if itemCount > 0 {
-		categoryTable, err := queries.GetCategoryMap(db)
+		categoryTable, err := queries.GetCategoryNameTable(db)
 		if categoryTable == nil {
 			return fmt.Errorf("error while getting category map: %v", err)
 		}

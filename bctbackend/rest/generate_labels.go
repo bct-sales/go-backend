@@ -146,7 +146,7 @@ func collectLabelData(db *sql.DB, itemTable map[models.Id]*models.Item, itemIds 
 			return nil, fmt.Errorf("bug: item with id %d not found; should never occur: this error should have be caught earlier", itemId)
 		}
 
-		categoryTable, err := queries.GetCategoryMap(db)
+		categoryTable, err := queries.GetCategoryNameTable(db)
 		if err != nil {
 			return nil, err
 		}

@@ -63,7 +63,7 @@ func showSeller(db *sql.DB, user *models.User) error {
 		return err
 	}
 
-	categoryTable, err := queries.GetCategoryMap(db)
+	categoryTable, err := queries.GetCategoryNameTable(db)
 	if err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func showCashier(db *sql.DB, user *models.User) error {
 		return err
 	}
 
-	categoryTable, err := queries.GetCategoryMap(db)
+	categoryTable, err := queries.GetCategoryNameTable(db)
 	if err != nil {
 		return err
 	}

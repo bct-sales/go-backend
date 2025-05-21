@@ -89,7 +89,7 @@ func GetCategories(db *sql.DB) (r_result []*models.ItemCategory, r_err error) {
 	return categories, nil
 }
 
-func GetCategoryMap(db *sql.DB) (map[models.Id]string, error) {
+func GetCategoryNameTable(db *sql.DB) (map[models.Id]string, error) {
 	categories, err := GetCategories(db)
 
 	if err != nil {

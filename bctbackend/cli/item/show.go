@@ -17,7 +17,7 @@ func ShowItem(databasePath string, itemId models.Id) (r_err error) {
 	}
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
-	categoryTable, err := queries.GetCategoryMap(db)
+	categoryTable, err := queries.GetCategoryNameTable(db)
 	if err != nil {
 		return err
 	}

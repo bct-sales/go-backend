@@ -39,7 +39,7 @@ func AddItem(
 	}
 	fmt.Println("Item added successfully")
 
-	categoryTable, err := queries.GetCategoryMap(db)
+	categoryTable, err := queries.GetCategoryNameTable(db)
 	if err != nil {
 		slog.Error("An error occurred while trying to get the category map; item is still added to the database", "error", err)
 		return nil

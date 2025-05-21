@@ -29,7 +29,7 @@ func TestAddCategory(t *testing.T) {
 		require.True(t, categoryExists)
 		require.NoError(t, err)
 
-		table, err := queries.GetCategoryMap(db)
+		table, err := queries.GetCategoryNameTable(db)
 		require.NoError(t, err)
 		actual, ok := table[id]
 		require.True(t, ok)

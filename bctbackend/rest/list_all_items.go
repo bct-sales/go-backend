@@ -83,7 +83,7 @@ func GetAllItems(context *gin.Context, db *sql.DB, userId models.Id, roleId mode
 		return
 
 	case "csv":
-		categoryTable, err := queries.GetCategoryMap(db)
+		categoryTable, err := queries.GetCategoryNameTable(db)
 		if err != nil {
 			failure_response.Unknown(context, "Failed to get category map: "+err.Error())
 			return

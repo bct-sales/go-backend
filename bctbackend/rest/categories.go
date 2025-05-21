@@ -62,7 +62,7 @@ func listCategoriesWithCounts(context *gin.Context, db *sql.DB, userId models.Id
 		return
 	}
 
-	categoryTable, err := queries.GetCategoryMap(db)
+	categoryTable, err := queries.GetCategoryNameTable(db)
 	if err != nil {
 		failure_response.Unknown(context, "Failed to fetch category table: "+err.Error())
 		return
