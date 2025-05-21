@@ -249,7 +249,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "reset",
 						Usage: "resets database; all data will be lost!",
 						Action: func(context *cli.Context) error {
-							return resetDatabase(databasePath)
+							return ResetDatabase(databasePath)
 						},
 					},
 					{
