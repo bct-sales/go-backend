@@ -18,12 +18,13 @@ import (
 )
 
 func TestAddItem(t *testing.T) {
-	categoryKeys := slices.Collect(maps.Keys(DefaultCategoryTable()))
+	defaultCategoryTable := aux.DefaultCategoryTable()
+	defaultCategoryKeys := slices.Collect(maps.Keys(defaultCategoryTable))
 
 	t.Run("Success", func(t *testing.T) {
 		for _, timestamp := range []models.Timestamp{0, 1000} {
 			for _, priceInCents := range []models.MoneyInCents{50, 100} {
-				for _, itemCategoryId := range categoryKeys {
+				for _, itemCategoryId := range defaultCategoryKeys {
 					for _, description := range []string{"desc1", "desc2"} {
 						for _, sellerId := range []models.Id{1, 2} {
 							for _, donation := range []bool{false, true} {

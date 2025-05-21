@@ -73,7 +73,7 @@ func (f *RestFixture) Close() {
 func (s DatabaseFixture) DefaultCategories() map[models.Id]string {
 	table := map[models.Id]string{}
 
-	categoryTable := DefaultCategoryTable()
+	categoryTable := aux.DefaultCategoryTable()
 	for id, name := range categoryTable {
 		if err := queries.AddCategory(s.Db, id, name); err != nil {
 			panic(err)

@@ -5,7 +5,6 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/defs"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 	"testing"
@@ -15,35 +14,35 @@ import (
 )
 
 func TestGetCategoryCounts(t *testing.T) {
-	defaultCategoryTable := DefaultCategoryTable()
+	defaultCategoryTable := aux.DefaultCategoryTable()
 
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Without hidden items", func(t *testing.T) {
 			countTables := []map[models.Id]int{
 				{},
 				{
-					CategoryId_Clothing50_56: 1,
+					aux.CategoryId_Clothing50_56: 1,
 				},
 				{
-					CategoryId_Clothing50_56: 2,
+					aux.CategoryId_Clothing50_56: 2,
 				},
 				{
-					CategoryId_Clothing50_56: 2,
-					CategoryId_Toys:          3,
+					aux.CategoryId_Clothing50_56: 2,
+					aux.CategoryId_Toys:          3,
 				},
 				{
-					CategoryId_Clothing50_56:      1,
-					CategoryId_Clothing56_62:      2,
-					CategoryId_Clothing68_80:      3,
-					CategoryId_Clothing86_92:      4,
-					CategoryId_Clothing92_98:      5,
-					CategoryId_Clothing104_116:    6,
-					CategoryId_Clothing122_128:    7,
-					CategoryId_Clothing128_140:    8,
-					CategoryId_Clothing140_152:    9,
-					CategoryId_Shoes:              10,
-					CategoryId_Toys:               11,
-					CategoryId_BabyChildEquipment: 12,
+					aux.CategoryId_Clothing50_56:      1,
+					aux.CategoryId_Clothing56_62:      2,
+					aux.CategoryId_Clothing68_80:      3,
+					aux.CategoryId_Clothing86_92:      4,
+					aux.CategoryId_Clothing92_98:      5,
+					aux.CategoryId_Clothing104_116:    6,
+					aux.CategoryId_Clothing122_128:    7,
+					aux.CategoryId_Clothing128_140:    8,
+					aux.CategoryId_Clothing140_152:    9,
+					aux.CategoryId_Shoes:              10,
+					aux.CategoryId_Toys:               11,
+					aux.CategoryId_BabyChildEquipment: 12,
 				},
 			}
 
@@ -75,31 +74,31 @@ func TestGetCategoryCounts(t *testing.T) {
 
 		t.Run("With hidden items", func(t *testing.T) {
 			t.Run("Not including hidden items", func(t *testing.T) {
-				countTables := []map[defs.Id]int{
+				countTables := []map[models.Id]int{
 					{},
 					{
-						CategoryId_Clothing50_56: 1,
+						aux.CategoryId_Clothing50_56: 1,
 					},
 					{
-						CategoryId_Clothing50_56: 2,
+						aux.CategoryId_Clothing50_56: 2,
 					},
 					{
-						CategoryId_Clothing50_56: 2,
-						CategoryId_Toys:          3,
+						aux.CategoryId_Clothing50_56: 2,
+						aux.CategoryId_Toys:          3,
 					},
 					{
-						CategoryId_Clothing50_56:      1,
-						CategoryId_Clothing56_62:      2,
-						CategoryId_Clothing68_80:      3,
-						CategoryId_Clothing86_92:      4,
-						CategoryId_Clothing92_98:      5,
-						CategoryId_Clothing104_116:    6,
-						CategoryId_Clothing122_128:    7,
-						CategoryId_Clothing128_140:    8,
-						CategoryId_Clothing140_152:    9,
-						CategoryId_Shoes:              10,
-						CategoryId_Toys:               11,
-						CategoryId_BabyChildEquipment: 12,
+						aux.CategoryId_Clothing50_56:      1,
+						aux.CategoryId_Clothing56_62:      2,
+						aux.CategoryId_Clothing68_80:      3,
+						aux.CategoryId_Clothing86_92:      4,
+						aux.CategoryId_Clothing92_98:      5,
+						aux.CategoryId_Clothing104_116:    6,
+						aux.CategoryId_Clothing122_128:    7,
+						aux.CategoryId_Clothing128_140:    8,
+						aux.CategoryId_Clothing140_152:    9,
+						aux.CategoryId_Shoes:              10,
+						aux.CategoryId_Toys:               11,
+						aux.CategoryId_BabyChildEquipment: 12,
 					},
 				}
 
@@ -130,31 +129,31 @@ func TestGetCategoryCounts(t *testing.T) {
 			})
 
 			t.Run("Including hidden items", func(t *testing.T) {
-				countTables := []map[defs.Id]int{
+				countTables := []map[models.Id]int{
 					{},
 					{
-						CategoryId_Clothing50_56: 1,
+						aux.CategoryId_Clothing50_56: 1,
 					},
 					{
-						CategoryId_Clothing50_56: 2,
+						aux.CategoryId_Clothing50_56: 2,
 					},
 					{
-						CategoryId_Clothing50_56: 2,
-						CategoryId_Toys:          3,
+						aux.CategoryId_Clothing50_56: 2,
+						aux.CategoryId_Toys:          3,
 					},
 					{
-						CategoryId_Clothing50_56:      1,
-						CategoryId_Clothing56_62:      2,
-						CategoryId_Clothing68_80:      3,
-						CategoryId_Clothing86_92:      4,
-						CategoryId_Clothing92_98:      5,
-						CategoryId_Clothing104_116:    6,
-						CategoryId_Clothing122_128:    7,
-						CategoryId_Clothing128_140:    8,
-						CategoryId_Clothing140_152:    9,
-						CategoryId_Shoes:              10,
-						CategoryId_Toys:               11,
-						CategoryId_BabyChildEquipment: 12,
+						aux.CategoryId_Clothing50_56:      1,
+						aux.CategoryId_Clothing56_62:      2,
+						aux.CategoryId_Clothing68_80:      3,
+						aux.CategoryId_Clothing86_92:      4,
+						aux.CategoryId_Clothing92_98:      5,
+						aux.CategoryId_Clothing104_116:    6,
+						aux.CategoryId_Clothing122_128:    7,
+						aux.CategoryId_Clothing128_140:    8,
+						aux.CategoryId_Clothing140_152:    9,
+						aux.CategoryId_Shoes:              10,
+						aux.CategoryId_Toys:               11,
+						aux.CategoryId_BabyChildEquipment: 12,
 					},
 				}
 

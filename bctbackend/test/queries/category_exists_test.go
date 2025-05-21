@@ -4,6 +4,7 @@ package queries
 
 import (
 	"bctbackend/database/queries"
+	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 	"fmt"
 	"maps"
@@ -17,7 +18,7 @@ func TestCategoryWithIdExists(t *testing.T) {
 	setup, db := NewDatabaseFixture(WithDefaultCategories)
 	defer setup.Close()
 
-	for categoryId := range maps.Keys(DefaultCategoryTable()) {
+	for categoryId := range maps.Keys(aux.DefaultCategoryTable()) {
 		t.Run(fmt.Sprintf("categoryId = %d", categoryId), func(t *testing.T) {
 			categoryExists, err := queries.CategoryWithIdExists(db, categoryId)
 

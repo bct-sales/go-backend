@@ -18,7 +18,7 @@ import (
 )
 
 func createSuccessResponse(countMap map[models.Id]int) rest.ListCategoriesSuccessResponse {
-	defaultCategoryTable := DefaultCategoryTable()
+	defaultCategoryTable := aux.DefaultCategoryTable()
 	countArray := []rest.CategoryData{}
 
 	for categoryId, categoryName := range defaultCategoryTable {
@@ -44,7 +44,7 @@ func createSuccessResponse(countMap map[models.Id]int) rest.ListCategoriesSucces
 
 func TestCategoryCounts(t *testing.T) {
 	url := path.Categories().WithCounts()
-	defaultCategoryTable := DefaultCategoryTable()
+	defaultCategoryTable := aux.DefaultCategoryTable()
 
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Zero items", func(t *testing.T) {

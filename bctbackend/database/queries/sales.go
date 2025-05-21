@@ -105,7 +105,7 @@ func AddSale(
 		return 0, err
 	}
 
-	return saleId, nil
+	return models.Id(saleId), nil
 }
 
 func GetSales(db *sql.DB, receiver func(*models.SaleSummary) error) (r_err error) {

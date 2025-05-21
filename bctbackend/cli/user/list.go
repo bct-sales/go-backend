@@ -6,7 +6,6 @@ import (
 	"bctbackend/database/queries"
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/pterm/pterm"
@@ -33,7 +32,7 @@ func ListUsers(databasePath string) (r_err error) {
 	userCount := 0
 
 	for _, user := range users {
-		idString := strconv.FormatInt(user.UserId, 10)
+		idString := models.IdToString(user.UserId)
 
 		roleString, err := models.NameOfRole(user.RoleId)
 

@@ -39,10 +39,17 @@ type GetUsersSuccessResponse struct {
 // @Failure 500 {object} failure_response.FailureResponse "Internal error"
 // @Router /users [get]
 func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
-	slog.Info("User requested to fetch users", slog.Int64("user_id", userId), slog.Int64("role_id", roleId))
+	slog.Info(
+		"User requested to fetch users",
+		slog.Int64("user_id", models.IdToInt64(userId)),
+		slog.Int64("role_id", models.IdToInt64(roleId)))
 
 	if roleId != models.AdminRoleId {
-		slog.Info("Non-admin attempted to list all items", slog.Int64("user_id", userId), slog.Int64("role_id", roleId))
+		slog.Info(
+			"Non-admin attempted to list all items",
+			slog.Int64("user_id", models.IdToInt64(userId)),
+			slog.Int64("role_id", models.IdToInt64(roleId)))
+
 		failure_response.WrongRole(context, "Only accessible to admins")
 		return
 	}
@@ -75,7 +82,7 @@ func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 		}
 
 		userDatum := GetUsersUserData{
-			Id:           user.UserId,
+			Id:           models.IdToInt64(user.UserId),
 			Password:     user.Password,
 			Role:         roleName,
 			CreatedAt:    createdAt,

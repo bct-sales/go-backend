@@ -19,7 +19,7 @@ import (
 )
 
 func TestAddSellerItem(t *testing.T) {
-	defaultCategoryTable := DefaultCategoryTable()
+	defaultCategoryTable := aux.DefaultCategoryTable()
 
 	t.Run("Successful", func(t *testing.T) {
 		for _, sellerId := range []models.Id{models.NewId(1), models.NewId(2), models.NewId(100)} {
@@ -77,7 +77,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(0)
 			description := "Test Description"
-			categoryId := CategoryId_Clothing50_56
+			categoryId := aux.CategoryId_Clothing50_56
 			donation := false
 			charity := false
 
@@ -107,7 +107,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := ""
-			categoryId := CategoryId_Shoes
+			categoryId := aux.CategoryId_Shoes
 			donation := false
 			charity := false
 
@@ -169,7 +169,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := CategoryId_BabyChildEquipment
+			categoryId := aux.CategoryId_BabyChildEquipment
 			donation := false
 			charity := false
 
@@ -200,7 +200,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := CategoryId_Clothing104_116
+			categoryId := aux.CategoryId_Clothing104_116
 			donation := false
 			charity := false
 
@@ -230,7 +230,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := CategoryId_BabyChildEquipment
+			categoryId := aux.CategoryId_BabyChildEquipment
 			donation := false
 			charity := false
 
@@ -260,7 +260,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := CategoryId_BabyChildEquipment
+			categoryId := aux.CategoryId_BabyChildEquipment
 			donation := false
 			charity := false
 
@@ -291,7 +291,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := CategoryId_BabyChildEquipment
+			categoryId := aux.CategoryId_BabyChildEquipment
 			donation := false
 			charity := false
 
@@ -323,7 +323,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(0)
 			description := "Test Description"
-			categoryId := CategoryId_Clothing50_56
+			categoryId := aux.CategoryId_Clothing50_56
 			donation := false
 			charity := false
 
@@ -353,7 +353,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(0)
 			description := "Test Description"
-			categoryId := CategoryId_Clothing50_56
+			categoryId := aux.CategoryId_Clothing50_56
 			donation := false
 			charity := false
 

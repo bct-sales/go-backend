@@ -5,7 +5,6 @@ package queries
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/defs"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 	"fmt"
@@ -22,14 +21,14 @@ func TestUpdateItem(t *testing.T) {
 		oldPriceInCents := models.MoneyInCents(1000)
 		oldCharity := false
 		oldDonation := false
-		oldCategory := defs.BabyChildEquipment
+		oldCategory := aux.CategoryId_BabyChildEquipment
 
 		newAddedAt := models.Timestamp(2000)
 		newDescription := "new description"
 		newPriceInCents := models.MoneyInCents(2000)
 		newCharity := true
 		newDonation := true
-		newCategory := defs.Clothing140_152
+		newCategory := aux.CategoryId_Clothing140_152
 
 		for _, updateAddedAt := range []bool{false, true} {
 			for _, updateDescription := range []bool{false, true} {

@@ -75,7 +75,12 @@ func AddUser(
 		return 0, err
 	}
 
-	return result.LastInsertId()
+	userId, err := result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("failed to get last insert id: %w", err)
+	}
+
+	return models.Id(userId), nil
 }
 
 type AddUsersCallback func(addUser func(userId models.Id, roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string))

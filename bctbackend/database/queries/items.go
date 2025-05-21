@@ -339,7 +339,7 @@ func AddItem(
 		return 0, err
 	}
 
-	return itemId, nil
+	return models.Id(itemId), nil
 }
 
 // Returns true if an item with the given identifier exists in the database.

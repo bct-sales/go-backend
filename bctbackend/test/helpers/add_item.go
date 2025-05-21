@@ -5,7 +5,6 @@ package helpers
 import (
 	models "bctbackend/database/models"
 	queries "bctbackend/database/queries"
-	"bctbackend/defs"
 	"database/sql"
 	"strconv"
 
@@ -40,7 +39,7 @@ func (data *AddItemData) FillWithDefaults() {
 	}
 
 	if data.ItemCategory == nil {
-		itemCategory := defs.Shoes
+		itemCategory := CategoryId_Shoes
 		data.ItemCategory = &itemCategory
 	}
 
@@ -117,7 +116,7 @@ func WithDummyData(k int) func(*AddItemData) {
 		addedAt := models.NewTimestamp(0)
 		description := "description " + strconv.Itoa(k)
 		priceInCents := models.NewMoneyInCents(100 + int64(k))
-		itemCategory := defs.Shoes
+		itemCategory := CategoryId_Shoes
 		donation := k%2 == 0
 		charity := k%3 == 0
 		frozen := k%2 == 0

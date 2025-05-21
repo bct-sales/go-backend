@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type Id = int64
+type Id int64
 type MoneyInCents = int64
 type Timestamp = int64
 
@@ -33,6 +33,10 @@ func ParseId(string string) (Id, error) {
 	}
 
 	return NewId(id), nil
+}
+
+func IdToInt64(id Id) int64 {
+	return int64(id)
 }
 
 func IdToString(id Id) string {

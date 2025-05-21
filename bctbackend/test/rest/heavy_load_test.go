@@ -9,9 +9,9 @@ import (
 
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/defs"
 	restapi "bctbackend/rest"
 	"bctbackend/rest/path"
+	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
@@ -28,7 +28,7 @@ func TestHeavyLoad(t *testing.T) {
 	for i := 0; i < itemCount; i++ {
 		price := models.MoneyInCents(100 * (i + 1))
 		description := fmt.Sprintf("Test item %d", i)
-		categoryId := defs.Clothing104_116
+		categoryId := aux.CategoryId_Clothing140_152
 		donation := false
 		charity := false
 

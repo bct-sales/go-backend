@@ -304,7 +304,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							},
 						},
 						Action: func(context *cli.Context) error {
-							id := options.user.add.id
+							id := models.Id(options.user.add.id)
 							role := options.user.add.role
 							userPassword := options.user.add.password
 							return cli_user.AddUser(databasePath, id, role, userPassword)
@@ -359,7 +359,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							},
 						},
 						Action: func(context *cli.Context) error {
-							id := options.user.remove.id
+							id := models.Id(options.user.remove.id)
 							return cli_user.RemoveUser(databasePath, id)
 						},
 					},
@@ -382,7 +382,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							},
 						},
 						Action: func(context *cli.Context) error {
-							id := options.user.show.id
+							id := models.Id(options.user.show.id)
 							return cli_user.ShowUser(databasePath, id)
 						},
 					},
@@ -404,7 +404,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							},
 						},
 						Action: func(context *cli.Context) error {
-							id := options.user.setPassword.id
+							id := models.Id(options.user.setPassword.id)
 							password := options.user.setPassword.password
 							return cli_user.SetPassword(databasePath, id, password)
 						},
@@ -475,13 +475,13 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							description := options.item.add.description
-							category := options.item.add.category
+							categoryId := models.Id(options.item.add.category)
 							price := options.item.add.price
-							seller := options.item.add.seller
+							sellerId := models.Id(options.item.add.seller)
 							donation := options.item.add.donation
 							charity := options.item.add.charity
 
-							return cli_item.AddItem(databasePath, description, price, category, seller, donation, charity)
+							return cli_item.AddItem(databasePath, description, price, categoryId, sellerId, donation, charity)
 						},
 					},
 					{
@@ -496,7 +496,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							},
 						},
 						Action: func(context *cli.Context) error {
-							id := options.item.remove.id
+							id := models.Id(options.item.remove.id)
 							return cli_item.RemoveItem(databasePath, id)
 						},
 					},
@@ -512,7 +512,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							},
 						},
 						Action: func(context *cli.Context) error {
-							id := options.item.show.id
+							id := models.Id(options.item.show.id)
 							return cli_item.ShowItem(databasePath, id)
 						},
 					},
@@ -528,7 +528,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							},
 						},
 						Action: func(context *cli.Context) error {
-							id := options.item.freeze.id
+							id := models.Id(options.item.freeze.id)
 							return cli_item.FreezeItem(databasePath, id)
 						},
 					},
@@ -544,7 +544,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							},
 						},
 						Action: func(context *cli.Context) error {
-							id := options.item.freeze.id
+							id := models.Id(options.item.freeze.id)
 							return cli_item.UnfreezeItem(databasePath, id)
 						},
 					},
@@ -560,7 +560,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							},
 						},
 						Action: func(context *cli.Context) error {
-							id := options.item.hide.id
+							id := models.Id(options.item.hide.id)
 							return cli_item.HideItem(databasePath, id)
 						},
 					},
@@ -576,7 +576,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							},
 						},
 						Action: func(context *cli.Context) error {
-							id := options.item.unhide.id
+							id := models.Id(options.item.unhide.id)
 							return cli_item.UnhideItem(databasePath, id)
 						},
 					},
@@ -605,11 +605,11 @@ func ProcessCommandLineArguments(arguments []string) error {
 							},
 						},
 						Action: func(context *cli.Context) error {
-							cashierId := options.sale.add.cashierId
+							cashierId := models.Id(options.sale.add.cashierId)
 							items := []models.Id{}
 
 							for i := 0; i < context.Args().Len(); i++ {
-								itemId, err := strconv.ParseInt(context.Args().Get(i), 10, 64)
+								itemId, err := models.ParseId(context.Args().Get(i))
 
 								if err != nil {
 									return fmt.Errorf("failed to parse item id: %v", err)
@@ -633,7 +633,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							},
 						},
 						Action: func(context *cli.Context) error {
-							saleId := options.sale.show.saleId
+							saleId := models.Id(options.sale.show.saleId)
 							return cli_sale.ShowSale(databasePath, saleId)
 						},
 					},

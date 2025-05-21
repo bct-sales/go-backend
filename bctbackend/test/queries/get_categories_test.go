@@ -4,6 +4,7 @@ package queries
 
 import (
 	"bctbackend/database/queries"
+	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 	"testing"
 
@@ -15,7 +16,7 @@ func TestGetCategories(t *testing.T) {
 	setup, db := NewDatabaseFixture(WithDefaultCategories)
 	defer setup.Close()
 
-	categoryTable := DefaultCategoryTable()
+	categoryTable := aux.DefaultCategoryTable()
 
 	actualCategories, err := queries.GetCategories(db)
 	require.NoError(t, err)
