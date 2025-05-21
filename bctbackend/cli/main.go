@@ -7,7 +7,7 @@ import (
 	. "bctbackend/cli/database"
 	. "bctbackend/cli/item"
 	. "bctbackend/cli/sale"
-	cli_user "bctbackend/cli/user"
+	. "bctbackend/cli/user"
 	"bctbackend/database/models"
 	"fmt"
 	"log/slog"
@@ -308,7 +308,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							id := models.Id(options.user.add.id)
 							role := options.user.add.role
 							userPassword := options.user.add.password
-							return cli_user.AddUser(databasePath, id, role, userPassword)
+							return AddUser(databasePath, id, role, userPassword)
 						},
 					},
 					{
@@ -345,7 +345,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							}
 							sellersPerZone := options.user.addSellers.sellersPerZone
 
-							return cli_user.AddSellers(databasePath, seed, zones, sellersPerZone)
+							return AddSellers(databasePath, seed, zones, sellersPerZone)
 						},
 					},
 					{
@@ -361,14 +361,14 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							id := models.Id(options.user.remove.id)
-							return cli_user.RemoveUser(databasePath, id)
+							return RemoveUser(databasePath, id)
 						},
 					},
 					{
 						Name:  "list",
 						Usage: "list all users",
 						Action: func(context *cli.Context) error {
-							return cli_user.ListUsers(databasePath)
+							return ListUsers(databasePath)
 						},
 					},
 					{
@@ -384,7 +384,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							id := models.Id(options.user.show.id)
-							return cli_user.ShowUser(databasePath, id)
+							return ShowUser(databasePath, id)
 						},
 					},
 					{
@@ -407,7 +407,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Action: func(context *cli.Context) error {
 							id := models.Id(options.user.setPassword.id)
 							password := options.user.setPassword.password
-							return cli_user.SetPassword(databasePath, id, password)
+							return SetPassword(databasePath, id, password)
 						},
 					},
 				},
