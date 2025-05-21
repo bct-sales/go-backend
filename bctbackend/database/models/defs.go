@@ -9,10 +9,6 @@ type Id int64
 type MoneyInCents = int64
 type Timestamp = int64
 
-func NewId(id int64) Id {
-	return Id(id)
-}
-
 func NewMoneyInCents(moneyInCents int64) MoneyInCents {
 	return MoneyInCents(moneyInCents)
 }
@@ -32,7 +28,7 @@ func ParseId(string string) (Id, error) {
 		return 0, err
 	}
 
-	return NewId(id), nil
+	return Id(id), nil
 }
 
 func (id Id) String() string {
