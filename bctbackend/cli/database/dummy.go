@@ -1,4 +1,4 @@
-package cli
+package database
 
 import (
 	database "bctbackend/database"
@@ -11,7 +11,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func resetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
+func ResetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {

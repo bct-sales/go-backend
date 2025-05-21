@@ -1,4 +1,4 @@
-package cli
+package database
 
 import (
 	"bctbackend/database/models"
