@@ -4,6 +4,7 @@ import (
 	cli_barcode "bctbackend/cli/barcode"
 	cli_category "bctbackend/cli/category"
 	"bctbackend/cli/csv"
+	. "bctbackend/cli/database"
 	cli_item "bctbackend/cli/item"
 	cli_sale "bctbackend/cli/sale"
 	cli_user "bctbackend/cli/user"
@@ -271,7 +272,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							targetPath := options.db.backup.target
-							return backupDatabase(databasePath, targetPath)
+							return BackupDatabase(databasePath, targetPath)
 						},
 					},
 				},
