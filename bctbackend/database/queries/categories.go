@@ -22,6 +22,13 @@ func AddCategory(db *sql.DB, categoryId models.Id, categoryName string) error {
 		categoryName,
 	)
 	if err != nil {
+		{
+			inUse, err := CategoryWithIdExists(db, categoryId)
+			if err == nil && inUse {
+				return &CategoryIdAlreadyInUseError{}
+			}
+		}
+
 		return err
 	}
 

@@ -38,7 +38,7 @@ func TestAddCategory(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Invalid name", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture()
 			defer setup.Close()
 
 			id := models.Id(1)
@@ -46,6 +46,19 @@ func TestAddCategory(t *testing.T) {
 			err := queries.AddCategory(db, id, categoryName)
 			var invalidCategoryNameError *queries.InvalidCategoryNameError
 			require.ErrorAs(t, err, &invalidCategoryNameError)
+		})
+
+		t.Run("Same id used twice", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			setup.Category(1, "Test Category")
+
+			id := models.Id(1)
+			categoryName := "xyz"
+			err := queries.AddCategory(db, id, categoryName)
+			var categoryIdAlreadyInUseError *queries.CategoryIdAlreadyInUseError
+			require.ErrorAs(t, err, &categoryIdAlreadyInUseError)
 		})
 	})
 }

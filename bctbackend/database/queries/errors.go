@@ -66,6 +66,8 @@ type ItemHiddenError struct{}
 
 type InvalidCategoryNameError struct{}
 
+type CategoryIdAlreadyInUseError struct{}
+
 func (err *UserIdAlreadyInUseError) Error() string {
 	return fmt.Sprintf("user id %d already in use", err.UserId)
 }
@@ -144,4 +146,8 @@ func (e *InvalidItemDescriptionError) Error() string {
 
 func (e *InvalidCategoryNameError) Error() string {
 	return "invalid category name"
+}
+
+func (e *CategoryIdAlreadyInUseError) Error() string {
+	return "category id already in use"
 }
