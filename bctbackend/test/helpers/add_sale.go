@@ -22,7 +22,7 @@ func WithTransactionTime(transactionTime models.Timestamp) func(*AddSaleData) {
 
 func (data *AddSaleData) FillWithDefaults() {
 	if data.TransactionTime == nil {
-		transactionTime := models.NewTimestamp(0)
+		transactionTime := models.Timestamp(0)
 		data.TransactionTime = &transactionTime
 	}
 }

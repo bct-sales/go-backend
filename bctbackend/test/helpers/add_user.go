@@ -25,7 +25,7 @@ func (data *AddUserData) FillWithDefaults() {
 	}
 
 	if data.CreatedAt == nil {
-		createdAt := models.NewTimestamp(0)
+		createdAt := models.Timestamp(0)
 		data.CreatedAt = &createdAt
 	}
 }

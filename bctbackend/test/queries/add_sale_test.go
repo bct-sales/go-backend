@@ -32,7 +32,7 @@ func TestAddSale(t *testing.T) {
 				saleItemIds[index] = itemIds[itemIndex]
 			}
 
-			timestamp := models.NewTimestamp(0)
+			timestamp := models.Timestamp(0)
 
 			saleId, err := queries.AddSale(db, cashier.UserId, timestamp, saleItemIds)
 			require.NoError(t, err)
@@ -57,7 +57,7 @@ func TestAddSale(t *testing.T) {
 			defer setup.Close()
 
 			cashier := setup.Cashier()
-			timestamp := models.NewTimestamp(0)
+			timestamp := models.Timestamp(0)
 
 			_, err := queries.AddSale(db, cashier.UserId, timestamp, []models.Id{})
 			require.Error(t, err)
@@ -68,7 +68,7 @@ func TestAddSale(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			timestamp := models.NewTimestamp(0)
+			timestamp := models.Timestamp(0)
 			itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemId
 
 			_, err := queries.AddSale(db, seller.UserId, timestamp, []models.Id{itemId})
@@ -81,7 +81,7 @@ func TestAddSale(t *testing.T) {
 
 			seller := setup.Seller()
 			admin := setup.Admin()
-			timestamp := models.NewTimestamp(0)
+			timestamp := models.Timestamp(0)
 			itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemId
 
 			_, err := queries.AddSale(db, admin.UserId, timestamp, []models.Id{itemId})
@@ -94,7 +94,7 @@ func TestAddSale(t *testing.T) {
 
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			timestamp := models.NewTimestamp(0)
+			timestamp := models.Timestamp(0)
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			_, err := queries.AddSale(db, cashier.UserId, timestamp, []models.Id{item.ItemId, item.ItemId})
@@ -108,7 +108,7 @@ func TestAddSale(t *testing.T) {
 
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			timestamp := models.NewTimestamp(0)
+			timestamp := models.Timestamp(0)
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(true))
 
 			_, err := queries.AddSale(db, cashier.UserId, timestamp, []models.Id{item.ItemId})

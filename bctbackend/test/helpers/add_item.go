@@ -24,7 +24,7 @@ type AddItemData struct {
 
 func (data *AddItemData) FillWithDefaults() {
 	if data.AddedAt == nil {
-		addedAt := models.NewTimestamp(0)
+		addedAt := models.Timestamp(0)
 		data.AddedAt = &addedAt
 	}
 
@@ -113,7 +113,7 @@ func WithHidden(hidden bool) func(*AddItemData) {
 
 func WithDummyData(k int) func(*AddItemData) {
 	return func(data *AddItemData) {
-		addedAt := models.NewTimestamp(0)
+		addedAt := models.Timestamp(0)
 		description := "description " + strconv.Itoa(k)
 		priceInCents := models.MoneyInCents(100 + int64(k))
 		itemCategory := CategoryId_Shoes

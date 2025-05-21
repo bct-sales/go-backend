@@ -81,7 +81,7 @@ func TestAddItem(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			timestamp := models.NewTimestamp(0)
+			timestamp := models.Timestamp(0)
 			description := "description"
 			priceInCents := models.MoneyInCents(100)
 			itemCategoryId := models.Id(1)
@@ -106,7 +106,7 @@ func TestAddItem(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			timestamp := models.NewTimestamp(0)
+			timestamp := models.Timestamp(0)
 			description := "description"
 			sellerId := models.Id(1)
 			priceInCents := models.MoneyInCents(100)
@@ -141,7 +141,7 @@ func TestAddItem(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			timestamp := models.NewTimestamp(0)
+			timestamp := models.Timestamp(0)
 			description := "description"
 			itemCategoryId := models.Id(1)
 			charity := false
@@ -169,7 +169,7 @@ func TestAddItem(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			timestamp := models.NewTimestamp(0)
+			timestamp := models.Timestamp(0)
 			description := "description"
 			itemCategoryId := models.Id(1)
 			charity := false
@@ -196,7 +196,7 @@ func TestAddItem(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			timestamp := models.NewTimestamp(0)
+			timestamp := models.Timestamp(0)
 			description := "description"
 			invalidSeller := setup.Cashier()
 			priceInCents := models.MoneyInCents(100)
@@ -223,7 +223,7 @@ func TestAddItem(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			timestamp := models.NewTimestamp(0)
+			timestamp := models.Timestamp(0)
 			description := "description"
 			invalidSeller := setup.Admin()
 			priceInCents := models.MoneyInCents(100)
