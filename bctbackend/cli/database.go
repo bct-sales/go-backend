@@ -4,7 +4,6 @@ import (
 	database "bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/defs"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -64,7 +63,7 @@ func resetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 
 	slog.Info("Adding categories")
 	{
-		defs.GenerateCategories(func(id models.Id, name string) error {
+		GenerateDefaultCategories(func(id models.Id, name string) error {
 			return queries.AddCategory(db, id, name)
 		})
 	}
@@ -114,28 +113,28 @@ func resetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 	}
 
 	slog.Info("Adding some items")
-	queries.AddItem(db, 1, "T-Shirt", 1000, defs.Clothing140_152, 100, false, false, false, false)
-	queries.AddItem(db, 1, "Jeans", 1000, defs.Clothing140_152, 100, false, false, false, false)
-	queries.AddItem(db, 1, "Nike sneakers", 2000, defs.Shoes, 100, false, false, false, false)
-	queries.AddItem(db, 1, "Adidas sneakers", 2000, defs.Shoes, 200, false, false, false, false)
-	queries.AddItem(db, 1, "Puma sneakers", 2000, defs.Shoes, 200, false, false, true, false)
-	queries.AddItem(db, 1, "Reebok sneakers", 2000, defs.Shoes, 200, false, true, false, false)
-	queries.AddItem(db, 1, "Converse sneakers", 2000, defs.Shoes, 200, true, false, false, false)
-	queries.AddItem(db, 1, "Vans sneakers", 2000, defs.Shoes, 200, true, true, false, false)
-	queries.AddItem(db, 1, "New Balance sneakers", 2000, defs.Shoes, 200, false, false, false, false)
-	queries.AddItem(db, 1, "Asics sneakers", 2000, defs.Shoes, 200, false, false, false, false)
-	queries.AddItem(db, 1, "Hoka sneakers", 2000, defs.Shoes, 200, false, false, false, false)
-	queries.AddItem(db, 1, "Saucony sneakers", 2000, defs.Shoes, 200, false, false, false, false)
-	queries.AddItem(db, 1, "Brooks sneakers", 2000, defs.Shoes, 200, false, false, false, false)
-	queries.AddItem(db, 1, "Mizuno sneakers", 2000, defs.Shoes, 200, false, false, false, false)
-	queries.AddItem(db, 1, "On sneakers", 2000, defs.Shoes, 200, false, false, false, false)
-	queries.AddItem(db, 1, "Combat boots", 2000, defs.Shoes, 300, false, false, false, false)
-	queries.AddItem(db, 1, "Hiking boots", 2000, defs.Shoes, 300, false, false, false, false)
-	queries.AddItem(db, 1, "Winter boots", 2000, defs.Shoes, 300, false, false, false, false)
-	queries.AddItem(db, 1, "Rain boots", 2000, defs.Shoes, 300, false, false, false, false)
-	queries.AddItem(db, 1, "Snow boots", 2000, defs.Shoes, 300, false, false, false, false)
-	queries.AddItem(db, 1, "Bean boots", 2000, defs.Shoes, 300, false, false, false, false)
-	queries.AddItem(db, 1, "Cowboy boots", 2000, defs.Shoes, 300, false, false, false, false)
+	queries.AddItem(db, 1, "T-Shirt", 1000, CategoryId_Clothing140_152, 100, false, false, false, false)
+	queries.AddItem(db, 1, "Jeans", 1000, CategoryId_Clothing140_152, 100, false, false, false, false)
+	queries.AddItem(db, 1, "Nike sneakers", 2000, CategoryId_Shoes, 100, false, false, false, false)
+	queries.AddItem(db, 1, "Adidas sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false)
+	queries.AddItem(db, 1, "Puma sneakers", 2000, CategoryId_Shoes, 200, false, false, true, false)
+	queries.AddItem(db, 1, "Reebok sneakers", 2000, CategoryId_Shoes, 200, false, true, false, false)
+	queries.AddItem(db, 1, "Converse sneakers", 2000, CategoryId_Shoes, 200, true, false, false, false)
+	queries.AddItem(db, 1, "Vans sneakers", 2000, CategoryId_Shoes, 200, true, true, false, false)
+	queries.AddItem(db, 1, "New Balance sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false)
+	queries.AddItem(db, 1, "Asics sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false)
+	queries.AddItem(db, 1, "Hoka sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false)
+	queries.AddItem(db, 1, "Saucony sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false)
+	queries.AddItem(db, 1, "Brooks sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false)
+	queries.AddItem(db, 1, "Mizuno sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false)
+	queries.AddItem(db, 1, "On sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false)
+	queries.AddItem(db, 1, "Combat boots", 2000, CategoryId_Shoes, 300, false, false, false, false)
+	queries.AddItem(db, 1, "Hiking boots", 2000, CategoryId_Shoes, 300, false, false, false, false)
+	queries.AddItem(db, 1, "Winter boots", 2000, CategoryId_Shoes, 300, false, false, false, false)
+	queries.AddItem(db, 1, "Rain boots", 2000, CategoryId_Shoes, 300, false, false, false, false)
+	queries.AddItem(db, 1, "Snow boots", 2000, CategoryId_Shoes, 300, false, false, false, false)
+	queries.AddItem(db, 1, "Bean boots", 2000, CategoryId_Shoes, 300, false, false, false, false)
+	queries.AddItem(db, 1, "Cowboy boots", 2000, CategoryId_Shoes, 300, false, false, false, false)
 
 	return nil
 }
