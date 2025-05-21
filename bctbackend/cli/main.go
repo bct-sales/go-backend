@@ -86,6 +86,9 @@ func ProcessCommandLineArguments(arguments []string) error {
 			backup struct {
 				target string
 			}
+			reset struct {
+				noCategories bool
+			}
 		}
 
 		export struct {
@@ -255,8 +258,18 @@ func ProcessCommandLineArguments(arguments []string) error {
 					{
 						Name:  "reset",
 						Usage: "resets database; all data will be lost!",
+						Flags: []cli.Flag{
+							&cli.BoolFlag{
+								Name:        "no-categories",
+								Usage:       "do not add default categories",
+								Destination: &options.db.reset.noCategories,
+								Value:       false,
+							},
+						},
 						Action: func(context *cli.Context) error {
-							return ResetDatabase(databasePath)
+							addCategories := !options.db.reset.noCategories
+
+							return ResetDatabase(databasePath, addCategories)
 						},
 					},
 					{

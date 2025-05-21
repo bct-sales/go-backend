@@ -2,13 +2,15 @@ package database
 
 import (
 	database "bctbackend/database"
+	"bctbackend/database/models"
+	"bctbackend/database/queries"
 	"errors"
 	"fmt"
 
 	_ "modernc.org/sqlite"
 )
 
-func ResetDatabase(databasePath string) (r_err error) {
+func ResetDatabase(databasePath string, addCategories bool) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
@@ -19,6 +21,12 @@ func ResetDatabase(databasePath string) (r_err error) {
 
 	if err := database.ResetDatabase(db); err != nil {
 		return fmt.Errorf("failed to reset database: %v", err)
+	}
+
+	if addCategories {
+		GenerateDefaultCategories(func(id models.Id, name string) error {
+			return queries.AddCategory(db, id, name)
+		})
 	}
 
 	fmt.Println("Database reset completed successfully")
