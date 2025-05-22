@@ -11,5 +11,5 @@ func (path *categoriesPath) String() string {
 }
 
 func (path *categoriesPath) WithCounts() string {
-	return path.String() + "?counts=true"
+	return path.String() + "?counts=all"
 }

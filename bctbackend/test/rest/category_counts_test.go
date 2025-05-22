@@ -128,6 +128,7 @@ func TestCategoryCounts(t *testing.T) {
 					expected := createSuccessResponse(countMap)
 
 					actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
+					require.NotNil(t, actual)
 					require.Equal(t, expected, *actual)
 				})
 			}
