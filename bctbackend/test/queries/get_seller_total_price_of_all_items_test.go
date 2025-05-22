@@ -116,6 +116,32 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 			require.NoError(t, err)
 			require.Equal(t, expectedTotal, actualTotal)
 		})
+
+		t.Run("Count only visible items", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+
+			expectedTotal := models.MoneyInCents(0)
+
+			// Add visible items
+			for i := 0; i < 10; i++ {
+				price := models.MoneyInCents((i + 1) * 50)
+				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithHidden(false))
+				expectedTotal += price
+			}
+
+			// Add hidden items
+			for i := 0; i < 10; i++ {
+				price := models.MoneyInCents((i + 1) * 150)
+				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithHidden(true))
+			}
+
+			actualTotal, err := queries.GetSellerTotalPriceOfAllItems(db, seller.UserId, queries.OnlyVisibleItems)
+			require.NoError(t, err)
+			require.Equal(t, expectedTotal, actualTotal)
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
