@@ -9,9 +9,9 @@ import (
 type ItemSelection int
 
 const (
-	AllItems         ItemSelection = 1
-	OnlyVisibleItems ItemSelection = 2
-	OnlyHiddenItems  ItemSelection = 3
+	AllItems ItemSelection = iota
+	OnlyVisibleItems
+	OnlyHiddenItems
 )
 
 func ItemsTableFor(itemSelection ItemSelection) string {
@@ -27,4 +27,11 @@ func ItemsTableFor(itemSelection ItemSelection) string {
 		os.Exit(1)
 		return ""
 	}
+}
+
+func ItemSelectionFromBool(onlyVisible bool) ItemSelection {
+	if onlyVisible {
+		return OnlyVisibleItems
+	}
+	return AllItems
 }

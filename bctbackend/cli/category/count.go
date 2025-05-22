@@ -11,14 +11,14 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func ListCategoryCounts(databasePath string) (r_err error) {
+func ListCategoryCounts(databasePath string, itemSelection queries.ItemSelection) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
 		return err
 	}
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
-	categoryCounts, err := queries.GetCategoryCounts(db, queries.OnlyVisibleItems)
+	categoryCounts, err := queries.GetCategoryCounts(db, itemSelection)
 	if err != nil {
 		return err
 	}

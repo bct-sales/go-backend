@@ -9,6 +9,7 @@ import (
 	. "bctbackend/cli/sale"
 	. "bctbackend/cli/user"
 	"bctbackend/database/models"
+	"bctbackend/database/queries"
 	"fmt"
 	"log/slog"
 	"os"
@@ -188,6 +189,10 @@ func ProcessCommandLineArguments(arguments []string) error {
 			add struct {
 				id   int64
 				name string
+			}
+
+			counts struct {
+				includeHiddenItems bool
 			}
 		}
 	}
@@ -674,8 +679,18 @@ func ProcessCommandLineArguments(arguments []string) error {
 					{
 						Name:  "counts",
 						Usage: "list the number of items in each category",
+						Flags: []cli.Flag{
+							&cli.BoolFlag{
+								Name:        "include-hidden",
+								Usage:       "include hidden items",
+								Destination: &options.category.counts.includeHiddenItems,
+								Value:       false,
+							},
+						},
 						Action: func(context *cli.Context) error {
-							return cli_category.ListCategoryCounts(databasePath)
+							itemSelection := queries.ItemSelectionFromBool(options.category.counts.includeHiddenItems)
+
+							return cli_category.ListCategoryCounts(databasePath, itemSelection)
 						},
 					},
 					{
