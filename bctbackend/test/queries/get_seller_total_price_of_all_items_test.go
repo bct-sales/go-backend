@@ -91,7 +91,7 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 			require.Equal(t, expectedTotal, actualTotal)
 		})
 
-		t.Run("Count hidden items", func(t *testing.T) {
+		t.Run("Count only hidden items", func(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
