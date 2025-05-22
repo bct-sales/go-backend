@@ -325,7 +325,7 @@ func UpdateLastActivity(db *sql.DB, userId models.Id, lastActivity models.Timest
 	return err
 }
 
-func GetSellerItemCount(db *sql.DB, sellerId models.Id) (int64, error) {
+func GetSellerItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 	// Ensure the user exists and is a seller
 	{
 		cashier, err := GetUserWithId(db, sellerId)
@@ -346,7 +346,7 @@ func GetSellerItemCount(db *sql.DB, sellerId models.Id) (int64, error) {
 		sellerId,
 	)
 
-	var itemCount int64
+	var itemCount int
 	err := row.Scan(&itemCount)
 
 	if err != nil {
@@ -356,7 +356,7 @@ func GetSellerItemCount(db *sql.DB, sellerId models.Id) (int64, error) {
 	return itemCount, nil
 }
 
-func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id, itemSelection ItemSelection) (int64, error) {
+func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id, itemSelection ItemSelection) (int, error) {
 	// Ensure the user exists and is a seller
 	{
 		cashier, err := GetUserWithId(db, sellerId)
@@ -377,7 +377,7 @@ func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id, itemSelection Item
 		`, itemsTable)
 	row := db.QueryRow(query, sellerId)
 
-	var itemCount int64
+	var itemCount int
 	err := row.Scan(&itemCount)
 	if err != nil {
 		return 0, fmt.Errorf("failed to get seller's frozen item count: %w", err)

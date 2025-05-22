@@ -55,8 +55,8 @@ type GetCashierInformationSuccessResponse struct {
 }
 
 type GetSellerSummarySuccessResponse struct {
-	ItemCount       int64               `json:"itemCount" binding:"required"`
-	FrozenItemCount int64               `json:"frozenItemCount" binding:"required"`
+	ItemCount       int                 `json:"itemCount" binding:"required"`
+	FrozenItemCount int                 `json:"frozenItemCount" binding:"required"`
 	TotalPrice      models.MoneyInCents `json:"totalPrice" binding:"required"`
 }
 

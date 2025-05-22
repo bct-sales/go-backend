@@ -150,8 +150,8 @@ func TestGetUserInformation(t *testing.T) {
 		})
 
 		t.Run("Logged in as seller", func(t *testing.T) {
-			for _, unfrozenItemCount := range []int64{0, 1, 2, 5, 10} {
-				for _, frozenItemCount := range []int64{0, 1, 2, 5, 10} {
+			for _, unfrozenItemCount := range []int{0, 1, 2, 5, 10} {
+				for _, frozenItemCount := range []int{0, 1, 2, 5, 10} {
 					testLabel := fmt.Sprintf("Unfrozen item count: %d, Frozen item count: %d", unfrozenItemCount, frozenItemCount)
 					t.Run(testLabel, func(t *testing.T) {
 						setup, router, writer := NewRestFixture(WithDefaultCategories)
@@ -160,15 +160,15 @@ func TestGetUserInformation(t *testing.T) {
 						seller, sessionId := setup.LoggedIn(setup.Seller())
 						expectedTotal := models.MoneyInCents(0)
 
-						for i := int64(0); i != unfrozenItemCount; i++ {
+						for i := 0; i != unfrozenItemCount; i++ {
 							price := models.MoneyInCents((i + 1) * 50)
-							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false), aux.WithPriceInCents(price), aux.WithHidden(false))
+							setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithPriceInCents(price), aux.WithHidden(false))
 							expectedTotal += price
 						}
 
-						for i := int64(0); i != frozenItemCount; i++ {
+						for i := 0; i != frozenItemCount; i++ {
 							price := models.MoneyInCents((i + 1) * 50)
-							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true), aux.WithPriceInCents(price), aux.WithHidden(false))
+							setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(true), aux.WithPriceInCents(price), aux.WithHidden(false))
 							expectedTotal += price
 						}
 

@@ -35,7 +35,7 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 									algorithms.Repeat(unfrozenHiddenItemCount, func() { setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithFrozen(false), aux.WithHidden(true)) })
 									algorithms.Repeat(unfrozenVisibleItemCount, func() { setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithFrozen(false), aux.WithHidden(false)) })
 
-									expectedCount := int64(frozenHiddenItemCount)
+									expectedCount := frozenHiddenItemCount
 
 									actual, err := queries.GetSellerFrozenItemCount(db, seller.UserId, queries.OnlyHiddenItems)
 									require.NoError(t, err)
@@ -64,7 +64,7 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 									algorithms.Repeat(unfrozenHiddenItemCount, func() { setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithFrozen(false), aux.WithHidden(true)) })
 									algorithms.Repeat(unfrozenVisibleItemCount, func() { setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithFrozen(false), aux.WithHidden(false)) })
 
-									expectedCount := int64(frozenVisibleItemCount)
+									expectedCount := frozenVisibleItemCount
 
 									actual, err := queries.GetSellerFrozenItemCount(db, seller.UserId, queries.OnlyVisibleItems)
 									require.NoError(t, err)
@@ -93,7 +93,7 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 									algorithms.Repeat(unfrozenHiddenItemCount, func() { setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithFrozen(false), aux.WithHidden(true)) })
 									algorithms.Repeat(unfrozenVisibleItemCount, func() { setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithFrozen(false), aux.WithHidden(false)) })
 
-									expectedCount := int64(frozenVisibleItemCount + frozenHiddenItemCount)
+									expectedCount := frozenVisibleItemCount + frozenHiddenItemCount
 
 									actual, err := queries.GetSellerFrozenItemCount(db, seller.UserId, queries.AllItems)
 									require.NoError(t, err)
@@ -106,8 +106,8 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 			})
 		})
 		t.Run("Multiple sellers", func(t *testing.T) {
-			for _, frozenItemCount := range []int64{0, 1, 2, 10, 100} {
-				for _, unfrozenItemCount := range []int64{0, 1, 2, 10, 100} {
+			for _, frozenItemCount := range []int{0, 1, 2, 10, 100} {
+				for _, unfrozenItemCount := range []int{0, 1, 2, 10, 100} {
 					for _, hiddenItems := range []bool{false, true} {
 						testLabel := fmt.Sprintf("Seller with %d frozen items and %d unfrozen items; hidden=%v", frozenItemCount, unfrozenItemCount, hiddenItems)
 						t.Run(testLabel, func(t *testing.T) {
@@ -117,11 +117,11 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 							seller := setup.Seller()
 							otherSeller := setup.Seller()
 
-							for i := int64(0); i < frozenItemCount; i++ {
+							for i := 0; i < frozenItemCount; i++ {
 								setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true), aux.WithHidden(hiddenItems))
 								setup.Item(otherSeller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true), aux.WithHidden(hiddenItems))
 							}
-							for i := int64(0); i < unfrozenItemCount; i++ {
+							for i := 0; i < unfrozenItemCount; i++ {
 								setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false), aux.WithHidden(hiddenItems))
 								setup.Item(otherSeller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false), aux.WithHidden(hiddenItems))
 							}
