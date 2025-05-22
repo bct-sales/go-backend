@@ -56,7 +56,7 @@ func listCategoriesWithCounts(context *gin.Context, db *sql.DB, userId models.Id
 		return
 	}
 
-	categoryCounts, err := queries.GetCategoryCounts(db, false)
+	categoryCounts, err := queries.GetCategoryCounts(db, queries.OnlyVisibleItems)
 	if err != nil {
 		failure_response.Unknown(context, "Failed to fetch category counts: "+err.Error())
 		return

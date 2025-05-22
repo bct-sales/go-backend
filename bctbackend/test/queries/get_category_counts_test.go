@@ -58,7 +58,7 @@ func TestGetCategoryCounts(t *testing.T) {
 					}
 				}
 
-				actualCounts, err := queries.GetCategoryCounts(db, true)
+				actualCounts, err := queries.GetCategoryCounts(db, queries.AllItems)
 				require.NoError(t, err)
 				require.Equal(t, len(defaultCategoryTable), len(actualCounts))
 
@@ -73,7 +73,7 @@ func TestGetCategoryCounts(t *testing.T) {
 		})
 
 		t.Run("With hidden items", func(t *testing.T) {
-			t.Run("Not including hidden items", func(t *testing.T) {
+			t.Run("Only visible items", func(t *testing.T) {
 				countTables := []map[models.Id]int{
 					{},
 					{
@@ -114,7 +114,7 @@ func TestGetCategoryCounts(t *testing.T) {
 						}
 					}
 
-					actualCounts, err := queries.GetCategoryCounts(db, false)
+					actualCounts, err := queries.GetCategoryCounts(db, queries.OnlyVisibleItems)
 					require.NoError(t, err)
 					require.Equal(t, len(defaultCategoryTable), len(actualCounts))
 
@@ -128,7 +128,7 @@ func TestGetCategoryCounts(t *testing.T) {
 				}
 			})
 
-			t.Run("Including hidden items", func(t *testing.T) {
+			t.Run("All items", func(t *testing.T) {
 				countTables := []map[models.Id]int{
 					{},
 					{
@@ -169,7 +169,7 @@ func TestGetCategoryCounts(t *testing.T) {
 						}
 					}
 
-					actualCounts, err := queries.GetCategoryCounts(db, true)
+					actualCounts, err := queries.GetCategoryCounts(db, queries.AllItems)
 					require.NoError(t, err)
 					require.Equal(t, len(defaultCategoryTable), len(actualCounts))
 

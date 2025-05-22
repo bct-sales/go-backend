@@ -112,14 +112,8 @@ func GetCategoryNameTable(db *sql.DB) (map[models.Id]string, error) {
 	return result, nil
 }
 
-func GetCategoryCounts(db *sql.DB, includeHiddenItems bool) (r_counts map[models.Id]int, r_err error) {
-	var hiddenStrategy ItemSelection
-	if includeHiddenItems {
-		hiddenStrategy = AllItems
-	} else {
-		hiddenStrategy = OnlyVisibleItems
-	}
-	itemsTable := ItemsTableFor(hiddenStrategy)
+func GetCategoryCounts(db *sql.DB, itemSelection ItemSelection) (r_counts map[models.Id]int, r_err error) {
+	itemsTable := ItemsTableFor(itemSelection)
 
 	query := fmt.Sprintf(`
 		SELECT item_categories.item_category_id, COUNT(i.item_id)
