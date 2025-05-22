@@ -128,10 +128,12 @@ func (s DatabaseFixture) Sale(cashier models.Id, itemIds []models.Id, options ..
 	return aux.AddSaleToDatabase(s.Db, cashier, itemIds, options...)
 }
 
-func (s DatabaseFixture) RequireNoSuchUser(t *testing.T, userId models.Id) {
-	exists, err := queries.UserWithIdExists(s.Db, userId)
-	require.NoError(t, err)
-	require.False(t, exists)
+func (s DatabaseFixture) RequireNoSuchUsers(t *testing.T, userIds ...models.Id) {
+	for _, userId := range userIds {
+		exists, err := queries.UserWithIdExists(s.Db, userId)
+		require.NoError(t, err)
+		require.False(t, exists)
+	}
 }
 
 func (s DatabaseFixture) RequireNoSuchItem(t *testing.T, itemId models.Id) {

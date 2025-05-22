@@ -170,7 +170,7 @@ func TestListSellerItems(t *testing.T) {
 
 			_, sessionId := setup.LoggedIn(setup.Seller())
 			nonexistentSellerId := models.Id(1000)
-			setup.RequireNoSuchUser(t, nonexistentSellerId)
+			setup.RequireNoSuchUsers(t, nonexistentSellerId)
 
 			url := path.SellerItems().WithSellerId(nonexistentSellerId)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))

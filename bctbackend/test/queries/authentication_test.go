@@ -38,7 +38,7 @@ func TestAuthentication(t *testing.T) {
 		userId := models.Id(5)
 		password := "xyz"
 
-		setup.RequireNoSuchUser(t, userId)
+		setup.RequireNoSuchUsers(t, userId)
 
 		{
 			_, err := queries.AuthenticateUser(db, userId, password)

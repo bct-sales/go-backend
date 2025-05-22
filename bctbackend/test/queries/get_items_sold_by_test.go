@@ -164,7 +164,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 
 		cashier := setup.Cashier()
 		unknownCashierId := cashier.UserId + 1
-		setup.RequireNoSuchUser(t, unknownCashierId)
+		setup.RequireNoSuchUsers(t, unknownCashierId)
 
 		_, err := queries.GetItemsSoldBy(db, unknownCashierId)
 		var noSuchUserError *queries.NoSuchUserError

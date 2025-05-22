@@ -141,7 +141,7 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 				defer setup.Close()
 
 				nonExistentSellerId := models.Id(1000)
-				setup.RequireNoSuchUser(t, nonExistentSellerId)
+				setup.RequireNoSuchUsers(t, nonExistentSellerId)
 
 				_, err := queries.GetSellerFrozenItemCount(db, nonExistentSellerId, queries.AllItems)
 				{

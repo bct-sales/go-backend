@@ -297,7 +297,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			_, sessionId := setup.LoggedIn(setup.Seller())
 			nonexistentUserId := models.Id(1000)
-			setup.RequireNoSuchUser(t, nonexistentUserId)
+			setup.RequireNoSuchUsers(t, nonexistentUserId)
 
 			url := path.SellerItems().WithSellerId(nonexistentUserId)
 			payload := restapi.AddSellerItemPayload{

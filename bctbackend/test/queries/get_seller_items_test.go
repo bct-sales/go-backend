@@ -112,7 +112,7 @@ func TestGetSellerItems(t *testing.T) {
 			defer setup.Close()
 
 			unknownSellerId := models.Id(9999)
-			setup.RequireNoSuchUser(t, unknownSellerId)
+			setup.RequireNoSuchUsers(t, unknownSellerId)
 
 			_, err := queries.GetSellerItems(db, unknownSellerId, queries.AllItems)
 			var noSuchUserError *queries.NoSuchUserError

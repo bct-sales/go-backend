@@ -88,7 +88,7 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 			defer setup.Close()
 
 			invalidSellerId := models.Id(1000)
-			setup.RequireNoSuchUser(t, invalidSellerId)
+			setup.RequireNoSuchUsers(t, invalidSellerId)
 
 			_, err := queries.GetSellerItemsWithSaleCounts(db, invalidSellerId)
 			var errNoSuchUser *queries.NoSuchUserError

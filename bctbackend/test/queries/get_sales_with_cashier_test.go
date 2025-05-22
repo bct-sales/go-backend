@@ -71,7 +71,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 			defer setup.Close()
 
 			unknownCashierId := models.Id(9999)
-			setup.RequireNoSuchUser(t, unknownCashierId)
+			setup.RequireNoSuchUsers(t, unknownCashierId)
 
 			_, err := queries.GetSalesWithCashier(db, unknownCashierId)
 			var noSuchUserError *queries.NoSuchUserError

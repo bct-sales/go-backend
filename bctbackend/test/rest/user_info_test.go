@@ -241,7 +241,7 @@ func TestGetUserInformation(t *testing.T) {
 
 			_, sessionId := setup.LoggedIn(setup.Admin())
 			nonexistentUserId := models.Id(99999999)
-			setup.RequireNoSuchUser(t, nonexistentUserId)
+			setup.RequireNoSuchUsers(t, nonexistentUserId)
 
 			url := path.Users().WithUserId(nonexistentUserId)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
