@@ -7,6 +7,7 @@ import (
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -102,29 +103,34 @@ func TestGetCategoryCounts(t *testing.T) {
 					},
 				}
 
-				for _, countTable := range countTables {
-					setup, db := NewDatabaseFixture(WithDefaultCategories)
-					defer setup.Close()
+				for _, expectedCounts := range countTables {
+					testLabel := fmt.Sprintf("Count table %v", expectedCounts)
+					t.Run(testLabel, func(t *testing.T) {
+						setup, db := NewDatabaseFixture(WithDefaultCategories)
+						defer setup.Close()
 
-					seller := setup.Seller()
+						seller := setup.Seller()
 
-					for categoryId, count := range countTable {
-						for i := 0; i < count; i++ {
-							setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithItemCategory(categoryId), aux.WithHidden(true))
+						for categoryId, count := range expectedCounts {
+							for i := 0; i < count; i++ {
+								setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithItemCategory(categoryId), aux.WithHidden(false))
+								setup.Item(seller.UserId, aux.WithDummyData(2*i), aux.WithItemCategory(categoryId), aux.WithHidden(true))
+								setup.Item(seller.UserId, aux.WithDummyData(3*i), aux.WithItemCategory(categoryId), aux.WithHidden(true))
+							}
 						}
-					}
 
-					actualCounts, err := queries.GetCategoryCounts(db, queries.OnlyVisibleItems)
-					require.NoError(t, err)
-					require.Equal(t, len(defaultCategoryTable), len(actualCounts))
+						actualCounts, err := queries.GetCategoryCounts(db, queries.OnlyVisibleItems)
+						require.NoError(t, err)
+						require.Equal(t, len(defaultCategoryTable), len(actualCounts))
 
-					for categoryId, _ := range defaultCategoryTable {
-						actualCount, ok := actualCounts[categoryId]
-						require.True(t, ok, "Category ID %d not found in actual counts", categoryId)
-						expectedCount := 0
+						for categoryId, _ := range defaultCategoryTable {
+							actualCount, ok := actualCounts[categoryId]
+							require.True(t, ok, "Category ID %d not found in actual counts", categoryId)
+							expectedCount := expectedCounts[categoryId]
 
-						require.Equal(t, expectedCount, actualCount)
-					}
+							require.Equal(t, expectedCount, actualCount, "Wrong count for category %d", categoryId)
+						}
+					})
 				}
 			})
 
@@ -158,30 +164,33 @@ func TestGetCategoryCounts(t *testing.T) {
 				}
 
 				for _, expectedCounts := range countTables {
-					setup, db := NewDatabaseFixture(WithDefaultCategories)
-					defer setup.Close()
+					testLabel := fmt.Sprintf("Count table %v", expectedCounts)
+					t.Run(testLabel, func(t *testing.T) {
+						setup, db := NewDatabaseFixture(WithDefaultCategories)
+						defer setup.Close()
 
-					seller := setup.Seller()
+						seller := setup.Seller()
 
-					for categoryId, count := range expectedCounts {
-						for i := 0; i < count; i++ {
-							setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithItemCategory(categoryId), aux.WithHidden(false))
-							setup.Item(seller.UserId, aux.WithDummyData(2*i), aux.WithItemCategory(categoryId), aux.WithHidden(true))
-							setup.Item(seller.UserId, aux.WithDummyData(3*i), aux.WithItemCategory(categoryId), aux.WithHidden(true))
+						for categoryId, count := range expectedCounts {
+							for i := 0; i < count; i++ {
+								setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithItemCategory(categoryId), aux.WithHidden(false))
+								setup.Item(seller.UserId, aux.WithDummyData(2*i), aux.WithItemCategory(categoryId), aux.WithHidden(true))
+								setup.Item(seller.UserId, aux.WithDummyData(3*i), aux.WithItemCategory(categoryId), aux.WithHidden(true))
+							}
 						}
-					}
 
-					actualCounts, err := queries.GetCategoryCounts(db, queries.OnlyHiddenItems)
-					require.NoError(t, err)
-					require.Equal(t, len(defaultCategoryTable), len(actualCounts))
+						actualCounts, err := queries.GetCategoryCounts(db, queries.OnlyHiddenItems)
+						require.NoError(t, err)
+						require.Equal(t, len(defaultCategoryTable), len(actualCounts))
 
-					for categoryId, _ := range defaultCategoryTable {
-						actualCount, ok := actualCounts[categoryId]
-						require.True(t, ok, "Category ID %d not found in actual counts", categoryId)
-						expectedCount := expectedCounts[categoryId] * 2
+						for categoryId, _ := range defaultCategoryTable {
+							actualCount, ok := actualCounts[categoryId]
+							require.True(t, ok, "Category ID %d not found in actual counts", categoryId)
+							expectedCount := expectedCounts[categoryId] * 2
 
-						require.Equal(t, expectedCount, actualCount, "Wrong count for category %d", categoryId)
-					}
+							require.Equal(t, expectedCount, actualCount, "Wrong count for category %d", categoryId)
+						}
+					})
 				}
 			})
 
@@ -215,28 +224,33 @@ func TestGetCategoryCounts(t *testing.T) {
 				}
 
 				for _, expectedCounts := range countTables {
-					setup, db := NewDatabaseFixture(WithDefaultCategories)
-					defer setup.Close()
+					testLabel := fmt.Sprintf("Count table %v", expectedCounts)
+					t.Run(testLabel, func(t *testing.T) {
+						setup, db := NewDatabaseFixture(WithDefaultCategories)
+						defer setup.Close()
 
-					seller := setup.Seller()
+						seller := setup.Seller()
 
-					for categoryId, count := range expectedCounts {
-						for i := 0; i < count; i++ {
-							setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithItemCategory(categoryId), aux.WithHidden(true))
+						for categoryId, count := range expectedCounts {
+							for i := 0; i < count; i++ {
+								setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithItemCategory(categoryId), aux.WithHidden(false))
+								setup.Item(seller.UserId, aux.WithDummyData(2*i), aux.WithItemCategory(categoryId), aux.WithHidden(true))
+								setup.Item(seller.UserId, aux.WithDummyData(3*i), aux.WithItemCategory(categoryId), aux.WithHidden(true))
+							}
 						}
-					}
 
-					actualCounts, err := queries.GetCategoryCounts(db, queries.AllItems)
-					require.NoError(t, err)
-					require.Equal(t, len(defaultCategoryTable), len(actualCounts))
+						actualCounts, err := queries.GetCategoryCounts(db, queries.AllItems)
+						require.NoError(t, err)
+						require.Equal(t, len(defaultCategoryTable), len(actualCounts))
 
-					for categoryId, _ := range defaultCategoryTable {
-						actualCount, ok := actualCounts[categoryId]
-						require.True(t, ok, "Category ID %d not found in actual counts", categoryId)
-						expectedCount := expectedCounts[categoryId]
+						for categoryId, _ := range defaultCategoryTable {
+							actualCount, ok := actualCounts[categoryId]
+							require.True(t, ok, "Category ID %d not found in actual counts", categoryId)
+							expectedCount := expectedCounts[categoryId] * 3
 
-						require.Equal(t, expectedCount, actualCount)
-					}
+							require.Equal(t, expectedCount, actualCount)
+						}
+					})
 				}
 			})
 		})
