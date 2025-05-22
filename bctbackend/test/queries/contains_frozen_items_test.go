@@ -110,7 +110,7 @@ func TestContainsFrozenItems(t *testing.T) {
 			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
 			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
 			nonexistentItemId := models.Id(1000)
-			setup.RequireNoSuchItem(t, nonexistentItemId)
+			setup.RequireNoSuchItems(t, nonexistentItemId)
 			itemIds = append(itemIds, nonexistentItemId)
 
 			containsFrozen, err := queries.ContainsFrozenItems(db, itemIds)

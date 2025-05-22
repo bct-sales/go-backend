@@ -175,7 +175,7 @@ func TestGenerateLabels(t *testing.T) {
 
 			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
 			nonexistendItemId := models.Id(1000)
-			setup.RequireNoSuchItem(t, nonexistendItemId)
+			setup.RequireNoSuchItems(t, nonexistendItemId)
 
 			url := path.Labels().String()
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{

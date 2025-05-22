@@ -79,7 +79,7 @@ func TestHasAnyBeenSold(t *testing.T) {
 		defer setup.Close()
 
 		nonexistentItemId := models.Id(1)
-		setup.RequireNoSuchItem(t, nonexistentItemId)
+		setup.RequireNoSuchItems(t, nonexistentItemId)
 
 		actual, err := queries.HasAnyBeenSold(db, []models.Id{nonexistentItemId})
 		require.NoError(t, err)

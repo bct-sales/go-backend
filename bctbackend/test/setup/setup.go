@@ -136,10 +136,12 @@ func (s DatabaseFixture) RequireNoSuchUsers(t *testing.T, userIds ...models.Id) 
 	}
 }
 
-func (s DatabaseFixture) RequireNoSuchItem(t *testing.T, itemId models.Id) {
-	exists, err := queries.ItemWithIdExists(s.Db, itemId)
-	require.NoError(t, err)
-	require.False(t, exists)
+func (s DatabaseFixture) RequireNoSuchItems(t *testing.T, itemIds ...models.Id) {
+	for _, itemId := range itemIds {
+		exists, err := queries.ItemWithIdExists(s.Db, itemId)
+		require.NoError(t, err)
+		require.False(t, exists)
+	}
 }
 
 func (s DatabaseFixture) RequireFrozen(t *testing.T, saleId ...models.Id) {

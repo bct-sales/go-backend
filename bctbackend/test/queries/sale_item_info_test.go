@@ -48,7 +48,7 @@ func TestGetSaleItemInformation(t *testing.T) {
 			defer setup.Close()
 
 			nonexistentItemId := models.Id(1000)
-			setup.RequireNoSuchItem(t, nonexistentItemId)
+			setup.RequireNoSuchItems(t, nonexistentItemId)
 
 			_, err := queries.GetSaleItemInformation(db, 1)
 			require.Error(t, err)

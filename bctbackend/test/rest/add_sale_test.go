@@ -111,7 +111,7 @@ func TestAddSale(t *testing.T) {
 
 			_, sessionId := setup.LoggedIn(setup.Cashier())
 			nonexistentItemId := models.Id(1000)
-			setup.RequireNoSuchItem(t, nonexistentItemId)
+			setup.RequireNoSuchItems(t, nonexistentItemId)
 
 			payload := rest_api.AddSalePayload{
 				Items: []models.Id{nonexistentItemId},

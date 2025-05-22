@@ -149,7 +149,7 @@ func TestGetItemInformation(t *testing.T) {
 
 				// Get ID for nonexisting item
 				nonexistentItem := models.Id(1)
-				setup.RequireNoSuchItem(t, nonexistentItem)
+				setup.RequireNoSuchItems(t, nonexistentItem)
 
 				// Attempt to get information for nonexistent item
 				url := path.Items().Id(nonexistentItem)
