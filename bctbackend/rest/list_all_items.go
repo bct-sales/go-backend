@@ -48,8 +48,18 @@ func GetAllItems(context *gin.Context, db *sql.DB, userId models.Id, roleId mode
 		return
 	}
 
+	var itemSelection queries.ItemSelection
+	switch context.Query("items") {
+	case "all":
+		itemSelection = queries.AllItems
+	case "hidden":
+		itemSelection = queries.OnlyHiddenItems
+	default:
+		itemSelection = queries.OnlyVisibleItems
+	}
+
 	items := []*models.Item{}
-	if err := queries.GetItems(db, queries.CollectTo(&items), queries.OnlyVisibleItems); err != nil {
+	if err := queries.GetItems(db, queries.CollectTo(&items), itemSelection); err != nil {
 		failure_response.Unknown(context, "Failed to get items: "+err.Error())
 		return
 	}
