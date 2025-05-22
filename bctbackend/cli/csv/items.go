@@ -12,12 +12,7 @@ import (
 )
 
 func ExportItems(databasePath string, includeHidden bool) (r_err error) {
-	var itemSelection queries.ItemSelection
-	if includeHidden {
-		itemSelection = queries.AllItems
-	} else {
-		itemSelection = queries.OnlyVisibleItems
-	}
+	itemSelection := queries.ItemSelectionFromBool(includeHidden)
 
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
