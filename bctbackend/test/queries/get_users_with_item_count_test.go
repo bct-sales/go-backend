@@ -33,7 +33,7 @@ func TestGetUsersWithItemCount(t *testing.T) {
 					require.Len(t, actual, 1)
 					expected := &queries.UserWithItemCount{
 						User:      *seller,
-						ItemCount: int64(itemCount),
+						ItemCount: itemCount,
 					}
 					require.Equal(t, expected, actual[0])
 				})
@@ -58,15 +58,15 @@ func TestGetUsersWithItemCount(t *testing.T) {
 			expected := []*queries.UserWithItemCount{
 				{
 					User:      *seller1,
-					ItemCount: int64(0),
+					ItemCount: 0,
 				},
 				{
 					User:      *seller2,
-					ItemCount: int64(5),
+					ItemCount: 5,
 				},
 				{
 					User:      *seller3,
-					ItemCount: int64(15),
+					ItemCount: 15,
 				},
 			}
 			require.Equal(t, expected, actual)
@@ -94,15 +94,15 @@ func TestGetUsersWithItemCount(t *testing.T) {
 				expected := []*queries.UserWithItemCount{
 					{
 						User:      *seller1,
-						ItemCount: int64(0),
+						ItemCount: 0,
 					},
 					{
 						User:      *seller2,
-						ItemCount: int64(5),
+						ItemCount: 5,
 					},
 					{
 						User:      *seller3,
-						ItemCount: int64(15),
+						ItemCount: 15,
 					},
 				}
 				require.Equal(t, expected, actual)
@@ -129,15 +129,15 @@ func TestGetUsersWithItemCount(t *testing.T) {
 				expected := []*queries.UserWithItemCount{
 					{
 						User:      *seller1,
-						ItemCount: int64(3),
+						ItemCount: 3,
 					},
 					{
 						User:      *seller2,
-						ItemCount: int64(10),
+						ItemCount: 10,
 					},
 					{
 						User:      *seller3,
-						ItemCount: int64(19),
+						ItemCount: 19,
 					},
 				}
 				require.Equal(t, expected, actual)
@@ -164,15 +164,15 @@ func TestGetUsersWithItemCount(t *testing.T) {
 				expected := []*queries.UserWithItemCount{
 					{
 						User:      *seller1,
-						ItemCount: int64(3),
+						ItemCount: 3,
 					},
 					{
 						User:      *seller2,
-						ItemCount: int64(5),
+						ItemCount: 5,
 					},
 					{
 						User:      *seller3,
-						ItemCount: int64(4),
+						ItemCount: 4,
 					},
 				}
 				require.Equal(t, expected, actual)

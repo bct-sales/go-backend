@@ -199,7 +199,7 @@ func GetUsers(db *sql.DB, receiver func(*models.User) error) (r_err error) {
 
 type UserWithItemCount struct {
 	models.User
-	ItemCount int64
+	ItemCount int
 }
 
 func GetUsersWithItemCount(db *sql.DB, itemSelection ItemSelection, receiver func(*UserWithItemCount) error) (r_err error) {

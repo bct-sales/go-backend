@@ -20,7 +20,7 @@ type GetUsersUserData struct {
 	Role         string         `json:"role"`
 	CreatedAt    rest.DateTime  `json:"createdAt"`
 	LastActivity *rest.DateTime `json:"lastActivity,omitempty"`
-	ItemCount    int64          `json:"itemCount"`
+	ItemCount    int            `json:"itemCount"`
 }
 
 type GetUsersSuccessResponse struct {
