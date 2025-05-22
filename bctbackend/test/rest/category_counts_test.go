@@ -182,6 +182,28 @@ func TestCategoryCounts(t *testing.T) {
 				require.NotNil(t, actual)
 				require.Equal(t, expected, *actual)
 			})
+
+			t.Run("Count only visible items", func(t *testing.T) {
+				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				defer setup.Close()
+
+				_, sessionId := setup.LoggedIn(setup.Admin())
+				seller := setup.Seller()
+				category := aux.CategoryId_BabyChildEquipment
+				setup.Items(seller.UserId, 5, aux.WithItemCategory(category), aux.WithHidden(false))
+				setup.Items(seller.UserId, 3, aux.WithItemCategory(category), aux.WithHidden(true))
+
+				url := path.Categories().WithCounts(queries.OnlyVisibleItems)
+				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				router.ServeHTTP(writer, request)
+				countMap := map[models.Id]int{category: 5}
+				expected := createSuccessResponse(countMap)
+
+				actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
+				require.NotNil(t, actual)
+				require.Equal(t, expected, *actual)
+			})
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
