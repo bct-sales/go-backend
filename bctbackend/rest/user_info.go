@@ -245,7 +245,7 @@ func getUserInformationAsSeller(context *gin.Context, db *sql.DB, userId models.
 		return
 	}
 
-	totalPrice, err := queries.GetSellerTotalPriceOfAllItems(db, queriedUserId)
+	totalPrice, err := queries.GetSellerTotalPriceOfAllItems(db, queriedUserId, queries.OnlyVisibleItems)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
 		failure_response.Unknown(context, err.Error())

@@ -386,7 +386,7 @@ func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id, itemSelection Item
 	return itemCount, nil
 }
 
-func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id) (models.MoneyInCents, error) {
+func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id, itemSelection ItemSelection) (models.MoneyInCents, error) {
 	// Ensure the user exists and is a seller
 	{
 		cashier, err := GetUserWithId(db, sellerId)
@@ -398,14 +398,16 @@ func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id) (models.Money
 		}
 	}
 
-	row := db.QueryRow(
+	itemTable := ItemsTableFor(itemSelection)
+	query := fmt.Sprintf(
 		`
-			SELECT COALESCE(SUM(items.price_in_cents), 0)
-			FROM items
-			WHERE items.seller_id = $1
+			SELECT COALESCE(SUM(i.price_in_cents), 0)
+			FROM %s i
+			WHERE i.seller_id = $1
 		`,
-		sellerId,
+		itemTable,
 	)
+	row := db.QueryRow(query, sellerId)
 
 	var totalPrice models.MoneyInCents
 	err := row.Scan(&totalPrice)

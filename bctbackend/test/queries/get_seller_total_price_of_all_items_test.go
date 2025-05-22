@@ -32,7 +32,7 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 						expectedTotal += price
 					}
 
-					actualTotal, err := queries.GetSellerTotalPriceOfAllItems(db, seller.UserId)
+					actualTotal, err := queries.GetSellerTotalPriceOfAllItems(db, seller.UserId, queries.AllItems)
 					require.NoError(t, err)
 					require.Equal(t, expectedTotal, actualTotal)
 				})
@@ -57,7 +57,7 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 						expectedTotal += price
 					}
 
-					actualTotal, err := queries.GetSellerTotalPriceOfAllItems(db, seller.UserId)
+					actualTotal, err := queries.GetSellerTotalPriceOfAllItems(db, seller.UserId, queries.AllItems)
 					require.NoError(t, err)
 					require.Equal(t, expectedTotal, actualTotal)
 				})
@@ -73,7 +73,7 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 			nonExistentSellerId := models.Id(1000)
 			setup.RequireNoSuchUser(t, nonExistentSellerId)
 
-			_, err := queries.GetSellerTotalPriceOfAllItems(db, nonExistentSellerId)
+			_, err := queries.GetSellerTotalPriceOfAllItems(db, nonExistentSellerId, queries.AllItems)
 			{
 				var noSuchUserError *queries.NoSuchUserError
 				require.ErrorAs(t, err, &noSuchUserError)
@@ -86,7 +86,7 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 
 			cashier := setup.Cashier()
 
-			_, err := queries.GetSellerTotalPriceOfAllItems(db, cashier.UserId)
+			_, err := queries.GetSellerTotalPriceOfAllItems(db, cashier.UserId, queries.AllItems)
 			{
 				var invalidRoleError *queries.InvalidRoleError
 				require.ErrorAs(t, err, &invalidRoleError)
@@ -99,7 +99,7 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 
 			admin := setup.Admin()
 
-			_, err := queries.GetSellerTotalPriceOfAllItems(db, admin.UserId)
+			_, err := queries.GetSellerTotalPriceOfAllItems(db, admin.UserId, queries.AllItems)
 			{
 				var invalidRoleError *queries.InvalidRoleError
 				require.ErrorAs(t, err, &invalidRoleError)
