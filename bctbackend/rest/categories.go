@@ -38,25 +38,33 @@ type CategoryData struct {
 // @Failure 500 {object} failure_response.FailureResponse "Failed to fetch category counts"
 // @Router /categories [get]
 func ListCategories(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
-	includeCounts := context.Query("counts") == "true"
-
-	if includeCounts {
-		listCategoriesWithCounts(context, db, userId, roleId)
+	switch context.Query("counts") {
+	case "all":
+		listCategoriesWithCounts(context, db, userId, roleId, queries.AllItems)
 		return
-	} else {
+
+	case "hidden":
+		listCategoriesWithCounts(context, db, userId, roleId, queries.OnlyHiddenItems)
+		return
+
+	case "visible":
+		listCategoriesWithCounts(context, db, userId, roleId, queries.OnlyVisibleItems)
+		return
+
+	default:
 		listCategoriesWithoutCounts(context, db, userId, roleId)
 		return
 	}
 }
 
-func listCategoriesWithCounts(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
+func listCategoriesWithCounts(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id, itemSelection queries.ItemSelection) {
 	if roleId != models.AdminRoleId {
 		slog.Error("Unauthorized access to category counts", "userId", userId, "roleId", roleId)
 		failure_response.WrongRole(context, "Only admins can access category counts")
 		return
 	}
 
-	categoryCounts, err := queries.GetCategoryCounts(db, queries.OnlyVisibleItems)
+	categoryCounts, err := queries.GetCategoryCounts(db, itemSelection)
 	if err != nil {
 		failure_response.Unknown(context, "Failed to fetch category counts: "+err.Error())
 		return
