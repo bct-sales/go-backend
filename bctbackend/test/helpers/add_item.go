@@ -112,11 +112,13 @@ func WithHidden(hidden bool) func(*AddItemData) {
 }
 
 func WithDummyData(k int) func(*AddItemData) {
+	defaultCategoryIds := DefaultCategoryIds()
+
 	return func(data *AddItemData) {
 		addedAt := models.Timestamp(0)
 		description := "description " + strconv.Itoa(k)
 		priceInCents := models.MoneyInCents(100 + int64(k))
-		itemCategory := CategoryId_Shoes
+		itemCategory := defaultCategoryIds[k%len(defaultCategoryIds)]
 		donation := k%2 == 0
 		charity := k%3 == 0
 		frozen := k%2 == 0
@@ -124,9 +126,7 @@ func WithDummyData(k int) func(*AddItemData) {
 		data.AddedAt = &addedAt
 		data.Description = &description
 		data.PriceInCents = &priceInCents
-		if data.ItemCategory == nil {
-			data.ItemCategory = &itemCategory
-		}
+		data.ItemCategory = &itemCategory
 		data.Donation = &donation
 		data.Charity = &charity
 		data.Frozen = &frozen

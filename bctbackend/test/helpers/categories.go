@@ -1,6 +1,10 @@
 package helpers
 
-import "bctbackend/database/models"
+import (
+	"bctbackend/database/models"
+	"maps"
+	"slices"
+)
 
 const (
 	CategoryId_Clothing50_56      models.Id = 1
@@ -45,4 +49,8 @@ func DefaultCategoryTable() map[models.Id]string {
 		CategoryId_Toys:               CategoryName_Toys,
 		CategoryId_BabyChildEquipment: CategoryName_BabyChildEquipment,
 	}
+}
+
+func DefaultCategoryIds() []models.Id {
+	return slices.Collect(maps.Keys(DefaultCategoryTable()))
 }
