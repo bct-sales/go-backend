@@ -1,5 +1,5 @@
 *.exe
-bct.db
+*.db
 coverage-data
 .env
 docs/
