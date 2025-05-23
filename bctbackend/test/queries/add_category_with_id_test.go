@@ -13,7 +13,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func TestAddCategory(t *testing.T) {
+func TestAddCategoryWithId(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		// Note the lack of WithDefaultCategories here
 		// We want to start with a clean slate
