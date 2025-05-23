@@ -20,6 +20,7 @@ func ResetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
+	slog.Info("Resetting database")
 	if err = database.ResetDatabase(db); err != nil {
 		return fmt.Errorf("failed to reset database: %v", err)
 	}
