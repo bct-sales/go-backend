@@ -10,16 +10,16 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func ResetDatabase(databasePath string, addCategories bool) (r_err error) {
-	db, err := database.ConnectToDatabase(databasePath)
+func InitializeDatabase(databasePath string, addCategories bool) (r_err error) {
+	db, err := database.CreateDatabase(databasePath)
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
-	if err := database.ResetDatabase(db); err != nil {
-		return fmt.Errorf("failed to reset database: %w", err)
+	if err := database.InitializeDatabase(db); err != nil {
+		return fmt.Errorf("failed to initialize database: %w", err)
 	}
 
 	if addCategories {
@@ -28,6 +28,6 @@ func ResetDatabase(databasePath string, addCategories bool) (r_err error) {
 		})
 	}
 
-	fmt.Println("Database reset completed successfully")
+	fmt.Println("Database initialized successfully")
 	return nil
 }

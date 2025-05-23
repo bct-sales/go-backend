@@ -84,6 +84,11 @@ func ProcessCommandLineArguments(arguments []string) error {
 			backup struct {
 				target string
 			}
+
+			init struct {
+				noCategories bool
+			}
+
 			reset struct {
 				noCategories bool
 			}
@@ -257,6 +262,23 @@ func ProcessCommandLineArguments(arguments []string) error {
 				Name:  "db",
 				Usage: "database related functionality",
 				Subcommands: []*cli.Command{
+					{
+						Name:  "init",
+						Usage: "creates new database; refuses to overwrite existing database",
+						Flags: []cli.Flag{
+							&cli.BoolFlag{
+								Name:        "no-categories",
+								Usage:       "do not add default categories",
+								Destination: &options.db.init.noCategories,
+								Value:       false,
+							},
+						},
+						Action: func(context *cli.Context) error {
+							addCategories := !options.db.init.noCategories
+
+							return InitializeDatabase(databasePath, addCategories)
+						},
+					},
 					{
 						Name:  "reset",
 						Usage: "resets database; all data will be lost!",
