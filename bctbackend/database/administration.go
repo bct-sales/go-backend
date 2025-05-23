@@ -37,6 +37,41 @@ func fileExists(path string) (bool, error) {
 	return false, err
 }
 
+func CreateDatabase(path string) (*sql.DB, error) {
+	{
+		slog.Debug("Ensuring no database file exists already", slog.String("path", path))
+		exists, err := fileExists(path)
+
+		if err != nil {
+			slog.Debug("Error checking if database file exists", slog.String("path", path))
+			return nil, err
+		}
+
+		if exists {
+			slog.Debug("Database file already exists", slog.String("path", path))
+			return nil, fmt.Errorf("database file already exists at %s", path)
+		}
+	}
+
+	slog.Debug("Creating database file", slog.String("path", path))
+	db, err := sql.Open("sqlite", fmt.Sprintf("%s?_busy_timeout=500", path))
+	if err != nil {
+		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "opening database"}
+	}
+
+	slog.Debug("Enabling foreign keys constraints", slog.String("path", path))
+	if _, err := db.Exec("PRAGMA foreign_keys = ON"); err != nil {
+		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "enabling foreign keys"}
+	}
+
+	slog.Debug("Setting journal mode", slog.String("path", path))
+	if _, err := db.Exec("PRAGMA journal_mode=WAL"); err != nil {
+		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "setting journal mode"}
+	}
+
+	return db, nil
+}
+
 func ConnectToDatabase(path string) (*sql.DB, error) {
 	slog.Debug("Checking existence of database file", slog.String("path", path))
 	if exists, err := fileExists(path); err != nil || !exists {
