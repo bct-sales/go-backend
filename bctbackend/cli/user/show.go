@@ -58,7 +58,7 @@ func showSeller(db *sql.DB, user *models.User) error {
 		return err
 	}
 
-	sellerItems, err := queries.GetSellerItems(db, user.UserId, queries.OnlyVisibleItems)
+	sellerItems, err := queries.GetSellerItems(db, user.UserId, queries.AllItems)
 	if err != nil {
 		return err
 	}
