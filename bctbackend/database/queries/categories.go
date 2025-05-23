@@ -14,10 +14,10 @@ func AddCategory(db *sql.DB, categoryName string) (models.Id, error) {
 
 	query := `
 		INSERT INTO item_categories (name)
-		VALUES ($1, $2)
+		VALUES ($1)
 		RETURNING item_category_id
 	`
-	result, err := db.Exec(query, categoryName)\
+	result, err := db.Exec(query, categoryName)
 	if err != nil {
 		return 0, err
 	}
