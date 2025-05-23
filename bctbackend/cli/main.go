@@ -75,7 +75,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 	}
 
 	databasePath, ok := os.LookupEnv(DatabaseEnvironmentVariable)
-
 	if !ok {
 		return fmt.Errorf("environment variable %s not set", DatabaseEnvironmentVariable)
 	}
