@@ -34,6 +34,14 @@ func connectToDatabase(path string) (*sql.DB, error) {
 	return db, nil
 }
 
+func enableForeignKeysConstraints(db *sql.DB) error {
+	if _, err := db.Exec("PRAGMA foreign_keys = ON"); err != nil {
+		return fmt.Errorf("failed to enable foreign key constraints: %w", err)
+	}
+
+	return nil
+}
+
 func CreateDatabase(path string) (*sql.DB, error) {
 	{
 		slog.Debug("Ensuring no database file exists already", slog.String("path", path))
@@ -57,7 +65,7 @@ func CreateDatabase(path string) (*sql.DB, error) {
 	}
 
 	slog.Debug("Enabling foreign keys constraints", slog.String("path", path))
-	if _, err := db.Exec("PRAGMA foreign_keys = ON"); err != nil {
+	if err := enableForeignKeysConstraints(db); err != nil {
 		return nil, fmt.Errorf("failed to enable foreign key constraints: %w", err)
 	}
 
@@ -83,7 +91,7 @@ func OpenDatabase(path string) (*sql.DB, error) {
 	}
 
 	slog.Debug("Enabling foreign keys constraints", slog.String("path", path))
-	if _, err := db.Exec("PRAGMA foreign_keys = ON"); err != nil {
+	if err := enableForeignKeysConstraints(db); err != nil {
 		return nil, fmt.Errorf("failed to enable foreign key constraints: %w", err)
 	}
 
