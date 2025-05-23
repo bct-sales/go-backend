@@ -9,7 +9,7 @@ import (
 )
 
 func startRestService(databasePath string) (r_err error) {
-	db, err := database.ConnectToDatabase(databasePath)
+	db, err := database.OpenDatabase(databasePath)
 
 	if err != nil {
 		return err

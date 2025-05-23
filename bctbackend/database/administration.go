@@ -58,7 +58,7 @@ func CreateDatabase(path string) (*sql.DB, error) {
 	return db, nil
 }
 
-func ConnectToDatabase(path string) (*sql.DB, error) {
+func OpenDatabase(path string) (*sql.DB, error) {
 	slog.Debug("Checking existence of database file", slog.String("path", path))
 	if exists, err := fileExists(path); err != nil || !exists {
 		slog.Debug("Database file not found", slog.String("path", path))

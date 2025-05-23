@@ -14,7 +14,7 @@ import (
 func ExportItems(databasePath string, includeHidden bool) (r_err error) {
 	itemSelection := queries.ItemSelectionFromBool(includeHidden)
 
-	db, err := database.ConnectToDatabase(databasePath)
+	db, err := database.OpenDatabase(databasePath)
 	if err != nil {
 		return err
 	}
