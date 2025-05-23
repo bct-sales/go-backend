@@ -24,7 +24,7 @@ func FormatItemsAsCSV(items []*models.Item, categoryTable map[models.Id]string, 
 
 		categoryString, ok := categoryTable[item.CategoryId]
 		if !ok {
-			return fmt.Errorf("unknown category id: %w", item.CategoryId)
+			return fmt.Errorf("unknown category id: %v", item.CategoryId)
 		}
 
 		var donationString string

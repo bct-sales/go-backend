@@ -20,7 +20,7 @@ func AddUser(databasePath string, userId models.Id, role string, password string
 
 	roleId, err := models.ParseRole(role)
 	if err != nil {
-		return fmt.Errorf("invalid role %w; should be admin, seller or cashier", role)
+		return fmt.Errorf("invalid role %v; should be admin, seller or cashier", role)
 	}
 
 	timestamp := models.Now()

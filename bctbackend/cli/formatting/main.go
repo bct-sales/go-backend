@@ -35,7 +35,7 @@ func PrintItems(categoryTable map[models.Id]string, items []*models.Item) error 
 	for _, item := range items {
 		categoryName, ok := categoryTable[item.CategoryId]
 		if !ok {
-			return fmt.Errorf("unknown category id: %w", item.CategoryId)
+			return fmt.Errorf("unknown category id: %v", item.CategoryId)
 		}
 
 		tableData = append(tableData, []string{
@@ -69,7 +69,7 @@ func PrintItem(db *sql.DB, categoryTable map[models.Id]string, itemId models.Id)
 
 	categoryName, ok := categoryTable[item.CategoryId]
 	if !ok {
-		return fmt.Errorf("unknown category id: %w", item.CategoryId)
+		return fmt.Errorf("unknown category id: %v", item.CategoryId)
 	}
 
 	tableData := pterm.TableData{
