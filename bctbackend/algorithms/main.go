@@ -36,7 +36,7 @@ func MapError[T any, U any](values []T, f func(T) (U, error)) ([]U, error) {
 	for index, value := range values {
 		transformedValue, err := f(value)
 		if err != nil {
-			return nil, fmt.Errorf("error when processing item with index %d: %v", index, err)
+			return nil, fmt.Errorf("error when processing item with index %d: %w", index, err)
 		}
 
 		result[index] = transformedValue

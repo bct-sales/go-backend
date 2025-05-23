@@ -39,26 +39,26 @@ func parseZones(zoneStrings []string) ([]int, error) {
 			if len(endpoints) == 1 {
 				zone, err := strconv.Atoi(strings.TrimSpace(endpoints[0]))
 				if err != nil {
-					return nil, fmt.Errorf("invalid zone format: %s", part)
+					return nil, fmt.Errorf("invalid zone format %s: %w", part, err)
 				}
 				result = append(result, zone)
 			} else if len(endpoints) == 2 {
 				start, err := strconv.Atoi(strings.TrimSpace(endpoints[0]))
 				if err != nil {
-					return nil, fmt.Errorf("invalid zone format: %s", part)
+					return nil, fmt.Errorf("invalid zone format %s: %w", part, err)
 				}
 				end, err := strconv.Atoi(strings.TrimSpace(endpoints[1]))
 				if err != nil {
-					return nil, fmt.Errorf("invalid zone format: %s", part)
+					return nil, fmt.Errorf("invalid zone format %s: %w", part, err)
 				}
 				if start >= end {
-					return nil, fmt.Errorf("invalid zone format: %s", part)
+					return nil, fmt.Errorf("invalid zone format %s: %w", part, err)
 				}
 				for i := start; i <= end; i++ {
 					result = append(result, i)
 				}
 			} else {
-				return nil, fmt.Errorf("invalid zone format: %s", part)
+				return nil, fmt.Errorf("invalid zone format %s", part)
 			}
 		}
 	}
@@ -71,7 +71,7 @@ func parseZones(zoneStrings []string) ([]int, error) {
 
 func ProcessCommandLineArguments(arguments []string) error {
 	if err := godotenv.Load(); err != nil {
-		return fmt.Errorf("error while loading .env file: %v", err)
+		return fmt.Errorf("error while loading .env file: %w", err)
 	}
 
 	databasePath, ok := os.LookupEnv(DatabaseEnvironmentVariable)
@@ -657,7 +657,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 								itemId, err := models.ParseId(context.Args().Get(i))
 
 								if err != nil {
-									return fmt.Errorf("failed to parse item id: %v", err)
+									return fmt.Errorf("failed to parse item id: %w", err)
 								}
 
 								items = append(items, itemId)
@@ -803,7 +803,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 	}
 
 	if err := app.Run(arguments); err != nil {
-		return fmt.Errorf("error while processing command line arguments: %v", err)
+		return fmt.Errorf("error while processing command line arguments: %w", err)
 	}
 
 	return nil

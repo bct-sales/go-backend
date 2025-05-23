@@ -15,7 +15,7 @@ import (
 func AddSale(databasePath string, cashierId models.Id, items []models.Id) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
-		return fmt.Errorf("failed to connect to database: %v", err)
+		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
@@ -24,7 +24,7 @@ func AddSale(databasePath string, cashierId models.Id, items []models.Id) (r_err
 	saleId, err := queries.AddSale(db, cashierId, timestamp, items)
 
 	if err != nil {
-		return fmt.Errorf("failed to add sale: %v", err)
+		return fmt.Errorf("failed to add sale: %w", err)
 	}
 
 	fmt.Println("Sale added successfully")

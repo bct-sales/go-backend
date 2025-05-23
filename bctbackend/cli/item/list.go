@@ -27,7 +27,7 @@ func ListItems(databasePath string, showHidden bool) (r_err error) {
 
 	items := []*models.Item{}
 	if err := queries.GetItems(db, queries.CollectTo(&items), hiddenStrategy); err != nil {
-		return fmt.Errorf("error while listing items: %v", err)
+		return fmt.Errorf("error while listing items: %w", err)
 	}
 
 	itemCount := len(items)
@@ -35,11 +35,11 @@ func ListItems(databasePath string, showHidden bool) (r_err error) {
 	if itemCount > 0 {
 		categoryTable, err := queries.GetCategoryNameTable(db)
 		if categoryTable == nil {
-			return fmt.Errorf("error while getting category map: %v", err)
+			return fmt.Errorf("error while getting category map: %w", err)
 		}
 
 		if err := formatting.PrintItems(categoryTable, items); err != nil {
-			return fmt.Errorf("error while rendering table: %v", err)
+			return fmt.Errorf("error while rendering table: %w", err)
 		}
 
 		fmt.Printf("Number of items listed: %d\n", itemCount)

@@ -65,18 +65,18 @@ func createPasswordList(seed uint64, usedPasswords algorithms.Set[string]) []str
 func AddSellers(databasePath string, seed uint64, zones []int, sellersPerZone int) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 	if err != nil {
-		return fmt.Errorf("failed to connect to database: %v", err)
+		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	existingSellers, err := collectExistingUserIds(db)
 	if err != nil {
-		return fmt.Errorf("failed to collect existing sellers: %v", err)
+		return fmt.Errorf("failed to collect existing sellers: %w", err)
 	}
 
 	usedPasswords, err := collectExistingPasswords(db)
 	if err != nil {
-		return fmt.Errorf("failed to collect existing passwords: %v", err)
+		return fmt.Errorf("failed to collect existing passwords: %w", err)
 	}
 
 	sellersToBeCreated := []sellerCreationData{}
@@ -115,7 +115,7 @@ func AddSellers(databasePath string, seed uint64, zones []int, sellersPerZone in
 		}
 	}
 	if err := queries.AddUsers(db, callback); err != nil {
-		return fmt.Errorf("failed to add sellers: %v", err)
+		return fmt.Errorf("failed to add sellers: %w", err)
 	}
 
 	return nil

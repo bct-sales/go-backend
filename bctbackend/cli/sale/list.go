@@ -46,7 +46,7 @@ func ListSales(databasePath string) (r_err error) {
 	}
 
 	if err := queries.GetSales(db, addToTable); err != nil {
-		return fmt.Errorf("error while listing sales: %v", err)
+		return fmt.Errorf("error while listing sales: %w", err)
 	}
 
 	if saleCount == 0 {
@@ -57,7 +57,7 @@ func ListSales(databasePath string) (r_err error) {
 	err = pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
 
 	if err != nil {
-		return fmt.Errorf("error while rendering table: %v", err)
+		return fmt.Errorf("error while rendering table: %w", err)
 	}
 
 	fmt.Printf("Number of sales listed: %d\n", saleCount)

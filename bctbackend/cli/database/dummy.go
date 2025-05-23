@@ -15,14 +15,14 @@ func ResetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 	db, err := database.ConnectToDatabase(databasePath)
 
 	if err != nil {
-		return fmt.Errorf("failed to connect to database: %v", err)
+		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	slog.Info("Resetting database")
 	if err = database.ResetDatabase(db); err != nil {
-		return fmt.Errorf("failed to reset database: %v", err)
+		return fmt.Errorf("failed to reset database: %w", err)
 	}
 
 	slog.Info("Adding categories")
@@ -73,7 +73,7 @@ func ResetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 		}
 	}
 	if err := queries.AddUsers(db, addSellers); err != nil {
-		return fmt.Errorf("failed to add sellers: %v", err)
+		return fmt.Errorf("failed to add sellers: %w", err)
 	}
 
 	slog.Info("Adding some items")

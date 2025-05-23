@@ -113,15 +113,15 @@ func ResetDatabase(db *sql.DB) error {
 
 func InitializeDatabase(db *sql.DB) error {
 	if err := createTables(db); err != nil {
-		return fmt.Errorf("failed to create tables: %v", err)
+		return fmt.Errorf("failed to create tables: %w", err)
 	}
 
 	if err := createViews(db); err != nil {
-		return fmt.Errorf("failed to create views: %v", err)
+		return fmt.Errorf("failed to create views: %w", err)
 	}
 
 	if err := populateTables(db); err != nil {
-		return fmt.Errorf("failed to populate tables: %v", err)
+		return fmt.Errorf("failed to populate tables: %w", err)
 	}
 
 	return nil
@@ -132,7 +132,7 @@ func removeAllViews(db *sql.DB) error {
 
 	for _, view := range views {
 		if err := dropView(db, view); err != nil {
-			return fmt.Errorf("failed to drop view %s: %v", view, err)
+			return fmt.Errorf("failed to drop view %s: %w", view, err)
 		}
 	}
 
@@ -156,7 +156,7 @@ func dropTable(db *sql.DB, table string) error {
 	_, err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", table))
 
 	if err != nil {
-		return fmt.Errorf("failed to drop table %s: %v", table, err)
+		return fmt.Errorf("failed to drop table %s: %w", table, err)
 	}
 
 	return nil
@@ -165,7 +165,7 @@ func dropTable(db *sql.DB, table string) error {
 func dropView(db *sql.DB, view string) error {
 	slog.Debug("Dropping view", slog.String("table", view))
 	if _, err := db.Exec(fmt.Sprintf("DROP VIEW IF EXISTS %s", view)); err != nil {
-		return fmt.Errorf("failed to drop view %s: %v", view, err)
+		return fmt.Errorf("failed to drop view %s: %w", view, err)
 	}
 
 	return nil
@@ -216,7 +216,7 @@ func createRoleTable(db *sql.DB) error {
 	`)
 
 	if err != nil {
-		return fmt.Errorf("failed to create roles table: %v", err)
+		return fmt.Errorf("failed to create roles table: %w", err)
 	}
 
 	return nil
@@ -239,7 +239,7 @@ func createUserTable(db *sql.DB) error {
 	`)
 
 	if err != nil {
-		return fmt.Errorf("failed to create users table: %v", err)
+		return fmt.Errorf("failed to create users table: %w", err)
 	}
 
 	return nil
@@ -258,7 +258,7 @@ func createItemCategoryTable(db *sql.DB) error {
 	`)
 
 	if err != nil {
-		return fmt.Errorf("failed to create item categories table: %v", err)
+		return fmt.Errorf("failed to create item categories table: %w", err)
 	}
 
 	return nil
@@ -287,7 +287,7 @@ func createItemTable(db *sql.DB) error {
 	`)
 
 	if err != nil {
-		return fmt.Errorf("failed to create items table: %v", err)
+		return fmt.Errorf("failed to create items table: %w", err)
 	}
 
 	return nil
@@ -308,7 +308,7 @@ func createSaleTable(db *sql.DB) error {
 	`)
 
 	if err != nil {
-		return fmt.Errorf("failed to create sales table: %v", err)
+		return fmt.Errorf("failed to create sales table: %w", err)
 	}
 
 	return nil
@@ -329,7 +329,7 @@ func createSaleItemsTable(db *sql.DB) error {
 	`)
 
 	if err != nil {
-		return fmt.Errorf("failed to create sale items table: %v", err)
+		return fmt.Errorf("failed to create sale items table: %w", err)
 	}
 
 	return nil
@@ -350,7 +350,7 @@ func createSessionTable(db *sql.DB) error {
 	`)
 
 	if err != nil {
-		return fmt.Errorf("failed to create sessions table: %v", err)
+		return fmt.Errorf("failed to create sessions table: %w", err)
 	}
 
 	return nil
@@ -383,7 +383,7 @@ func populateRoleTable(db *sql.DB) error {
 	)
 
 	if err != nil {
-		return fmt.Errorf("failed to populate roles: %v", err)
+		return fmt.Errorf("failed to populate roles: %w", err)
 	}
 
 	return nil
@@ -391,11 +391,11 @@ func populateRoleTable(db *sql.DB) error {
 
 func createViews(db *sql.DB) error {
 	if err := createVisibleItemsView(db); err != nil {
-		return fmt.Errorf("failed to create views: %v", err)
+		return fmt.Errorf("failed to create views: %w", err)
 	}
 
 	if err := createHiddenItemsView(db); err != nil {
-		return fmt.Errorf("failed to create views: %v", err)
+		return fmt.Errorf("failed to create views: %w", err)
 	}
 
 	return nil
@@ -412,7 +412,7 @@ func createVisibleItemsView(db *sql.DB) error {
 	`)
 
 	if err != nil {
-		return fmt.Errorf("failed to create visible_items view: %v", err)
+		return fmt.Errorf("failed to create visible_items view: %w", err)
 	}
 
 	return nil
@@ -429,7 +429,7 @@ func createHiddenItemsView(db *sql.DB) error {
 	`)
 
 	if err != nil {
-		return fmt.Errorf("failed to create hidden_items view: %v", err)
+		return fmt.Errorf("failed to create hidden_items view: %w", err)
 	}
 
 	return nil

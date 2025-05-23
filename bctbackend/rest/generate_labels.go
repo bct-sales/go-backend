@@ -167,7 +167,7 @@ func createLabelDataFromItem(categoryTable map[models.Id]string, item *models.It
 
 	category, ok := categoryTable[item.CategoryId]
 	if !ok {
-		return nil, fmt.Errorf("unknown category id: %v", item.CategoryId)
+		return nil, fmt.Errorf("unknown category id: %w", item.CategoryId)
 	}
 
 	labelData := &pdf.LabelData{

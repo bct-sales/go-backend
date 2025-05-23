@@ -177,7 +177,7 @@ func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *Label
 
 	_, barcodeHeight, err := builder.determineImageSize(barcodeImageName)
 	if err != nil {
-		return fmt.Errorf("failed to determine barcode size while drawing label: %v", err)
+		return fmt.Errorf("failed to determine barcode size while drawing label: %w", err)
 	}
 	descriptionX := rectangle.Left
 	descriptionY := barcodeY + barcodeHeight + builder.layout.fontSize
@@ -203,13 +203,13 @@ func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *Label
 
 	if labelData.Charity {
 		if err := builder.drawCharityImage(rectangle); err != nil {
-			return fmt.Errorf("failed to draw label: %v", err)
+			return fmt.Errorf("failed to draw label: %w", err)
 		}
 	}
 
 	if labelData.Donation {
 		if err := builder.drawDonationImage(rectangle); err != nil {
-			return fmt.Errorf("failed to draw label: %v", err)
+			return fmt.Errorf("failed to draw label: %w", err)
 		}
 	}
 
@@ -219,14 +219,14 @@ func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *Label
 func (builder *PdfBuilder) drawCharityImage(rectangle *Rectangle) error {
 	imageWidth, _, err := builder.determineImageSize(charityImageName)
 	if err != nil {
-		return fmt.Errorf("failed to draw charity image: %v", err)
+		return fmt.Errorf("failed to draw charity image: %w", err)
 	}
 
 	x := rectangle.Right() - imageWidth
 	y := rectangle.Top
 
 	if err := builder.drawImage(charityImageName, x, y); err != nil {
-		return fmt.Errorf("failed to draw charity image: %v", err)
+		return fmt.Errorf("failed to draw charity image: %w", err)
 	}
 
 	return nil
@@ -235,12 +235,12 @@ func (builder *PdfBuilder) drawCharityImage(rectangle *Rectangle) error {
 func (builder *PdfBuilder) drawDonationImage(rectangle *Rectangle) error {
 	charityImageWidth, _, err := builder.determineImageSize(charityImageName)
 	if err != nil {
-		return fmt.Errorf("failed to draw donation image: %v", err)
+		return fmt.Errorf("failed to draw donation image: %w", err)
 	}
 
 	donationImageWidth, _, err := builder.determineImageSize(donationImageName)
 	if err != nil {
-		return fmt.Errorf("failed to draw donation image: %v", err)
+		return fmt.Errorf("failed to draw donation image: %w", err)
 	}
 
 	x := rectangle.Right() - charityImageWidth - donationImageWidth - 2

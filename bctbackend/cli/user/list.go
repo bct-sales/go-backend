@@ -21,7 +21,7 @@ func ListUsers(databasePath string) (r_err error) {
 
 	users := []*models.User{}
 	if err := queries.GetUsers(db, queries.CollectTo(&users)); err != nil {
-		return fmt.Errorf("error while listing users: %v", err)
+		return fmt.Errorf("error while listing users: %w", err)
 	}
 
 	tableData := pterm.TableData{
@@ -36,7 +36,7 @@ func ListUsers(databasePath string) (r_err error) {
 		roleString, err := models.NameOfRole(user.RoleId)
 
 		if err != nil {
-			return fmt.Errorf("error while converting role to string: %v", err)
+			return fmt.Errorf("error while converting role to string: %w", err)
 		}
 
 		createdAtString := user.CreatedAt.FormattedDateTime()
@@ -62,7 +62,7 @@ func ListUsers(databasePath string) (r_err error) {
 	}
 
 	if err = pterm.DefaultTable.WithHasHeader().WithData(tableData).Render(); err != nil {
-		return fmt.Errorf("error while rendering table: %v", err)
+		return fmt.Errorf("error while rendering table: %w", err)
 	}
 
 	fmt.Printf("Number of users listed: %d\n", userCount)
