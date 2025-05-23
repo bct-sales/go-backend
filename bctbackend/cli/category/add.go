@@ -17,7 +17,7 @@ func AddCategory(databasePath string, id models.Id, name string) (r_err error) {
 	}
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
-	if err := queries.AddCategory(db, id, name); err != nil {
+	if err := queries.AddCategoryWithId(db, id, name); err != nil {
 		return err
 	}
 

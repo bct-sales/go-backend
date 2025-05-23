@@ -22,7 +22,7 @@ func TestAddCategory(t *testing.T) {
 
 		categoryName := "Test Category"
 		id := models.Id(1)
-		err := queries.AddCategory(db, models.Id(1), categoryName)
+		err := queries.AddCategoryWithId(db, models.Id(1), categoryName)
 		require.NoError(t, err, `Failed to add category: %v`, err)
 
 		categoryExists, err := queries.CategoryWithIdExists(db, id)
@@ -43,7 +43,7 @@ func TestAddCategory(t *testing.T) {
 
 			id := models.Id(1)
 			categoryName := ""
-			err := queries.AddCategory(db, id, categoryName)
+			err := queries.AddCategoryWithId(db, id, categoryName)
 			var invalidCategoryNameError *queries.InvalidCategoryNameError
 			require.ErrorAs(t, err, &invalidCategoryNameError)
 		})
@@ -56,7 +56,7 @@ func TestAddCategory(t *testing.T) {
 
 			id := models.Id(1)
 			categoryName := "xyz"
-			err := queries.AddCategory(db, id, categoryName)
+			err := queries.AddCategoryWithId(db, id, categoryName)
 			var categoryIdAlreadyInUseError *queries.CategoryIdAlreadyInUseError
 			require.ErrorAs(t, err, &categoryIdAlreadyInUseError)
 		})

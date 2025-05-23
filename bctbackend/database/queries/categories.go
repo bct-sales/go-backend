@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-func AddCategory(db *sql.DB, categoryId models.Id, categoryName string) error {
+func AddCategoryWithId(db *sql.DB, categoryId models.Id, categoryName string) error {
 	if !models.IsValidCategoryName(categoryName) {
 		return &InvalidCategoryNameError{}
 	}
