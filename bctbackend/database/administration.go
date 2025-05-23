@@ -23,6 +23,17 @@ func fileExists(path string) (bool, error) {
 	return false, err
 }
 
+// connectToDatabase opens a connection to the database at the specified path.
+// If the database file does not exist, it is created.
+func connectToDatabase(path string) (*sql.DB, error) {
+	db, err := sql.Open("sqlite", fmt.Sprintf("%s?_busy_timeout=500", path))
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
+}
+
 func CreateDatabase(path string) (*sql.DB, error) {
 	{
 		slog.Debug("Ensuring no database file exists already", slog.String("path", path))
@@ -40,7 +51,7 @@ func CreateDatabase(path string) (*sql.DB, error) {
 	}
 
 	slog.Debug("Creating database file", slog.String("path", path))
-	db, err := sql.Open("sqlite", fmt.Sprintf("%s?_busy_timeout=500", path))
+	db, err := connectToDatabase(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed while creating database file: %w", err)
 	}
@@ -66,7 +77,7 @@ func OpenDatabase(path string) (*sql.DB, error) {
 	}
 
 	slog.Debug("Opening database file", slog.String("path", path))
-	db, err := sql.Open("sqlite", fmt.Sprintf("%s?_busy_timeout=500", path))
+	db, err := connectToDatabase(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
