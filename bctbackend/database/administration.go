@@ -3,6 +3,7 @@ package database
 import (
 	models "bctbackend/database/models"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -22,9 +23,23 @@ func (e *DatabaseConnectionError) Unwrap() error {
 	return e.Err
 }
 
+func fileExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+
+	if err != nil {
+		return true, nil
+	}
+
+	if errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	}
+
+	return false, err
+}
+
 func ConnectToDatabase(path string) (*sql.DB, error) {
 	slog.Debug("Checking existence of database file", slog.String("path", path))
-	if _, err := os.Stat(path); err != nil {
+	if exists, err := fileExists(path); err != nil || !exists {
 		slog.Debug("Database file not found", slog.String("path", path))
 		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "checking if file exists"}
 	}
