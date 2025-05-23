@@ -98,5 +98,31 @@ func TestGetCategories(t *testing.T) {
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 			})
 		})
+
+		t.Run("As cashier", func(t *testing.T) {
+			t.Run("Without counts", func(t *testing.T) {
+				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				defer setup.Close()
+
+				_, sessionId := setup.LoggedIn(setup.Cashier())
+
+				url := path.Categories().String()
+				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				router.ServeHTTP(writer, request)
+				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
+			})
+
+			t.Run("With counts", func(t *testing.T) {
+				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				defer setup.Close()
+
+				_, sessionId := setup.LoggedIn(setup.Cashier())
+
+				url := path.Categories().WithCounts(queries.AllItems)
+				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				router.ServeHTTP(writer, request)
+				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
+			})
+		})
 	})
 }
