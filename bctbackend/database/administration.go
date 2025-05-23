@@ -42,6 +42,14 @@ func enableForeignKeysConstraints(db *sql.DB) error {
 	return nil
 }
 
+func setJournalMode(db *sql.DB) error {
+	if _, err := db.Exec("PRAGMA journal_mode=WAL"); err != nil {
+		return fmt.Errorf("failed to set journal mode to WAL: %w", err)
+	}
+
+	return nil
+}
+
 func CreateDatabase(path string) (*sql.DB, error) {
 	{
 		slog.Debug("Ensuring no database file exists already", slog.String("path", path))
@@ -70,7 +78,7 @@ func CreateDatabase(path string) (*sql.DB, error) {
 	}
 
 	slog.Debug("Setting journal mode", slog.String("path", path))
-	if _, err := db.Exec("PRAGMA journal_mode=WAL"); err != nil {
+	if err := setJournalMode(db); err != nil {
 		return nil, fmt.Errorf("failed to set journal mode to WAL: %w", err)
 	}
 
