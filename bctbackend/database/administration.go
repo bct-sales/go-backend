@@ -68,7 +68,7 @@ func InitializeDatabase(db *sql.DB) error {
 }
 
 func removeAllViews(db *sql.DB) error {
-	views := []string{"item_category_counts"}
+	views := []string{"visible_items", "hidden_items"}
 
 	for _, view := range views {
 		if err := dropView(db, view); err != nil {
