@@ -7,9 +7,9 @@ import (
 	"fmt"
 )
 
-func AddCategory(db *sql.DB, categoryName string) error {
+func AddCategory(db *sql.DB, categoryName string) (models.Id, error) {
 	if !models.IsValidCategoryName(categoryName) {
-		return &InvalidCategoryNameError{}
+		return 0, &InvalidCategoryNameError{}
 	}
 
 	query := `
@@ -17,11 +17,17 @@ func AddCategory(db *sql.DB, categoryName string) error {
 		VALUES ($1, $2)
 		RETURNING item_category_id
 	`
-	if _, err := db.Exec(query, categoryName); err != nil {
-		return err
+	result, err := db.Exec(query, categoryName)\
+	if err != nil {
+		return 0, err
 	}
 
-	return nil
+	categoryId, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return models.Id(categoryId), nil
 }
 
 func AddCategoryWithId(db *sql.DB, categoryId models.Id, categoryName string) error {
