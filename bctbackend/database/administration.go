@@ -9,20 +9,6 @@ import (
 	"os"
 )
 
-type DatabaseConnectionError struct {
-	Context string
-	Path    string
-	Err     error
-}
-
-func (e *DatabaseConnectionError) Error() string {
-	return fmt.Sprintf("failed to connect to database at %s while %s: %v", e.Path, e.Context, e.Err)
-}
-
-func (e *DatabaseConnectionError) Unwrap() error {
-	return e.Err
-}
-
 func fileExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 
@@ -56,17 +42,17 @@ func CreateDatabase(path string) (*sql.DB, error) {
 	slog.Debug("Creating database file", slog.String("path", path))
 	db, err := sql.Open("sqlite", fmt.Sprintf("%s?_busy_timeout=500", path))
 	if err != nil {
-		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "opening database"}
+		return nil, fmt.Errorf("failed while creating database file: %w", err)
 	}
 
 	slog.Debug("Enabling foreign keys constraints", slog.String("path", path))
 	if _, err := db.Exec("PRAGMA foreign_keys = ON"); err != nil {
-		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "enabling foreign keys"}
+		return nil, fmt.Errorf("failed to enable foreign key constraints: %w", err)
 	}
 
 	slog.Debug("Setting journal mode", slog.String("path", path))
 	if _, err := db.Exec("PRAGMA journal_mode=WAL"); err != nil {
-		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "setting journal mode"}
+		return nil, fmt.Errorf("failed to set journal mode to WAL: %w", err)
 	}
 
 	return db, nil
@@ -76,23 +62,23 @@ func ConnectToDatabase(path string) (*sql.DB, error) {
 	slog.Debug("Checking existence of database file", slog.String("path", path))
 	if exists, err := fileExists(path); err != nil || !exists {
 		slog.Debug("Database file not found", slog.String("path", path))
-		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "checking if file exists"}
+		return nil, fmt.Errorf("failed to check existence of database file: %w", err)
 	}
 
 	slog.Debug("Opening database file", slog.String("path", path))
 	db, err := sql.Open("sqlite", fmt.Sprintf("%s?_busy_timeout=500", path))
 	if err != nil {
-		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "opening database"}
+		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 
 	slog.Debug("Enabling foreign keys constraints", slog.String("path", path))
 	if _, err := db.Exec("PRAGMA foreign_keys = ON"); err != nil {
-		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "enabling foreign keys"}
+		return nil, fmt.Errorf("failed to enable foreign key constraints: %w", err)
 	}
 
 	slog.Debug("Setting journal mode", slog.String("path", path))
 	if _, err := db.Exec("PRAGMA journal_mode=WAL"); err != nil {
-		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "setting journal mode"}
+		return nil, fmt.Errorf("failed to set journal mode to WAL: %w", err)
 	}
 
 	slog.Debug("Connected to database", slog.String("path", path))
