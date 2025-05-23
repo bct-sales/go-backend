@@ -70,16 +70,14 @@ func parseZones(zoneStrings []string) ([]int, error) {
 }
 
 func ProcessCommandLineArguments(arguments []string) error {
-	err := godotenv.Load()
+	if err := godotenv.Load(); err != nil {
+		return fmt.Errorf("error while loading .env file: %v", err)
+	}
 
 	databasePath, ok := os.LookupEnv(DatabaseEnvironmentVariable)
 
 	if !ok {
 		return fmt.Errorf("environment variable %s not set", DatabaseEnvironmentVariable)
-	}
-
-	if err != nil {
-		return fmt.Errorf("error while loading .env file: %v", err)
 	}
 
 	var options struct {
