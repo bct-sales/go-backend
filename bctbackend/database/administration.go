@@ -26,7 +26,7 @@ func (e *DatabaseConnectionError) Unwrap() error {
 func fileExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 
-	if err != nil {
+	if err == nil {
 		return true, nil
 	}
 
