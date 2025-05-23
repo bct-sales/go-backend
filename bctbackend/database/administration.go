@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"os"
 )
 
 type DatabaseConnectionError struct {
@@ -22,6 +23,12 @@ func (e *DatabaseConnectionError) Unwrap() error {
 }
 
 func ConnectToDatabase(path string) (*sql.DB, error) {
+	slog.Debug("Checking existence of database file", slog.String("path", path))
+	if _, err := os.Stat(path); err != nil {
+		slog.Debug("Database file not found", slog.String("path", path))
+		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "checking if file exists"}
+	}
+
 	db, err := sql.Open("sqlite", fmt.Sprintf("%s?_busy_timeout=500", path))
 	if err != nil {
 		return nil, &DatabaseConnectionError{Path: path, Err: err, Context: "opening database"}
