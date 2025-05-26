@@ -57,6 +57,7 @@ type GetCashierInformationSuccessResponse struct {
 type GetSellerSummarySuccessResponse struct {
 	ItemCount       int                 `json:"itemCount" binding:"required"`
 	FrozenItemCount int                 `json:"frozenItemCount" binding:"required"`
+	HiddenItemCount int                 `json:"hiddenItemCount" binding:"required"`
 	TotalPrice      models.MoneyInCents `json:"totalPrice" binding:"required"`
 }
 
@@ -245,6 +246,13 @@ func getUserInformationAsSeller(context *gin.Context, db *sql.DB, userId models.
 		return
 	}
 
+	hiddenItemCount, err := queries.GetSellerHiddenItemCount(db, queriedUserId)
+	if err != nil {
+		// At this point, we know that the user exists and is a seller, so no errors should ever occur
+		failure_response.Unknown(context, err.Error())
+		return
+	}
+
 	totalPrice, err := queries.GetSellerTotalPriceOfAllItems(db, queriedUserId, queries.OnlyVisibleItems)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
@@ -255,6 +263,7 @@ func getUserInformationAsSeller(context *gin.Context, db *sql.DB, userId models.
 	response := GetSellerSummarySuccessResponse{
 		ItemCount:       itemCount,
 		FrozenItemCount: frozenItemCount,
+		HiddenItemCount: hiddenItemCount,
 		TotalPrice:      models.MoneyInCents(totalPrice),
 	}
 
