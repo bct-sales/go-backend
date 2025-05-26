@@ -386,6 +386,35 @@ func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id, itemSelection Item
 	return itemCount, nil
 }
 
+func GetSellerHiddenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
+	// Ensure the user exists and is a seller
+	{
+		cashier, err := GetUserWithId(db, sellerId)
+		if err != nil {
+			return 0, err
+		}
+		if cashier.RoleId != models.SellerRoleId {
+			return 0, &InvalidRoleError{UserId: sellerId, ExpectedRoleId: models.SellerRoleId}
+		}
+	}
+
+	query :=
+		`
+			SELECT COUNT(item_id)
+			FROM items
+			WHERE seller_id = $1 AND hidden
+		`
+	row := db.QueryRow(query, sellerId)
+
+	var itemCount int
+	err := row.Scan(&itemCount)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get seller's hidden item count: %w", err)
+	}
+
+	return itemCount, nil
+}
+
 func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id, itemSelection ItemSelection) (models.MoneyInCents, error) {
 	// Ensure the user exists and is a seller
 	{
