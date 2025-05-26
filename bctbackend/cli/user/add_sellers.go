@@ -26,7 +26,7 @@ func collectExistingUserIds(db *sql.DB) (*algorithms.Set[models.Id], error) {
 		return nil
 	})
 
-	return result, nil
+	return &result, nil
 }
 
 func collectExistingPasswords(db *sql.DB) (*algorithms.Set[string], error) {
@@ -37,7 +37,7 @@ func collectExistingPasswords(db *sql.DB) (*algorithms.Set[string], error) {
 		return nil
 	})
 
-	return result, nil
+	return &result, nil
 }
 
 func determineSellersToBeCreated(zones []int, sellersPerZone int, receiver func(models.Id) error) error {

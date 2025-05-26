@@ -528,7 +528,7 @@ func PartitionItemsByHiddenStatus(db QueryHandler, itemIds []models.Id) (*algori
 		}
 	}
 
-	return unhidden, hidden, nil
+	return &unhidden, &hidden, nil
 }
 
 // PartitionItemsByFrozenStatus partitions the given item IDs into two sets: one for nonfrozen items and one for frozen items.
@@ -564,7 +564,7 @@ func PartitionItemsByFrozenStatus(db QueryHandler, itemIds []models.Id) (*algori
 		}
 	}
 
-	return nonfrozen, frozen, nil
+	return &nonfrozen, &frozen, nil
 }
 
 // ContainsHiddenItems checks if any of the given items are hidden.
