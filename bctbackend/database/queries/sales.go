@@ -230,7 +230,7 @@ func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []models.Item, r_err e
 	return items, nil
 }
 
-func RemoveSale(db *sql.DB, saleId models.Id) error {
+func RemoveSale(db *sql.DB, saleId models.Id) (r_err error) {
 	saleExists, err := SaleExists(db, saleId)
 
 	if err != nil {
@@ -245,7 +245,7 @@ func RemoveSale(db *sql.DB, saleId models.Id) error {
 	if err != nil {
 		return err
 	}
-	defer transaction.transaction.Rollback()
+	defer func() { r_err = errors.Join(r_err, transaction.transaction.Rollback()) }()
 
 	_, err = transaction.Exec(
 		`
