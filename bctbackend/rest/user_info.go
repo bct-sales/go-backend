@@ -156,13 +156,15 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 		LastActivity: algorithms.MapOptional(user.LastActivity, rest.ConvertTimestampToDateTime),
 	}
 
-	if user.RoleId == models.AdminRoleId {
+	switch user.RoleId {
+	case models.AdminRoleId:
 		response := GetAdminInformationSuccessResponse{
 			GetUserInformationSuccessResponse: basicInformation,
 		}
 		context.JSON(http.StatusOK, response)
 		return
-	} else if user.RoleId == models.SellerRoleId {
+
+	case models.SellerRoleId:
 		items, err := queries.GetSellerItemsWithSaleCounts(db, user.UserId)
 		if err != nil {
 			{
@@ -192,7 +194,8 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 
 		context.JSON(http.StatusOK, response)
 		return
-	} else if user.RoleId == models.CashierRoleId {
+
+	case models.CashierRoleId:
 		sales, err := queries.GetSalesWithCashier(db, user.UserId)
 		if err != nil {
 			{
@@ -221,7 +224,8 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 		}
 		context.JSON(http.StatusOK, response)
 		return
-	} else {
+
+	default:
 		failure_response.Unknown(context, fmt.Sprintf("Bug: unhandled role %s", roleName))
 		return
 	}
