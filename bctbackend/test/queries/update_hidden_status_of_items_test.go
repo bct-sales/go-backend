@@ -84,28 +84,5 @@ func TestUpdateHiddenStatusOfItems(t *testing.T) {
 				assert.Equal(t, false, isHidden, "item with id %d should not be hidden", itemId)
 			}
 		})
-
-		t.Run("Cannot unhide frozen item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
-			defer setup.Close()
-
-			seller := setup.Seller()
-
-			itemIds := []models.Id{}
-			for i := 0; i != 10; i++ {
-				itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(true), aux.WithFrozen(false)).ItemId)
-			}
-			itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(10), aux.WithHidden(true), aux.WithFrozen(true)).ItemId)
-
-			err := queries.UpdateHiddenStatusOfItems(db, itemIds, false)
-			var itemFrozenError *queries.ItemFrozenError
-			require.ErrorAs(t, err, &itemFrozenError)
-
-			for _, itemId := range itemIds {
-				isHidden, err := queries.IsItemHidden(db, itemId)
-				assert.NoError(t, err)
-				assert.Equal(t, true, isHidden, "item with id %d should be hidden", itemId)
-			}
-		})
 	})
 }

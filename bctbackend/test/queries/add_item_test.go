@@ -33,38 +33,40 @@ func TestAddItem(t *testing.T) {
 										for _, hidden := range []bool{false, true} {
 											test_name := fmt.Sprintf("timestamp = %d", timestamp)
 
-											t.Run(test_name, func(t *testing.T) {
-												setup, db := NewDatabaseFixture(WithDefaultCategories)
-												defer setup.Close()
+											if !hidden || !frozen {
+												t.Run(test_name, func(t *testing.T) {
+													setup, db := NewDatabaseFixture(WithDefaultCategories)
+													defer setup.Close()
 
-												setup.Seller(aux.WithUserId(1))
-												setup.Seller(aux.WithUserId(2))
+													setup.Seller(aux.WithUserId(1))
+													setup.Seller(aux.WithUserId(2))
 
-												itemId, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
-												require.NoError(t, err, `Failed to add item: %v`, err)
+													itemId, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
+													require.NoError(t, err, `Failed to add item: %v`, err)
 
-												{
-													itemExists, err := queries.ItemWithIdExists(db, itemId)
+													{
+														itemExists, err := queries.ItemWithIdExists(db, itemId)
+														require.NoError(t, err)
+														require.True(t, itemExists)
+													}
+
+													items := []*models.Item{}
+													err = queries.GetItems(db, queries.CollectTo(&items), queries.AllItems)
 													require.NoError(t, err)
-													require.True(t, itemExists)
-												}
+													require.Equal(t, 1, len(items))
 
-												items := []*models.Item{}
-												err = queries.GetItems(db, queries.CollectTo(&items), queries.AllItems)
-												require.NoError(t, err)
-												require.Equal(t, 1, len(items))
-
-												item := items[0]
-												require.Equal(t, timestamp, item.AddedAt)
-												require.Equal(t, description, item.Description)
-												require.Equal(t, priceInCents, item.PriceInCents)
-												require.Equal(t, itemCategoryId, item.CategoryId)
-												require.Equal(t, sellerId, sellerId)
-												require.Equal(t, donation, item.Donation)
-												require.Equal(t, charity, item.Charity)
-												require.Equal(t, frozen, item.Frozen)
-												require.Equal(t, hidden, item.Hidden)
-											})
+													item := items[0]
+													require.Equal(t, timestamp, item.AddedAt)
+													require.Equal(t, description, item.Description)
+													require.Equal(t, priceInCents, item.PriceInCents)
+													require.Equal(t, itemCategoryId, item.CategoryId)
+													require.Equal(t, sellerId, sellerId)
+													require.Equal(t, donation, item.Donation)
+													require.Equal(t, charity, item.Charity)
+													require.Equal(t, frozen, item.Frozen)
+													require.Equal(t, hidden, item.Hidden)
+												})
+											}
 										}
 									}
 								}

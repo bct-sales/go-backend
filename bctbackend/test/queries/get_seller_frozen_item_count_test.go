@@ -18,29 +18,26 @@ import (
 func TestGetSellerFrozenItemCount(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Single seller", func(t *testing.T) {
-			for _, frozenHiddenItemCount := range []int{0, 1, 2} {
-				for _, frozenVisibleItemCount := range []int{0, 1, 2} {
-					for _, unfrozenHiddenItemCount := range []int{0, 1, 2} {
-						for _, unfrozenVisibleItemCount := range []int{0, 1, 2} {
-							testLabel := fmt.Sprintf("Seller with %d frozen hidden items, %d frozen visible items, %d unfrozen hidden items, and %d unfrozen visible items", frozenHiddenItemCount, frozenVisibleItemCount, unfrozenHiddenItemCount, unfrozenVisibleItemCount)
-							t.Run(testLabel, func(t *testing.T) {
-								setup, db := NewDatabaseFixture(WithDefaultCategories)
-								defer setup.Close()
+			for _, frozenVisibleItemCount := range []int{0, 1, 2} {
+				for _, unfrozenHiddenItemCount := range []int{0, 1, 2} {
+					for _, unfrozenVisibleItemCount := range []int{0, 1, 2} {
+						testLabel := fmt.Sprintf("Seller with %d frozen visible items, %d unfrozen hidden items, and %d unfrozen visible items", frozenVisibleItemCount, unfrozenHiddenItemCount, unfrozenVisibleItemCount)
+						t.Run(testLabel, func(t *testing.T) {
+							setup, db := NewDatabaseFixture(WithDefaultCategories)
+							defer setup.Close()
 
-								seller := setup.Seller()
+							seller := setup.Seller()
 
-								algorithms.Repeat(frozenHiddenItemCount, func() { setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithFrozen(true), aux.WithHidden(true)) })
-								algorithms.Repeat(frozenVisibleItemCount, func() { setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithFrozen(true), aux.WithHidden(false)) })
-								algorithms.Repeat(unfrozenHiddenItemCount, func() { setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithFrozen(false), aux.WithHidden(true)) })
-								algorithms.Repeat(unfrozenVisibleItemCount, func() { setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithFrozen(false), aux.WithHidden(false)) })
+							algorithms.Repeat(frozenVisibleItemCount, func() { setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithFrozen(true), aux.WithHidden(false)) })
+							algorithms.Repeat(unfrozenHiddenItemCount, func() { setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithFrozen(false), aux.WithHidden(true)) })
+							algorithms.Repeat(unfrozenVisibleItemCount, func() { setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithFrozen(false), aux.WithHidden(false)) })
 
-								expectedCount := frozenVisibleItemCount + frozenHiddenItemCount
+							expectedCount := frozenVisibleItemCount
 
-								actual, err := queries.GetSellerFrozenItemCount(db, seller.UserId)
-								require.NoError(t, err)
-								require.Equal(t, expectedCount, actual)
-							})
-						}
+							actual, err := queries.GetSellerFrozenItemCount(db, seller.UserId)
+							require.NoError(t, err)
+							require.Equal(t, expectedCount, actual)
+						})
 					}
 				}
 			}
@@ -48,29 +45,27 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 		t.Run("Multiple sellers", func(t *testing.T) {
 			for _, frozenItemCount := range []int{0, 1, 2, 10, 100} {
 				for _, unfrozenItemCount := range []int{0, 1, 2, 10, 100} {
-					for _, hiddenItems := range []bool{false, true} {
-						testLabel := fmt.Sprintf("Seller with %d frozen items and %d unfrozen items; hidden=%v", frozenItemCount, unfrozenItemCount, hiddenItems)
-						t.Run(testLabel, func(t *testing.T) {
-							setup, db := NewDatabaseFixture(WithDefaultCategories)
-							defer setup.Close()
+					testLabel := fmt.Sprintf("Seller with %d frozen items and %d unfrozen items", frozenItemCount, unfrozenItemCount)
+					t.Run(testLabel, func(t *testing.T) {
+						setup, db := NewDatabaseFixture(WithDefaultCategories)
+						defer setup.Close()
 
-							seller := setup.Seller()
-							otherSeller := setup.Seller()
+						seller := setup.Seller()
+						otherSeller := setup.Seller()
 
-							for i := 0; i < frozenItemCount; i++ {
-								setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true), aux.WithHidden(hiddenItems))
-								setup.Item(otherSeller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true), aux.WithHidden(hiddenItems))
-							}
-							for i := 0; i < unfrozenItemCount; i++ {
-								setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false), aux.WithHidden(hiddenItems))
-								setup.Item(otherSeller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false), aux.WithHidden(hiddenItems))
-							}
+						for i := 0; i < frozenItemCount; i++ {
+							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true), aux.WithHidden(false))
+							setup.Item(otherSeller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(true), aux.WithHidden(false))
+						}
+						for i := 0; i < unfrozenItemCount; i++ {
+							setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false), aux.WithHidden(false))
+							setup.Item(otherSeller.UserId, aux.WithDummyData(int(i)), aux.WithFrozen(false), aux.WithHidden(false))
+						}
 
-							actual, err := queries.GetSellerFrozenItemCount(db, seller.UserId)
-							require.NoError(t, err)
-							require.Equal(t, frozenItemCount, actual)
-						})
-					}
+						actual, err := queries.GetSellerFrozenItemCount(db, seller.UserId)
+						require.NoError(t, err)
+						require.Equal(t, frozenItemCount, actual)
+					})
 				}
 			}
 		})

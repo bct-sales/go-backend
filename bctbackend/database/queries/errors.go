@@ -68,6 +68,8 @@ type InvalidCategoryNameError struct{}
 
 type CategoryIdAlreadyInUseError struct{}
 
+type HiddenFrozenItemError struct{}
+
 func (err *UserIdAlreadyInUseError) Error() string {
 	return fmt.Sprintf("user id %d already in use", err.UserId)
 }
@@ -150,4 +152,8 @@ func (e *InvalidCategoryNameError) Error() string {
 
 func (e *CategoryIdAlreadyInUseError) Error() string {
 	return "category id already in use"
+}
+
+func (e *HiddenFrozenItemError) Error() string {
+	return "items cannot be hidden and frozen at the same time"
 }

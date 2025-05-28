@@ -87,21 +87,6 @@ func TestContainsFrozenItems(t *testing.T) {
 			require.True(t, result)
 		})
 
-		t.Run("Hidden items are not ignored", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
-			defer setup.Close()
-
-			seller := setup.Seller()
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-			items = append(items, setup.Item(seller.UserId, aux.WithFrozen(true), aux.WithHidden(true)))
-			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
-			itemIds = append(itemIds, itemIds...)
-
-			result, err := queries.ContainsFrozenItems(db, itemIds)
-			require.NoError(t, err)
-			require.True(t, result)
-		})
-
 		t.Run("Nonexistent item", func(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()

@@ -69,7 +69,7 @@ func TestCountItems(t *testing.T) {
 				defer setup.Close()
 
 				seller := setup.Seller()
-				setup.Item(seller.UserId, aux.WithHidden(true))
+				setup.Item(seller.UserId, aux.WithFrozen(false), aux.WithHidden(true))
 
 				actual, err := queries.CountItems(db, queries.AllItems)
 				require.NoError(t, err)
@@ -82,8 +82,8 @@ func TestCountItems(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			setup.Items(seller.UserId, 10, aux.WithHidden(false))
-			setup.Items(seller.UserId, 12, aux.WithHidden(true))
+			setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			setup.Items(seller.UserId, 12, aux.WithFrozen(false), aux.WithHidden(true))
 
 			actual, err := queries.CountItems(db, queries.OnlyHiddenItems)
 			require.NoError(t, err)

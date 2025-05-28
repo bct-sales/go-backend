@@ -304,6 +304,10 @@ func AddItem(
 		return 0, err
 	}
 
+	if frozen && hidden {
+		return 0, &HiddenFrozenItemError{}
+	}
+
 	result, err := db.Exec(
 		`
 			INSERT INTO items (added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden)

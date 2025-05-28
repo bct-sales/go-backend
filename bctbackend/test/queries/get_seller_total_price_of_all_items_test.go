@@ -75,14 +75,14 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 			// Add visible items
 			for i := 0; i < 10; i++ {
 				price := models.MoneyInCents((i + 1) * 50)
-				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithHidden(false))
+				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithFrozen(false), aux.WithHidden(false))
 				expectedTotal += price
 			}
 
 			// Add hidden items
 			for i := 0; i < 10; i++ {
 				price := models.MoneyInCents((i + 1) * 150)
-				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithHidden(true))
+				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithFrozen(false), aux.WithHidden(true))
 				expectedTotal += price
 			}
 
@@ -102,13 +102,13 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 			// Add visible items
 			for i := 0; i < 10; i++ {
 				price := models.MoneyInCents((i + 1) * 50)
-				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithHidden(false))
+				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithFrozen(false), aux.WithHidden(false))
 			}
 
 			// Add hidden items
 			for i := 0; i < 10; i++ {
 				price := models.MoneyInCents((i + 1) * 150)
-				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithHidden(true))
+				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithFrozen(false), aux.WithHidden(true))
 				expectedTotal += price
 			}
 
@@ -128,14 +128,14 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 			// Add visible items
 			for i := 0; i < 10; i++ {
 				price := models.MoneyInCents((i + 1) * 50)
-				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithHidden(false))
+				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithFrozen(false), aux.WithHidden(false))
 				expectedTotal += price
 			}
 
 			// Add hidden items
 			for i := 0; i < 10; i++ {
 				price := models.MoneyInCents((i + 1) * 150)
-				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithHidden(true))
+				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithFrozen(false), aux.WithHidden(true))
 			}
 
 			actualTotal, err := queries.GetSellerTotalPriceOfAllItems(db, seller.UserId, queries.OnlyVisibleItems)

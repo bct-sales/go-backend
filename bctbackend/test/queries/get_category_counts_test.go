@@ -113,9 +113,9 @@ func TestGetCategoryCounts(t *testing.T) {
 
 						for categoryId, count := range expectedCounts {
 							for i := 0; i < count; i++ {
-								setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithItemCategory(categoryId), aux.WithHidden(false))
-								setup.Item(seller.UserId, aux.WithDummyData(2*i), aux.WithItemCategory(categoryId), aux.WithHidden(true))
-								setup.Item(seller.UserId, aux.WithDummyData(3*i), aux.WithItemCategory(categoryId), aux.WithHidden(true))
+								setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithItemCategory(categoryId), aux.WithFrozen(false), aux.WithHidden(false))
+								setup.Item(seller.UserId, aux.WithDummyData(2*i), aux.WithItemCategory(categoryId), aux.WithFrozen(false), aux.WithHidden(true))
+								setup.Item(seller.UserId, aux.WithDummyData(3*i), aux.WithItemCategory(categoryId), aux.WithFrozen(false), aux.WithHidden(true))
 							}
 						}
 
@@ -173,9 +173,9 @@ func TestGetCategoryCounts(t *testing.T) {
 
 						for categoryId, count := range expectedCounts {
 							for i := 0; i < count; i++ {
-								setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithItemCategory(categoryId), aux.WithHidden(false))
-								setup.Item(seller.UserId, aux.WithDummyData(2*i), aux.WithItemCategory(categoryId), aux.WithHidden(true))
-								setup.Item(seller.UserId, aux.WithDummyData(3*i), aux.WithItemCategory(categoryId), aux.WithHidden(true))
+								setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithItemCategory(categoryId), aux.WithFrozen(false), aux.WithHidden(false))
+								setup.Item(seller.UserId, aux.WithDummyData(2*i), aux.WithItemCategory(categoryId), aux.WithFrozen(false), aux.WithHidden(true))
+								setup.Item(seller.UserId, aux.WithDummyData(3*i), aux.WithItemCategory(categoryId), aux.WithFrozen(false), aux.WithHidden(true))
 							}
 						}
 
@@ -233,9 +233,9 @@ func TestGetCategoryCounts(t *testing.T) {
 
 						for categoryId, count := range expectedCounts {
 							for i := 0; i < count; i++ {
-								setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithItemCategory(categoryId), aux.WithHidden(false))
-								setup.Item(seller.UserId, aux.WithDummyData(2*i), aux.WithItemCategory(categoryId), aux.WithHidden(true))
-								setup.Item(seller.UserId, aux.WithDummyData(3*i), aux.WithItemCategory(categoryId), aux.WithHidden(true))
+								setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithItemCategory(categoryId), aux.WithFrozen(false), aux.WithHidden(false))
+								setup.Item(seller.UserId, aux.WithDummyData(2*i), aux.WithItemCategory(categoryId), aux.WithFrozen(false), aux.WithHidden(true))
+								setup.Item(seller.UserId, aux.WithDummyData(3*i), aux.WithItemCategory(categoryId), aux.WithFrozen(false), aux.WithHidden(true))
 							}
 						}
 

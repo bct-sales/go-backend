@@ -8,6 +8,7 @@ import (
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 	"fmt"
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -47,7 +48,7 @@ func TestGetItems(t *testing.T) {
 						defer setup.Close()
 
 						seller := setup.Seller()
-						setup.Items(seller.UserId, itemCount, aux.WithHidden(true))
+						setup.Items(seller.UserId, itemCount, aux.WithFrozen(false), aux.WithHidden(true))
 
 						actualItems := []*models.Item{}
 						err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.OnlyVisibleItems)
@@ -64,7 +65,7 @@ func TestGetItems(t *testing.T) {
 
 			seller := setup.Seller()
 			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-			items = append(items, setup.Items(seller.UserId, 10, aux.WithHidden(true))...)
+			items = slices.Concat(items, setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(true)))
 
 			actualItems := []*models.Item{}
 			err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.AllItems)
@@ -82,7 +83,7 @@ func TestGetItems(t *testing.T) {
 
 			seller := setup.Seller()
 			setup.Items(seller.UserId, 10, aux.WithHidden(false))
-			items := setup.Items(seller.UserId, 10, aux.WithHidden(true))
+			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(true))
 
 			actualItems := []*models.Item{}
 			err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.OnlyHiddenItems)
