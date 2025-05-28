@@ -356,7 +356,7 @@ func GetSellerItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 	return itemCount, nil
 }
 
-func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id, itemSelection ItemSelection) (int, error) {
+func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 	// Ensure the user exists and is a seller
 	{
 		cashier, err := GetUserWithId(db, sellerId)
@@ -368,13 +368,12 @@ func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id, itemSelection Item
 		}
 	}
 
-	itemsTable := ItemsTableFor(itemSelection)
-	query := fmt.Sprintf(
+	query :=
 		`
-			SELECT COUNT(i.item_id)
-			FROM %s i
-			WHERE i.seller_id = $1 AND i.frozen
-		`, itemsTable)
+			SELECT COUNT(item_id)
+			FROM items
+			WHERE seller_id = $1 AND frozen
+		`
 	row := db.QueryRow(query, sellerId)
 
 	var itemCount int
