@@ -27,9 +27,9 @@ func ResetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 
 	slog.Info("Adding categories")
 	{
-		GenerateDefaultCategories(func(id models.Id, name string) error {
-			return queries.AddCategoryWithId(db, id, name)
-		})
+		if err := GenerateDefaultCategories(func(id models.Id, name string) error { return queries.AddCategoryWithId(db, id, name) }); err != nil {
+			return fmt.Errorf("failed to add categories: %w", err)
+		}
 	}
 
 	slog.Info("Adding admin user")
