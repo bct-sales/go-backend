@@ -103,7 +103,7 @@ func ResetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 			addItem(db, now, "Rain boots", 2000, CategoryId_Shoes, 300, false, false, false, false),
 			addItem(db, now, "Snow boots", 2000, CategoryId_Shoes, 300, false, false, false, false),
 			addItem(db, now, "Bean boots", 2000, CategoryId_Shoes, 300, false, false, false, false),
-			addItem(db, now, "Cowboy boots", 2000, CategoryId_Shoes, 300, false, false, false, false)
+			addItem(db, now, "Cowboy boots", 2000, CategoryId_Shoes, 300, false, false, false, false),
 		)
 
 		if err != nil {
