@@ -18,7 +18,7 @@ func AddSale(
 	db *sql.DB,
 	cashierId models.Id,
 	transactionTime models.Timestamp,
-	itemIds []models.Id) (models.Id, error) {
+	itemIds []models.Id) (r_result models.Id, r_err error) {
 
 	// Ensure there is at least one item in the sale.
 	if len(itemIds) == 0 {
@@ -46,7 +46,7 @@ func AddSale(
 	if err != nil {
 		return 0, err
 	}
-	defer transaction.Rollback()
+	defer func() { r_err = errors.Join(r_err, transaction.Rollback()) }()
 
 	// Check if all items exist
 	exists, err := ItemsExist(transaction.transaction, itemIds)
