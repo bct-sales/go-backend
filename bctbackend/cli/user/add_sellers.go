@@ -32,10 +32,13 @@ func collectExistingUserIds(db *sql.DB) (*algorithms.Set[models.Id], error) {
 func collectExistingPasswords(db *sql.DB) (*algorithms.Set[string], error) {
 	result := algorithms.NewSet[string]()
 
-	queries.GetUsers(db, func(user *models.User) error {
+	err := queries.GetUsers(db, func(user *models.User) error {
 		result.Add(user.Password)
 		return nil
 	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to collect existing passwords: %w", err)
+	}
 
 	return &result, nil
 }
