@@ -460,7 +460,7 @@ func UpdateHiddenStatusOfItems(db *sql.DB, itemIds []models.Id, hidden bool) (r_
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
-	defer func() { transaction.Rollback() }()
+	defer func() { r_err = errors.Join(r_err, transaction.Rollback()) }()
 
 	// Check if all items exist
 	itemsExist, err := ItemsExist(transaction, itemIds)
