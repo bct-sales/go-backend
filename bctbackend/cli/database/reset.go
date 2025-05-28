@@ -23,9 +23,9 @@ func ResetDatabase(databasePath string, addCategories bool) (r_err error) {
 	}
 
 	if addCategories {
-		GenerateDefaultCategories(func(id models.Id, name string) error {
-			return queries.AddCategoryWithId(db, id, name)
-		})
+		if err := GenerateDefaultCategories(func(id models.Id, name string) error { return queries.AddCategoryWithId(db, id, name) }); err != nil {
+			return fmt.Errorf("failed to add default categories: %w", err)
+		}
 	}
 
 	fmt.Println("Database reset completed successfully")
