@@ -4,6 +4,7 @@ import (
 	database "bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"database/sql"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -76,30 +77,44 @@ func ResetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 		return fmt.Errorf("failed to add sellers: %w", err)
 	}
 
-	slog.Info("Adding some items")
-	now := models.Now()
-	queries.AddItem(db, now, "T-Shirt", 1000, CategoryId_Clothing140_152, 100, false, false, false, false)
-	queries.AddItem(db, now, "Jeans", 1000, CategoryId_Clothing140_152, 100, false, false, false, false)
-	queries.AddItem(db, now, "Nike sneakers", 2000, CategoryId_Shoes, 100, false, false, false, false)
-	queries.AddItem(db, now, "Adidas sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false)
-	queries.AddItem(db, now, "Puma sneakers", 2000, CategoryId_Shoes, 200, false, false, true, false)
-	queries.AddItem(db, now, "Reebok sneakers", 2000, CategoryId_Shoes, 200, false, true, false, false)
-	queries.AddItem(db, now, "Converse sneakers", 2000, CategoryId_Shoes, 200, true, false, false, false)
-	queries.AddItem(db, now, "Vans sneakers", 2000, CategoryId_Shoes, 200, true, true, false, false)
-	queries.AddItem(db, now, "New Balance sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false)
-	queries.AddItem(db, now, "Asics sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false)
-	queries.AddItem(db, now, "Hoka sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false)
-	queries.AddItem(db, now, "Saucony sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false)
-	queries.AddItem(db, now, "Brooks sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false)
-	queries.AddItem(db, now, "Mizuno sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false)
-	queries.AddItem(db, now, "On sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false)
-	queries.AddItem(db, now, "Combat boots", 2000, CategoryId_Shoes, 300, false, false, false, false)
-	queries.AddItem(db, now, "Hiking boots", 2000, CategoryId_Shoes, 300, false, false, false, false)
-	queries.AddItem(db, now, "Winter boots", 2000, CategoryId_Shoes, 300, false, false, false, false)
-	queries.AddItem(db, now, "Rain boots", 2000, CategoryId_Shoes, 300, false, false, false, false)
-	queries.AddItem(db, now, "Snow boots", 2000, CategoryId_Shoes, 300, false, false, false, false)
-	queries.AddItem(db, now, "Bean boots", 2000, CategoryId_Shoes, 300, false, false, false, false)
-	queries.AddItem(db, now, "Cowboy boots", 2000, CategoryId_Shoes, 300, false, false, false, false)
+	{
+		now := models.Now()
+
+		slog.Info("Adding some items")
+		err := errors.Join(
+			addItem(db, now, "T-Shirt", 1000, CategoryId_Clothing140_152, 100, false, false, false, false),
+			addItem(db, now, "Jeans", 1000, CategoryId_Clothing140_152, 100, false, false, false, false),
+			addItem(db, now, "Nike sneakers", 2000, CategoryId_Shoes, 100, false, false, false, false),
+			addItem(db, now, "Adidas sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false),
+			addItem(db, now, "Puma sneakers", 2000, CategoryId_Shoes, 200, false, false, true, false),
+			addItem(db, now, "Reebok sneakers", 2000, CategoryId_Shoes, 200, false, true, false, false),
+			addItem(db, now, "Converse sneakers", 2000, CategoryId_Shoes, 200, true, false, false, false),
+			addItem(db, now, "Vans sneakers", 2000, CategoryId_Shoes, 200, true, true, false, false),
+			addItem(db, now, "New Balance sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false),
+			addItem(db, now, "Asics sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false),
+			addItem(db, now, "Hoka sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false),
+			addItem(db, now, "Saucony sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false),
+			addItem(db, now, "Brooks sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false),
+			addItem(db, now, "Mizuno sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false),
+			addItem(db, now, "On sneakers", 2000, CategoryId_Shoes, 200, false, false, false, false),
+			addItem(db, now, "Combat boots", 2000, CategoryId_Shoes, 300, false, false, false, false),
+			addItem(db, now, "Hiking boots", 2000, CategoryId_Shoes, 300, false, false, false, false),
+			addItem(db, now, "Winter boots", 2000, CategoryId_Shoes, 300, false, false, false, false),
+			addItem(db, now, "Rain boots", 2000, CategoryId_Shoes, 300, false, false, false, false),
+			addItem(db, now, "Snow boots", 2000, CategoryId_Shoes, 300, false, false, false, false),
+			addItem(db, now, "Bean boots", 2000, CategoryId_Shoes, 300, false, false, false, false),
+			addItem(db, now, "Cowboy boots", 2000, CategoryId_Shoes, 300, false, false, false, false)
+		)
+
+		if err != nil {
+			return fmt.Errorf("failed to add items: %w", err)
+		}
+	}
 
 	return nil
+}
+
+func addItem(db *sql.DB, addedAt models.Timestamp, description string, priceInCents models.MoneyInCents, itemCategoryId models.Id, sellerId models.Id, donation bool, charity bool, frozen bool, hidden bool) error {
+	_, err := queries.AddItem(db, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
+	return err
 }
