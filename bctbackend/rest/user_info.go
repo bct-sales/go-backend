@@ -109,16 +109,17 @@ func GetUserInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 		return
 	}
 
-	if roleId == models.AdminRoleId {
+	switch roleId {
+	case models.AdminRoleId:
 		getUserInformationAsAdmin(context, db, queriedUserId)
 		return
-	} else if roleId == models.SellerRoleId {
+	case models.SellerRoleId:
 		getUserInformationAsSeller(context, db, userId, queriedUserId)
 		return
-	} else if roleId == models.CashierRoleId {
+	case models.CashierRoleId:
 		getUserInformationAsCashier(context, db, userId, queriedUserId)
 		return
-	} else {
+	default:
 		failure_response.Unknown(context, fmt.Sprintf("Bug: unhandled role %d", roleId))
 		return
 	}
