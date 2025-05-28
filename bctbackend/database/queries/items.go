@@ -204,7 +204,7 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 }
 
 // Returns all items with the given ids.
-func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (map[models.Id]*models.Item, error) {
+func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (r_result map[models.Id]*models.Item, r_err error) {
 	// Handle the special case of zero items efficiently
 	if len(itemIds) == 0 {
 		return nil, nil
@@ -222,7 +222,7 @@ func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (map[models.Id]*models.Ite
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	items := make(map[models.Id]*models.Item)
 	for rows.Next() {
@@ -411,7 +411,7 @@ func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) (r_
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
-	defer func() { transaction.Rollback() }()
+	defer func() { r_err = errors.Join(r_err, transaction.Rollback()) }()
 
 	itemsExist, err := ItemsExist(transaction, itemIds)
 	if err != nil {
