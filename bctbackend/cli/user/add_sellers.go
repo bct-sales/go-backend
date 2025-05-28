@@ -21,10 +21,13 @@ type sellerCreationData struct {
 func collectExistingUserIds(db *sql.DB) (*algorithms.Set[models.Id], error) {
 	result := algorithms.NewSet[models.Id]()
 
-	queries.GetUsers(db, func(user *models.User) error {
+	err := queries.GetUsers(db, func(user *models.User) error {
 		result.Add(user.UserId)
 		return nil
 	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to collect existing user ids: %w", err)
+	}
 
 	return &result, nil
 }
