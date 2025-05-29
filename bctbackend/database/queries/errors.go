@@ -60,8 +60,7 @@ type DuplicateItemInSaleError struct {
 }
 
 var ItemFrozenError = errors.New("item is frozen")
-
-type ItemHiddenError struct{}
+var ItemHiddenError = errors.New("item is hidden")
 
 type InvalidCategoryNameError struct{}
 
@@ -131,10 +130,6 @@ func (e *DuplicateItemInSaleError) Error() string {
 
 func (e *InvalidRoleError) Error() string {
 	return fmt.Sprintf("user %d should have role %d", e.UserId, e.ExpectedRoleId)
-}
-
-func (e *ItemHiddenError) Error() string {
-	return "an item was hidden"
 }
 
 func (e *InvalidItemDescriptionError) Error() string {

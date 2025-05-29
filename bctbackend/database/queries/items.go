@@ -600,7 +600,7 @@ func EnsureNoHiddenItems(qh QueryHandler, itemIds []models.Id) error {
 	}
 
 	if containsHidden {
-		return &ItemHiddenError{}
+		return ItemHiddenError
 	}
 
 	return nil
@@ -691,7 +691,7 @@ func UpdateItem(db *sql.DB, itemId models.Id, itemUpdate *ItemUpdate) error {
 	}
 
 	if item.Hidden {
-		return &ItemHiddenError{}
+		return ItemHiddenError
 	}
 
 	sqlUpdates := []string{}
