@@ -15,10 +15,7 @@ var ErrNoSuchUser = errors.New("no such user")
 var ErrWrongPassword = errors.New("wrong password")
 var ErrNoSessionFound = errors.New("no session found")
 var ErrNoSuchSale = errors.New("no such sale")
-
-type NoSuchSessionError struct {
-	SessionId models.SessionId
-}
+var NoSuchSessionError = errors.New("no such session")
 
 type NoSuchCategoryError struct {
 	CategoryId models.Id
@@ -50,10 +47,6 @@ type HiddenFrozenItemError struct{}
 
 func (err *NoSuchCategoryError) Error() string {
 	return fmt.Sprintf("no category with id %v", err.CategoryId)
-}
-
-func (e *NoSuchSessionError) Error() string {
-	return fmt.Sprintf("no session with id %v", e.SessionId)
 }
 
 func (e *NoSuchRoleError) Error() string {

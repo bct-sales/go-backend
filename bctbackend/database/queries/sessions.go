@@ -5,6 +5,7 @@ import (
 	"bctbackend/security"
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
 func AddSession(
@@ -53,7 +54,7 @@ func GetSessionById(
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, &NoSuchSessionError{SessionId: sessionId}
+		return nil, fmt.Errorf("failed to get session with id %s: %w", sessionId, NoSuchSessionError)
 	}
 
 	if err != nil {
