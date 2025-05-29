@@ -63,7 +63,7 @@ func login(context *gin.Context, db *sql.DB) {
 			return
 		}
 
-		if errors.Is(err, queries.WrongPasswordError) {
+		if errors.Is(err, queries.ErrWrongPassword) {
 			slog.Info("User entered wrong password", slog.String("userId", loginRequest.Username))
 			failure_response.WrongPassword(context, err.Error())
 			return
