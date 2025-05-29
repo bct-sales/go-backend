@@ -9,6 +9,14 @@ import (
 	"github.com/pterm/pterm"
 )
 
+type NoSuchCategoryError struct {
+	CategoryId models.Id
+}
+
+func (e *NoSuchCategoryError) Error() string {
+	return fmt.Sprintf("no category with id %d", e.CategoryId)
+}
+
 func PrintUser(user *models.User) error {
 	tableData := pterm.TableData{
 		{"Property", "Value"},
@@ -35,7 +43,7 @@ func PrintItems(categoryTable map[models.Id]string, items []*models.Item) error 
 	for _, item := range items {
 		categoryName, ok := categoryTable[item.CategoryId]
 		if !ok {
-			return fmt.Errorf("unknown category id: %v", item.CategoryId)
+			return &NoSuchCategoryError{CategoryId: item.CategoryId}
 		}
 
 		tableData = append(tableData, []string{
@@ -69,7 +77,7 @@ func PrintItem(db *sql.DB, categoryTable map[models.Id]string, itemId models.Id)
 
 	categoryName, ok := categoryTable[item.CategoryId]
 	if !ok {
-		return fmt.Errorf("unknown category id: %v", item.CategoryId)
+		return &NoSuchCategoryError{CategoryId: item.CategoryId}
 	}
 
 	tableData := pterm.TableData{
