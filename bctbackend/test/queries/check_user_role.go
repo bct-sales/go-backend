@@ -71,8 +71,7 @@ func TestCheckUserRole(t *testing.T) {
 				setup.Seller(aux.WithUserId(sellerId))
 
 				err := queries.CheckUserRole(db, pair.UserId, pair.RoleId)
-				var invalidRoleError *queries.InvalidRoleError
-				require.ErrorAs(t, err, &invalidRoleError)
+				require.ErrorIs(t, err, queries.InvalidRoleError)
 			})
 		}
 	})

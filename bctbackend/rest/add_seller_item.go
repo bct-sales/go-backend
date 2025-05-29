@@ -6,6 +6,7 @@ import (
 	"bctbackend/rest/failure_response"
 	"database/sql"
 	"errors"
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -109,12 +110,10 @@ func AddSellerItem(context *gin.Context, db *sql.DB, userId models.Id, roleId mo
 			}
 		}
 
-		{
-			var invalidRoleError *queries.InvalidRoleError
-			if errors.As(err, &invalidRoleError) {
-				failure_response.Unknown(context, "Bug: this error should not happen")
-				return
-			}
+		if errors.Is(err, queries.InvalidRoleError) {
+			slog.Error("BUG: failed to add item to non-seller; this error should have been caught earlier")
+			failure_response.Unknown(context, "Bug: this error should not happen")
+			return
 		}
 
 		{

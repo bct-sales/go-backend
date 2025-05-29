@@ -269,7 +269,7 @@ func CheckUserRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) error
 	}
 
 	if user.RoleId != expectedRoleId {
-		return &InvalidRoleError{UserId: userId, ExpectedRoleId: expectedRoleId}
+		return fmt.Errorf("user %d expected to have role %d: %w", userId, expectedRoleId, InvalidRoleError)
 	}
 
 	return nil
@@ -328,12 +328,12 @@ func UpdateLastActivity(db *sql.DB, userId models.Id, lastActivity models.Timest
 func GetSellerItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 	// Ensure the user exists and is a seller
 	{
-		cashier, err := GetUserWithId(db, sellerId)
+		seller, err := GetUserWithId(db, sellerId)
 		if err != nil {
 			return 0, fmt.Errorf("failed to check user in GetSellerItemCount: %w", err)
 		}
-		if cashier.RoleId != models.SellerRoleId {
-			return 0, &InvalidRoleError{UserId: sellerId, ExpectedRoleId: models.SellerRoleId}
+		if seller.RoleId != models.SellerRoleId {
+			return 0, fmt.Errorf("failed to get item count of non-seller %d: %w", sellerId, InvalidRoleError)
 		}
 	}
 
@@ -350,7 +350,7 @@ func GetSellerItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 	err := row.Scan(&itemCount)
 
 	if err != nil {
-		return 0, fmt.Errorf("failed to get seller item count: %w", err)
+		return 0, fmt.Errorf("failed to get seller's %d item count: %w", sellerId, err)
 	}
 
 	return itemCount, nil
@@ -359,12 +359,12 @@ func GetSellerItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 	// Ensure the user exists and is a seller
 	{
-		cashier, err := GetUserWithId(db, sellerId)
+		seller, err := GetUserWithId(db, sellerId)
 		if err != nil {
 			return 0, err
 		}
-		if cashier.RoleId != models.SellerRoleId {
-			return 0, &InvalidRoleError{UserId: sellerId, ExpectedRoleId: models.SellerRoleId}
+		if seller.RoleId != models.SellerRoleId {
+			return 0, fmt.Errorf("failed to get frozen item count of non-seller %d: %w", sellerId, InvalidRoleError)
 		}
 	}
 
@@ -379,7 +379,7 @@ func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 	var itemCount int
 	err := row.Scan(&itemCount)
 	if err != nil {
-		return 0, fmt.Errorf("failed to get seller's frozen item count: %w", err)
+		return 0, fmt.Errorf("failed to get seller %d's frozen item count: %w", sellerId, err)
 	}
 
 	return itemCount, nil
@@ -388,12 +388,12 @@ func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 func GetSellerHiddenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 	// Ensure the user exists and is a seller
 	{
-		cashier, err := GetUserWithId(db, sellerId)
+		seller, err := GetUserWithId(db, sellerId)
 		if err != nil {
 			return 0, err
 		}
-		if cashier.RoleId != models.SellerRoleId {
-			return 0, &InvalidRoleError{UserId: sellerId, ExpectedRoleId: models.SellerRoleId}
+		if seller.RoleId != models.SellerRoleId {
+			return 0, fmt.Errorf("failed to get hidden item count of non-seller %d: %w", sellerId, InvalidRoleError)
 		}
 	}
 
@@ -422,7 +422,7 @@ func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id, itemSelection
 			return 0, err
 		}
 		if cashier.RoleId != models.SellerRoleId {
-			return 0, &InvalidRoleError{UserId: sellerId, ExpectedRoleId: models.SellerRoleId}
+			return 0, fmt.Errorf("failed to get total price of all items of non-seller %d: %w", sellerId, InvalidRoleError)
 		}
 	}
 

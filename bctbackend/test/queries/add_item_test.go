@@ -208,11 +208,8 @@ func TestAddItem(t *testing.T) {
 			frozen := false
 			hidden := false
 
-			{
-				_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen, hidden)
-				var invalidRoleError *queries.InvalidRoleError
-				require.ErrorAs(t, error, &invalidRoleError)
-			}
+			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen, hidden)
+			require.ErrorIs(t, err, queries.InvalidRoleError)
 
 			{
 				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
@@ -236,9 +233,8 @@ func TestAddItem(t *testing.T) {
 			hidden := false
 
 			{
-				_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen, hidden)
-				var invalidRoleError *queries.InvalidRoleError
-				require.ErrorAs(t, error, &invalidRoleError)
+				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen, hidden)
+				require.ErrorIs(t, err, queries.InvalidRoleError)
 			}
 
 			{

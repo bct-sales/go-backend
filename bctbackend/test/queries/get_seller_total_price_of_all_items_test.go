@@ -166,10 +166,7 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 			cashier := setup.Cashier()
 
 			_, err := queries.GetSellerTotalPriceOfAllItems(db, cashier.UserId, queries.AllItems)
-			{
-				var invalidRoleError *queries.InvalidRoleError
-				require.ErrorAs(t, err, &invalidRoleError)
-			}
+			require.ErrorIs(t, err, queries.InvalidRoleError)
 		})
 
 		t.Run("Sum of item prices of admin", func(t *testing.T) {
@@ -179,10 +176,7 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 			admin := setup.Admin()
 
 			_, err := queries.GetSellerTotalPriceOfAllItems(db, admin.UserId, queries.AllItems)
-			{
-				var invalidRoleError *queries.InvalidRoleError
-				require.ErrorAs(t, err, &invalidRoleError)
-			}
+			require.ErrorIs(t, err, queries.InvalidRoleError)
 		})
 	})
 }

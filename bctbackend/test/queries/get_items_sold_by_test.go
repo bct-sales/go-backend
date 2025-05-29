@@ -178,7 +178,6 @@ func TestGetItemsSoldBy(t *testing.T) {
 		seller := setup.Seller()
 
 		_, err := queries.GetItemsSoldBy(db, seller.UserId)
-		var invalidRoleError *queries.InvalidRoleError
-		require.ErrorAs(t, err, &invalidRoleError)
+		require.ErrorIs(t, err, queries.InvalidRoleError)
 	})
 }

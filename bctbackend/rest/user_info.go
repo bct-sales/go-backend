@@ -172,12 +172,9 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 					return
 				}
 			}
-			{
-				var invalidRoleError *queries.InvalidRoleError
-				if errors.As(err, &invalidRoleError) {
-					failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
-					return
-				}
+			if errors.Is(err, queries.InvalidRoleError) {
+				failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
+				return
 			}
 			failure_response.Unknown(context, fmt.Errorf("failed to find information about seller: %w", err).Error())
 			return
@@ -203,12 +200,9 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 					return
 				}
 			}
-			{
-				var invalidRoleError *queries.InvalidRoleError
-				if errors.As(err, &invalidRoleError) {
-					failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
-					return
-				}
+			if errors.Is(err, queries.InvalidRoleError) {
+				failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
+				return
 			}
 			failure_response.Unknown(context, err.Error())
 			return

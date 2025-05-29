@@ -10,11 +10,7 @@ var ErrUserIdAlreadyInUse = errors.New("user id already in use")
 var ErrNoSuchItem = errors.New("no such item")
 var ErrSaleMissingItems = errors.New("sale must have at least one item")
 var ErrSaleRequiresCashier = errors.New("sale requires a cashier")
-
-type InvalidRoleError struct {
-	UserId         models.Id
-	ExpectedRoleId models.Id
-}
+var InvalidRoleError = errors.New("user has an invalid role")
 
 type NoSuchUserError struct {
 	UserId models.Id
@@ -94,10 +90,6 @@ func (e *InvalidPriceError) Error() string {
 
 func (e *DuplicateItemInSaleError) Error() string {
 	return fmt.Sprintf("item %d is duplicated in sale", e.ItemId)
-}
-
-func (e *InvalidRoleError) Error() string {
-	return fmt.Sprintf("user %d should have role %d", e.UserId, e.ExpectedRoleId)
 }
 
 func (e *InvalidItemDescriptionError) Error() string {
