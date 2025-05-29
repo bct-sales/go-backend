@@ -130,12 +130,10 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 	// Look up user in database
 	user, err := queries.GetUserWithId(db, queriedUserId)
 	if err != nil {
-		{
-			var noSuchUserError *queries.NoSuchUserError
-			if errors.As(err, &noSuchUserError) {
-				failure_response.UnknownUser(context, err.Error())
-				return
-			}
+		var noSuchUserError *queries.NoSuchUserError
+		if errors.As(err, &noSuchUserError) {
+			failure_response.UnknownUser(context, err.Error())
+			return
 		}
 
 		failure_response.Unknown(context, err.Error())
