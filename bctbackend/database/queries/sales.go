@@ -100,7 +100,7 @@ func AddSale(
 		}
 	}
 
-	err = transaction.transaction.Commit()
+	err = transaction.Commit()
 	if err != nil {
 		return 0, err
 	}
@@ -245,7 +245,7 @@ func RemoveSale(db *sql.DB, saleId models.Id) (r_err error) {
 	if err != nil {
 		return err
 	}
-	defer func() { r_err = errors.Join(r_err, transaction.transaction.Rollback()) }()
+	defer func() { r_err = errors.Join(r_err, transaction.Rollback()) }()
 
 	_, err = transaction.Exec(
 		`
