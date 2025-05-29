@@ -584,6 +584,21 @@ func ContainsFrozenItems(qh QueryHandler, itemIds []models.Id) (bool, error) {
 	return containsFrozen, nil
 }
 
+// IsItemFrozen checks if none of the items is frozen.
+func EnsureNoFrozenItems(db *sql.DB, itemIds []models.Id) error {
+	containsFrozen, err := ContainsFrozenItems(db, itemIds)
+
+	if err != nil {
+		return fmt.Errorf("failed to check for frozen items: %w", err)
+	}
+
+	if containsFrozen {
+		return &ItemFrozenError{}
+	}
+
+	return nil
+}
+
 func IsItemFrozen(db *sql.DB, itemId models.Id) (bool, error) {
 	nonfrozen, frozen, err := PartitionItemsByFrozenStatus(db, []models.Id{itemId})
 	if err != nil {
