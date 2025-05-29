@@ -40,7 +40,7 @@ func GetSaleItemInformation(
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("failed to get information about item %d: %w", itemId, NoSuchItemError)
+		return nil, fmt.Errorf("failed to get information about item %d: %w", itemId, ErrNoSuchItem)
 	}
 
 	if err != nil {

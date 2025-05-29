@@ -56,7 +56,7 @@ func GenerateLabels(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 
 	itemTable, err := queries.GetItemsWithIds(db, payload.ItemIds)
 	if err != nil {
-		if errors.Is(err, queries.NoSuchItemError) {
+		if errors.Is(err, queries.ErrNoSuchItem) {
 			failure_response.UnknownItem(context, err.Error())
 			return
 		}

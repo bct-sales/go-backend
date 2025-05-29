@@ -40,7 +40,7 @@ func TestItemIsHidden(t *testing.T) {
 			invalidId := models.Id(1)
 
 			_, err := queries.IsItemHidden(db, invalidId)
-			require.ErrorIs(t, err, queries.NoSuchItemError)
+			require.ErrorIs(t, err, queries.ErrNoSuchItem)
 		})
 	})
 }

@@ -77,7 +77,7 @@ func TestGetSalesWithItem(t *testing.T) {
 			setup.Sale(cashier.UserId, []models.Id{item2.ItemId})
 
 			_, err := queries.GetSalesWithItem(db, invalidItemId)
-			require.ErrorIs(t, err, queries.NoSuchItemError)
+			require.ErrorIs(t, err, queries.ErrNoSuchItem)
 		})
 	})
 }

@@ -137,7 +137,7 @@ func TestUpdateItem(t *testing.T) {
 			itemId := models.Id(1)
 			itemUpdate := queries.ItemUpdate{}
 			err := queries.UpdateItem(db, itemId, &itemUpdate)
-			require.ErrorIs(t, err, queries.NoSuchItemError)
+			require.ErrorIs(t, err, queries.ErrNoSuchItem)
 		})
 
 		t.Run("Frozen item", func(t *testing.T) {

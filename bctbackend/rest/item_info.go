@@ -50,7 +50,7 @@ func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 
 	item, err := queries.GetItemWithId(db, itemId)
 	if err != nil {
-		if errors.Is(err, queries.NoSuchItemError) {
+		if errors.Is(err, queries.ErrNoSuchItem) {
 			failure_response.UnknownItem(context, err.Error())
 			return
 		}
@@ -66,7 +66,7 @@ func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 
 	soldIn, err := queries.GetSalesWithItem(db, itemId)
 	if err != nil {
-		if errors.Is(err, queries.NoSuchItemError) {
+		if errors.Is(err, queries.ErrNoSuchItem) {
 			failure_response.Unknown(context, "Bug: this should be caught by the previous query")
 			return
 		}

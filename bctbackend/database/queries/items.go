@@ -191,7 +191,7 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	err := row.Scan(&addedAt, &description, &priceInCents, &categoryId, &sellerId, &donation, &charity, &frozen, &hidden)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("while getting item with id %d: %w", itemId, NoSuchItemError)
+		return nil, fmt.Errorf("while getting item with id %d: %w", itemId, ErrNoSuchItem)
 	}
 
 	if err != nil {
@@ -250,7 +250,7 @@ func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (r_result map[models.Id]*m
 	if len(items) != len(itemIds) {
 		for _, itemId := range itemIds {
 			if _, ok := items[itemId]; !ok {
-				return nil, fmt.Errorf("while getting items, among which %d: %w", itemId, NoSuchItemError)
+				return nil, fmt.Errorf("while getting items, among which %d: %w", itemId, ErrNoSuchItem)
 			}
 		}
 
@@ -407,7 +407,7 @@ func EnsureItemsExist(db QueryHandler, itemIds []models.Id) error {
 		return fmt.Errorf("failed to ensure items exist: %w", err)
 	}
 	if !itemsExist {
-		return fmt.Errorf("failed to ensure items exist: %w", NoSuchItemError)
+		return fmt.Errorf("failed to ensure items exist: %w", ErrNoSuchItem)
 	}
 
 	return nil
@@ -622,7 +622,7 @@ func IsItemFrozen(db *sql.DB, itemId models.Id) (bool, error) {
 		return false, nil
 	}
 
-	return false, fmt.Errorf("failed to check if item %d is frozen: %w", itemId, NoSuchItemError)
+	return false, fmt.Errorf("failed to check if item %d is frozen: %w", itemId, ErrNoSuchItem)
 }
 
 func IsItemHidden(db *sql.DB, itemId models.Id) (bool, error) {
@@ -641,7 +641,7 @@ func IsItemHidden(db *sql.DB, itemId models.Id) (bool, error) {
 		return false, nil
 	}
 
-	return false, fmt.Errorf("failed to check if item %d is hidden: %w", itemId, NoSuchItemError)
+	return false, fmt.Errorf("failed to check if item %d is hidden: %w", itemId, ErrNoSuchItem)
 }
 
 func RemoveItemWithId(db *sql.DB, itemId models.Id) error {
@@ -652,7 +652,7 @@ func RemoveItemWithId(db *sql.DB, itemId models.Id) error {
 	}
 
 	if !itemExists {
-		return fmt.Errorf("failed to remove item with id %d: %w", itemId, NoSuchItemError)
+		return fmt.Errorf("failed to remove item with id %d: %w", itemId, ErrNoSuchItem)
 	}
 
 	_, err = db.Exec(

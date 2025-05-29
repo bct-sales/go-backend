@@ -66,7 +66,7 @@ func AddSale(context *gin.Context, db *sql.DB, userId models.Id, roleId models.I
 			}
 		}
 
-		if errors.Is(err, queries.NoSuchItemError) {
+		if errors.Is(err, queries.ErrNoSuchItem) {
 			failure_response.UnknownItem(context, err.Error())
 			return
 		}
