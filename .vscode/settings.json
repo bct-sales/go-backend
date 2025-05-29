@@ -2,6 +2,7 @@
     "cSpell.words": [
         "bctbackend",
         "dberr",
+        "exhaustruct",
         "pterm"
     ],
     "go.buildTags": "test",
