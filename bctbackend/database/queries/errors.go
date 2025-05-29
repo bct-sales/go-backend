@@ -14,7 +14,7 @@ var ErrInvalidRole = errors.New("user has an invalid role")
 var ErrNoSuchUser = errors.New("no such user")
 var ErrWrongPassword = errors.New("wrong password")
 var ErrNoSessionFound = errors.New("no session found")
-var NoSuchSaleError = errors.New("no such sale")
+var ErrNoSuchSale = errors.New("no such sale")
 
 type NoSuchSessionError struct {
 	SessionId models.SessionId

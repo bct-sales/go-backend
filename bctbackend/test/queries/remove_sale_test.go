@@ -48,5 +48,5 @@ func TestRemoveNonexistentSale(t *testing.T) {
 	defer setup.Close()
 
 	err := queries.RemoveSale(db, 0)
-	require.ErrorIs(t, err, queries.NoSuchSaleError)
+	require.ErrorIs(t, err, queries.ErrNoSuchSale)
 }
