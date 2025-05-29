@@ -127,8 +127,7 @@ func TestAddItem(t *testing.T) {
 
 			{
 				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
-				var noSuchCategoryError *queries.NoSuchCategoryError
-				require.ErrorAs(t, err, &noSuchCategoryError)
+				require.ErrorIs(t, err, queries.NoSuchCategoryError)
 			}
 
 			{

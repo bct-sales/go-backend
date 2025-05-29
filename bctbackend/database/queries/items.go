@@ -332,7 +332,7 @@ func AddItem(
 		}
 
 		if !categoryExists {
-			return 0, &NoSuchCategoryError{CategoryId: itemCategoryId}
+			return 0, fmt.Errorf("failed to add item with category %d: %w", itemCategoryId, NoSuchCategoryError)
 		}
 
 		return 0, err
@@ -723,7 +723,7 @@ func UpdateItem(db *sql.DB, itemId models.Id, itemUpdate *ItemUpdate) error {
 		}
 
 		if !categoryExists {
-			return &NoSuchCategoryError{CategoryId: *itemUpdate.CategoryId}
+			return fmt.Errorf("failed to update item's category to %d", *itemUpdate.CategoryId)
 		}
 
 		sqlUpdates = append(sqlUpdates, "item_category_id = ?")

@@ -16,10 +16,7 @@ var ErrWrongPassword = errors.New("wrong password")
 var ErrNoSessionFound = errors.New("no session found")
 var ErrNoSuchSale = errors.New("no such sale")
 var NoSuchSessionError = errors.New("no such session")
-
-type NoSuchCategoryError struct {
-	CategoryId models.Id
-}
+var NoSuchCategoryError = errors.New("no such category")
 
 type NoSuchRoleError struct {
 	RoleId models.Id
@@ -44,10 +41,6 @@ var InvalidCategoryNameError = errors.New("category name is invalid")
 type CategoryIdAlreadyInUseError struct{}
 
 type HiddenFrozenItemError struct{}
-
-func (err *NoSuchCategoryError) Error() string {
-	return fmt.Sprintf("no category with id %v", err.CategoryId)
-}
 
 func (e *NoSuchRoleError) Error() string {
 	return fmt.Sprintf("no role with id %v", e.RoleId)
