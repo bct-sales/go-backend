@@ -600,8 +600,8 @@ func EnsureNoFrozenItems(qh QueryHandler, itemIds []models.Id) error {
 }
 
 // EnsureNoHiddenItems checks if none of the items is hidden.
-func EnsureNoHiddenItems(db *sql.DB, itemIds []models.Id) error {
-	containsHidden, err := ContainsHiddenItems(db, itemIds)
+func EnsureNoHiddenItems(qh QueryHandler, itemIds []models.Id) error {
+	containsHidden, err := ContainsHiddenItems(qh, itemIds)
 
 	if err != nil {
 		return fmt.Errorf("failed to check for hidden items: %w", err)
