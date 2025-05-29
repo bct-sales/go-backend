@@ -13,8 +13,7 @@ var ErrSaleRequiresCashier = errors.New("sale requires a cashier")
 var ErrInvalidRole = errors.New("user has an invalid role")
 var ErrNoSuchUser = errors.New("no such user")
 var ErrWrongPassword = errors.New("wrong password")
-
-type NoSessionFoundError struct{}
+var NoSessionFoundError = errors.New("no session found")
 
 type NoSuchSaleError struct {
 	SaleId models.Id
@@ -58,10 +57,6 @@ func (err *NoSuchSaleError) Error() string {
 
 func (err *NoSuchCategoryError) Error() string {
 	return fmt.Sprintf("no category with id %v", err.CategoryId)
-}
-
-func (e *NoSessionFoundError) Error() string {
-	return "no session found"
 }
 
 func (e *NoSuchSessionError) Error() string {
