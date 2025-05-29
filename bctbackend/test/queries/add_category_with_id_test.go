@@ -44,8 +44,7 @@ func TestAddCategoryWithId(t *testing.T) {
 			id := models.Id(1)
 			categoryName := ""
 			err := queries.AddCategoryWithId(db, id, categoryName)
-			var invalidCategoryNameError *queries.InvalidCategoryNameError
-			require.ErrorAs(t, err, &invalidCategoryNameError)
+			require.ErrorIs(t, err, queries.InvalidCategoryNameError)
 		})
 
 		t.Run("Same id used twice", func(t *testing.T) {

@@ -61,8 +61,7 @@ type DuplicateItemInSaleError struct {
 
 var ItemFrozenError = errors.New("item is frozen")
 var ItemHiddenError = errors.New("item is hidden")
-
-type InvalidCategoryNameError struct{}
+var InvalidCategoryNameError = errors.New("category name is invalid")
 
 type CategoryIdAlreadyInUseError struct{}
 
@@ -134,10 +133,6 @@ func (e *InvalidRoleError) Error() string {
 
 func (e *InvalidItemDescriptionError) Error() string {
 	return fmt.Sprintf("invalid description \"%s\"", e.Description)
-}
-
-func (e *InvalidCategoryNameError) Error() string {
-	return "invalid category name"
 }
 
 func (e *CategoryIdAlreadyInUseError) Error() string {
