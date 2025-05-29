@@ -52,7 +52,7 @@ func GetSessionById(
 		&session.ExpirationTime,
 	)
 
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, &NoSuchSessionError{SessionId: sessionId}
 	}
 
