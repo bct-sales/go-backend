@@ -58,12 +58,8 @@ func AddSale(
 	}
 
 	// Check if any of the items are hidden
-	containsHiddenItems, err := ContainsHiddenItems(transaction.transaction, itemIds)
-	if err != nil {
+	if err := EnsureNoHiddenItems(transaction, itemIds); err != nil {
 		return 0, err
-	}
-	if containsHiddenItems {
-		return 0, &ItemHiddenError{}
 	}
 
 	// Create sale
