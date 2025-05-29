@@ -54,7 +54,7 @@ func AddSale(
 		return 0, err
 	}
 	if !exists {
-		return 0, &NoSuchItemError{}
+		return 0, &NoSuchItemError{Id: nil}
 	}
 
 	// Check if any of the items are hidden
