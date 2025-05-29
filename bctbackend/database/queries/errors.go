@@ -58,9 +58,7 @@ type DuplicateItemInSaleError struct {
 	ItemId models.Id
 }
 
-type ItemFrozenError struct {
-	Id models.Id
-}
+type ItemFrozenError struct{}
 
 type ItemHiddenError struct{}
 
@@ -135,7 +133,7 @@ func (e *InvalidRoleError) Error() string {
 }
 
 func (e *ItemFrozenError) Error() string {
-	return fmt.Sprintf("item %d is frozen", e.Id)
+	return fmt.Sprintf("item is frozen")
 }
 
 func (e *ItemHiddenError) Error() string {
