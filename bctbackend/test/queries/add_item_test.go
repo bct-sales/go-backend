@@ -96,8 +96,7 @@ func TestAddItem(t *testing.T) {
 			setup.Seller(aux.WithUserId(2))
 
 			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
-			var noSuchUserError *queries.NoSuchUserError
-			require.ErrorAs(t, err, &noSuchUserError)
+			require.ErrorIs(t, err, queries.NoSuchUserError)
 
 			count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 			require.NoError(t, err)

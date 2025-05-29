@@ -130,8 +130,7 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 	// Look up user in database
 	user, err := queries.GetUserWithId(db, queriedUserId)
 	if err != nil {
-		var noSuchUserError *queries.NoSuchUserError
-		if errors.As(err, &noSuchUserError) {
+		if errors.Is(err, queries.NoSuchUserError) {
 			failure_response.UnknownUser(context, err.Error())
 			return
 		}
@@ -166,8 +165,7 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 		items, err := queries.GetSellerItemsWithSaleCounts(db, user.UserId)
 		if err != nil {
 			{
-				var noSuchUserError *queries.NoSuchUserError
-				if errors.As(err, &noSuchUserError) {
+				if errors.Is(err, queries.NoSuchUserError) {
 					failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
 					return
 				}
@@ -193,12 +191,9 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 	case models.CashierRoleId:
 		sales, err := queries.GetSalesWithCashier(db, user.UserId)
 		if err != nil {
-			{
-				var noSuchUserError *queries.NoSuchUserError
-				if errors.As(err, &noSuchUserError) {
-					failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
-					return
-				}
+			if errors.Is(err, queries.NoSuchUserError) {
+				failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
+				return
 			}
 			if errors.Is(err, queries.InvalidRoleError) {
 				failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())

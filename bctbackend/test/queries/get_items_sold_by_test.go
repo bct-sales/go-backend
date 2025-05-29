@@ -167,8 +167,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 		setup.RequireNoSuchUsers(t, unknownCashierId)
 
 		_, err := queries.GetItemsSoldBy(db, unknownCashierId)
-		var noSuchUserError *queries.NoSuchUserError
-		require.ErrorAs(t, err, &noSuchUserError)
+		require.ErrorIs(t, err, queries.NoSuchUserError)
 	})
 
 	t.Run("User has wrong role", func(t *testing.T) {

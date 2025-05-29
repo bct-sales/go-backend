@@ -153,10 +153,7 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 			setup.RequireNoSuchUsers(t, nonExistentSellerId)
 
 			_, err := queries.GetSellerTotalPriceOfAllItems(db, nonExistentSellerId, queries.AllItems)
-			{
-				var noSuchUserError *queries.NoSuchUserError
-				require.ErrorAs(t, err, &noSuchUserError)
-			}
+			require.ErrorIs(t, err, queries.NoSuchUserError)
 		})
 
 		t.Run("Sum of item prices of cashier", func(t *testing.T) {

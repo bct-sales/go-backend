@@ -154,7 +154,7 @@ func GetUserWithId(db *sql.DB, userId models.Id) (*models.User, error) {
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, &NoSuchUserError{UserId: userId}
+			return nil, fmt.Errorf("failed to get user with id %d: %w", userId, NoSuchUserError)
 		}
 
 		return nil, err
@@ -242,7 +242,7 @@ func UpdateUserPassword(db *sql.DB, userId models.Id, password string) error {
 		return err
 	}
 	if !userExists {
-		return &NoSuchUserError{UserId: userId}
+		return fmt.Errorf("failed to update password of user %d: %w", userId, NoSuchUserError)
 	}
 
 	_, err = db.Exec(
@@ -286,7 +286,7 @@ func RemoveUserWithId(db *sql.DB, userId models.Id) error {
 			return err
 		}
 		if !userExist {
-			return &NoSuchUserError{UserId: userId}
+			return fmt.Errorf("failed to remove user with id %d: %w", userId, NoSuchUserError)
 		}
 	}
 
@@ -308,7 +308,7 @@ func UpdateLastActivity(db *sql.DB, userId models.Id, lastActivity models.Timest
 			return err
 		}
 		if !userExist {
-			return &NoSuchUserError{UserId: userId}
+			return fmt.Errorf("failed to update last activity of user %d: %w", userId, NoSuchUserError)
 		}
 	}
 

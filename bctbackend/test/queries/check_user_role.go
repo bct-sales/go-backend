@@ -83,7 +83,6 @@ func TestCheckUserRole(t *testing.T) {
 		invalidId := models.Id(9999)
 
 		err := queries.CheckUserRole(db, invalidId, models.AdminRoleId)
-		var noSuchUserError *queries.NoSuchUserError
-		require.ErrorAs(t, err, &noSuchUserError)
+		require.ErrorIs(t, err, queries.NoSuchUserError)
 	})
 }

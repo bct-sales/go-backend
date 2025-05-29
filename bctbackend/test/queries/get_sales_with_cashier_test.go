@@ -74,8 +74,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 			setup.RequireNoSuchUsers(t, unknownCashierId)
 
 			_, err := queries.GetSalesWithCashier(db, unknownCashierId)
-			var noSuchUserError *queries.NoSuchUserError
-			require.ErrorAs(t, err, &noSuchUserError)
+			require.ErrorIs(t, err, queries.NoSuchUserError)
 		})
 
 		t.Run("User whose sales we want is an admin", func(t *testing.T) {

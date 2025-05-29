@@ -4,6 +4,7 @@ import (
 	models "bctbackend/database/models"
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
 // AuthenticateUser authenticates a user with the given user id and password.
@@ -27,7 +28,7 @@ func AuthenticateUser(db *sql.DB, userId models.Id, password string) (models.Id,
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return 0, &NoSuchUserError{UserId: userId}
+			return 0, fmt.Errorf("failed to authenticate user %d: %w", userId, NoSuchUserError)
 		}
 
 		return 0, err

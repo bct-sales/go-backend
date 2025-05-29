@@ -57,8 +57,7 @@ func login(context *gin.Context, db *sql.DB) {
 	roleId, err := queries.AuthenticateUser(db, userId, password)
 
 	if err != nil {
-		var noSuchUserError *queries.NoSuchUserError
-		if errors.As(err, &noSuchUserError) {
+		if errors.Is(err, queries.NoSuchUserError) {
 			slog.Info("Unknown user trying to log in", slog.String("userId", loginRequest.Username))
 			failure_response.UnknownUser(context, err.Error())
 			return

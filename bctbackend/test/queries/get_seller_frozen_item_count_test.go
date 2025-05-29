@@ -79,10 +79,7 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 				setup.RequireNoSuchUsers(t, nonExistentSellerId)
 
 				_, err := queries.GetSellerFrozenItemCount(db, nonExistentSellerId)
-				{
-					var noSuchUserError *queries.NoSuchUserError
-					require.ErrorAs(t, err, &noSuchUserError)
-				}
+				require.ErrorIs(t, err, queries.NoSuchUserError)
 			})
 
 			t.Run("Count frozen items of cashier", func(t *testing.T) {
