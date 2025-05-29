@@ -431,12 +431,8 @@ func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) (r_
 		return err
 	}
 
-	containsHidden, err := ContainsHiddenItems(transaction, itemIds)
-	if err != nil {
-		return fmt.Errorf("failed to check for hidden items: %w", err)
-	}
-	if containsHidden {
-		return &ItemHiddenError{}
+	if err := EnsureNoHiddenItems(transaction, itemIds); err != nil {
+		return fmt.Errorf("failed to ensure no hidden items: %w", err)
 	}
 
 	query := fmt.Sprintf(`
@@ -477,12 +473,8 @@ func UpdateHiddenStatusOfItems(db *sql.DB, itemIds []models.Id, hidden bool) (r_
 	}
 
 	// Check if none of the items are frozen
-	containsFrozen, err := ContainsFrozenItems(transaction, itemIds)
-	if err != nil {
-		return fmt.Errorf("failed to check for frozen items: %w", err)
-	}
-	if containsFrozen {
-		return &ItemFrozenError{}
+	if err := EnsureNoFrozenItems(transaction, itemIds); err != nil {
+		return err
 	}
 
 	query := fmt.Sprintf(`
