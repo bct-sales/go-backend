@@ -38,7 +38,7 @@ func AddSale(
 		return 0, err
 	}
 	if cashier.RoleId != models.CashierRoleId {
-		return 0, &SaleRequiresCashierError{}
+		return 0, SaleRequiresCashierError
 	}
 
 	// Start a transaction

@@ -16,7 +16,7 @@ type NoSuchItemError struct {
 
 var SaleMissingItemsError = errors.New("sale must have at least one item")
 
-type SaleRequiresCashierError struct{}
+var SaleRequiresCashierError = errors.New("sale requires a cashier")
 
 type InvalidRoleError struct {
 	UserId         models.Id
@@ -89,10 +89,6 @@ func (e *NoSuchItemError) Error() string {
 
 func (e *NoSuchItemError) Unwrap() error {
 	return nil
-}
-
-func (e *SaleRequiresCashierError) Error() string {
-	return "sale requires a cashier"
 }
 
 func (e *NoSuchUserError) Error() string {
