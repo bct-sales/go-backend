@@ -102,7 +102,7 @@ func AddSellerItem(context *gin.Context, db *sql.DB, userId models.Id, roleId mo
 			}
 		}
 
-		if errors.Is(err, queries.NoSuchUserError) {
+		if errors.Is(err, queries.ErrNoSuchUser) {
 			failure_response.UnknownUser(context, err.Error())
 			return
 		}

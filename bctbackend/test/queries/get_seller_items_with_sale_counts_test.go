@@ -91,7 +91,7 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 			setup.RequireNoSuchUsers(t, invalidSellerId)
 
 			_, err := queries.GetSellerItemsWithSaleCounts(db, invalidSellerId)
-			require.ErrorIs(t, err, queries.NoSuchUserError)
+			require.ErrorIs(t, err, queries.ErrNoSuchUser)
 		})
 	})
 }

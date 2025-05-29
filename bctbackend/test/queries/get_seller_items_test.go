@@ -115,7 +115,7 @@ func TestGetSellerItems(t *testing.T) {
 			setup.RequireNoSuchUsers(t, unknownSellerId)
 
 			_, err := queries.GetSellerItems(db, unknownSellerId, queries.AllItems)
-			require.ErrorIs(t, err, queries.NoSuchUserError)
+			require.ErrorIs(t, err, queries.ErrNoSuchUser)
 		})
 
 		t.Run("Wrong role: cashier", func(t *testing.T) {

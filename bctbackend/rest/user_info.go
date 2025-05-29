@@ -130,7 +130,7 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 	// Look up user in database
 	user, err := queries.GetUserWithId(db, queriedUserId)
 	if err != nil {
-		if errors.Is(err, queries.NoSuchUserError) {
+		if errors.Is(err, queries.ErrNoSuchUser) {
 			failure_response.UnknownUser(context, err.Error())
 			return
 		}
@@ -165,7 +165,7 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 		items, err := queries.GetSellerItemsWithSaleCounts(db, user.UserId)
 		if err != nil {
 			{
-				if errors.Is(err, queries.NoSuchUserError) {
+				if errors.Is(err, queries.ErrNoSuchUser) {
 					failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
 					return
 				}
@@ -191,7 +191,7 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 	case models.CashierRoleId:
 		sales, err := queries.GetSalesWithCashier(db, user.UserId)
 		if err != nil {
-			if errors.Is(err, queries.NoSuchUserError) {
+			if errors.Is(err, queries.ErrNoSuchUser) {
 				failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
 				return
 			}

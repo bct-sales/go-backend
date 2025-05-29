@@ -42,7 +42,7 @@ func TestAuthentication(t *testing.T) {
 
 		{
 			_, err := queries.AuthenticateUser(db, userId, password)
-			require.ErrorIs(t, err, queries.NoSuchUserError)
+			require.ErrorIs(t, err, queries.ErrNoSuchUser)
 		}
 	})
 

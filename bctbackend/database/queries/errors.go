@@ -11,7 +11,7 @@ var ErrNoSuchItem = errors.New("no such item")
 var ErrSaleMissingItems = errors.New("sale must have at least one item")
 var ErrSaleRequiresCashier = errors.New("sale requires a cashier")
 var ErrInvalidRole = errors.New("user has an invalid role")
-var NoSuchUserError = errors.New("no such user")
+var ErrNoSuchUser = errors.New("no such user")
 
 type WrongPasswordError struct{}
 
