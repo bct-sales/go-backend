@@ -399,6 +399,20 @@ func ItemsExist(db QueryHandler, itemIds []models.Id) (bool, error) {
 	return count == len(itemIds), nil
 }
 
+// EnsureItemsExist checks if all items with the given IDs exist in the database.
+// If any item does not exist, it returns a NoSuchItemError.
+func EnsureItemsExist(db QueryHandler, itemIds []models.Id) error {
+	itemsExist, err := ItemsExist(db, itemIds)
+	if err != nil {
+		return fmt.Errorf("failed to check if items exist: %w", err)
+	}
+	if !itemsExist {
+		return &NoSuchItemError{Id: nil}
+	}
+
+	return nil
+}
+
 func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) (r_err error) {
 	if len(itemIds) == 0 {
 		return nil
@@ -413,12 +427,8 @@ func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) (r_
 	}
 	defer func() { r_err = errors.Join(r_err, transaction.Rollback()) }()
 
-	itemsExist, err := ItemsExist(transaction, itemIds)
-	if err != nil {
+	if err := EnsureItemsExist(transaction, itemIds); err != nil {
 		return err
-	}
-	if !itemsExist {
-		return &NoSuchItemError{Id: nil}
 	}
 
 	containsHidden, err := ContainsHiddenItems(transaction, itemIds)
@@ -462,13 +472,8 @@ func UpdateHiddenStatusOfItems(db *sql.DB, itemIds []models.Id, hidden bool) (r_
 	}
 	defer func() { r_err = errors.Join(r_err, transaction.Rollback()) }()
 
-	// Check if all items exist
-	itemsExist, err := ItemsExist(transaction, itemIds)
-	if err != nil {
+	if err := EnsureItemsExist(transaction, itemIds); err != nil {
 		return err
-	}
-	if !itemsExist {
-		return &NoSuchItemError{Id: nil}
 	}
 
 	// Check if none of the items are frozen
