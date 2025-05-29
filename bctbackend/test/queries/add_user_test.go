@@ -43,10 +43,7 @@ func TestAddUser(t *testing.T) {
 
 		require.False(t, models.IsValidRole(roleId), "sanity test: role id should be invalid")
 
-		{
-			_, err := queries.AddUser(db, roleId, createdAt, lastActivity, password)
-			var noSuchRoleError *queries.NoSuchRoleError
-			require.ErrorAs(t, err, &noSuchRoleError)
-		}
+		_, err := queries.AddUser(db, roleId, createdAt, lastActivity, password)
+		require.ErrorIs(t, err, queries.NoSuchRoleError)
 	})
 }

@@ -17,10 +17,7 @@ var ErrNoSessionFound = errors.New("no session found")
 var ErrNoSuchSale = errors.New("no such sale")
 var NoSuchSessionError = errors.New("no such session")
 var NoSuchCategoryError = errors.New("no such category")
-
-type NoSuchRoleError struct {
-	RoleId models.Id
-}
+var NoSuchRoleError = errors.New("no such role")
 
 type InvalidPriceError struct {
 	PriceInCents models.MoneyInCents
@@ -41,10 +38,6 @@ var InvalidCategoryNameError = errors.New("category name is invalid")
 type CategoryIdAlreadyInUseError struct{}
 
 type HiddenFrozenItemError struct{}
-
-func (e *NoSuchRoleError) Error() string {
-	return fmt.Sprintf("no role with id %v", e.RoleId)
-}
 
 func (e *InvalidPriceError) Error() string {
 	return fmt.Sprintf("price %d is invalid", e.PriceInCents)
