@@ -53,11 +53,9 @@ func AddSale(context *gin.Context, db *sql.DB, userId models.Id, roleId models.I
 		payload.Items,
 	)
 	if err != nil {
-		{
-			if errors.Is(err, queries.SaleMissingItemsError) {
-				failure_response.SaleMissingItems(context, err.Error())
-				return
-			}
+		if errors.Is(err, queries.SaleMissingItemsError) {
+			failure_response.SaleMissingItems(context, err.Error())
+			return
 		}
 
 		{
