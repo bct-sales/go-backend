@@ -2,6 +2,7 @@ package queries
 
 import (
 	models "bctbackend/database/models"
+	"errors"
 	"fmt"
 )
 
@@ -58,7 +59,7 @@ type DuplicateItemInSaleError struct {
 	ItemId models.Id
 }
 
-type ItemFrozenError struct{}
+var ItemFrozenError = errors.New("item is frozen")
 
 type ItemHiddenError struct{}
 
@@ -130,10 +131,6 @@ func (e *DuplicateItemInSaleError) Error() string {
 
 func (e *InvalidRoleError) Error() string {
 	return fmt.Sprintf("user %d should have role %d", e.UserId, e.ExpectedRoleId)
-}
-
-func (e *ItemFrozenError) Error() string {
-	return fmt.Sprintf("item is frozen")
 }
 
 func (e *ItemHiddenError) Error() string {

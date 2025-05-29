@@ -75,8 +75,7 @@ func TestUpdateHiddenStatusOfItems(t *testing.T) {
 			itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(10), aux.WithHidden(false), aux.WithFrozen(true)).ItemId)
 
 			err := queries.UpdateHiddenStatusOfItems(db, itemIds, true)
-			var itemFrozenError *queries.ItemFrozenError
-			require.ErrorAs(t, err, &itemFrozenError)
+			require.ErrorIs(t, err, queries.ItemFrozenError)
 
 			for _, itemId := range itemIds {
 				isHidden, err := queries.IsItemHidden(db, itemId)

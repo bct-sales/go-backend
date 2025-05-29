@@ -105,8 +105,7 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 			}
 		}
 		{
-			var itemFrozenError *queries.ItemFrozenError
-			if errors.As(err, &itemFrozenError) {
+			if errors.Is(err, queries.ItemFrozenError) {
 				failure_response.CannotUpdateFrozenItem(context, err.Error())
 				return
 			}

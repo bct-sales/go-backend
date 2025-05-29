@@ -157,9 +157,7 @@ func TestUpdateItem(t *testing.T) {
 
 			itemUpdate := queries.ItemUpdate{}
 			err := queries.UpdateItem(db, item.ItemId, &itemUpdate)
-
-			var itemFrozenError *queries.ItemFrozenError
-			require.ErrorAs(t, err, &itemFrozenError)
+			require.ErrorIs(t, err, queries.ItemFrozenError)
 		})
 
 		t.Run("Hidden item", func(t *testing.T) {
