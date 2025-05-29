@@ -269,7 +269,7 @@ func CheckUserRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) error
 	}
 
 	if user.RoleId != expectedRoleId {
-		return fmt.Errorf("user %d expected to have role %d: %w", userId, expectedRoleId, InvalidRoleError)
+		return fmt.Errorf("user %d expected to have role %d: %w", userId, expectedRoleId, ErrInvalidRole)
 	}
 
 	return nil
@@ -333,7 +333,7 @@ func GetSellerItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 			return 0, fmt.Errorf("failed to check user in GetSellerItemCount: %w", err)
 		}
 		if seller.RoleId != models.SellerRoleId {
-			return 0, fmt.Errorf("failed to get item count of non-seller %d: %w", sellerId, InvalidRoleError)
+			return 0, fmt.Errorf("failed to get item count of non-seller %d: %w", sellerId, ErrInvalidRole)
 		}
 	}
 
@@ -364,7 +364,7 @@ func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 			return 0, err
 		}
 		if seller.RoleId != models.SellerRoleId {
-			return 0, fmt.Errorf("failed to get frozen item count of non-seller %d: %w", sellerId, InvalidRoleError)
+			return 0, fmt.Errorf("failed to get frozen item count of non-seller %d: %w", sellerId, ErrInvalidRole)
 		}
 	}
 
@@ -393,7 +393,7 @@ func GetSellerHiddenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 			return 0, err
 		}
 		if seller.RoleId != models.SellerRoleId {
-			return 0, fmt.Errorf("failed to get hidden item count of non-seller %d: %w", sellerId, InvalidRoleError)
+			return 0, fmt.Errorf("failed to get hidden item count of non-seller %d: %w", sellerId, ErrInvalidRole)
 		}
 	}
 
@@ -422,7 +422,7 @@ func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id, itemSelection
 			return 0, err
 		}
 		if cashier.RoleId != models.SellerRoleId {
-			return 0, fmt.Errorf("failed to get total price of all items of non-seller %d: %w", sellerId, InvalidRoleError)
+			return 0, fmt.Errorf("failed to get total price of all items of non-seller %d: %w", sellerId, ErrInvalidRole)
 		}
 	}
 

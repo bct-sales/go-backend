@@ -94,7 +94,7 @@ func TestGetSellerItemCount(t *testing.T) {
 			cashier := setup.Cashier()
 
 			_, err := queries.GetSellerItemCount(db, cashier.UserId)
-			require.ErrorIs(t, err, queries.InvalidRoleError)
+			require.ErrorIs(t, err, queries.ErrInvalidRole)
 		})
 
 		t.Run("Count items of admin", func(t *testing.T) {
@@ -104,7 +104,7 @@ func TestGetSellerItemCount(t *testing.T) {
 			admin := setup.Admin()
 
 			_, err := queries.GetSellerItemCount(db, admin.UserId)
-			require.ErrorIs(t, err, queries.InvalidRoleError)
+			require.ErrorIs(t, err, queries.ErrInvalidRole)
 		})
 	})
 }

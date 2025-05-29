@@ -68,7 +68,7 @@ func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 			return
 		}
 
-		if errors.Is(err, queries.InvalidRoleError) {
+		if errors.Is(err, queries.ErrInvalidRole) {
 			failure_response.WrongUser(context, "Can only list items of sellers")
 			return
 		}

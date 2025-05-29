@@ -170,7 +170,7 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 					return
 				}
 			}
-			if errors.Is(err, queries.InvalidRoleError) {
+			if errors.Is(err, queries.ErrInvalidRole) {
 				failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
 				return
 			}
@@ -195,7 +195,7 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 				failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
 				return
 			}
-			if errors.Is(err, queries.InvalidRoleError) {
+			if errors.Is(err, queries.ErrInvalidRole) {
 				failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
 				return
 			}

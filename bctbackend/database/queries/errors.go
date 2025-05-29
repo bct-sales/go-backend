@@ -10,7 +10,7 @@ var ErrUserIdAlreadyInUse = errors.New("user id already in use")
 var ErrNoSuchItem = errors.New("no such item")
 var ErrSaleMissingItems = errors.New("sale must have at least one item")
 var ErrSaleRequiresCashier = errors.New("sale requires a cashier")
-var InvalidRoleError = errors.New("user has an invalid role")
+var ErrInvalidRole = errors.New("user has an invalid role")
 var NoSuchUserError = errors.New("no such user")
 
 type WrongPasswordError struct{}
