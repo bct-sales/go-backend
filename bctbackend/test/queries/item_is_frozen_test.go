@@ -39,8 +39,7 @@ func TestItemIsFrozen(t *testing.T) {
 			invalidId := models.Id(1)
 
 			_, err := queries.IsItemFrozen(db, invalidId)
-			var noSuchItemError *queries.NoSuchItemError
-			require.ErrorAs(t, err, &noSuchItemError)
+			require.ErrorIs(t, err, queries.NoSuchItemError)
 		})
 	})
 }

@@ -7,10 +7,7 @@ import (
 )
 
 var UserIdAlreadyInUseError = errors.New("user id already in use")
-
-type NoSuchItemError struct {
-	Id *models.Id
-}
+var NoSuchItemError = errors.New("no such item")
 
 var ErrSaleMissingItems = errors.New("sale must have at least one item")
 var ErrSaleRequiresCashier = errors.New("sale requires a cashier")
@@ -70,18 +67,6 @@ func (err *NoSuchSaleError) Error() string {
 
 func (err *NoSuchCategoryError) Error() string {
 	return fmt.Sprintf("no category with id %v", err.CategoryId)
-}
-
-func (e *NoSuchItemError) Error() string {
-	if e.Id == nil {
-		return "item not found"
-	} else {
-		return fmt.Sprintf("item with id %d not found", *e.Id)
-	}
-}
-
-func (e *NoSuchItemError) Unwrap() error {
-	return nil
 }
 
 func (e *NoSuchUserError) Error() string {

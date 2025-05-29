@@ -4,6 +4,7 @@ import (
 	models "bctbackend/database/models"
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
 type SaleItemInformation struct {
@@ -39,7 +40,7 @@ func GetSaleItemInformation(
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, &NoSuchItemError{Id: &itemId}
+		return nil, fmt.Errorf("failed to get information about item %d: %w", itemId, NoSuchItemError)
 	}
 
 	if err != nil {

@@ -54,7 +54,7 @@ func AddSale(
 		return 0, err
 	}
 	if !exists {
-		return 0, &NoSuchItemError{Id: nil}
+		return 0, fmt.Errorf("failed to add sale: %w", NoSuchItemError)
 	}
 
 	// Check if any of the items are hidden
@@ -390,7 +390,7 @@ func GetItemsSoldBy(db *sql.DB, cashierId models.Id) (r_result []*models.Item, r
 func GetSalesWithItem(db *sql.DB, itemId models.Id) (r_result []models.Id, r_err error) {
 	if itemExists, err := ItemWithIdExists(db, itemId); err != nil || !itemExists {
 		if !itemExists {
-			return nil, &NoSuchItemError{Id: &itemId}
+			return nil, fmt.Errorf("failed to get sales with item %d: %w", itemId, NoSuchItemError)
 		}
 
 		return nil, err

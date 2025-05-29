@@ -66,12 +66,9 @@ func AddSale(context *gin.Context, db *sql.DB, userId models.Id, roleId models.I
 			}
 		}
 
-		{
-			var NoSuchItemError *queries.NoSuchItemError
-			if errors.As(err, &NoSuchItemError) {
-				failure_response.UnknownItem(context, err.Error())
-				return
-			}
+		if errors.Is(err, queries.NoSuchItemError) {
+			failure_response.UnknownItem(context, err.Error())
+			return
 		}
 
 		if errors.Is(err, queries.ErrSaleRequiresCashier) {

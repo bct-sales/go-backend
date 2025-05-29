@@ -33,8 +33,7 @@ func TestGetItemWithId(t *testing.T) {
 
 			itemId := models.Id(1)
 			_, err := queries.GetItemWithId(db, itemId)
-			var NoSuchItemError *queries.NoSuchItemError
-			require.ErrorAs(t, err, &NoSuchItemError)
+			require.ErrorIs(t, err, queries.NoSuchItemError)
 		})
 	})
 }

@@ -54,8 +54,7 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 
 	item, err := queries.GetItemWithId(db, itemId)
 	if err != nil {
-		var noSuchItemError *queries.NoSuchItemError
-		if errors.As(err, &noSuchItemError) {
+		if errors.Is(err, queries.NoSuchItemError) {
 			failure_response.UnknownItem(context, err.Error())
 			return
 		}
@@ -88,8 +87,7 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 	}
 	if err := queries.UpdateItem(db, itemId, &itemUpdate); err != nil {
 		{
-			var noSuchItemError *queries.NoSuchItemError
-			if errors.As(err, &noSuchItemError) {
+			if errors.Is(err, queries.NoSuchItemError) {
 				slog.Error(
 					"Failed to update item",
 					"itemId", itemId,
