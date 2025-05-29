@@ -49,6 +49,7 @@ func CreatePutRequest[T any](url string, payload *T, options ...func(*http.Reque
 }
 
 func createCookie(name string, value string) *http.Cookie {
+	//exhaustruct:ignore
 	return &http.Cookie{
 		Name:     name,
 		Value:    value,

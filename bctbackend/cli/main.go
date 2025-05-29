@@ -199,10 +199,12 @@ func ProcessCommandLineArguments(arguments []string) error {
 		}
 	}
 
+	//exhaustruct:ignore
 	app := &cli.App{
 		Name:  "bctbackend",
 		Usage: "Backend for the BCT sales site",
 		Flags: []cli.Flag{
+			//exhaustruct:ignore
 			&cli.BoolFlag{
 				Name:  "verbose",
 				Usage: "enable verbose output",
@@ -242,6 +244,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 								Name:  "items",
 								Usage: "export items as csv",
 								Flags: []cli.Flag{
+									//exhaustruct:ignore
 									&cli.BoolFlag{
 										Name:        "show-hidden",
 										Usage:       "show hidden items",
@@ -266,6 +269,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "init",
 						Usage: "creates new database; refuses to overwrite existing database",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.BoolFlag{
 								Name:        "no-categories",
 								Usage:       "do not add default categories",
@@ -283,6 +287,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "reset",
 						Usage: "resets database; all data will be lost!",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.BoolFlag{
 								Name:        "no-categories",
 								Usage:       "do not add default categories",
@@ -307,6 +312,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "backup",
 						Usage: "makes a backup",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.StringFlag{
 								Name:        "target",
 								Usage:       "filename of the backup",
@@ -329,18 +335,21 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "add",
 						Usage: "add a new user",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.StringFlag{
 								Name:        "role",
 								Usage:       "role of the user (admin, seller, cashier)",
 								Destination: &options.user.add.role,
 								Required:    true,
 							},
+							//exhaustruct:ignore
 							&cli.Int64Flag{
 								Name:        "id",
 								Usage:       "id of the user",
 								Destination: &options.user.add.id,
 								Required:    true,
 							},
+							//exhaustruct:ignore
 							&cli.StringFlag{
 								Name:        "password",
 								Usage:       "password of the user",
@@ -359,17 +368,20 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "add-sellers",
 						Usage: "add sellers with random passwords",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.Uint64Flag{
 								Name:        "seed",
 								Usage:       "seed for the random number generator",
 								Destination: &options.user.addSellers.seed,
 								Required:    false,
 							},
+							//exhaustruct:ignore
 							&cli.StringSliceFlag{
 								Name:     "zones",
 								Usage:    "zones for the sellers",
 								Required: true,
 							},
+							//exhaustruct:ignore
 							&cli.IntFlag{
 								Name:        "per-zone",
 								Usage:       "number of sellers per zone",
@@ -396,6 +408,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "remove",
 						Usage: "remove a user",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.Int64Flag{
 								Name:        "id",
 								Usage:       "id of the user",
@@ -419,6 +432,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "show",
 						Usage: "show information about a user",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.Int64Flag{
 								Name:        "id",
 								Usage:       "id of the user",
@@ -435,12 +449,14 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "set-password",
 						Usage: "set password for a user",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.Int64Flag{
 								Name:        "id",
 								Usage:       "id of the user",
 								Destination: &options.user.setPassword.id,
 								Required:    true,
 							},
+							//exhaustruct:ignore
 							&cli.StringFlag{
 								Name:        "password",
 								Usage:       "new password for the user",
@@ -464,6 +480,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "list",
 						Usage: "list all items",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.BoolFlag{
 								Name:        "show-hidden",
 								Usage:       "show hidden items",
@@ -481,36 +498,42 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "add",
 						Usage: "add a new item",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.StringFlag{
 								Name:        "description",
 								Usage:       "description of the item",
 								Destination: &options.item.add.description,
 								Required:    true,
 							},
+							//exhaustruct:ignore
 							&cli.Int64Flag{
 								Name:        "category",
 								Usage:       "category of the item",
 								Destination: &options.item.add.category,
 								Required:    true,
 							},
+							//exhaustruct:ignore
 							&cli.Int64Flag{
 								Name:        "price-in-cents",
 								Usage:       "price of the item in cents",
 								Destination: &options.item.add.price,
 								Required:    true,
 							},
+							//exhaustruct:ignore
 							&cli.Int64Flag{
 								Name:        "seller",
 								Usage:       "id of the seller",
 								Destination: &options.item.add.seller,
 								Required:    true,
 							},
+							//exhaustruct:ignore
 							&cli.BoolFlag{
 								Name:        "donation",
 								Usage:       "is the item a donation?",
 								Destination: &options.item.add.donation,
 								Value:       false,
 							},
+							//exhaustruct:ignore
 							&cli.BoolFlag{
 								Name:        "charity",
 								Usage:       "is the item a charity?",
@@ -533,6 +556,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "remove",
 						Usage: "remove an item",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.Int64Flag{
 								Name:        "id",
 								Usage:       "id of the item",
@@ -549,6 +573,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "show",
 						Usage: "show information about an item",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.Int64Flag{
 								Name:        "id",
 								Usage:       "id of the item",
@@ -565,6 +590,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "freeze",
 						Usage: "freeze an item",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.Int64Flag{
 								Name:        "id",
 								Usage:       "id of the item",
@@ -581,6 +607,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "unfreeze",
 						Usage: "unfreeze an item",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.Int64Flag{
 								Name:        "id",
 								Usage:       "id of the item",
@@ -597,6 +624,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "hide",
 						Usage: "hides an item",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.Int64Flag{
 								Name:        "id",
 								Usage:       "id of the item",
@@ -613,6 +641,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "unhide",
 						Usage: "unhides an item",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.Int64Flag{
 								Name:        "id",
 								Usage:       "id of the item",
@@ -642,6 +671,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "add",
 						Usage: "add a new sale",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.Int64Flag{
 								Name:        "cashier",
 								Usage:       "id of the cashier",
@@ -670,6 +700,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "show",
 						Usage: "show a sale",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.Int64Flag{
 								Name:        "sale",
 								Usage:       "id of the sale",
@@ -699,6 +730,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "counts",
 						Usage: "list the number of items in each category",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.BoolFlag{
 								Name:        "include-hidden",
 								Usage:       "include hidden items",
@@ -716,12 +748,14 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "add",
 						Usage: "add a new category",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.Int64Flag{
 								Name:        "id",
 								Usage:       "id of the category",
 								Destination: &options.category.add.id,
 								Required:    true,
 							},
+							//exhaustruct:ignore
 							&cli.StringFlag{
 								Name:        "name",
 								Usage:       "name of the category",
@@ -746,24 +780,28 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "raw",
 						Usage: "generate a raw barcode",
 						Flags: []cli.Flag{
+							//exhaustruct:ignore
 							&cli.StringFlag{
 								Name:        "data",
 								Usage:       "data to encode in the barcode",
 								Destination: &options.barcode.raw.data,
 								Required:    true,
 							},
+							//exhaustruct:ignore
 							&cli.StringFlag{
 								Name:        "output",
 								Usage:       "filename to save the barcode to",
 								Destination: &options.barcode.raw.outputPath,
 								Required:    true,
 							},
+							//exhaustruct:ignore
 							&cli.IntFlag{
 								Name:        "width",
 								Usage:       "width of the barcode",
 								Destination: &options.barcode.raw.width,
 								Value:       200,
 							},
+							//exhaustruct:ignore
 							&cli.IntFlag{
 								Name:        "height",
 								Usage:       "height of the barcode",

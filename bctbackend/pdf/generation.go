@@ -280,6 +280,7 @@ func (builder *PdfBuilder) setFont() error {
 }
 
 func (builder *PdfBuilder) registerImage(imageName string, imageBuffer *bytes.Buffer) error {
+	//exhaustruct:ignore
 	imageOptions := fpdf.ImageOptions{
 		ImageType: "png",
 		ReadDpi:   true,
