@@ -14,7 +14,7 @@ type NoSuchItemError struct {
 	Id *models.Id
 }
 
-type SaleMissingItemsError struct{}
+var SaleMissingItemsError = errors.New("sale must have at least one item")
 
 type SaleRequiresCashierError struct{}
 
@@ -89,10 +89,6 @@ func (e *NoSuchItemError) Error() string {
 
 func (e *NoSuchItemError) Unwrap() error {
 	return nil
-}
-
-func (e *SaleMissingItemsError) Error() string {
-	return "sale must have at least one item"
 }
 
 func (e *SaleRequiresCashierError) Error() string {
