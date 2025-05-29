@@ -22,7 +22,7 @@ func AddSale(
 
 	// Ensure there is at least one item in the sale.
 	if len(itemIds) == 0 {
-		return 0, SaleMissingItemsError
+		return 0, ErrSaleMissingItems
 	}
 
 	// Check for duplicates in the item IDs.
