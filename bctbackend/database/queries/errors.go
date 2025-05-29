@@ -6,9 +6,7 @@ import (
 	"fmt"
 )
 
-type UserIdAlreadyInUseError struct {
-	UserId models.Id
-}
+var UserIdAlreadyInUseError = errors.New("user id already in use")
 
 type NoSuchItemError struct {
 	Id *models.Id
@@ -65,10 +63,6 @@ var InvalidCategoryNameError = errors.New("category name is invalid")
 type CategoryIdAlreadyInUseError struct{}
 
 type HiddenFrozenItemError struct{}
-
-func (err *UserIdAlreadyInUseError) Error() string {
-	return fmt.Sprintf("user id %d already in use", err.UserId)
-}
 
 func (err *NoSuchSaleError) Error() string {
 	return fmt.Sprintf("no sale with id %v", err.SaleId)

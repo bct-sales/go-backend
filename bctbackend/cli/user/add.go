@@ -27,11 +27,6 @@ func AddUser(databasePath string, userId models.Id, role string, password string
 	var lastActivity *models.Timestamp = nil
 
 	if err := queries.AddUserWithId(db, userId, roleId, timestamp, lastActivity, password); err != nil {
-		var userIdAlreadyInUseError *queries.UserIdAlreadyInUseError
-		if errors.As(err, &userIdAlreadyInUseError) {
-			return fmt.Errorf("user ID %d is already in use", userId)
-		}
-
 		return err
 	}
 
