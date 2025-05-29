@@ -101,6 +101,7 @@ func GetMultiplySoldItems(db *sql.DB) (r_result []MultiplySoldItem, r_err error)
 					Donation:     rowData.Donation,
 					Charity:      rowData.Charity,
 					Frozen:       rowData.Frozen,
+					Hidden:       false,
 				},
 				Sales: []models.Sale{sale},
 			}
