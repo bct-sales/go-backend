@@ -149,7 +149,7 @@ func GetSaleWithId(db *sql.DB, saleId models.Id) (models.Sale, error) {
 	).Scan(&sale.SaleId, &sale.CashierId, &sale.TransactionTime)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return sale, &NoSuchSaleError{SaleId: saleId}
+		return sale, fmt.Errorf("failed to get sale with id %d: %w", saleId, NoSuchSaleError)
 	}
 
 	if err != nil {
@@ -191,7 +191,7 @@ func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []models.Item, r_err e
 	}
 
 	if !saleExists {
-		return nil, &NoSuchSaleError{SaleId: saleId}
+		return nil, fmt.Errorf("failed to get items of sale %d: %w", saleId, NoSuchSaleError)
 	}
 
 	rows, err := db.Query(
@@ -234,7 +234,7 @@ func RemoveSale(db *sql.DB, saleId models.Id) (r_err error) {
 	}
 
 	if !saleExists {
-		return &NoSuchSaleError{SaleId: saleId}
+		return fmt.Errorf("failed to remove sale %d: %w", saleId, NoSuchSaleError)
 	}
 
 	transaction, err := NewTransaction(db)

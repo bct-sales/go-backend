@@ -57,5 +57,5 @@ func TestGetSaleItemsOfNonexistentSale(t *testing.T) {
 	_, err = queries.GetSaleItems(db, saleId)
 
 	require.Error(t, err)
-	require.IsType(t, &queries.NoSuchSaleError{}, err)
+	require.ErrorIs(t, err, queries.NoSuchSaleError)
 }
