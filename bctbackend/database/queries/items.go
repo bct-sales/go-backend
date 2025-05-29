@@ -499,14 +499,12 @@ func UpdateHiddenStatusOfItems(db *sql.DB, itemIds []models.Id, hidden bool) (r_
 	return nil
 }
 
-// PartitionItemsByHiddenStatus partitions the given item IDs into two sets: one for unhidden items and one for hidden items.
-// If an item ID does not exist in the database, it is ignored.
-func PartitionItemsByHiddenStatus(db QueryHandler, itemIds []models.Id) (*algorithms.Set[models.Id], *algorithms.Set[models.Id], error) {
+func partitionItemsBy(db QueryHandler, itemIds []models.Id, columnName string) (*algorithms.Set[models.Id], *algorithms.Set[models.Id], error) {
 	query := fmt.Sprintf(`
-		SELECT item_id, hidden
+		SELECT item_id, %s
 		FROM items
 		WHERE item_id IN (%s)
-	`, placeholderString(len(itemIds)))
+	`, columnName, placeholderString(len(itemIds)))
 	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
 	rows, err := db.Query(query, convertedItemIds...)
 	if err != nil {
@@ -535,40 +533,16 @@ func PartitionItemsByHiddenStatus(db QueryHandler, itemIds []models.Id) (*algori
 	return &unhidden, &hidden, nil
 }
 
+// PartitionItemsByHiddenStatus partitions the given item IDs into two sets: one for unhidden items and one for hidden items.
+// If an item ID does not exist in the database, it is ignored.
+func PartitionItemsByHiddenStatus(db QueryHandler, itemIds []models.Id) (*algorithms.Set[models.Id], *algorithms.Set[models.Id], error) {
+	return partitionItemsBy(db, itemIds, "hidden")
+}
+
 // PartitionItemsByFrozenStatus partitions the given item IDs into two sets: one for nonfrozen items and one for frozen items.
 // If an item ID does not exist in the database, it is ignored.
 func PartitionItemsByFrozenStatus(db QueryHandler, itemIds []models.Id) (*algorithms.Set[models.Id], *algorithms.Set[models.Id], error) {
-	query := fmt.Sprintf(`
-		SELECT item_id, frozen
-		FROM items
-		WHERE item_id IN (%s)
-	`, placeholderString(len(itemIds)))
-	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
-	rows, err := db.Query(query, convertedItemIds...)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to query items: %w", err)
-	}
-	defer func() { err = errors.Join(err, rows.Close()) }()
-
-	nonfrozen := algorithms.NewSet[models.Id]()
-	frozen := algorithms.NewSet[models.Id]()
-	for rows.Next() {
-		var id models.Id
-		var frozenStatus bool
-
-		err = rows.Scan(&id, &frozenStatus)
-		if err != nil {
-			return nil, nil, fmt.Errorf("failed to scan items: %w", err)
-		}
-
-		if frozenStatus {
-			frozen.Add(id)
-		} else {
-			nonfrozen.Add(id)
-		}
-	}
-
-	return &nonfrozen, &frozen, nil
+	return partitionItemsBy(db, itemIds, "frozen")
 }
 
 // ContainsHiddenItems checks if any of the given items are hidden.
