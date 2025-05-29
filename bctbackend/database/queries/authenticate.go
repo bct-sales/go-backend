@@ -35,7 +35,7 @@ func AuthenticateUser(db *sql.DB, userId models.Id, password string) (models.Id,
 	}
 
 	if expectedPassword != password {
-		return 0, &WrongPasswordError{}
+		return 0, WrongPasswordError
 	}
 
 	return roleId, nil

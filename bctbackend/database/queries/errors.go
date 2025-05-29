@@ -12,8 +12,7 @@ var ErrSaleMissingItems = errors.New("sale must have at least one item")
 var ErrSaleRequiresCashier = errors.New("sale requires a cashier")
 var ErrInvalidRole = errors.New("user has an invalid role")
 var ErrNoSuchUser = errors.New("no such user")
-
-type WrongPasswordError struct{}
+var WrongPasswordError = errors.New("wrong password")
 
 type NoSessionFoundError struct{}
 
@@ -59,10 +58,6 @@ func (err *NoSuchSaleError) Error() string {
 
 func (err *NoSuchCategoryError) Error() string {
 	return fmt.Sprintf("no category with id %v", err.CategoryId)
-}
-
-func (e *WrongPasswordError) Error() string {
-	return "wrong password"
 }
 
 func (e *NoSessionFoundError) Error() string {

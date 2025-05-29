@@ -58,7 +58,6 @@ func TestAuthentication(t *testing.T) {
 		queries.AddUserWithId(db, userId, roleId, 0, nil, password)
 
 		_, err := queries.AuthenticateUser(db, userId, wrongPassword)
-		var wrongPasswordError *queries.WrongPasswordError
-		require.ErrorAs(t, err, &wrongPasswordError)
+		require.ErrorIs(t, err, queries.WrongPasswordError)
 	})
 }
