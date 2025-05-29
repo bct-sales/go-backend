@@ -608,7 +608,7 @@ func EnsureNoHiddenItems(qh QueryHandler, itemIds []models.Id) error {
 	}
 
 	if containsHidden {
-		return &ItemFrozenError{}
+		return &ItemHiddenError{}
 	}
 
 	return nil
