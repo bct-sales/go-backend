@@ -15,7 +15,6 @@ type NoSuchItemError struct {
 }
 
 var SaleMissingItemsError = errors.New("sale must have at least one item")
-
 var SaleRequiresCashierError = errors.New("sale requires a cashier")
 
 type InvalidRoleError struct {
