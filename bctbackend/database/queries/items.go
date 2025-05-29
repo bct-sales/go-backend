@@ -512,8 +512,8 @@ func partitionItemsBy(db QueryHandler, itemIds []models.Id, columnName string) (
 	}
 	defer func() { err = errors.Join(err, rows.Close()) }()
 
-	unhidden := algorithms.NewSet[models.Id]()
-	hidden := algorithms.NewSet[models.Id]()
+	falseSet := algorithms.NewSet[models.Id]()
+	trueSet := algorithms.NewSet[models.Id]()
 	for rows.Next() {
 		var id models.Id
 		var hiddenStatus bool
@@ -524,13 +524,13 @@ func partitionItemsBy(db QueryHandler, itemIds []models.Id, columnName string) (
 		}
 
 		if hiddenStatus {
-			hidden.Add(id)
+			trueSet.Add(id)
 		} else {
-			unhidden.Add(id)
+			falseSet.Add(id)
 		}
 	}
 
-	return &unhidden, &hidden, nil
+	return &falseSet, &trueSet, nil
 }
 
 // PartitionItemsByHiddenStatus partitions the given item IDs into two sets: one for unhidden items and one for hidden items.
