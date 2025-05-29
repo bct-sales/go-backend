@@ -585,8 +585,8 @@ func ContainsFrozenItems(qh QueryHandler, itemIds []models.Id) (bool, error) {
 }
 
 // IsItemFrozen checks if none of the items is frozen.
-func EnsureNoFrozenItems(db *sql.DB, itemIds []models.Id) error {
-	containsFrozen, err := ContainsFrozenItems(db, itemIds)
+func EnsureNoFrozenItems(qh QueryHandler, itemIds []models.Id) error {
+	containsFrozen, err := ContainsFrozenItems(qh, itemIds)
 
 	if err != nil {
 		return fmt.Errorf("failed to check for frozen items: %w", err)
