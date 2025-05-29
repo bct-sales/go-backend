@@ -599,6 +599,21 @@ func EnsureNoFrozenItems(db *sql.DB, itemIds []models.Id) error {
 	return nil
 }
 
+// EnsureNoHiddenItems checks if none of the items is hidden.
+func EnsureNoHiddenItems(db *sql.DB, itemIds []models.Id) error {
+	containsHidden, err := ContainsHiddenItems(db, itemIds)
+
+	if err != nil {
+		return fmt.Errorf("failed to check for hidden items: %w", err)
+	}
+
+	if containsHidden {
+		return &ItemFrozenError{}
+	}
+
+	return nil
+}
+
 func IsItemFrozen(db *sql.DB, itemId models.Id) (bool, error) {
 	nonfrozen, frozen, err := PartitionItemsByFrozenStatus(db, []models.Id{itemId})
 	if err != nil {
