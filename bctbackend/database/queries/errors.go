@@ -13,7 +13,7 @@ var ErrSaleRequiresCashier = errors.New("sale requires a cashier")
 var ErrInvalidRole = errors.New("user has an invalid role")
 var ErrNoSuchUser = errors.New("no such user")
 var ErrWrongPassword = errors.New("wrong password")
-var NoSessionFoundError = errors.New("no session found")
+var ErrNoSessionFound = errors.New("no session found")
 var NoSuchSaleError = errors.New("no such sale")
 
 type NoSuchSessionError struct {
