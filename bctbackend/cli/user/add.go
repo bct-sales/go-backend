@@ -7,20 +7,21 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/urfave/cli/v2"
 	_ "modernc.org/sqlite"
 )
 
 func AddUser(databasePath string, userId models.Id, role string, password string) (r_err error) {
 	db, err := database.OpenDatabase(databasePath)
 	if err != nil {
-		return fmt.Errorf("failed to connect to database: %w", err)
+		return cli.Exit("Failed to connect to database", 1)
 	}
 
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	roleId, err := models.ParseRole(role)
 	if err != nil {
-		return fmt.Errorf("invalid role %v; should be admin, seller or cashier", role)
+		return cli.Exit("Invalid role; should be admin, seller or cashier", 1)
 	}
 
 	timestamp := models.Now()

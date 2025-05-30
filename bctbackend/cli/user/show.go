@@ -39,7 +39,7 @@ func ShowUser(databasePath string, userId models.Id) (r_err error) {
 	case models.CashierRoleId:
 		return showCashier(db, user)
 	default:
-		return fmt.Errorf("unknown role id: %d", user.RoleId)
+		return cli.Exit(fmt.Sprintf("Bug encountered: user has unrecognized role %d", user.RoleId), 1)
 	}
 }
 

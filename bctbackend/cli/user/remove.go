@@ -7,13 +7,14 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/urfave/cli/v2"
 	_ "modernc.org/sqlite"
 )
 
 func RemoveUser(databasePath string, userId models.Id) (r_err error) {
 	db, err := database.OpenDatabase(databasePath)
 	if err != nil {
-		return fmt.Errorf("failed to connect to database: %w", err)
+		return cli.Exit("Failed to connect to database", 1)
 	}
 
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
