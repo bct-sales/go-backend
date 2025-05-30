@@ -7,6 +7,7 @@ import (
 	"bctbackend/rest/failure_response"
 	"database/sql"
 	"errors"
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -74,6 +75,7 @@ func AddSale(context *gin.Context, db *sql.DB, userId models.Id, roleId models.I
 			return
 		}
 
+		slog.Error("Failed to add sale", "error", err)
 		failure_response.Unknown(context, "Failed to add sale: "+err.Error())
 		return
 	}
