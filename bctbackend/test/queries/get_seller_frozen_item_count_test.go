@@ -19,11 +19,15 @@ import (
 func TestGetSellerFrozenItemCount(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Single seller", func(t *testing.T) {
+			t.Parallel()
+
 			for _, frozenVisibleItemCount := range []int{0, 1, 2} {
 				for _, unfrozenHiddenItemCount := range []int{0, 1, 2} {
 					for _, unfrozenVisibleItemCount := range []int{0, 1, 2} {
 						testLabel := fmt.Sprintf("Seller with %d frozen visible items, %d unfrozen hidden items, and %d unfrozen visible items", frozenVisibleItemCount, unfrozenHiddenItemCount, unfrozenVisibleItemCount)
 						t.Run(testLabel, func(t *testing.T) {
+							t.Parallel()
+
 							setup, db := NewDatabaseFixture(WithDefaultCategories)
 							defer setup.Close()
 

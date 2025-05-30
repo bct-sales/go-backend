@@ -20,6 +20,8 @@ func TestItemIsHidden(t *testing.T) {
 		for _, hidden := range []bool{true, false} {
 			testLabel := fmt.Sprintf("Hidden %t", hidden)
 			t.Run(testLabel, func(t *testing.T) {
+				t.Parallel()
+
 				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 

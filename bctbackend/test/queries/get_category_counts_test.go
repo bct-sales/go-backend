@@ -106,6 +106,8 @@ func TestGetCategoryCounts(t *testing.T) {
 				for _, expectedCounts := range countTables {
 					testLabel := fmt.Sprintf("Count table %v", expectedCounts)
 					t.Run(testLabel, func(t *testing.T) {
+						t.Parallel()
+
 						setup, db := NewDatabaseFixture(WithDefaultCategories)
 						defer setup.Close()
 
@@ -226,6 +228,8 @@ func TestGetCategoryCounts(t *testing.T) {
 				for _, expectedCounts := range countTables {
 					testLabel := fmt.Sprintf("Count table %v", expectedCounts)
 					t.Run(testLabel, func(t *testing.T) {
+						t.Parallel()
+
 						setup, db := NewDatabaseFixture(WithDefaultCategories)
 						defer setup.Close()
 

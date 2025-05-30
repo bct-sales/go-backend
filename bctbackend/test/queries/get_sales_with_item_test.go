@@ -21,6 +21,8 @@ func TestGetSalesWithItem(t *testing.T) {
 			testLabel := fmt.Sprintf("Sale count: %d", saleCount)
 
 			t.Run(testLabel, func(t *testing.T) {
+				t.Parallel()
+
 				saleCount := 0
 				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()

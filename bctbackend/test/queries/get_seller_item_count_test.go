@@ -41,6 +41,8 @@ func TestGetSellerItemCount(t *testing.T) {
 			for _, itemCount := range []int{0, 1, 2, 10, 100} {
 				testLabel := fmt.Sprintf("Seller with %d items", itemCount)
 				t.Run(testLabel, func(t *testing.T) {
+					t.Parallel()
+
 					setup, db := NewDatabaseFixture(WithDefaultCategories)
 					defer setup.Close()
 

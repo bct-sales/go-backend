@@ -17,9 +17,12 @@ func TestCountItems(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Only visible items in count", func(t *testing.T) {
 			t.Run("No hidden items", func(t *testing.T) {
+				t.Parallel()
 				for _, count := range []int{0, 1, 2, 5, 10, 23} {
 					testLabel := fmt.Sprintf("%d unhidden items", count)
 					t.Run(testLabel, func(t *testing.T) {
+						t.Parallel()
+
 						setup, db := NewDatabaseFixture(WithDefaultCategories)
 						defer setup.Close()
 
@@ -48,9 +51,13 @@ func TestCountItems(t *testing.T) {
 
 		t.Run("All items in count", func(t *testing.T) {
 			t.Run("No hidden items", func(t *testing.T) {
+				t.Parallel()
+
 				for _, count := range []int{0, 1, 2, 5, 10, 23} {
 					testLabel := fmt.Sprintf("%d unhidden items", count)
 					t.Run(testLabel, func(t *testing.T) {
+						t.Parallel()
+
 						setup, db := NewDatabaseFixture(WithDefaultCategories)
 						defer setup.Close()
 

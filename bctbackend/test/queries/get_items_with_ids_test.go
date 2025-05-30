@@ -32,6 +32,8 @@ func TestGetItemsWithIds(t *testing.T) {
 		for _, selection := range selections {
 			testLabel := fmt.Sprintf("Selection: %v", selection)
 			t.Run(testLabel, func(t *testing.T) {
+				t.Parallel()
+
 				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
