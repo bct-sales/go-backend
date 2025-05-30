@@ -106,7 +106,7 @@ func AddSellerItem(context *gin.Context, db *sql.DB, userId models.Id, roleId mo
 		}
 
 		if errors.Is(err, database.ErrInvalidRole) {
-			slog.Error("BUG: failed to add item to non-seller; this error should have been caught earlier")
+			slog.Error("[BUG] Failed to add item to non-seller; this error should have been caught earlier")
 			failure_response.Unknown(context, "Bug: this error should not happen")
 			return
 		}
@@ -121,6 +121,7 @@ func AddSellerItem(context *gin.Context, db *sql.DB, userId models.Id, roleId mo
 			return
 		}
 
+		slog.Error("Failed to add seller item", "error", err)
 		failure_response.Unknown(context, err.Error())
 		return
 	}
