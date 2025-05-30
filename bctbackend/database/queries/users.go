@@ -387,15 +387,8 @@ func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 }
 
 func GetSellerHiddenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
-	// Ensure the user exists and is a seller
-	{
-		seller, err := GetUserWithId(db, sellerId)
-		if err != nil {
-			return 0, err
-		}
-		if seller.RoleId != models.SellerRoleId {
-			return 0, fmt.Errorf("failed to get hidden item count of non-seller %d: %w", sellerId, database.ErrInvalidRole)
-		}
+	if err := ensureUserRole(db, sellerId, models.SellerRoleId); err != nil {
+		return 0, fmt.Errorf("failed to get hidden item count of user %d: %w", sellerId, err)
 	}
 
 	query :=
