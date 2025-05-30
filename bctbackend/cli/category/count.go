@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/pterm/pterm"
+	"github.com/urfave/cli/v2"
 	_ "modernc.org/sqlite"
 )
 
@@ -35,7 +36,7 @@ func ListCategoryCounts(databasePath string, itemSelection queries.ItemSelection
 	for categoryId, categoryCount := range categoryCounts {
 		categoryNameString, ok := categoryTable[categoryId]
 		if !ok {
-			return fmt.Errorf("category ID %d not found in category table", categoryId)
+			return cli.Exit(fmt.Sprintf("Bug: unknown category %d", categoryId), 1)
 		}
 		categoryIdString := categoryId.String()
 		count := strconv.Itoa(categoryCount)
