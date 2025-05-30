@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/rest/failure_response"
@@ -53,22 +54,22 @@ func AddSale(context *gin.Context, db *sql.DB, userId models.Id, roleId models.I
 		payload.Items,
 	)
 	if err != nil {
-		if errors.Is(err, queries.ErrSaleMissingItems) {
+		if errors.Is(err, database.ErrSaleMissingItems) {
 			failure_response.SaleMissingItems(context, err.Error())
 			return
 		}
 
-		if errors.Is(err, queries.ErrDuplicateItemInSale) {
+		if errors.Is(err, database.ErrDuplicateItemInSale) {
 			failure_response.DuplicateItemInSale(context, err.Error())
 			return
 		}
 
-		if errors.Is(err, queries.ErrNoSuchItem) {
+		if errors.Is(err, database.ErrNoSuchItem) {
 			failure_response.UnknownItem(context, err.Error())
 			return
 		}
 
-		if errors.Is(err, queries.ErrSaleRequiresCashier) {
+		if errors.Is(err, database.ErrSaleRequiresCashier) {
 			failure_response.Unknown(context, "Bug: should never occur as this is checked before")
 			return
 		}

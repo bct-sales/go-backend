@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -48,5 +49,5 @@ func TestRemoveNonexistentSale(t *testing.T) {
 	defer setup.Close()
 
 	err := queries.RemoveSale(db, 0)
-	require.ErrorIs(t, err, queries.ErrNoSuchSale)
+	require.ErrorIs(t, err, database.ErrNoSuchSale)
 }

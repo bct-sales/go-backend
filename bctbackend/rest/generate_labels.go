@@ -2,6 +2,7 @@ package rest
 
 import (
 	"bctbackend/algorithms"
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/pdf"
@@ -56,7 +57,7 @@ func GenerateLabels(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 
 	itemTable, err := queries.GetItemsWithIds(db, payload.ItemIds)
 	if err != nil {
-		if errors.Is(err, queries.ErrNoSuchItem) {
+		if errors.Is(err, database.ErrNoSuchItem) {
 			failure_response.UnknownItem(context, err.Error())
 			return
 		}

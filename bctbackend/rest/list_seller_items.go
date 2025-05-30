@@ -2,6 +2,7 @@ package rest
 
 import (
 	"bctbackend/algorithms"
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/rest/failure_response"
@@ -63,12 +64,12 @@ func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 	}
 
 	if err := queries.CheckUserRole(db, uriSellerId, models.SellerRoleId); err != nil {
-		if errors.Is(err, queries.ErrNoSuchUser) {
+		if errors.Is(err, database.ErrNoSuchUser) {
 			failure_response.UnknownUser(context, err.Error())
 			return
 		}
 
-		if errors.Is(err, queries.ErrInvalidRole) {
+		if errors.Is(err, database.ErrInvalidRole) {
 			failure_response.WrongUser(context, "Can only list items of sellers")
 			return
 		}

@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	. "bctbackend/test/setup"
@@ -44,7 +45,7 @@ func TestAddCategoryWithId(t *testing.T) {
 			id := models.Id(1)
 			categoryName := ""
 			err := queries.AddCategoryWithId(db, id, categoryName)
-			require.ErrorIs(t, err, queries.ErrInvalidCategoryName)
+			require.ErrorIs(t, err, database.ErrInvalidCategoryName)
 		})
 
 		t.Run("Same id used twice", func(t *testing.T) {
@@ -56,7 +57,7 @@ func TestAddCategoryWithId(t *testing.T) {
 			id := models.Id(1)
 			categoryName := "xyz"
 			err := queries.AddCategoryWithId(db, id, categoryName)
-			require.ErrorIs(t, err, queries.ErrCategoryIdAlreadyInUse)
+			require.ErrorIs(t, err, database.ErrCategoryIdAlreadyInUse)
 		})
 	})
 }

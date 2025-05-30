@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/rest/failure_response"
@@ -94,28 +95,28 @@ func AddSellerItem(context *gin.Context, db *sql.DB, userId models.Id, roleId mo
 	)
 
 	if err != nil {
-		if errors.Is(err, queries.ErrNoSuchCategory) {
+		if errors.Is(err, database.ErrNoSuchCategory) {
 			failure_response.UnknownCategory(context, err.Error())
 			return
 		}
 
-		if errors.Is(err, queries.ErrNoSuchUser) {
+		if errors.Is(err, database.ErrNoSuchUser) {
 			failure_response.UnknownUser(context, err.Error())
 			return
 		}
 
-		if errors.Is(err, queries.ErrInvalidRole) {
+		if errors.Is(err, database.ErrInvalidRole) {
 			slog.Error("BUG: failed to add item to non-seller; this error should have been caught earlier")
 			failure_response.Unknown(context, "Bug: this error should not happen")
 			return
 		}
 
-		if errors.Is(err, queries.ErrInvalidPrice) {
+		if errors.Is(err, database.ErrInvalidPrice) {
 			failure_response.InvalidPrice(context, err.Error())
 			return
 		}
 
-		if errors.Is(err, queries.ErrInvalidItemDescription) {
+		if errors.Is(err, database.ErrInvalidItemDescription) {
 			failure_response.InvalidItemDescription(context, err.Error())
 			return
 		}

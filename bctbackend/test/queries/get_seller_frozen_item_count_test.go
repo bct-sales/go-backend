@@ -4,6 +4,7 @@ package queries
 
 import (
 	"bctbackend/algorithms"
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -79,7 +80,7 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 				setup.RequireNoSuchUsers(t, nonExistentSellerId)
 
 				_, err := queries.GetSellerFrozenItemCount(db, nonExistentSellerId)
-				require.ErrorIs(t, err, queries.ErrNoSuchUser)
+				require.ErrorIs(t, err, database.ErrNoSuchUser)
 			})
 
 			t.Run("Count frozen items of cashier", func(t *testing.T) {
@@ -89,7 +90,7 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 				cashier := setup.Cashier()
 
 				_, err := queries.GetSellerFrozenItemCount(db, cashier.UserId)
-				require.ErrorIs(t, err, queries.ErrInvalidRole)
+				require.ErrorIs(t, err, database.ErrInvalidRole)
 			})
 
 			t.Run("Count frozen items of admin", func(t *testing.T) {
@@ -99,7 +100,7 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 				admin := setup.Admin()
 
 				_, err := queries.GetSellerFrozenItemCount(db, admin.UserId)
-				require.ErrorIs(t, err, queries.ErrInvalidRole)
+				require.ErrorIs(t, err, database.ErrInvalidRole)
 			})
 		})
 	})

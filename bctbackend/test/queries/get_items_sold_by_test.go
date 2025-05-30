@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -167,7 +168,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 		setup.RequireNoSuchUsers(t, unknownCashierId)
 
 		_, err := queries.GetItemsSoldBy(db, unknownCashierId)
-		require.ErrorIs(t, err, queries.ErrNoSuchUser)
+		require.ErrorIs(t, err, database.ErrNoSuchUser)
 	})
 
 	t.Run("User has wrong role", func(t *testing.T) {
@@ -177,6 +178,6 @@ func TestGetItemsSoldBy(t *testing.T) {
 		seller := setup.Seller()
 
 		_, err := queries.GetItemsSoldBy(db, seller.UserId)
-		require.ErrorIs(t, err, queries.ErrInvalidRole)
+		require.ErrorIs(t, err, database.ErrInvalidRole)
 	})
 }

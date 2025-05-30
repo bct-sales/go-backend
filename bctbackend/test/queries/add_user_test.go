@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/database"
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	. "bctbackend/test/setup"
@@ -44,6 +45,6 @@ func TestAddUser(t *testing.T) {
 		require.False(t, models.IsValidRole(roleId), "sanity test: role id should be invalid")
 
 		_, err := queries.AddUser(db, roleId, createdAt, lastActivity, password)
-		require.ErrorIs(t, err, queries.ErrNoSuchRole)
+		require.ErrorIs(t, err, database.ErrNoSuchRole)
 	})
 }

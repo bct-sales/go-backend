@@ -1,6 +1,7 @@
 package queries
 
 import (
+	"bctbackend/database"
 	models "bctbackend/database/models"
 	"bctbackend/security"
 	"database/sql"
@@ -54,7 +55,7 @@ func GetSessionById(
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("failed to get session with id %s: %w", sessionId, ErrNoSuchSession)
+		return nil, fmt.Errorf("failed to get session with id %s: %w", sessionId, database.ErrNoSuchSession)
 	}
 
 	if err != nil {
@@ -90,7 +91,7 @@ func GetSessionData(db *sql.DB, sessionId models.SessionId) (*SessionData, error
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, ErrNoSessionFound
+		return nil, database.ErrNoSessionFound
 	}
 
 	if err != nil {

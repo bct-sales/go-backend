@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/rest/failure_response"
@@ -54,7 +55,7 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 
 	item, err := queries.GetItemWithId(db, itemId)
 	if err != nil {
-		if errors.Is(err, queries.ErrNoSuchItem) {
+		if errors.Is(err, database.ErrNoSuchItem) {
 			failure_response.UnknownItem(context, err.Error())
 			return
 		}
@@ -87,7 +88,7 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 		Charity:      payload.Charity,
 	}
 	if err := queries.UpdateItem(db, itemId, &itemUpdate); err != nil {
-		if errors.Is(err, queries.ErrNoSuchItem) {
+		if errors.Is(err, database.ErrNoSuchItem) {
 			slog.Error(
 				"Failed to update item",
 				"itemId", itemId,
@@ -101,11 +102,11 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 			failure_response.UnknownItem(context, err.Error())
 			return
 		}
-		if errors.Is(err, queries.ErrItemFrozen) {
+		if errors.Is(err, database.ErrItemFrozen) {
 			failure_response.CannotUpdateFrozenItem(context, err.Error())
 			return
 		}
-		if errors.Is(err, queries.ErrInvalidPrice) {
+		if errors.Is(err, database.ErrInvalidPrice) {
 			failure_response.InvalidPrice(context, err.Error())
 			return
 		}

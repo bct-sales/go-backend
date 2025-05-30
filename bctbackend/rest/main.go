@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/rest/failure_response"
@@ -65,7 +66,7 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 
 			sessionData, err := queries.GetSessionData(db, sessionId)
 
-			if errors.Is(err, queries.ErrNoSessionFound) {
+			if errors.Is(err, database.ErrNoSessionFound) {
 				slog.Info("Session not found")
 				failure_response.NoSuchSession(context, err.Error())
 				return

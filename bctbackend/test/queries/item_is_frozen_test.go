@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -39,7 +40,7 @@ func TestItemIsFrozen(t *testing.T) {
 			invalidId := models.Id(1)
 
 			_, err := queries.IsItemFrozen(db, invalidId)
-			require.ErrorIs(t, err, queries.ErrNoSuchItem)
+			require.ErrorIs(t, err, database.ErrNoSuchItem)
 		})
 	})
 }

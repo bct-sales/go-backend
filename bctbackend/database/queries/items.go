@@ -2,6 +2,7 @@ package queries
 
 import (
 	"bctbackend/algorithms"
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"database/sql"
 	"errors"
@@ -191,7 +192,7 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	err := row.Scan(&addedAt, &description, &priceInCents, &categoryId, &sellerId, &donation, &charity, &frozen, &hidden)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("while getting item with id %d: %w", itemId, ErrNoSuchItem)
+		return nil, fmt.Errorf("while getting item with id %d: %w", itemId, database.ErrNoSuchItem)
 	}
 
 	if err != nil {
@@ -250,7 +251,7 @@ func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (r_result map[models.Id]*m
 	if len(items) != len(itemIds) {
 		for _, itemId := range itemIds {
 			if _, ok := items[itemId]; !ok {
-				return nil, fmt.Errorf("while getting items, among which %d: %w", itemId, ErrNoSuchItem)
+				return nil, fmt.Errorf("while getting items, among which %d: %w", itemId, database.ErrNoSuchItem)
 			}
 		}
 
@@ -293,11 +294,11 @@ func AddItem(
 	hidden bool) (models.Id, error) {
 
 	if !models.IsValidPrice(priceInCents) {
-		return 0, fmt.Errorf("failed to add item with price %d: %w", priceInCents, ErrInvalidPrice)
+		return 0, fmt.Errorf("failed to add item with price %d: %w", priceInCents, database.ErrInvalidPrice)
 	}
 
 	if !models.IsValidItemDescription(description) {
-		return 0, fmt.Errorf("failed to add item with description %s: %w", description, ErrInvalidItemDescription)
+		return 0, fmt.Errorf("failed to add item with description %s: %w", description, database.ErrInvalidItemDescription)
 	}
 
 	if err := CheckUserRole(db, sellerId, models.SellerRoleId); err != nil {
@@ -305,7 +306,7 @@ func AddItem(
 	}
 
 	if frozen && hidden {
-		return 0, fmt.Errorf("failed to add item: %w", ErrHiddenFrozenItem)
+		return 0, fmt.Errorf("failed to add item: %w", database.ErrHiddenFrozenItem)
 	}
 
 	result, err := db.Exec(
@@ -332,7 +333,7 @@ func AddItem(
 		}
 
 		if !categoryExists {
-			return 0, fmt.Errorf("failed to add item with category %d: %w", itemCategoryId, ErrNoSuchCategory)
+			return 0, fmt.Errorf("failed to add item with category %d: %w", itemCategoryId, database.ErrNoSuchCategory)
 		}
 
 		return 0, err
@@ -407,7 +408,7 @@ func EnsureItemsExist(db QueryHandler, itemIds []models.Id) error {
 		return fmt.Errorf("failed to ensure items exist: %w", err)
 	}
 	if !itemsExist {
-		return fmt.Errorf("failed to ensure items exist: %w", ErrNoSuchItem)
+		return fmt.Errorf("failed to ensure items exist: %w", database.ErrNoSuchItem)
 	}
 
 	return nil
@@ -585,7 +586,7 @@ func EnsureNoFrozenItems(qh QueryHandler, itemIds []models.Id) error {
 	}
 
 	if containsFrozen {
-		return ErrItemFrozen
+		return database.ErrItemFrozen
 	}
 
 	return nil
@@ -600,7 +601,7 @@ func EnsureNoHiddenItems(qh QueryHandler, itemIds []models.Id) error {
 	}
 
 	if containsHidden {
-		return ErrItemHidden
+		return database.ErrItemHidden
 	}
 
 	return nil
@@ -622,7 +623,7 @@ func IsItemFrozen(db *sql.DB, itemId models.Id) (bool, error) {
 		return false, nil
 	}
 
-	return false, fmt.Errorf("failed to check if item %d is frozen: %w", itemId, ErrNoSuchItem)
+	return false, fmt.Errorf("failed to check if item %d is frozen: %w", itemId, database.ErrNoSuchItem)
 }
 
 func IsItemHidden(db *sql.DB, itemId models.Id) (bool, error) {
@@ -641,7 +642,7 @@ func IsItemHidden(db *sql.DB, itemId models.Id) (bool, error) {
 		return false, nil
 	}
 
-	return false, fmt.Errorf("failed to check if item %d is hidden: %w", itemId, ErrNoSuchItem)
+	return false, fmt.Errorf("failed to check if item %d is hidden: %w", itemId, database.ErrNoSuchItem)
 }
 
 func RemoveItemWithId(db *sql.DB, itemId models.Id) error {
@@ -652,7 +653,7 @@ func RemoveItemWithId(db *sql.DB, itemId models.Id) error {
 	}
 
 	if !itemExists {
-		return fmt.Errorf("failed to remove item with id %d: %w", itemId, ErrNoSuchItem)
+		return fmt.Errorf("failed to remove item with id %d: %w", itemId, database.ErrNoSuchItem)
 	}
 
 	_, err = db.Exec(
@@ -687,11 +688,11 @@ func UpdateItem(db *sql.DB, itemId models.Id, itemUpdate *ItemUpdate) error {
 	}
 
 	if item.Frozen {
-		return ErrItemFrozen
+		return database.ErrItemFrozen
 	}
 
 	if item.Hidden {
-		return ErrItemHidden
+		return database.ErrItemHidden
 	}
 
 	sqlUpdates := []string{}
@@ -709,7 +710,7 @@ func UpdateItem(db *sql.DB, itemId models.Id, itemUpdate *ItemUpdate) error {
 
 	if itemUpdate.PriceInCents != nil {
 		if !models.IsValidPrice(*itemUpdate.PriceInCents) {
-			return fmt.Errorf("failed to updated item's price to %d: %w", *itemUpdate.PriceInCents, ErrInvalidPrice)
+			return fmt.Errorf("failed to updated item's price to %d: %w", *itemUpdate.PriceInCents, database.ErrInvalidPrice)
 		}
 
 		sqlUpdates = append(sqlUpdates, "price_in_cents = ?")

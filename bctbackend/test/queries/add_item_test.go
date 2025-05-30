@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -96,7 +97,7 @@ func TestAddItem(t *testing.T) {
 			setup.Seller(aux.WithUserId(2))
 
 			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
-			require.ErrorIs(t, err, queries.ErrNoSuchUser)
+			require.ErrorIs(t, err, database.ErrNoSuchUser)
 
 			count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 			require.NoError(t, err)
@@ -127,7 +128,7 @@ func TestAddItem(t *testing.T) {
 
 			{
 				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
-				require.ErrorIs(t, err, queries.ErrNoSuchCategory)
+				require.ErrorIs(t, err, database.ErrNoSuchCategory)
 			}
 
 			{
@@ -153,7 +154,7 @@ func TestAddItem(t *testing.T) {
 
 			{
 				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
-				require.ErrorIs(t, err, queries.ErrInvalidPrice)
+				require.ErrorIs(t, err, database.ErrInvalidPrice)
 			}
 
 			{
@@ -178,7 +179,7 @@ func TestAddItem(t *testing.T) {
 			priceInCents := models.MoneyInCents(-100)
 
 			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
-			require.ErrorIs(t, err, queries.ErrInvalidPrice)
+			require.ErrorIs(t, err, database.ErrInvalidPrice)
 
 			count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 			require.NoError(t, err)
@@ -200,7 +201,7 @@ func TestAddItem(t *testing.T) {
 			hidden := false
 
 			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen, hidden)
-			require.ErrorIs(t, err, queries.ErrInvalidRole)
+			require.ErrorIs(t, err, database.ErrInvalidRole)
 
 			{
 				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
@@ -225,7 +226,7 @@ func TestAddItem(t *testing.T) {
 
 			{
 				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen, hidden)
-				require.ErrorIs(t, err, queries.ErrInvalidRole)
+				require.ErrorIs(t, err, database.ErrInvalidRole)
 			}
 
 			{

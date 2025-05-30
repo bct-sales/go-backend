@@ -1,6 +1,7 @@
 package queries
 
 import (
+	"bctbackend/database"
 	models "bctbackend/database/models"
 	"database/sql"
 	"errors"
@@ -32,7 +33,7 @@ func AddUserWithId(
 
 	if err != nil {
 		if !models.IsValidRole(roleId) {
-			return fmt.Errorf("failed to add user with role %d: %w", roleId, ErrNoSuchRole)
+			return fmt.Errorf("failed to add user with role %d: %w", roleId, database.ErrNoSuchRole)
 		}
 
 		userExists, err := UserWithIdExists(db, userId)
@@ -40,7 +41,7 @@ func AddUserWithId(
 			return err
 		}
 		if userExists {
-			return fmt.Errorf("trying to add user with id %d: %w", userId, ErrUserIdAlreadyInUse)
+			return fmt.Errorf("trying to add user with id %d: %w", userId, database.ErrUserIdAlreadyInUse)
 		}
 
 		return fmt.Errorf("failed to add user with id %d: %w", userId, err)
@@ -69,7 +70,7 @@ func AddUser(
 
 	if err != nil {
 		if !models.IsValidRole(roleId) {
-			return 0, fmt.Errorf("failed to add user with role %d: %w", roleId, ErrNoSuchRole)
+			return 0, fmt.Errorf("failed to add user with role %d: %w", roleId, database.ErrNoSuchRole)
 		}
 
 		return 0, err
@@ -154,7 +155,7 @@ func GetUserWithId(db *sql.DB, userId models.Id) (*models.User, error) {
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("failed to get user with id %d: %w", userId, ErrNoSuchUser)
+			return nil, fmt.Errorf("failed to get user with id %d: %w", userId, database.ErrNoSuchUser)
 		}
 
 		return nil, err
@@ -242,7 +243,7 @@ func UpdateUserPassword(db *sql.DB, userId models.Id, password string) error {
 		return err
 	}
 	if !userExists {
-		return fmt.Errorf("failed to update password of user %d: %w", userId, ErrNoSuchUser)
+		return fmt.Errorf("failed to update password of user %d: %w", userId, database.ErrNoSuchUser)
 	}
 
 	_, err = db.Exec(
@@ -269,7 +270,7 @@ func CheckUserRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) error
 	}
 
 	if user.RoleId != expectedRoleId {
-		return fmt.Errorf("user %d expected to have role %d: %w", userId, expectedRoleId, ErrInvalidRole)
+		return fmt.Errorf("user %d expected to have role %d: %w", userId, expectedRoleId, database.ErrInvalidRole)
 	}
 
 	return nil
@@ -286,7 +287,7 @@ func RemoveUserWithId(db *sql.DB, userId models.Id) error {
 			return err
 		}
 		if !userExist {
-			return fmt.Errorf("failed to remove user with id %d: %w", userId, ErrNoSuchUser)
+			return fmt.Errorf("failed to remove user with id %d: %w", userId, database.ErrNoSuchUser)
 		}
 	}
 
@@ -308,7 +309,7 @@ func UpdateLastActivity(db *sql.DB, userId models.Id, lastActivity models.Timest
 			return err
 		}
 		if !userExist {
-			return fmt.Errorf("failed to update last activity of user %d: %w", userId, ErrNoSuchUser)
+			return fmt.Errorf("failed to update last activity of user %d: %w", userId, database.ErrNoSuchUser)
 		}
 	}
 
@@ -333,7 +334,7 @@ func GetSellerItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 			return 0, fmt.Errorf("failed to check user in GetSellerItemCount: %w", err)
 		}
 		if seller.RoleId != models.SellerRoleId {
-			return 0, fmt.Errorf("failed to get item count of non-seller %d: %w", sellerId, ErrInvalidRole)
+			return 0, fmt.Errorf("failed to get item count of non-seller %d: %w", sellerId, database.ErrInvalidRole)
 		}
 	}
 
@@ -364,7 +365,7 @@ func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 			return 0, err
 		}
 		if seller.RoleId != models.SellerRoleId {
-			return 0, fmt.Errorf("failed to get frozen item count of non-seller %d: %w", sellerId, ErrInvalidRole)
+			return 0, fmt.Errorf("failed to get frozen item count of non-seller %d: %w", sellerId, database.ErrInvalidRole)
 		}
 	}
 
@@ -393,7 +394,7 @@ func GetSellerHiddenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 			return 0, err
 		}
 		if seller.RoleId != models.SellerRoleId {
-			return 0, fmt.Errorf("failed to get hidden item count of non-seller %d: %w", sellerId, ErrInvalidRole)
+			return 0, fmt.Errorf("failed to get hidden item count of non-seller %d: %w", sellerId, database.ErrInvalidRole)
 		}
 	}
 
@@ -422,7 +423,7 @@ func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id, itemSelection
 			return 0, err
 		}
 		if cashier.RoleId != models.SellerRoleId {
-			return 0, fmt.Errorf("failed to get total price of all items of non-seller %d: %w", sellerId, ErrInvalidRole)
+			return 0, fmt.Errorf("failed to get total price of all items of non-seller %d: %w", sellerId, database.ErrInvalidRole)
 		}
 	}
 

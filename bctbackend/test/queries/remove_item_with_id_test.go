@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -36,7 +37,7 @@ func TestRemoveNonexistingItem(t *testing.T) {
 	itemId := models.Id(1)
 
 	err := queries.RemoveItemWithId(db, itemId)
-	require.ErrorIs(t, err, queries.ErrNoSuchItem)
+	require.ErrorIs(t, err, database.ErrNoSuchItem)
 }
 
 func TestRemoveSoldItem(t *testing.T) {

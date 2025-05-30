@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -75,7 +76,7 @@ func TestUpdateHiddenStatusOfItems(t *testing.T) {
 			itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(10), aux.WithHidden(false), aux.WithFrozen(true)).ItemId)
 
 			err := queries.UpdateHiddenStatusOfItems(db, itemIds, true)
-			require.ErrorIs(t, err, queries.ErrItemFrozen)
+			require.ErrorIs(t, err, database.ErrItemFrozen)
 
 			for _, itemId := range itemIds {
 				isHidden, err := queries.IsItemHidden(db, itemId)

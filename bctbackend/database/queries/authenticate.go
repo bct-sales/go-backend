@@ -1,6 +1,7 @@
 package queries
 
 import (
+	"bctbackend/database"
 	models "bctbackend/database/models"
 	"database/sql"
 	"errors"
@@ -28,14 +29,14 @@ func AuthenticateUser(db *sql.DB, userId models.Id, password string) (models.Id,
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return 0, fmt.Errorf("failed to authenticate user %d: %w", userId, ErrNoSuchUser)
+			return 0, fmt.Errorf("failed to authenticate user %d: %w", userId, database.ErrNoSuchUser)
 		}
 
 		return 0, err
 	}
 
 	if expectedPassword != password {
-		return 0, ErrWrongPassword
+		return 0, database.ErrWrongPassword
 	}
 
 	return roleId, nil

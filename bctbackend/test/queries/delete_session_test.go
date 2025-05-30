@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/database"
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	. "bctbackend/test/setup"
@@ -25,5 +26,5 @@ func TestDeleteSession(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = queries.GetSessionById(db, sessionId)
-	require.ErrorIs(t, err, queries.ErrNoSuchSession)
+	require.ErrorIs(t, err, database.ErrNoSuchSession)
 }

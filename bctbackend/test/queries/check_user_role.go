@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -71,7 +72,7 @@ func TestCheckUserRole(t *testing.T) {
 				setup.Seller(aux.WithUserId(sellerId))
 
 				err := queries.CheckUserRole(db, pair.UserId, pair.RoleId)
-				require.ErrorIs(t, err, queries.ErrInvalidRole)
+				require.ErrorIs(t, err, database.ErrInvalidRole)
 			})
 		}
 	})
@@ -83,6 +84,6 @@ func TestCheckUserRole(t *testing.T) {
 		invalidId := models.Id(9999)
 
 		err := queries.CheckUserRole(db, invalidId, models.AdminRoleId)
-		require.ErrorIs(t, err, queries.ErrNoSuchUser)
+		require.ErrorIs(t, err, database.ErrNoSuchUser)
 	})
 }

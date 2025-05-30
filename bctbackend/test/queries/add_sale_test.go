@@ -4,6 +4,7 @@ package queries
 
 import (
 	"bctbackend/algorithms"
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -98,7 +99,7 @@ func TestAddSale(t *testing.T) {
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			_, err := queries.AddSale(db, cashier.UserId, timestamp, []models.Id{item.ItemId, item.ItemId})
-			require.ErrorIs(t, err, queries.ErrDuplicateItemInSale)
+			require.ErrorIs(t, err, database.ErrDuplicateItemInSale)
 		})
 
 		t.Run("Hidden item in sale", func(t *testing.T) {
@@ -111,7 +112,7 @@ func TestAddSale(t *testing.T) {
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(true))
 
 			_, err := queries.AddSale(db, cashier.UserId, timestamp, []models.Id{item.ItemId})
-			require.ErrorIs(t, err, queries.ErrItemHidden)
+			require.ErrorIs(t, err, database.ErrItemHidden)
 		})
 	})
 }

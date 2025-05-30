@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -57,5 +58,5 @@ func TestGetSaleItemsOfNonexistentSale(t *testing.T) {
 	_, err = queries.GetSaleItems(db, saleId)
 
 	require.Error(t, err)
-	require.ErrorIs(t, err, queries.ErrNoSuchSale)
+	require.ErrorIs(t, err, database.ErrNoSuchSale)
 }

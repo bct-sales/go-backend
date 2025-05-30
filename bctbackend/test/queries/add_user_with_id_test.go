@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/database"
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	"fmt"
@@ -56,7 +57,7 @@ func TestAddUserWithId(t *testing.T) {
 
 		{
 			err := queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
-			require.ErrorIs(t, err, queries.ErrUserIdAlreadyInUse)
+			require.ErrorIs(t, err, database.ErrUserIdAlreadyInUse)
 		}
 	})
 
@@ -73,6 +74,6 @@ func TestAddUserWithId(t *testing.T) {
 		require.False(t, models.IsValidRole(roleId), "sanity test: role id should be invalid")
 
 		err := queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
-		require.ErrorIs(t, err, queries.ErrNoSuchRole)
+		require.ErrorIs(t, err, database.ErrNoSuchRole)
 	})
 }
