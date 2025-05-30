@@ -58,12 +58,9 @@ func AddSale(context *gin.Context, db *sql.DB, userId models.Id, roleId models.I
 			return
 		}
 
-		{
-			var duplicateItemInSaleError *queries.DuplicateItemInSaleError
-			if errors.As(err, &duplicateItemInSaleError) {
-				failure_response.DuplicateItemInSale(context, err.Error())
-				return
-			}
+		if errors.Is(err, queries.DuplicateItemInSaleError) {
+			failure_response.DuplicateItemInSale(context, err.Error())
+			return
 		}
 
 		if errors.Is(err, queries.ErrNoSuchItem) {
