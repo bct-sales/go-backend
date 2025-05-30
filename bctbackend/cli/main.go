@@ -828,17 +828,11 @@ func ProcessCommandLineArguments(arguments []string) error {
 				},
 			},
 		},
-		ExitErrHandler: func(context *cli.Context, err error) {
-			if err != nil {
-				os.Exit(1)
-			}
-
-			os.Exit(0)
-		},
 	}
 
 	if err := app.Run(arguments); err != nil {
-		os.Exit(2)
+		fmt.Println(err.Error())
+		os.Exit(1)
 	}
 
 	return nil
