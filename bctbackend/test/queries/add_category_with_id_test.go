@@ -56,7 +56,7 @@ func TestAddCategoryWithId(t *testing.T) {
 			id := models.Id(1)
 			categoryName := "xyz"
 			err := queries.AddCategoryWithId(db, id, categoryName)
-			require.ErrorIs(t, err, queries.CategoryIdAlreadyInUseError)
+			require.ErrorIs(t, err, queries.ErrCategoryIdAlreadyInUse)
 		})
 	})
 }
