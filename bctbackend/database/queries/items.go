@@ -160,7 +160,18 @@ func GetSellerItemsWithSaleCounts(db *sql.DB, sellerId models.Id) (r_items []*It
 		}
 
 		item := ItemWithSaleCount{
-			Item:      *models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden),
+			Item: *models.NewItem(
+				id,
+				addedAt,
+				description,
+				priceInCents,
+				itemCategoryId,
+				sellerId,
+				donation,
+				charity,
+				frozen,
+				hidden,
+			),
 			SaleCount: saleCount,
 		}
 
@@ -189,7 +200,17 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	var charity bool
 	var frozen bool
 	var hidden bool
-	err := row.Scan(&addedAt, &description, &priceInCents, &categoryId, &sellerId, &donation, &charity, &frozen, &hidden)
+	err := row.Scan(
+		&addedAt,
+		&description,
+		&priceInCents,
+		&categoryId,
+		&sellerId,
+		&donation,
+		&charity,
+		&frozen,
+		&hidden,
+	)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("while getting item with id %d: %w", itemId, database.ErrNoSuchItem)
@@ -199,7 +220,18 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 		return nil, err
 	}
 
-	item := models.NewItem(itemId, addedAt, description, priceInCents, categoryId, sellerId, donation, charity, frozen, hidden)
+	item := models.NewItem(
+		itemId,
+		addedAt,
+		description,
+		priceInCents,
+		categoryId,
+		sellerId,
+		donation,
+		charity,
+		frozen,
+		hidden,
+	)
 
 	return item, nil
 }
