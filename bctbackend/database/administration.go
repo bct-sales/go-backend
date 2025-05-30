@@ -62,7 +62,7 @@ func CreateDatabase(path string) (*sql.DB, error) {
 
 		if exists {
 			slog.Debug("Database file already exists", slog.String("path", path))
-			return nil, fmt.Errorf("database file already exists at %s", path)
+			return nil, ErrDatabaseAlreadyExists
 		}
 	}
 

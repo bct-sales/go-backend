@@ -25,6 +25,7 @@ var ErrItemHidden = errors.New("item is hidden")
 var ErrInvalidCategoryName = errors.New("category name is invalid")
 var ErrCategoryIdAlreadyInUse = errors.New("category id is already in use")
 var ErrHiddenFrozenItem = errors.New("items cannot be hidden and frozen at the same time")
+var ErrDatabaseAlreadyExists = errors.New("database already exists")
 
 type ErrDatabaseError struct {
 	Message string
