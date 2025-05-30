@@ -28,7 +28,7 @@ func fileExists(path string) (bool, error) {
 func connectToDatabase(path string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite", fmt.Sprintf("%s?_busy_timeout=500", path))
 	if err != nil {
-		return nil, &ErrDatabaseError{Message: "failed to open database", Wrapped: err}
+		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 
 	return db, nil
@@ -36,7 +36,7 @@ func connectToDatabase(path string) (*sql.DB, error) {
 
 func enableForeignKeysConstraints(db *sql.DB) error {
 	if _, err := db.Exec("PRAGMA foreign_keys = ON"); err != nil {
-		return &ErrDatabaseError{Message: "failed to enable foreign key constraints", Wrapped: err}
+		return fmt.Errorf("failed to enable foreign key constraints: %w", err)
 	}
 
 	return nil
@@ -44,7 +44,7 @@ func enableForeignKeysConstraints(db *sql.DB) error {
 
 func setJournalMode(db *sql.DB) error {
 	if _, err := db.Exec("PRAGMA journal_mode=WAL"); err != nil {
-		return &ErrDatabaseError{Message: "failed to set journal mode to WAL", Wrapped: err}
+		return fmt.Errorf("failed to set journal mode to WAL: %f", err)
 	}
 
 	return nil
@@ -74,12 +74,12 @@ func CreateDatabase(path string) (*sql.DB, error) {
 
 	slog.Debug("Enabling foreign keys constraints", slog.String("path", path))
 	if err := enableForeignKeysConstraints(db); err != nil {
-		return nil, fmt.Errorf("failed to enable foreign key constraints: %w", err)
+		return nil, fmt.Errorf("failed to create database: %w", err)
 	}
 
 	slog.Debug("Setting journal mode", slog.String("path", path))
 	if err := setJournalMode(db); err != nil {
-		return nil, fmt.Errorf("failed to set journal mode to WAL: %w", err)
+		return nil, fmt.Errorf("failed to create database: %w", err)
 	}
 
 	return db, nil
@@ -100,12 +100,12 @@ func OpenDatabase(path string) (*sql.DB, error) {
 
 	slog.Debug("Enabling foreign keys constraints", slog.String("path", path))
 	if err := enableForeignKeysConstraints(db); err != nil {
-		return nil, fmt.Errorf("failed to enable foreign key constraints: %w", err)
+		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 
 	slog.Debug("Setting journal mode", slog.String("path", path))
 	if _, err := db.Exec("PRAGMA journal_mode=WAL"); err != nil {
-		return nil, fmt.Errorf("failed to set journal mode to WAL: %w", err)
+		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 
 	slog.Debug("Connected to database", slog.String("path", path))
