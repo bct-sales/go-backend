@@ -28,6 +28,8 @@ const (
 	DatabaseEnvironmentVariable = "BCT_DATABASE"
 )
 
+var ErrInvalidZoneFormat = fmt.Errorf("invalid zone format")
+
 func parseZones(zoneStrings []string) ([]int, error) {
 	result := []int{}
 
@@ -39,26 +41,26 @@ func parseZones(zoneStrings []string) ([]int, error) {
 			if len(endpoints) == 1 {
 				zone, err := strconv.Atoi(strings.TrimSpace(endpoints[0]))
 				if err != nil {
-					return nil, fmt.Errorf("invalid zone format %s: %w", part, err)
+					return nil, fmt.Errorf("invalid zone format %s: %w, %w", part, err, ErrInvalidZoneFormat)
 				}
 				result = append(result, zone)
 			} else if len(endpoints) == 2 {
 				start, err := strconv.Atoi(strings.TrimSpace(endpoints[0]))
 				if err != nil {
-					return nil, fmt.Errorf("invalid zone format %s: %w", part, err)
+					return nil, fmt.Errorf("invalid zone format %s: %w, %w", part, err, ErrInvalidZoneFormat)
 				}
 				end, err := strconv.Atoi(strings.TrimSpace(endpoints[1]))
 				if err != nil {
-					return nil, fmt.Errorf("invalid zone format %s: %w", part, err)
+					return nil, fmt.Errorf("invalid zone format %s: %w, %w", part, err, ErrInvalidZoneFormat)
 				}
 				if start >= end {
-					return nil, fmt.Errorf("invalid zone format %s: %w", part, err)
+					return nil, fmt.Errorf("invalid zone format %s: %w, %w", part, err, ErrInvalidZoneFormat)
 				}
 				for i := start; i <= end; i++ {
 					result = append(result, i)
 				}
 			} else {
-				return nil, fmt.Errorf("invalid zone format %s", part)
+				return nil, fmt.Errorf("invalid zone format %s: %w", part, ErrInvalidZoneFormat)
 			}
 		}
 	}
@@ -76,7 +78,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 
 	databasePath, ok := os.LookupEnv(DatabaseEnvironmentVariable)
 	if !ok {
-		return fmt.Errorf("environment variable %s not set", DatabaseEnvironmentVariable)
+		return cli.Exit(fmt.Sprintf("environment variable %s not set", DatabaseEnvironmentVariable), 1)
 	}
 
 	var options struct {
