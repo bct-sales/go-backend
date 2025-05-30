@@ -54,7 +54,7 @@ func GetSessionById(
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("failed to get session with id %s: %w", sessionId, NoSuchSessionError)
+		return nil, fmt.Errorf("failed to get session with id %s: %w", sessionId, ErrNoSuchSession)
 	}
 
 	if err != nil {

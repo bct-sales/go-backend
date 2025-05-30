@@ -25,5 +25,5 @@ func TestDeleteSession(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = queries.GetSessionById(db, sessionId)
-	require.ErrorIs(t, err, queries.NoSuchSessionError)
+	require.ErrorIs(t, err, queries.ErrNoSuchSession)
 }
