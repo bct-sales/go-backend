@@ -124,6 +124,7 @@ func listCategoriesWithoutCounts(context *gin.Context, db *sql.DB, userId models
 		data := CategoryData{
 			CategoryId:   categoryCount.CategoryId,
 			CategoryName: categoryCount.Name,
+			Count:        nil,
 		}
 
 		response.Counts = append(response.Counts, data)
