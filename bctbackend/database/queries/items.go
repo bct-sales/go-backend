@@ -585,7 +585,7 @@ func EnsureNoFrozenItems(qh QueryHandler, itemIds []models.Id) error {
 	}
 
 	if containsFrozen {
-		return ItemFrozenError
+		return ErrItemFrozen
 	}
 
 	return nil
@@ -687,7 +687,7 @@ func UpdateItem(db *sql.DB, itemId models.Id, itemUpdate *ItemUpdate) error {
 	}
 
 	if item.Frozen {
-		return ItemFrozenError
+		return ErrItemFrozen
 	}
 
 	if item.Hidden {
