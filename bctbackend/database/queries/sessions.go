@@ -91,7 +91,7 @@ func GetSessionData(db *sql.DB, sessionId models.SessionId) (*SessionData, error
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, database.ErrNoSessionFound
+		return nil, database.ErrNoSuchSession
 	}
 
 	if err != nil {
