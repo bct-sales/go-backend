@@ -8,13 +8,13 @@ import (
 )
 
 func GenerateBarcode(data string, width int, height int) (image.Image, error) {
-	bc, err := code128.Encode(data)
+	barcode, err := code128.Encode(data)
 
 	if err != nil {
 		return nil, err
 	}
 
-	scaledBarcode, err := bclib.Scale(bc, width, height)
+	scaledBarcode, err := bclib.Scale(barcode, width, height)
 
 	if err != nil {
 		return nil, err
