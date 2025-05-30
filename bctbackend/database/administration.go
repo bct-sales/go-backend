@@ -57,7 +57,7 @@ func CreateDatabase(path string) (*sql.DB, error) {
 
 		if err != nil {
 			slog.Debug("Error checking if database file exists", slog.String("path", path))
-			return nil, err
+			return nil, fmt.Errorf("failed to create database: %w", err)
 		}
 
 		if exists {
@@ -69,7 +69,7 @@ func CreateDatabase(path string) (*sql.DB, error) {
 	slog.Debug("Creating database file", slog.String("path", path))
 	db, err := connectToDatabase(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed while creating database file: %w", err)
+		return nil, fmt.Errorf("failed to create database: %w", err)
 	}
 
 	slog.Debug("Enabling foreign keys constraints", slog.String("path", path))
@@ -157,7 +157,7 @@ func removeAllTables(db *sql.DB) error {
 
 	for _, table := range tables {
 		if err := dropTable(db, table); err != nil {
-			return err
+			return fmt.Errorf("failed to drop all tables: %w", err)
 		}
 	}
 
@@ -186,31 +186,31 @@ func dropView(db *sql.DB, view string) error {
 
 func createTables(db *sql.DB) error {
 	if err := createRoleTable(db); err != nil {
-		return err
+		return fmt.Errorf("failed to create tables: %w", err)
 	}
 
 	if err := createUserTable(db); err != nil {
-		return err
+		return fmt.Errorf("failed to create tables: %w", err)
 	}
 
 	if err := createItemCategoryTable(db); err != nil {
-		return err
+		return fmt.Errorf("failed to create tables: %w", err)
 	}
 
 	if err := createItemTable(db); err != nil {
-		return err
+		return fmt.Errorf("failed to create tables: %w", err)
 	}
 
 	if err := createSaleTable(db); err != nil {
-		return err
+		return fmt.Errorf("failed to create tables: %w", err)
 	}
 
 	if err := createSaleItemsTable(db); err != nil {
-		return err
+		return fmt.Errorf("failed to create tables: %w", err)
 	}
 
 	if err := createSessionTable(db); err != nil {
-		return err
+		return fmt.Errorf("failed to create tables: %w", err)
 	}
 
 	return nil
