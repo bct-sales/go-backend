@@ -297,7 +297,7 @@ func AddItem(
 	}
 
 	if !models.IsValidItemDescription(description) {
-		return 0, fmt.Errorf("failed to add item with description %s: %w", description, InvalidItemDescriptionError)
+		return 0, fmt.Errorf("failed to add item with description %s: %w", description, ErrInvalidItemDescription)
 	}
 
 	if err := CheckUserRole(db, sellerId, models.SellerRoleId); err != nil {
