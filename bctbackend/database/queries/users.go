@@ -32,7 +32,7 @@ func AddUserWithId(
 
 	if err != nil {
 		if !models.IsValidRole(roleId) {
-			return fmt.Errorf("failed to add user with role %d: %w", roleId, NoSuchRoleError)
+			return fmt.Errorf("failed to add user with role %d: %w", roleId, ErrNoSuchRole)
 		}
 
 		userExists, err := UserWithIdExists(db, userId)
@@ -69,7 +69,7 @@ func AddUser(
 
 	if err != nil {
 		if !models.IsValidRole(roleId) {
-			return 0, fmt.Errorf("failed to add user with role %d: %w", roleId, NoSuchRoleError)
+			return 0, fmt.Errorf("failed to add user with role %d: %w", roleId, ErrNoSuchRole)
 		}
 
 		return 0, err
