@@ -29,7 +29,7 @@ func AddSale(
 	indexOfDuplicate := algorithms.ContainsDuplicate(itemIds)
 	if indexOfDuplicate != -1 {
 		duplicatedItemId := itemIds[indexOfDuplicate]
-		return 0, fmt.Errorf("failed to add sale with duplicated item %d: %w", duplicatedItemId, DuplicateItemInSaleError)
+		return 0, fmt.Errorf("failed to add sale with duplicated item %d: %w", duplicatedItemId, ErrDuplicateItemInSale)
 	}
 
 	// Ensure the user exists and is a cashier

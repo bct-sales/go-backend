@@ -98,7 +98,7 @@ func TestAddSale(t *testing.T) {
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			_, err := queries.AddSale(db, cashier.UserId, timestamp, []models.Id{item.ItemId, item.ItemId})
-			require.ErrorIs(t, err, queries.DuplicateItemInSaleError)
+			require.ErrorIs(t, err, queries.ErrDuplicateItemInSale)
 		})
 
 		t.Run("Hidden item in sale", func(t *testing.T) {
