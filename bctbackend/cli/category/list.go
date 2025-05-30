@@ -11,14 +11,14 @@ import (
 )
 
 func ListCategories(databasePath string) (r_err error) {
-	db, err := database.OpenDatabase(databasePath)
+	database, err := database.OpenDatabase(databasePath)
 	if err != nil {
 		return err
 	}
 
-	defer func() { r_err = errors.Join(r_err, db.Close()) }()
+	defer func() { r_err = errors.Join(r_err, database.Close()) }()
 
-	categories, err := queries.GetCategories(db)
+	categories, err := queries.GetCategories(database)
 	if err != nil {
 		return fmt.Errorf("error while listing categories: %w", err)
 	}
