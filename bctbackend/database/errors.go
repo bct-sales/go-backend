@@ -4,7 +4,7 @@ import (
 	"errors"
 )
 
-var ErrUserIdAlreadyInUse = errors.New("user id already in use")
+var ErrIdAlreadyInUse = errors.New("id already in use")
 var ErrNoSuchItem = errors.New("no such item")
 var ErrSaleMissingItems = errors.New("sale must have at least one item")
 var ErrSaleRequiresCashier = errors.New("sale requires a cashier")

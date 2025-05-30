@@ -41,7 +41,7 @@ func AddUserWithId(
 			return err
 		}
 		if userExists {
-			return fmt.Errorf("trying to add user with id %d: %w", userId, database.ErrUserIdAlreadyInUse)
+			return fmt.Errorf("trying to add user with id %d: %w", userId, database.ErrIdAlreadyInUse)
 		}
 
 		return fmt.Errorf("failed to add user with id %d: %w", userId, err)
