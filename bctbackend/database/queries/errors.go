@@ -23,9 +23,4 @@ var ItemFrozenError = errors.New("item is frozen")
 var ItemHiddenError = errors.New("item is hidden")
 var InvalidCategoryNameError = errors.New("category name is invalid")
 var CategoryIdAlreadyInUseError = errors.New("category id is already in use")
-
-type HiddenFrozenItemError struct{}
-
-func (e *HiddenFrozenItemError) Error() string {
-	return "items cannot be hidden and frozen at the same time"
-}
+var HiddenFrozenItemError = errors.New("items cannot be hidden and frozen at the same time")

@@ -305,7 +305,7 @@ func AddItem(
 	}
 
 	if frozen && hidden {
-		return 0, &HiddenFrozenItemError{}
+		return 0, fmt.Errorf("failed to add item: %w", HiddenFrozenItemError)
 	}
 
 	result, err := db.Exec(
