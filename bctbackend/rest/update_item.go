@@ -79,6 +79,7 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 	}
 
 	itemUpdate := queries.ItemUpdate{
+		AddedAt:      nil,
 		Description:  payload.Description,
 		PriceInCents: payload.PriceInCents,
 		CategoryId:   payload.CategoryId,
