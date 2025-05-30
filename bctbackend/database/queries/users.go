@@ -415,16 +415,21 @@ func GetSellerHiddenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 	return itemCount, nil
 }
 
+func ensureUserRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) error {
+	user, err := GetUserWithId(db, userId)
+	if err != nil {
+		return err
+	}
+	if user.RoleId != expectedRoleId {
+		return fmt.Errorf("user %d expected to have role %d: %w", userId, expectedRoleId, database.ErrInvalidRole)
+	}
+	return nil
+}
+
 func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id, itemSelection ItemSelection) (models.MoneyInCents, error) {
 	// Ensure the user exists and is a seller
-	{
-		cashier, err := GetUserWithId(db, sellerId)
-		if err != nil {
-			return 0, err
-		}
-		if cashier.RoleId != models.SellerRoleId {
-			return 0, fmt.Errorf("failed to get total price of all items of non-seller %d: %w", sellerId, database.ErrInvalidRole)
-		}
+	if err := ensureUserRole(db, sellerId, models.SellerRoleId); err != nil {
+		return 0, fmt.Errorf("failed to get total price of all items of user %d: %w", sellerId, err)
 	}
 
 	itemTable := ItemsTableFor(itemSelection)
