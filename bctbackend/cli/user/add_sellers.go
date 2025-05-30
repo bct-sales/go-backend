@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/urfave/cli/v2"
 	"golang.org/x/exp/rand"
 	_ "modernc.org/sqlite"
 )
@@ -91,7 +92,7 @@ func AddSellers(databasePath string, seed uint64, zones []int, sellersPerZone in
 	err = determineSellersToBeCreated(zones, sellersPerZone, func(sellerId models.Id) error {
 		if !existingSellers.Contains(sellerId) {
 			if passwordIndex == len(passwords) {
-				return fmt.Errorf("ran out of unique passwords for %d", sellerId)
+				return cli.Exit("ran out of unique passwords", 1)
 			}
 
 			password := passwords[passwordIndex]
