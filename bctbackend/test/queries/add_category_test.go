@@ -41,7 +41,7 @@ func TestAddCategory(t *testing.T) {
 
 			categoryName := ""
 			_, err := queries.AddCategory(db, categoryName)
-			require.ErrorIs(t, err, queries.InvalidCategoryNameError)
+			require.ErrorIs(t, err, queries.ErrInvalidCategoryName)
 		})
 	})
 }

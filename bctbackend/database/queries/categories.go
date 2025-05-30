@@ -9,7 +9,7 @@ import (
 
 func AddCategory(db *sql.DB, categoryName string) (models.Id, error) {
 	if !models.IsValidCategoryName(categoryName) {
-		return 0, InvalidCategoryNameError
+		return 0, ErrInvalidCategoryName
 	}
 
 	query := `
@@ -32,7 +32,7 @@ func AddCategory(db *sql.DB, categoryName string) (models.Id, error) {
 
 func AddCategoryWithId(db *sql.DB, categoryId models.Id, categoryName string) error {
 	if !models.IsValidCategoryName(categoryName) {
-		return InvalidCategoryNameError
+		return ErrInvalidCategoryName
 	}
 
 	_, err := db.Exec(
