@@ -56,7 +56,7 @@ func MapOptional[T any, U any](value *T, f func(T) U) *U {
 }
 
 func RepeatWithError(count int, function func() error) error {
-	for i := 0; i < count; i++ {
+	for range count {
 		if err := function(); err != nil {
 			return err
 		}
@@ -66,7 +66,7 @@ func RepeatWithError(count int, function func() error) error {
 }
 
 func Repeat(count int, function func()) {
-	for i := 0; i < count; i++ {
+	for range count {
 		function()
 	}
 }
