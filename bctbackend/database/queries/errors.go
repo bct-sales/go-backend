@@ -19,18 +19,12 @@ var NoSuchRoleError = errors.New("no such role")
 var InvalidPriceError = errors.New("invalid price")
 var InvalidItemDescriptionError = errors.New("invalid item description")
 var DuplicateItemInSaleError = errors.New("duplicate item in sale")
-
 var ItemFrozenError = errors.New("item is frozen")
 var ItemHiddenError = errors.New("item is hidden")
 var InvalidCategoryNameError = errors.New("category name is invalid")
-
-type CategoryIdAlreadyInUseError struct{}
+var CategoryIdAlreadyInUseError = errors.New("category id is already in use")
 
 type HiddenFrozenItemError struct{}
-
-func (e *CategoryIdAlreadyInUseError) Error() string {
-	return "category id already in use"
-}
 
 func (e *HiddenFrozenItemError) Error() string {
 	return "items cannot be hidden and frozen at the same time"
