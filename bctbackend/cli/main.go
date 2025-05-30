@@ -830,9 +830,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 		},
 		ExitErrHandler: func(context *cli.Context, err error) {
 			if err != nil {
-				if _, err = fmt.Fprintf(context.App.ErrWriter, "Error: %v\n", err); err != nil {
-					panic(err)
-				}
 				os.Exit(1)
 			}
 
@@ -841,7 +838,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 	}
 
 	if err := app.Run(arguments); err != nil {
-		return fmt.Errorf("error while processing command line arguments: %w", err)
+		os.Exit(2)
 	}
 
 	return nil
