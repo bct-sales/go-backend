@@ -71,6 +71,7 @@ func AddSale(context *gin.Context, db *sql.DB, userId models.Id, roleId models.I
 		}
 
 		if errors.Is(err, database.ErrSaleRequiresCashier) {
+			slog.Error("[BUG] AddSale failed with ErrSaleRequiresCashier, but this should never occur as the role is checked before", "error", err)
 			failure_response.Unknown(context, "Bug: should never occur as this is checked before")
 			return
 		}
