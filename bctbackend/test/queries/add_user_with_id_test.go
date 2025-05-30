@@ -57,7 +57,7 @@ func TestAddUserWithId(t *testing.T) {
 
 		{
 			err := queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
-			require.ErrorIs(t, err, database.ErrUserIdAlreadyInUse)
+			require.ErrorIs(t, err, database.ErrIdAlreadyInUse)
 		}
 	})
 

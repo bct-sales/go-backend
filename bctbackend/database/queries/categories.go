@@ -49,7 +49,7 @@ func AddCategoryWithId(db *sql.DB, categoryId models.Id, categoryName string) er
 		{
 			inUse, err := CategoryWithIdExists(db, categoryId)
 			if err == nil && inUse {
-				return fmt.Errorf("failed to add category with id %d: %w", categoryId, database.ErrCategoryIdAlreadyInUse)
+				return fmt.Errorf("failed to add category with id %d: %w", categoryId, database.ErrIdAlreadyInUse)
 			}
 		}
 
