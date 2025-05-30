@@ -332,7 +332,7 @@ func AddItem(
 		}
 
 		if !categoryExists {
-			return 0, fmt.Errorf("failed to add item with category %d: %w", itemCategoryId, NoSuchCategoryError)
+			return 0, fmt.Errorf("failed to add item with category %d: %w", itemCategoryId, ErrNoSuchCategory)
 		}
 
 		return 0, err

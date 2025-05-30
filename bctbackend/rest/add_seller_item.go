@@ -94,7 +94,7 @@ func AddSellerItem(context *gin.Context, db *sql.DB, userId models.Id, roleId mo
 	)
 
 	if err != nil {
-		if errors.Is(err, queries.NoSuchCategoryError) {
+		if errors.Is(err, queries.ErrNoSuchCategory) {
 			failure_response.UnknownCategory(context, err.Error())
 			return
 		}
