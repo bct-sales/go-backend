@@ -19,10 +19,7 @@ var NoSuchSessionError = errors.New("no such session")
 var NoSuchCategoryError = errors.New("no such category")
 var NoSuchRoleError = errors.New("no such role")
 var InvalidPriceError = errors.New("invalid price")
-
-type InvalidItemDescriptionError struct {
-	Description string
-}
+var InvalidItemDescriptionError = errors.New("invalid item description")
 
 type DuplicateItemInSaleError struct {
 	ItemId models.Id
@@ -38,10 +35,6 @@ type HiddenFrozenItemError struct{}
 
 func (e *DuplicateItemInSaleError) Error() string {
 	return fmt.Sprintf("item %d is duplicated in sale", e.ItemId)
-}
-
-func (e *InvalidItemDescriptionError) Error() string {
-	return fmt.Sprintf("invalid description \"%s\"", e.Description)
 }
 
 func (e *CategoryIdAlreadyInUseError) Error() string {
