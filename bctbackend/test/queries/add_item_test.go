@@ -238,5 +238,31 @@ func TestAddItem(t *testing.T) {
 				require.Equal(t, 0, count)
 			}
 		})
+
+		t.Run("Hidden frozen item", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			timestamp := models.Timestamp(0)
+			description := "description"
+			seller := setup.Seller()
+			priceInCents := models.MoneyInCents(100)
+			itemCategoryId := models.Id(1)
+			charity := false
+			donation := false
+			frozen := true
+			hidden := true
+
+			{
+				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
+				require.ErrorIs(t, err, database.ErrHiddenFrozenItem)
+			}
+
+			{
+				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
+				require.NoError(t, err)
+				require.Equal(t, 0, count)
+			}
+		})
 	})
 }
