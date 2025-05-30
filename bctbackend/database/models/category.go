@@ -5,10 +5,7 @@ type ItemCategory struct {
 	Name       string
 }
 
-func NewCategory(
-	id Id,
-	name string) *ItemCategory {
-
+func NewCategory(id Id, name string) *ItemCategory {
 	return &ItemCategory{
 		CategoryId: id,
 		Name:       name,

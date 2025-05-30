@@ -238,11 +238,6 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 
 // Returns all items with the given ids.
 func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (r_result map[models.Id]*models.Item, r_err error) {
-	// Handle the special case of zero items efficiently
-	if len(itemIds) == 0 {
-		return nil, nil
-	}
-
 	// Set up SQL query
 	// Note that this does not detect nonexistent items, we deal with that later
 	query := fmt.Sprintf(`
@@ -324,7 +319,6 @@ func AddItem(
 	charity bool,
 	frozen bool,
 	hidden bool) (models.Id, error) {
-
 	if !models.IsValidPrice(priceInCents) {
 		return 0, fmt.Errorf("failed to add item with price %d: %w", priceInCents, database.ErrInvalidPrice)
 	}

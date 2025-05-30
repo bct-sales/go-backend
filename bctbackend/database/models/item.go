@@ -24,7 +24,6 @@ func NewItem(
 	charity bool,
 	frozen bool,
 	hidden bool) *Item {
-
 	return &Item{
 		ItemId:       id,
 		AddedAt:      addedAt,
