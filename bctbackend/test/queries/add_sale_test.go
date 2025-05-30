@@ -111,7 +111,7 @@ func TestAddSale(t *testing.T) {
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(true))
 
 			_, err := queries.AddSale(db, cashier.UserId, timestamp, []models.Id{item.ItemId})
-			require.ErrorIs(t, err, queries.ItemHiddenError)
+			require.ErrorIs(t, err, queries.ErrItemHidden)
 		})
 	})
 }

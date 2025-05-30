@@ -171,7 +171,7 @@ func TestUpdateItem(t *testing.T) {
 
 			itemUpdate := queries.ItemUpdate{}
 			err := queries.UpdateItem(db, item.ItemId, &itemUpdate)
-			require.ErrorIs(t, err, queries.ItemHiddenError)
+			require.ErrorIs(t, err, queries.ErrItemHidden)
 		})
 
 		t.Run("Invalid price", func(t *testing.T) {
