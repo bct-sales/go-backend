@@ -322,15 +322,12 @@ func AddItem(
 	if !models.IsValidPrice(priceInCents) {
 		return 0, fmt.Errorf("failed to add item with price %d: %w", priceInCents, database.ErrInvalidPrice)
 	}
-
 	if !models.IsValidItemDescription(description) {
 		return 0, fmt.Errorf("failed to add item with description %s: %w", description, database.ErrInvalidItemDescription)
 	}
-
 	if err := CheckUserRole(db, sellerId, models.SellerRoleId); err != nil {
 		return 0, err
 	}
-
 	if frozen && hidden {
 		return 0, fmt.Errorf("failed to add item: %w", database.ErrHiddenFrozenItem)
 	}
@@ -350,7 +347,6 @@ func AddItem(
 		frozen,
 		hidden,
 	)
-
 	if err != nil {
 		categoryExists, err2 := CategoryWithIdExists(db, itemCategoryId)
 
@@ -366,7 +362,6 @@ func AddItem(
 	}
 
 	itemId, err := result.LastInsertId()
-
 	if err != nil {
 		return 0, err
 	}

@@ -25,7 +25,7 @@ type LoginSuccessResponse struct {
 	Role string `json:"role"`
 }
 
-// @Summary Login user
+// @Summary Login user.
 // @Description Login user. If successful, returns the role of the user.
 // @Description If the user is unknown, returns 401 Unauthorized with type "unknown_user".
 // @Description If the password is wrong, returns 401 Unauthorized with type "wrong_password".
