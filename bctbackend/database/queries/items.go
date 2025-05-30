@@ -293,7 +293,7 @@ func AddItem(
 	hidden bool) (models.Id, error) {
 
 	if !models.IsValidPrice(priceInCents) {
-		return 0, fmt.Errorf("failed to add item with price %d: %w", priceInCents, InvalidPriceError)
+		return 0, fmt.Errorf("failed to add item with price %d: %w", priceInCents, ErrInvalidPrice)
 	}
 
 	if !models.IsValidItemDescription(description) {
@@ -709,7 +709,7 @@ func UpdateItem(db *sql.DB, itemId models.Id, itemUpdate *ItemUpdate) error {
 
 	if itemUpdate.PriceInCents != nil {
 		if !models.IsValidPrice(*itemUpdate.PriceInCents) {
-			return fmt.Errorf("failed to updated item's price to %d: %w", *itemUpdate.PriceInCents, InvalidPriceError)
+			return fmt.Errorf("failed to updated item's price to %d: %w", *itemUpdate.PriceInCents, ErrInvalidPrice)
 		}
 
 		sqlUpdates = append(sqlUpdates, "price_in_cents = ?")

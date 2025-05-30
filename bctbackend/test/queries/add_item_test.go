@@ -153,7 +153,7 @@ func TestAddItem(t *testing.T) {
 
 			{
 				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
-				require.ErrorIs(t, err, queries.InvalidPriceError)
+				require.ErrorIs(t, err, queries.ErrInvalidPrice)
 			}
 
 			{
@@ -178,7 +178,7 @@ func TestAddItem(t *testing.T) {
 			priceInCents := models.MoneyInCents(-100)
 
 			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
-			require.ErrorIs(t, err, queries.InvalidPriceError)
+			require.ErrorIs(t, err, queries.ErrInvalidPrice)
 
 			count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 			require.NoError(t, err)

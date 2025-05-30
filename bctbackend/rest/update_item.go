@@ -104,7 +104,7 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 			failure_response.CannotUpdateFrozenItem(context, err.Error())
 			return
 		}
-		if errors.Is(err, queries.InvalidPriceError) {
+		if errors.Is(err, queries.ErrInvalidPrice) {
 			failure_response.InvalidPrice(context, err.Error())
 			return
 		}

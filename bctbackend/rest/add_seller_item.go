@@ -110,7 +110,7 @@ func AddSellerItem(context *gin.Context, db *sql.DB, userId models.Id, roleId mo
 			return
 		}
 
-		if errors.Is(err, queries.InvalidPriceError) {
+		if errors.Is(err, queries.ErrInvalidPrice) {
 			failure_response.InvalidPrice(context, err.Error())
 			return
 		}
