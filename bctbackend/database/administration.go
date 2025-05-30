@@ -44,7 +44,7 @@ func enableForeignKeysConstraints(db *sql.DB) error {
 
 func setJournalMode(db *sql.DB) error {
 	if _, err := db.Exec("PRAGMA journal_mode=WAL"); err != nil {
-		return fmt.Errorf("failed to set journal mode to WAL: %f", err)
+		return fmt.Errorf("failed to set journal mode to WAL: %w", err)
 	}
 
 	return nil
