@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	"github.com/pterm/pterm"
+	"github.com/urfave/cli/v2"
 	_ "modernc.org/sqlite"
 )
 
@@ -24,7 +25,7 @@ func ShowUser(databasePath string, userId models.Id) (r_err error) {
 
 	if err != nil {
 		if errors.Is(err, queries.ErrNoSuchUser) {
-			return fmt.Errorf("user with id %d does not exist", userId)
+			return cli.Exit("User with the given id does not exist", 1)
 		}
 
 		return err
