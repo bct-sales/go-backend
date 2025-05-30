@@ -15,11 +15,9 @@ import (
 
 func ShowUser(databasePath string, userId models.Id) (r_err error) {
 	db, err := database.OpenDatabase(databasePath)
-
 	if err != nil {
 		return err
 	}
-
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	user, err := queries.GetUserWithId(db, userId)
