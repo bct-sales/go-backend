@@ -192,9 +192,7 @@ func TestUpdateItem(t *testing.T) {
 			}
 
 			err := queries.UpdateItem(db, item.ItemId, &itemUpdate)
-
-			var invalidPriceError *queries.InvalidPriceError
-			require.ErrorAs(t, err, &invalidPriceError)
+			require.ErrorIs(t, err, queries.InvalidPriceError)
 		})
 	})
 }

@@ -152,10 +152,8 @@ func TestAddItem(t *testing.T) {
 			priceInCents := models.MoneyInCents(0)
 
 			{
-				_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
-
-				var invalidPriceError *queries.InvalidPriceError
-				require.ErrorAs(t, error, &invalidPriceError)
+				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
+				require.ErrorIs(t, err, queries.InvalidPriceError)
 			}
 
 			{
@@ -179,17 +177,12 @@ func TestAddItem(t *testing.T) {
 			hidden := false
 			priceInCents := models.MoneyInCents(-100)
 
-			{
-				_, error := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
-				var invalidPriceError *queries.InvalidPriceError
-				require.ErrorAs(t, error, &invalidPriceError)
-			}
+			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
+			require.ErrorIs(t, err, queries.InvalidPriceError)
 
-			{
-				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
-				require.NoError(t, err)
-				require.Equal(t, 0, count)
-			}
+			count, err := queries.CountItems(db, queries.OnlyVisibleItems)
+			require.NoError(t, err)
+			require.Equal(t, 0, count)
 		})
 
 		t.Run("Cashier owner", func(t *testing.T) {

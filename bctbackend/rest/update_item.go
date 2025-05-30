@@ -86,34 +86,27 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 		Charity:      payload.Charity,
 	}
 	if err := queries.UpdateItem(db, itemId, &itemUpdate); err != nil {
-		{
-			if errors.Is(err, queries.ErrNoSuchItem) {
-				slog.Error(
-					"Failed to update item",
-					"itemId", itemId,
-					"description", payload.Description,
-					"priceInCents", payload.PriceInCents,
-					"categoryId", payload.CategoryId,
-					"donation", payload.Donation,
-					"charity", payload.Charity,
-					"error", err,
-				)
-				failure_response.UnknownItem(context, err.Error())
-				return
-			}
+		if errors.Is(err, queries.ErrNoSuchItem) {
+			slog.Error(
+				"Failed to update item",
+				"itemId", itemId,
+				"description", payload.Description,
+				"priceInCents", payload.PriceInCents,
+				"categoryId", payload.CategoryId,
+				"donation", payload.Donation,
+				"charity", payload.Charity,
+				"error", err,
+			)
+			failure_response.UnknownItem(context, err.Error())
+			return
 		}
-		{
-			if errors.Is(err, queries.ItemFrozenError) {
-				failure_response.CannotUpdateFrozenItem(context, err.Error())
-				return
-			}
+		if errors.Is(err, queries.ItemFrozenError) {
+			failure_response.CannotUpdateFrozenItem(context, err.Error())
+			return
 		}
-		{
-			var invalidPriceError *queries.InvalidPriceError
-			if errors.As(err, &invalidPriceError) {
-				failure_response.InvalidPrice(context, err.Error())
-				return
-			}
+		if errors.Is(err, queries.InvalidPriceError) {
+			failure_response.InvalidPrice(context, err.Error())
+			return
 		}
 
 		failure_response.Unknown(context, err.Error())

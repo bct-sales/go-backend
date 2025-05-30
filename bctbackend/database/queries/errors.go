@@ -18,10 +18,7 @@ var ErrNoSuchSale = errors.New("no such sale")
 var NoSuchSessionError = errors.New("no such session")
 var NoSuchCategoryError = errors.New("no such category")
 var NoSuchRoleError = errors.New("no such role")
-
-type InvalidPriceError struct {
-	PriceInCents models.MoneyInCents
-}
+var InvalidPriceError = errors.New("invalid price")
 
 type InvalidItemDescriptionError struct {
 	Description string
@@ -38,10 +35,6 @@ var InvalidCategoryNameError = errors.New("category name is invalid")
 type CategoryIdAlreadyInUseError struct{}
 
 type HiddenFrozenItemError struct{}
-
-func (e *InvalidPriceError) Error() string {
-	return fmt.Sprintf("price %d is invalid", e.PriceInCents)
-}
 
 func (e *DuplicateItemInSaleError) Error() string {
 	return fmt.Sprintf("item %d is duplicated in sale", e.ItemId)
