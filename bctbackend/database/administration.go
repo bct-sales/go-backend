@@ -28,7 +28,7 @@ func fileExists(path string) (bool, error) {
 func connectToDatabase(path string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite", fmt.Sprintf("%s?_busy_timeout=500", path))
 	if err != nil {
-		return nil, err
+		return nil, &ErrDatabaseError{Message: "failed to open database", Wrapped: err}
 	}
 
 	return db, nil
@@ -36,7 +36,7 @@ func connectToDatabase(path string) (*sql.DB, error) {
 
 func enableForeignKeysConstraints(db *sql.DB) error {
 	if _, err := db.Exec("PRAGMA foreign_keys = ON"); err != nil {
-		return fmt.Errorf("failed to enable foreign key constraints: %w", err)
+		return &ErrDatabaseError{Message: "failed to enable foreign key constraints", Wrapped: err}
 	}
 
 	return nil
@@ -44,7 +44,7 @@ func enableForeignKeysConstraints(db *sql.DB) error {
 
 func setJournalMode(db *sql.DB) error {
 	if _, err := db.Exec("PRAGMA journal_mode=WAL"); err != nil {
-		return fmt.Errorf("failed to set journal mode to WAL: %w", err)
+		return &ErrDatabaseError{Message: "failed to set journal mode to WAL", Wrapped: err}
 	}
 
 	return nil

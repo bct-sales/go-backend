@@ -2,6 +2,7 @@ package database
 
 import (
 	"errors"
+	"fmt"
 )
 
 var ErrUserIdAlreadyInUse = errors.New("user id already in use")
@@ -24,3 +25,16 @@ var ErrItemHidden = errors.New("item is hidden")
 var ErrInvalidCategoryName = errors.New("category name is invalid")
 var ErrCategoryIdAlreadyInUse = errors.New("category id is already in use")
 var ErrHiddenFrozenItem = errors.New("items cannot be hidden and frozen at the same time")
+
+type ErrDatabaseError struct {
+	Message string
+	Wrapped error
+}
+
+func (e *ErrDatabaseError) Error() string {
+	return fmt.Sprintf("%s: %s", e.Message, e.Wrapped.Error())
+}
+
+func (e *ErrDatabaseError) Unwrap() error {
+	return e.Wrapped
+}
