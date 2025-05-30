@@ -133,15 +133,26 @@ func GetSessions(db *sql.DB) (r_result []models.Session, r_err error) {
 }
 
 func DeleteSession(db *sql.DB, sessionId models.SessionId) error {
-	_, err := db.Exec(
+	result, err := db.Exec(
 		`
 			DELETE FROM sessions
 			WHERE session_id = ?
 		`,
 		sessionId,
 	)
+	if err != nil {
+		return fmt.Errorf("failed to delete session: %w", err)
+	}
 
-	return err
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to delete session: %w", err)
+	}
+	if rowsAffected == 0 {
+		return database.ErrNoSuchSession
+	}
+
+	return nil
 }
 
 func DeleteExpiredSessions(db *sql.DB, cutOff models.Timestamp) error {
