@@ -685,7 +685,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							cashierId := models.Id(options.sale.add.cashierId)
 							items := []models.Id{}
 
-							for i := 0; i < context.Args().Len(); i++ {
+							for i := range context.Args().Len() {
 								itemId, err := models.ParseId(context.Args().Get(i))
 
 								if err != nil {
