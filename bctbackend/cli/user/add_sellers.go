@@ -49,7 +49,7 @@ func collectExistingPasswords(db *sql.DB) (*algorithms.Set[string], error) {
 
 func determineSellersToBeCreated(zones []int, sellersPerZone int, receiver func(models.Id) error) error {
 	for _, zone := range zones {
-		for i := 0; i < sellersPerZone; i++ {
+		for i := range sellersPerZone {
 			sellerId := models.Id(zone*100 + i)
 			if err := receiver(sellerId); err != nil {
 				return fmt.Errorf("failed to process seller %d: %w", sellerId, err)
