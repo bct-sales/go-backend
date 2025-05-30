@@ -137,7 +137,7 @@ func GetSales(db *sql.DB, receiver func(*models.SaleSummary) error) (r_err error
 
 // GetSaleWithId returns the sale with the given saleId.
 // A NoSuchSaleError is returned if no sale with the given saleId exists.
-func GetSaleWithId(db *sql.DB, saleId models.Id) (models.Sale, error) {
+func GetSaleWithId(db *sql.DB, saleId models.Id) (*models.Sale, error) {
 	var sale models.Sale
 
 	err := db.QueryRow(
@@ -150,14 +150,14 @@ func GetSaleWithId(db *sql.DB, saleId models.Id) (models.Sale, error) {
 	).Scan(&sale.SaleId, &sale.CashierId, &sale.TransactionTime)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return sale, fmt.Errorf("failed to get sale with id %d: %w", saleId, database.ErrNoSuchSale)
+		return nil, fmt.Errorf("failed to get sale with id %d: %w", saleId, database.ErrNoSuchSale)
 	}
 
 	if err != nil {
-		return sale, err
+		return nil, err
 	}
 
-	return sale, nil
+	return &sale, nil
 }
 
 func SaleExists(db *sql.DB, saleId models.Id) (bool, error) {
