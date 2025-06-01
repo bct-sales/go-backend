@@ -57,6 +57,10 @@ func AddUser(
 	lastActivity *models.Timestamp,
 	password string) (models.Id, error) {
 
+	if !models.IsValidRole(roleId) {
+		return 0, fmt.Errorf("cannot add user with role %d: %w", roleId, database.ErrNoSuchRole)
+	}
+
 	result, err := db.Exec(
 		`
 			INSERT INTO users (role_id, created_at, last_activity, password)
@@ -69,10 +73,6 @@ func AddUser(
 	)
 
 	if err != nil {
-		if !models.IsValidRole(roleId) {
-			return 0, fmt.Errorf("failed to add user with role %d: %w", roleId, database.ErrNoSuchRole)
-		}
-
 		return 0, err
 	}
 
@@ -267,7 +267,7 @@ func UpdateUserPassword(db *sql.DB, userId models.Id, password string) error {
 // A ErrWrongRole is returned if the user has a different role.
 func EnsureUserRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) error {
 	if !models.IsValidRole(expectedRoleId) {
-		return fmt.Errorf("invalid role %d: %w", expectedRoleId, database.ErrInvalidRole)
+		return fmt.Errorf("invalid role %d: %w", expectedRoleId, database.ErrNoSuchRole)
 	}
 
 	user, err := GetUserWithId(db, userId)

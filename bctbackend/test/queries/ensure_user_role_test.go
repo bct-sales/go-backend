@@ -76,7 +76,7 @@ func TestEnsureUserRole(t *testing.T) {
 			nonexistentRole := models.Id(9999)
 
 			err := queries.EnsureUserRole(db, seller.UserId, nonexistentRole)
-			require.ErrorIs(t, err, database.ErrInvalidRole)
+			require.ErrorIs(t, err, database.ErrNoSuchRole)
 		})
 	})
 }
