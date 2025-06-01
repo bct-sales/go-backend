@@ -4,7 +4,7 @@ package queries
 
 import (
 	"bctbackend/database"
-	models "bctbackend/database/models"
+	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	. "bctbackend/test/setup"
 	"fmt"
