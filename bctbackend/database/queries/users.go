@@ -262,6 +262,19 @@ func UpdateUserPassword(db *sql.DB, userId models.Id, password string) error {
 	return err
 }
 
+// EnsureUserExists checks if a user exists in the database by their user ID.
+// An NoSuchUserError is returned if the user does not exist.
+func EnsureUserExists(db *sql.DB, userId models.Id) error {
+	userExists, err := UserWithIdExists(db, userId)
+	if err != nil {
+		return fmt.Errorf("failed to ensure user %d exists: %w", userId, err)
+	}
+	if !userExists {
+		return fmt.Errorf("failed to ensure user %d exists: %w", userId, database.ErrNoSuchUser)
+	}
+	return nil
+}
+
 // EnsureUserRole checks if a user has a specific role.
 // An NoSuchUserError is returned if the user does not exist.
 // A ErrWrongRole is returned if the user has a different role.
