@@ -3,7 +3,6 @@
 package queries
 
 import (
-	"bctbackend/algorithms"
 	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
@@ -33,9 +32,9 @@ func TestGetSellerFrozenItemCount(t *testing.T) {
 
 							seller := setup.Seller()
 
-							algorithms.Repeat(frozenVisibleItemCount, func() { setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithFrozen(true), aux.WithHidden(false)) })
-							algorithms.Repeat(unfrozenHiddenItemCount, func() { setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithFrozen(false), aux.WithHidden(true)) })
-							algorithms.Repeat(unfrozenVisibleItemCount, func() { setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithFrozen(false), aux.WithHidden(false)) })
+							setup.Items(seller.UserId, frozenVisibleItemCount, aux.WithDummyData(0), aux.WithFrozen(true), aux.WithHidden(false))
+							setup.Items(seller.UserId, unfrozenHiddenItemCount, aux.WithDummyData(0), aux.WithFrozen(false), aux.WithHidden(true))
+							setup.Items(seller.UserId, unfrozenVisibleItemCount, aux.WithDummyData(0), aux.WithFrozen(false), aux.WithHidden(false))
 
 							expectedCount := frozenVisibleItemCount
 
