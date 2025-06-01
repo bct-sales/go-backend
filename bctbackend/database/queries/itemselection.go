@@ -1,11 +1,5 @@
 package queries
 
-import (
-	"os"
-
-	"golang.org/x/exp/slog"
-)
-
 type ItemSelection int
 
 const (
@@ -23,9 +17,7 @@ func ItemsTableFor(itemSelection ItemSelection) string {
 	case OnlyHiddenItems:
 		return "hidden_items"
 	default:
-		slog.Error("Invalid hidden strategy", "hiddenStrategy", itemSelection)
-		os.Exit(1)
-		return ""
+		panic("Invalid hidden strategy: " + string(itemSelection))
 	}
 }
 
