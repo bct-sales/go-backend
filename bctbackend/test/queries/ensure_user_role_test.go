@@ -50,7 +50,7 @@ func TestEnsureUserRole(t *testing.T) {
 							user := setup.User(actualRoleId)
 
 							err := queries.EnsureUserRole(db, user.UserId, expectedRoleId)
-							require.ErrorIs(t, err, database.ErrInvalidRole)
+							require.ErrorIs(t, err, database.ErrWrongRole)
 						})
 					}
 				}

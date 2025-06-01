@@ -85,7 +85,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 			admin := setup.Admin()
 
 			_, err := queries.GetSalesWithCashier(db, admin.UserId)
-			require.ErrorIs(t, err, database.ErrInvalidRole)
+			require.ErrorIs(t, err, database.ErrWrongRole)
 		})
 
 		t.Run("User whose sales we want is a seller", func(t *testing.T) {
@@ -95,7 +95,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 			seller := setup.Seller()
 
 			_, err := queries.GetSalesWithCashier(db, seller.UserId)
-			require.ErrorIs(t, err, database.ErrInvalidRole)
+			require.ErrorIs(t, err, database.ErrWrongRole)
 		})
 	})
 }

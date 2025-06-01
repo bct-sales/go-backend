@@ -126,7 +126,7 @@ func TestGetSellerItems(t *testing.T) {
 			cashier := setup.Cashier()
 
 			_, err := queries.GetSellerItems(db, cashier.UserId, queries.AllItems)
-			require.ErrorIs(t, err, database.ErrInvalidRole)
+			require.ErrorIs(t, err, database.ErrWrongRole)
 		})
 
 		t.Run("Wrong role: admin", func(t *testing.T) {
@@ -136,7 +136,7 @@ func TestGetSellerItems(t *testing.T) {
 			admin := setup.Admin()
 
 			_, err := queries.GetSellerItems(db, admin.UserId, queries.AllItems)
-			require.ErrorIs(t, err, database.ErrInvalidRole)
+			require.ErrorIs(t, err, database.ErrWrongRole)
 		})
 	})
 }

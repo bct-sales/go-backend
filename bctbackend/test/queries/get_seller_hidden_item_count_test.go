@@ -89,7 +89,7 @@ func TestGetSellerHiddenItemCount(t *testing.T) {
 				cashier := setup.Cashier()
 
 				_, err := queries.GetSellerHiddenItemCount(db, cashier.UserId)
-				require.ErrorIs(t, err, database.ErrInvalidRole)
+				require.ErrorIs(t, err, database.ErrWrongRole)
 			})
 
 			t.Run("Count hidden items of admin", func(t *testing.T) {
@@ -99,7 +99,7 @@ func TestGetSellerHiddenItemCount(t *testing.T) {
 				admin := setup.Admin()
 
 				_, err := queries.GetSellerHiddenItemCount(db, admin.UserId)
-				require.ErrorIs(t, err, database.ErrInvalidRole)
+				require.ErrorIs(t, err, database.ErrWrongRole)
 			})
 		})
 	})

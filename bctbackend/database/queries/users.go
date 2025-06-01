@@ -264,8 +264,12 @@ func UpdateUserPassword(db *sql.DB, userId models.Id, password string) error {
 
 // EnsureUserRole checks if a user has a specific role.
 // An NoSuchUserError is returned if the user does not exist.
-// A InvalidRoleError is returned if the user has a different role.
+// A ErrWrongRole is returned if the user has a different role.
 func EnsureUserRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) error {
+	if !models.IsValidRole(expectedRoleId) {
+		return fmt.Errorf("invalid role %d: %w", expectedRoleId, database.ErrInvalidRole)
+	}
+
 	user, err := GetUserWithId(db, userId)
 
 	if err != nil {
@@ -273,7 +277,7 @@ func EnsureUserRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) erro
 	}
 
 	if user.RoleId != expectedRoleId {
-		return fmt.Errorf("user %d expected to have role %d: %w", userId, expectedRoleId, database.ErrInvalidRole)
+		return fmt.Errorf("user %d expected to have role %d: %w", userId, expectedRoleId, database.ErrWrongRole)
 	}
 
 	return nil
