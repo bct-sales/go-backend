@@ -61,7 +61,7 @@ func GetItems(db *sql.DB, receiver func(*models.Item) error, itemSelection ItemS
 // An NoSuchUserError is returned if no user with the given sellerId exists.
 // An InvalidRoleError is returned if sellerId does not refer to a seller.
 func GetSellerItems(db *sql.DB, sellerId models.Id, itemSelection ItemSelection) (r_items []*models.Item, r_err error) {
-	if err := EnsureUserRole(db, sellerId, models.SellerRoleId); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, sellerId, models.SellerRoleId); err != nil {
 		return nil, err
 	}
 
@@ -118,7 +118,7 @@ type ItemWithSaleCount struct {
 // An NoSuchUserError is returned if no user with the given sellerId exists.
 // An InvalidRoleError is returned if sellerId does not refer to a seller.
 func GetSellerItemsWithSaleCounts(db *sql.DB, sellerId models.Id) (r_items []*ItemWithSaleCount, r_err error) {
-	if err := EnsureUserRole(db, sellerId, models.SellerRoleId); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, sellerId, models.SellerRoleId); err != nil {
 		return nil, err
 	}
 
@@ -324,7 +324,7 @@ func AddItem(
 	if !models.IsValidItemDescription(description) {
 		return 0, fmt.Errorf("failed to add item with description %s: %w", description, database.ErrInvalidItemDescription)
 	}
-	if err := EnsureUserRole(db, sellerId, models.SellerRoleId); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, sellerId, models.SellerRoleId); err != nil {
 		return 0, err
 	}
 	if frozen && hidden {

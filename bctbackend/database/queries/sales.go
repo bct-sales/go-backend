@@ -338,7 +338,7 @@ func HasAnyBeenSold(db *sql.DB, itemIds []models.Id) (bool, error) {
 // GetItemsSoldBy returns a list of all items sold by a specified cashier.
 // The items are ordered by transaction time (most recent first) and item ID (lowest first).
 func GetItemsSoldBy(db *sql.DB, cashierId models.Id) (r_result []*models.Item, r_err error) {
-	if err := EnsureUserRole(db, cashierId, models.CashierRoleId); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, cashierId, models.CashierRoleId); err != nil {
 		return nil, err
 	}
 
@@ -434,7 +434,7 @@ func GetSalesWithItem(db *sql.DB, itemId models.Id) (r_result []models.Id, r_err
 // Returns NoSuchUserError if the cashierId does not correspond to any user.
 // Returns InvalidRoleError if the cashierId does not correspond to a cashier.
 func GetSalesWithCashier(db *sql.DB, cashierId models.Id) (r_result []*models.Sale, r_err error) {
-	if err := EnsureUserRole(db, cashierId, models.CashierRoleId); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, cashierId, models.CashierRoleId); err != nil {
 		return nil, err
 	}
 

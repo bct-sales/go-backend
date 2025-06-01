@@ -63,7 +63,7 @@ func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 		return
 	}
 
-	if err := queries.EnsureUserRole(db, uriSellerId, models.SellerRoleId); err != nil {
+	if err := queries.EnsureUserExistsAndHasRole(db, uriSellerId, models.SellerRoleId); err != nil {
 		if errors.Is(err, database.ErrNoSuchUser) {
 			failure_response.UnknownUser(context, err.Error())
 			return

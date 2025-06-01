@@ -14,7 +14,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func TestEnsureUserRole(t *testing.T) {
+func TestEnsureUserExistsAndHasRole(t *testing.T) {
 	roleIds := []models.Id{
 		models.SellerRoleId,
 		models.CashierRoleId,
@@ -31,7 +31,7 @@ func TestEnsureUserRole(t *testing.T) {
 
 				user := setup.User(roleId)
 
-				err := queries.EnsureUserRole(db, user.UserId, roleId)
+				err := queries.EnsureUserExistsAndHasRole(db, user.UserId, roleId)
 				require.NoError(t, err)
 			})
 		}
@@ -49,7 +49,7 @@ func TestEnsureUserRole(t *testing.T) {
 
 							user := setup.User(actualRoleId)
 
-							err := queries.EnsureUserRole(db, user.UserId, expectedRoleId)
+							err := queries.EnsureUserExistsAndHasRole(db, user.UserId, expectedRoleId)
 							require.ErrorIs(t, err, database.ErrWrongRole)
 						})
 					}
@@ -64,7 +64,7 @@ func TestEnsureUserRole(t *testing.T) {
 			nonexistentUserId := models.Id(9999) // Assuming this ID does not exist in the database
 			setup.RequireNoSuchUsers(t, nonexistentUserId)
 
-			err := queries.EnsureUserRole(db, nonexistentUserId, models.SellerRoleId)
+			err := queries.EnsureUserExistsAndHasRole(db, nonexistentUserId, models.SellerRoleId)
 			require.ErrorIs(t, err, database.ErrNoSuchUser)
 		})
 
@@ -75,7 +75,7 @@ func TestEnsureUserRole(t *testing.T) {
 			seller := setup.Seller()
 			nonexistentRole := models.Id(9999)
 
-			err := queries.EnsureUserRole(db, seller.UserId, nonexistentRole)
+			err := queries.EnsureUserExistsAndHasRole(db, seller.UserId, nonexistentRole)
 			require.ErrorIs(t, err, database.ErrNoSuchRole)
 		})
 	})

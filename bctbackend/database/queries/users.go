@@ -275,10 +275,10 @@ func EnsureUserExists(db *sql.DB, userId models.Id) error {
 	return nil
 }
 
-// EnsureUserRole checks if a user has a specific role.
+// EnsureUserExistsAndHasRole checks if a user has a specific role.
 // An NoSuchUserError is returned if the user does not exist.
 // A ErrWrongRole is returned if the user has a different role.
-func EnsureUserRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) error {
+func EnsureUserExistsAndHasRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) error {
 	if !models.IsValidRole(expectedRoleId) {
 		return fmt.Errorf("invalid role %d: %w", expectedRoleId, database.ErrNoSuchRole)
 	}
@@ -347,7 +347,7 @@ func UpdateLastActivity(db *sql.DB, userId models.Id, lastActivity models.Timest
 }
 
 func GetSellerItemCount(db *sql.DB, sellerId models.Id) (int, error) {
-	if err := EnsureUserRole(db, sellerId, models.SellerRoleId); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, sellerId, models.SellerRoleId); err != nil {
 		return 0, fmt.Errorf("failed to get hidden item count of user %d: %w", sellerId, err)
 	}
 
@@ -371,7 +371,7 @@ func GetSellerItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 }
 
 func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
-	if err := EnsureUserRole(db, sellerId, models.SellerRoleId); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, sellerId, models.SellerRoleId); err != nil {
 		return 0, fmt.Errorf("failed to get hidden item count of user %d: %w", sellerId, err)
 	}
 
@@ -393,7 +393,7 @@ func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 }
 
 func GetSellerHiddenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
-	if err := EnsureUserRole(db, sellerId, models.SellerRoleId); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, sellerId, models.SellerRoleId); err != nil {
 		return 0, fmt.Errorf("failed to get hidden item count of user %d: %w", sellerId, err)
 	}
 
@@ -416,7 +416,7 @@ func GetSellerHiddenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
 
 func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id, itemSelection ItemSelection) (models.MoneyInCents, error) {
 	// Ensure the user exists and is a seller
-	if err := EnsureUserRole(db, sellerId, models.SellerRoleId); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, sellerId, models.SellerRoleId); err != nil {
 		return 0, fmt.Errorf("failed to get total price of all items of user %d: %w", sellerId, err)
 	}
 
