@@ -150,9 +150,11 @@ func GetUserWithId(db *sql.DB, userId models.Id) (*models.User, error) {
 		userId,
 	)
 
-	user := models.User{UserId: userId}
-	err := row.Scan(&user.RoleId, &user.CreatedAt, &user.LastActivity, &user.Password)
-
+	var roleId models.Id
+	var createdAt models.Timestamp
+	var lastActivity *models.Timestamp
+	var password string
+	err := row.Scan(&roleId, &createdAt, &lastActivity, &password)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("failed to get user with id %d: %w", userId, database.ErrNoSuchUser)
@@ -161,6 +163,7 @@ func GetUserWithId(db *sql.DB, userId models.Id) (*models.User, error) {
 		return nil, err
 	}
 
+	user := models.User{UserId: userId, RoleId: roleId, CreatedAt: createdAt, LastActivity: lastActivity, Password: password}
 	return &user, nil
 }
 
