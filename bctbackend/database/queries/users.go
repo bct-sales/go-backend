@@ -327,15 +327,8 @@ func UpdateLastActivity(db *sql.DB, userId models.Id, lastActivity models.Timest
 }
 
 func GetSellerItemCount(db *sql.DB, sellerId models.Id) (int, error) {
-	// Ensure the user exists and is a seller
-	{
-		seller, err := GetUserWithId(db, sellerId)
-		if err != nil {
-			return 0, fmt.Errorf("failed to check user in GetSellerItemCount: %w", err)
-		}
-		if seller.RoleId != models.SellerRoleId {
-			return 0, fmt.Errorf("failed to get item count of non-seller %d: %w", sellerId, database.ErrInvalidRole)
-		}
+	if err := ensureUserRole(db, sellerId, models.SellerRoleId); err != nil {
+		return 0, fmt.Errorf("failed to get hidden item count of user %d: %w", sellerId, err)
 	}
 
 	row := db.QueryRow(
