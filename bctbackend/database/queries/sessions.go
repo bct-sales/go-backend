@@ -14,6 +14,10 @@ func AddSession(
 	userId models.Id,
 	expirationTime models.Timestamp) (string, error) {
 
+	if err := EnsureUserExists(db, userId); err != nil {
+		return "", fmt.Errorf("failed to add session: %w", err)
+	}
+
 	sessionId := security.GenerateUniqueSessionId()
 
 	_, err := db.Exec(

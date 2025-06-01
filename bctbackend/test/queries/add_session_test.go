@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/database"
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	. "bctbackend/test/setup"
@@ -29,5 +30,18 @@ func TestAddSession(t *testing.T) {
 			require.Equal(t, user.UserId, session.UserId)
 			require.Equal(t, expirationTime, session.ExpirationTime)
 		}
+	})
+
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("Nonexistent user", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			userId := models.Id(999)
+			setup.RequireNoSuchUsers(t, userId)
+			expirationTime := models.Timestamp(0)
+			_, err := queries.AddSession(db, userId, expirationTime)
+			require.ErrorIs(t, err, database.ErrNoSuchUser)
+		})
 	})
 }
