@@ -16,7 +16,6 @@ var ErrHiddenFrozenItem = errors.New("items cannot be hidden and frozen at the s
 var ErrDatabaseAlreadyExists = errors.New("database already exists")
 
 var ErrNoSuchUser = errors.New("no such user")
-var ErrNoSessionFound = errors.New("no session found")
 var ErrNoSuchItem = errors.New("no such item")
 var ErrNoSuchSale = errors.New("no such sale")
 var ErrNoSuchSession = errors.New("no such session")
