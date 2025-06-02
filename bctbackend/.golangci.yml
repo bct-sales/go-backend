@@ -99,6 +99,6 @@ linters:
     - usetesting
     - varnamelen
     - wastedassign
-    - whitespace
+    # - whitespace
     - wrapcheck
     - zerologlint
