@@ -317,11 +317,9 @@ func GetSoldItems(db *sql.DB) (r_result []*models.Item, r_err error) {
 			ORDER BY s.transaction_time DESC, i.item_id ASC
 		`,
 	)
-
 	if err != nil {
 		return nil, err
 	}
-
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	var items []*models.Item
