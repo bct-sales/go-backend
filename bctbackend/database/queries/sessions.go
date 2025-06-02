@@ -52,14 +52,10 @@ func GetSessionById(
 
 	var userId models.Id
 	var expirationTime models.Timestamp
-	err := row.Scan(
-		&userId,
-		&expirationTime,
-	)
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("failed to get session with id %s: %w", sessionId, database.ErrNoSuchSession)
-	}
-	if err != nil {
+	if err := row.Scan(&userId, &expirationTime); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("failed to get session with id %s: %w", sessionId, database.ErrNoSuchSession)
+		}
 		return nil, err
 	}
 
