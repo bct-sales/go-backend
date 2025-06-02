@@ -31,21 +31,31 @@ func GetSaleItemInformation(
 		`,
 		itemId)
 
-	var saleItemInformation SaleItemInformation
+	var sellerId models.Id
+	var description string
+	var itemCategoryId models.Id
+	var priceInCents models.MoneyInCents
+	var sellCount int64
 	err := row.Scan(
-		&saleItemInformation.SellerId,
-		&saleItemInformation.Description,
-		&saleItemInformation.PriceInCents,
-		&saleItemInformation.ItemCategoryId,
-		&saleItemInformation.SellCount,
+		&sellerId,
+		&description,
+		&priceInCents,
+		&itemCategoryId,
+		&sellCount,
 	)
-
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("failed to get information about item %d: %w", itemId, database.ErrNoSuchItem)
 	}
-
 	if err != nil {
 		return nil, err
+	}
+
+	saleItemInformation := SaleItemInformation{
+		SellerId:       sellerId,
+		Description:    description,
+		ItemCategoryId: itemCategoryId,
+		PriceInCents:   priceInCents,
+		SellCount:      sellCount,
 	}
 
 	return &saleItemInformation, nil
