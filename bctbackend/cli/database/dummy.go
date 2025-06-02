@@ -14,11 +14,9 @@ import (
 
 func ResetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 	db, err := database.OpenDatabase(databasePath)
-
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
-
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	slog.Info("Resetting database")
@@ -42,7 +40,7 @@ func ResetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 		password := "abc"
 
 		if err = queries.AddUserWithId(db, id, role, createdAt, lastActivity, password); err != nil {
-			return err
+			return fmt.Errorf("failed to add admin: %w", err)
 		}
 	}
 
@@ -55,7 +53,7 @@ func ResetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 		password := "abc"
 
 		if err = queries.AddUserWithId(db, id, role, createdAt, lastActivity, password); err != nil {
-			return err
+			return fmt.Errorf("failed to add cashier: %w", err)
 		}
 	}
 
@@ -116,5 +114,5 @@ func ResetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 
 func addItem(db *sql.DB, addedAt models.Timestamp, description string, priceInCents models.MoneyInCents, itemCategoryId models.Id, sellerId models.Id, donation bool, charity bool, frozen bool, hidden bool) error {
 	_, err := queries.AddItem(db, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
-	return err
+	return fmt.Errorf("failed to add item: %w", err)
 }

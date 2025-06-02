@@ -17,18 +17,17 @@ import (
 func ShowUser(databasePath string, userId models.Id) (r_err error) {
 	db, err := database.OpenDatabase(databasePath)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to open database: %w", err)
 	}
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	user, err := queries.GetUserWithId(db, userId)
-
 	if err != nil {
 		if errors.Is(err, database.ErrNoSuchUser) {
 			return cli.Exit("User with the given id does not exist", 1)
 		}
 
-		return err
+		return fmt.Errorf(": %w", err)
 	}
 
 	switch user.RoleId {

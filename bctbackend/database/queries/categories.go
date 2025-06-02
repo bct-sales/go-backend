@@ -20,12 +20,12 @@ func AddCategory(db *sql.DB, categoryName string) (models.Id, error) {
 	`
 	result, err := db.Exec(query, categoryName)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to insert category: %w", err)
 	}
 
 	categoryId, err := result.LastInsertId()
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to determine id of inserted category: %w", err)
 	}
 
 	return models.Id(categoryId), nil
@@ -53,7 +53,7 @@ func AddCategoryWithId(db *sql.DB, categoryId models.Id, categoryName string) er
 			}
 		}
 
-		return err
+		return fmt.Errorf("failed to insert category with id %d: %w", categoryId, err)
 	}
 
 	return nil
@@ -74,13 +74,12 @@ func CategoryWithIdExists(
 
 	var dummy int
 	err := row.Scan(&dummy)
-
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return false, nil
 		}
 
-		return false, err
+		return false, fmt.Errorf("failed to read row: %w", err)
 	}
 
 	return true, nil
@@ -95,9 +94,8 @@ func GetCategories(db *sql.DB) (r_result []*models.ItemCategory, r_err error) {
 		`,
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get categories: %w", err)
 	}
-
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	categories := []*models.ItemCategory{}
@@ -109,9 +107,8 @@ func GetCategories(db *sql.DB) (r_result []*models.ItemCategory, r_err error) {
 			&category.CategoryId,
 			&category.Name,
 		)
-
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read row: %w", err)
 		}
 
 		categories = append(categories, &category)
@@ -122,9 +119,8 @@ func GetCategories(db *sql.DB) (r_result []*models.ItemCategory, r_err error) {
 
 func GetCategoryNameTable(db *sql.DB) (map[models.Id]string, error) {
 	categories, err := GetCategories(db)
-
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get categories: %w", err)
 	}
 
 	result := make(map[models.Id]string)
@@ -148,7 +144,7 @@ func GetCategoryCounts(db *sql.DB, itemSelection ItemSelection) (r_counts map[mo
 
 	rows, err := db.Query(query)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get category counts: %w", err)
 	}
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
@@ -163,11 +159,11 @@ func GetCategoryCounts(db *sql.DB, itemSelection ItemSelection) (r_counts map[mo
 			&count,
 		)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read row: %w", err)
 		}
 
 		counts[id] = count
 	}
 
-	return counts, err
+	return counts, nil
 }

@@ -98,15 +98,13 @@ func PrintItem(db *sql.DB, categoryTable map[models.Id]string, itemId models.Id)
 
 func PrintSale(db *sql.DB, saleId models.Id) error {
 	sale, err := queries.GetSaleWithId(db, saleId)
-
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get sale with id %d: %w", saleId, err)
 	}
 
 	saleItems, err := queries.GetSaleItems(db, saleId)
-
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get items associated with sale %d: %w", saleId, err)
 	}
 
 	tableData := pterm.TableData{
@@ -121,10 +119,8 @@ func PrintSale(db *sql.DB, saleId models.Id) error {
 		})
 	}
 
-	err = pterm.DefaultTable.WithData(tableData).Render()
-
-	if err != nil {
-		return err
+	if err := pterm.DefaultTable.WithData(tableData).Render(); err != nil {
+		return fmt.Errorf("failed to render table: %w", err)
 	}
 
 	return nil
@@ -148,7 +144,6 @@ func FormatOptionalTimestamp(lastActivity *models.Timestamp) string {
 
 func FormatRole(roleId models.Id) string {
 	string, err := models.NameOfRole(roleId)
-
 	if err != nil {
 		return fmt.Sprintf("<error: unknown role %d>", roleId)
 	}

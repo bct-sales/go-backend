@@ -13,14 +13,14 @@ import (
 func ListCategories(databasePath string) (r_err error) {
 	database, err := database.OpenDatabase(databasePath)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to open database: %w", err)
 	}
 
 	defer func() { r_err = errors.Join(r_err, database.Close()) }()
 
 	categories, err := queries.GetCategories(database)
 	if err != nil {
-		return fmt.Errorf("error while listing categories: %w", err)
+		return fmt.Errorf("failed to list categories: %w", err)
 	}
 
 	tableData := pterm.TableData{
