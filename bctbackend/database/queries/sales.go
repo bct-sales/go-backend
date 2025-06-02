@@ -222,14 +222,33 @@ func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []models.Item, r_err e
 
 	var items []models.Item
 	for rows.Next() {
-		var item models.Item
-
-		err := rows.Scan(&item.ItemId, &item.AddedAt, &item.Description, &item.PriceInCents, &item.CategoryId, &item.SellerId, &item.Donation, &item.Charity, &item.Frozen)
-
+		var itemId models.Id
+		var addedAt models.Timestamp
+		var description string
+		var priceInCents models.MoneyInCents
+		var categoryId models.Id
+		var sellerId models.Id
+		var donation bool
+		var charity bool
+		var frozen bool
+		var hidden bool
+		err := rows.Scan(&itemId, &addedAt, &description, &priceInCents, &categoryId, &sellerId, &donation, &charity, &frozen)
 		if err != nil {
 			return nil, err
 		}
 
+		item := models.Item{
+			ItemId:       itemId,
+			AddedAt:      addedAt,
+			Description:  description,
+			PriceInCents: priceInCents,
+			CategoryId:   categoryId,
+			SellerId:     sellerId,
+			Donation:     donation,
+			Charity:      charity,
+			Frozen:       frozen,
+			Hidden:       hidden,
+		}
 		items = append(items, item)
 	}
 
