@@ -76,7 +76,7 @@ func GetSessionData(db *sql.DB, sessionId models.SessionId) (*SessionData, error
 	now := models.Now()
 	row := db.QueryRow(
 		`
-			SELECT users.user_id, role_id, expiration_time
+			SELECT users.user_id, role_id
 			FROM sessions INNER JOIN users ON sessions.user_id = users.user_id
 			WHERE session_id = ? AND ? < expiration_time
 		`,
@@ -84,15 +84,19 @@ func GetSessionData(db *sql.DB, sessionId models.SessionId) (*SessionData, error
 		now,
 	)
 
-	var sessionData SessionData
-	var expirationTime models.Timestamp
-	if err := row.Scan(&sessionData.UserId, &sessionData.RoleId, &expirationTime); err != nil {
+	var userId models.Id
+	var roleId models.Id
+	if err := row.Scan(&userId, &roleId); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, database.ErrNoSuchSession
 		}
 		return nil, err
 	}
 
+	sessionData := SessionData{
+		UserId: userId,
+		RoleId: roleId,
+	}
 	return &sessionData, nil
 }
 
