@@ -1,6 +1,7 @@
 package barcode
 
 import (
+	"fmt"
 	"image"
 
 	bclib "github.com/boombuler/barcode"
@@ -15,9 +16,8 @@ func GenerateBarcode(data string, width int, height int) (image.Image, error) {
 	}
 
 	scaledBarcode, err := bclib.Scale(barcode, width, height)
-
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to generate barcode: %w", err)
 	}
 
 	return scaledBarcode, nil
