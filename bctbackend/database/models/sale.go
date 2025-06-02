@@ -13,15 +13,3 @@ type SaleSummary struct {
 	ItemCount         int
 	TotalPriceInCents MoneyInCents
 }
-
-func NewSale(
-	saleId Id,
-	cashierId Id,
-	transactionTime Timestamp) *Sale {
-
-	return &Sale{
-		SaleId:          saleId,
-		CashierId:       cashierId,
-		TransactionTime: transactionTime,
-	}
-}
