@@ -199,11 +199,9 @@ func SaleExists(db *sql.DB, saleId models.Id) (bool, error) {
 // GetSaleItems lists all items associated with a specified sale.
 func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []models.Item, r_err error) {
 	saleExists, err := SaleExists(db, saleId)
-
 	if err != nil {
 		return nil, err
 	}
-
 	if !saleExists {
 		return nil, fmt.Errorf("failed to get items of sale %d: %w", saleId, database.ErrNoSuchSale)
 	}
