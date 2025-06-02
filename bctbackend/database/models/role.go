@@ -16,13 +16,6 @@ type Role struct {
 	Name   string
 }
 
-func NewRole(id Id, name string) *Role {
-	return &Role{
-		RoleId: id,
-		Name:   name,
-	}
-}
-
 func ParseRole(role string) (Id, error) {
 	switch role {
 	case "admin":
