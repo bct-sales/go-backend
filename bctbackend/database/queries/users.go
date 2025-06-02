@@ -224,12 +224,26 @@ func GetUsersWithItemCount(db *sql.DB, itemSelection ItemSelection, receiver fun
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	for rows.Next() {
-		var userWithItemCount UserWithItemCount
-
-		if err := rows.Scan(&userWithItemCount.UserId, &userWithItemCount.RoleId, &userWithItemCount.CreatedAt, &userWithItemCount.LastActivity, &userWithItemCount.Password, &userWithItemCount.ItemCount); err != nil {
+		var userId models.Id
+		var roleId models.Id
+		var createdAt models.Timestamp
+		var lastActivity *models.Timestamp
+		var password string
+		var itemCount int
+		if err := rows.Scan(&userId, &roleId, &createdAt, &lastActivity, &password, &itemCount); err != nil {
 			return err
 		}
 
+		userWithItemCount := UserWithItemCount{
+			User: models.User{
+				UserId:       userId,
+				RoleId:       roleId,
+				CreatedAt:    createdAt,
+				LastActivity: lastActivity,
+				Password:     password,
+			},
+			ItemCount: itemCount,
+		}
 		if err := receiver(&userWithItemCount); err != nil {
 			return err
 		}
