@@ -10,14 +10,13 @@ import (
 
 func GenerateBarcode(data string, width int, height int) (image.Image, error) {
 	barcode, err := code128.Encode(data)
-
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to encode barcode: %w", err)
 	}
 
 	scaledBarcode, err := bclib.Scale(barcode, width, height)
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate barcode: %w", err)
+		return nil, fmt.Errorf("failed to scale barcode: %w", err)
 	}
 
 	return scaledBarcode, nil
