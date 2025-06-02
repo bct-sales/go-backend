@@ -5,6 +5,7 @@ import (
 	"bctbackend/database/queries"
 	"database/sql"
 	"encoding/csv"
+	"fmt"
 	"io"
 )
 
@@ -15,14 +16,14 @@ func OutputUsers(db *sql.DB, writer io.Writer) error {
 	headers := []string{"user_id", "role_id", "last_activity", "password"}
 	err := csvWriter.Write(headers)
 	if err != nil {
-		return err
+		return fmt.Errorf("fail;ed to write csv headers: %w", err)
 	}
 
 	writeRow := func(user *models.User) error {
 		idString := user.UserId.String()
 		roleString, err := models.NameOfRole(user.RoleId)
 		if err != nil {
-			return err
+			panic(fmt.Sprintf("failed to get name of role %d: %v", user.RoleId, err))
 		}
 		var lastActivityString string
 
@@ -38,16 +39,15 @@ func OutputUsers(db *sql.DB, writer io.Writer) error {
 			lastActivityString,
 			user.Password,
 		})
-
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to write row to csv: %w", err)
 		}
 
 		return nil
 	}
 
 	if err := queries.GetUsers(db, writeRow); err != nil {
-		return err
+		return fmt.Errorf("failed to write users to file: %w", err)
 	}
 
 	return nil

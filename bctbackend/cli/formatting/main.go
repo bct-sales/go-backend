@@ -27,9 +27,8 @@ func PrintUser(user *models.User) error {
 	}
 
 	err := pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
-
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to render table: %w", err)
 	}
 
 	return nil
@@ -60,9 +59,8 @@ func PrintItems(categoryTable map[models.Id]string, items []*models.Item) error 
 	}
 
 	err := pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
-
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to render table: %w", err)
 	}
 
 	return nil
@@ -70,9 +68,8 @@ func PrintItems(categoryTable map[models.Id]string, items []*models.Item) error 
 
 func PrintItem(db *sql.DB, categoryTable map[models.Id]string, itemId models.Id) error {
 	item, err := queries.GetItemWithId(db, itemId)
-
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get item with id %d: %w", itemId, err)
 	}
 
 	categoryName, ok := categoryTable[item.CategoryId]
@@ -92,9 +89,8 @@ func PrintItem(db *sql.DB, categoryTable map[models.Id]string, itemId models.Id)
 	}
 
 	err = pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
-
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to render table: %w", err)
 	}
 
 	return nil

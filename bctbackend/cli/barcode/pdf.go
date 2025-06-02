@@ -2,6 +2,7 @@ package barcode
 
 import (
 	"bctbackend/pdf"
+	"fmt"
 )
 
 func GeneratePdf() error {
@@ -14,7 +15,7 @@ func GeneratePdf() error {
 		pdf.WithFontSize(5),
 	)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create layout settings object: %w", err)
 	}
 
 	labels := []*pdf.LabelData{
@@ -42,11 +43,11 @@ func GeneratePdf() error {
 
 	result, err := pdf.GeneratePdf(layout, labels)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to generate pdf: %w", err)
 	}
 
 	if err := result.WriteToFile("output.pdf"); err != nil {
-		return err
+		return fmt.Errorf("failed to write output file: %w", err)
 	}
 
 	return nil

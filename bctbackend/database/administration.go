@@ -11,16 +11,14 @@ import (
 
 func fileExists(path string) (bool, error) {
 	_, err := os.Stat(path)
-
 	if err == nil {
 		return true, nil
 	}
-
 	if errors.Is(err, os.ErrNotExist) {
 		return false, nil
 	}
 
-	return false, err
+	return false, fmt.Errorf("failed to determine if file %s exists: %w", path, err)
 }
 
 // connectToDatabase opens a connection to the database at the specified path.

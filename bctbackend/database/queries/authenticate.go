@@ -26,13 +26,12 @@ func AuthenticateUser(db *sql.DB, userId models.Id, password string) (models.Id,
 	var roleId models.Id
 	var expectedPassword string
 	err := row.Scan(&roleId, &expectedPassword)
-
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return 0, fmt.Errorf("failed to authenticate user %d: %w", userId, database.ErrNoSuchUser)
 		}
 
-		return 0, err
+		return 0, fmt.Errorf("failed to look up user %d in database: %w", userId, err)
 	}
 
 	if expectedPassword != password {
