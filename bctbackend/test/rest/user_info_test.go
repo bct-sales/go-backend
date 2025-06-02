@@ -50,11 +50,7 @@ func TestGetUserInformation(t *testing.T) {
 						seller := setup.Seller()
 						_, sessionId := setup.LoggedIn(setup.Admin())
 
-						items := make([]*models.Item, item_count)
-						for i := 0; i < item_count; i++ {
-							items[i] = setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
-						}
-
+						setup.Items(seller.UserId, item_count, aux.WithHidden(false))
 						url := path.Users().WithUserId(seller.UserId)
 						request := CreateGetRequest(url, WithSessionCookie(sessionId))
 						router.ServeHTTP(writer, request)

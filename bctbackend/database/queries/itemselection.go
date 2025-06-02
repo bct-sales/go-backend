@@ -1,5 +1,7 @@
 package queries
 
+import "fmt"
+
 type ItemSelection int
 
 const (
@@ -17,7 +19,7 @@ func ItemsTableFor(itemSelection ItemSelection) string {
 	case OnlyHiddenItems:
 		return "hidden_items"
 	default:
-		panic("Invalid hidden strategy: " + string(itemSelection))
+		panic(fmt.Sprintf("Invalid hidden strategy: %d", itemSelection))
 	}
 }
 

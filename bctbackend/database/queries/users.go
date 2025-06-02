@@ -346,69 +346,52 @@ func UpdateLastActivity(db *sql.DB, userId models.Id, lastActivity models.Timest
 	return err
 }
 
-func GetSellerItemCount(db *sql.DB, sellerId models.Id) (int, error) {
+type GetSellerItemCountFlag int
+
+const (
+	Include GetSellerItemCountFlag = iota
+	Exclude
+	Exclusive
+)
+
+func GetSellerItemCount(db *sql.DB, sellerId models.Id, frozen GetSellerItemCountFlag, hidden GetSellerItemCountFlag) (int, error) {
 	if err := EnsureUserExistsAndHasRole(db, sellerId, models.SellerRoleId); err != nil {
 		return 0, fmt.Errorf("failed to get hidden item count of user %d: %w", sellerId, err)
 	}
 
-	row := db.QueryRow(
+	whereCondition := "items.seller_id = $1"
+
+	switch frozen {
+	case Include:
+		// No additional condition needed, all items are included
+	case Exclude:
+		whereCondition += " AND items.frozen = false"
+	case Exclusive:
+		whereCondition += " AND items.frozen = true"
+	}
+
+	switch hidden {
+	case Include:
+		// No additional condition needed, all items are included
+	case Exclude:
+		whereCondition += " AND items.hidden = false"
+	case Exclusive:
+		whereCondition += " AND items.hidden = true"
+	}
+
+	query := fmt.Sprintf(
 		`
 			SELECT COUNT(items.item_id)
 			FROM items
-			WHERE items.seller_id = $1
-		`,
-		sellerId,
-	)
+			WHERE %s
+		`, whereCondition)
+	row := db.QueryRow(query, sellerId)
 
 	var itemCount int
 	err := row.Scan(&itemCount)
 
 	if err != nil {
 		return 0, fmt.Errorf("failed to get seller's %d item count: %w", sellerId, err)
-	}
-
-	return itemCount, nil
-}
-
-func GetSellerFrozenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
-	if err := EnsureUserExistsAndHasRole(db, sellerId, models.SellerRoleId); err != nil {
-		return 0, fmt.Errorf("failed to get hidden item count of user %d: %w", sellerId, err)
-	}
-
-	query :=
-		`
-			SELECT COUNT(item_id)
-			FROM items
-			WHERE seller_id = $1 AND frozen
-		`
-	row := db.QueryRow(query, sellerId)
-
-	var itemCount int
-	err := row.Scan(&itemCount)
-	if err != nil {
-		return 0, fmt.Errorf("failed to get seller %d's frozen item count: %w", sellerId, err)
-	}
-
-	return itemCount, nil
-}
-
-func GetSellerHiddenItemCount(db *sql.DB, sellerId models.Id) (int, error) {
-	if err := EnsureUserExistsAndHasRole(db, sellerId, models.SellerRoleId); err != nil {
-		return 0, fmt.Errorf("failed to get hidden item count of user %d: %w", sellerId, err)
-	}
-
-	query :=
-		`
-			SELECT COUNT(item_id)
-			FROM items
-			WHERE seller_id = $1 AND hidden
-		`
-	row := db.QueryRow(query, sellerId)
-
-	var itemCount int
-	err := row.Scan(&itemCount)
-	if err != nil {
-		return 0, fmt.Errorf("failed to get seller's hidden item count: %w", err)
 	}
 
 	return itemCount, nil
