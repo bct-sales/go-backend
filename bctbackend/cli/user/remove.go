@@ -16,11 +16,10 @@ func RemoveUser(databasePath string, userId models.Id) (r_err error) {
 	if err != nil {
 		return cli.Exit("Failed to connect to database", 1)
 	}
-
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	if err = queries.RemoveUserWithId(db, userId); err != nil {
-		return err
+		return cli.Exit("Failed to remove user: "+err.Error(), 1)
 	}
 
 	fmt.Println("User removed successfully")

@@ -8,13 +8,14 @@ import (
 	"fmt"
 
 	"github.com/pterm/pterm"
+	"github.com/urfave/cli/v2"
 	_ "modernc.org/sqlite"
 )
 
 func ListUsers(databasePath string) (r_err error) {
 	db, err := database.OpenDatabase(databasePath)
 	if err != nil {
-		return err
+		return cli.Exit("Failed to connect to database: "+err.Error(), 1)
 	}
 
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
