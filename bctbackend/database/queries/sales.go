@@ -425,8 +425,19 @@ func GetItemsSoldBy(db *sql.DB, cashierId models.Id) (r_result []*models.Item, r
 			return nil, err
 		}
 
-		item := models.NewItem(itemId, addedAt, description, priceInCents, categoryId, sellerId, donation, charity, frozen, hidden)
-		items = append(items, item)
+		item := models.Item{
+			ItemId:       itemId,
+			AddedAt:      addedAt,
+			Description:  description,
+			PriceInCents: priceInCents,
+			CategoryId:   categoryId,
+			SellerId:     sellerId,
+			Donation:     donation,
+			Charity:      charity,
+			Frozen:       frozen,
+			Hidden:       hidden,
+		}
+		items = append(items, &item)
 	}
 
 	return items, nil

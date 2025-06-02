@@ -44,9 +44,20 @@ func GetItems(db *sql.DB, receiver func(*models.Item) error, itemSelection ItemS
 			return fmt.Errorf("failed to scan row: %w", err)
 		}
 
-		item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
+		item := models.Item{
+			ItemId:       id,
+			AddedAt:      addedAt,
+			Description:  description,
+			PriceInCents: priceInCents,
+			CategoryId:   itemCategoryId,
+			SellerId:     sellerId,
+			Donation:     donation,
+			Charity:      charity,
+			Frozen:       frozen,
+			Hidden:       hidden,
+		}
 
-		if err := receiver(item); err != nil {
+		if err := receiver(&item); err != nil {
 			return fmt.Errorf("receiver failed: %w", err)
 		}
 	}
@@ -96,8 +107,19 @@ func GetSellerItems(db *sql.DB, sellerId models.Id, itemSelection ItemSelection)
 			return nil, fmt.Errorf("failed to read row: %w", err)
 		}
 
-		item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
-		items = append(items, item)
+		item := models.Item{
+			ItemId:       id,
+			AddedAt:      addedAt,
+			Description:  description,
+			PriceInCents: priceInCents,
+			CategoryId:   itemCategoryId,
+			SellerId:     sellerId,
+			Donation:     donation,
+			Charity:      charity,
+			Frozen:       frozen,
+			Hidden:       hidden,
+		}
+		items = append(items, &item)
 	}
 
 	return items, nil
@@ -134,7 +156,7 @@ func GetSellerItemsWithSaleCounts(db *sql.DB, sellerId models.Id) (r_items []*It
 
 	defer func() { err = errors.Join(err, rows.Close()) }()
 
-	items := make([]*ItemWithSaleCount, 0)
+	itemsWithSaleCount := make([]*ItemWithSaleCount, 0)
 
 	for rows.Next() {
 		var id models.Id
@@ -154,27 +176,27 @@ func GetSellerItemsWithSaleCounts(db *sql.DB, sellerId models.Id) (r_items []*It
 			return nil, fmt.Errorf("failed to read row: %w", err)
 		}
 
-		item := ItemWithSaleCount{
-			Item: *models.NewItem(
-				id,
-				addedAt,
-				description,
-				priceInCents,
-				itemCategoryId,
-				sellerId,
-				donation,
-				charity,
-				frozen,
-				hidden,
-			),
+		itemWithSaleCount := ItemWithSaleCount{
+			Item: models.Item{
+				ItemId:       id,
+				AddedAt:      addedAt,
+				Description:  description,
+				PriceInCents: priceInCents,
+				CategoryId:   itemCategoryId,
+				SellerId:     sellerId,
+				Donation:     donation,
+				Charity:      charity,
+				Frozen:       frozen,
+				Hidden:       hidden,
+			},
 			SaleCount: saleCount,
 		}
 
-		items = append(items, &item)
+		itemsWithSaleCount = append(itemsWithSaleCount, &itemWithSaleCount)
 	}
 
 	err = nil
-	return items, err
+	return itemsWithSaleCount, err
 }
 
 // Returns the item with the given identifier.
@@ -213,20 +235,19 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 		return nil, fmt.Errorf("failed to read row: %w", err)
 	}
 
-	item := models.NewItem(
-		itemId,
-		addedAt,
-		description,
-		priceInCents,
-		categoryId,
-		sellerId,
-		donation,
-		charity,
-		frozen,
-		hidden,
-	)
-
-	return item, nil
+	item := models.Item{
+		ItemId:       itemId,
+		AddedAt:      addedAt,
+		Description:  description,
+		PriceInCents: priceInCents,
+		CategoryId:   categoryId,
+		SellerId:     sellerId,
+		Donation:     donation,
+		Charity:      charity,
+		Frozen:       frozen,
+		Hidden:       hidden,
+	}
+	return &item, nil
 }
 
 // Returns all items with the given ids.
@@ -263,8 +284,19 @@ func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (r_result map[models.Id]*m
 			return nil, fmt.Errorf("failed to read row: %w", err)
 		}
 
-		item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
-		items[id] = item
+		item := models.Item{
+			ItemId:       id,
+			AddedAt:      addedAt,
+			Description:  description,
+			PriceInCents: priceInCents,
+			CategoryId:   itemCategoryId,
+			SellerId:     sellerId,
+			Donation:     donation,
+			Charity:      charity,
+			Frozen:       frozen,
+			Hidden:       hidden,
+		}
+		items[id] = &item
 	}
 
 	// Check if all requested items were found
