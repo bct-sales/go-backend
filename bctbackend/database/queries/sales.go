@@ -121,13 +121,23 @@ func GetSales(db *sql.DB, receiver func(*models.SaleSummary) error) (r_err error
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	for rows.Next() {
-		var sale models.SaleSummary
-
-		if err := rows.Scan(&sale.SaleId, &sale.CashierId, &sale.TransactionTime, &sale.ItemCount, &sale.TotalPriceInCents); err != nil {
+		var saleId models.Id
+		var cashierId models.Id
+		var transactionTime models.Timestamp
+		var itemCount int
+		var totalPriceInCents models.MoneyInCents
+		if err := rows.Scan(&saleId, &cashierId, &transactionTime, &itemCount, &totalPriceInCents); err != nil {
 			return err
 		}
 
-		if err := receiver(&sale); err != nil {
+		saleSummary := models.SaleSummary{
+			SaleId:            saleId,
+			CashierId:         cashierId,
+			TransactionTime:   transactionTime,
+			ItemCount:         itemCount,
+			TotalPriceInCents: totalPriceInCents,
+		}
+		if err := receiver(&saleSummary); err != nil {
 			return err
 		}
 	}
