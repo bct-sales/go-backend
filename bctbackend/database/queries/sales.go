@@ -323,7 +323,7 @@ func GetSoldItems(db *sql.DB) (r_result []*models.Item, r_err error) {
 
 // HasAnyBeenSold checks if any one of the given item was involved in one or more sales.
 // Does not check if items exist.
-func HasAnyBeenSold(db *sql.DB, itemIds []models.Id) (bool, error) {
+func HasAnyBeenSold(db *sql.DB, itemIds []models.Id) (r_result bool, r_err error) {
 	query := fmt.Sprintf(`
 		SELECT 1
 		FROM items INNER JOIN sale_items ON items.item_id = sale_items.item_id
@@ -335,6 +335,7 @@ func HasAnyBeenSold(db *sql.DB, itemIds []models.Id) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	count := 0
 	for rows.Next() {
