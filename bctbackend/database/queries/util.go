@@ -2,6 +2,7 @@ package queries
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
 )
 
@@ -22,7 +23,7 @@ type Transaction struct {
 func NewTransaction(db *sql.DB) (*Transaction, error) {
 	tx, err := db.Begin()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to start new transaction: %w", err)
 	}
 
 	return &Transaction{
@@ -32,7 +33,7 @@ func NewTransaction(db *sql.DB) (*Transaction, error) {
 
 func (t *Transaction) Commit() error {
 	if err := t.transaction.Commit(); err != nil {
-		return err
+		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
 	t.committed = true
@@ -45,7 +46,7 @@ func (t *Transaction) Rollback() error {
 	}
 
 	if err := t.transaction.Rollback(); err != nil {
-		return err
+		return fmt.Errorf("failed to roll back transaction: %w", err)
 	}
 
 	return nil

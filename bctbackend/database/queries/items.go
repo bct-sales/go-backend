@@ -23,7 +23,7 @@ func GetItems(db *sql.DB, receiver func(*models.Item) error, itemSelection ItemS
 	// Perform query
 	rows, err := db.Query(query)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to look up items in database: %w", err)
 	}
 	defer func() { err = errors.Join(err, rows.Close()) }()
 
@@ -39,17 +39,15 @@ func GetItems(db *sql.DB, receiver func(*models.Item) error, itemSelection ItemS
 		var charity bool
 		var frozen bool
 		var hidden bool
-
 		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity, &frozen, &hidden)
-
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to scan row: %w", err)
 		}
 
 		item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
 
 		if err := receiver(item); err != nil {
-			return err
+			return fmt.Errorf("receiver failed: %w", err)
 		}
 	}
 
@@ -75,9 +73,8 @@ func GetSellerItems(db *sql.DB, sellerId models.Id, itemSelection ItemSelection)
 
 	rows, err := db.Query(query, sellerId)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get seller item data from database: %w", err)
 	}
-
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	items := make([]*models.Item, 0)
@@ -96,11 +93,10 @@ func GetSellerItems(db *sql.DB, sellerId models.Id, itemSelection ItemSelection)
 
 		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity, &frozen, &hidden)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read row: %w", err)
 		}
 
 		item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
-
 		items = append(items, item)
 	}
 
@@ -133,7 +129,7 @@ func GetSellerItemsWithSaleCounts(db *sql.DB, sellerId models.Id) (r_items []*It
 		sellerId,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error occurred while getting seller items with sale counts: %w", err)
+		return nil, fmt.Errorf("failed to get seller items with sale counts from database: %w", err)
 	}
 
 	defer func() { err = errors.Join(err, rows.Close()) }()
@@ -155,7 +151,7 @@ func GetSellerItemsWithSaleCounts(db *sql.DB, sellerId models.Id) (r_items []*It
 
 		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity, &frozen, &hidden, &saleCount)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read row: %w", err)
 		}
 
 		item := ItemWithSaleCount{
@@ -210,13 +206,11 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 		&frozen,
 		&hidden,
 	)
-
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("while getting item with id %d: %w", itemId, database.ErrNoSuchItem)
-	}
-
 	if err != nil {
-		return nil, err
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("while getting item with id %d: %w", itemId, database.ErrNoSuchItem)
+		}
+		return nil, fmt.Errorf("failed to read row: %w", err)
 	}
 
 	item := models.NewItem(
@@ -247,7 +241,7 @@ func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (r_result map[models.Id]*m
 	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
 	rows, err := db.Query(query, convertedItemIds...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get items from database: %w", err)
 	}
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
@@ -266,7 +260,7 @@ func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (r_result map[models.Id]*m
 
 		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity, &frozen, &hidden)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to read row: %w", err)
 		}
 
 		item := models.NewItem(id, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
@@ -318,6 +312,7 @@ func AddItem(
 	charity bool,
 	frozen bool,
 	hidden bool) (models.Id, error) {
+
 	if !models.IsValidPrice(priceInCents) {
 		return 0, fmt.Errorf("failed to add item with price %d: %w", priceInCents, database.ErrInvalidPrice)
 	}
@@ -325,7 +320,7 @@ func AddItem(
 		return 0, fmt.Errorf("failed to add item with description %s: %w", description, database.ErrInvalidItemDescription)
 	}
 	if err := EnsureUserExistsAndHasRole(db, sellerId, models.SellerRoleId); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("could not ensure user %d exists and is seller: %w", sellerId, err)
 	}
 	if frozen && hidden {
 		return 0, fmt.Errorf("failed to add item: %w", database.ErrHiddenFrozenItem)
@@ -348,21 +343,20 @@ func AddItem(
 	)
 	if err != nil {
 		categoryExists, err2 := CategoryWithIdExists(db, itemCategoryId)
-
 		if err2 != nil {
-			return 0, err
+			return 0, fmt.Errorf("failed ot determine whether category with given id exists: %w", err)
 		}
 
 		if !categoryExists {
 			return 0, fmt.Errorf("failed to add item with category %d: %w", itemCategoryId, database.ErrNoSuchCategory)
 		}
 
-		return 0, err
+		return 0, fmt.Errorf("failed to insert item: %w", err)
 	}
 
 	itemId, err := result.LastInsertId()
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to determine id of inserted item: %w", err)
 	}
 
 	return models.Id(itemId), nil

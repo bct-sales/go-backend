@@ -24,9 +24,8 @@ func AddItem(
 
 	db, err := database.OpenDatabase(databasePath)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to open database: %w", err)
 	}
-
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	timestamp := models.Now()
@@ -34,7 +33,7 @@ func AddItem(
 	// We do not want to check the validity for frozen/hidden here, so we just set them to false
 	addedItemId, err := queries.AddItem(db, timestamp, description, priceInCents, categoryId, sellerId, donation, charity, false, false)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to add item to database: %w", err)
 	}
 	fmt.Println("Item added successfully")
 

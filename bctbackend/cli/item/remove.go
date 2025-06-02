@@ -16,13 +16,13 @@ func RemoveItem(
 
 	db, err := database.OpenDatabase(databasePath)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to open database: %w", err)
 	}
 
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
 	if err := queries.RemoveItemWithId(db, itemId); err != nil {
-		return err
+		return fmt.Errorf("failed to update database: %w", err)
 	}
 
 	fmt.Println("Item removed successfully")

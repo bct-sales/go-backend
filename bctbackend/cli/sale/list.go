@@ -16,7 +16,7 @@ import (
 func ListSales(databasePath string) (r_err error) {
 	db, err := database.OpenDatabase(databasePath)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to open database: %w", err)
 	}
 	defer func() { r_err = errors.Join(r_err, db.Close()) }()
 
@@ -55,7 +55,6 @@ func ListSales(databasePath string) (r_err error) {
 	}
 
 	err = pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
-
 	if err != nil {
 		return fmt.Errorf("error while rendering table: %w", err)
 	}
