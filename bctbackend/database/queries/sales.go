@@ -493,11 +493,9 @@ func GetSalesWithCashier(db *sql.DB, cashierId models.Id) (r_result []*models.Sa
 		`,
 		cashierId,
 	)
-
 	if err != nil {
 		return nil, err
 	}
-
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	sales := []*models.Sale{}
