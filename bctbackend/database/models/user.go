@@ -7,19 +7,3 @@ type User struct {
 	LastActivity *Timestamp
 	Password     string
 }
-
-func NewUser(
-	userId Id,
-	roleId Id,
-	createdAt Timestamp,
-	lastActivity *Timestamp,
-	password string) *User {
-
-	return &User{
-		UserId:       userId,
-		RoleId:       roleId,
-		CreatedAt:    createdAt,
-		LastActivity: lastActivity,
-		Password:     password,
-	}
-}

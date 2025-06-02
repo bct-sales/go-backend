@@ -191,8 +191,14 @@ func GetUsers(db *sql.DB, receiver func(*models.User) error) (r_err error) {
 			return err
 		}
 
-		user := models.NewUser(userId, roleId, createdAt, lastActivity, password)
-		if err := receiver(user); err != nil {
+		user := models.User{
+			UserId:       userId,
+			RoleId:       roleId,
+			CreatedAt:    createdAt,
+			LastActivity: lastActivity,
+			Password:     password,
+		}
+		if err := receiver(&user); err != nil {
 			return err
 		}
 
