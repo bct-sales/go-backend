@@ -43,29 +43,31 @@ func GetSessionById(
 
 	row := db.QueryRow(
 		`
-			SELECT session_id, user_id, expiration_time
+			SELECT user_id, expiration_time
 			FROM sessions
 			WHERE session_id = ?
 		`,
 		sessionId,
 	)
 
-	var session models.Session
-
+	var userId models.Id
+	var expirationTime models.Timestamp
 	err := row.Scan(
-		&session.SessionId,
-		&session.UserId,
-		&session.ExpirationTime,
+		&userId,
+		&expirationTime,
 	)
-
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("failed to get session with id %s: %w", sessionId, database.ErrNoSuchSession)
 	}
-
 	if err != nil {
 		return nil, err
 	}
 
+	session := models.Session{
+		SessionId:      sessionId,
+		UserId:         userId,
+		ExpirationTime: expirationTime,
+	}
 	return &session, nil
 }
 
