@@ -500,14 +500,19 @@ func GetSalesWithCashier(db *sql.DB, cashierId models.Id) (r_result []*models.Sa
 
 	sales := []*models.Sale{}
 	for rows.Next() {
-		var sale models.Sale
-
-		err := rows.Scan(&sale.CashierId, &sale.SaleId, &sale.TransactionTime)
-
+		var saleId models.Id
+		var cashierId models.Id
+		var transactionTime models.Timestamp
+		err := rows.Scan(&cashierId, &saleId, &transactionTime)
 		if err != nil {
 			return nil, err
 		}
 
+		sale := models.Sale{
+			SaleId:          saleId,
+			CashierId:       cashierId,
+			TransactionTime: transactionTime,
+		}
 		sales = append(sales, &sale)
 	}
 
