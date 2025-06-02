@@ -215,11 +215,9 @@ func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []models.Item, r_err e
 		`,
 		saleId,
 	)
-
 	if err != nil {
 		return nil, err
 	}
-
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	var items []models.Item
