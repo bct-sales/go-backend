@@ -117,14 +117,18 @@ func GetSessions(db *sql.DB) (r_result []models.Session, r_err error) {
 	var sessions []models.Session
 
 	for rows.Next() {
-		var session models.Session
-
-		err := rows.Scan(&session.SessionId, &session.UserId, &session.ExpirationTime)
-
-		if err != nil {
+		var sessionId models.SessionId
+		var userId models.Id
+		var expirationTime models.Timestamp
+		if err := rows.Scan(&sessionId, &userId, &expirationTime); err != nil {
 			return nil, err
 		}
 
+		session := models.Session{
+			SessionId:      sessionId,
+			UserId:         userId,
+			ExpirationTime: expirationTime,
+		}
 		sessions = append(sessions, session)
 	}
 
