@@ -34,16 +34,22 @@ func GetSalesOverview(db *sql.DB) (r_result []CategorySaleTotal, r_err error) {
 	var categorySaleTotals []CategorySaleTotal
 
 	for rows.Next() {
-		var categorySaleTotal CategorySaleTotal
-
+		var categoryId models.Id
+		var categoryName string
+		var totalInCents models.MoneyInCents
 		err := rows.Scan(
-			&categorySaleTotal.CategoryId,
-			&categorySaleTotal.CategoryName,
-			&categorySaleTotal.TotalInCents,
+			&categoryId,
+			&categoryName,
+			&totalInCents,
 		)
-
 		if err != nil {
 			return nil, err
+		}
+
+		categorySaleTotal := CategorySaleTotal{
+			CategoryId:   categoryId,
+			CategoryName: categoryName,
+			TotalInCents: totalInCents,
 		}
 
 		categorySaleTotals = append(categorySaleTotals, categorySaleTotal)
