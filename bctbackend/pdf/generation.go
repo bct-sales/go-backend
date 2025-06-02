@@ -83,8 +83,8 @@ func newPdfBuilder(layout *LayoutSettings, labels []*LabelData) (*PdfBuilder, er
 		layout:        layout,
 		gridWalker:    NewGridWalker(layout.columns, layout.rows),
 		labels:        labels,
-		barcodeWidth:  100,
-		barcodeHeight: 20,
+		barcodeWidth:  150,
+		barcodeHeight: 30,
 		showGrid:      false,
 	}
 
