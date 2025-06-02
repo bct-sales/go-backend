@@ -86,17 +86,10 @@ func GetSessionData(db *sql.DB, sessionId models.SessionId) (*SessionData, error
 
 	var sessionData SessionData
 	var expirationTime models.Timestamp
-	err := row.Scan(
-		&sessionData.UserId,
-		&sessionData.RoleId,
-		&expirationTime,
-	)
-
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil, database.ErrNoSuchSession
-	}
-
-	if err != nil {
+	if err := row.Scan(&sessionData.UserId, &sessionData.RoleId, &expirationTime); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, database.ErrNoSuchSession
+		}
 		return nil, err
 	}
 
