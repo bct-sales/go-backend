@@ -7,7 +7,7 @@ type Sale struct {
 }
 
 type SaleSummary struct {
-	SaleId            Id
+	SaleID            Id
 	CashierId         Id
 	TransactionTime   Timestamp
 	ItemCount         int

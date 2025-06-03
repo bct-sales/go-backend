@@ -131,7 +131,7 @@ func GetSales(db *sql.DB, receiver func(*models.SaleSummary) error) (r_err error
 		}
 
 		saleSummary := models.SaleSummary{
-			SaleId:            saleId,
+			SaleID:            saleId,
 			CashierId:         cashierId,
 			TransactionTime:   transactionTime,
 			ItemCount:         itemCount,

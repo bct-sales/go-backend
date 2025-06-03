@@ -24,7 +24,7 @@ func ListSales(databasePath string) (r_err error) {
 	}
 
 	addToTable := func(sale *models.SaleSummary) error {
-		saleIdString := sale.SaleId.String()
+		saleIdString := sale.SaleID.String()
 		cashierIdString := sale.CashierId.String()
 		transactionTimeString := sale.TransactionTime.FormattedDateTime()
 		itemCountString := strconv.Itoa(sale.ItemCount)

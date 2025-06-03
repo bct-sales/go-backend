@@ -39,7 +39,7 @@ func TestGetSales(t *testing.T) {
 	for _, actualSale := range actualSales {
 		require.Equal(t, cashier.UserId, actualSale.CashierId)
 
-		saleItems, err := queries.GetSaleItems(db, actualSale.SaleId)
+		saleItems, err := queries.GetSaleItems(db, actualSale.SaleID)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(saleItems))
 	}
