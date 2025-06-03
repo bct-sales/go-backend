@@ -3,7 +3,7 @@ package models
 type SessionId = string
 
 type Session struct {
-	SessionId      SessionId
+	SessionID      SessionId
 	UserId         Id
 	ExpirationTime Timestamp
 }

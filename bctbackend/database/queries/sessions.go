@@ -60,7 +60,7 @@ func GetSessionById(
 	}
 
 	session := models.Session{
-		SessionId:      sessionId,
+		SessionID:      sessionId,
 		UserId:         userId,
 		ExpirationTime: expirationTime,
 	}
@@ -125,7 +125,7 @@ func GetSessions(db *sql.DB) (r_result []models.Session, r_err error) {
 		}
 
 		session := models.Session{
-			SessionId:      sessionId,
+			SessionID:      sessionId,
 			UserId:         userId,
 			ExpirationTime: expirationTime,
 		}
