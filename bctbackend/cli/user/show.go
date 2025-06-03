@@ -11,7 +11,6 @@ import (
 
 	"github.com/pterm/pterm"
 	"github.com/urfave/cli/v2"
-	_ "modernc.org/sqlite"
 )
 
 func ShowUser(databasePath string, userId models.Id) (r_err error) {

@@ -8,7 +8,6 @@ import (
 	"fmt"
 
 	"github.com/urfave/cli/v2"
-	_ "modernc.org/sqlite"
 )
 
 func RemoveUser(databasePath string, userId models.Id) (r_err error) {

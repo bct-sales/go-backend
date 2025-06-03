@@ -7,7 +7,6 @@ import (
 	"fmt"
 
 	"github.com/pterm/pterm"
-	_ "modernc.org/sqlite"
 )
 
 func ListCategories(databasePath string) (r_err error) {

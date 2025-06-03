@@ -4,8 +4,6 @@ import (
 	database "bctbackend/database"
 	"errors"
 	"fmt"
-
-	_ "modernc.org/sqlite"
 )
 
 func BackupDatabase(databasePath string, targetPath string) (r_err error) {

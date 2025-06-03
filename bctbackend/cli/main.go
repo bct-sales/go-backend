@@ -20,8 +20,6 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/urfave/cli/v2"
-
-	_ "modernc.org/sqlite"
 )
 
 const (

@@ -6,8 +6,6 @@ import (
 	"bctbackend/database/queries"
 	"errors"
 	"fmt"
-
-	_ "modernc.org/sqlite"
 )
 
 func ResetDatabase(databasePath string, addCategories bool) (r_err error) {

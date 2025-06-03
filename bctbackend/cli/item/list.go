@@ -7,8 +7,6 @@ import (
 	"bctbackend/database/queries"
 	"errors"
 	"fmt"
-
-	_ "modernc.org/sqlite"
 )
 
 func ListItems(databasePath string, showHidden bool) (r_err error) {

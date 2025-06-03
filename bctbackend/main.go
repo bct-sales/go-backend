@@ -4,6 +4,8 @@ import (
 	"bctbackend/cli"
 	"fmt"
 	"os"
+
+	_ "modernc.org/sqlite"
 )
 
 func main() {

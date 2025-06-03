@@ -6,8 +6,6 @@ import (
 	"bctbackend/database/queries"
 	"errors"
 	"fmt"
-
-	_ "modernc.org/sqlite"
 )
 
 func SetPassword(databasePath string, userId models.Id, password string) (r_err error) {

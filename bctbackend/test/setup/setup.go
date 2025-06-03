@@ -13,6 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
+	_ "modernc.org/sqlite"
 )
 
 type DatabaseFixture struct {

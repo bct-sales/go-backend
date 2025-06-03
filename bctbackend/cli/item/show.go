@@ -7,8 +7,6 @@ import (
 	"bctbackend/database/queries"
 	"errors"
 	"fmt"
-
-	_ "modernc.org/sqlite"
 )
 
 func ShowItem(databasePath string, itemId models.Id) (r_err error) {

@@ -6,8 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-
-	_ "modernc.org/sqlite"
 )
 
 func ExportUsers(databasePath string) (r_err error) {

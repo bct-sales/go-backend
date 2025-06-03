@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	_ "modernc.org/sqlite"
 )
 
 func TestGetCategories(t *testing.T) {

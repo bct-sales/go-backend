@@ -11,7 +11,6 @@ import (
 	. "bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
-	_ "modernc.org/sqlite"
 )
 
 func TestAuthentication(t *testing.T) {

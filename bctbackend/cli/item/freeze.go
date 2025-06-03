@@ -6,8 +6,6 @@ import (
 	"bctbackend/database/queries"
 	"errors"
 	"fmt"
-
-	_ "modernc.org/sqlite"
 )
 
 func FreezeItem(databasePath string, itemId models.Id) (r_err error) {

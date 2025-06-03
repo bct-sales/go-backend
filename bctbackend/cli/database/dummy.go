@@ -8,8 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-
-	_ "modernc.org/sqlite"
 )
 
 func ResetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
@@ -29,7 +27,7 @@ func ResetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 		addCategory := func(id models.Id, name string) error {
 			return queries.AddCategoryWithId(db, id, name)
 		}
-		
+
 		if err := GenerateDefaultCategories(addCategory); err != nil {
 			return fmt.Errorf("failed to add categories: %w", err)
 		}

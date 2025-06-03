@@ -10,7 +10,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	_ "modernc.org/sqlite"
 )
 
 func TestSaleExists(t *testing.T) {

@@ -8,8 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-
-	_ "modernc.org/sqlite"
 )
 
 func AddSale(databasePath string, cashierId models.Id, items []models.Id) (r_err error) {

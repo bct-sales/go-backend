@@ -5,8 +5,6 @@ import (
 	rest "bctbackend/rest"
 	"errors"
 	"fmt"
-
-	_ "modernc.org/sqlite"
 )
 
 func startRestService(databasePath string) (r_err error) {

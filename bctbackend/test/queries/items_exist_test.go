@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	_ "modernc.org/sqlite"
 )
 
 func TestCheckItemsExistence(t *testing.T) {
@@ -61,7 +60,7 @@ func TestCheckItemsExistence(t *testing.T) {
 				testLabel := fmt.Sprintf("Selection: %v", selection)
 				t.Run(testLabel, func(t *testing.T) {
 					t.Parallel()
-					
+
 					setup, db := NewDatabaseFixture(WithDefaultCategories)
 					defer setup.Close()
 

@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	_ "modernc.org/sqlite"
 )
 
 func TestGetSaleItems(t *testing.T) {

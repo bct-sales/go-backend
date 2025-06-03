@@ -6,8 +6,6 @@ import (
 	models "bctbackend/database/models"
 	queries "bctbackend/database/queries"
 	"database/sql"
-
-	_ "modernc.org/sqlite"
 )
 
 type AddSaleData struct {

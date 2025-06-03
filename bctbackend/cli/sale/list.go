@@ -9,8 +9,6 @@ import (
 	"strconv"
 
 	"github.com/pterm/pterm"
-
-	_ "modernc.org/sqlite"
 )
 
 func ListSales(databasePath string) (r_err error) {

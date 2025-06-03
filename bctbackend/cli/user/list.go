@@ -9,7 +9,6 @@ import (
 
 	"github.com/pterm/pterm"
 	"github.com/urfave/cli/v2"
-	_ "modernc.org/sqlite"
 )
 
 func ListUsers(databasePath string) (r_err error) {

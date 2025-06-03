@@ -7,7 +7,6 @@ import (
 	"database/sql"
 
 	gin "github.com/gin-gonic/gin"
-	_ "modernc.org/sqlite"
 )
 
 func CreateRestRouter(db *sql.DB) *gin.Engine {

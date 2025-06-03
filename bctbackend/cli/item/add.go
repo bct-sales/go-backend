@@ -9,8 +9,6 @@ import (
 	"fmt"
 
 	"log/slog"
-
-	_ "modernc.org/sqlite"
 )
 
 func AddItem(

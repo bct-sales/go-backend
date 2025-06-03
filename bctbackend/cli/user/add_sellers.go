@@ -11,7 +11,6 @@ import (
 
 	"github.com/urfave/cli/v2"
 	"golang.org/x/exp/rand"
-	_ "modernc.org/sqlite"
 )
 
 type sellerCreationData struct {

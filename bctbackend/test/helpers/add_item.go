@@ -7,8 +7,6 @@ import (
 	queries "bctbackend/database/queries"
 	"database/sql"
 	"strconv"
-
-	_ "modernc.org/sqlite"
 )
 
 type AddItemData struct {

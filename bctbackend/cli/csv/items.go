@@ -8,8 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-
-	_ "modernc.org/sqlite"
 )
 
 func ExportItems(databasePath string, includeHidden bool) (r_err error) {

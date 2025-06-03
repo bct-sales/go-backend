@@ -6,8 +6,6 @@ import (
 	"bctbackend/database/models"
 	"errors"
 	"fmt"
-
-	_ "modernc.org/sqlite"
 )
 
 func ShowSale(databasePath string, saleId models.Id) (r_err error) {

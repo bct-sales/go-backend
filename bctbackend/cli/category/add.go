@@ -6,8 +6,6 @@ import (
 	"bctbackend/database/queries"
 	"errors"
 	"fmt"
-
-	_ "modernc.org/sqlite"
 )
 
 func AddCategory(databasePath string, id models.Id, name string) (r_err error) {

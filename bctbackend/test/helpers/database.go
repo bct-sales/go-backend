@@ -6,8 +6,6 @@ import (
 	database "bctbackend/database"
 	"database/sql"
 	"log"
-
-	_ "modernc.org/sqlite"
 )
 
 func OpenDatabase() *sql.DB {

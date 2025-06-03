@@ -9,7 +9,6 @@ import (
 
 	"github.com/pterm/pterm"
 	"github.com/urfave/cli/v2"
-	_ "modernc.org/sqlite"
 )
 
 func ListCategoryCounts(databasePath string, itemSelection queries.ItemSelection) (r_err error) {
