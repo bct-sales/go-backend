@@ -12,7 +12,7 @@ const (
 )
 
 type Role struct {
-	RoleId Id
+	RoleID Id
 	Name   string
 }
 
