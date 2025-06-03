@@ -114,6 +114,10 @@ func GetCategories(db *sql.DB) (r_result []*models.ItemCategory, r_err error) {
 		categories = append(categories, &category)
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
+	}
+
 	return categories, nil
 }
 
@@ -163,6 +167,10 @@ func GetCategoryCounts(db *sql.DB, itemSelection ItemSelection) (r_counts map[mo
 		}
 
 		counts[id] = count
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return counts, nil

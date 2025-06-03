@@ -201,7 +201,10 @@ func GetUsers(db *sql.DB, receiver func(*models.User) error) (r_err error) {
 		if err := receiver(&user); err != nil {
 			return err
 		}
+	}
 
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return nil
@@ -253,6 +256,10 @@ func GetUsersWithItemCount(db *sql.DB, itemSelection ItemSelection, receiver fun
 		if err := receiver(&userWithItemCount); err != nil {
 			return err
 		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return nil

@@ -62,6 +62,10 @@ func GetItems(db *sql.DB, receiver func(*models.Item) error, itemSelection ItemS
 		}
 	}
 
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("error occurred while iterating over rows: %w", err)
+	}
+
 	return nil
 }
 
@@ -120,6 +124,10 @@ func GetSellerItems(db *sql.DB, sellerId models.Id, itemSelection ItemSelection)
 			Hidden:       hidden,
 		}
 		items = append(items, &item)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return items, nil
@@ -195,8 +203,11 @@ func GetSellerItemsWithSaleCounts(db *sql.DB, sellerId models.Id) (r_items []*It
 		itemsWithSaleCount = append(itemsWithSaleCount, &itemWithSaleCount)
 	}
 
-	err = nil
-	return itemsWithSaleCount, err
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
+	}
+
+	return itemsWithSaleCount, nil
 }
 
 // Returns the item with the given identifier.
@@ -297,6 +308,10 @@ func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (r_result map[models.Id]*m
 			Hidden:       hidden,
 		}
 		items[id] = &item
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	// Check if all requested items were found
@@ -574,6 +589,10 @@ func partitionItemsBy(db QueryHandler, itemIds []models.Id, columnName string) (
 		} else {
 			falseSet.Add(id)
 		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return &falseSet, &trueSet, nil

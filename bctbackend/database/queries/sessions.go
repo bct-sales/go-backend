@@ -132,6 +132,10 @@ func GetSessions(db *sql.DB) (r_result []models.Session, r_err error) {
 		sessions = append(sessions, session)
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
+	}
+
 	return sessions, nil
 }
 

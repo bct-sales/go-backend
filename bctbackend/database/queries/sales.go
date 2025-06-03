@@ -142,6 +142,10 @@ func GetSales(db *sql.DB, receiver func(*models.SaleSummary) error) (r_err error
 		}
 	}
 
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("error occurred while iterating over rows: %w", err)
+	}
+
 	return nil
 }
 
@@ -252,6 +256,10 @@ func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []models.Item, r_err e
 		items = append(items, item)
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
+	}
+
 	return items, nil
 }
 
@@ -354,6 +362,10 @@ func GetSoldItems(db *sql.DB) (r_result []*models.Item, r_err error) {
 		items = append(items, &item)
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
+	}
+
 	return items, nil
 }
 
@@ -376,6 +388,10 @@ func HasAnyBeenSold(db *sql.DB, itemIds []models.Id) (r_result bool, r_err error
 	count := 0
 	for rows.Next() {
 		count++
+	}
+
+	if err := rows.Err(); err != nil {
+		return false, fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return count > 0, nil
@@ -440,6 +456,10 @@ func GetItemsSoldBy(db *sql.DB, cashierId models.Id) (r_result []*models.Item, r
 		items = append(items, &item)
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
+	}
+
 	return items, nil
 }
 
@@ -481,6 +501,10 @@ func GetSalesWithItem(db *sql.DB, itemId models.Id) (r_result []models.Id, r_err
 		}
 
 		saleIds = append(saleIds, saleId)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return saleIds, nil
@@ -525,6 +549,10 @@ func GetSalesWithCashier(db *sql.DB, cashierId models.Id) (r_result []*models.Sa
 			TransactionTime: transactionTime,
 		}
 		sales = append(sales, &sale)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return sales, nil

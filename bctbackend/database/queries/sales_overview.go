@@ -4,6 +4,7 @@ import (
 	models "bctbackend/database/models"
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
 type CategorySaleTotal struct {
@@ -53,6 +54,10 @@ func GetSalesOverview(db *sql.DB) (r_result []CategorySaleTotal, r_err error) {
 		}
 
 		categorySaleTotals = append(categorySaleTotals, categorySaleTotal)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return categorySaleTotals, nil
