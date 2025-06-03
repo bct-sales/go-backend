@@ -323,9 +323,11 @@ func CountItems(db *sql.DB, selection ItemSelection) (int, error) {
 	row := db.QueryRow(query)
 
 	var count int
-	err := row.Scan(&count)
+	if err := row.Scan(&count); err != nil {
+		return 0, fmt.Errorf("failed to read row: %w", err)
+	}
 
-	return count, err
+	return count, nil
 }
 
 // AddItem adds an item to the database.

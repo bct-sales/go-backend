@@ -14,7 +14,7 @@ func FormatItemsAsCSV(items []*models.Item, categoryTable map[models.Id]string, 
 	headers := []string{"item_id", "seller_id", "description", "category", "price_in_cents", "donation", "charity"}
 	err := csvWriter.Write(headers)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to write headers: %w", err)
 	}
 
 	for _, item := range items {
@@ -52,7 +52,7 @@ func FormatItemsAsCSV(items []*models.Item, categoryTable map[models.Id]string, 
 		})
 
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to write row: %w", err)
 		}
 	}
 
