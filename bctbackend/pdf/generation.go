@@ -41,11 +41,11 @@ type PdfBuilder struct {
 func GeneratePdf(layout *LayoutSettings, labels []*LabelData) (*PdfBuilder, error) {
 	builder, err := newPdfBuilder(layout, labels)
 	if err != nil {
-		return nil, err
+		return nil, &PdfError{Message: "failed to create pdf builder", Wrapped: err}
 	}
 
 	if err := builder.drawLabels(); err != nil {
-		return nil, err
+		return nil, &PdfError{Message: "failed to draw labels", Wrapped: err}
 	}
 
 	return builder, nil
@@ -53,7 +53,7 @@ func GeneratePdf(layout *LayoutSettings, labels []*LabelData) (*PdfBuilder, erro
 
 func (builder *PdfBuilder) WriteToFile(filename string) error {
 	if err := builder.pdf.OutputFileAndClose(filename); err != nil {
-		return fmt.Errorf("failed to save PDF: %w", err)
+		return &PdfError{Message: "failed to save PDF", Wrapped: err}
 	}
 
 	return nil
@@ -62,7 +62,7 @@ func (builder *PdfBuilder) WriteToFile(filename string) error {
 func (builder *PdfBuilder) WriteToBuffer() (*bytes.Buffer, error) {
 	var buffer bytes.Buffer
 	if err := builder.pdf.Output(&buffer); err != nil {
-		return nil, fmt.Errorf("failed to save PDF to buffer: %w", err)
+		return nil, &PdfError{Message: "failed to save PDF to buffer", Wrapped: err}
 	}
 	return &buffer, nil
 }
@@ -89,11 +89,11 @@ func newPdfBuilder(layout *LayoutSettings, labels []*LabelData) (*PdfBuilder, er
 	}
 
 	if err := builder.setFont(); err != nil {
-		return nil, err
+		return nil, &PdfError{Message: "failed to set font", Wrapped: err}
 	}
 
 	if err := builder.registerImages(); err != nil {
-		return nil, err
+		return nil, &PdfError{Message: "failed to register images", Wrapped: err}
 	}
 
 	return &builder, nil
@@ -105,7 +105,7 @@ func (builder *PdfBuilder) addPage() error {
 
 	builder.pdf.AddPageFormat(orientation, pageSize)
 	if err := builder.pdf.Error(); err != nil {
-		return err
+		return &PdfError{Message: "failed to add page format", Wrapped: err}
 	}
 
 	return nil
@@ -113,11 +113,11 @@ func (builder *PdfBuilder) addPage() error {
 
 func (builder *PdfBuilder) registerImages() error {
 	if err := builder.registerImage(donationImageName, DonationImageBuffer()); err != nil {
-		return err
+		return &PdfError{Message: "failed to register donation image", Wrapped: err}
 	}
 
 	if err := builder.registerImage(charityImageName, CharityImageBuffer()); err != nil {
-		return err
+		return &PdfError{Message: "failed to register charity image", Wrapped: err}
 	}
 
 	return nil
@@ -127,7 +127,7 @@ func (builder *PdfBuilder) drawLabels() error {
 	for _, label := range builder.labels {
 		if builder.gridWalker.IsAtStart() {
 			if err := builder.addPage(); err != nil {
-				return err
+				return &PdfError{Message: "failed to add new page", Wrapped: err}
 			}
 		}
 
@@ -135,7 +135,7 @@ func (builder *PdfBuilder) drawLabels() error {
 
 		err := builder.drawLabel(rectangle, label)
 		if err != nil {
-			return err
+			return &PdfError{Message: "failed to draw label", Wrapped: err}
 		}
 
 		builder.gridWalker.Next()
@@ -145,24 +145,16 @@ func (builder *PdfBuilder) drawLabels() error {
 }
 
 func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *LabelData) error {
-	if labelRectangle == nil {
-		return fmt.Errorf("label rectangle is nil")
-	}
-
-	if labelData == nil {
-		return fmt.Errorf("label data is nil")
-	}
-
 	builder.pdf.ClipRect(labelRectangle.Left, labelRectangle.Top, labelRectangle.Width, labelRectangle.Height, false)
 	defer builder.pdf.ClipEnd()
 
 	if err := builder.drawLabelBorder(labelRectangle); err != nil {
-		return err
+		return &PdfError{Message: "failed to draw label border", Wrapped: err}
 	}
 
 	if builder.showGrid {
 		if err := builder.drawGrid(labelRectangle, 5); err != nil {
-			return err
+			return &PdfError{Message: "failed to draw grid", Wrapped: err}
 		}
 	}
 
@@ -172,44 +164,44 @@ func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *Label
 	barcodeY := rectangle.Top
 	barcodeImageName, err := builder.drawBarcode(labelData.BarcodeData, barcodeX, barcodeY)
 	if err != nil {
-		return err
+		return &PdfError{Message: "failed to draw barcode", Wrapped: err}
 	}
 
 	_, barcodeHeight, err := builder.determineImageSize(barcodeImageName)
 	if err != nil {
-		return fmt.Errorf("failed to determine barcode size while drawing label: %w", err)
+		return &PdfError{Message: "failed to determine barcode size", Wrapped: err}
 	}
 	descriptionX := rectangle.Left
 	descriptionY := barcodeY + barcodeHeight + builder.layout.fontSize
 	if err := builder.drawText(labelData.Description, descriptionX, descriptionY); err != nil {
-		return err
+		return &PdfError{Message: "failed to draw description", Wrapped: err}
 	}
 
 	categoryX := rectangle.Left
 	categoryY := descriptionY + builder.layout.fontSize
 	if err := builder.drawText(labelData.Category, categoryX, categoryY); err != nil {
-		return err
+		return &PdfError{Message: "failed to draw category", Wrapped: err}
 	}
 
 	itemIdentifierString := fmt.Sprintf("%d", labelData.ItemIdentifier)
 	if err := builder.drawTextInLowerLeftCorner(itemIdentifierString, rectangle); err != nil {
-		return err
+		return &PdfError{Message: "failed to draw item identifier", Wrapped: err}
 	}
 
 	priceAndSellerString := formatPriceAndSeller(labelData.PriceInCents, labelData.SellerIdentifier)
 	if err := builder.drawTextInLowerRightCorner(priceAndSellerString, rectangle); err != nil {
-		return err
+		return &PdfError{Message: "failed to draw price and seller", Wrapped: err}
 	}
 
 	if labelData.Charity {
 		if err := builder.drawCharityImage(rectangle); err != nil {
-			return fmt.Errorf("failed to draw label: %w", err)
+			return &PdfError{Message: "failed to draw charity image", Wrapped: err}
 		}
 	}
 
 	if labelData.Donation {
 		if err := builder.drawDonationImage(rectangle); err != nil {
-			return fmt.Errorf("failed to draw label: %w", err)
+			return &PdfError{Message: "failed to draw donation image", Wrapped: err}
 		}
 	}
 
@@ -219,14 +211,14 @@ func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *Label
 func (builder *PdfBuilder) drawCharityImage(rectangle *Rectangle) error {
 	imageWidth, _, err := builder.determineImageSize(charityImageName)
 	if err != nil {
-		return fmt.Errorf("failed to draw charity image: %w", err)
+		return &PdfError{Message: "failed to determine charity image size", Wrapped: err}
 	}
 
 	x := rectangle.Right() - imageWidth
 	y := rectangle.Top
 
 	if err := builder.drawImage(charityImageName, x, y); err != nil {
-		return fmt.Errorf("failed to draw charity image: %w", err)
+		return &PdfError{Message: "failed to draw charity image", Wrapped: err}
 	}
 
 	return nil
@@ -235,19 +227,19 @@ func (builder *PdfBuilder) drawCharityImage(rectangle *Rectangle) error {
 func (builder *PdfBuilder) drawDonationImage(rectangle *Rectangle) error {
 	charityImageWidth, _, err := builder.determineImageSize(charityImageName)
 	if err != nil {
-		return fmt.Errorf("failed to draw donation image: %w", err)
+		return &PdfError{Message: "failed to determine charity image size", Wrapped: err}
 	}
 
 	donationImageWidth, _, err := builder.determineImageSize(donationImageName)
 	if err != nil {
-		return fmt.Errorf("failed to draw donation image: %w", err)
+		return &PdfError{Message: "failed to determine donation image size", Wrapped: err}
 	}
 
 	x := rectangle.Right() - charityImageWidth - donationImageWidth - 2
 	y := rectangle.Top
 
 	if err := builder.drawImage(donationImageName, x, y); err != nil {
-		return err
+		return &PdfError{Message: "failed to draw donation image", Wrapped: err}
 	}
 
 	return nil
@@ -263,17 +255,17 @@ func formatPriceAndSeller(priceInCents int, sellerIdentifier int) string {
 func (builder *PdfBuilder) setFont() error {
 	builder.pdf.AddUTF8Font("Arial", "", "Arial.ttf")
 	if err := builder.pdf.Error(); err != nil {
-		return err
+		return &PdfError{Message: "failed to add font", Wrapped: err}
 	}
 
 	fontSizeInPoints := builder.pdf.UnitToPointConvert(builder.layout.fontSize)
 	if err := builder.pdf.Error(); err != nil {
-		return err
+		return &PdfError{Message: "failed to convert font size to points", Wrapped: err}
 	}
 
 	builder.pdf.SetFont("Arial", "", fontSizeInPoints)
 	if err := builder.pdf.Error(); err != nil {
-		return err
+		return &PdfError{Message: "failed to set font", Wrapped: err}
 	}
 
 	return nil
@@ -288,7 +280,7 @@ func (builder *PdfBuilder) registerImage(imageName string, imageBuffer *bytes.Bu
 
 	builder.pdf.RegisterImageOptionsReader(imageName, imageOptions, imageBuffer)
 	if err := builder.pdf.Error(); err != nil {
-		return err
+		return &PdfError{Message: fmt.Sprintf("failed to register image %s", imageName), Wrapped: err}
 	}
 
 	return nil
@@ -335,7 +327,10 @@ func (builder *PdfBuilder) drawImage(imageName string, x float64, y float64) err
 
 	builder.pdf.ImageOptions(imageName, x, y, -1, -1, false, imageOptions, 0, "")
 	if err := builder.pdf.Error(); err != nil {
-		return err
+		return &PdfError{
+			Message: fmt.Sprintf("failed to draw image %s", imageName),
+			Wrapped: err,
+		}
 	}
 
 	return nil
@@ -344,7 +339,10 @@ func (builder *PdfBuilder) drawImage(imageName string, x float64, y float64) err
 func (builder *PdfBuilder) determineImageSize(imageName string) (float64, float64, error) {
 	imageInfo := builder.pdf.GetImageInfo(imageName)
 	if imageInfo == nil {
-		return 0, 0, fmt.Errorf("failed to get image info for %s", imageName)
+		return 0, 0, &PdfError{
+			Message: fmt.Sprintf("failed to get image information for %s", imageName),
+			Wrapped: nil,
+		}
 	}
 
 	imageWidth := imageInfo.Width()
@@ -356,11 +354,17 @@ func (builder *PdfBuilder) determineImageSize(imageName string) (float64, float6
 func (builder *PdfBuilder) drawBarcode(data string, x float64, y float64) (string, error) {
 	imageName, err := builder.generateBarcode(data)
 	if err != nil {
-		return "", err
+		return "", &PdfError{
+			Message: fmt.Sprintf("failed to generate barcode for data %s", data),
+			Wrapped: err,
+		}
 	}
 
 	if err := builder.drawImage(imageName, x, y); err != nil {
-		return "", err
+		return "", &PdfError{
+			Message: "failed to draw barcode",
+			Wrapped: err,
+		}
 	}
 
 	return imageName, nil
@@ -369,7 +373,7 @@ func (builder *PdfBuilder) drawBarcode(data string, x float64, y float64) (strin
 func (builder *PdfBuilder) drawText(text string, x float64, y float64) error {
 	builder.pdf.Text(x, y, text)
 	if err := builder.pdf.Error(); err != nil {
-		return err
+		return &PdfError{Message: "failed to draw text", Wrapped: err}
 	}
 
 	return nil
@@ -381,7 +385,7 @@ func (builder *PdfBuilder) drawTextInLowerLeftCorner(text string, rectangle *Rec
 
 	builder.pdf.Text(x, y, text)
 	if err := builder.pdf.Error(); err != nil {
-		return err
+		return &PdfError{Message: "failed to draw text in lower left corner", Wrapped: err}
 	}
 
 	return nil
@@ -394,7 +398,7 @@ func (builder *PdfBuilder) drawTextInLowerRightCorner(text string, rectangle *Re
 
 	builder.pdf.Text(x, y, text)
 	if err := builder.pdf.Error(); err != nil {
-		return err
+		return &PdfError{Message: "failed to draw text in lower right corner", Wrapped: err}
 	}
 
 	return nil
@@ -408,7 +412,7 @@ func (builder *PdfBuilder) drawTextInTopRightCorner(text string, rectangle *Rect
 
 	builder.pdf.Text(x, y, text)
 	if err := builder.pdf.Error(); err != nil {
-		return err
+		return &PdfError{Message: "failed to draw text in top right corner", Wrapped: err}
 	}
 
 	return nil
@@ -420,7 +424,7 @@ func (builder *PdfBuilder) drawGrid(rectangle *Rectangle, cellSize float64) erro
 
 	builder.pdf.SetDrawColor(128, 128, 128)
 	if err := builder.pdf.Error(); err != nil {
-		return err
+		return &PdfError{Message: "failed to set draw color for grid", Wrapped: err}
 	}
 
 	left := rectangle.Left
@@ -432,7 +436,7 @@ func (builder *PdfBuilder) drawGrid(rectangle *Rectangle, cellSize float64) erro
 		x := rectangle.Left + dx
 		builder.pdf.Line(x, top, x, bottom)
 		if err := builder.pdf.Error(); err != nil {
-			return err
+			return &PdfError{Message: "failed to draw vertical grid line", Wrapped: err}
 		}
 	}
 
@@ -440,7 +444,7 @@ func (builder *PdfBuilder) drawGrid(rectangle *Rectangle, cellSize float64) erro
 		y := rectangle.Top + dy
 		builder.pdf.Line(left, y, right, y)
 		if err := builder.pdf.Error(); err != nil {
-			return err
+			return &PdfError{Message: "failed to draw horizontal grid line", Wrapped: err}
 		}
 	}
 
@@ -450,7 +454,7 @@ func (builder *PdfBuilder) drawGrid(rectangle *Rectangle, cellSize float64) erro
 func (builder *PdfBuilder) drawLabelBorder(rectangle *Rectangle) error {
 	builder.pdf.Rect(rectangle.Left, rectangle.Top, rectangle.Width, rectangle.Height, "D")
 	if err := builder.pdf.Error(); err != nil {
-		return err
+		return &PdfError{Message: "failed to draw label border rectangle", Wrapped: err}
 	}
 
 	return nil
