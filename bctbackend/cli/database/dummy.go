@@ -26,7 +26,11 @@ func ResetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 
 	slog.Info("Adding categories")
 	{
-		if err := GenerateDefaultCategories(func(id models.Id, name string) error { return queries.AddCategoryWithId(db, id, name) }); err != nil {
+		addCategory := func(id models.Id, name string) error {
+			return queries.AddCategoryWithId(db, id, name)
+		}
+		
+		if err := GenerateDefaultCategories(addCategory); err != nil {
 			return fmt.Errorf("failed to add categories: %w", err)
 		}
 	}
@@ -354,7 +358,17 @@ func ResetDatabaseAndFillWithDummyData(databasePath string) (r_err error) {
 	return nil
 }
 
-func addItem(db *sql.DB, addedAt models.Timestamp, description string, priceInCents models.MoneyInCents, itemCategoryId models.Id, sellerId models.Id, donation bool, charity bool, frozen bool, hidden bool) error {
+func addItem(
+	db *sql.DB,
+	addedAt models.Timestamp,
+	description string,
+	priceInCents models.MoneyInCents,
+	itemCategoryId models.Id,
+	sellerId models.Id,
+	donation bool,
+	charity bool,
+	frozen bool,
+	hidden bool) error {
 	_, err := queries.AddItem(db, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
 	return fmt.Errorf("failed to add item: %w", err)
 }
