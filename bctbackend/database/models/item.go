@@ -5,7 +5,7 @@ type Item struct {
 	AddedAt      Timestamp
 	Description  string
 	PriceInCents MoneyInCents
-	CategoryId   Id
+	CategoryID   Id
 	SellerId     Id
 	Donation     bool
 	Charity      bool

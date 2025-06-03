@@ -62,7 +62,7 @@ func TestAddItem(t *testing.T) {
 													require.Equal(t, timestamp, item.AddedAt)
 													require.Equal(t, description, item.Description)
 													require.Equal(t, priceInCents, item.PriceInCents)
-													require.Equal(t, itemCategoryId, item.CategoryId)
+													require.Equal(t, itemCategoryId, item.CategoryID)
 													require.Equal(t, sellerId, sellerId)
 													require.Equal(t, donation, item.Donation)
 													require.Equal(t, charity, item.Charity)

@@ -69,7 +69,7 @@ func convertItemToGetUserInformationItem(item *queries.ItemWithSaleCount) *GetUs
 		SellerId:     item.SellerId,
 		AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
 		PriceInCents: item.PriceInCents,
-		CategoryId:   item.CategoryId,
+		CategoryId:   item.CategoryID,
 		Charity:      &item.Charity,
 		Donation:     &item.Donation,
 		Frozen:       &item.Frozen,

@@ -41,7 +41,7 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 			require.Equal(t, item.SellerId, items[0].SellerId)
 			require.Equal(t, item.AddedAt, items[0].AddedAt)
 			require.Equal(t, item.PriceInCents, items[0].PriceInCents)
-			require.Equal(t, item.CategoryId, items[0].CategoryId)
+			require.Equal(t, item.CategoryID, items[0].CategoryID)
 			require.Equal(t, item.Charity, items[0].Charity)
 			require.Equal(t, item.Donation, items[0].Donation)
 			require.Equal(t, item.Frozen, items[0].Frozen)

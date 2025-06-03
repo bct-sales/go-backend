@@ -40,9 +40,9 @@ func PrintItems(categoryTable map[models.Id]string, items []*models.Item) error 
 	}
 
 	for _, item := range items {
-		categoryName, ok := categoryTable[item.CategoryId]
+		categoryName, ok := categoryTable[item.CategoryID]
 		if !ok {
-			return &NoSuchCategoryError{CategoryId: item.CategoryId}
+			return &NoSuchCategoryError{CategoryId: item.CategoryID}
 		}
 
 		tableData = append(tableData, []string{
@@ -72,9 +72,9 @@ func PrintItem(db *sql.DB, categoryTable map[models.Id]string, itemId models.Id)
 		return fmt.Errorf("failed to get item with id %d: %w", itemId, err)
 	}
 
-	categoryName, ok := categoryTable[item.CategoryId]
+	categoryName, ok := categoryTable[item.CategoryID]
 	if !ok {
-		return &NoSuchCategoryError{CategoryId: item.CategoryId}
+		return &NoSuchCategoryError{CategoryId: item.CategoryID}
 	}
 
 	tableData := pterm.TableData{

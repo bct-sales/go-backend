@@ -94,7 +94,7 @@ func GetMultiplySoldItems(db *sql.DB) (r_result []MultiplySoldItem, r_err error)
 					AddedAt:      rowData.AddedAt,
 					Description:  rowData.Description,
 					PriceInCents: rowData.PriceInCents,
-					CategoryId:   rowData.CategoryId,
+					CategoryID:   rowData.CategoryId,
 					SellerId:     rowData.SellerId,
 					Donation:     rowData.Donation,
 					Charity:      rowData.Charity,

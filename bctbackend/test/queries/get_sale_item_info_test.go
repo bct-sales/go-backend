@@ -35,7 +35,7 @@ func TestGetSaleItemInformation(t *testing.T) {
 				require.Equal(t, item.SellerId, itemInformation.SellerId)
 				require.Equal(t, item.Description, itemInformation.Description)
 				require.Equal(t, item.PriceInCents, itemInformation.PriceInCents)
-				require.Equal(t, item.CategoryId, itemInformation.ItemCategoryId)
+				require.Equal(t, item.CategoryID, itemInformation.ItemCategoryId)
 				require.Equal(t, itemInformation.SellCount, int64(sellCount))
 			})
 		}

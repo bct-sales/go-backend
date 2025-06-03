@@ -33,7 +33,7 @@ func FromModel(item *models.Item) *Item {
 		AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
 		Description:  item.Description,
 		PriceInCents: item.PriceInCents,
-		CategoryId:   item.CategoryId,
+		CategoryId:   item.CategoryID,
 		SellerId:     item.SellerId,
 		Donation:     item.Donation,
 		Charity:      item.Charity,

@@ -58,7 +58,7 @@ func TestAddSellerItem(t *testing.T) {
 									require.Equal(t, seller.UserId, itemInDatabase.SellerId)
 									require.Equal(t, price, itemInDatabase.PriceInCents)
 									require.Equal(t, description, itemInDatabase.Description)
-									require.Equal(t, categoryId, itemInDatabase.CategoryId)
+									require.Equal(t, categoryId, itemInDatabase.CategoryID)
 									require.Equal(t, donation, itemInDatabase.Donation)
 									require.Equal(t, charity, itemInDatabase.Charity)
 								})

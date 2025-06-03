@@ -22,9 +22,9 @@ func FormatItemsAsCSV(items []*models.Item, categoryTable map[models.Id]string, 
 		sellerIdString := item.SellerId.String()
 		priceString := item.PriceInCents.String()
 
-		categoryString, ok := categoryTable[item.CategoryId]
+		categoryString, ok := categoryTable[item.CategoryID]
 		if !ok {
-			return fmt.Errorf("unknown category id: %v", item.CategoryId)
+			return fmt.Errorf("unknown category id: %v", item.CategoryID)
 		}
 
 		var donationString string

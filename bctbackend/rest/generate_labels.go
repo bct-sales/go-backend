@@ -163,9 +163,9 @@ func collectLabelData(db *sql.DB, itemTable map[models.Id]*models.Item, itemIds 
 func createLabelDataFromItem(categoryTable map[models.Id]string, item *models.Item) (*pdf.LabelData, error) {
 	barcode := fmt.Sprintf("%dx", item.ItemID)
 
-	category, ok := categoryTable[item.CategoryId]
+	category, ok := categoryTable[item.CategoryID]
 	if !ok {
-		return nil, fmt.Errorf("unknown category id: %v", item.CategoryId)
+		return nil, fmt.Errorf("unknown category id: %v", item.CategoryID)
 	}
 
 	labelData := &pdf.LabelData{

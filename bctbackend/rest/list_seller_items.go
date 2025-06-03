@@ -105,7 +105,7 @@ func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 			AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
 			Description:  item.Description,
 			PriceInCents: item.PriceInCents,
-			CategoryId:   item.CategoryId,
+			CategoryId:   item.CategoryID,
 			SellerId:     item.SellerId,
 			Donation:     item.Donation,
 			Charity:      item.Charity,

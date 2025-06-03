@@ -122,7 +122,7 @@ func TestUpdateItem(t *testing.T) {
 									require.Equal(t, expectedPriceInCents, updatedItem.PriceInCents)
 									require.Equal(t, expectedCharity, updatedItem.Charity)
 									require.Equal(t, expectedDonation, updatedItem.Donation)
-									require.Equal(t, expectedCategory, updatedItem.CategoryId)
+									require.Equal(t, expectedCategory, updatedItem.CategoryID)
 									require.Equal(t, false, updatedItem.Frozen)
 								})
 							}

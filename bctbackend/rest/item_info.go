@@ -82,7 +82,7 @@ func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 		SellerId:     item.SellerId,
 		Description:  item.Description,
 		PriceInCents: item.PriceInCents,
-		CategoryId:   item.CategoryId,
+		CategoryId:   item.CategoryID,
 		Charity:      &item.Charity,
 		Donation:     &item.Donation,
 		Frozen:       &item.Frozen,
