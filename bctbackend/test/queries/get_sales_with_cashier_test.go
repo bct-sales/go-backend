@@ -41,7 +41,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 
 			require.Len(t, sales, 1)
 			require.Equal(t, saleId, sales[0].SaleID)
-			require.Equal(t, cashier.UserId, sales[0].CashierId)
+			require.Equal(t, cashier.UserId, sales[0].CashierID)
 		})
 
 		t.Run("Two sales", func(t *testing.T) {

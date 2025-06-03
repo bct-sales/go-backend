@@ -171,7 +171,7 @@ func GetSaleWithId(db *sql.DB, saleId models.Id) (*models.Sale, error) {
 
 	sale := models.Sale{
 		SaleID:          saleId,
-		CashierId:       cashierId,
+		CashierID:       cashierId,
 		TransactionTime: transactionTime,
 	}
 	return &sale, nil
@@ -545,7 +545,7 @@ func GetSalesWithCashier(db *sql.DB, cashierId models.Id) (r_result []*models.Sa
 
 		sale := models.Sale{
 			SaleID:          saleId,
-			CashierId:       cashierId,
+			CashierID:       cashierId,
 			TransactionTime: transactionTime,
 		}
 		sales = append(sales, &sale)

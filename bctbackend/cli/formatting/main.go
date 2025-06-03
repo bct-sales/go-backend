@@ -108,7 +108,7 @@ func PrintSale(db *sql.DB, saleId models.Id) error {
 	}
 
 	tableData := pterm.TableData{
-		{"Cashier", FormatId(sale.CashierId)},
+		{"Cashier", FormatId(sale.CashierID)},
 		{"Transaction Time", FormatTimestamp(sale.TransactionTime)},
 	}
 

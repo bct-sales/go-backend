@@ -38,7 +38,7 @@ func TestAddSale(t *testing.T) {
 
 		sale, err := queries.GetSaleWithId(setup.Db, response.SaleId)
 		require.NoError(t, err)
-		require.Equal(t, cashier.UserId, sale.CashierId)
+		require.Equal(t, cashier.UserId, sale.CashierID)
 
 		saleItems, err := queries.GetSaleItems(setup.Db, sale.SaleID)
 		require.NoError(t, err)
