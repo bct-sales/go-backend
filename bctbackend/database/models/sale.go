@@ -8,7 +8,7 @@ type Sale struct {
 
 type SaleSummary struct {
 	SaleID            Id
-	CashierId         Id
+	CashierID         Id
 	TransactionTime   Timestamp
 	ItemCount         int
 	TotalPriceInCents MoneyInCents
