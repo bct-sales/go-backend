@@ -73,7 +73,7 @@ func GetAllItems(context *gin.Context, db *sql.DB, userId models.Id, roleId mode
 				Description:  item.Description,
 				PriceInCents: item.PriceInCents,
 				CategoryId:   item.CategoryID,
-				SellerId:     item.SellerId,
+				SellerId:     item.SellerID,
 				Donation:     item.Donation,
 				Charity:      item.Charity,
 				Frozen:       item.Frozen,

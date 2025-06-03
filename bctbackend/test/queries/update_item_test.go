@@ -116,7 +116,7 @@ func TestUpdateItem(t *testing.T) {
 									require.NoError(t, err)
 
 									require.Equal(t, item.ItemID, updatedItem.ItemID)
-									require.Equal(t, seller.UserId, updatedItem.SellerId)
+									require.Equal(t, seller.UserId, updatedItem.SellerID)
 									require.Equal(t, expectedAddedAt, updatedItem.AddedAt)
 									require.Equal(t, expectedDescription, updatedItem.Description)
 									require.Equal(t, expectedPriceInCents, updatedItem.PriceInCents)

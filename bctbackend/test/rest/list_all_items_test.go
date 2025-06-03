@@ -34,7 +34,7 @@ func FromModel(item *models.Item) *Item {
 		Description:  item.Description,
 		PriceInCents: item.PriceInCents,
 		CategoryId:   item.CategoryID,
-		SellerId:     item.SellerId,
+		SellerId:     item.SellerID,
 		Donation:     item.Donation,
 		Charity:      item.Charity,
 		Frozen:       item.Frozen,

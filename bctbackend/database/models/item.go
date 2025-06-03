@@ -6,7 +6,7 @@ type Item struct {
 	Description  string
 	PriceInCents MoneyInCents
 	CategoryID   Id
-	SellerId     Id
+	SellerID     Id
 	Donation     bool
 	Charity      bool
 	Frozen       bool

@@ -60,7 +60,7 @@ func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 		return
 	}
 
-	if item.SellerId != userId && roleId == models.SellerRoleId {
+	if item.SellerID != userId && roleId == models.SellerRoleId {
 		failure_response.WrongSeller(context, "Only the owning seller can access this item")
 		return
 	}
@@ -79,7 +79,7 @@ func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 	response := GetItemInformationSuccessResponse{
 		ItemId:       item.ItemID,
 		AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
-		SellerId:     item.SellerId,
+		SellerId:     item.SellerID,
 		Description:  item.Description,
 		PriceInCents: item.PriceInCents,
 		CategoryId:   item.CategoryID,

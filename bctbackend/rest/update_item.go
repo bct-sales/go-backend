@@ -63,7 +63,7 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 		return
 	}
 
-	if roleId == models.SellerRoleId && item.SellerId != userId {
+	if roleId == models.SellerRoleId && item.SellerID != userId {
 		failure_response.WrongSeller(context, "Only the owner of the item can update it")
 		return
 	}

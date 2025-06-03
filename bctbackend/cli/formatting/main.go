@@ -82,7 +82,7 @@ func PrintItem(db *sql.DB, categoryTable map[models.Id]string, itemId models.Id)
 		{"Description", item.Description},
 		{"Price", FormatPrice(item.PriceInCents)},
 		{"Category", categoryName},
-		{"Seller", fmt.Sprintf("%d", item.SellerId)},
+		{"Seller", fmt.Sprintf("%d", item.SellerID)},
 		{"Donation", fmt.Sprintf("%t", item.Donation)},
 		{"Charity", fmt.Sprintf("%t", item.Charity)},
 		{"Added At", FormatTimestamp(item.AddedAt)},
