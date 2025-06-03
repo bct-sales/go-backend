@@ -12,7 +12,7 @@ import (
 func AddSession(
 	db *sql.DB,
 	userId models.Id,
-	expirationTime models.Timestamp) (string, error) {
+	expirationTime models.Timestamp) (models.SessionId, error) {
 
 	if err := EnsureUserExists(db, userId); err != nil {
 		return "", fmt.Errorf("failed to add session: %w", err)

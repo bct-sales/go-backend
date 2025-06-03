@@ -358,7 +358,7 @@ func TestAddSellerItem(t *testing.T) {
 			charity := false
 
 			seller := setup.Seller()
-			invalidSessionId := "xxx"
+			invalidSessionId := models.SessionId("xxx")
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
 			payload := restapi.AddSellerItemPayload{

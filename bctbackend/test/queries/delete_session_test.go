@@ -33,7 +33,7 @@ func TestDeleteSession(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		nonexistentSessionId := "nonexistent-session-id"
+		nonexistentSessionId := models.SessionId("nonexistent-session-id")
 		err := queries.DeleteSession(db, nonexistentSessionId)
 		require.ErrorIs(t, err, database.ErrNoSuchSession)
 	})

@@ -100,11 +100,11 @@ func (s DatabaseFixture) Seller(options ...func(*aux.AddUserData)) *models.User 
 	return aux.AddUserToDatabase(s.Db, models.SellerRoleId, options...)
 }
 
-func (s DatabaseFixture) Session(userId models.Id, options ...func(*aux.AddSessionData)) string {
+func (s DatabaseFixture) Session(userId models.Id, options ...func(*aux.AddSessionData)) models.SessionId {
 	return aux.AddSessionToDatabase(s.Db, userId)
 }
 
-func (s DatabaseFixture) LoggedIn(user *models.User, options ...func(*aux.AddSessionData)) (*models.User, string) {
+func (s DatabaseFixture) LoggedIn(user *models.User, options ...func(*aux.AddSessionData)) (*models.User, models.SessionId) {
 	session := aux.AddSessionToDatabase(s.Db, user.UserId, options...)
 	return user, session
 }

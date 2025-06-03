@@ -38,7 +38,7 @@ func TestGetSessionData(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		invalidSessionId := "invalid-session-id"
+		invalidSessionId := models.SessionId("invalid-session-id")
 		_, err := queries.GetSessionData(db, invalidSessionId)
 		require.ErrorIs(t, err, database.ErrNoSuchSession)
 	})

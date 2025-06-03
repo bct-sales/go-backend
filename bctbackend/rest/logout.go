@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 
+	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	_ "bctbackend/docs"
 	"bctbackend/security"
@@ -18,13 +19,13 @@ type LogoutPayload struct{}
 // @Tags authentication
 // @Router /logout [post]
 func logout(context *gin.Context, db *sql.DB) {
-	sessionId, err := context.Cookie(security.SessionCookieName)
-
+	sessionIdString, err := context.Cookie(security.SessionCookieName)
 	if err != nil {
 		context.JSON(http.StatusOK, gin.H{"message": "Unauthorized: missing session ID"})
 		return
 	}
 
+	sessionId := models.SessionId(sessionIdString)
 	err = queries.DeleteSession(db, sessionId)
 
 	if err != nil {

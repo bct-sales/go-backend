@@ -85,7 +85,7 @@ func login(context *gin.Context, db *sql.DB) {
 	}
 
 	ensureSecure := false // TODO: set to true when using HTTPS
-	context.SetCookie(security.SessionCookieName, sessionId, security.SessionDurationInSeconds, "/", "localhost", ensureSecure, true)
+	context.SetCookie(security.SessionCookieName, string(sessionId), security.SessionDurationInSeconds, "/", "localhost", ensureSecure, true)
 	roleName, err := models.NameOfRole(roleId)
 
 	if err != nil {

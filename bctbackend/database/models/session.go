@@ -1,6 +1,6 @@
 package models
 
-type SessionId = string
+type SessionId string
 
 type Session struct {
 	SessionID      SessionId

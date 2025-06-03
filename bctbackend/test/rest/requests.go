@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"bctbackend/database/models"
 	"bctbackend/security"
 	"io"
 	"net/http"
@@ -62,8 +63,8 @@ func createCookie(name string, value string) *http.Cookie {
 	}
 }
 
-func createSessionCookie(sessionId string) *http.Cookie {
-	return createCookie(security.SessionCookieName, sessionId)
+func createSessionCookie(sessionId models.SessionId) *http.Cookie {
+	return createCookie(security.SessionCookieName, string(sessionId))
 }
 
 func WithCookie(name string, value string) func(*http.Request) {
@@ -73,7 +74,7 @@ func WithCookie(name string, value string) func(*http.Request) {
 	}
 }
 
-func WithSessionCookie(sessionId string) func(*http.Request) {
+func WithSessionCookie(sessionId models.SessionId) func(*http.Request) {
 	return func(request *http.Request) {
 		cookie := createSessionCookie(sessionId)
 		request.AddCookie(cookie)

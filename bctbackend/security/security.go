@@ -1,6 +1,7 @@
 package security
 
 import (
+	"bctbackend/database/models"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
@@ -21,12 +22,12 @@ func HashPassword(password string, salt string) string {
 	return fmt.Sprintf("%x", hash.Sum(nil))
 }
 
-func GenerateUniqueSessionId() string {
+func GenerateUniqueSessionId() models.SessionId {
 	bytes := make([]byte, SessionIdByteLength)
 	if _, err := rand.Read(bytes); err != nil {
 		panic(err)
 	}
 
 	// Note: base64 leads to trouble
-	return hex.EncodeToString(bytes)
+	return models.SessionId(hex.EncodeToString(bytes))
 }

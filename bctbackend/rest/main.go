@@ -56,14 +56,14 @@ func SetUpCors(router *gin.Engine) {
 func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 	withUserAndRole := func(handler func(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id)) gin.HandlerFunc {
 		return func(context *gin.Context) {
-			sessionId, err := context.Cookie(security.SessionCookieName)
-
+			sessionIdString, err := context.Cookie(security.SessionCookieName)
 			if err != nil {
 				slog.Info("Unauthorized: missing session ID")
 				failure_response.MissingSessionId(context, err.Error())
 				return
 			}
 
+			sessionId := models.SessionId(sessionIdString)
 			sessionData, err := queries.GetSessionData(db, sessionId)
 
 			if errors.Is(err, database.ErrNoSuchSession) {

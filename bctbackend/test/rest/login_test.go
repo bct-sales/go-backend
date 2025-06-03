@@ -45,10 +45,10 @@ func TestLogin(t *testing.T) {
 			require.NotEmpty(t, cookies, "Expected cookies to be set")
 
 			found := false
-			sessionId := ""
+			sessionId := models.SessionId("")
 			for _, cookie := range cookies {
 				if cookie.Name == security.SessionCookieName {
-					sessionId = cookie.Value
+					sessionId = models.SessionId(cookie.Value)
 					found = true
 					break
 				}
@@ -86,10 +86,10 @@ func TestLogin(t *testing.T) {
 			require.NotEmpty(t, cookies, "Expected cookies to be set")
 
 			found := false
-			sessionId := ""
+			sessionId := models.SessionId("")
 			for _, cookie := range cookies {
 				if cookie.Name == security.SessionCookieName {
-					sessionId = cookie.Value
+					sessionId = models.SessionId(cookie.Value)
 					found = true
 					break
 				}
@@ -127,10 +127,10 @@ func TestLogin(t *testing.T) {
 			require.NotEmpty(t, cookies, "Expected cookies to be set")
 
 			found := false
-			sessionId := ""
+			sessionId := models.SessionId("")
 			for _, cookie := range cookies {
 				if cookie.Name == security.SessionCookieName {
-					sessionId = cookie.Value
+					sessionId = models.SessionId(cookie.Value)
 					found = true
 					break
 				}
