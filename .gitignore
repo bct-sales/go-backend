@@ -9,3 +9,4 @@ docs/
 *.db-shm
 *.db-wal
 make-dictionary.rb
+*.txt
