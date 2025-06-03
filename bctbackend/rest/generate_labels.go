@@ -161,7 +161,7 @@ func collectLabelData(db *sql.DB, itemTable map[models.Id]*models.Item, itemIds 
 }
 
 func createLabelDataFromItem(categoryTable map[models.Id]string, item *models.Item) (*pdf.LabelData, error) {
-	barcode := fmt.Sprintf("%dx", item.ItemId)
+	barcode := fmt.Sprintf("%dx", item.ItemID)
 
 	category, ok := categoryTable[item.CategoryId]
 	if !ok {
@@ -172,7 +172,7 @@ func createLabelDataFromItem(categoryTable map[models.Id]string, item *models.It
 		BarcodeData:      barcode,
 		Description:      item.Description,
 		Category:         category,
-		ItemIdentifier:   int(item.ItemId),
+		ItemIdentifier:   int(item.ItemID),
 		PriceInCents:     int(item.PriceInCents),
 		SellerIdentifier: int(item.SellerId),
 		Charity:          item.Charity,

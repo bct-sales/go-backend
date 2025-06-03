@@ -34,7 +34,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 			seller := setup.Seller()
 
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-			saleId := setup.Sale(cashier.UserId, []models.Id{item.ItemId})
+			saleId := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
 
 			sales, err := queries.GetSalesWithCashier(db, cashier.UserId)
 			require.NoError(t, err)
@@ -53,8 +53,8 @@ func TestGetSalesWithCashier(t *testing.T) {
 
 			item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 			item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false))
-			saleId1 := setup.Sale(cashier.UserId, []models.Id{item1.ItemId})
-			saleId2 := setup.Sale(cashier.UserId, []models.Id{item2.ItemId})
+			saleId1 := setup.Sale(cashier.UserId, []models.Id{item1.ItemID})
+			saleId2 := setup.Sale(cashier.UserId, []models.Id{item2.ItemID})
 
 			sales, err := queries.GetSalesWithCashier(db, cashier.UserId)
 			require.NoError(t, err)

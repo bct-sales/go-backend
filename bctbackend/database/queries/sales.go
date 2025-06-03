@@ -242,7 +242,7 @@ func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []models.Item, r_err e
 		}
 
 		item := models.Item{
-			ItemId:       itemId,
+			ItemID:       itemId,
 			AddedAt:      addedAt,
 			Description:  description,
 			PriceInCents: priceInCents,
@@ -348,7 +348,7 @@ func GetSoldItems(db *sql.DB) (r_result []*models.Item, r_err error) {
 		}
 
 		item := models.Item{
-			ItemId:       itemId,
+			ItemID:       itemId,
 			AddedAt:      addedAt,
 			Description:  description,
 			PriceInCents: priceInCents,
@@ -442,7 +442,7 @@ func GetItemsSoldBy(db *sql.DB, cashierId models.Id) (r_result []*models.Item, r
 		}
 
 		item := models.Item{
-			ItemId:       itemId,
+			ItemID:       itemId,
 			AddedAt:      addedAt,
 			Description:  description,
 			PriceInCents: priceInCents,

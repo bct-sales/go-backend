@@ -95,7 +95,7 @@ func TestGetUserInformation(t *testing.T) {
 					_, sessionId := setup.LoggedIn(setup.Admin())
 
 					item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-					saleId := setup.Sale(cashier.UserId, []models.Id{item.ItemId})
+					saleId := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
 
 					url := path.Users().WithUserId(cashier.UserId)
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -124,7 +124,7 @@ func TestGetUserInformation(t *testing.T) {
 
 							algorithms.RepeatWithError(saleCount, func() error {
 								item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-								setup.Sale(cashier.UserId, []models.Id{item.ItemId})
+								setup.Sale(cashier.UserId, []models.Id{item.ItemID})
 								return nil
 							})
 

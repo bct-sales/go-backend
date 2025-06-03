@@ -13,7 +13,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	_ "modernc.org/sqlite"
 )
 
 func TestAddSale(t *testing.T) {
@@ -26,7 +25,7 @@ func TestAddSale(t *testing.T) {
 			cashier := setup.Cashier()
 
 			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
+			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
 
 			saleItemIds := make([]models.Id, len(itemIndices))
 			for index, itemIndex := range itemIndices {
@@ -43,7 +42,7 @@ func TestAddSale(t *testing.T) {
 			require.Len(t, actualItems, len(saleItemIds))
 
 			for index, actualItem := range actualItems {
-				require.Equal(t, saleItemIds[index], actualItem.ItemId)
+				require.Equal(t, saleItemIds[index], actualItem.ItemID)
 
 				expectedItem, err := queries.GetItemWithId(db, saleItemIds[index])
 				require.NoError(t, err)
@@ -70,7 +69,7 @@ func TestAddSale(t *testing.T) {
 
 			seller := setup.Seller()
 			timestamp := models.Timestamp(0)
-			itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemId
+			itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
 
 			_, err := queries.AddSale(db, seller.UserId, timestamp, []models.Id{itemId})
 			require.Error(t, err)
@@ -83,7 +82,7 @@ func TestAddSale(t *testing.T) {
 			seller := setup.Seller()
 			admin := setup.Admin()
 			timestamp := models.Timestamp(0)
-			itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemId
+			itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
 
 			_, err := queries.AddSale(db, admin.UserId, timestamp, []models.Id{itemId})
 			require.Error(t, err)
@@ -98,7 +97,7 @@ func TestAddSale(t *testing.T) {
 			timestamp := models.Timestamp(0)
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-			_, err := queries.AddSale(db, cashier.UserId, timestamp, []models.Id{item.ItemId, item.ItemId})
+			_, err := queries.AddSale(db, cashier.UserId, timestamp, []models.Id{item.ItemID, item.ItemID})
 			require.ErrorIs(t, err, database.ErrDuplicateItemInSale)
 		})
 
@@ -111,7 +110,7 @@ func TestAddSale(t *testing.T) {
 			timestamp := models.Timestamp(0)
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(true))
 
-			_, err := queries.AddSale(db, cashier.UserId, timestamp, []models.Id{item.ItemId})
+			_, err := queries.AddSale(db, cashier.UserId, timestamp, []models.Id{item.ItemID})
 			require.ErrorIs(t, err, database.ErrItemHidden)
 		})
 	})

@@ -106,16 +106,16 @@ func TestUpdateItem(t *testing.T) {
 
 									err := queries.UpdateItem(
 										db,
-										item.ItemId,
+										item.ItemID,
 										&itemUpdate,
 									)
 
 									require.NoError(t, err)
 
-									updatedItem, err := queries.GetItemWithId(db, item.ItemId)
+									updatedItem, err := queries.GetItemWithId(db, item.ItemID)
 									require.NoError(t, err)
 
-									require.Equal(t, item.ItemId, updatedItem.ItemId)
+									require.Equal(t, item.ItemID, updatedItem.ItemID)
 									require.Equal(t, seller.UserId, updatedItem.SellerId)
 									require.Equal(t, expectedAddedAt, updatedItem.AddedAt)
 									require.Equal(t, expectedDescription, updatedItem.Description)
@@ -157,7 +157,7 @@ func TestUpdateItem(t *testing.T) {
 			)
 
 			itemUpdate := queries.ItemUpdate{}
-			err := queries.UpdateItem(db, item.ItemId, &itemUpdate)
+			err := queries.UpdateItem(db, item.ItemID, &itemUpdate)
 			require.ErrorIs(t, err, database.ErrItemFrozen)
 		})
 
@@ -174,7 +174,7 @@ func TestUpdateItem(t *testing.T) {
 			)
 
 			itemUpdate := queries.ItemUpdate{}
-			err := queries.UpdateItem(db, item.ItemId, &itemUpdate)
+			err := queries.UpdateItem(db, item.ItemID, &itemUpdate)
 			require.ErrorIs(t, err, database.ErrItemHidden)
 		})
 
@@ -195,7 +195,7 @@ func TestUpdateItem(t *testing.T) {
 				PriceInCents: &invalidPrice,
 			}
 
-			err := queries.UpdateItem(db, item.ItemId, &itemUpdate)
+			err := queries.UpdateItem(db, item.ItemID, &itemUpdate)
 			require.ErrorIs(t, err, database.ErrInvalidPrice)
 		})
 	})

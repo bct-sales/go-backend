@@ -29,7 +29,7 @@ type Item struct {
 
 func FromModel(item *models.Item) *Item {
 	return &Item{
-		ItemId:       item.ItemId,
+		ItemId:       item.ItemID,
 		AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
 		Description:  item.Description,
 		PriceInCents: item.PriceInCents,

@@ -39,7 +39,7 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 
 				itemIds := []models.Id{}
 				for i := 0; i != 10; i++ {
-					itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemId)
+					itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
 				}
 
 				err := queries.UpdateFreezeStatusOfItems(db, selection, true)
@@ -72,9 +72,9 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 
 			itemIds := []models.Id{}
 			for i := 0; i != 10; i++ {
-				itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemId)
+				itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
 			}
-			itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(10), aux.WithFrozen(false), aux.WithHidden(true)).ItemId)
+			itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(10), aux.WithFrozen(false), aux.WithHidden(true)).ItemID)
 
 			err := queries.UpdateFreezeStatusOfItems(db, itemIds, true)
 			require.ErrorIs(t, err, database.ErrItemHidden)

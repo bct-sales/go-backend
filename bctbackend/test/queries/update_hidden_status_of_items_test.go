@@ -39,7 +39,7 @@ func TestUpdateHiddenStatusOfItems(t *testing.T) {
 
 				itemIds := []models.Id{}
 				for i := 0; i != 10; i++ {
-					itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false), aux.WithFrozen(false)).ItemId)
+					itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false), aux.WithFrozen(false)).ItemID)
 				}
 
 				err := queries.UpdateHiddenStatusOfItems(db, selection, true)
@@ -72,9 +72,9 @@ func TestUpdateHiddenStatusOfItems(t *testing.T) {
 
 			itemIds := []models.Id{}
 			for i := 0; i != 10; i++ {
-				itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false), aux.WithFrozen(false)).ItemId)
+				itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false), aux.WithFrozen(false)).ItemID)
 			}
-			itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(10), aux.WithHidden(false), aux.WithFrozen(true)).ItemId)
+			itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(10), aux.WithHidden(false), aux.WithFrozen(true)).ItemID)
 
 			err := queries.UpdateHiddenStatusOfItems(db, itemIds, true)
 			require.ErrorIs(t, err, database.ErrItemFrozen)

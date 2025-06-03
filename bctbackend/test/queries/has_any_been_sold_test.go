@@ -22,7 +22,7 @@ func TestHasAnyBeenSold(t *testing.T) {
 
 		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-		actual, err := queries.HasAnyBeenSold(db, []models.Id{item.ItemId})
+		actual, err := queries.HasAnyBeenSold(db, []models.Id{item.ItemID})
 		require.NoError(t, err)
 		require.False(t, actual)
 	})
@@ -35,9 +35,9 @@ func TestHasAnyBeenSold(t *testing.T) {
 		cashier := setup.Cashier()
 
 		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-		setup.Sale(cashier.UserId, []models.Id{item.ItemId})
+		setup.Sale(cashier.UserId, []models.Id{item.ItemID})
 
-		actual, err := queries.HasAnyBeenSold(db, []models.Id{item.ItemId})
+		actual, err := queries.HasAnyBeenSold(db, []models.Id{item.ItemID})
 		require.NoError(t, err)
 		require.True(t, actual)
 	})
@@ -49,7 +49,7 @@ func TestHasAnyBeenSold(t *testing.T) {
 		seller := setup.Seller()
 
 		items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-		itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
+		itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
 
 		actual, err := queries.HasAnyBeenSold(db, itemIds)
 		require.NoError(t, err)
@@ -64,7 +64,7 @@ func TestHasAnyBeenSold(t *testing.T) {
 		cashier := setup.Cashier()
 
 		items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-		itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
+		itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
 
 		setup.Sale(cashier.UserId, itemIds)
 

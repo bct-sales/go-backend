@@ -27,7 +27,7 @@ func TestUpdateItem(t *testing.T) {
 			newDescription := "new description"
 			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithDescription(originalDescription), aux.WithHidden(false))
 
-			url := path.Items().Id(originalItem.ItemId)
+			url := path.Items().Id(originalItem.ItemID)
 			payload := struct {
 				Description string `json:"description"`
 			}{
@@ -37,7 +37,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
-			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -55,7 +55,7 @@ func TestUpdateItem(t *testing.T) {
 			newDescription := "new description"
 			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithDescription(originalDescription), aux.WithHidden(false))
 
-			url := path.Items().Id(originalItem.ItemId)
+			url := path.Items().Id(originalItem.ItemID)
 			payload := struct {
 				Description string `json:"description"`
 			}{
@@ -65,7 +65,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
-			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -82,7 +82,7 @@ func TestUpdateItem(t *testing.T) {
 			newPrice := 200
 			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithPriceInCents(models.MoneyInCents(originalPrice)), aux.WithHidden(false))
 
-			url := path.Items().Id(originalItem.ItemId)
+			url := path.Items().Id(originalItem.ItemID)
 			payload := struct {
 				PriceInCents int `json:"priceInCents"`
 			}{
@@ -92,7 +92,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
-			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -107,7 +107,7 @@ func TestUpdateItem(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithCharity(false), aux.WithDonation(false), aux.WithHidden(false))
 
-			url := path.Items().Id(originalItem.ItemId)
+			url := path.Items().Id(originalItem.ItemID)
 			payload := struct {
 				Donation bool `json:"donation"`
 				Charity  bool `json:"charity"`
@@ -119,7 +119,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
-			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -137,7 +137,7 @@ func TestUpdateItem(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(true), aux.WithHidden(false))
 
-			url := path.Items().Id(originalItem.ItemId)
+			url := path.Items().Id(originalItem.ItemID)
 			payload := struct {
 				Description string `json:"description"`
 			}{
@@ -148,7 +148,7 @@ func TestUpdateItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "item_frozen")
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
-			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -162,7 +162,7 @@ func TestUpdateItem(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-			url := path.Items().Id(originalItem.ItemId)
+			url := path.Items().Id(originalItem.ItemID)
 			payload := struct {
 				PriceInCents int `json:"priceInCents"`
 			}{
@@ -172,7 +172,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "invalid_price")
 
-			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -207,7 +207,7 @@ func TestUpdateItem(t *testing.T) {
 			_, sessionId := setup.LoggedIn(setup.Seller())
 			originalItem := setup.Item(ownerSeller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-			url := path.Items().Id(originalItem.ItemId)
+			url := path.Items().Id(originalItem.ItemID)
 			payload := struct {
 				PriceInCents int `json:"priceInCents"`
 			}{
@@ -217,7 +217,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_seller")
 
-			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -232,7 +232,7 @@ func TestUpdateItem(t *testing.T) {
 			_, sessionId := setup.LoggedIn(setup.Cashier())
 			originalItem := setup.Item(ownerSeller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-			url := path.Items().Id(originalItem.ItemId)
+			url := path.Items().Id(originalItem.ItemID)
 			payload := struct {
 				PriceInCents int `json:"priceInCents"`
 			}{
@@ -242,7 +242,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
-			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemId)
+			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem

@@ -21,7 +21,7 @@ func TestEnsureNoHiddenItems(t *testing.T) {
 
 		seller := setup.Seller()
 		items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-		itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
+		itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
 
 		err := queries.EnsureNoHiddenItems(db, itemIds)
 		require.NoError(t, err)
@@ -34,7 +34,7 @@ func TestEnsureNoHiddenItems(t *testing.T) {
 		seller := setup.Seller()
 		visibleItems := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
 		hiddenItem := setup.Item(seller.UserId, aux.WithFrozen(false), aux.WithHidden(true))
-		itemIds := append(algorithms.Map(visibleItems, func(item *models.Item) models.Id { return item.ItemId }), hiddenItem.ItemId)
+		itemIds := append(algorithms.Map(visibleItems, func(item *models.Item) models.Id { return item.ItemID }), hiddenItem.ItemID)
 
 		err := queries.EnsureNoHiddenItems(db, itemIds)
 		require.ErrorIs(t, err, database.ErrItemHidden)

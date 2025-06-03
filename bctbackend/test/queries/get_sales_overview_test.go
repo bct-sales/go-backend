@@ -76,7 +76,7 @@ func TestGetSalesOverview(t *testing.T) {
 		totals[item.CategoryId] += item.PriceInCents
 
 		cashier := setup.Cashier()
-		setup.Sale(cashier.UserId, []models.Id{item.ItemId})
+		setup.Sale(cashier.UserId, []models.Id{item.ItemID})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -106,7 +106,7 @@ func TestGetSalesOverview(t *testing.T) {
 		totals[item2.CategoryId] += item2.PriceInCents
 
 		cashier := setup.Cashier()
-		setup.Sale(cashier.UserId, []models.Id{item1.ItemId, item2.ItemId})
+		setup.Sale(cashier.UserId, []models.Id{item1.ItemID, item2.ItemID})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -136,7 +136,7 @@ func TestGetSalesOverview(t *testing.T) {
 		totals[item2.CategoryId] += item2.PriceInCents
 
 		cashier := setup.Cashier()
-		setup.Sale(cashier.UserId, []models.Id{item1.ItemId, item2.ItemId})
+		setup.Sale(cashier.UserId, []models.Id{item1.ItemID, item2.ItemID})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -166,8 +166,8 @@ func TestGetSalesOverview(t *testing.T) {
 		totals[item2.CategoryId] += item2.PriceInCents
 
 		cashier := setup.Cashier()
-		setup.Sale(cashier.UserId, []models.Id{item1.ItemId})
-		setup.Sale(cashier.UserId, []models.Id{item2.ItemId})
+		setup.Sale(cashier.UserId, []models.Id{item1.ItemID})
+		setup.Sale(cashier.UserId, []models.Id{item2.ItemID})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -197,8 +197,8 @@ func TestGetSalesOverview(t *testing.T) {
 		totals[item2.CategoryId] += item2.PriceInCents
 
 		cashier := setup.Cashier()
-		setup.Sale(cashier.UserId, []models.Id{item1.ItemId})
-		setup.Sale(cashier.UserId, []models.Id{item2.ItemId})
+		setup.Sale(cashier.UserId, []models.Id{item1.ItemID})
+		setup.Sale(cashier.UserId, []models.Id{item2.ItemID})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)

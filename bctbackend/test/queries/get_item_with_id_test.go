@@ -21,7 +21,7 @@ func TestGetItemWithId(t *testing.T) {
 		seller := setup.Seller()
 		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-		actual, err := queries.GetItemWithId(db, item.ItemId)
+		actual, err := queries.GetItemWithId(db, item.ItemID)
 		require.NoError(t, err)
 		require.Equal(t, item, actual)
 	})

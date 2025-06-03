@@ -77,7 +77,7 @@ func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 	}
 
 	response := GetItemInformationSuccessResponse{
-		ItemId:       item.ItemId,
+		ItemId:       item.ItemID,
 		AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
 		SellerId:     item.SellerId,
 		Description:  item.Description,

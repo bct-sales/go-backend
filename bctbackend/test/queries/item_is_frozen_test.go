@@ -24,7 +24,7 @@ func TestItemIsFrozen(t *testing.T) {
 				seller := setup.Seller()
 				item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(frozen), aux.WithHidden(false))
 
-				actual, err := queries.IsItemFrozen(db, item.ItemId)
+				actual, err := queries.IsItemFrozen(db, item.ItemID)
 				require.NoError(t, err)
 				require.Equal(t, frozen, actual)
 			})

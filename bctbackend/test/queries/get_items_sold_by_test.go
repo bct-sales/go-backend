@@ -39,10 +39,10 @@ func TestGetItemsSoldBy(t *testing.T) {
 		cashierWithSales := setup.Cashier()
 
 		itemIds := []models.Id{
-			setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemId,
-			setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false)).ItemId,
-			setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false)).ItemId,
-			setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false)).ItemId,
+			setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID,
+			setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false)).ItemID,
+			setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false)).ItemID,
+			setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false)).ItemID,
 		}
 
 		setup.Sale(cashierWithSales.UserId, itemIds)
@@ -66,7 +66,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 			setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false)),
 		}
 
-		setup.Sale(cashier.UserId, []models.Id{expectedItems[0].ItemId, expectedItems[1].ItemId, expectedItems[2].ItemId, expectedItems[3].ItemId})
+		setup.Sale(cashier.UserId, []models.Id{expectedItems[0].ItemID, expectedItems[1].ItemID, expectedItems[2].ItemID, expectedItems[3].ItemID})
 
 		actualItems, err := queries.GetItemsSoldBy(db, cashier.UserId)
 		require.NoError(t, err)
@@ -87,7 +87,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 		item4 := setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false))
 
 		expectedItems := []*models.Item{item1, item2, item3, item4}
-		setup.Sale(cashier.UserId, []models.Id{item4.ItemId, item3.ItemId, item2.ItemId, item1.ItemId})
+		setup.Sale(cashier.UserId, []models.Id{item4.ItemID, item3.ItemID, item2.ItemID, item1.ItemID})
 
 		actualItems, err := queries.GetItemsSoldBy(db, cashier.UserId)
 		require.NoError(t, err)
@@ -107,8 +107,8 @@ func TestGetItemsSoldBy(t *testing.T) {
 		item3 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false))
 		item4 := setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false))
 
-		setup.Sale(cashier.UserId, []models.Id{item1.ItemId, item2.ItemId})
-		setup.Sale(cashier.UserId, []models.Id{item3.ItemId, item4.ItemId})
+		setup.Sale(cashier.UserId, []models.Id{item1.ItemID, item2.ItemID})
+		setup.Sale(cashier.UserId, []models.Id{item3.ItemID, item4.ItemID})
 
 		items, err := queries.GetItemsSoldBy(db, cashier.UserId)
 		require.NoError(t, err)
@@ -128,8 +128,8 @@ func TestGetItemsSoldBy(t *testing.T) {
 		item3 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false))
 		item4 := setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false))
 
-		setup.Sale(cashier.UserId, []models.Id{item2.ItemId, item1.ItemId}, aux.WithTransactionTime(models.Timestamp(1)))
-		setup.Sale(cashier.UserId, []models.Id{item4.ItemId, item3.ItemId}, aux.WithTransactionTime(models.Timestamp(0)))
+		setup.Sale(cashier.UserId, []models.Id{item2.ItemID, item1.ItemID}, aux.WithTransactionTime(models.Timestamp(1)))
+		setup.Sale(cashier.UserId, []models.Id{item4.ItemID, item3.ItemID}, aux.WithTransactionTime(models.Timestamp(0)))
 
 		items, err := queries.GetItemsSoldBy(db, cashier.UserId)
 		require.NoError(t, err)
@@ -149,8 +149,8 @@ func TestGetItemsSoldBy(t *testing.T) {
 		item3 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false))
 		item4 := setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false))
 
-		setup.Sale(cashier.UserId, []models.Id{item2.ItemId, item1.ItemId}, aux.WithTransactionTime(models.Timestamp(0)))
-		setup.Sale(cashier.UserId, []models.Id{item4.ItemId, item3.ItemId}, aux.WithTransactionTime(models.Timestamp(1)))
+		setup.Sale(cashier.UserId, []models.Id{item2.ItemID, item1.ItemID}, aux.WithTransactionTime(models.Timestamp(0)))
+		setup.Sale(cashier.UserId, []models.Id{item4.ItemID, item3.ItemID}, aux.WithTransactionTime(models.Timestamp(1)))
 
 		items, err := queries.GetItemsSoldBy(db, cashier.UserId)
 		require.NoError(t, err)

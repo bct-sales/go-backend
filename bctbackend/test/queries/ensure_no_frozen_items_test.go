@@ -21,7 +21,7 @@ func TestEnsureNoFrozenItems(t *testing.T) {
 
 		seller := setup.Seller()
 		items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-		itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemId })
+		itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
 
 		err := queries.EnsureNoFrozenItems(db, itemIds)
 		require.NoError(t, err)
@@ -34,7 +34,7 @@ func TestEnsureNoFrozenItems(t *testing.T) {
 		seller := setup.Seller()
 		unfrozenItems := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
 		frozenItem := setup.Item(seller.UserId, aux.WithFrozen(true), aux.WithHidden(false))
-		itemIds := append(algorithms.Map(unfrozenItems, func(item *models.Item) models.Id { return item.ItemId }), frozenItem.ItemId)
+		itemIds := append(algorithms.Map(unfrozenItems, func(item *models.Item) models.Id { return item.ItemID }), frozenItem.ItemID)
 
 		err := queries.EnsureNoFrozenItems(db, itemIds)
 		require.ErrorIs(t, err, database.ErrItemFrozen)

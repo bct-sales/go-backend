@@ -49,7 +49,7 @@ func TestGetItemsWithIds(t *testing.T) {
 				for _, itemId := range selection {
 					item, ok := actual[itemId]
 					require.True(t, ok, "Item not found in result")
-					require.Equal(t, itemId, item.ItemId)
+					require.Equal(t, itemId, item.ItemID)
 				}
 			})
 		}

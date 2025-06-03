@@ -34,7 +34,7 @@ func TestListSellerItems(t *testing.T) {
 						for i := 0; i < itemCount; i++ {
 							item := setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
 							expectedItems = append(expectedItems, &rest.GetSellerItemsItemData{
-								ItemId:       item.ItemId,
+								ItemId:       item.ItemID,
 								Description:  item.Description,
 								PriceInCents: item.PriceInCents,
 								CategoryId:   item.CategoryId,
@@ -71,7 +71,7 @@ func TestListSellerItems(t *testing.T) {
 			for i := 0; i < itemCount; i++ {
 				item := setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
 				expectedItems = append(expectedItems, &rest.GetSellerItemsItemData{
-					ItemId:       item.ItemId,
+					ItemId:       item.ItemID,
 					Description:  item.Description,
 					PriceInCents: item.PriceInCents,
 					CategoryId:   item.CategoryId,

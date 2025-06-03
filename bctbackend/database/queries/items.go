@@ -45,7 +45,7 @@ func GetItems(db *sql.DB, receiver func(*models.Item) error, itemSelection ItemS
 		}
 
 		item := models.Item{
-			ItemId:       id,
+			ItemID:       id,
 			AddedAt:      addedAt,
 			Description:  description,
 			PriceInCents: priceInCents,
@@ -112,7 +112,7 @@ func GetSellerItems(db *sql.DB, sellerId models.Id, itemSelection ItemSelection)
 		}
 
 		item := models.Item{
-			ItemId:       id,
+			ItemID:       id,
 			AddedAt:      addedAt,
 			Description:  description,
 			PriceInCents: priceInCents,
@@ -186,7 +186,7 @@ func GetSellerItemsWithSaleCounts(db *sql.DB, sellerId models.Id) (r_items []*It
 
 		itemWithSaleCount := ItemWithSaleCount{
 			Item: models.Item{
-				ItemId:       id,
+				ItemID:       id,
 				AddedAt:      addedAt,
 				Description:  description,
 				PriceInCents: priceInCents,
@@ -247,7 +247,7 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	}
 
 	item := models.Item{
-		ItemId:       itemId,
+		ItemID:       itemId,
 		AddedAt:      addedAt,
 		Description:  description,
 		PriceInCents: priceInCents,
@@ -296,7 +296,7 @@ func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (r_result map[models.Id]*m
 		}
 
 		item := models.Item{
-			ItemId:       id,
+			ItemID:       id,
 			AddedAt:      addedAt,
 			Description:  description,
 			PriceInCents: priceInCents,

@@ -27,10 +27,10 @@ func TestGetSaleItemInformation(t *testing.T) {
 				item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 				for i := 0; i < sellCount; i++ {
-					setup.Sale(cashier.UserId, []models.Id{item.ItemId})
+					setup.Sale(cashier.UserId, []models.Id{item.ItemID})
 				}
 
-				itemInformation, err := queries.GetSaleItemInformation(db, item.ItemId)
+				itemInformation, err := queries.GetSaleItemInformation(db, item.ItemID)
 				require.NoError(t, err)
 				require.Equal(t, item.SellerId, itemInformation.SellerId)
 				require.Equal(t, item.Description, itemInformation.Description)

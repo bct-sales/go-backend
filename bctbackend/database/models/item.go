@@ -1,7 +1,7 @@
 package models
 
 type Item struct {
-	ItemId       Id
+	ItemID       Id
 	AddedAt      Timestamp
 	Description  string
 	PriceInCents MoneyInCents

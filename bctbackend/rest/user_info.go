@@ -64,7 +64,7 @@ type GetSellerSummarySuccessResponse struct {
 
 func convertItemToGetUserInformationItem(item *queries.ItemWithSaleCount) *GetUserInformationItem {
 	return &GetUserInformationItem{
-		ItemId:       item.ItemId,
+		ItemId:       item.ItemID,
 		Description:  item.Description,
 		SellerId:     item.SellerId,
 		AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),

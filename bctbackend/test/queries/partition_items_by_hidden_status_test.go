@@ -24,8 +24,8 @@ func TestPartitionItemsByHiddenStatus(t *testing.T) {
 			visibleItems := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
 			hiddenItems := setup.Items(seller.UserId, 5, aux.WithFrozen(false), aux.WithHidden(true))
 			allItems := slices.Concat(
-				algorithms.Map(visibleItems, func(i *models.Item) models.Id { return i.ItemId }),
-				algorithms.Map(hiddenItems, func(i *models.Item) models.Id { return i.ItemId }))
+				algorithms.Map(visibleItems, func(i *models.Item) models.Id { return i.ItemID }),
+				algorithms.Map(hiddenItems, func(i *models.Item) models.Id { return i.ItemID }))
 
 			actualVisible, actualHidden, err := queries.PartitionItemsByHiddenStatus(db, allItems)
 			require.NoError(t, err)
@@ -43,8 +43,8 @@ func TestPartitionItemsByHiddenStatus(t *testing.T) {
 			nonexistentItemIds := []models.Id{999, 1000}
 			setup.RequireNoSuchItems(t, nonexistentItemIds...)
 			allItems := slices.Concat(
-				algorithms.Map(visibleItems, func(i *models.Item) models.Id { return i.ItemId }),
-				algorithms.Map(hiddenItems, func(i *models.Item) models.Id { return i.ItemId }),
+				algorithms.Map(visibleItems, func(i *models.Item) models.Id { return i.ItemID }),
+				algorithms.Map(hiddenItems, func(i *models.Item) models.Id { return i.ItemID }),
 				nonexistentItemIds)
 
 			actualVisible, actualHidden, err := queries.PartitionItemsByHiddenStatus(db, allItems)

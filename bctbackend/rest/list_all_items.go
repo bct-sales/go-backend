@@ -68,7 +68,7 @@ func GetAllItems(context *gin.Context, db *sql.DB, userId models.Id, roleId mode
 	case "":
 		response := GetItemsSuccessResponse{Items: algorithms.Map(items, func(item *models.Item) GetItemsItemData {
 			return GetItemsItemData{
-				ItemId:       item.ItemId,
+				ItemId:       item.ItemID,
 				AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
 				Description:  item.Description,
 				PriceInCents: item.PriceInCents,

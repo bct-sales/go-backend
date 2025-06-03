@@ -46,7 +46,7 @@ func PrintItems(categoryTable map[models.Id]string, items []*models.Item) error 
 		}
 
 		tableData = append(tableData, []string{
-			FormatId(item.ItemId),
+			FormatId(item.ItemID),
 			item.Description,
 			FormatPrice(item.PriceInCents),
 			categoryName,
@@ -115,7 +115,7 @@ func PrintSale(db *sql.DB, saleId models.Id) error {
 	for index, saleItem := range saleItems {
 		tableData = append(tableData, []string{
 			fmt.Sprintf("Item %d", index+1),
-			FormatId(saleItem.ItemId),
+			FormatId(saleItem.ItemID),
 		})
 	}
 

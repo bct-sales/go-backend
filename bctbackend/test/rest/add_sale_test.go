@@ -28,7 +28,7 @@ func TestAddSale(t *testing.T) {
 		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 		payload := rest_api.AddSalePayload{
-			Items: []models.Id{item.ItemId},
+			Items: []models.Id{item.ItemID},
 		}
 		request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 		router.ServeHTTP(writer, request)
@@ -43,7 +43,7 @@ func TestAddSale(t *testing.T) {
 		saleItems, err := queries.GetSaleItems(setup.Db, sale.SaleId)
 		require.NoError(t, err)
 		require.Len(t, saleItems, 1)
-		require.Equal(t, item.ItemId, saleItems[0].ItemId)
+		require.Equal(t, item.ItemID, saleItems[0].ItemID)
 	})
 
 	t.Run("Failure", func(t *testing.T) {
@@ -55,7 +55,7 @@ func TestAddSale(t *testing.T) {
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest_api.AddSalePayload{
-				Items: []models.Id{item.ItemId},
+				Items: []models.Id{item.ItemID},
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
@@ -75,7 +75,7 @@ func TestAddSale(t *testing.T) {
 			seller := setup.Seller()
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 			payload := rest_api.AddSalePayload{
-				Items: []models.Id{item.ItemId},
+				Items: []models.Id{item.ItemID},
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
@@ -135,7 +135,7 @@ func TestAddSale(t *testing.T) {
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest_api.AddSalePayload{
-				Items: []models.Id{item.ItemId, item.ItemId},
+				Items: []models.Id{item.ItemID, item.ItemID},
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
@@ -155,7 +155,7 @@ func TestAddSale(t *testing.T) {
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest_api.AddSalePayload{
-				Items: []models.Id{item.ItemId},
+				Items: []models.Id{item.ItemID},
 			}
 			request := CreatePostRequest(url, &payload)
 			router.ServeHTTP(writer, request)
@@ -170,7 +170,7 @@ func TestAddSale(t *testing.T) {
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest_api.AddSalePayload{
-				Items: []models.Id{item.ItemId},
+				Items: []models.Id{item.ItemID},
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie("fake_session_id"))
 			router.ServeHTTP(writer, request)

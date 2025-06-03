@@ -20,10 +20,10 @@ func TestGetSaleItems(t *testing.T) {
 	seller := setup.Seller()
 	cashier := setup.Cashier()
 	itemIds := []models.Id{
-		setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemId,
-		setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false)).ItemId,
-		setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false)).ItemId,
-		setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false)).ItemId,
+		setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID,
+		setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false)).ItemID,
+		setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false)).ItemID,
+		setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false)).ItemID,
 	}
 
 	saleId := setup.Sale(cashier.UserId, itemIds)
@@ -34,7 +34,7 @@ func TestGetSaleItems(t *testing.T) {
 	require.Len(t, actualItems, len(itemIds))
 
 	for index, actualItem := range actualItems {
-		require.Equal(t, itemIds[index], actualItem.ItemId)
+		require.Equal(t, itemIds[index], actualItem.ItemID)
 
 		expectedItem, err := queries.GetItemWithId(db, itemIds[index])
 

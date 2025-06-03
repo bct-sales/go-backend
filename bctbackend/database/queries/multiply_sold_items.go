@@ -85,12 +85,12 @@ func GetMultiplySoldItems(db *sql.DB) (r_result []MultiplySoldItem, r_err error)
 
 		lastMultiplySoldItemIndex := len(multiplySoldItems) - 1
 
-		if lastMultiplySoldItemIndex >= 0 && multiplySoldItems[lastMultiplySoldItemIndex].Item.ItemId == rowData.ItemId {
+		if lastMultiplySoldItemIndex >= 0 && multiplySoldItems[lastMultiplySoldItemIndex].Item.ItemID == rowData.ItemId {
 			multiplySoldItems[lastMultiplySoldItemIndex].Sales = append(multiplySoldItems[lastMultiplySoldItemIndex].Sales, sale)
 		} else {
 			multiplySoldItem := MultiplySoldItem{
 				Item: models.Item{
-					ItemId:       rowData.ItemId,
+					ItemID:       rowData.ItemId,
 					AddedAt:      rowData.AddedAt,
 					Description:  rowData.Description,
 					PriceInCents: rowData.PriceInCents,

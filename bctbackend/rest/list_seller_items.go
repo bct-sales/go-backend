@@ -101,7 +101,7 @@ func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 
 	successResponse := GetSellerItemsSuccessResponse{Items: algorithms.Map(items, func(item *models.Item) *GetSellerItemsItemData {
 		return &GetSellerItemsItemData{
-			ItemId:       item.ItemId,
+			ItemId:       item.ItemID,
 			AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
 			Description:  item.Description,
 			PriceInCents: item.PriceInCents,
