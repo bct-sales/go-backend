@@ -1,7 +1,7 @@
 package models
 
 type ItemCategory struct {
-	CategoryId Id
+	CategoryID Id
 	Name       string
 }
 

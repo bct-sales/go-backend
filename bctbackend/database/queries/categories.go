@@ -104,7 +104,7 @@ func GetCategories(db *sql.DB) (r_result []*models.ItemCategory, r_err error) {
 		var category models.ItemCategory
 
 		err := rows.Scan(
-			&category.CategoryId,
+			&category.CategoryID,
 			&category.Name,
 		)
 		if err != nil {
@@ -130,7 +130,7 @@ func GetCategoryNameTable(db *sql.DB) (map[models.Id]string, error) {
 	result := make(map[models.Id]string)
 
 	for _, category := range categories {
-		result[category.CategoryId] = category.Name
+		result[category.CategoryID] = category.Name
 	}
 
 	return result, nil

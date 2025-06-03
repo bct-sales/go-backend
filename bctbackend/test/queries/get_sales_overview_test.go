@@ -15,7 +15,7 @@ import (
 func createTotalMap(categories []*models.ItemCategory) map[models.Id]models.MoneyInCents {
 	totalMap := make(map[models.Id]models.MoneyInCents)
 	for _, category := range categories {
-		totalMap[category.CategoryId] = models.MoneyInCents(0)
+		totalMap[category.CategoryID] = models.MoneyInCents(0)
 	}
 	return totalMap
 }
@@ -34,7 +34,7 @@ func TestGetSalesOverview(t *testing.T) {
 		require.Equal(t, len(categories), len(categorySaleTotals))
 
 		for categoryIndex, category := range categories {
-			require.Equal(t, category.CategoryId, categorySaleTotals[categoryIndex].CategoryId)
+			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryId)
 			require.Equal(t, category.Name, categorySaleTotals[categoryIndex].CategoryName)
 			require.Equal(t, models.MoneyInCents(0), categorySaleTotals[categoryIndex].TotalInCents)
 		}
@@ -48,7 +48,7 @@ func TestGetSalesOverview(t *testing.T) {
 		require.NoError(t, err)
 
 		seller := setup.Seller()
-		setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryId), aux.WithDummyData(1), aux.WithHidden(false))
+		setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -56,7 +56,7 @@ func TestGetSalesOverview(t *testing.T) {
 		require.Equal(t, len(categories), len(categorySaleTotals))
 
 		for categoryIndex, category := range categories {
-			require.Equal(t, category.CategoryId, categorySaleTotals[categoryIndex].CategoryId)
+			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryId)
 			require.Equal(t, category.Name, categorySaleTotals[categoryIndex].CategoryName)
 			require.Equal(t, models.MoneyInCents(0), categorySaleTotals[categoryIndex].TotalInCents)
 		}
@@ -72,7 +72,7 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := setup.Seller()
-		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithItemCategory(categories[0].CategoryId), aux.WithHidden(false))
+		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithItemCategory(categories[0].CategoryID), aux.WithHidden(false))
 		totals[item.CategoryId] += item.PriceInCents
 
 		cashier := setup.Cashier()
@@ -84,9 +84,9 @@ func TestGetSalesOverview(t *testing.T) {
 		require.Equal(t, len(categories), len(categorySaleTotals))
 
 		for categoryIndex, category := range categories {
-			require.Equal(t, category.CategoryId, categorySaleTotals[categoryIndex].CategoryId)
+			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryId)
 			require.Equal(t, category.Name, categorySaleTotals[categoryIndex].CategoryName)
-			require.Equal(t, totals[category.CategoryId], categorySaleTotals[categoryIndex].TotalInCents)
+			require.Equal(t, totals[category.CategoryID], categorySaleTotals[categoryIndex].TotalInCents)
 		}
 	})
 
@@ -100,8 +100,8 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := setup.Seller()
-		item1 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryId), aux.WithDummyData(1), aux.WithHidden(false))
-		item2 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryId), aux.WithDummyData(2), aux.WithHidden(false))
+		item1 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
+		item2 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
 		totals[item1.CategoryId] += item1.PriceInCents
 		totals[item2.CategoryId] += item2.PriceInCents
 
@@ -114,9 +114,9 @@ func TestGetSalesOverview(t *testing.T) {
 		require.Equal(t, len(categories), len(categorySaleTotals))
 
 		for categoryIndex, category := range categories {
-			require.Equal(t, category.CategoryId, categorySaleTotals[categoryIndex].CategoryId)
+			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryId)
 			require.Equal(t, category.Name, categorySaleTotals[categoryIndex].CategoryName)
-			require.Equal(t, totals[category.CategoryId], categorySaleTotals[categoryIndex].TotalInCents)
+			require.Equal(t, totals[category.CategoryID], categorySaleTotals[categoryIndex].TotalInCents)
 		}
 	})
 
@@ -130,8 +130,8 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := setup.Seller()
-		item1 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryId), aux.WithDummyData(1), aux.WithHidden(false))
-		item2 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryId), aux.WithDummyData(2), aux.WithHidden(false))
+		item1 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
+		item2 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
 		totals[item1.CategoryId] += item1.PriceInCents
 		totals[item2.CategoryId] += item2.PriceInCents
 
@@ -144,9 +144,9 @@ func TestGetSalesOverview(t *testing.T) {
 		require.Equal(t, len(categories), len(categorySaleTotals))
 
 		for categoryIndex, category := range categories {
-			require.Equal(t, category.CategoryId, categorySaleTotals[categoryIndex].CategoryId)
+			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryId)
 			require.Equal(t, category.Name, categorySaleTotals[categoryIndex].CategoryName)
-			require.Equal(t, totals[category.CategoryId], categorySaleTotals[categoryIndex].TotalInCents)
+			require.Equal(t, totals[category.CategoryID], categorySaleTotals[categoryIndex].TotalInCents)
 		}
 	})
 
@@ -160,8 +160,8 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := setup.Seller()
-		item1 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryId), aux.WithDummyData(1), aux.WithHidden(false))
-		item2 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryId), aux.WithDummyData(2), aux.WithHidden(false))
+		item1 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
+		item2 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
 		totals[item1.CategoryId] += item1.PriceInCents
 		totals[item2.CategoryId] += item2.PriceInCents
 
@@ -175,9 +175,9 @@ func TestGetSalesOverview(t *testing.T) {
 		require.Equal(t, len(categories), len(categorySaleTotals))
 
 		for categoryIndex, category := range categories {
-			require.Equal(t, category.CategoryId, categorySaleTotals[categoryIndex].CategoryId)
+			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryId)
 			require.Equal(t, category.Name, categorySaleTotals[categoryIndex].CategoryName)
-			require.Equal(t, totals[category.CategoryId], categorySaleTotals[categoryIndex].TotalInCents)
+			require.Equal(t, totals[category.CategoryID], categorySaleTotals[categoryIndex].TotalInCents)
 		}
 	})
 
@@ -191,8 +191,8 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := setup.Seller()
-		item1 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryId), aux.WithDummyData(1), aux.WithHidden(false))
-		item2 := setup.Item(seller.UserId, aux.WithItemCategory(categories[1].CategoryId), aux.WithDummyData(2), aux.WithHidden(false))
+		item1 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
+		item2 := setup.Item(seller.UserId, aux.WithItemCategory(categories[1].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
 		totals[item1.CategoryId] += item1.PriceInCents
 		totals[item2.CategoryId] += item2.PriceInCents
 
@@ -206,9 +206,9 @@ func TestGetSalesOverview(t *testing.T) {
 		require.Equal(t, len(categories), len(categorySaleTotals))
 
 		for categoryIndex, category := range categories {
-			require.Equal(t, category.CategoryId, categorySaleTotals[categoryIndex].CategoryId)
+			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryId)
 			require.Equal(t, category.Name, categorySaleTotals[categoryIndex].CategoryName)
-			require.Equal(t, totals[category.CategoryId], categorySaleTotals[categoryIndex].TotalInCents)
+			require.Equal(t, totals[category.CategoryID], categorySaleTotals[categoryIndex].TotalInCents)
 		}
 	})
 }

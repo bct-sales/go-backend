@@ -27,7 +27,7 @@ func ListCategories(databasePath string) (r_err error) {
 	}
 
 	for _, category := range categories {
-		categoryIdString := fmt.Sprintf("%d", category.CategoryId)
+		categoryIdString := fmt.Sprintf("%d", category.CategoryID)
 		categoryNameString := category.Name
 
 		tableData = append(tableData, []string{

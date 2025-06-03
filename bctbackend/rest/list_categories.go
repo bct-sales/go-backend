@@ -122,7 +122,7 @@ func listCategoriesWithoutCounts(context *gin.Context, db *sql.DB, userId models
 
 	for _, categoryCount := range categories {
 		data := CategoryData{
-			CategoryId:   categoryCount.CategoryId,
+			CategoryId:   categoryCount.CategoryID,
 			CategoryName: categoryCount.Name,
 			Count:        nil,
 		}
