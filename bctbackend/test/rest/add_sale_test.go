@@ -40,7 +40,7 @@ func TestAddSale(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, cashier.UserId, sale.CashierId)
 
-		saleItems, err := queries.GetSaleItems(setup.Db, sale.SaleId)
+		saleItems, err := queries.GetSaleItems(setup.Db, sale.SaleID)
 		require.NoError(t, err)
 		require.Len(t, saleItems, 1)
 		require.Equal(t, item.ItemID, saleItems[0].ItemID)

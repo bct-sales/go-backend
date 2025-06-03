@@ -78,7 +78,7 @@ func GetMultiplySoldItems(db *sql.DB) (r_result []MultiplySoldItem, r_err error)
 		}
 
 		sale := models.Sale{
-			SaleId:          rowData.SaleId,
+			SaleID:          rowData.SaleId,
 			CashierId:       rowData.CashierId,
 			TransactionTime: rowData.TransactionTime,
 		}

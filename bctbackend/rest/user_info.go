@@ -79,7 +79,7 @@ func convertItemToGetUserInformationItem(item *queries.ItemWithSaleCount) *GetUs
 
 func convertSaleToGetUserInformationSale(sale *models.Sale) *GetUserInformationSale {
 	return &GetUserInformationSale{
-		SaleId:          sale.SaleId,
+		SaleId:          sale.SaleID,
 		TransactionTime: sale.TransactionTime,
 	}
 }

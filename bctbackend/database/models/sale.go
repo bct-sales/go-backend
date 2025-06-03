@@ -1,7 +1,7 @@
 package models
 
 type Sale struct {
-	SaleId          Id
+	SaleID          Id
 	CashierId       Id
 	TransactionTime Timestamp
 }

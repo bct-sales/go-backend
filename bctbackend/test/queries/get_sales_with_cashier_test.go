@@ -40,7 +40,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 			require.NoError(t, err)
 
 			require.Len(t, sales, 1)
-			require.Equal(t, saleId, sales[0].SaleId)
+			require.Equal(t, saleId, sales[0].SaleID)
 			require.Equal(t, cashier.UserId, sales[0].CashierId)
 		})
 
@@ -60,8 +60,8 @@ func TestGetSalesWithCashier(t *testing.T) {
 			require.NoError(t, err)
 
 			require.Len(t, sales, 2)
-			require.Equal(t, saleId1, sales[0].SaleId)
-			require.Equal(t, saleId2, sales[1].SaleId)
+			require.Equal(t, saleId1, sales[0].SaleID)
+			require.Equal(t, saleId2, sales[1].SaleID)
 		})
 	})
 

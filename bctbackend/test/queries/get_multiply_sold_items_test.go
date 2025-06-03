@@ -67,8 +67,8 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		multiplySoldItem := multiplySoldItems[0]
 		require.Equal(t, *(items[0]), multiplySoldItem.Item)
 		require.Len(t, multiplySoldItem.Sales, 2)
-		require.Equal(t, sale1, multiplySoldItem.Sales[0].SaleId)
-		require.Equal(t, sale2, multiplySoldItem.Sales[1].SaleId)
+		require.Equal(t, sale1, multiplySoldItem.Sales[0].SaleID)
+		require.Equal(t, sale2, multiplySoldItem.Sales[1].SaleID)
 	})
 
 	t.Run("Item sold thrice", func(t *testing.T) {
@@ -94,9 +94,9 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		multiplySoldItem := multiplySoldItems[0]
 		require.Equal(t, *(items[0]), multiplySoldItem.Item)
 		require.Len(t, multiplySoldItem.Sales, 3)
-		require.Equal(t, sale1, multiplySoldItem.Sales[0].SaleId)
-		require.Equal(t, sale2, multiplySoldItem.Sales[1].SaleId)
-		require.Equal(t, sale3, multiplySoldItem.Sales[2].SaleId)
+		require.Equal(t, sale1, multiplySoldItem.Sales[0].SaleID)
+		require.Equal(t, sale2, multiplySoldItem.Sales[1].SaleID)
+		require.Equal(t, sale3, multiplySoldItem.Sales[2].SaleID)
 	})
 
 	t.Run("Two items sold twice", func(t *testing.T) {
@@ -121,13 +121,13 @@ func TestGetMultiplySoldItems(t *testing.T) {
 
 		require.Equal(t, *(items[0]), multiplySoldItems[0].Item)
 		require.Len(t, multiplySoldItems[0].Sales, 2)
-		require.Equal(t, sale1, multiplySoldItems[0].Sales[0].SaleId)
-		require.Equal(t, sale2, multiplySoldItems[0].Sales[1].SaleId)
+		require.Equal(t, sale1, multiplySoldItems[0].Sales[0].SaleID)
+		require.Equal(t, sale2, multiplySoldItems[0].Sales[1].SaleID)
 
 		require.Equal(t, *(items[1]), multiplySoldItems[1].Item)
 		require.Len(t, multiplySoldItems[1].Sales, 2)
-		require.Equal(t, sale1, multiplySoldItems[1].Sales[0].SaleId)
-		require.Equal(t, sale2, multiplySoldItems[1].Sales[1].SaleId)
+		require.Equal(t, sale1, multiplySoldItems[1].Sales[0].SaleID)
+		require.Equal(t, sale2, multiplySoldItems[1].Sales[1].SaleID)
 	})
 
 	t.Run("Sales [1], [1, 2], [1, 2, 3]", func(t *testing.T) {
@@ -154,13 +154,13 @@ func TestGetMultiplySoldItems(t *testing.T) {
 
 		require.Equal(t, *(items[0]), multiplySoldItems[0].Item)
 		require.Len(t, multiplySoldItems[0].Sales, 3)
-		require.Equal(t, sale1, multiplySoldItems[0].Sales[0].SaleId)
-		require.Equal(t, sale2, multiplySoldItems[0].Sales[1].SaleId)
-		require.Equal(t, sale3, multiplySoldItems[0].Sales[2].SaleId)
+		require.Equal(t, sale1, multiplySoldItems[0].Sales[0].SaleID)
+		require.Equal(t, sale2, multiplySoldItems[0].Sales[1].SaleID)
+		require.Equal(t, sale3, multiplySoldItems[0].Sales[2].SaleID)
 
 		require.Equal(t, *(items[1]), multiplySoldItems[1].Item)
 		require.Len(t, multiplySoldItems[1].Sales, 2)
-		require.Equal(t, sale2, multiplySoldItems[1].Sales[0].SaleId)
-		require.Equal(t, sale3, multiplySoldItems[1].Sales[1].SaleId)
+		require.Equal(t, sale2, multiplySoldItems[1].Sales[0].SaleID)
+		require.Equal(t, sale3, multiplySoldItems[1].Sales[1].SaleID)
 	})
 }
