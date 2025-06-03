@@ -8,11 +8,13 @@ import (
 	. "bctbackend/cli/item"
 	. "bctbackend/cli/sale"
 	. "bctbackend/cli/user"
+	config "bctbackend/configuration"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"slices"
 	"strconv"
 	"strings"
@@ -75,9 +77,10 @@ func ProcessCommandLineArguments(arguments []string) error {
 	}
 
 	var options struct {
-		global struct {
-			databasePath string
-		}
+		configurationPath string
+
+		global *config.Configuration
+
 		db struct {
 			backup struct {
 				target string
@@ -197,14 +200,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 		}
 	}
 
-	{
-		var ok bool
-		options.global.databasePath, ok = os.LookupEnv(DatabaseEnvironmentVariable)
-		if !ok {
-			options.global.databasePath = "bct.db" // Default database path
-		}
-	}
-
 	//exhaustruct:ignore
 	app := &cli.App{
 		Name:  "bctbackend",
@@ -222,13 +217,39 @@ func ProcessCommandLineArguments(arguments []string) error {
 					return nil
 				},
 			},
+			//exhaustruct:ignore
+			&cli.StringFlag{
+				Name:        "config",
+				Usage:       "path to the configuration file",
+				Value:       "config.yaml",
+				Destination: &options.configurationPath,
+			},
+		},
+		Before: func(context *cli.Context) error {
+			absoluteConfigurationPath, err := filepath.Abs(options.configurationPath)
+			if err != nil {
+				return cli.Exit("Failed to get absolute path for configuration file: "+err.Error(), 1)
+			}
+
+			configuration, err := config.LoadConfigurationFromFile(absoluteConfigurationPath)
+			if err != nil {
+				return cli.Exit(
+					fmt.Sprintf("Failed to load configuration file %s; error: %s",
+						absoluteConfigurationPath,
+						err.Error()),
+					1)
+			}
+
+			options.global = configuration
+
+			return nil
 		},
 		Commands: []*cli.Command{
 			{
 				Name:  "server",
 				Usage: "start REST api server",
 				Action: func(ctx *cli.Context) error {
-					return startRestService(options.global.databasePath)
+					return startRestService(options.global.DatabasePath)
 				},
 			},
 			{
@@ -243,7 +264,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 								Name:  "users",
 								Usage: "export users as csv",
 								Action: func(context *cli.Context) error {
-									return csv.ExportUsers(options.global.databasePath)
+									return csv.ExportUsers(options.global.DatabasePath)
 								},
 							},
 							{
@@ -260,7 +281,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 								},
 								Action: func(context *cli.Context) error {
 									showHidden := options.export.csv.items.showHidden
-									return csv.ExportItems(options.global.databasePath, showHidden)
+									return csv.ExportItems(options.global.DatabasePath, showHidden)
 								},
 							},
 						},
@@ -286,7 +307,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Action: func(context *cli.Context) error {
 							addCategories := !options.db.init.noCategories
 
-							return InitializeDatabase(options.global.databasePath, addCategories)
+							return InitializeDatabase(options.global.DatabasePath, addCategories)
 						},
 					},
 					{
@@ -304,14 +325,14 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Action: func(context *cli.Context) error {
 							addCategories := !options.db.reset.noCategories
 
-							return ResetDatabase(options.global.databasePath, addCategories)
+							return ResetDatabase(options.global.DatabasePath, addCategories)
 						},
 					},
 					{
 						Name:  "dummy",
 						Usage: "resets database and populates it with dummy data; all data will be lost!",
 						Action: func(context *cli.Context) error {
-							return ResetDatabaseAndFillWithDummyData(options.global.databasePath)
+							return ResetDatabaseAndFillWithDummyData(options.global.DatabasePath)
 						},
 					},
 					{
@@ -328,7 +349,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							targetPath := options.db.backup.target
-							return BackupDatabase(options.global.databasePath, targetPath)
+							return BackupDatabase(options.global.DatabasePath, targetPath)
 						},
 					},
 				},
@@ -367,7 +388,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							id := models.Id(options.user.add.id)
 							role := options.user.add.role
 							userPassword := options.user.add.password
-							return AddUser(options.global.databasePath, id, role, userPassword)
+							return AddUser(options.global.DatabasePath, id, role, userPassword)
 						},
 					},
 					{
@@ -407,7 +428,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							}
 							sellersPerZone := options.user.addSellers.sellersPerZone
 
-							return AddSellers(options.global.databasePath, seed, zones, sellersPerZone)
+							return AddSellers(options.global.DatabasePath, seed, zones, sellersPerZone)
 						},
 					},
 					{
@@ -424,14 +445,14 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							id := models.Id(options.user.remove.id)
-							return RemoveUser(options.global.databasePath, id)
+							return RemoveUser(options.global.DatabasePath, id)
 						},
 					},
 					{
 						Name:  "list",
 						Usage: "list all users",
 						Action: func(context *cli.Context) error {
-							return ListUsers(options.global.databasePath)
+							return ListUsers(options.global.DatabasePath)
 						},
 					},
 					{
@@ -448,7 +469,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							id := models.Id(options.user.show.id)
-							return ShowUser(options.global.databasePath, id)
+							return ShowUser(options.global.DatabasePath, id)
 						},
 					},
 					{
@@ -473,7 +494,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Action: func(context *cli.Context) error {
 							id := models.Id(options.user.setPassword.id)
 							password := options.user.setPassword.password
-							return SetPassword(options.global.databasePath, id, password)
+							return SetPassword(options.global.DatabasePath, id, password)
 						},
 					},
 				},
@@ -497,7 +518,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Action: func(context *cli.Context) error {
 							showHidden := options.item.list.showHidden
 
-							return ListItems(options.global.databasePath, showHidden)
+							return ListItems(options.global.DatabasePath, showHidden)
 						},
 					},
 					{
@@ -555,7 +576,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							donation := options.item.add.donation
 							charity := options.item.add.charity
 
-							return AddItem(options.global.databasePath, description, price, categoryId, sellerId, donation, charity)
+							return AddItem(options.global.DatabasePath, description, price, categoryId, sellerId, donation, charity)
 						},
 					},
 					{
@@ -572,7 +593,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							id := models.Id(options.item.remove.id)
-							return RemoveItem(options.global.databasePath, id)
+							return RemoveItem(options.global.DatabasePath, id)
 						},
 					},
 					{
@@ -589,7 +610,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							id := models.Id(options.item.show.id)
-							return ShowItem(options.global.databasePath, id)
+							return ShowItem(options.global.DatabasePath, id)
 						},
 					},
 					{
@@ -606,7 +627,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							id := models.Id(options.item.freeze.id)
-							return FreezeItem(options.global.databasePath, id)
+							return FreezeItem(options.global.DatabasePath, id)
 						},
 					},
 					{
@@ -623,7 +644,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							id := models.Id(options.item.freeze.id)
-							return UnfreezeItem(options.global.databasePath, id)
+							return UnfreezeItem(options.global.DatabasePath, id)
 						},
 					},
 					{
@@ -640,7 +661,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							id := models.Id(options.item.hide.id)
-							return HideItem(options.global.databasePath, id)
+							return HideItem(options.global.DatabasePath, id)
 						},
 					},
 					{
@@ -657,7 +678,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							id := models.Id(options.item.unhide.id)
-							return UnhideItem(options.global.databasePath, id)
+							return UnhideItem(options.global.DatabasePath, id)
 						},
 					},
 				},
@@ -670,7 +691,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "list",
 						Usage: "list all sales",
 						Action: func(context *cli.Context) error {
-							return ListSales(options.global.databasePath)
+							return ListSales(options.global.DatabasePath)
 						},
 					},
 					{
@@ -699,7 +720,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 								items = append(items, itemId)
 							}
 
-							return AddSale(options.global.databasePath, cashierId, items)
+							return AddSale(options.global.DatabasePath, cashierId, items)
 						},
 					},
 					{
@@ -716,7 +737,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 						Action: func(context *cli.Context) error {
 							saleId := models.Id(options.sale.show.saleId)
-							return ShowSale(options.global.databasePath, saleId)
+							return ShowSale(options.global.DatabasePath, saleId)
 						},
 					},
 				},
@@ -729,7 +750,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Name:  "list",
 						Usage: "list all categories",
 						Action: func(context *cli.Context) error {
-							return cli_category.ListCategories(options.global.databasePath)
+							return cli_category.ListCategories(options.global.DatabasePath)
 						},
 					},
 					{
@@ -747,7 +768,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Action: func(context *cli.Context) error {
 							itemSelection := queries.ItemSelectionFromBool(options.category.counts.includeHiddenItems)
 
-							return cli_category.ListCategoryCounts(options.global.databasePath, itemSelection)
+							return cli_category.ListCategoryCounts(options.global.DatabasePath, itemSelection)
 						},
 					},
 					{
@@ -773,7 +794,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 							id := models.Id(options.category.add.id)
 							name := options.category.add.name
 
-							return cli_category.AddCategory(options.global.databasePath, id, name)
+							return cli_category.AddCategory(options.global.DatabasePath, id, name)
 						},
 					},
 				},

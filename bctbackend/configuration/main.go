@@ -7,8 +7,8 @@ import (
 )
 
 type Configuration struct {
-	DatabasePath string `yaml:"database_path"`
-	FontPath     string `yaml:"font_path"`
+	DatabasePath  string `yaml:"database_path"`
+	FontDirectory string `yaml:"font_directory"`
 }
 
 type ConfigurationError struct {
