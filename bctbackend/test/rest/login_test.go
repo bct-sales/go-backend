@@ -57,7 +57,7 @@ func TestLogin(t *testing.T) {
 
 			sessionData, err := queries.GetSessionById(setup.Db, sessionId)
 			require.NoError(t, err)
-			require.Equal(t, seller.UserId, sessionData.UserId)
+			require.Equal(t, seller.UserId, sessionData.UserID)
 		})
 
 		t.Run("Admin", func(t *testing.T) {
@@ -98,7 +98,7 @@ func TestLogin(t *testing.T) {
 
 			sessionData, err := queries.GetSessionById(setup.Db, sessionId)
 			require.NoError(t, err)
-			require.Equal(t, admin.UserId, sessionData.UserId)
+			require.Equal(t, admin.UserId, sessionData.UserID)
 		})
 
 		t.Run("Cashier", func(t *testing.T) {
@@ -139,7 +139,7 @@ func TestLogin(t *testing.T) {
 
 			sessionData, err := queries.GetSessionById(setup.Db, sessionId)
 			require.NoError(t, err)
-			require.Equal(t, cashier.UserId, sessionData.UserId)
+			require.Equal(t, cashier.UserId, sessionData.UserID)
 		})
 	})
 

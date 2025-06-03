@@ -61,7 +61,7 @@ func GetSessionById(
 
 	session := models.Session{
 		SessionID:      sessionId,
-		UserId:         userId,
+		UserID:         userId,
 		ExpirationTime: expirationTime,
 	}
 	return &session, nil
@@ -126,7 +126,7 @@ func GetSessions(db *sql.DB) (r_result []models.Session, r_err error) {
 
 		session := models.Session{
 			SessionID:      sessionId,
-			UserId:         userId,
+			UserID:         userId,
 			ExpirationTime: expirationTime,
 		}
 		sessions = append(sessions, session)

@@ -4,6 +4,6 @@ type SessionId = string
 
 type Session struct {
 	SessionID      SessionId
-	UserId         Id
+	UserID         Id
 	ExpirationTime Timestamp
 }
