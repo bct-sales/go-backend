@@ -4,6 +4,7 @@ import (
 	models "bctbackend/database/models"
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
 type MultiplySoldItem struct {
@@ -36,11 +37,9 @@ func GetMultiplySoldItems(db *sql.DB) (r_result []MultiplySoldItem, r_err error)
 			ORDER BY item.item_id, sale.sale_id
 		`,
 	)
-
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to execute query: %w", err)
 	}
-
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	var multiplySoldItems []MultiplySoldItem
@@ -74,15 +73,14 @@ func GetMultiplySoldItems(db *sql.DB) (r_result []MultiplySoldItem, r_err error)
 			&rowData.CashierId,
 			&rowData.TransactionTime,
 		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read row: %w", err)
+		}
 
 		sale := models.Sale{
 			SaleId:          rowData.SaleId,
 			CashierId:       rowData.CashierId,
 			TransactionTime: rowData.TransactionTime,
-		}
-
-		if err != nil {
-			return nil, err
 		}
 
 		lastMultiplySoldItemIndex := len(multiplySoldItems) - 1

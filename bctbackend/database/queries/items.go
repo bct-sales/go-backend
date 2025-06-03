@@ -23,7 +23,7 @@ func GetItems(db *sql.DB, receiver func(*models.Item) error, itemSelection ItemS
 	// Perform query
 	rows, err := db.Query(query)
 	if err != nil {
-		return fmt.Errorf("failed to look up items in database: %w", err)
+		return fmt.Errorf("failed to execute query to look up items in database: %w", err)
 	}
 	defer func() { err = errors.Join(err, rows.Close()) }()
 
@@ -84,7 +84,7 @@ func GetSellerItems(db *sql.DB, sellerId models.Id, itemSelection ItemSelection)
 
 	rows, err := db.Query(query, sellerId)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get seller item data from database: %w", err)
+		return nil, fmt.Errorf("failed to execute query to get seller item data from database: %w", err)
 	}
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
@@ -151,7 +151,7 @@ func GetSellerItemsWithSaleCounts(db *sql.DB, sellerId models.Id) (r_items []*It
 		sellerId,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get seller items with sale counts from database: %w", err)
+		return nil, fmt.Errorf("failed to execute query to get seller items with sale counts from database: %w", err)
 	}
 
 	defer func() { err = errors.Join(err, rows.Close()) }()
@@ -230,7 +230,7 @@ func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("while getting item with id %d: %w", itemId, database.ErrNoSuchItem)
+			return nil, database.ErrNoSuchItem
 		}
 		return nil, fmt.Errorf("failed to read row: %w", err)
 	}
@@ -262,7 +262,7 @@ func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (r_result map[models.Id]*m
 	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
 	rows, err := db.Query(query, convertedItemIds...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get items from database: %w", err)
+		return nil, fmt.Errorf("failed to execute query to get items from database: %w", err)
 	}
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 

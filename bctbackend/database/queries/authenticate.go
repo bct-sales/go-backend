@@ -31,7 +31,7 @@ func AuthenticateUser(db *sql.DB, userId models.Id, password string) (models.Id,
 			return 0, fmt.Errorf("failed to authenticate user %d: %w", userId, database.ErrNoSuchUser)
 		}
 
-		return 0, fmt.Errorf("failed to look up user %d in database: %w", userId, err)
+		return 0, fmt.Errorf("failed to execute query to look up user %d in database: %w", userId, err)
 	}
 
 	if expectedPassword != password {
