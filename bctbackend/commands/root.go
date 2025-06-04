@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"strings"
 
+	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -39,7 +41,9 @@ func NewRootCommand() *cobra.Command {
 		}
 
 		slog.Debug("Reading configuration")
-		cobra.CheckErr(viper.ReadInConfig())
+		if err := viper.ReadInConfig(); err != nil {
+			handleMissingConfigurationFile()
+		}
 		slog.Debug("Done reading configuration", "file", viper.ConfigFileUsed())
 	})
 
@@ -68,4 +72,29 @@ func Execute() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+}
+
+func handleMissingConfigurationFile() {
+	absolutePathOfConfigurationFile, err := filepath.Abs(viper.ConfigFileUsed())
+
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error determining absolute path of configuration file:", err)
+		os.Exit(1)
+	}
+
+	fmt.Print(heredoc.Docf(`
+		I could not find the configuration file.
+		This is where I looked for it: %s.
+
+		Possible solutions:
+		* Specify a different path using the --config flag:
+		    $ bctbackend --config path/to/your/config.yaml ...
+		* You can also set the BCT_CONFIG environment variable to point to your configuration file.
+		    $ BCT_CONFIG=path/to/your/config.yaml bctbackend ...
+		* You can create a configuration file in the current directory with the name "bctconfig.yaml".
+		    $ touch bctconfig.yaml
+			$ bctbackend ...
+		`,
+		absolutePathOfConfigurationFile))
+	os.Exit(1)
 }
