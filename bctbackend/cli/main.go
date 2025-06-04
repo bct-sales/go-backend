@@ -504,64 +504,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 				Usage: "item related functionality",
 				Subcommands: []*cli.Command{
 					{
-						Name:  "add",
-						Usage: "add a new item",
-						Flags: []cli.Flag{
-							//exhaustruct:ignore
-							&cli.StringFlag{
-								Name:        "description",
-								Usage:       "description of the item",
-								Destination: &options.item.add.description,
-								Required:    true,
-							},
-							//exhaustruct:ignore
-							&cli.Int64Flag{
-								Name:        "category",
-								Usage:       "category of the item",
-								Destination: &options.item.add.category,
-								Required:    true,
-							},
-							//exhaustruct:ignore
-							&cli.Int64Flag{
-								Name:        "price-in-cents",
-								Usage:       "price of the item in cents",
-								Destination: &options.item.add.price,
-								Required:    true,
-							},
-							//exhaustruct:ignore
-							&cli.Int64Flag{
-								Name:        "seller",
-								Usage:       "id of the seller",
-								Destination: &options.item.add.seller,
-								Required:    true,
-							},
-							//exhaustruct:ignore
-							&cli.BoolFlag{
-								Name:        "donation",
-								Usage:       "is the item a donation?",
-								Destination: &options.item.add.donation,
-								Value:       false,
-							},
-							//exhaustruct:ignore
-							&cli.BoolFlag{
-								Name:        "charity",
-								Usage:       "is the item a charity?",
-								Destination: &options.item.add.charity,
-								Value:       false,
-							},
-						},
-						Action: func(context *cli.Context) error {
-							description := options.item.add.description
-							categoryId := models.Id(options.item.add.category)
-							price := models.MoneyInCents(options.item.add.price)
-							sellerId := models.Id(options.item.add.seller)
-							donation := options.item.add.donation
-							charity := options.item.add.charity
-
-							return AddItem(options.global.DatabasePath, description, price, categoryId, sellerId, donation, charity)
-						},
-					},
-					{
 						Name:  "remove",
 						Usage: "remove an item",
 						Flags: []cli.Flag{
