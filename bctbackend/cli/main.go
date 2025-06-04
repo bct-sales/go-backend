@@ -500,29 +500,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 				},
 			},
 			{
-				Name:  "item",
-				Usage: "item related functionality",
-				Subcommands: []*cli.Command{
-					{
-						Name:  "remove",
-						Usage: "remove an item",
-						Flags: []cli.Flag{
-							//exhaustruct:ignore
-							&cli.Int64Flag{
-								Name:        "id",
-								Usage:       "id of the item",
-								Destination: &options.item.remove.id,
-								Required:    true,
-							},
-						},
-						Action: func(context *cli.Context) error {
-							id := models.Id(options.item.remove.id)
-							return RemoveItem(options.global.DatabasePath, id)
-						},
-					},
-				},
-			},
-			{
 				Name:  "sale",
 				Usage: "sale related functionality",
 				Subcommands: []*cli.Command{
