@@ -1,15 +1,11 @@
 package main
 
 import (
-	"bctbackend/cli"
-	"fmt"
-	"os"
+	"bctbackend/commands"
 
 	_ "modernc.org/sqlite"
 )
 
 func main() {
-	if err := cli.ProcessCommandLineArguments(os.Args); err != nil {
-		fmt.Printf("Error: %v\n", err)
-	}
+	commands.Execute()
 }
