@@ -9,7 +9,6 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 func NewItemListCommand() *cobra.Command {
@@ -20,9 +19,7 @@ func NewItemListCommand() *cobra.Command {
 		Short: "List all items",
 		Long:  `This command lists all items in the database.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			databasePath := viper.GetString(common.FlagDatabase)
-
-			return common.WithOpenedDatabase(databasePath, func(db *sql.DB) error {
+			return common.WithOpenedDatabase(cmd.ErrOrStderr(), func(db *sql.DB) error {
 				var hiddenStrategy queries.ItemSelection
 				if showHidden {
 					hiddenStrategy = queries.AllItems
@@ -32,19 +29,22 @@ func NewItemListCommand() *cobra.Command {
 
 				items := []*models.Item{}
 				if err := queries.GetItems(db, queries.CollectTo(&items), hiddenStrategy); err != nil {
-					return fmt.Errorf("error while listing items: %w", err)
+					fmt.Fprintf(cmd.ErrOrStderr(), "Error while getting items: %v\n", err)
+					return err
 				}
 
 				itemCount := len(items)
 
 				if itemCount > 0 {
 					categoryTable, err := queries.GetCategoryNameTable(db)
-					if categoryTable == nil {
-						return fmt.Errorf("error while getting category map: %w", err)
+					if err != nil {
+						fmt.Fprintf(cmd.ErrOrStderr(), "An error occurred while trying to get the category table: %v\n", err)
+						return err
 					}
 
 					if err := formatting.PrintItems(categoryTable, items); err != nil {
-						return fmt.Errorf("error while rendering table: %w", err)
+						fmt.Fprintf(cmd.ErrOrStderr(), "Error while printing items: %v\n", err)
+						return err
 					}
 
 					fmt.Printf("Number of items listed: %d\n", itemCount)

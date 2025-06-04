@@ -9,7 +9,6 @@ import (
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 func NewItemFreezeCommand() *cobra.Command {
@@ -22,29 +21,23 @@ func NewItemFreezeCommand() *cobra.Command {
 				Items are automatically frozen when labels are generated for them.
 			   `),
 		Args: cobra.ExactArgs(1), // Expect exactly one argument (the item ID)
-		Run: func(cmd *cobra.Command, args []string) {
-			databasePath := viper.GetString(common.FlagDatabase)
-
-			err := common.WithOpenedDatabase(databasePath, func(db *sql.DB) error {
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return common.WithOpenedDatabase(cmd.ErrOrStderr(), func(db *sql.DB) error {
 				// Parse the item ID from the first argument
 				itemId, err := models.ParseId(args[0])
 				if err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "Invalid item ID: %s\n", args[0])
+					return err
 				}
 
 				if err := queries.UpdateFreezeStatusOfItems(db, []models.Id{itemId}, true); err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "Failed to freeze item: %v\n", err)
-					return nil
+					return err
 				}
 
 				fmt.Println("Item frozen successfully")
 				return nil
 			})
-
-			if err != nil {
-				fmt.Fprintf(cmd.ErrOrStderr(), "Error while showing item: %v\n", err)
-				return
-			}
 		},
 	}
 

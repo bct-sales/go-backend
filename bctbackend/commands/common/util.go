@@ -3,17 +3,27 @@ package common
 import (
 	"bctbackend/database"
 	"database/sql"
-	"fmt"
-
 	"errors"
+	"fmt"
+	"io"
+
+	"github.com/spf13/viper"
 )
 
-func WithOpenedDatabase(databasePath string, fn func(db *sql.DB) error) (r_err error) {
+func WithOpenedDatabase(writer io.Writer, fn func(db *sql.DB) error) (r_err error) {
+	databasePath := viper.GetString(FlagDatabase)
 	db, err := database.OpenDatabase(databasePath)
 	if err != nil {
-		return fmt.Errorf("failed to open database %s: %w", databasePath, err)
+		fmt.Fprintf(writer, "Failed to open database %s: %v\n", databasePath, err)
+		return
 	}
-	defer func() { r_err = errors.Join(r_err, db.Close()) }()
+
+	defer func() {
+		if err := db.Close(); err != nil {
+			fmt.Fprintf(writer, "Failed to close database %s: %v\n", databasePath, err)
+			r_err = errors.Join(r_err, err)
+		}
+	}()
 
 	return fn(db)
 }

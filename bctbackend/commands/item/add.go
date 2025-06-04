@@ -7,11 +7,9 @@ import (
 	"bctbackend/database/queries"
 	"database/sql"
 	"fmt"
-	"log/slog"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 func NewItemAddCommand() *cobra.Command {
@@ -31,9 +29,7 @@ func NewItemAddCommand() *cobra.Command {
 			Freezing/hiding needs to be done separately.
 		`),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			databasePath := viper.GetString(common.FlagDatabase)
-
-			return common.WithOpenedDatabase(databasePath, func(db *sql.DB) error {
+			return common.WithOpenedDatabase(cmd.ErrOrStderr(), func(db *sql.DB) error {
 				timestamp := models.Now()
 
 				// We do not want to check the validity for frozen/hidden here, so we just set them to false
@@ -49,20 +45,21 @@ func NewItemAddCommand() *cobra.Command {
 					false,
 					false)
 				if err != nil {
-					return fmt.Errorf("failed to add item to database: %w", err)
+					fmt.Fprintf(cmd.ErrOrStderr(), "Failed to add item to database: %v\n", err)
+					return err
 				}
 				fmt.Println("Item added successfully")
 
 				categoryTable, err := queries.GetCategoryNameTable(db)
 				if err != nil {
-					slog.Error("An error occurred while trying to get the category map; item is still added to the database", "error", err)
-					return nil
+					fmt.Fprintf(cmd.ErrOrStderr(), "An error occurred while trying to get the category map: %v\n", err)
+					return err
 				}
 
 				err = formatting.PrintItem(db, categoryTable, addedItemId)
 				if err != nil {
-					slog.Error("An error occurred while trying to format the output; item is still added to the database", "added item id", addedItemId, "error", err)
-					return nil
+					fmt.Fprintf(cmd.ErrOrStderr(), "An error occurred while trying to format the output: %v\n", err)
+					return err
 				}
 
 				return nil
