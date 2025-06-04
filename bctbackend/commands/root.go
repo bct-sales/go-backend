@@ -10,12 +10,14 @@ import (
 	"strings"
 
 	"github.com/MakeNowJust/heredoc"
+	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 func NewRootCommand() *cobra.Command {
 	var verbose bool
+	var noColor bool
 
 	rootCommand := cobra.Command{
 		Use:   "bctbackend",
@@ -26,6 +28,10 @@ func NewRootCommand() *cobra.Command {
 	cobra.OnInitialize(func() {
 		if verbose {
 			slog.SetLogLoggerLevel(slog.LevelDebug)
+		}
+
+		if noColor {
+			pterm.DisableColor()
 		}
 
 		configurationPath := rootCommand.PersistentFlags().Lookup("config").Value.String()
@@ -48,6 +54,7 @@ func NewRootCommand() *cobra.Command {
 
 	rootCommand.PersistentFlags().String("config", "", "Path to the configuration file")
 	rootCommand.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Enable verbose output")
+	rootCommand.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable color output")
 	rootCommand.PersistentFlags().String("db", "./bct.db", "Path to the database file")
 
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
