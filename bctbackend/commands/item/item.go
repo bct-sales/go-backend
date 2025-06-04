@@ -15,6 +15,7 @@ func NewItemCommand() *cobra.Command {
 	itemCommand.AddCommand(NewItemAddCommand())
 	itemCommand.AddCommand(NewItemShowCommand())
 	itemCommand.AddCommand(NewItemFreezeCommand())
+	itemCommand.AddCommand(NewItemHideCommand())
 
 	return &itemCommand
 }
