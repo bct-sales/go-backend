@@ -14,7 +14,7 @@ import (
 func NewItemFreezeCommand() *cobra.Command {
 	itemListCommand := cobra.Command{
 		Use:   "freeze ID",
-		Short: "Freezes item",
+		Short: "Freezes an item",
 		Long: heredoc.Doc(`
 				This command freezes an item so that it cannot be edited anymore.
 				You can unfreeze it later if needed.
