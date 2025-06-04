@@ -44,7 +44,6 @@ func NewRootCommand() *cobra.Command {
 		if err := viper.ReadInConfig(); err != nil {
 			handleMissingConfigurationFile()
 		}
-		slog.Debug("Done reading configuration", "file", viper.ConfigFileUsed())
 	})
 
 	rootCommand.PersistentFlags().String("config", "", "Path to the configuration file")
