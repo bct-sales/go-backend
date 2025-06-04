@@ -74,8 +74,11 @@ func NewRootCommand() *cobra.Command {
 func Execute() {
 	rootCommand := NewRootCommand()
 
+	rootCommand.SilenceUsage = true
+	rootCommand.SilenceErrors = true
+
 	if err := rootCommand.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		// fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
