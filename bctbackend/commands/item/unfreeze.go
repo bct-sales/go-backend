@@ -33,7 +33,7 @@ func NewItemUnfreezeCommand() *cobra.Command {
 
 				if err := queries.UpdateFreezeStatusOfItems(db, []models.Id{itemId}, false); err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "Failed to unfreeze item: %v\n", err)
-					return fmt.Errorf("failed to update database: %w", err)
+					return err
 				}
 
 				fmt.Println("Item unfrozen successfully")
