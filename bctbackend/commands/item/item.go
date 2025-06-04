@@ -13,6 +13,7 @@ func NewItemCommand() *cobra.Command {
 
 	itemCommand.AddCommand(NewItemListCommand())
 	itemCommand.AddCommand(NewItemAddCommand())
+	itemCommand.AddCommand(NewItemShowCommand())
 
 	return &itemCommand
 }
