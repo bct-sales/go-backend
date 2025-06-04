@@ -3,18 +3,22 @@ module bctbackend
 go 1.23
 
 require (
+	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/boombuler/barcode v1.0.2
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-pdf/fpdf v0.9.0
 	github.com/joho/godotenv v1.5.1
 	github.com/pterm/pterm v0.12.80
+	github.com/spf13/cobra v1.9.1
+	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.10.0
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.4
 	github.com/urfave/cli/v2 v2.27.5
 	golang.org/x/exp v0.0.0-20231108232855-2478ac86f678
+	gopkg.in/yaml.v3 v3.0.1
 	modernc.org/sqlite v1.33.1
 )
 
@@ -23,7 +27,6 @@ require (
 	atomicgo.dev/keyboard v0.2.9 // indirect
 	atomicgo.dev/schedule v0.1.0 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
-	github.com/MakeNowJust/heredoc v1.0.0 // indirect
 	github.com/bytedance/sonic v1.12.3 // indirect
 	github.com/bytedance/sonic/loader v0.2.1 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
@@ -68,9 +71,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.12.0 // indirect
 	github.com/spf13/cast v1.7.1 // indirect
-	github.com/spf13/cobra v1.9.1 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
-	github.com/spf13/viper v1.20.1 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
@@ -86,7 +87,6 @@ require (
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/tools v0.26.0 // indirect
 	google.golang.org/protobuf v1.36.1 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/gc/v3 v3.0.0-20240107210532-573471604cb6 // indirect
 	modernc.org/libc v1.55.3 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
