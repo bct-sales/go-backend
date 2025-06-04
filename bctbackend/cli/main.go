@@ -520,23 +520,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 							return RemoveItem(options.global.DatabasePath, id)
 						},
 					},
-					{
-						Name:  "hide",
-						Usage: "hides an item",
-						Flags: []cli.Flag{
-							//exhaustruct:ignore
-							&cli.Int64Flag{
-								Name:        "id",
-								Usage:       "id of the item",
-								Destination: &options.item.hide.id,
-								Required:    true,
-							},
-						},
-						Action: func(context *cli.Context) error {
-							id := models.Id(options.item.hide.id)
-							return HideItem(options.global.DatabasePath, id)
-						},
-					},
 				},
 			},
 			{
