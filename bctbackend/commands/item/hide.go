@@ -14,7 +14,7 @@ import (
 func NewItemHideCommand() *cobra.Command {
 	itemListCommand := cobra.Command{
 		Use:   "hide ID",
-		Short: "Hides item",
+		Short: "Hides an item",
 		Long: heredoc.Doc(`
 				This command hides an item.
 				You can unhide it later if needed.
