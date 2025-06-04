@@ -73,7 +73,7 @@ func NewItemAddCommand() *cobra.Command {
 	itemAddCommand.Flags().StringVar(&description, "description", "", "Description of the item")
 	itemAddCommand.Flags().IntVar(&priceInCents, "price", 0, "Price of the item in cents")
 	itemAddCommand.Flags().IntVar(&categoryId, "category", 0, "ID of the category the item belongs to")
-	itemAddCommand.Flags().IntVar(&sellerId, "seller-id", 0, "ID of the seller of the item")
+	itemAddCommand.Flags().IntVar(&sellerId, "seller", 0, "ID of the seller of the item")
 	itemAddCommand.Flags().BoolVar(&donation, "donation", false, "Whether the item is a donation")
 	itemAddCommand.Flags().BoolVar(&charity, "charity", false, "Whether the item is for charity")
 
@@ -88,12 +88,6 @@ func NewItemAddCommand() *cobra.Command {
 	}
 	if err := itemAddCommand.MarkFlagRequired("seller"); err != nil {
 		panic(fmt.Sprintf("failed to mark seller flag as required: %v", err))
-	}
-	if err := itemAddCommand.MarkFlagRequired("donation"); err != nil {
-		panic(fmt.Sprintf("failed to mark donation flag as required: %v", err))
-	}
-	if err := itemAddCommand.MarkFlagRequired("charity"); err != nil {
-		panic(fmt.Sprintf("failed to mark charity flag as required: %v", err))
 	}
 
 	return &itemAddCommand
