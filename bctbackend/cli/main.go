@@ -521,23 +521,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 					},
 					{
-						Name:  "freeze",
-						Usage: "freeze an item",
-						Flags: []cli.Flag{
-							//exhaustruct:ignore
-							&cli.Int64Flag{
-								Name:        "id",
-								Usage:       "id of the item",
-								Destination: &options.item.freeze.id,
-								Required:    true,
-							},
-						},
-						Action: func(context *cli.Context) error {
-							id := models.Id(options.item.freeze.id)
-							return FreezeItem(options.global.DatabasePath, id)
-						},
-					},
-					{
 						Name:  "hide",
 						Usage: "hides an item",
 						Flags: []cli.Flag{
