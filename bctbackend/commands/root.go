@@ -78,7 +78,7 @@ func Execute() {
 	rootCommand.SilenceErrors = true
 
 	if err := rootCommand.Execute(); err != nil {
-		// fmt.Fprintln(os.Stderr, err)
+		slog.Debug("An error occurred", "error", err.Error())
 		os.Exit(1)
 	}
 }
