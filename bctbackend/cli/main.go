@@ -504,24 +504,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 				Usage: "item related functionality",
 				Subcommands: []*cli.Command{
 					{
-						Name:  "list",
-						Usage: "list all items",
-						Flags: []cli.Flag{
-							//exhaustruct:ignore
-							&cli.BoolFlag{
-								Name:        "show-hidden",
-								Usage:       "show hidden items",
-								Destination: &options.item.list.showHidden,
-								Value:       false,
-							},
-						},
-						Action: func(context *cli.Context) error {
-							showHidden := options.item.list.showHidden
-
-							return ListItems(options.global.DatabasePath, showHidden)
-						},
-					},
-					{
 						Name:  "add",
 						Usage: "add a new item",
 						Flags: []cli.Flag{
