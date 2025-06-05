@@ -20,6 +20,7 @@ func NewUserShowCommand() *cobra.Command {
 		Use:   "show ID",
 		Short: "Show user info",
 		Long:  `This command shows detailed information about a specified user.`,
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return common.WithOpenedDatabase(cmd.ErrOrStderr(), func(db *sql.DB) error {
 				// Parse the user ID from the first argument
