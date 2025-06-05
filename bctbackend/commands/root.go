@@ -77,7 +77,7 @@ func Execute() {
 	rootCommand := NewRootCommand()
 
 	rootCommand.SilenceUsage = true
-	rootCommand.SilenceErrors = true
+	// rootCommand.SilenceErrors = true
 
 	if err := rootCommand.Execute(); err != nil {
 		slog.Debug("An error occurred", "error", err.Error())
