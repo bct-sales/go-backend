@@ -17,7 +17,7 @@ func NewUserAddCommand() *cobra.Command {
 
 	command := cobra.Command{
 		Use:   "add",
-		Short: "add a new user",
+		Short: "Add a new user",
 		Long:  `This command adds a new user to the database.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return common.WithOpenedDatabase(cmd.ErrOrStderr(), func(db *sql.DB) error {
