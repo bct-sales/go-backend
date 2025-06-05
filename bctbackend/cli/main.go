@@ -414,23 +414,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 							return RemoveUser(options.global.DatabasePath, id)
 						},
 					},
-					{
-						Name:  "show",
-						Usage: "show information about a user",
-						Flags: []cli.Flag{
-							//exhaustruct:ignore
-							&cli.Int64Flag{
-								Name:        "id",
-								Usage:       "id of the user",
-								Destination: &options.user.show.id,
-								Required:    true,
-							},
-						},
-						Action: func(context *cli.Context) error {
-							id := models.Id(options.user.show.id)
-							return ShowUser(options.global.DatabasePath, id)
-						},
-					},
 				},
 			},
 			{
