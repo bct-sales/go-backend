@@ -20,7 +20,7 @@ func NewItemAddCommand() *cobra.Command {
 	var donation bool
 	var charity bool
 
-	itemAddCommand := cobra.Command{
+	command := cobra.Command{
 		Use:   "add",
 		Short: "Add an item",
 		Long: heredoc.Doc(`
@@ -67,25 +67,25 @@ func NewItemAddCommand() *cobra.Command {
 		},
 	}
 
-	itemAddCommand.Flags().StringVar(&description, "description", "", "Description of the item")
-	itemAddCommand.Flags().IntVar(&priceInCents, "price", 0, "Price of the item in cents")
-	itemAddCommand.Flags().IntVar(&categoryId, "category", 0, "ID of the category the item belongs to")
-	itemAddCommand.Flags().IntVar(&sellerId, "seller", 0, "ID of the seller of the item")
-	itemAddCommand.Flags().BoolVar(&donation, "donation", false, "Whether the item is a donation")
-	itemAddCommand.Flags().BoolVar(&charity, "charity", false, "Whether the item is for charity")
+	command.Flags().StringVar(&description, "description", "", "Description of the item")
+	command.Flags().IntVar(&priceInCents, "price", 0, "Price of the item in cents")
+	command.Flags().IntVar(&categoryId, "category", 0, "ID of the category the item belongs to")
+	command.Flags().IntVar(&sellerId, "seller", 0, "ID of the seller of the item")
+	command.Flags().BoolVar(&donation, "donation", false, "Whether the item is a donation")
+	command.Flags().BoolVar(&charity, "charity", false, "Whether the item is for charity")
 
-	if err := itemAddCommand.MarkFlagRequired("description"); err != nil {
+	if err := command.MarkFlagRequired("description"); err != nil {
 		panic(fmt.Sprintf("failed to mark description flag as required: %v", err))
 	}
-	if err := itemAddCommand.MarkFlagRequired("price"); err != nil {
+	if err := command.MarkFlagRequired("price"); err != nil {
 		panic(fmt.Sprintf("failed to mark price flag as required: %v", err))
 	}
-	if err := itemAddCommand.MarkFlagRequired("category"); err != nil {
+	if err := command.MarkFlagRequired("category"); err != nil {
 		panic(fmt.Sprintf("failed to mark category flag as required: %v", err))
 	}
-	if err := itemAddCommand.MarkFlagRequired("seller"); err != nil {
+	if err := command.MarkFlagRequired("seller"); err != nil {
 		panic(fmt.Sprintf("failed to mark seller flag as required: %v", err))
 	}
 
-	return &itemAddCommand
+	return &command
 }

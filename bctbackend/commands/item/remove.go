@@ -12,7 +12,7 @@ import (
 )
 
 func NewItemRemoveCommand() *cobra.Command {
-	itemListCommand := cobra.Command{
+	command := cobra.Command{
 		Use:   "remove ID",
 		Short: "Removes an item",
 		Long: heredoc.Doc(`
@@ -44,5 +44,5 @@ func NewItemRemoveCommand() *cobra.Command {
 		},
 	}
 
-	return &itemListCommand
+	return &command
 }

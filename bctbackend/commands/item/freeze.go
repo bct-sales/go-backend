@@ -12,7 +12,7 @@ import (
 )
 
 func NewItemFreezeCommand() *cobra.Command {
-	itemListCommand := cobra.Command{
+	command := cobra.Command{
 		Use:   "freeze ID",
 		Short: "Freezes an item",
 		Long: heredoc.Doc(`
@@ -41,5 +41,5 @@ func NewItemFreezeCommand() *cobra.Command {
 		},
 	}
 
-	return &itemListCommand
+	return &command
 }

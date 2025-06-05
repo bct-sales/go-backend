@@ -12,7 +12,7 @@ import (
 )
 
 func NewItemShowCommand() *cobra.Command {
-	itemListCommand := cobra.Command{
+	command := cobra.Command{
 		Use:   "show ID",
 		Short: "Show item info",
 		Long:  `This command shows detailed information about a specific item.`,
@@ -45,5 +45,5 @@ func NewItemShowCommand() *cobra.Command {
 		},
 	}
 
-	return &itemListCommand
+	return &command
 }

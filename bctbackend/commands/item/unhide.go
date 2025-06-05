@@ -12,7 +12,7 @@ import (
 )
 
 func NewItemUnhideCommand() *cobra.Command {
-	itemListCommand := cobra.Command{
+	command := cobra.Command{
 		Use:   "unhide ID",
 		Short: "Unhides an item",
 		Long: heredoc.Doc(`
@@ -39,5 +39,5 @@ func NewItemUnhideCommand() *cobra.Command {
 		},
 	}
 
-	return &itemListCommand
+	return &command
 }

@@ -12,7 +12,7 @@ import (
 )
 
 func NewItemHideCommand() *cobra.Command {
-	itemListCommand := cobra.Command{
+	command := cobra.Command{
 		Use:   "hide ID",
 		Short: "Hides an item",
 		Long: heredoc.Doc(`
@@ -40,5 +40,5 @@ func NewItemHideCommand() *cobra.Command {
 		},
 	}
 
-	return &itemListCommand
+	return &command
 }

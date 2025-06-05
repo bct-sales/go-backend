@@ -12,7 +12,7 @@ import (
 )
 
 func NewItemUnfreezeCommand() *cobra.Command {
-	itemListCommand := cobra.Command{
+	command := cobra.Command{
 		Use:   "unfreeze ID",
 		Short: "Unfreezes an item",
 		Long: heredoc.Doc(`
@@ -42,5 +42,5 @@ func NewItemUnfreezeCommand() *cobra.Command {
 		},
 	}
 
-	return &itemListCommand
+	return &command
 }
