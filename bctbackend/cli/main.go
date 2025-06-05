@@ -358,39 +358,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 				Usage: "user related functionality",
 				Subcommands: []*cli.Command{
 					{
-						Name:  "add",
-						Usage: "add a new user",
-						Flags: []cli.Flag{
-							//exhaustruct:ignore
-							&cli.StringFlag{
-								Name:        "role",
-								Usage:       "role of the user (admin, seller, cashier)",
-								Destination: &options.user.add.role,
-								Required:    true,
-							},
-							//exhaustruct:ignore
-							&cli.Int64Flag{
-								Name:        "id",
-								Usage:       "id of the user",
-								Destination: &options.user.add.id,
-								Required:    true,
-							},
-							//exhaustruct:ignore
-							&cli.StringFlag{
-								Name:        "password",
-								Usage:       "password of the user",
-								Destination: &options.user.add.password,
-								Required:    true,
-							},
-						},
-						Action: func(context *cli.Context) error {
-							id := models.Id(options.user.add.id)
-							role := options.user.add.role
-							userPassword := options.user.add.password
-							return AddUser(options.global.DatabasePath, id, role, userPassword)
-						},
-					},
-					{
 						Name:  "add-sellers",
 						Usage: "add sellers with random passwords",
 						Flags: []cli.Flag{
