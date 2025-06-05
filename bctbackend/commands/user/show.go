@@ -17,7 +17,7 @@ import (
 
 func NewUserShowCommand() *cobra.Command {
 	command := cobra.Command{
-		Use:   "show",
+		Use:   "show ID",
 		Short: "show user info",
 		Long:  `This command shows detailed information about a specified user.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
