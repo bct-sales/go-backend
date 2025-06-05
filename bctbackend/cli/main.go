@@ -415,13 +415,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 						},
 					},
 					{
-						Name:  "list",
-						Usage: "list all users",
-						Action: func(context *cli.Context) error {
-							return ListUsers(options.global.DatabasePath)
-						},
-					},
-					{
 						Name:  "show",
 						Usage: "show information about a user",
 						Flags: []cli.Flag{
