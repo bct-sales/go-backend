@@ -5,7 +5,6 @@ import (
 	cli_category "bctbackend/cli/category"
 	"bctbackend/cli/csv"
 	. "bctbackend/cli/database"
-	. "bctbackend/cli/item"
 	. "bctbackend/cli/sale"
 	. "bctbackend/cli/user"
 	config "bctbackend/configuration"
