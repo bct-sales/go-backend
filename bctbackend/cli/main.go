@@ -6,7 +6,6 @@ import (
 	"bctbackend/cli/csv"
 	. "bctbackend/cli/database"
 	. "bctbackend/cli/sale"
-	. "bctbackend/cli/user"
 	config "bctbackend/configuration"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
@@ -17,7 +16,6 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/urfave/cli/v2"
@@ -349,52 +347,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 						Action: func(context *cli.Context) error {
 							targetPath := options.db.backup.target
 							return BackupDatabase(options.global.DatabasePath, targetPath)
-						},
-					},
-				},
-			},
-			{
-				Name:  "user",
-				Usage: "user related functionality",
-				Subcommands: []*cli.Command{
-					{
-						Name:  "add-sellers",
-						Usage: "add sellers with random passwords",
-						Flags: []cli.Flag{
-							//exhaustruct:ignore
-							&cli.Uint64Flag{
-								Name:        "seed",
-								Usage:       "seed for the random number generator",
-								Destination: &options.user.addSellers.seed,
-								Required:    false,
-							},
-							//exhaustruct:ignore
-							&cli.StringSliceFlag{
-								Name:     "zones",
-								Usage:    "zones for the sellers",
-								Required: true,
-							},
-							//exhaustruct:ignore
-							&cli.IntFlag{
-								Name:        "per-zone",
-								Usage:       "number of sellers per zone",
-								Destination: &options.user.addSellers.sellersPerZone,
-								Required:    true,
-							},
-						},
-						Action: func(context *cli.Context) error {
-							seed := options.user.addSellers.seed
-							if seed == 0 {
-								seed = uint64(time.Now().UnixNano())
-							}
-
-							zones, err := parseZones(context.StringSlice("zones"))
-							if err != nil {
-								return err
-							}
-							sellersPerZone := options.user.addSellers.sellersPerZone
-
-							return AddSellers(options.global.DatabasePath, seed, zones, sellersPerZone)
 						},
 					},
 				},
