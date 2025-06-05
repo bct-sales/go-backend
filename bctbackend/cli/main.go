@@ -397,23 +397,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 							return AddSellers(options.global.DatabasePath, seed, zones, sellersPerZone)
 						},
 					},
-					{
-						Name:  "remove",
-						Usage: "remove a user",
-						Flags: []cli.Flag{
-							//exhaustruct:ignore
-							&cli.Int64Flag{
-								Name:        "id",
-								Usage:       "id of the user",
-								Destination: &options.user.remove.id,
-								Required:    true,
-							},
-						},
-						Action: func(context *cli.Context) error {
-							id := models.Id(options.user.remove.id)
-							return RemoveUser(options.global.DatabasePath, id)
-						},
-					},
 				},
 			},
 			{
