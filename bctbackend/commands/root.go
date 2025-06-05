@@ -3,6 +3,7 @@ package commands
 import (
 	"bctbackend/commands/common"
 	"bctbackend/commands/item"
+	"bctbackend/commands/user"
 	"fmt"
 	"log/slog"
 	"os"
@@ -67,6 +68,7 @@ func NewRootCommand() *cobra.Command {
 	viper.SetDefault("barcode.height", 30)
 
 	rootCommand.AddCommand(item.NewItemCommand())
+	rootCommand.AddCommand(user.NewUserCommand())
 
 	return &rootCommand
 }
