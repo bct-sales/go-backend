@@ -1,0 +1,144 @@
+package user
+
+import (
+	"bctbackend/algorithms"
+	"bctbackend/commands/common"
+	"bctbackend/database/models"
+	"bctbackend/database/queries"
+	"database/sql"
+	"fmt"
+
+	"golang.org/x/exp/rand"
+
+	"github.com/spf13/cobra"
+	"github.com/urfave/cli/v2"
+)
+
+func NewUserAddSellersCommand() *cobra.Command {
+	var seed uint64
+	var zones []int
+	var sellersPerZone int
+
+	command := cobra.Command{
+		Use:   "add-sellers",
+		Short: "Add multiple sellers",
+		Long:  `This command allows you to add multiple sellers in one go.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return common.WithOpenedDatabase(cmd.ErrOrStderr(), func(db *sql.DB) error {
+				existingSellers, err := collectExistingUserIds(db)
+				if err != nil {
+					return fmt.Errorf("failed to collect existing sellers: %w", err)
+				}
+
+				usedPasswords, err := collectExistingPasswords(db)
+				if err != nil {
+					return fmt.Errorf("failed to collect existing passwords: %w", err)
+				}
+
+				sellersToBeCreated := []sellerCreationData{}
+				passwords := createPasswordList(seed, *usedPasswords)
+				passwordIndex := 0
+				err = determineSellersToBeCreated(zones, sellersPerZone, func(sellerId models.Id) error {
+					if !existingSellers.Contains(sellerId) {
+						if passwordIndex == len(passwords) {
+							return cli.Exit("ran out of unique passwords", 1)
+						}
+
+						password := passwords[passwordIndex]
+						passwordIndex++
+
+						sellersToBeCreated = append(sellersToBeCreated, sellerCreationData{
+							userId:   sellerId,
+							password: password,
+						})
+					}
+
+					return nil
+				})
+				if err != nil {
+					return err
+				}
+
+				callback := func(add func(sellerId models.Id, roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
+					for _, seller := range sellersToBeCreated {
+						add(
+							seller.userId,
+							models.SellerRoleId,
+							models.Now(),
+							nil,
+							seller.password,
+						)
+					}
+				}
+				if err := queries.AddUsers(db, callback); err != nil {
+					return fmt.Errorf("failed to add sellers: %w", err)
+				}
+
+				return nil
+			})
+		},
+	}
+
+	command.Flags().Uint64Var(&seed, "seed", 0, "Seed for random password assignment")
+	command.Flags().IntSliceVar(&zones, "zones", nil, "Zones for which to add sellers")
+	command.Flags().IntVar(&sellersPerZone, "per-zone", 0, "Number of sellers to add per zone")
+	command.MarkFlagRequired("zones")
+	command.MarkFlagRequired("per-zone")
+
+	return &command
+}
+
+type sellerCreationData struct {
+	userId   models.Id
+	password string
+}
+
+func collectExistingUserIds(db *sql.DB) (*algorithms.Set[models.Id], error) {
+	result := algorithms.NewSet[models.Id]()
+
+	err := queries.GetUsers(db, func(user *models.User) error {
+		result.Add(user.UserId)
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to collect existing user ids: %w", err)
+	}
+
+	return &result, nil
+}
+
+func collectExistingPasswords(db *sql.DB) (*algorithms.Set[string], error) {
+	result := algorithms.NewSet[string]()
+
+	err := queries.GetUsers(db, func(user *models.User) error {
+		result.Add(user.Password)
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to collect existing passwords: %w", err)
+	}
+
+	return &result, nil
+}
+
+func determineSellersToBeCreated(zones []int, sellersPerZone int, receiver func(models.Id) error) error {
+	for _, zone := range zones {
+		for i := range sellersPerZone {
+			sellerId := models.Id(zone*100 + i)
+			if err := receiver(sellerId); err != nil {
+				return fmt.Errorf("failed to process seller %d: %w", sellerId, err)
+			}
+		}
+	}
+
+	return nil
+}
+
+func createPasswordList(seed uint64, usedPasswords algorithms.Set[string]) []string {
+	rng := rand.New(rand.NewSource(seed))
+	passwords := algorithms.Filter(Passwords, func(password string) bool { return !usedPasswords.Contains(password) })
+	rng.Shuffle(len(passwords), func(i, j int) {
+		passwords[i], passwords[j] = passwords[j], passwords[i]
+	})
+	return passwords
+}
