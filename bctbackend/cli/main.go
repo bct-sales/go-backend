@@ -438,31 +438,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 							return ShowUser(options.global.DatabasePath, id)
 						},
 					},
-					{
-						Name:  "set-password",
-						Usage: "set password for a user",
-						Flags: []cli.Flag{
-							//exhaustruct:ignore
-							&cli.Int64Flag{
-								Name:        "id",
-								Usage:       "id of the user",
-								Destination: &options.user.setPassword.id,
-								Required:    true,
-							},
-							//exhaustruct:ignore
-							&cli.StringFlag{
-								Name:        "password",
-								Usage:       "new password for the user",
-								Destination: &options.user.setPassword.password,
-								Required:    true,
-							},
-						},
-						Action: func(context *cli.Context) error {
-							id := models.Id(options.user.setPassword.id)
-							password := options.user.setPassword.password
-							return SetPassword(options.global.DatabasePath, id, password)
-						},
-					},
 				},
 			},
 			{
