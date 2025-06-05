@@ -12,6 +12,7 @@ func NewUserCommand() *cobra.Command {
 	}
 
 	itemCommand.AddCommand(NewUserListCommand())
+	itemCommand.AddCommand(NewUserAddCommand())
 
 	return &itemCommand
 }

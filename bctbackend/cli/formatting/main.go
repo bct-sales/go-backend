@@ -36,7 +36,7 @@ func PrintUser(user *models.User) error {
 
 func PrintItems(categoryTable map[models.Id]string, items []*models.Item) error {
 	tableData := pterm.TableData{
-		{"ID", "Description", "Price", "Category", "Donation", "Charity", "Added At", "Frozen", "Hidden"},
+		{"ID", "Description", "Price", "Category", "Seller", "Donation", "Charity", "Added At", "Frozen", "Hidden"},
 	}
 
 	for _, item := range items {
@@ -50,6 +50,7 @@ func PrintItems(categoryTable map[models.Id]string, items []*models.Item) error 
 			item.Description,
 			FormatPrice(item.PriceInCents),
 			categoryName,
+			item.SellerID.String(),
 			fmt.Sprintf("%t", item.Donation),
 			fmt.Sprintf("%t", item.Charity),
 			FormatTimestamp(item.AddedAt),
