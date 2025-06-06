@@ -5,21 +5,21 @@ import (
 )
 
 func NewItemCommand() *cobra.Command {
-	itemCommand := cobra.Command{
+	command := cobra.Command{
 		Use:   "item",
 		Short: "Manage items",
 		Long:  `Commands to manage items in the BCT backend system.`,
 	}
 
-	itemCommand.AddCommand(NewItemListCommand())
-	itemCommand.AddCommand(NewItemAddCommand())
-	itemCommand.AddCommand(NewItemShowCommand())
-	itemCommand.AddCommand(NewItemFreezeCommand())
-	itemCommand.AddCommand(NewItemHideCommand())
-	itemCommand.AddCommand(NewItemUnfreezeCommand())
-	itemCommand.AddCommand(NewItemUnhideCommand())
-	itemCommand.AddCommand(NewItemRemoveCommand())
-	itemCommand.AddCommand(NewItemCopyCommand())
+	command.AddCommand(NewItemListCommand())
+	command.AddCommand(NewItemAddCommand())
+	command.AddCommand(NewItemShowCommand())
+	command.AddCommand(NewItemFreezeCommand())
+	command.AddCommand(NewItemHideCommand())
+	command.AddCommand(NewItemUnfreezeCommand())
+	command.AddCommand(NewItemUnhideCommand())
+	command.AddCommand(NewItemRemoveCommand())
+	command.AddCommand(NewItemCopyCommand())
 
-	return &itemCommand
+	return &command
 }
