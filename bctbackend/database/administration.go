@@ -1,25 +1,12 @@
 package database
 
 import (
+	"bctbackend/algorithms"
 	models "bctbackend/database/models"
 	"database/sql"
-	"errors"
 	"fmt"
 	"log/slog"
-	"os"
 )
-
-func fileExists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
-	}
-	if errors.Is(err, os.ErrNotExist) {
-		return false, nil
-	}
-
-	return false, fmt.Errorf("failed to determine if file %s exists: %w", path, err)
-}
 
 // connectToDatabase opens a connection to the database at the specified path.
 // If the database file does not exist, it is created.
@@ -51,7 +38,7 @@ func setJournalMode(db *sql.DB) error {
 func CreateDatabase(path string) (*sql.DB, error) {
 	{
 		slog.Debug("Ensuring no database file exists already", slog.String("path", path))
-		exists, err := fileExists(path)
+		exists, err := algorithms.FileExists(path)
 
 		if err != nil {
 			slog.Debug("Error checking if database file exists", slog.String("path", path))
@@ -85,7 +72,7 @@ func CreateDatabase(path string) (*sql.DB, error) {
 
 func OpenDatabase(path string) (*sql.DB, error) {
 	slog.Debug("Checking existence of database file", slog.String("path", path))
-	if exists, err := fileExists(path); err != nil || !exists {
+	if exists, err := algorithms.FileExists(path); err != nil || !exists {
 		slog.Debug("Database file not found", slog.String("path", path))
 		return nil, fmt.Errorf("failed to check existence of database file: %w", err)
 	}
