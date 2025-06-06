@@ -13,7 +13,7 @@ import (
 
 func NewItemHideCommand() *cobra.Command {
 	command := cobra.Command{
-		Use:   "hide ID",
+		Use:   "hide <item-id>",
 		Short: "Hides an item",
 		Long: heredoc.Doc(`
 				This command hides an item.

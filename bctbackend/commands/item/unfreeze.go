@@ -13,7 +13,7 @@ import (
 
 func NewItemUnfreezeCommand() *cobra.Command {
 	command := cobra.Command{
-		Use:   "unfreeze ID",
+		Use:   "unfreeze <item-id>",
 		Short: "Unfreezes an item",
 		Long: heredoc.Doc(`
 				This command unfreezes an item so that it can be edited again.

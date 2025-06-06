@@ -13,7 +13,7 @@ import (
 
 func NewItemFreezeCommand() *cobra.Command {
 	command := cobra.Command{
-		Use:   "freeze ID",
+		Use:   "freeze <item-id>",
 		Short: "Freezes an item",
 		Long: heredoc.Doc(`
 				This command freezes an item so that it cannot be edited anymore.

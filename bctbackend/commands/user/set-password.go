@@ -12,7 +12,7 @@ import (
 
 func NewUserSetPasswordCommand() *cobra.Command {
 	command := cobra.Command{
-		Use:   "set-password <user_id> <new_password>",
+		Use:   "set-password <user-id> <new-password>",
 		Short: "Sets user password",
 		Long:  `This command updates a user's password.`,
 		Args:  cobra.ExactArgs(2),

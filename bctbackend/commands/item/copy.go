@@ -14,7 +14,7 @@ import (
 
 func NewItemCopyCommand() *cobra.Command {
 	command := cobra.Command{
-		Use:   "copy ID",
+		Use:   "copy <item-id>",
 		Short: "Copies an item",
 		Long: heredoc.Doc(`
 			This command makes a copy of an existing item in the database.

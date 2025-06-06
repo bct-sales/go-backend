@@ -13,7 +13,7 @@ import (
 
 func NewItemRemoveCommand() *cobra.Command {
 	command := cobra.Command{
-		Use:   "remove ID",
+		Use:   "remove <item-id>",
 		Short: "Removes an item",
 		Long: heredoc.Doc(`
 				This command deletes an item from the database.

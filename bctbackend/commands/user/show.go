@@ -17,7 +17,7 @@ import (
 
 func NewUserShowCommand() *cobra.Command {
 	command := cobra.Command{
-		Use:   "show ID",
+		Use:   "show <user-id>",
 		Short: "Show user info",
 		Long:  `This command shows detailed information about a specified user.`,
 		Args:  cobra.ExactArgs(1),

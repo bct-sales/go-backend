@@ -13,7 +13,7 @@ import (
 
 func NewItemShowCommand() *cobra.Command {
 	command := cobra.Command{
-		Use:   "show ID",
+		Use:   "show <item-id>",
 		Short: "Show item info",
 		Long:  `This command shows detailed information about a specific item.`,
 		Args:  cobra.ExactArgs(1), // Expect exactly one argument (the item ID)
