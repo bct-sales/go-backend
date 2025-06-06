@@ -3,8 +3,6 @@ package cli
 import (
 	cli_barcode "bctbackend/cli/barcode"
 	cli_category "bctbackend/cli/category"
-	"bctbackend/cli/csv"
-	. "bctbackend/cli/database"
 	. "bctbackend/cli/sale"
 	config "bctbackend/configuration"
 	"bctbackend/database/models"
@@ -247,42 +245,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 				Usage: "start REST api server",
 				Action: func(ctx *cli.Context) error {
 					return startRestService(options.global.DatabasePath)
-				},
-			},
-			{
-				Name:  "export",
-				Usage: "export data",
-				Subcommands: []*cli.Command{
-					{
-						Name:  "csv",
-						Usage: "export data as csv",
-						Subcommands: []*cli.Command{
-							{
-								Name:  "users",
-								Usage: "export users as csv",
-								Action: func(context *cli.Context) error {
-									return csv.ExportUsers(options.global.DatabasePath)
-								},
-							},
-							{
-								Name:  "items",
-								Usage: "export items as csv",
-								Flags: []cli.Flag{
-									//exhaustruct:ignore
-									&cli.BoolFlag{
-										Name:        "show-hidden",
-										Usage:       "show hidden items",
-										Destination: &options.export.csv.items.showHidden,
-										Value:       false,
-									},
-								},
-								Action: func(context *cli.Context) error {
-									showHidden := options.export.csv.items.showHidden
-									return csv.ExportItems(options.global.DatabasePath, showHidden)
-								},
-							},
-						},
-					},
 				},
 			},
 			{
