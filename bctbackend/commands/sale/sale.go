@@ -12,6 +12,7 @@ func NewSaleCommand() *cobra.Command {
 	}
 
 	command.AddCommand(NewSaleListCommand())
+	command.AddCommand(NewSaleAddCommand())
 
 	return &command
 }
