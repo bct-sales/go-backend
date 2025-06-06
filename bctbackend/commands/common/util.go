@@ -10,8 +10,12 @@ import (
 	"github.com/spf13/viper"
 )
 
+func GetDatabasePath() string {
+	return viper.GetString(FlagDatabase)
+}
+
 func WithOpenedDatabase(writer io.Writer, fn func(db *sql.DB) error) (r_err error) {
-	databasePath := viper.GetString(FlagDatabase)
+	databasePath := GetDatabasePath()
 	db, err := database.OpenDatabase(databasePath)
 	if err != nil {
 		fmt.Fprintf(writer, "Failed to open database %s: %v\n", databasePath, err)
