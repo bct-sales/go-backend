@@ -5,18 +5,18 @@ import (
 )
 
 func NewUserCommand() *cobra.Command {
-	itemCommand := cobra.Command{
+	command := cobra.Command{
 		Use:   "user",
 		Short: "Manage users",
 		Long:  `Commands to manage users in the BCT backend system.`,
 	}
 
-	itemCommand.AddCommand(NewUserListCommand())
-	itemCommand.AddCommand(NewUserAddCommand())
-	itemCommand.AddCommand(NewUserShowCommand())
-	itemCommand.AddCommand(NewUserSetPasswordCommand())
-	itemCommand.AddCommand(NewUserRemoveCommand())
-	itemCommand.AddCommand(NewUserAddSellersCommand())
+	command.AddCommand(NewUserListCommand())
+	command.AddCommand(NewUserAddCommand())
+	command.AddCommand(NewUserShowCommand())
+	command.AddCommand(NewUserSetPasswordCommand())
+	command.AddCommand(NewUserRemoveCommand())
+	command.AddCommand(NewUserAddSellersCommand())
 
-	return &itemCommand
+	return &command
 }
