@@ -12,6 +12,7 @@ func NewDatabaseCommand() *cobra.Command {
 	}
 
 	command.AddCommand(NewDatabaseBackupCommand())
+	command.AddCommand(NewDatabaseInitCommand())
 
 	return &command
 }
