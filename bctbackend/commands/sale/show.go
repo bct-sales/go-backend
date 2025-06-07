@@ -38,7 +38,7 @@ func NewSaleShowCommand() *cobra.Command {
 }
 
 func (command *saleShowCommand) Execute(args []string) error {
-	return common.WithOpenedDatabase(command.Command.CobraCommand.ErrOrStderr(), func(db *sql.DB) error {
+	return command.WithOpenedDatabase(func(db *sql.DB) error {
 		saleId, err := command.parseSaleId(args[0])
 		if err != nil {
 			return err
