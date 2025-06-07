@@ -14,14 +14,14 @@ import (
 )
 
 type saleShowCommand struct {
-	command *cobra.Command
+	cobraCommand *cobra.Command
 }
 
 func NewSaleShowCommand() *cobra.Command {
 	var command *saleShowCommand
 
 	command = &saleShowCommand{
-		command: &cobra.Command{
+		cobraCommand: &cobra.Command{
 			Use:   "show",
 			Short: "Show a sale",
 			Long:  `This command shows the details of a specific sale by its ID.`,
@@ -32,11 +32,11 @@ func NewSaleShowCommand() *cobra.Command {
 		},
 	}
 
-	return command.command
+	return command.cobraCommand
 }
 
 func (command *saleShowCommand) Execute(args []string) error {
-	return common.WithOpenedDatabase(command.command.ErrOrStderr(), func(db *sql.DB) error {
+	return common.WithOpenedDatabase(command.cobraCommand.ErrOrStderr(), func(db *sql.DB) error {
 		saleId, err := command.parseSaleId(args[0])
 		if err != nil {
 			return err
@@ -81,7 +81,7 @@ func (command *saleShowCommand) parseSaleId(str string) (models.Id, error) {
 }
 
 func (command *saleShowCommand) printError(formatString string, args ...any) {
-	fmt.Fprintf(command.command.ErrOrStderr(), formatString, args...)
+	fmt.Fprintf(command.cobraCommand.ErrOrStderr(), formatString, args...)
 }
 
 func (command *saleShowCommand) GetSaleItems(db *sql.DB, saleId models.Id) ([]models.Item, error) {
