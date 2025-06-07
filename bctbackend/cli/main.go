@@ -258,35 +258,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 							return ListSales(options.global.DatabasePath)
 						},
 					},
-					{
-						Name:  "add",
-						Usage: "add a new sale",
-						Flags: []cli.Flag{
-							//exhaustruct:ignore
-							&cli.Int64Flag{
-								Name:        "cashier",
-								Usage:       "id of the cashier",
-								Destination: &options.sale.add.cashierId,
-								Required:    true,
-							},
-						},
-						Action: func(context *cli.Context) error {
-							cashierId := models.Id(options.sale.add.cashierId)
-							items := []models.Id{}
-
-							for i := range context.Args().Len() {
-								itemId, err := models.ParseId(context.Args().Get(i))
-
-								if err != nil {
-									return fmt.Errorf("failed to parse item id: %w", err)
-								}
-
-								items = append(items, itemId)
-							}
-
-							return AddSale(options.global.DatabasePath, cashierId, items)
-						},
-					},
 				},
 			},
 			{
