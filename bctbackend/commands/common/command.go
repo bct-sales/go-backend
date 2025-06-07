@@ -15,7 +15,7 @@ func (c *Command) PrintError(formatString string, args ...any) {
 	fmt.Fprintf(c.CobraCommand.ErrOrStderr(), formatString, args...)
 }
 
-func (c *Command) Print(formatString string, args ...any) {
+func (c *Command) Printf(formatString string, args ...any) {
 	fmt.Fprintf(c.CobraCommand.OutOrStdout(), formatString, args...)
 }
 

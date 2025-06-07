@@ -68,7 +68,7 @@ func (command *saleListCommand) execute() error {
 		}
 
 		if saleCount == 0 {
-			command.Print("No sales found\n")
+			command.Printf("No sales found\n")
 			return nil
 		}
 
@@ -77,7 +77,7 @@ func (command *saleListCommand) execute() error {
 			return fmt.Errorf("error while rendering table: %w", err)
 		}
 
-		command.Print("Number of sales listed: %d\n", saleCount)
+		command.Printf("Number of sales listed: %d\n", saleCount)
 		return nil
 	})
 }
