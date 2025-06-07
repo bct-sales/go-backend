@@ -3,7 +3,6 @@ package cli
 import (
 	cli_barcode "bctbackend/cli/barcode"
 	cli_category "bctbackend/cli/category"
-	. "bctbackend/cli/sale"
 	config "bctbackend/configuration"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
@@ -245,19 +244,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 				Usage: "start REST api server",
 				Action: func(ctx *cli.Context) error {
 					return startRestService(options.global.DatabasePath)
-				},
-			},
-			{
-				Name:  "sale",
-				Usage: "sale related functionality",
-				Subcommands: []*cli.Command{
-					{
-						Name:  "list",
-						Usage: "list all sales",
-						Action: func(context *cli.Context) error {
-							return ListSales(options.global.DatabasePath)
-						},
-					},
 				},
 			},
 			{
