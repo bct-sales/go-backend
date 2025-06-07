@@ -8,7 +8,6 @@ import (
 	"bctbackend/database/queries"
 	"database/sql"
 	"fmt"
-	"log/slog"
 
 	"github.com/spf13/cobra"
 )
@@ -36,7 +35,7 @@ func NewSaleAddCommand() *cobra.Command {
 
 				err = formatting.PrintSale(db, saleId)
 				if err != nil {
-					slog.Error("An error occurred while trying to format the output; sale is still added to the database.", "error", err)
+					fmt.Fprintf(cmd.ErrOrStderr(), "Failed to show resulting sale; sale has been successfully added to the database though")
 					return nil // Don't return an error here, as the sale is already added to the database.
 				}
 
