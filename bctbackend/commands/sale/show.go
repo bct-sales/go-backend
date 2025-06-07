@@ -43,17 +43,17 @@ func (command *saleShowCommand) Execute(args []string) error {
 			return err
 		}
 
-		sale, err := command.GetSaleInformation(db, saleId)
+		sale, err := command.getSaleInformation(db, saleId)
 		if err != nil {
 			return err
 		}
 
-		saleItems, err := command.GetSaleItems(db, saleId)
+		saleItems, err := command.getSaleItems(db, saleId)
 		if err != nil {
 			return err
 		}
 
-		categoryNameTable, err := command.GetCategoryNameTable(db)
+		categoryNameTable, err := command.getCategoryNameTable(db)
 		if err != nil {
 			return err
 		}
@@ -81,7 +81,7 @@ func (command *saleShowCommand) parseSaleId(str string) (models.Id, error) {
 	return saleId, nil
 }
 
-func (command *saleShowCommand) GetSaleItems(db *sql.DB, saleId models.Id) ([]models.Item, error) {
+func (command *saleShowCommand) getSaleItems(db *sql.DB, saleId models.Id) ([]models.Item, error) {
 	saleItems, err := queries.GetSaleItems(db, saleId)
 
 	if err != nil {
@@ -92,7 +92,7 @@ func (command *saleShowCommand) GetSaleItems(db *sql.DB, saleId models.Id) ([]mo
 	return saleItems, nil
 }
 
-func (command *saleShowCommand) GetCategoryNameTable(db *sql.DB) (map[models.Id]string, error) {
+func (command *saleShowCommand) getCategoryNameTable(db *sql.DB) (map[models.Id]string, error) {
 	categoryTable, err := queries.GetCategoryNameTable(db)
 
 	if err != nil {
@@ -137,7 +137,7 @@ func (command *saleShowCommand) printSaleItems(saleItems []models.Item, category
 	return nil
 }
 
-func (command *saleShowCommand) GetSaleInformation(db *sql.DB, saleId models.Id) (*models.Sale, error) {
+func (command *saleShowCommand) getSaleInformation(db *sql.DB, saleId models.Id) (*models.Sale, error) {
 	sale, err := queries.GetSaleWithId(db, saleId)
 
 	if err != nil {
