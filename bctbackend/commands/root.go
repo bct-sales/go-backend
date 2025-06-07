@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"bctbackend/commands/category"
 	"bctbackend/commands/common"
 	"bctbackend/commands/database"
 	"bctbackend/commands/item"
@@ -75,6 +76,7 @@ func NewRootCommand() *cobra.Command {
 	rootCommand.AddCommand(database.NewDatabaseCommand())
 	rootCommand.AddCommand(sale.NewSaleCommand())
 	rootCommand.AddCommand(rest.NewRestCommand())
+	rootCommand.AddCommand(category.NewCategoryCommand())
 
 	return &rootCommand
 }
