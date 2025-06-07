@@ -287,23 +287,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 							return AddSale(options.global.DatabasePath, cashierId, items)
 						},
 					},
-					{
-						Name:  "show",
-						Usage: "show a sale",
-						Flags: []cli.Flag{
-							//exhaustruct:ignore
-							&cli.Int64Flag{
-								Name:        "sale",
-								Usage:       "id of the sale",
-								Destination: &options.sale.show.saleId,
-								Required:    true,
-							},
-						},
-						Action: func(context *cli.Context) error {
-							saleId := models.Id(options.sale.show.saleId)
-							return ShowSale(options.global.DatabasePath, saleId)
-						},
-					},
 				},
 			},
 			{
