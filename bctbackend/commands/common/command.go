@@ -22,3 +22,7 @@ func (c *Command) Printf(formatString string, args ...any) {
 func (c *Command) WithOpenedDatabase(fn func(db *sql.DB) error) error {
 	return WithOpenedDatabase(c.CobraCommand.ErrOrStderr(), fn)
 }
+
+func (c *Command) AsCobraCommand() *cobra.Command {
+	return c.CobraCommand
+}

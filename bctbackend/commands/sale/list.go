@@ -32,7 +32,7 @@ func NewSaleListCommand() *cobra.Command {
 		},
 	}
 
-	return command.Command.CobraCommand
+	return command.AsCobraCommand()
 }
 
 func (command *saleListCommand) execute() error {
