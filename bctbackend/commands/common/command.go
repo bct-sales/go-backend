@@ -1,6 +1,7 @@
 package common
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -16,4 +17,8 @@ func (c *Command) PrintError(formatString string, args ...any) {
 
 func (c *Command) Print(formatString string, args ...any) {
 	fmt.Fprintf(c.CobraCommand.OutOrStdout(), formatString, args...)
+}
+
+func (c *Command) WithOpenedDatabase(fn func(db *sql.DB) error) error {
+	return WithOpenedDatabase(c.CobraCommand.ErrOrStderr(), fn)
 }
