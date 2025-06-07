@@ -11,7 +11,7 @@ type Command struct {
 	CobraCommand *cobra.Command
 }
 
-func (c *Command) PrintError(formatString string, args ...any) {
+func (c *Command) PrintErrorf(formatString string, args ...any) {
 	fmt.Fprintf(c.CobraCommand.ErrOrStderr(), formatString, args...)
 }
 

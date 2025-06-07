@@ -63,7 +63,7 @@ func (command *saleListCommand) execute() error {
 		}
 
 		if err := queries.GetSales(db, addToTable); err != nil {
-			command.PrintError("Error while listing sales\n")
+			command.PrintErrorf("Error while listing sales\n")
 			return fmt.Errorf("error while listing sales: %w", err)
 		}
 
@@ -73,7 +73,7 @@ func (command *saleListCommand) execute() error {
 		}
 
 		if err := pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render(); err != nil {
-			command.PrintError("Error while rendering table\n")
+			command.PrintErrorf("Error while rendering table\n")
 			return fmt.Errorf("error while rendering table: %w", err)
 		}
 

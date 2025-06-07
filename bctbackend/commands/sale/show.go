@@ -75,7 +75,7 @@ func (command *saleShowCommand) parseSaleId(str string) (models.Id, error) {
 	saleId, err := models.ParseId(str)
 
 	if err != nil {
-		command.PrintError("Invalid sale ID: %v\n", err)
+		command.PrintErrorf("Invalid sale ID: %v\n", err)
 		return 0, fmt.Errorf("invalid sale ID: %w", err)
 	}
 
@@ -86,7 +86,7 @@ func (command *saleShowCommand) getSaleItems(db *sql.DB, saleId models.Id) ([]mo
 	saleItems, err := queries.GetSaleItems(db, saleId)
 
 	if err != nil {
-		command.PrintError("An error occurred while getting the sale items: %v\n", err)
+		command.PrintErrorf("An error occurred while getting the sale items: %v\n", err)
 		return nil, err
 	}
 
@@ -97,7 +97,7 @@ func (command *saleShowCommand) getCategoryNameTable(db *sql.DB) (map[models.Id]
 	categoryTable, err := queries.GetCategoryNameTable(db)
 
 	if err != nil {
-		command.PrintError("An error occurred while fetching categories: %v\n", err)
+		command.PrintErrorf("An error occurred while fetching categories: %v\n", err)
 		return nil, err
 	}
 
@@ -112,7 +112,7 @@ func (command *saleShowCommand) printSaleItems(saleItems []models.Item, category
 	for _, item := range saleItems {
 		categoryName, ok := categoryNameTable[item.CategoryID]
 		if !ok {
-			command.PrintError("No category found with ID %d for item %d\n", item.CategoryID, item.ItemID)
+			command.PrintErrorf("No category found with ID %d for item %d\n", item.CategoryID, item.ItemID)
 			return database.ErrNoSuchCategory
 		}
 
@@ -131,7 +131,7 @@ func (command *saleShowCommand) printSaleItems(saleItems []models.Item, category
 	}
 
 	if err := pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render(); err != nil {
-		command.PrintError("Failed to render table\n")
+		command.PrintErrorf("Failed to render table\n")
 		return fmt.Errorf("failed to render table: %w", err)
 	}
 
@@ -143,11 +143,11 @@ func (command *saleShowCommand) getSaleInformation(db *sql.DB, saleId models.Id)
 
 	if err != nil {
 		if errors.Is(err, database.ErrNoSuchSale) {
-			command.PrintError("No sale found with ID %d\n", saleId)
+			command.PrintErrorf("No sale found with ID %d\n", saleId)
 			return nil, err
 		}
 
-		command.PrintError("An error occurred while getting the sale information: %v\n", err)
+		command.PrintErrorf("An error occurred while getting the sale information: %v\n", err)
 		return nil, err
 	}
 
@@ -168,7 +168,7 @@ func (command *saleShowCommand) printSaleOverview(sale *models.Sale, saleItems [
 	}
 
 	if err := pterm.DefaultTable.WithData(tableData).Render(); err != nil {
-		command.PrintError("Failed to render sale overview\n")
+		command.PrintErrorf("Failed to render sale overview\n")
 		return fmt.Errorf("failed to render table: %w", err)
 	}
 
