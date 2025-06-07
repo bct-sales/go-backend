@@ -15,29 +15,30 @@ import (
 
 type saleShowCommand struct {
 	common.Command
-	cobraCommand *cobra.Command
 }
 
 func NewSaleShowCommand() *cobra.Command {
 	var command *saleShowCommand
 
 	command = &saleShowCommand{
-		cobraCommand: &cobra.Command{
-			Use:   "show",
-			Short: "Show a sale",
-			Long:  `This command shows the details of a specific sale by its ID.`,
-			Args:  cobra.ExactArgs(1),
-			RunE: func(cmd *cobra.Command, args []string) error {
-				return command.Execute(args)
+		Command: common.Command{
+			CobraCommand: &cobra.Command{
+				Use:   "show",
+				Short: "Show a sale",
+				Long:  `This command shows the details of a specific sale by its ID.`,
+				Args:  cobra.ExactArgs(1),
+				RunE: func(cmd *cobra.Command, args []string) error {
+					return command.Execute(args)
+				},
 			},
 		},
 	}
 
-	return command.cobraCommand
+	return command.Command.CobraCommand
 }
 
 func (command *saleShowCommand) Execute(args []string) error {
-	return common.WithOpenedDatabase(command.cobraCommand.ErrOrStderr(), func(db *sql.DB) error {
+	return common.WithOpenedDatabase(command.Command.CobraCommand.ErrOrStderr(), func(db *sql.DB) error {
 		saleId, err := command.parseSaleId(args[0])
 		if err != nil {
 			return err
