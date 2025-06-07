@@ -36,7 +36,7 @@ func NewSaleListCommand() *cobra.Command {
 }
 
 func (command *saleListCommand) execute() error {
-	return common.WithOpenedDatabase(command.CobraCommand.ErrOrStderr(), func(db *sql.DB) error {
+	return command.WithOpenedDatabase(func(db *sql.DB) error {
 		saleCount := 0
 		tableData := pterm.TableData{
 			{"ID", "Cashier", "Transaction Time", "#Items", "Total"},
