@@ -7,13 +7,13 @@ import (
 )
 
 type Command struct {
-	cobraCommand *cobra.Command
+	CobraCommand *cobra.Command
 }
 
 func (c *Command) PrintError(formatString string, args ...any) {
-	fmt.Fprintf(c.cobraCommand.ErrOrStderr(), formatString, args...)
+	fmt.Fprintf(c.CobraCommand.ErrOrStderr(), formatString, args...)
 }
 
 func (c *Command) Print(formatString string, args ...any) {
-	fmt.Fprintf(c.cobraCommand.OutOrStdout(), formatString, args...)
+	fmt.Fprintf(c.CobraCommand.OutOrStdout(), formatString, args...)
 }
