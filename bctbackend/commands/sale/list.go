@@ -63,20 +63,21 @@ func (command *saleListCommand) execute() error {
 		}
 
 		if err := queries.GetSales(db, addToTable); err != nil {
+			command.PrintError("Error while listing sales\n")
 			return fmt.Errorf("error while listing sales: %w", err)
 		}
 
 		if saleCount == 0 {
-			fmt.Println("No sales found")
+			command.Print("No sales found\n")
 			return nil
 		}
 
 		if err := pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render(); err != nil {
+			command.PrintError("Error while rendering table\n")
 			return fmt.Errorf("error while rendering table: %w", err)
 		}
 
-		fmt.Printf("Number of sales listed: %d\n", saleCount)
-
+		command.Print("Number of sales listed: %d\n", saleCount)
 		return nil
 	})
 }
