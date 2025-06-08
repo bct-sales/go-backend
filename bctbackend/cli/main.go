@@ -1,11 +1,7 @@
 package cli
 
 import (
-	cli_barcode "bctbackend/cli/barcode"
-	cli_category "bctbackend/cli/category"
 	config "bctbackend/configuration"
-	"bctbackend/database/models"
-	"bctbackend/database/queries"
 	"fmt"
 	"log/slog"
 	"os"
@@ -244,118 +240,6 @@ func ProcessCommandLineArguments(arguments []string) error {
 				Usage: "start REST api server",
 				Action: func(ctx *cli.Context) error {
 					return startRestService(options.global.DatabasePath)
-				},
-			},
-			{
-				Name:  "category",
-				Usage: "category related functionality",
-				Subcommands: []*cli.Command{
-					{
-						Name:  "list",
-						Usage: "list all categories",
-						Action: func(context *cli.Context) error {
-							return cli_category.ListCategories(options.global.DatabasePath)
-						},
-					},
-					{
-						Name:  "counts",
-						Usage: "list the number of items in each category",
-						Flags: []cli.Flag{
-							//exhaustruct:ignore
-							&cli.BoolFlag{
-								Name:        "include-hidden",
-								Usage:       "include hidden items",
-								Destination: &options.category.counts.includeHiddenItems,
-								Value:       false,
-							},
-						},
-						Action: func(context *cli.Context) error {
-							itemSelection := queries.ItemSelectionFromBool(options.category.counts.includeHiddenItems)
-
-							return cli_category.ListCategoryCounts(options.global.DatabasePath, itemSelection)
-						},
-					},
-					{
-						Name:  "add",
-						Usage: "add a new category",
-						Flags: []cli.Flag{
-							//exhaustruct:ignore
-							&cli.Int64Flag{
-								Name:        "id",
-								Usage:       "id of the category",
-								Destination: &options.category.add.id,
-								Required:    true,
-							},
-							//exhaustruct:ignore
-							&cli.StringFlag{
-								Name:        "name",
-								Usage:       "name of the category",
-								Destination: &options.category.add.name,
-								Required:    true,
-							},
-						},
-						Action: func(context *cli.Context) error {
-							id := models.Id(options.category.add.id)
-							name := options.category.add.name
-
-							return cli_category.AddCategory(options.global.DatabasePath, id, name)
-						},
-					},
-				},
-			},
-			{
-				Name:  "barcode",
-				Usage: "barcode related functionality",
-				Subcommands: []*cli.Command{
-					{
-						Name:  "raw",
-						Usage: "generate a raw barcode",
-						Flags: []cli.Flag{
-							//exhaustruct:ignore
-							&cli.StringFlag{
-								Name:        "data",
-								Usage:       "data to encode in the barcode",
-								Destination: &options.barcode.raw.data,
-								Required:    true,
-							},
-							//exhaustruct:ignore
-							&cli.StringFlag{
-								Name:        "output",
-								Usage:       "filename to save the barcode to",
-								Destination: &options.barcode.raw.outputPath,
-								Required:    true,
-							},
-							//exhaustruct:ignore
-							&cli.IntFlag{
-								Name:        "width",
-								Usage:       "width of the barcode",
-								Destination: &options.barcode.raw.width,
-								Value:       200,
-							},
-							//exhaustruct:ignore
-							&cli.IntFlag{
-								Name:        "height",
-								Usage:       "height of the barcode",
-								Destination: &options.barcode.raw.height,
-								Value:       100,
-							},
-						},
-						Action: func(context *cli.Context) error {
-							return cli_barcode.GenerateRawBarcode(
-								options.barcode.raw.data,
-								options.barcode.raw.outputPath,
-								options.barcode.raw.width,
-								options.barcode.raw.height,
-							)
-						},
-					},
-					{
-						Name:  "pdf",
-						Usage: "generate pdf with barcodes",
-						Action: func(context *cli.Context) error {
-							return cli_barcode.GeneratePdf()
-						},
-					},
 				},
 			},
 		},
