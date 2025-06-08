@@ -24,7 +24,7 @@ func WithOpenedDatabase(writer io.Writer, fn func(db *sql.DB) error) (r_err erro
 
 	defer func() {
 		if err := db.Close(); err != nil {
-			fmt.Fprintf(writer, "Failed to close database %s: %v\n", databasePath, err)
+			fmt.Fprintf(writer, "Failed to close database %s\n", databasePath)
 			r_err = errors.Join(r_err, err)
 		}
 	}()
