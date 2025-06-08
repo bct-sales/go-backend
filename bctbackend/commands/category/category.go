@@ -12,6 +12,7 @@ func NewCategoryCommand() *cobra.Command {
 	}
 
 	command.AddCommand(NewCategoryListCommand())
+	command.AddCommand(NewCategoryCountCommand())
 
 	return &command
 }
