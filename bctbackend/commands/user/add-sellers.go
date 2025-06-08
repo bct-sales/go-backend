@@ -15,15 +15,22 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func NewUserAddSellersCommand() *cobra.Command {
-	var seed uint64
-	var zones []int
-	var sellersPerZone int
+type AddSellersCommand struct {
+	common.Command
+	Seed           uint64
+	Zones          []int
+	SellersPerZone int
+}
 
-	command := cobra.Command{
-		Use:   "add-sellers",
-		Short: "Add multiple sellers",
-		Long: heredoc.Doc(`
+func NewUserAddSellersCommand() *cobra.Command {
+	var command *AddSellersCommand
+
+	command = &AddSellersCommand{
+		Command: common.Command{
+			CobraCommand: &cobra.Command{
+				Use:   "add-sellers",
+				Short: "Add multiple sellers",
+				Long: heredoc.Doc(`
 					This command allows you to add many sellers in one go.
 					It requires a list of zones and the number of sellers to add per zone.
 					Note that the command will ensure that each specified zone
@@ -34,69 +41,75 @@ func NewUserAddSellersCommand() *cobra.Command {
 					If you run the command with --zones 1,2 --per-zone 5,
 					then 3 sellers will be added to zone 1 and 2 sellers will be added to zone 2.
 				`),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return common.WithOpenedDatabase(cmd.ErrOrStderr(), func(db *sql.DB) error {
-				existingSellers, err := collectExistingUserIds(db)
-				if err != nil {
-					return fmt.Errorf("failed to collect existing sellers: %w", err)
-				}
-
-				usedPasswords, err := collectExistingPasswords(db)
-				if err != nil {
-					return fmt.Errorf("failed to collect existing passwords: %w", err)
-				}
-
-				sellersToBeCreated := []sellerCreationData{}
-				passwords := createPasswordList(seed, *usedPasswords)
-				passwordIndex := 0
-				err = determineSellersToBeCreated(zones, sellersPerZone, func(sellerId models.Id) error {
-					if !existingSellers.Contains(sellerId) {
-						if passwordIndex == len(passwords) {
-							return cli.Exit("ran out of unique passwords", 1)
-						}
-
-						password := passwords[passwordIndex]
-						passwordIndex++
-
-						sellersToBeCreated = append(sellersToBeCreated, sellerCreationData{
-							userId:   sellerId,
-							password: password,
-						})
-					}
-
-					return nil
-				})
-				if err != nil {
-					return err
-				}
-
-				callback := func(add func(sellerId models.Id, roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
-					for _, seller := range sellersToBeCreated {
-						add(
-							seller.userId,
-							models.SellerRoleId,
-							models.Now(),
-							nil,
-							seller.password,
-						)
-					}
-				}
-				if err := queries.AddUsers(db, callback); err != nil {
-					return fmt.Errorf("failed to add sellers: %w", err)
-				}
-
-				return nil
-			})
+				RunE: func(cmd *cobra.Command, args []string) error {
+					return command.execute()
+				},
+			},
 		},
 	}
 
-	command.Flags().Uint64Var(&seed, "seed", 0, "Seed for random password assignment")
-	command.Flags().IntSliceVar(&zones, "zones", nil, "Zones for which to add sellers")
-	command.Flags().IntVar(&sellersPerZone, "per-zone", 0, "Number of sellers to add per zone")
-	command.MarkFlagRequired("zones")
-	command.MarkFlagRequired("per-zone")
+	command.CobraCommand.Flags().Uint64Var(&command.Seed, "seed", 0, "Seed for random password assignment")
+	command.CobraCommand.Flags().IntSliceVar(&command.Zones, "zones", nil, "Zones for which to add sellers")
+	command.CobraCommand.Flags().IntVar(&command.SellersPerZone, "per-zone", 0, "Number of sellers to add per zone")
+	command.CobraCommand.MarkFlagRequired("zones")
+	command.CobraCommand.MarkFlagRequired("per-zone")
 
-	return &command
+	return command.AsCobraCommand()
+}
+
+func (c *AddSellersCommand) execute() error {
+	return c.WithOpenedDatabase(func(db *sql.DB) error {
+		existingSellers, err := collectExistingUserIds(db)
+		if err != nil {
+			return fmt.Errorf("failed to collect existing sellers: %w", err)
+		}
+
+		usedPasswords, err := collectExistingPasswords(db)
+		if err != nil {
+			return fmt.Errorf("failed to collect existing passwords: %w", err)
+		}
+
+		sellersToBeCreated := []sellerCreationData{}
+		passwords := createPasswordList(c.Seed, *usedPasswords)
+		passwordIndex := 0
+		err = determineSellersToBeCreated(c.Zones, c.SellersPerZone, func(sellerId models.Id) error {
+			if !existingSellers.Contains(sellerId) {
+				if passwordIndex == len(passwords) {
+					return cli.Exit("ran out of unique passwords", 1)
+				}
+
+				password := passwords[passwordIndex]
+				passwordIndex++
+
+				sellersToBeCreated = append(sellersToBeCreated, sellerCreationData{
+					userId:   sellerId,
+					password: password,
+				})
+			}
+
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+
+		callback := func(add func(sellerId models.Id, roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
+			for _, seller := range sellersToBeCreated {
+				add(
+					seller.userId,
+					models.SellerRoleId,
+					models.Now(),
+					nil,
+					seller.password,
+				)
+			}
+		}
+		if err := queries.AddUsers(db, callback); err != nil {
+			return fmt.Errorf("failed to add sellers: %w", err)
+		}
+
+		return nil
+	})
 }
 
 type sellerCreationData struct {
