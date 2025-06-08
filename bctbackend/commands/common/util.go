@@ -18,7 +18,7 @@ func WithOpenedDatabase(writer io.Writer, fn func(db *sql.DB) error) (r_err erro
 	databasePath := GetDatabasePath()
 	db, err := database.OpenDatabase(databasePath)
 	if err != nil {
-		fmt.Fprintf(writer, "Failed to open database %s: %v\n", databasePath, err)
+		fmt.Fprintf(writer, "Failed to open database %s\n", databasePath)
 		return
 	}
 
