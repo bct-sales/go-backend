@@ -39,26 +39,6 @@ func NewDatabaseDummyCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func addDummyItem(
-	db *sql.DB,
-	addedAt models.Timestamp,
-	description string,
-	priceInCents models.MoneyInCents,
-	itemCategoryId models.Id,
-	sellerId models.Id,
-	donation bool,
-	charity bool,
-	frozen bool,
-	hidden bool) error {
-	_, err := queries.AddItem(db, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
-
-	if err != nil {
-		return fmt.Errorf("failed to add item: %w", err)
-	}
-
-	return nil
-}
-
 func (c *dummyDatabaseCommand) execute() error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		c.Printf("Resetting database\n")
@@ -126,7 +106,7 @@ func (c *dummyDatabaseCommand) execute() error {
 
 			c.Printf("Adding some items\n")
 			err := errors.Join(
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"T-Shirt",
@@ -138,7 +118,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Jeans",
@@ -150,7 +130,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Nike sneakers",
@@ -162,7 +142,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Adidas sneakers",
@@ -174,7 +154,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Puma sneakers",
@@ -186,7 +166,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					true,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Reebok sneakers",
@@ -198,7 +178,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Converse sneakers",
@@ -210,7 +190,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Vans sneakers",
@@ -222,7 +202,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"New Balance sneakers",
@@ -234,7 +214,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Asics sneakers",
@@ -246,7 +226,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Hoka sneakers",
@@ -258,7 +238,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Saucony sneakers",
@@ -270,7 +250,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Brooks sneakers",
@@ -282,7 +262,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Mizuno sneakers",
@@ -294,7 +274,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"On sneakers",
@@ -306,7 +286,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Combat boots",
@@ -318,7 +298,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Hiking boots",
@@ -330,7 +310,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Winter boots",
@@ -342,7 +322,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Rain boots",
@@ -354,7 +334,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Snow boots",
@@ -366,7 +346,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Bean boots",
@@ -378,7 +358,7 @@ func (c *dummyDatabaseCommand) execute() error {
 					false,
 					false,
 				),
-				addDummyItem(
+				c.addDummyItem(
 					db,
 					now,
 					"Cowboy boots",
@@ -399,4 +379,24 @@ func (c *dummyDatabaseCommand) execute() error {
 
 		return nil
 	})
+}
+
+func (c *dummyDatabaseCommand) addDummyItem(
+	db *sql.DB,
+	addedAt models.Timestamp,
+	description string,
+	priceInCents models.MoneyInCents,
+	itemCategoryId models.Id,
+	sellerId models.Id,
+	donation bool,
+	charity bool,
+	frozen bool,
+	hidden bool) error {
+	_, err := queries.AddItem(db, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
+
+	if err != nil {
+		return fmt.Errorf("failed to add item: %w", err)
+	}
+
+	return nil
 }
