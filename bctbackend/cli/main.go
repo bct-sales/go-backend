@@ -234,15 +234,7 @@ func ProcessCommandLineArguments(arguments []string) error {
 
 			return nil
 		},
-		Commands: []*cli.Command{
-			{
-				Name:  "server",
-				Usage: "start REST api server",
-				Action: func(ctx *cli.Context) error {
-					return startRestService(options.global.DatabasePath)
-				},
-			},
-		},
+		Commands: []*cli.Command{},
 	}
 
 	if err := app.Run(arguments); err != nil {
