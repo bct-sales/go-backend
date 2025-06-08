@@ -85,6 +85,7 @@ func (c *addSellersCommand) execute() error {
 			}
 		}
 		if err := queries.AddUsers(db, callback); err != nil {
+			c.PrintErrorf("failed to add sellers")
 			return fmt.Errorf("failed to add sellers: %w", err)
 		}
 
