@@ -15,17 +15,17 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-type AddSellersCommand struct {
+type addSellersCommand struct {
 	common.Command
-	Seed           uint64
-	Zones          []int
-	SellersPerZone int
+	seed           uint64
+	zones          []int
+	sellersPerZone int
 }
 
 func NewUserAddSellersCommand() *cobra.Command {
-	var command *AddSellersCommand
+	var command *addSellersCommand
 
-	command = &AddSellersCommand{
+	command = &addSellersCommand{
 		Command: common.Command{
 			CobraCommand: &cobra.Command{
 				Use:   "add-sellers",
@@ -48,16 +48,16 @@ func NewUserAddSellersCommand() *cobra.Command {
 		},
 	}
 
-	command.CobraCommand.Flags().Uint64Var(&command.Seed, "seed", 0, "Seed for random password assignment")
-	command.CobraCommand.Flags().IntSliceVar(&command.Zones, "zones", nil, "Zones for which to add sellers")
-	command.CobraCommand.Flags().IntVar(&command.SellersPerZone, "per-zone", 0, "Number of sellers to add per zone")
+	command.CobraCommand.Flags().Uint64Var(&command.seed, "seed", 0, "Seed for random password assignment")
+	command.CobraCommand.Flags().IntSliceVar(&command.zones, "zones", nil, "Zones for which to add sellers")
+	command.CobraCommand.Flags().IntVar(&command.sellersPerZone, "per-zone", 0, "Number of sellers to add per zone")
 	command.CobraCommand.MarkFlagRequired("zones")
 	command.CobraCommand.MarkFlagRequired("per-zone")
 
 	return command.AsCobraCommand()
 }
 
-func (c *AddSellersCommand) execute() error {
+func (c *addSellersCommand) execute() error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		existingSellers, err := collectExistingUserIds(db)
 		if err != nil {
@@ -70,9 +70,9 @@ func (c *AddSellersCommand) execute() error {
 		}
 
 		sellersToBeCreated := []sellerCreationData{}
-		passwords := createPasswordList(c.Seed, *usedPasswords)
+		passwords := createPasswordList(c.seed, *usedPasswords)
 		passwordIndex := 0
-		err = determineSellersToBeCreated(c.Zones, c.SellersPerZone, func(sellerId models.Id) error {
+		err = determineSellersToBeCreated(c.zones, c.sellersPerZone, func(sellerId models.Id) error {
 			if !existingSellers.Contains(sellerId) {
 				if passwordIndex == len(passwords) {
 					return cli.Exit("ran out of unique passwords", 1)
