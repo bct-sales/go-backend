@@ -2,6 +2,7 @@ package category
 
 import (
 	"bctbackend/commands/common"
+	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"database/sql"
 	"fmt"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
-	"github.com/urfave/cli/v2"
 )
 
 type categoryCountCommand struct {
@@ -42,55 +42,75 @@ func NewCategoryCountCommand() *cobra.Command {
 
 func (c *categoryCountCommand) execute() error {
 	return c.WithOpenedDatabase(func(database *sql.DB) error {
-		var itemSelection queries.ItemSelection
-		if c.includeHidden {
-			itemSelection = queries.AllItems
-		} else {
-			itemSelection = queries.OnlyVisibleItems
-		}
-
-		categoryCounts, err := queries.GetCategoryCounts(database, itemSelection)
+		categoryCounts, err := c.getCategoryCounts(database)
 		if err != nil {
-			return fmt.Errorf("failed to get category counts: %w", err)
+			return err
 		}
 
-		categoryTable, err := queries.GetCategoryNameTable(database)
+		categoryTable, err := c.GetCategoryNameTable(database)
 		if err != nil {
-			return fmt.Errorf("failed to get category name table: %w", err)
+			return err
 		}
 
-		tableData := pterm.TableData{
-			{"ID", "Name", "Count"},
-		}
-
-		categoryIds := maps.Keys(categoryCounts)
-		sortedCategoryIds := slices.Sorted(categoryIds)
-
-		for _, categoryId := range sortedCategoryIds {
-			categoryCount, ok := categoryCounts[categoryId]
-			if !ok {
-				panic("Bug: category ID not found in counts map")
-			}
-
-			categoryNameString, ok := categoryTable[categoryId]
-			if !ok {
-				return cli.Exit(fmt.Sprintf("Bug: unknown category %d", categoryId), 1)
-			}
-			categoryIdString := categoryId.String()
-			count := strconv.Itoa(categoryCount)
-
-			tableData = append(tableData, []string{
-				categoryIdString,
-				categoryNameString,
-				count,
-			})
-		}
-
-		if err = pterm.DefaultTable.WithHasHeader().WithData(tableData).Render(); err != nil {
-			c.PrintErrorf("Error while rendering table")
-			return fmt.Errorf("error while rendering table: %w", err)
+		if err := c.printCategoryCounts(categoryCounts, categoryTable); err != nil {
+			return err
 		}
 
 		return nil
 	})
+}
+
+func (c *categoryCountCommand) getCategoryCounts(database *sql.DB) (map[models.Id]int, error) {
+	var itemSelection queries.ItemSelection
+
+	if c.includeHidden {
+		itemSelection = queries.AllItems
+	} else {
+		itemSelection = queries.OnlyVisibleItems
+	}
+
+	categoryCounts, err := queries.GetCategoryCounts(database, itemSelection)
+
+	if err != nil {
+		c.PrintErrorf("Failed to get category counts")
+		return nil, fmt.Errorf("failed to get category counts: %w", err)
+	}
+
+	return categoryCounts, nil
+}
+
+func (c *categoryCountCommand) printCategoryCounts(categoryCounts map[models.Id]int, categoryTable map[models.Id]string) error {
+	tableData := pterm.TableData{
+		{"ID", "Name", "Count"},
+	}
+
+	categoryIds := maps.Keys(categoryCounts)
+	sortedCategoryIds := slices.Sorted(categoryIds)
+
+	for _, categoryId := range sortedCategoryIds {
+		categoryCount, ok := categoryCounts[categoryId]
+		if !ok {
+			panic("Bug: category ID not found in counts map")
+		}
+
+		categoryName, ok := categoryTable[categoryId]
+		if !ok {
+			panic("Bug: category ID not found in category name table")
+		}
+
+		categoryIdString := categoryId.String()
+		countString := strconv.Itoa(categoryCount)
+		tableData = append(tableData, []string{
+			categoryIdString,
+			categoryName,
+			countString,
+		})
+	}
+
+	if err := pterm.DefaultTable.WithHasHeader().WithData(tableData).Render(); err != nil {
+		c.PrintErrorf("Error while rendering table")
+		return fmt.Errorf("error while rendering table: %w", err)
+	}
+
+	return nil
 }

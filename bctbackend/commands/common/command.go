@@ -2,6 +2,7 @@ package common
 
 import (
 	"bctbackend/database/models"
+	"bctbackend/database/queries"
 	"database/sql"
 	"fmt"
 
@@ -49,4 +50,15 @@ func (c *Command) parseId(str string, idType string) (models.Id, error) {
 	}
 
 	return id, nil
+}
+
+func (c *Command) GetCategoryNameTable(db *sql.DB) (map[models.Id]string, error) {
+	categoryTable, err := queries.GetCategoryNameTable(db)
+
+	if err != nil {
+		c.PrintErrorf("Failed to get category name table: %v\n", err)
+		return nil, fmt.Errorf("failed to get category name table: %w", err)
+	}
+
+	return categoryTable, nil
 }
