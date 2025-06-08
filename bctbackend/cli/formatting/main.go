@@ -34,13 +34,13 @@ func PrintUser(user *models.User) error {
 	return nil
 }
 
-func PrintItems(categoryTable map[models.Id]string, items []*models.Item) error {
+func PrintItems(categoryNameTable map[models.Id]string, items []*models.Item) error {
 	tableData := pterm.TableData{
 		{"ID", "Description", "Price", "Category", "Seller", "Donation", "Charity", "Added At", "Frozen", "Hidden"},
 	}
 
 	for _, item := range items {
-		categoryName, ok := categoryTable[item.CategoryID]
+		categoryName, ok := categoryNameTable[item.CategoryID]
 		if !ok {
 			return &NoSuchCategoryError{CategoryId: item.CategoryID}
 		}
@@ -67,13 +67,13 @@ func PrintItems(categoryTable map[models.Id]string, items []*models.Item) error 
 	return nil
 }
 
-func PrintItem(db *sql.DB, categoryTable map[models.Id]string, itemId models.Id) error {
+func PrintItem(db *sql.DB, categoryNameTable map[models.Id]string, itemId models.Id) error {
 	item, err := queries.GetItemWithId(db, itemId)
 	if err != nil {
 		return fmt.Errorf("failed to get item with id %d: %w", itemId, err)
 	}
 
-	categoryName, ok := categoryTable[item.CategoryID]
+	categoryName, ok := categoryNameTable[item.CategoryID]
 	if !ok {
 		return &NoSuchCategoryError{CategoryId: item.CategoryID}
 	}

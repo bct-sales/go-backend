@@ -23,7 +23,7 @@ func ListCategoryCounts(databasePath string, itemSelection queries.ItemSelection
 		return fmt.Errorf("failed to get category counts: %w", err)
 	}
 
-	categoryTable, err := queries.GetCategoryNameTable(db)
+	categoryNameTable, err := queries.GetCategoryNameTable(db)
 	if err != nil {
 		return fmt.Errorf("failed to get category name table: %w", err)
 	}
@@ -33,7 +33,7 @@ func ListCategoryCounts(databasePath string, itemSelection queries.ItemSelection
 	}
 
 	for categoryId, categoryCount := range categoryCounts {
-		categoryNameString, ok := categoryTable[categoryId]
+		categoryNameString, ok := categoryNameTable[categoryId]
 		if !ok {
 			return cli.Exit(fmt.Sprintf("Bug: unknown category %d", categoryId), 1)
 		}

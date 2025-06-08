@@ -19,10 +19,10 @@ import (
 )
 
 func createSuccessResponse(countMap map[models.Id]int) rest.ListCategoriesSuccessResponse {
-	defaultCategoryTable := aux.DefaultCategoryTable()
+	defaultCategoryNameTable := aux.DefaultCategoryNameTable()
 	countArray := []rest.CategoryData{}
 
-	for categoryId, categoryName := range defaultCategoryTable {
+	for categoryId, categoryName := range defaultCategoryNameTable {
 		count, ok := countMap[categoryId]
 
 		if !ok {
@@ -44,7 +44,7 @@ func createSuccessResponse(countMap map[models.Id]int) rest.ListCategoriesSucces
 }
 
 func TestCategoryCounts(t *testing.T) {
-	defaultCategoryTable := aux.DefaultCategoryTable()
+	defaultCategoryNameTable := aux.DefaultCategoryNameTable()
 
 	t.Run("Success", func(t *testing.T) {
 		t.Run("No hidden items involved", func(t *testing.T) {
@@ -73,7 +73,7 @@ func TestCategoryCounts(t *testing.T) {
 				}
 			})
 
-			for categoryId, _ := range defaultCategoryTable {
+			for categoryId, _ := range defaultCategoryNameTable {
 				t.Run("Single item", func(t *testing.T) {
 					setup, router, writer := NewRestFixture(WithDefaultCategories)
 					defer setup.Close()
@@ -92,7 +92,7 @@ func TestCategoryCounts(t *testing.T) {
 				})
 			}
 
-			for categoryId, _ := range defaultCategoryTable {
+			for categoryId, _ := range defaultCategoryNameTable {
 				t.Run("Two items in same category", func(t *testing.T) {
 					setup, router, writer := NewRestFixture(WithDefaultCategories)
 					defer setup.Close()
@@ -112,8 +112,8 @@ func TestCategoryCounts(t *testing.T) {
 				})
 			}
 
-			for categoryId1 := range defaultCategoryTable {
-				for categoryId2 := range defaultCategoryTable {
+			for categoryId1 := range defaultCategoryNameTable {
+				for categoryId2 := range defaultCategoryNameTable {
 					if categoryId1 != categoryId2 {
 						t.Run("Two items in different categories", func(t *testing.T) {
 							setup, router, writer := NewRestFixture(WithDefaultCategories)

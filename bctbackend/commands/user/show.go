@@ -76,14 +76,14 @@ func showSeller(db *sql.DB, user *models.User) error {
 		return cli.Exit(fmt.Sprintf("Failed to get seller items: %s", err.Error()), 1)
 	}
 
-	categoryTable, err := queries.GetCategoryNameTable(db)
+	categoryNameTable, err := queries.GetCategoryNameTable(db)
 	if err != nil {
 		return cli.Exit(fmt.Sprintf("Failed get category names: %s", err.Error()), 1)
 	}
 
 	pterm.DefaultSection.Println("Items")
 
-	err = formatting.PrintItems(categoryTable, sellerItems)
+	err = formatting.PrintItems(categoryNameTable, sellerItems)
 	if err != nil {
 		return cli.Exit(fmt.Sprintf("Failed to print items: %s", err.Error()), 1)
 	}
@@ -102,14 +102,14 @@ func showCashier(db *sql.DB, user *models.User) error {
 		return cli.Exit(fmt.Sprintf("Failed to get items sold by cashier: %s", err.Error()), 1)
 	}
 
-	categoryTable, err := queries.GetCategoryNameTable(db)
+	categoryNameTable, err := queries.GetCategoryNameTable(db)
 	if err != nil {
 		return cli.Exit(fmt.Sprintf("Failed to get category names: %s", err.Error()), 1)
 	}
 
 	pterm.DefaultSection.Println("Sold Items")
 
-	if err := formatting.PrintItems(categoryTable, soldItems); err != nil {
+	if err := formatting.PrintItems(categoryNameTable, soldItems); err != nil {
 		return cli.Exit(fmt.Sprintf("Failed to print items: %s", err.Error()), 1)
 	}
 

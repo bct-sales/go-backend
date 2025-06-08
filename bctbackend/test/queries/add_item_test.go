@@ -18,8 +18,8 @@ import (
 )
 
 func TestAddItem(t *testing.T) {
-	defaultCategoryTable := aux.DefaultCategoryTable()
-	defaultCategoryKeys := slices.Collect(maps.Keys(defaultCategoryTable))
+	defaultCategoryNameTable := aux.DefaultCategoryNameTable()
+	defaultCategoryKeys := slices.Collect(maps.Keys(defaultCategoryNameTable))
 
 	t.Run("Success", func(t *testing.T) {
 		t.Parallel()

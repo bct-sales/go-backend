@@ -93,7 +93,7 @@ func GetAllItems(context *gin.Context, db *sql.DB, userId models.Id, roleId mode
 		return
 
 	case "csv":
-		categoryTable, err := queries.GetCategoryNameTable(db)
+		categoryNameTable, err := queries.GetCategoryNameTable(db)
 		if err != nil {
 			failure_response.Unknown(context, "Failed to get category map: "+err.Error())
 			return
@@ -105,7 +105,7 @@ func GetAllItems(context *gin.Context, db *sql.DB, userId models.Id, roleId mode
 		context.Header("Pragma", "no-cache")
 
 		buffer := new(bytes.Buffer)
-		if err := csv.FormatItemsAsCSV(items, categoryTable, buffer); err != nil {
+		if err := csv.FormatItemsAsCSV(items, categoryNameTable, buffer); err != nil {
 			failure_response.Unknown(context, "Failed to format items as CSV: "+err.Error())
 			return
 		}

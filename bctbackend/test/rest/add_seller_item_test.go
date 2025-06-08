@@ -19,13 +19,13 @@ import (
 )
 
 func TestAddSellerItem(t *testing.T) {
-	defaultCategoryTable := aux.DefaultCategoryTable()
+	defaultCategoryNameTable := aux.DefaultCategoryNameTable()
 
 	t.Run("Successful", func(t *testing.T) {
 		for _, sellerId := range []models.Id{models.Id(1), models.Id(2), models.Id(100)} {
 			for _, price := range []models.MoneyInCents{1, 100, 10000} {
 				for _, description := range []string{"Xyz", "Test Description"} {
-					for categoryId, _ := range defaultCategoryTable {
+					for categoryId, _ := range defaultCategoryNameTable {
 						for _, donation := range []bool{true, false} {
 							for _, charity := range []bool{true, false} {
 								t.Run(fmt.Sprintf("sellerId=%d price=%d description=%s categoryId=%d donation=%t charity=%t", sellerId, price, description, categoryId, donation, charity), func(t *testing.T) {
@@ -141,7 +141,7 @@ func TestAddSellerItem(t *testing.T) {
 			donation := false
 			charity := false
 
-			require.NotContains(t, defaultCategoryTable, categoryId)
+			require.NotContains(t, defaultCategoryNameTable, categoryId)
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 

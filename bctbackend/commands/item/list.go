@@ -58,13 +58,13 @@ func listItemsInTableFormat(cmd *cobra.Command, showHidden bool) error {
 		itemCount := len(items)
 
 		if itemCount > 0 {
-			categoryTable, err := queries.GetCategoryNameTable(db)
+			categoryNameTable, err := queries.GetCategoryNameTable(db)
 			if err != nil {
 				fmt.Fprintf(cmd.ErrOrStderr(), "An error occurred while trying to get the category table: %v\n", err)
 				return err
 			}
 
-			if err := formatting.PrintItems(categoryTable, items); err != nil {
+			if err := formatting.PrintItems(categoryNameTable, items); err != nil {
 				fmt.Fprintf(cmd.ErrOrStderr(), "Error while printing items: %v\n", err)
 				return err
 			}
@@ -89,12 +89,12 @@ func listItemsInCSVFormat(cmd *cobra.Command, showHidden bool) error {
 			return fmt.Errorf("failed to get items: %w", err)
 		}
 
-		categoryTable, err := queries.GetCategoryNameTable(db)
+		categoryNameTable, err := queries.GetCategoryNameTable(db)
 		if err != nil {
 			return fmt.Errorf("failed to get category name table: %w", err)
 		}
 
-		err = dbcsv.FormatItemsAsCSV(items, categoryTable, os.Stdout)
+		err = dbcsv.FormatItemsAsCSV(items, categoryNameTable, os.Stdout)
 		if err != nil {
 			return fmt.Errorf("failed to format items as a CSV: %w", err)
 		}

@@ -50,13 +50,13 @@ func NewItemAddCommand() *cobra.Command {
 				}
 				fmt.Println("Item added successfully")
 
-				categoryTable, err := queries.GetCategoryNameTable(db)
+				categoryNameTable, err := queries.GetCategoryNameTable(db)
 				if err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "An error occurred while trying to get the category map: %v\n", err)
 					return err
 				}
 
-				err = formatting.PrintItem(db, categoryTable, addedItemId)
+				err = formatting.PrintItem(db, categoryNameTable, addedItemId)
 				if err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "An error occurred while trying to format the output: %v\n", err)
 					return err

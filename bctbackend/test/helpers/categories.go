@@ -34,7 +34,7 @@ const (
 	CategoryName_BabyChildEquipment string = "Baby/Child Equipment"
 )
 
-func DefaultCategoryTable() map[models.Id]string {
+func DefaultCategoryNameTable() map[models.Id]string {
 	return map[models.Id]string{
 		CategoryId_Clothing50_56:      CategoryName_Clothing50_56,
 		CategoryId_Clothing56_62:      CategoryName_Clothing56_62,
@@ -52,5 +52,5 @@ func DefaultCategoryTable() map[models.Id]string {
 }
 
 func DefaultCategoryIds() []models.Id {
-	return slices.Collect(maps.Keys(DefaultCategoryTable()))
+	return slices.Collect(maps.Keys(DefaultCategoryNameTable()))
 }

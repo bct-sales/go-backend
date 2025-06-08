@@ -55,13 +55,13 @@ func NewItemCopyCommand() *cobra.Command {
 					return fmt.Errorf("failed to insert copy in database: %w", err)
 				}
 
-				categoryTable, err := queries.GetCategoryNameTable(db)
+				categoryNameTable, err := queries.GetCategoryNameTable(db)
 				if err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "An error occurred while trying to get the category map")
 					return err
 				}
 
-				if err := formatting.PrintItem(db, categoryTable, copyId); err != nil {
+				if err := formatting.PrintItem(db, categoryNameTable, copyId); err != nil {
 					fmt.Fprintln(cmd.ErrOrStderr(), "Error while printing copied item")
 					return fmt.Errorf("failed to print copied item: %w", err)
 				}

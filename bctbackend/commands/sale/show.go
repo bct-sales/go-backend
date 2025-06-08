@@ -94,14 +94,14 @@ func (command *saleShowCommand) getSaleItems(db *sql.DB, saleId models.Id) ([]mo
 }
 
 func (command *saleShowCommand) getCategoryNameTable(db *sql.DB) (map[models.Id]string, error) {
-	categoryTable, err := queries.GetCategoryNameTable(db)
+	categoryNameTable, err := queries.GetCategoryNameTable(db)
 
 	if err != nil {
 		command.PrintErrorf("An error occurred while fetching categories: %v\n", err)
 		return nil, err
 	}
 
-	return categoryTable, nil
+	return categoryNameTable, nil
 }
 
 func (command *saleShowCommand) printSaleItems(saleItems []models.Item, categoryNameTable map[models.Id]string) error {

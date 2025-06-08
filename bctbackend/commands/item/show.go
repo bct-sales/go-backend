@@ -27,14 +27,14 @@ func NewItemShowCommand() *cobra.Command {
 				}
 
 				// We need the category table to print user-friendly category names
-				categoryTable, err := queries.GetCategoryNameTable(db)
+				categoryNameTable, err := queries.GetCategoryNameTable(db)
 				if err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "An error occurred while trying to get the category map: %v\n", err)
 					return err
 				}
 
 				// Print the item details
-				err = formatting.PrintItem(db, categoryTable, itemId)
+				err = formatting.PrintItem(db, categoryNameTable, itemId)
 				if err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "Error while printing item: %v\n", err)
 					return err

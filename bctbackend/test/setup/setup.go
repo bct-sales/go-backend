@@ -78,8 +78,8 @@ func (s DatabaseFixture) Category(id models.Id, name string) {
 }
 
 func (s DatabaseFixture) DefaultCategories() {
-	categoryTable := aux.DefaultCategoryTable()
-	for id, name := range categoryTable {
+	categoryNameTable := aux.DefaultCategoryNameTable()
+	for id, name := range categoryNameTable {
 		s.Category(id, name)
 	}
 }

@@ -144,12 +144,12 @@ func collectLabelData(db *sql.DB, itemTable map[models.Id]*models.Item, itemIds 
 			return nil, fmt.Errorf("bug: item with id %d not found; should never occur: this error should have be caught earlier", itemId)
 		}
 
-		categoryTable, err := queries.GetCategoryNameTable(db)
+		categoryNameTable, err := queries.GetCategoryNameTable(db)
 		if err != nil {
 			return nil, err
 		}
 
-		return createLabelDataFromItem(categoryTable, item)
+		return createLabelDataFromItem(categoryNameTable, item)
 	}
 
 	labelData, err := algorithms.MapError(itemIds, createLabelData)
@@ -160,10 +160,10 @@ func collectLabelData(db *sql.DB, itemTable map[models.Id]*models.Item, itemIds 
 	return labelData, nil
 }
 
-func createLabelDataFromItem(categoryTable map[models.Id]string, item *models.Item) (*pdf.LabelData, error) {
+func createLabelDataFromItem(categoryNameTable map[models.Id]string, item *models.Item) (*pdf.LabelData, error) {
 	barcode := fmt.Sprintf("%dx", item.ItemID)
 
-	category, ok := categoryTable[item.CategoryID]
+	category, ok := categoryNameTable[item.CategoryID]
 	if !ok {
 		return nil, fmt.Errorf("unknown category id: %v", item.CategoryID)
 	}

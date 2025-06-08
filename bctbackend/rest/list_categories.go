@@ -70,7 +70,7 @@ func listCategoriesWithCounts(context *gin.Context, db *sql.DB, userId models.Id
 		return
 	}
 
-	categoryTable, err := queries.GetCategoryNameTable(db)
+	categoryNameTable, err := queries.GetCategoryNameTable(db)
 	if err != nil {
 		failure_response.Unknown(context, "Failed to fetch category table: "+err.Error())
 		return
@@ -85,7 +85,7 @@ func listCategoriesWithCounts(context *gin.Context, db *sql.DB, userId models.Id
 
 	for _, categoryId := range categoryIds {
 		categoryCount := categoryCounts[categoryId]
-		categoryName, ok := categoryTable[categoryId]
+		categoryName, ok := categoryNameTable[categoryId]
 		if !ok {
 			failure_response.Unknown(context, fmt.Sprintf("Unknown category ID %d", categoryId))
 			return

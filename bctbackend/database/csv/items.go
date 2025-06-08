@@ -7,7 +7,7 @@ import (
 	"io"
 )
 
-func FormatItemsAsCSV(items []*models.Item, categoryTable map[models.Id]string, writer io.Writer) error {
+func FormatItemsAsCSV(items []*models.Item, categoryNameTable map[models.Id]string, writer io.Writer) error {
 	csvWriter := csv.NewWriter(writer)
 	defer csvWriter.Flush()
 
@@ -22,7 +22,7 @@ func FormatItemsAsCSV(items []*models.Item, categoryTable map[models.Id]string, 
 		sellerIdString := item.SellerID.String()
 		priceString := item.PriceInCents.String()
 
-		categoryString, ok := categoryTable[item.CategoryID]
+		categoryString, ok := categoryNameTable[item.CategoryID]
 		if !ok {
 			return fmt.Errorf("unknown category id: %v", item.CategoryID)
 		}

@@ -47,12 +47,12 @@ func (c *categoryCountCommand) execute() error {
 			return err
 		}
 
-		categoryTable, err := c.GetCategoryNameTable(database)
+		categoryNameTable, err := c.GetCategoryNameTable(database)
 		if err != nil {
 			return err
 		}
 
-		if err := c.printCategoryCounts(categoryCounts, categoryTable); err != nil {
+		if err := c.printCategoryCounts(categoryCounts, categoryNameTable); err != nil {
 			return err
 		}
 
@@ -79,7 +79,7 @@ func (c *categoryCountCommand) getCategoryCounts(database *sql.DB) (map[models.I
 	return categoryCounts, nil
 }
 
-func (c *categoryCountCommand) printCategoryCounts(categoryCounts map[models.Id]int, categoryTable map[models.Id]string) error {
+func (c *categoryCountCommand) printCategoryCounts(categoryCounts map[models.Id]int, categoryNameTable map[models.Id]string) error {
 	tableData := pterm.TableData{
 		{"ID", "Name", "Count"},
 	}
@@ -93,7 +93,7 @@ func (c *categoryCountCommand) printCategoryCounts(categoryCounts map[models.Id]
 			panic("Bug: category ID not found in counts map")
 		}
 
-		categoryName, ok := categoryTable[categoryId]
+		categoryName, ok := categoryNameTable[categoryId]
 		if !ok {
 			panic("Bug: category ID not found in category name table")
 		}

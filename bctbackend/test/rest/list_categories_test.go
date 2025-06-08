@@ -24,7 +24,7 @@ type GetCategoriesSuccessResponse struct {
 }
 
 func TestGetCategories(t *testing.T) {
-	defaultCategoryTable := aux.DefaultCategoryTable()
+	defaultCategoryNameTable := aux.DefaultCategoryNameTable()
 
 	t.Run("Success", func(t *testing.T) {
 		t.Run("As admin", func(t *testing.T) {
@@ -40,7 +40,7 @@ func TestGetCategories(t *testing.T) {
 				require.Equal(t, http.StatusOK, writer.Code)
 
 				actual := FromJson[GetCategoriesSuccessResponse](t, writer.Body.String())
-				require.Len(t, actual.Categories, len(defaultCategoryTable))
+				require.Len(t, actual.Categories, len(defaultCategoryNameTable))
 
 				for _, category := range actual.Categories {
 					require.Nil(t, category.Count)
