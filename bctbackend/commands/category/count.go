@@ -5,6 +5,8 @@ import (
 	"bctbackend/database/queries"
 	"database/sql"
 	"fmt"
+	"maps"
+	"slices"
 	"strconv"
 
 	"github.com/pterm/pterm"
@@ -61,7 +63,15 @@ func (c *categoryCountCommand) execute() error {
 			{"ID", "Name", "Count"},
 		}
 
-		for categoryId, categoryCount := range categoryCounts {
+		categoryIds := maps.Keys(categoryCounts)
+		sortedCategoryIds := slices.Sorted(categoryIds)
+
+		for _, categoryId := range sortedCategoryIds {
+			categoryCount, ok := categoryCounts[categoryId]
+			if !ok {
+				panic("Bug: category ID not found in counts map")
+			}
+
 			categoryNameString, ok := categoryTable[categoryId]
 			if !ok {
 				return cli.Exit(fmt.Sprintf("Bug: unknown category %d", categoryId), 1)
