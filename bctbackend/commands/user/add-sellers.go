@@ -15,6 +15,7 @@ import (
 	"golang.org/x/exp/rand"
 
 	"github.com/MakeNowJust/heredoc"
+	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
 
@@ -88,6 +89,8 @@ func (c *addSellersCommand) execute() error {
 			c.PrintErrorf("failed to add sellers")
 			return fmt.Errorf("failed to add sellers: %w", err)
 		}
+
+		c.showAddedSellers(sellersToBeCreated)
 
 		return nil
 	})
@@ -215,4 +218,30 @@ func parseZones(str string) ([]int, error) {
 	result = slices.Compact(result)
 
 	return result, nil
+}
+
+func (c *addSellersCommand) showAddedSellers(sellers []*sellerCreationData) error {
+	if len(sellers) == 0 {
+		c.Printf("No sellers added, all specified zones already have enough sellers.\n")
+		return nil
+	}
+
+	tableData := pterm.TableData{
+		{"Seller ID", "Password"},
+	}
+
+	for _, seller := range sellers {
+		tableData = append(tableData, []string{
+			fmt.Sprintf("%d", seller.userId),
+			seller.password,
+		})
+	}
+
+	c.Printf("Added the following sellers:\n\n")
+	if err := pterm.DefaultTable.WithData(tableData).Render(); err != nil {
+		c.PrintErrorf("failed to render table: %v", err)
+		return err
+	}
+
+	return nil
 }
