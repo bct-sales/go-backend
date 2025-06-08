@@ -6,7 +6,11 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"database/sql"
+	"errors"
 	"fmt"
+	"slices"
+	"strconv"
+	"strings"
 
 	"golang.org/x/exp/rand"
 
@@ -17,7 +21,7 @@ import (
 type addSellersCommand struct {
 	common.Command
 	seed           uint64
-	zones          []int
+	zonesString    string
 	sellersPerZone int
 }
 
@@ -48,7 +52,7 @@ func NewUserAddSellersCommand() *cobra.Command {
 	}
 
 	command.CobraCommand.Flags().Uint64Var(&command.seed, "seed", 0, "Seed for random password assignment")
-	command.CobraCommand.Flags().IntSliceVar(&command.zones, "zones", nil, "Zones for which to add sellers")
+	command.CobraCommand.Flags().StringVar(&command.zonesString, "zones", "", "Zones for which to add sellers")
 	command.CobraCommand.Flags().IntVar(&command.sellersPerZone, "per-zone", 0, "Number of sellers to add per zone")
 	command.CobraCommand.MarkFlagRequired("zones")
 	command.CobraCommand.MarkFlagRequired("per-zone")
@@ -58,7 +62,13 @@ func NewUserAddSellersCommand() *cobra.Command {
 
 func (c *addSellersCommand) execute() error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		sellersToBeCreated, err := c.determineSellersToBeCreated(db, c.zones, c.sellersPerZone)
+		zones, err := parseZones(c.zonesString)
+		if err != nil {
+			c.PrintErrorf("failed to parse zones")
+			return err
+		}
+
+		sellersToBeCreated, err := c.determineSellersToBeCreated(db, zones, c.sellersPerZone)
 		if err != nil {
 			return nil
 		}
@@ -160,4 +170,48 @@ func (c *addSellersCommand) createUniquePasswordList(seed uint64, usedPasswords 
 		passwords[i], passwords[j] = passwords[j], passwords[i]
 	})
 	return passwords
+}
+
+var ErrInvalidZoneFormat = errors.New("invalid zone format")
+
+func parseZones(str string) ([]int, error) {
+	zoneStrings := strings.Split(str, ",")
+	result := []int{}
+
+	for _, zoneString := range zoneStrings {
+		parts := strings.Split(zoneString, ",")
+
+		for _, part := range parts {
+			endpoints := strings.Split(part, "-")
+			if len(endpoints) == 1 {
+				zone, err := strconv.Atoi(strings.TrimSpace(endpoints[0]))
+				if err != nil {
+					return nil, fmt.Errorf("invalid zone format %s: %w, %w", part, err, ErrInvalidZoneFormat)
+				}
+				result = append(result, zone)
+			} else if len(endpoints) == 2 {
+				start, err := strconv.Atoi(strings.TrimSpace(endpoints[0]))
+				if err != nil {
+					return nil, fmt.Errorf("invalid zone format %s: %w, %w", part, err, ErrInvalidZoneFormat)
+				}
+				end, err := strconv.Atoi(strings.TrimSpace(endpoints[1]))
+				if err != nil {
+					return nil, fmt.Errorf("invalid zone format %s: %w, %w", part, err, ErrInvalidZoneFormat)
+				}
+				if start >= end {
+					return nil, fmt.Errorf("invalid zone format %s: %w, %w", part, err, ErrInvalidZoneFormat)
+				}
+				for i := start; i <= end; i++ {
+					result = append(result, i)
+				}
+			} else {
+				return nil, fmt.Errorf("invalid zone format %s: %w", part, ErrInvalidZoneFormat)
+			}
+		}
+	}
+
+	slices.Sort(result)
+	result = slices.Compact(result)
+
+	return result, nil
 }
