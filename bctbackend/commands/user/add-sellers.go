@@ -59,20 +59,20 @@ func NewUserAddSellersCommand() *cobra.Command {
 
 func (c *addSellersCommand) execute() error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		existingSellers, err := collectExistingUserIds(db)
+		existingSellers, err := c.collectExistingUserIds(db)
 		if err != nil {
-			return fmt.Errorf("failed to collect existing sellers: %w", err)
+			return err
 		}
 
-		usedPasswords, err := collectExistingPasswords(db)
+		usedPasswords, err := c.collectExistingPasswords(db)
 		if err != nil {
-			return fmt.Errorf("failed to collect existing passwords: %w", err)
+			return err
 		}
 
 		sellersToBeCreated := []sellerCreationData{}
-		passwords := createPasswordList(c.seed, *usedPasswords)
+		passwords := c.createPasswordList(c.seed, *usedPasswords)
 		passwordIndex := 0
-		err = determineSellersToBeCreated(c.zones, c.sellersPerZone, func(sellerId models.Id) error {
+		err = c.determineSellersToBeCreated(c.zones, c.sellersPerZone, func(sellerId models.Id) error {
 			if !existingSellers.Contains(sellerId) {
 				if passwordIndex == len(passwords) {
 					return cli.Exit("ran out of unique passwords", 1)
@@ -117,7 +117,7 @@ type sellerCreationData struct {
 	password string
 }
 
-func collectExistingUserIds(db *sql.DB) (*algorithms.Set[models.Id], error) {
+func (c *addSellersCommand) collectExistingUserIds(db *sql.DB) (*algorithms.Set[models.Id], error) {
 	result := algorithms.NewSet[models.Id]()
 
 	err := queries.GetUsers(db, func(user *models.User) error {
@@ -131,7 +131,7 @@ func collectExistingUserIds(db *sql.DB) (*algorithms.Set[models.Id], error) {
 	return &result, nil
 }
 
-func collectExistingPasswords(db *sql.DB) (*algorithms.Set[string], error) {
+func (c *addSellersCommand) collectExistingPasswords(db *sql.DB) (*algorithms.Set[string], error) {
 	result := algorithms.NewSet[string]()
 
 	err := queries.GetUsers(db, func(user *models.User) error {
@@ -145,7 +145,7 @@ func collectExistingPasswords(db *sql.DB) (*algorithms.Set[string], error) {
 	return &result, nil
 }
 
-func determineSellersToBeCreated(zones []int, sellersPerZone int, receiver func(models.Id) error) error {
+func (c *addSellersCommand) determineSellersToBeCreated(zones []int, sellersPerZone int, receiver func(models.Id) error) error {
 	for _, zone := range zones {
 		for i := range sellersPerZone {
 			sellerId := models.Id(zone*100 + i)
@@ -158,7 +158,7 @@ func determineSellersToBeCreated(zones []int, sellersPerZone int, receiver func(
 	return nil
 }
 
-func createPasswordList(seed uint64, usedPasswords algorithms.Set[string]) []string {
+func (c *addSellersCommand) createPasswordList(seed uint64, usedPasswords algorithms.Set[string]) []string {
 	rng := rand.New(rand.NewSource(seed))
 	passwords := algorithms.Filter(Passwords, func(password string) bool { return !usedPasswords.Contains(password) })
 	rng.Shuffle(len(passwords), func(i, j int) {
