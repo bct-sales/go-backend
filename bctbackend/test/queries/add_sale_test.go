@@ -46,7 +46,7 @@ func TestAddSale(t *testing.T) {
 
 				expectedItem, err := queries.GetItemWithId(db, saleItemIds[index])
 				require.NoError(t, err)
-				require.Equal(t, *expectedItem, actualItem)
+				require.Equal(t, expectedItem, actualItem)
 			}
 		}
 	})

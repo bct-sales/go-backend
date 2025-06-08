@@ -82,7 +82,7 @@ func (command *saleShowCommand) parseSaleId(str string) (models.Id, error) {
 	return saleId, nil
 }
 
-func (command *saleShowCommand) getSaleItems(db *sql.DB, saleId models.Id) ([]models.Item, error) {
+func (command *saleShowCommand) getSaleItems(db *sql.DB, saleId models.Id) ([]*models.Item, error) {
 	saleItems, err := queries.GetSaleItems(db, saleId)
 
 	if err != nil {
@@ -104,7 +104,7 @@ func (command *saleShowCommand) getCategoryNameTable(db *sql.DB) (map[models.Id]
 	return categoryNameTable, nil
 }
 
-func (command *saleShowCommand) printSaleItems(saleItems []models.Item, categoryNameTable map[models.Id]string) error {
+func (command *saleShowCommand) printSaleItems(saleItems []*models.Item, categoryNameTable map[models.Id]string) error {
 	tableData := pterm.TableData{
 		{"ID", "Description", "Price", "Category", "Seller", "Donation", "Charity", "Added At", "Frozen", "Hidden"},
 	}
@@ -154,7 +154,7 @@ func (command *saleShowCommand) getSaleInformation(db *sql.DB, saleId models.Id)
 	return sale, nil
 }
 
-func (command *saleShowCommand) printSaleOverview(sale *models.Sale, saleItems []models.Item) error {
+func (command *saleShowCommand) printSaleOverview(sale *models.Sale, saleItems []*models.Item) error {
 	totalCost := models.MoneyInCents(0)
 	for _, item := range saleItems {
 		totalCost += item.PriceInCents

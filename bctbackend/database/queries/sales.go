@@ -201,7 +201,7 @@ func SaleExists(db *sql.DB, saleId models.Id) (bool, error) {
 }
 
 // GetSaleItems lists all items associated with a specified sale.
-func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []models.Item, r_err error) {
+func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []*models.Item, r_err error) {
 	saleExists, err := SaleExists(db, saleId)
 	if err != nil {
 		return nil, err
@@ -224,7 +224,7 @@ func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []models.Item, r_err e
 	}
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
-	var items []models.Item
+	var items []*models.Item
 	for rows.Next() {
 		var itemId models.Id
 		var addedAt models.Timestamp
@@ -253,7 +253,7 @@ func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []models.Item, r_err e
 			Frozen:       frozen,
 			Hidden:       hidden,
 		}
-		items = append(items, item)
+		items = append(items, &item)
 	}
 
 	if err := rows.Err(); err != nil {
