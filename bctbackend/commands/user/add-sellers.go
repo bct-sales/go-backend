@@ -10,6 +10,7 @@ import (
 
 	"golang.org/x/exp/rand"
 
+	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
 	"github.com/urfave/cli/v2"
 )
@@ -22,7 +23,17 @@ func NewUserAddSellersCommand() *cobra.Command {
 	command := cobra.Command{
 		Use:   "add-sellers",
 		Short: "Add multiple sellers",
-		Long:  `This command allows you to add multiple sellers in one go.`,
+		Long: heredoc.Doc(`
+					This command allows you to add many sellers in one go.
+					It requires a list of zones and the number of sellers to add per zone.
+					Note that the command will ensure that each specified zone
+					reaches the required number of sellers.
+					If a zone already has sellers, only the missing sellers will be added.
+
+					For example, say zone 1 has 2 sellers and zone 2 has 3 sellers.
+					If you run the command with --zones 1,2 --per-zone 5,
+					then 3 sellers will be added to zone 1 and 2 sellers will be added to zone 2.
+				`),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return common.WithOpenedDatabase(cmd.ErrOrStderr(), func(db *sql.DB) error {
 				existingSellers, err := collectExistingUserIds(db)
