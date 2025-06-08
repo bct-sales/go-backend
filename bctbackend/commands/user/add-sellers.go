@@ -12,7 +12,6 @@ import (
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
-	"github.com/urfave/cli/v2"
 )
 
 type addSellersCommand struct {
@@ -59,38 +58,9 @@ func NewUserAddSellersCommand() *cobra.Command {
 
 func (c *addSellersCommand) execute() error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		existingSellers, err := c.collectExistingUserIds(db)
+		sellersToBeCreated, err := c.determineSellersToBeCreated(db, c.zones, c.sellersPerZone)
 		if err != nil {
-			return err
-		}
-
-		usedPasswords, err := c.collectExistingPasswords(db)
-		if err != nil {
-			return err
-		}
-
-		sellersToBeCreated := []sellerCreationData{}
-		passwords := c.createPasswordList(c.seed, *usedPasswords)
-		passwordIndex := 0
-		err = c.determineSellersToBeCreated(c.zones, c.sellersPerZone, func(sellerId models.Id) error {
-			if !existingSellers.Contains(sellerId) {
-				if passwordIndex == len(passwords) {
-					return cli.Exit("ran out of unique passwords", 1)
-				}
-
-				password := passwords[passwordIndex]
-				passwordIndex++
-
-				sellersToBeCreated = append(sellersToBeCreated, sellerCreationData{
-					userId:   sellerId,
-					password: password,
-				})
-			}
-
 			return nil
-		})
-		if err != nil {
-			return err
 		}
 
 		callback := func(add func(sellerId models.Id, roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
@@ -145,20 +115,45 @@ func (c *addSellersCommand) collectExistingPasswords(db *sql.DB) (*algorithms.Se
 	return &result, nil
 }
 
-func (c *addSellersCommand) determineSellersToBeCreated(zones []int, sellersPerZone int, receiver func(models.Id) error) error {
+func (c *addSellersCommand) determineSellersToBeCreated(db *sql.DB, zones []int, sellersPerZone int) ([]*sellerCreationData, error) {
+	existingSellers, err := c.collectExistingUserIds(db)
+	if err != nil {
+		return nil, err
+	}
+
+	usedPasswords, err := c.collectExistingPasswords(db)
+	if err != nil {
+		return nil, err
+	}
+
+	passwords := c.createUniquePasswordList(c.seed, *usedPasswords)
+	passwordIndex := 0
+	sellersToBeCreated := []*sellerCreationData{}
 	for _, zone := range zones {
 		for i := range sellersPerZone {
 			sellerId := models.Id(zone*100 + i)
-			if err := receiver(sellerId); err != nil {
-				return fmt.Errorf("failed to process seller %d: %w", sellerId, err)
+
+			if !existingSellers.Contains(sellerId) {
+				if passwordIndex == len(passwords) {
+					c.PrintErrorf("ran out of unique passwords")
+					return nil, fmt.Errorf("ran out of unique passwords")
+				}
+
+				password := passwords[passwordIndex]
+				passwordIndex++
+
+				sellersToBeCreated = append(sellersToBeCreated, &sellerCreationData{
+					userId:   sellerId,
+					password: password,
+				})
 			}
 		}
 	}
 
-	return nil
+	return sellersToBeCreated, nil
 }
 
-func (c *addSellersCommand) createPasswordList(seed uint64, usedPasswords algorithms.Set[string]) []string {
+func (c *addSellersCommand) createUniquePasswordList(seed uint64, usedPasswords algorithms.Set[string]) []string {
 	rng := rand.New(rand.NewSource(seed))
 	passwords := algorithms.Filter(Passwords, func(password string) bool { return !usedPasswords.Contains(password) })
 	rng.Shuffle(len(passwords), func(i, j int) {
