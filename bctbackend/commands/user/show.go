@@ -77,15 +77,19 @@ func (c *showUserCommand) execute(args []string) error {
 
 func (c *showUserCommand) showAdmin(user *models.User) error {
 	pterm.DefaultSection.Println("User Data")
-	return formatting.PrintUser(user)
+
+	if err := c.printUserTable(user); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *showUserCommand) showSeller(db *sql.DB, user *models.User) error {
 	pterm.DefaultSection.Println("User Data")
 
-	err := formatting.PrintUser(user)
-	if err != nil {
-		return cli.Exit(fmt.Sprintf("Failed to print user data: %s", err.Error()), 1)
+	if err := c.printUserTable(user); err != nil {
+		return err
 	}
 
 	sellerItems, err := queries.GetSellerItems(db, user.UserId, queries.AllItems)
@@ -110,8 +114,8 @@ func (c *showUserCommand) showSeller(db *sql.DB, user *models.User) error {
 
 func (c *showUserCommand) showCashier(db *sql.DB, user *models.User) error {
 	pterm.DefaultSection.Println("User Data")
-	if err := formatting.PrintUser(user); err != nil {
-		return cli.Exit(fmt.Sprintf("Failed to print user data: %s", err.Error()), 1)
+	if err := c.printUserTable(user); err != nil {
+		return err
 	}
 
 	soldItems, err := queries.GetItemsSoldBy(db, user.UserId)
@@ -128,6 +132,31 @@ func (c *showUserCommand) showCashier(db *sql.DB, user *models.User) error {
 
 	if err := formatting.PrintItems(categoryNameTable, soldItems); err != nil {
 		return cli.Exit(fmt.Sprintf("Failed to print items: %s", err.Error()), 1)
+	}
+
+	return nil
+}
+
+func (c *showUserCommand) printUserTable(user *models.User) error {
+	var lastActivity string
+	if user.LastActivity != nil {
+		lastActivity = user.LastActivity.FormattedDateTime()
+	} else {
+		lastActivity = "N/A"
+	}
+
+	tableData := pterm.TableData{
+		{"Property", "Value"},
+		{"ID", user.UserId.String()},
+		{"Role", user.RoleId.Name()},
+		{"Created At", user.CreatedAt.FormattedDateTime()},
+		{"Last Activity", lastActivity},
+	}
+
+	err := pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
+	if err != nil {
+		c.PrintErrorf("Failed to render user table\n")
+		return fmt.Errorf("failed to render table: %w", err)
 	}
 
 	return nil
