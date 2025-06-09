@@ -85,7 +85,17 @@ func Execute() {
 	rootCommand := NewRootCommand()
 
 	rootCommand.SilenceUsage = true
-	// rootCommand.SilenceErrors = true
+
+	// Error messages are printed by commands.
+	// This allows error messages to be user readable.
+	rootCommand.SilenceErrors = true
+
+	// With errors silenced, Cobra will not print error messages in case of flag errors.
+	// Here, we take care of printing out the error messages ourselves.
+	rootCommand.SetFlagErrorFunc(func(cmd *cobra.Command, err error) error {
+		fmt.Fprintf(cmd.ErrOrStderr(), "Error: %s\n", err.Error())
+		return err
+	})
 
 	if err := rootCommand.Execute(); err != nil {
 		slog.Debug("An error occurred", "error", err.Error())
