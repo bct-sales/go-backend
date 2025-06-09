@@ -1,7 +1,6 @@
 package user
 
 import (
-	"bctbackend/cli/formatting"
 	"bctbackend/commands/common"
 	"bctbackend/database"
 	"bctbackend/database/models"
@@ -9,6 +8,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -105,7 +105,7 @@ func (c *showUserCommand) showSeller(db *sql.DB, user *models.User) error {
 
 	pterm.DefaultSection.Println("Items")
 
-	err = formatting.PrintItems(categoryNameTable, sellerItems)
+	err = c.printItems(categoryNameTable, sellerItems)
 	if err != nil {
 		return err
 	}
@@ -131,7 +131,7 @@ func (c *showUserCommand) showCashier(db *sql.DB, user *models.User) error {
 
 	pterm.DefaultSection.Println("Sold Items")
 
-	if err := formatting.PrintItems(categoryNameTable, soldItems); err != nil {
+	if err := c.printItems(categoryNameTable, soldItems); err != nil {
 		return cli.Exit(fmt.Sprintf("Failed to print items: %s", err.Error()), 1)
 	}
 
@@ -157,6 +157,41 @@ func (c *showUserCommand) printUserTable(user *models.User) error {
 	err := pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
 	if err != nil {
 		c.PrintErrorf("Failed to render user table\n")
+		return fmt.Errorf("failed to render table: %w", err)
+	}
+
+	return nil
+}
+
+func (c *showUserCommand) printItems(categoryNameTable map[models.Id]string, items []*models.Item) error {
+	tableData := pterm.TableData{
+		{"ID", "Description", "Price", "Category", "Seller", "Donation", "Charity", "Added At", "Frozen", "Hidden"},
+	}
+
+	for _, item := range items {
+		categoryName, ok := categoryNameTable[item.CategoryID]
+		if !ok {
+			c.PrintErrorf("No category found for item with ID %d\n", item.ItemID)
+			return database.ErrNoSuchCategory
+		}
+
+		tableData = append(tableData, []string{
+			item.ItemID.String(),
+			item.Description,
+			item.PriceInCents.DecimalNotation(),
+			categoryName,
+			item.SellerID.String(),
+			strconv.FormatBool(item.Donation),
+			strconv.FormatBool(item.Charity),
+			item.AddedAt.FormattedDateTime(),
+			strconv.FormatBool(item.Frozen),
+			strconv.FormatBool(item.Hidden),
+		})
+	}
+
+	err := pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
+	if err != nil {
+		c.PrintErrorf("Failed to render items table\n")
 		return fmt.Errorf("failed to render table: %w", err)
 	}
 
