@@ -94,19 +94,20 @@ func (c *showUserCommand) showSeller(db *sql.DB, user *models.User) error {
 
 	sellerItems, err := queries.GetSellerItems(db, user.UserId, queries.AllItems)
 	if err != nil {
-		return cli.Exit(fmt.Sprintf("Failed to get seller items: %s", err.Error()), 1)
+		c.PrintErrorf("Failed to get seller items\n")
+		return err
 	}
 
-	categoryNameTable, err := queries.GetCategoryNameTable(db)
+	categoryNameTable, err := c.GetCategoryNameTable(db)
 	if err != nil {
-		return cli.Exit(fmt.Sprintf("Failed get category names: %s", err.Error()), 1)
+		return err
 	}
 
 	pterm.DefaultSection.Println("Items")
 
 	err = formatting.PrintItems(categoryNameTable, sellerItems)
 	if err != nil {
-		return cli.Exit(fmt.Sprintf("Failed to print items: %s", err.Error()), 1)
+		return err
 	}
 
 	return nil
