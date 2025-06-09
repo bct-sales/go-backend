@@ -23,3 +23,13 @@ func (id Id) String() string {
 func (id Id) Int64() int64 {
 	return int64(id)
 }
+
+func (id Id) Name() string {
+	name, err := NameOfRole(id)
+
+	if err != nil {
+		panic("unknown role id: " + id.String())
+	}
+
+	return name
+}
