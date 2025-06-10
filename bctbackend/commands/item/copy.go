@@ -18,7 +18,7 @@ type copyItemCommand struct {
 	common.Command
 }
 
-func NewItemCopyCommand() *cobra.Command {
+func NewCopyItemCommand() *cobra.Command {
 	var command *copyItemCommand
 
 	command = &copyItemCommand{

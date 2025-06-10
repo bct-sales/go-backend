@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewItemHideCommand() *cobra.Command {
+func NewHideItemCommand() *cobra.Command {
 	command := cobra.Command{
 		Use:   "hide <item-id>",
 		Short: "Hides an item",

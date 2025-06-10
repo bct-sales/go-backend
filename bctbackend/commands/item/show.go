@@ -16,7 +16,7 @@ type showItemCommand struct {
 	common.Command
 }
 
-func NewItemShowCommand() *cobra.Command {
+func NewShowItemCommand() *cobra.Command {
 	var command *showItemCommand
 
 	command = &showItemCommand{

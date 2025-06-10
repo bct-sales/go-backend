@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewItemUnfreezeCommand() *cobra.Command {
+func NewUnfreezeItemCommand() *cobra.Command {
 	command := cobra.Command{
 		Use:   "unfreeze <item-id>",
 		Short: "Unfreezes an item",

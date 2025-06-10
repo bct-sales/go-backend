@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewItemUnhideCommand() *cobra.Command {
+func NewUnhideItemCommand() *cobra.Command {
 	command := cobra.Command{
 		Use:   "unhide <item-id>",
 		Short: "Unhides an item",

@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewItemRemoveCommand() *cobra.Command {
+func NewRemoveItemCommand() *cobra.Command {
 	command := cobra.Command{
 		Use:   "remove <item-id>",
 		Short: "Removes an item",

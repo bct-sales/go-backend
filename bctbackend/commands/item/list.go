@@ -21,7 +21,7 @@ type listItemsCommand struct {
 	format     string
 }
 
-func NewItemListCommand() *cobra.Command {
+func NewListItemsCommand() *cobra.Command {
 	var command *listItemsCommand
 
 	command = &listItemsCommand{

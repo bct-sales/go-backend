@@ -11,15 +11,15 @@ func NewItemCommand() *cobra.Command {
 		Long:  `Commands to manage items in the BCT backend system.`,
 	}
 
-	command.AddCommand(NewItemListCommand())
+	command.AddCommand(NewListItemsCommand())
 	command.AddCommand(NewAddItemCommand())
-	command.AddCommand(NewItemShowCommand())
-	command.AddCommand(NewItemFreezeCommand())
-	command.AddCommand(NewItemHideCommand())
-	command.AddCommand(NewItemUnfreezeCommand())
-	command.AddCommand(NewItemUnhideCommand())
-	command.AddCommand(NewItemRemoveCommand())
-	command.AddCommand(NewItemCopyCommand())
+	command.AddCommand(NewShowItemCommand())
+	command.AddCommand(NewFreezeItemCommand())
+	command.AddCommand(NewHideItemCommand())
+	command.AddCommand(NewUnfreezeItemCommand())
+	command.AddCommand(NewUnhideItemCommand())
+	command.AddCommand(NewRemoveItemCommand())
+	command.AddCommand(NewCopyItemCommand())
 
 	return &command
 }

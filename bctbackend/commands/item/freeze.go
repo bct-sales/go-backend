@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewItemFreezeCommand() *cobra.Command {
+func NewFreezeItemCommand() *cobra.Command {
 	command := cobra.Command{
 		Use:   "freeze <item-id>",
 		Short: "Freezes an item",
