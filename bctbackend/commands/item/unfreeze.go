@@ -36,7 +36,7 @@ func NewUnfreezeItemCommand() *cobra.Command {
 					return err
 				}
 
-				fmt.Fprintln(cmd.OutOrStdout(), "Item unfrozen successfully\n")
+				fmt.Fprint(cmd.OutOrStdout(), "Item unfrozen successfully\n")
 				return nil
 			})
 		},
