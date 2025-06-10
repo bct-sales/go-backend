@@ -2,8 +2,6 @@ package formatting
 
 import (
 	"bctbackend/database/models"
-	"bctbackend/database/queries"
-	"database/sql"
 	"fmt"
 	"strconv"
 
@@ -68,36 +66,6 @@ func PrintItems(categoryNameTable map[models.Id]string, items []*models.Item) er
 	}
 
 	err := pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
-	if err != nil {
-		return fmt.Errorf("failed to render table: %w", err)
-	}
-
-	return nil
-}
-
-func PrintItem(db *sql.DB, categoryNameTable map[models.Id]string, itemId models.Id) error {
-	item, err := queries.GetItemWithId(db, itemId)
-	if err != nil {
-		return fmt.Errorf("failed to get item with id %d: %w", itemId, err)
-	}
-
-	categoryName, ok := categoryNameTable[item.CategoryID]
-	if !ok {
-		return &NoSuchCategoryError{CategoryId: item.CategoryID}
-	}
-
-	tableData := pterm.TableData{
-		{"Property", "Value"},
-		{"Description", item.Description},
-		{"Price", item.PriceInCents.DecimalNotation()},
-		{"Category", categoryName},
-		{"Seller", item.SellerID.String()},
-		{"Donation", strconv.FormatBool(item.Donation)},
-		{"Charity", strconv.FormatBool(item.Charity)},
-		{"Added At", item.AddedAt.FormattedDateTime()},
-	}
-
-	err = pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
 	if err != nil {
 		return fmt.Errorf("failed to render table: %w", err)
 	}
