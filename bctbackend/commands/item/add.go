@@ -133,6 +133,7 @@ func (c *addItemCommand) printItem(db *sql.DB, itemId models.Id) error {
 
 	tableData := pterm.TableData{
 		{"Property", "Value"},
+		{"Item ID", item.ItemID.String()},
 		{"Description", item.Description},
 		{"Price", item.PriceInCents.DecimalNotation()},
 		{"Category", categoryName},
@@ -140,6 +141,8 @@ func (c *addItemCommand) printItem(db *sql.DB, itemId models.Id) error {
 		{"Donation", strconv.FormatBool(item.Donation)},
 		{"Charity", strconv.FormatBool(item.Charity)},
 		{"Added At", item.AddedAt.FormattedDateTime()},
+		{"Frozen", strconv.FormatBool(item.Frozen)},
+		{"Hidden", strconv.FormatBool(item.Hidden)},
 	}
 
 	err = pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
