@@ -33,7 +33,7 @@ func NewUnhideItemCommand() *cobra.Command {
 					return fmt.Errorf("failed to update database: %w", err)
 				}
 
-				fmt.Println("Item unhidden successfully")
+				fmt.Fprint(cmd.OutOrStdout(), "Item unhidden successfully\n")
 				return nil
 			})
 		},

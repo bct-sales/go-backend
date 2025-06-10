@@ -38,7 +38,7 @@ func NewRemoveItemCommand() *cobra.Command {
 					return err
 				}
 
-				fmt.Println("Item removed successfully")
+				fmt.Fprint(cmd.OutOrStdout(), "Item removed successfully\n")
 				return nil
 			})
 		},

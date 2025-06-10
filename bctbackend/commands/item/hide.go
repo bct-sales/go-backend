@@ -34,7 +34,7 @@ func NewHideItemCommand() *cobra.Command {
 					return err
 				}
 
-				fmt.Println("Item hidden successfully")
+				fmt.Fprint(cmd.OutOrStdout(), "Item hidden successfully\n")
 				return nil
 			})
 		},

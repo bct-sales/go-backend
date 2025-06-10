@@ -80,7 +80,7 @@ func listUsersInTableFormat(cmd *cobra.Command) error {
 			return fmt.Errorf("error while rendering table: %w", err)
 		}
 
-		fmt.Printf("Number of users listed: %d\n", userCount)
+		fmt.Fprintf(cmd.OutOrStdout(), "Number of users listed: %d\n", userCount)
 
 		return nil
 	})
