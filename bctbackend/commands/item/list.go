@@ -1,15 +1,17 @@
 package item
 
 import (
-	"bctbackend/cli/formatting"
 	"bctbackend/commands/common"
 	dbcsv "bctbackend/database/csv"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"database/sql"
 	"fmt"
 	"os"
+	"strconv"
 
+	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
 
@@ -76,9 +78,33 @@ func (c *listItemsCommand) listItemsInTableFormat() error {
 				return err
 			}
 
-			if err := formatting.PrintItems(categoryNameTable, items); err != nil {
-				c.PrintErrorf("Error while printing items\n")
-				return err
+			tableData := pterm.TableData{
+				{"ID", "Description", "Price", "Category", "Seller", "Donation", "Charity", "Added At", "Frozen", "Hidden"},
+			}
+
+			for _, item := range items {
+				categoryName, ok := categoryNameTable[item.CategoryID]
+				if !ok {
+					return dberr.ErrNoSuchCategory
+				}
+
+				tableData = append(tableData, []string{
+					item.ItemID.String(),
+					item.Description,
+					item.PriceInCents.DecimalNotation(),
+					categoryName,
+					item.SellerID.String(),
+					strconv.FormatBool(item.Donation),
+					strconv.FormatBool(item.Charity),
+					item.AddedAt.FormattedDateTime(),
+					strconv.FormatBool(item.Frozen),
+					strconv.FormatBool(item.Hidden),
+				})
+			}
+
+			if err := pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render(); err != nil {
+				c.PrintErrorf("Error while rendering table\n")
+				return fmt.Errorf("failed to render table: %w", err)
 			}
 
 			c.Printf("Number of items listed: %d\n", itemCount)
