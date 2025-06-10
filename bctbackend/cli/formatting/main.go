@@ -19,12 +19,19 @@ func (e *NoSuchCategoryError) Error() string {
 }
 
 func PrintUser(user *models.User) error {
+	var lastActivityString string
+	if user.LastActivity != nil {
+		lastActivityString = user.LastActivity.FormattedDateTime()
+	} else {
+		lastActivityString = "never"
+	}
+
 	tableData := pterm.TableData{
 		{"Property", "Value"},
 		{"ID", user.UserId.String()},
 		{"Role", user.RoleId.Name()},
 		{"Created At", user.CreatedAt.FormattedDateTime()},
-		{"Last Activity", FormatOptionalTimestamp(user.LastActivity)},
+		{"Last Activity", lastActivityString},
 	}
 
 	err := pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
@@ -130,12 +137,4 @@ func PrintSale(db *sql.DB, saleId models.Id) error {
 
 func FormatTimestamp(timestamp models.Timestamp) string {
 	return timestamp.FormattedDateTime()
-}
-
-func FormatOptionalTimestamp(lastActivity *models.Timestamp) string {
-	if lastActivity == nil {
-		return "N/A"
-	}
-
-	return FormatTimestamp(*lastActivity)
 }
