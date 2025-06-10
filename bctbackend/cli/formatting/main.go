@@ -5,6 +5,7 @@ import (
 	"bctbackend/database/queries"
 	"database/sql"
 	"fmt"
+	"strconv"
 
 	"github.com/pterm/pterm"
 )
@@ -51,11 +52,11 @@ func PrintItems(categoryNameTable map[models.Id]string, items []*models.Item) er
 			FormatPrice(item.PriceInCents),
 			categoryName,
 			item.SellerID.String(),
-			fmt.Sprintf("%t", item.Donation),
-			fmt.Sprintf("%t", item.Charity),
-			FormatTimestamp(item.AddedAt),
-			fmt.Sprintf("%t", item.Frozen),
-			fmt.Sprintf("%t", item.Hidden),
+			strconv.FormatBool(item.Donation),
+			strconv.FormatBool(item.Charity),
+			item.AddedAt.FormattedDateTime(),
+			strconv.FormatBool(item.Frozen),
+			strconv.FormatBool(item.Hidden),
 		})
 	}
 
@@ -83,10 +84,10 @@ func PrintItem(db *sql.DB, categoryNameTable map[models.Id]string, itemId models
 		{"Description", item.Description},
 		{"Price", FormatPrice(item.PriceInCents)},
 		{"Category", categoryName},
-		{"Seller", fmt.Sprintf("%d", item.SellerID)},
-		{"Donation", fmt.Sprintf("%t", item.Donation)},
-		{"Charity", fmt.Sprintf("%t", item.Charity)},
-		{"Added At", FormatTimestamp(item.AddedAt)},
+		{"Seller", item.SellerID.String()},
+		{"Donation", strconv.FormatBool(item.Donation)},
+		{"Charity", strconv.FormatBool(item.Charity)},
+		{"Added At", item.AddedAt.FormattedDateTime()},
 	}
 
 	err = pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
@@ -110,7 +111,7 @@ func PrintSale(db *sql.DB, saleId models.Id) error {
 
 	tableData := pterm.TableData{
 		{"Cashier", sale.CashierID.String()},
-		{"Transaction Time", FormatTimestamp(sale.TransactionTime)},
+		{"Transaction Time", sale.TransactionTime.FormattedDateTime()},
 	}
 
 	for index, saleItem := range saleItems {
