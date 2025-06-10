@@ -1,14 +1,17 @@
 package item
 
 import (
-	"bctbackend/cli/formatting"
 	"bctbackend/commands/common"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"database/sql"
+	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/MakeNowJust/heredoc"
+	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
 
@@ -82,22 +85,68 @@ func (c *addItemCommand) execute() error {
 			false)
 
 		if err != nil {
+			if errors.Is(err, dberr.ErrNoSuchCategory) {
+				c.PrintErrorf("No such category with ID %d\n", c.categoryId)
+				return err
+			} else if errors.Is(err, dberr.ErrNoSuchUser) {
+				c.PrintErrorf("No user with ID %d\n", c.sellerId)
+				return err
+			} else if errors.Is(err, dberr.ErrWrongRole) {
+				c.PrintErrorf("User with ID %d is not a seller\n", c.sellerId)
+				return err
+			} else if errors.Is(err, dberr.ErrInvalidPrice) {
+				c.PrintErrorf("Invalid price: %d cents\n", c.priceInCents)
+				return err
+			}
+
 			c.PrintErrorf("Failed to add item to database\n")
 			return err
 		}
-		c.Printf("Item added successfully")
+		c.Printf("Item %d added successfully", addedItemId.Int64())
 
-		categoryNameTable, err := c.GetCategoryNameTable(db)
+		err = c.printItem(db, addedItemId)
 		if err != nil {
-			return err
-		}
-
-		err = formatting.PrintItem(db, categoryNameTable, addedItemId)
-		if err != nil {
-			c.PrintErrorf("An error occurred while trying to format the output\n")
 			return err
 		}
 
 		return nil
 	})
+}
+
+func (c *addItemCommand) printItem(db *sql.DB, itemId models.Id) error {
+	item, err := queries.GetItemWithId(db, itemId)
+	if err != nil {
+		c.PrintErrorf("Failed to get item back from database\n")
+		return fmt.Errorf("failed to get item with id %d: %w", itemId, err)
+	}
+
+	categoryNameTable, err := c.GetCategoryNameTable(db)
+	if err != nil {
+		return err
+	}
+
+	categoryName, ok := categoryNameTable[item.CategoryID]
+	if !ok {
+		c.PrintErrorf("Bug: category does not have a name in the category name table\n")
+		return dberr.ErrNoSuchCategory
+	}
+
+	tableData := pterm.TableData{
+		{"Property", "Value"},
+		{"Description", item.Description},
+		{"Price", item.PriceInCents.DecimalNotation()},
+		{"Category", categoryName},
+		{"Seller", item.SellerID.String()},
+		{"Donation", strconv.FormatBool(item.Donation)},
+		{"Charity", strconv.FormatBool(item.Charity)},
+		{"Added At", item.AddedAt.FormattedDateTime()},
+	}
+
+	err = pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
+	if err != nil {
+		c.PrintErrorf("Failed to render item table\n")
+		return fmt.Errorf("failed to render table: %w", err)
+	}
+
+	return nil
 }
