@@ -12,7 +12,7 @@ import (
 // AddSale adds a sale to the database.
 // A SaleMissingItemsError is returned if itemIds is empty.
 // An NoSuchItemError is returned if any item ID in itemIds does not correspond to any item.
-// A NoSuchUserError is returned if the cashierId does not correspond to any user.
+// A ErrNoSuchUser is returned if the cashierId does not correspond to any user.
 // A SaleRequiresCashierError is returned if the cashierId does not correspond to a cashier.
 // A DuplicateItemInSaleError is returned if itemIds contains duplicate item IDs.
 func AddSale(
@@ -512,7 +512,7 @@ func GetSalesWithItem(db *sql.DB, itemId models.Id) (r_result []models.Id, r_err
 
 // GetSalesWithCashier returns a list of all sales made by a specified cashier.
 // The sales are ordered by transaction time (chronologically) and sale ID (lowest first).
-// Returns NoSuchUserError if the cashierId does not correspond to any user.
+// Returns ErrNoSuchUser if the cashierId does not correspond to any user.
 // Returns InvalidRoleError if the cashierId does not correspond to a cashier.
 func GetSalesWithCashier(db *sql.DB, cashierId models.Id) (r_result []*models.Sale, r_err error) {
 	if err := EnsureUserExistsAndHasRole(db, cashierId, models.NewCashierRoleId()); err != nil {

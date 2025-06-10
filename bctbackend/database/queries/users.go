@@ -139,7 +139,7 @@ func UserWithIdExists(
 }
 
 // GetUserWithId retrieves a user from the database by their user ID.
-// An NoSuchUserError is returned if the user does not exist.
+// An ErrNoSuchUser is returned if the user does not exist.
 func GetUserWithId(db *sql.DB, userId models.Id) (*models.User, error) {
 	row := db.QueryRow(
 		`
@@ -266,7 +266,7 @@ func GetUsersWithItemCount(db *sql.DB, itemSelection ItemSelection, receiver fun
 }
 
 // UpdateUserPassword updates the password of a user in the database by their user ID.
-// An NoSuchUserError is returned if the user does not exist.
+// An ErrNoSuchUser is returned if the user does not exist.
 func UpdateUserPassword(db *sql.DB, userId models.Id, password string) error {
 	userExists, err := UserWithIdExists(db, userId)
 	if err != nil {
@@ -290,7 +290,7 @@ func UpdateUserPassword(db *sql.DB, userId models.Id, password string) error {
 }
 
 // EnsureUserExists checks if a user exists in the database by their user ID.
-// An NoSuchUserError is returned if the user does not exist.
+// An ErrNoSuchUser is returned if the user does not exist.
 func EnsureUserExists(db *sql.DB, userId models.Id) error {
 	userExists, err := UserWithIdExists(db, userId)
 	if err != nil {
@@ -303,7 +303,7 @@ func EnsureUserExists(db *sql.DB, userId models.Id) error {
 }
 
 // EnsureUserExistsAndHasRole checks if a user has a specific role.
-// An NoSuchUserError is returned if the user does not exist.
+// An ErrNoSuchUser is returned if the user does not exist.
 // A ErrWrongRole is returned if the user has a different role.
 func EnsureUserExistsAndHasRole(db *sql.DB, userId models.Id, expectedRoleId models.RoleId) error {
 	user, err := GetUserWithId(db, userId)
@@ -320,7 +320,7 @@ func EnsureUserExistsAndHasRole(db *sql.DB, userId models.Id, expectedRoleId mod
 }
 
 // RemoveUserWithId removes a user from the database by their user ID.
-// An NoSuchUserError is returned if the user does not exist.
+// An ErrNoSuchUser is returned if the user does not exist.
 // An error is returned if the user cannot be removed, e.g., because items or sales are
 // associated with the user.
 func RemoveUserWithId(db *sql.DB, userId models.Id) error {

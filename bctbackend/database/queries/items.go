@@ -71,7 +71,7 @@ func GetItems(db *sql.DB, receiver func(*models.Item) error, itemSelection ItemS
 
 // Returns the items associated with the given seller.
 // The items are ordered by their time of addition, then by id.
-// An NoSuchUserError is returned if no user with the given sellerId exists.
+// An ErrNoSuchUser is returned if no user with the given sellerId exists.
 // An InvalidRoleError is returned if sellerId does not refer to a seller.
 func GetSellerItems(db *sql.DB, sellerId models.Id, itemSelection ItemSelection) (r_items []*models.Item, r_err error) {
 	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleId()); err != nil {
@@ -141,7 +141,7 @@ type ItemWithSaleCount struct {
 // Returns the items associated with the given seller.
 // The items are ordered by their time of addition, then by id.
 // Hidden items are not included, as they cannot be sold.
-// An NoSuchUserError is returned if no user with the given sellerId exists.
+// An ErrNoSuchUser is returned if no user with the given sellerId exists.
 // An InvalidRoleError is returned if sellerId does not refer to a seller.
 func GetSellerItemsWithSaleCounts(db *sql.DB, sellerId models.Id) (r_items []*ItemWithSaleCount, r_err error) {
 	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleId()); err != nil {
@@ -346,7 +346,7 @@ func CountItems(db *sql.DB, selection ItemSelection) (int, error) {
 }
 
 // AddItem adds an item to the database.
-// An NoSuchUserError is returned if no user with the given sellerId exists.
+// An ErrNoSuchUser is returned if no user with the given sellerId exists.
 // An ErrWrongRole is returned if sellerId does not refer to a seller.
 // An NoSuchCategoryError is returned if the itemCategoryId is invalid.
 // An InvalidPriceError is returned if the priceInCents is invalid.
