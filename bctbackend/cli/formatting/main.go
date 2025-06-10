@@ -104,33 +104,3 @@ func PrintItem(db *sql.DB, categoryNameTable map[models.Id]string, itemId models
 
 	return nil
 }
-
-func PrintSale(db *sql.DB, saleId models.Id) error {
-	sale, err := queries.GetSaleWithId(db, saleId)
-	if err != nil {
-		return fmt.Errorf("failed to get sale with id %d: %w", saleId, err)
-	}
-
-	saleItems, err := queries.GetSaleItems(db, saleId)
-	if err != nil {
-		return fmt.Errorf("failed to get items associated with sale %d: %w", saleId, err)
-	}
-
-	tableData := pterm.TableData{
-		{"Cashier", sale.CashierID.String()},
-		{"Transaction Time", sale.TransactionTime.FormattedDateTime()},
-	}
-
-	for index, saleItem := range saleItems {
-		tableData = append(tableData, []string{
-			fmt.Sprintf("Item %d", index+1),
-			saleItem.ItemID.String(),
-		})
-	}
-
-	if err := pterm.DefaultTable.WithData(tableData).Render(); err != nil {
-		return fmt.Errorf("failed to render table: %w", err)
-	}
-
-	return nil
-}
