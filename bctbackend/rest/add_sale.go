@@ -57,7 +57,7 @@ func AddSale(context *gin.Context, db *sql.DB, userId models.Id, roleId models.R
 	)
 	if err != nil {
 		if errors.Is(err, dberr.ErrSaleMissingItems) {
-			failure_response.SaleMissingItems(context, err.Error())
+			failure_response.MissingItems(context, err.Error())
 			return
 		}
 

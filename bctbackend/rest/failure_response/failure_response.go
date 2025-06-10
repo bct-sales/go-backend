@@ -95,11 +95,6 @@ func DuplicateItemInSale(context *gin.Context, message string) {
 	Forbidden(context, "duplicate_item_in_sale", message)
 }
 
-// No items in sale
-func SaleMissingItems(context *gin.Context, message string) {
-	Forbidden(context, "sale_missing_items", message)
-}
-
 // Seller trying to access other seller's data
 func WrongSeller(context *gin.Context, message string) {
 	Forbidden(context, "wrong_seller", message)
