@@ -10,11 +10,11 @@ import (
 )
 
 // AddSale adds a sale to the database.
-// A SaleMissingItemsError is returned if itemIds is empty.
-// An NoSuchItemError is returned if any item ID in itemIds does not correspond to any item.
+// A ErrSaleMissingItems is returned if itemIds is empty.
+// A ErrNoSuchItem is returned if any item ID in itemIds does not correspond to any item.
 // A ErrNoSuchUser is returned if the cashierId does not correspond to any user.
-// A SaleRequiresCashierError is returned if the cashierId does not correspond to a cashier.
-// A DuplicateItemInSaleError is returned if itemIds contains duplicate item IDs.
+// A ErrSaleRequiresCashier is returned if the cashierId does not correspond to a cashier.
+// A ErrDuplicateItemInSale is returned if itemIds contains duplicate item IDs.
 func AddSale(
 	db *sql.DB,
 	cashierId models.Id,

@@ -17,7 +17,7 @@ type SaleItemInformation struct {
 }
 
 // GetSaleItemInformation retrieves information about a sale item.
-// If the item is not found, it returns an NoSuchItemError.
+// If the item is not found, it returns an ErrNoSuchItem.
 func GetSaleItemInformation(
 	db *sql.DB,
 	itemId models.Id) (*SaleItemInformation, error) {

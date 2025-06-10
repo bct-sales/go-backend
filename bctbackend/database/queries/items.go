@@ -211,7 +211,7 @@ func GetSellerItemsWithSaleCounts(db *sql.DB, sellerId models.Id) (r_items []*It
 }
 
 // Returns the item with the given identifier.
-// A NoSuchItemError is returned if no item with the given identifier exists.
+// A ErrNoSuchItem is returned if no item with the given identifier exists.
 func GetItemWithId(db *sql.DB, itemId models.Id) (*models.Item, error) {
 	row := db.QueryRow(`
 		SELECT added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden
@@ -464,7 +464,7 @@ func ItemsExist(db QueryHandler, itemIds []models.Id) (bool, error) {
 }
 
 // EnsureItemsExist checks if all items with the given IDs exist in the database.
-// If any item does not exist, it returns a NoSuchItemError.
+// If any item does not exist, it returns a ErrNoSuchItem.
 func EnsureItemsExist(db QueryHandler, itemIds []models.Id) error {
 	itemsExist, err := ItemsExist(db, itemIds)
 	if err != nil {
