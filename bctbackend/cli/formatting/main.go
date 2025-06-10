@@ -139,7 +139,3 @@ func FormatOptionalTimestamp(lastActivity *models.Timestamp) string {
 
 	return FormatTimestamp(*lastActivity)
 }
-
-func FormatRole(roleId models.RoleId) string {
-	return roleId.Name()
-}
