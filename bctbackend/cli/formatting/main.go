@@ -7,14 +7,6 @@ import (
 	"github.com/pterm/pterm"
 )
 
-type NoSuchCategoryError struct {
-	CategoryId models.Id
-}
-
-func (e *NoSuchCategoryError) Error() string {
-	return fmt.Sprintf("no category with id %d", e.CategoryId)
-}
-
 func PrintUser(user *models.User) error {
 	var lastActivityString string
 	if user.LastActivity != nil {
