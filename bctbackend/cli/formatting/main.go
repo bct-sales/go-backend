@@ -46,7 +46,7 @@ func PrintItems(categoryNameTable map[models.Id]string, items []*models.Item) er
 		}
 
 		tableData = append(tableData, []string{
-			FormatId(item.ItemID),
+			item.ItemID.String(),
 			item.Description,
 			FormatPrice(item.PriceInCents),
 			categoryName,
@@ -109,14 +109,14 @@ func PrintSale(db *sql.DB, saleId models.Id) error {
 	}
 
 	tableData := pterm.TableData{
-		{"Cashier", FormatId(sale.CashierID)},
+		{"Cashier", sale.CashierID.String()},
 		{"Transaction Time", FormatTimestamp(sale.TransactionTime)},
 	}
 
 	for index, saleItem := range saleItems {
 		tableData = append(tableData, []string{
 			fmt.Sprintf("Item %d", index+1),
-			FormatId(saleItem.ItemID),
+			saleItem.ItemID.String(),
 		})
 	}
 
@@ -125,10 +125,6 @@ func PrintSale(db *sql.DB, saleId models.Id) error {
 	}
 
 	return nil
-}
-
-func FormatId(id models.Id) string {
-	return fmt.Sprintf("%d", id)
 }
 
 func FormatTimestamp(timestamp models.Timestamp) string {
