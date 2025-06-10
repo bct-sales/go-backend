@@ -11,6 +11,7 @@ import (
 
 // AddUserWithId adds a user to the database with a specific user ID.
 // An ErrUserIdAlreadyInUse is returned if the user ID is already in use.
+// An ErrNoSuchRole is returned if the role ID is invalid.
 func AddUserWithId(
 	db *sql.DB,
 	userId models.Id,
