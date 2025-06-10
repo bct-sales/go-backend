@@ -49,7 +49,7 @@ func PrintItems(categoryNameTable map[models.Id]string, items []*models.Item) er
 		tableData = append(tableData, []string{
 			item.ItemID.String(),
 			item.Description,
-			FormatPrice(item.PriceInCents),
+			item.PriceInCents.DecimalNotation(),
 			categoryName,
 			item.SellerID.String(),
 			strconv.FormatBool(item.Donation),
@@ -82,7 +82,7 @@ func PrintItem(db *sql.DB, categoryNameTable map[models.Id]string, itemId models
 	tableData := pterm.TableData{
 		{"Property", "Value"},
 		{"Description", item.Description},
-		{"Price", FormatPrice(item.PriceInCents)},
+		{"Price", item.PriceInCents.DecimalNotation()},
 		{"Category", categoryName},
 		{"Seller", item.SellerID.String()},
 		{"Donation", strconv.FormatBool(item.Donation)},
@@ -142,8 +142,4 @@ func FormatOptionalTimestamp(lastActivity *models.Timestamp) string {
 
 func FormatRole(roleId models.RoleId) string {
 	return roleId.Name()
-}
-
-func FormatPrice(priceInCents models.MoneyInCents) string {
-	return fmt.Sprintf("€%s", priceInCents.DecimalNotation())
 }
