@@ -3,7 +3,6 @@ package formatting
 import (
 	"bctbackend/database/models"
 	"fmt"
-	"strconv"
 
 	"github.com/pterm/pterm"
 )
@@ -30,39 +29,6 @@ func PrintUser(user *models.User) error {
 		{"Role", user.RoleId.Name()},
 		{"Created At", user.CreatedAt.FormattedDateTime()},
 		{"Last Activity", lastActivityString},
-	}
-
-	err := pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
-	if err != nil {
-		return fmt.Errorf("failed to render table: %w", err)
-	}
-
-	return nil
-}
-
-func PrintItems(categoryNameTable map[models.Id]string, items []*models.Item) error {
-	tableData := pterm.TableData{
-		{"ID", "Description", "Price", "Category", "Seller", "Donation", "Charity", "Added At", "Frozen", "Hidden"},
-	}
-
-	for _, item := range items {
-		categoryName, ok := categoryNameTable[item.CategoryID]
-		if !ok {
-			return &NoSuchCategoryError{CategoryId: item.CategoryID}
-		}
-
-		tableData = append(tableData, []string{
-			item.ItemID.String(),
-			item.Description,
-			item.PriceInCents.DecimalNotation(),
-			categoryName,
-			item.SellerID.String(),
-			strconv.FormatBool(item.Donation),
-			strconv.FormatBool(item.Charity),
-			item.AddedAt.FormattedDateTime(),
-			strconv.FormatBool(item.Frozen),
-			strconv.FormatBool(item.Hidden),
-		})
 	}
 
 	err := pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
