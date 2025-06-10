@@ -25,7 +25,7 @@ type addItemCommand struct {
 	charity      bool
 }
 
-func NewItemAddCommand() *cobra.Command {
+func NewAddItemCommand() *cobra.Command {
 	var command *addItemCommand
 
 	command = &addItemCommand{

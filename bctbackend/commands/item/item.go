@@ -12,7 +12,7 @@ func NewItemCommand() *cobra.Command {
 	}
 
 	command.AddCommand(NewItemListCommand())
-	command.AddCommand(NewItemAddCommand())
+	command.AddCommand(NewAddItemCommand())
 	command.AddCommand(NewItemShowCommand())
 	command.AddCommand(NewItemFreezeCommand())
 	command.AddCommand(NewItemHideCommand())
