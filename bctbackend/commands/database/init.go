@@ -3,6 +3,7 @@ package database
 import (
 	"bctbackend/commands/common"
 	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"errors"
 	"fmt"
 
@@ -29,7 +30,7 @@ func NewDatabaseInitCommand() *cobra.Command {
 			db, err := database.CreateDatabase(databasePath)
 
 			if err != nil {
-				if errors.Is(err, database.ErrDatabaseAlreadyExists) {
+				if errors.Is(err, dberr.ErrDatabaseAlreadyExists) {
 					fmt.Fprint(cmd.
 						ErrOrStderr(),
 						heredoc.Docf(`

@@ -3,7 +3,7 @@
 package queries
 
 import (
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"testing"
@@ -42,7 +42,7 @@ func TestAuthentication(t *testing.T) {
 
 		{
 			_, err := queries.AuthenticateUser(db, userId, password)
-			require.ErrorIs(t, err, database.ErrNoSuchUser)
+			require.ErrorIs(t, err, dberr.ErrNoSuchUser)
 		}
 	})
 
@@ -58,6 +58,6 @@ func TestAuthentication(t *testing.T) {
 		queries.AddUserWithId(db, userId, roleId, 0, nil, password)
 
 		_, err := queries.AuthenticateUser(db, userId, wrongPassword)
-		require.ErrorIs(t, err, database.ErrWrongPassword)
+		require.ErrorIs(t, err, dberr.ErrWrongPassword)
 	})
 }

@@ -3,7 +3,7 @@
 package queries
 
 import (
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -141,7 +141,7 @@ func TestUpdateItem(t *testing.T) {
 			itemId := models.Id(1)
 			itemUpdate := queries.ItemUpdate{}
 			err := queries.UpdateItem(db, itemId, &itemUpdate)
-			require.ErrorIs(t, err, database.ErrNoSuchItem)
+			require.ErrorIs(t, err, dberr.ErrNoSuchItem)
 		})
 
 		t.Run("Frozen item", func(t *testing.T) {
@@ -158,7 +158,7 @@ func TestUpdateItem(t *testing.T) {
 
 			itemUpdate := queries.ItemUpdate{}
 			err := queries.UpdateItem(db, item.ItemID, &itemUpdate)
-			require.ErrorIs(t, err, database.ErrItemFrozen)
+			require.ErrorIs(t, err, dberr.ErrItemFrozen)
 		})
 
 		t.Run("Hidden item", func(t *testing.T) {
@@ -175,7 +175,7 @@ func TestUpdateItem(t *testing.T) {
 
 			itemUpdate := queries.ItemUpdate{}
 			err := queries.UpdateItem(db, item.ItemID, &itemUpdate)
-			require.ErrorIs(t, err, database.ErrItemHidden)
+			require.ErrorIs(t, err, dberr.ErrItemHidden)
 		})
 
 		t.Run("Invalid price", func(t *testing.T) {
@@ -196,7 +196,7 @@ func TestUpdateItem(t *testing.T) {
 			}
 
 			err := queries.UpdateItem(db, item.ItemID, &itemUpdate)
-			require.ErrorIs(t, err, database.ErrInvalidPrice)
+			require.ErrorIs(t, err, dberr.ErrInvalidPrice)
 		})
 	})
 }

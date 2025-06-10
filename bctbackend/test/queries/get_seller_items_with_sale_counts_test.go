@@ -3,8 +3,8 @@
 package queries
 
 import (
-	"bctbackend/database"
 	"bctbackend/database/models"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
@@ -91,7 +91,7 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 			setup.RequireNoSuchUsers(t, invalidSellerId)
 
 			_, err := queries.GetSellerItemsWithSaleCounts(db, invalidSellerId)
-			require.ErrorIs(t, err, database.ErrNoSuchUser)
+			require.ErrorIs(t, err, dberr.ErrNoSuchUser)
 		})
 	})
 }

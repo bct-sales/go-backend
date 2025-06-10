@@ -1,7 +1,7 @@
 package rest
 
 import (
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/rest/failure_response"
@@ -51,7 +51,7 @@ func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 
 	item, err := queries.GetItemWithId(db, itemId)
 	if err != nil {
-		if errors.Is(err, database.ErrNoSuchItem) {
+		if errors.Is(err, dberr.ErrNoSuchItem) {
 			failure_response.UnknownItem(context, err.Error())
 			return
 		}
@@ -67,7 +67,7 @@ func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 
 	soldIn, err := queries.GetSalesWithItem(db, itemId)
 	if err != nil {
-		if errors.Is(err, database.ErrNoSuchItem) {
+		if errors.Is(err, dberr.ErrNoSuchItem) {
 			failure_response.Unknown(context, "Bug: this should be caught by the previous query")
 			return
 		}

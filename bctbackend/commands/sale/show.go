@@ -2,7 +2,7 @@ package sale
 
 import (
 	"bctbackend/commands/common"
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"database/sql"
@@ -113,7 +113,7 @@ func (command *saleShowCommand) printSaleItems(saleItems []*models.Item, categor
 		categoryName, ok := categoryNameTable[item.CategoryID]
 		if !ok {
 			command.PrintErrorf("No category found with ID %d for item %d\n", item.CategoryID, item.ItemID)
-			return database.ErrNoSuchCategory
+			return dberr.ErrNoSuchCategory
 		}
 
 		tableData = append(tableData, []string{
@@ -142,7 +142,7 @@ func (command *saleShowCommand) getSaleInformation(db *sql.DB, saleId models.Id)
 	sale, err := queries.GetSaleWithId(db, saleId)
 
 	if err != nil {
-		if errors.Is(err, database.ErrNoSuchSale) {
+		if errors.Is(err, dberr.ErrNoSuchSale) {
 			command.PrintErrorf("No sale found with ID %d\n", saleId)
 			return nil, err
 		}

@@ -4,7 +4,7 @@ package queries
 
 import (
 	"bctbackend/algorithms"
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -37,6 +37,6 @@ func TestEnsureNoHiddenItems(t *testing.T) {
 		itemIds := append(algorithms.Map(visibleItems, func(item *models.Item) models.Id { return item.ItemID }), hiddenItem.ItemID)
 
 		err := queries.EnsureNoHiddenItems(db, itemIds)
-		require.ErrorIs(t, err, database.ErrItemHidden)
+		require.ErrorIs(t, err, dberr.ErrItemHidden)
 	})
 }

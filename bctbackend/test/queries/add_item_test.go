@@ -3,7 +3,7 @@
 package queries
 
 import (
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -99,7 +99,7 @@ func TestAddItem(t *testing.T) {
 			setup.Seller(aux.WithUserId(2))
 
 			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
-			require.ErrorIs(t, err, database.ErrNoSuchUser)
+			require.ErrorIs(t, err, dberr.ErrNoSuchUser)
 
 			count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 			require.NoError(t, err)
@@ -130,7 +130,7 @@ func TestAddItem(t *testing.T) {
 
 			{
 				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
-				require.ErrorIs(t, err, database.ErrNoSuchCategory)
+				require.ErrorIs(t, err, dberr.ErrNoSuchCategory)
 			}
 
 			{
@@ -156,7 +156,7 @@ func TestAddItem(t *testing.T) {
 
 			{
 				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
-				require.ErrorIs(t, err, database.ErrInvalidPrice)
+				require.ErrorIs(t, err, dberr.ErrInvalidPrice)
 			}
 
 			{
@@ -181,7 +181,7 @@ func TestAddItem(t *testing.T) {
 			priceInCents := models.MoneyInCents(-100)
 
 			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
-			require.ErrorIs(t, err, database.ErrInvalidPrice)
+			require.ErrorIs(t, err, dberr.ErrInvalidPrice)
 
 			count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 			require.NoError(t, err)
@@ -203,7 +203,7 @@ func TestAddItem(t *testing.T) {
 			hidden := false
 
 			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen, hidden)
-			require.ErrorIs(t, err, database.ErrWrongRole)
+			require.ErrorIs(t, err, dberr.ErrWrongRole)
 
 			{
 				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
@@ -228,7 +228,7 @@ func TestAddItem(t *testing.T) {
 
 			{
 				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen, hidden)
-				require.ErrorIs(t, err, database.ErrWrongRole)
+				require.ErrorIs(t, err, dberr.ErrWrongRole)
 			}
 
 			{
@@ -254,7 +254,7 @@ func TestAddItem(t *testing.T) {
 
 			{
 				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
-				require.ErrorIs(t, err, database.ErrHiddenFrozenItem)
+				require.ErrorIs(t, err, dberr.ErrHiddenFrozenItem)
 			}
 
 			{

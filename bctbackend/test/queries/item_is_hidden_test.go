@@ -3,7 +3,7 @@
 package queries
 
 import (
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -42,7 +42,7 @@ func TestItemIsHidden(t *testing.T) {
 			invalidId := models.Id(1)
 
 			_, err := queries.IsItemHidden(db, invalidId)
-			require.ErrorIs(t, err, database.ErrNoSuchItem)
+			require.ErrorIs(t, err, dberr.ErrNoSuchItem)
 		})
 	})
 }

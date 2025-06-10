@@ -3,7 +3,7 @@
 package queries
 
 import (
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -115,7 +115,7 @@ func TestGetSellerItemCount(t *testing.T) {
 			setup.RequireNoSuchUsers(t, nonExistentSellerId)
 
 			_, err := queries.GetSellerItemCount(db, nonExistentSellerId, queries.Include, queries.Include)
-			require.ErrorIs(t, err, database.ErrNoSuchUser)
+			require.ErrorIs(t, err, dberr.ErrNoSuchUser)
 		})
 
 		t.Run("Count items of cashier", func(t *testing.T) {
@@ -125,7 +125,7 @@ func TestGetSellerItemCount(t *testing.T) {
 			cashier := setup.Cashier()
 
 			_, err := queries.GetSellerItemCount(db, cashier.UserId, queries.Include, queries.Include)
-			require.ErrorIs(t, err, database.ErrWrongRole)
+			require.ErrorIs(t, err, dberr.ErrWrongRole)
 		})
 
 		t.Run("Count items of admin", func(t *testing.T) {
@@ -135,7 +135,7 @@ func TestGetSellerItemCount(t *testing.T) {
 			admin := setup.Admin()
 
 			_, err := queries.GetSellerItemCount(db, admin.UserId, queries.Include, queries.Include)
-			require.ErrorIs(t, err, database.ErrWrongRole)
+			require.ErrorIs(t, err, dberr.ErrWrongRole)
 		})
 	})
 }

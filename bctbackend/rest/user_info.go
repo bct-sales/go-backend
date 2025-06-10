@@ -2,7 +2,7 @@ package rest
 
 import (
 	"bctbackend/algorithms"
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/rest/failure_response"
@@ -131,7 +131,7 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 	// Look up user in database
 	user, err := queries.GetUserWithId(db, queriedUserId)
 	if err != nil {
-		if errors.Is(err, database.ErrNoSuchUser) {
+		if errors.Is(err, dberr.ErrNoSuchUser) {
 			failure_response.UnknownUser(context, err.Error())
 			return
 		}
@@ -158,12 +158,12 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 		items, err := queries.GetSellerItemsWithSaleCounts(db, user.UserId)
 		if err != nil {
 			{
-				if errors.Is(err, database.ErrNoSuchUser) {
+				if errors.Is(err, dberr.ErrNoSuchUser) {
 					failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
 					return
 				}
 			}
-			if errors.Is(err, database.ErrWrongRole) {
+			if errors.Is(err, dberr.ErrWrongRole) {
 				failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
 				return
 			}
@@ -183,11 +183,11 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 	} else if user.RoleId.IsCashier() {
 		sales, err := queries.GetSalesWithCashier(db, user.UserId)
 		if err != nil {
-			if errors.Is(err, database.ErrNoSuchUser) {
+			if errors.Is(err, dberr.ErrNoSuchUser) {
 				failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
 				return
 			}
-			if errors.Is(err, database.ErrWrongRole) {
+			if errors.Is(err, dberr.ErrWrongRole) {
 				failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
 				return
 			}

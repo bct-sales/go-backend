@@ -4,7 +4,7 @@ package queries
 
 import (
 	"bctbackend/algorithms"
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -37,6 +37,6 @@ func TestEnsureNoFrozenItems(t *testing.T) {
 		itemIds := append(algorithms.Map(unfrozenItems, func(item *models.Item) models.Id { return item.ItemID }), frozenItem.ItemID)
 
 		err := queries.EnsureNoFrozenItems(db, itemIds)
-		require.ErrorIs(t, err, database.ErrItemFrozen)
+		require.ErrorIs(t, err, dberr.ErrItemFrozen)
 	})
 }

@@ -2,7 +2,7 @@ package queries
 
 import (
 	"bctbackend/algorithms"
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"database/sql"
 	"errors"
@@ -23,14 +23,14 @@ func AddSale(
 
 	// Ensure there is at least one item in the sale.
 	if len(itemIds) == 0 {
-		return 0, database.ErrSaleMissingItems
+		return 0, dberr.ErrSaleMissingItems
 	}
 
 	// Check for duplicates in the item IDs.
 	indexOfDuplicate := algorithms.ContainsDuplicate(itemIds)
 	if indexOfDuplicate != -1 {
 		duplicatedItemId := itemIds[indexOfDuplicate]
-		return 0, fmt.Errorf("failed to add sale with duplicated item %d: %w", duplicatedItemId, database.ErrDuplicateItemInSale)
+		return 0, fmt.Errorf("failed to add sale with duplicated item %d: %w", duplicatedItemId, dberr.ErrDuplicateItemInSale)
 	}
 
 	// Ensure the user exists and is a cashier
@@ -39,7 +39,7 @@ func AddSale(
 		return 0, err
 	}
 	if !cashier.RoleId.IsCashier() {
-		return 0, database.ErrSaleRequiresCashier
+		return 0, dberr.ErrSaleRequiresCashier
 	}
 
 	// Start a transaction
@@ -55,7 +55,7 @@ func AddSale(
 		return 0, err
 	}
 	if !exists {
-		return 0, fmt.Errorf("failed to add sale: %w", database.ErrNoSuchItem)
+		return 0, fmt.Errorf("failed to add sale: %w", dberr.ErrNoSuchItem)
 	}
 
 	// Check if any of the items are hidden
@@ -163,7 +163,7 @@ func GetSaleWithId(db *sql.DB, saleId models.Id) (*models.Sale, error) {
 		saleId,
 	).Scan(&cashierId, &transactionTime)
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, fmt.Errorf("failed to get sale with id %d: %w", saleId, database.ErrNoSuchSale)
+		return nil, fmt.Errorf("failed to get sale with id %d: %w", saleId, dberr.ErrNoSuchSale)
 	}
 	if err != nil {
 		return nil, err
@@ -207,7 +207,7 @@ func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []*models.Item, r_err 
 		return nil, err
 	}
 	if !saleExists {
-		return nil, fmt.Errorf("failed to get items of sale %d: %w", saleId, database.ErrNoSuchSale)
+		return nil, fmt.Errorf("failed to get items of sale %d: %w", saleId, dberr.ErrNoSuchSale)
 	}
 
 	rows, err := db.Query(
@@ -271,7 +271,7 @@ func RemoveSale(db *sql.DB, saleId models.Id) (r_err error) {
 	}
 
 	if !saleExists {
-		return fmt.Errorf("failed to remove sale %d: %w", saleId, database.ErrNoSuchSale)
+		return fmt.Errorf("failed to remove sale %d: %w", saleId, dberr.ErrNoSuchSale)
 	}
 
 	transaction, err := NewTransaction(db)
@@ -468,7 +468,7 @@ func GetItemsSoldBy(db *sql.DB, cashierId models.Id) (r_result []*models.Item, r
 func GetSalesWithItem(db *sql.DB, itemId models.Id) (r_result []models.Id, r_err error) {
 	if itemExists, err := ItemWithIdExists(db, itemId); err != nil || !itemExists {
 		if !itemExists {
-			return nil, fmt.Errorf("failed to get sales with item %d: %w", itemId, database.ErrNoSuchItem)
+			return nil, fmt.Errorf("failed to get sales with item %d: %w", itemId, dberr.ErrNoSuchItem)
 		}
 
 		return nil, err

@@ -3,7 +3,7 @@
 package queries
 
 import (
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -79,7 +79,7 @@ func TestGetSalesWithItem(t *testing.T) {
 			setup.Sale(cashier.UserId, []models.Id{item2.ItemID})
 
 			_, err := queries.GetSalesWithItem(db, invalidItemId)
-			require.ErrorIs(t, err, database.ErrNoSuchItem)
+			require.ErrorIs(t, err, dberr.ErrNoSuchItem)
 		})
 	})
 }

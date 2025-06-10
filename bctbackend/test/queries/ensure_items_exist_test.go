@@ -4,7 +4,7 @@ package queries
 
 import (
 	"bctbackend/algorithms"
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -52,6 +52,6 @@ func TestEnsureItemsExist(t *testing.T) {
 		itemIds := append(algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID }), nonexistentItemId)
 
 		err := queries.EnsureItemsExist(db, itemIds)
-		require.ErrorIs(t, err, database.ErrNoSuchItem)
+		require.ErrorIs(t, err, dberr.ErrNoSuchItem)
 	})
 }

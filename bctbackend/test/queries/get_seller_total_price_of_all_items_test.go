@@ -3,7 +3,7 @@
 package queries
 
 import (
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -155,7 +155,7 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 			setup.RequireNoSuchUsers(t, nonExistentSellerId)
 
 			_, err := queries.GetSellerTotalPriceOfAllItems(db, nonExistentSellerId, queries.AllItems)
-			require.ErrorIs(t, err, database.ErrNoSuchUser)
+			require.ErrorIs(t, err, dberr.ErrNoSuchUser)
 		})
 
 		t.Run("Sum of item prices of cashier", func(t *testing.T) {
@@ -165,7 +165,7 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 			cashier := setup.Cashier()
 
 			_, err := queries.GetSellerTotalPriceOfAllItems(db, cashier.UserId, queries.AllItems)
-			require.ErrorIs(t, err, database.ErrWrongRole)
+			require.ErrorIs(t, err, dberr.ErrWrongRole)
 		})
 
 		t.Run("Sum of item prices of admin", func(t *testing.T) {
@@ -175,7 +175,7 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 			admin := setup.Admin()
 
 			_, err := queries.GetSellerTotalPriceOfAllItems(db, admin.UserId, queries.AllItems)
-			require.ErrorIs(t, err, database.ErrWrongRole)
+			require.ErrorIs(t, err, dberr.ErrWrongRole)
 		})
 	})
 }

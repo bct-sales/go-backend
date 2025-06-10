@@ -3,7 +3,7 @@
 package queries
 
 import (
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -77,7 +77,7 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 			itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(10), aux.WithFrozen(false), aux.WithHidden(true)).ItemID)
 
 			err := queries.UpdateFreezeStatusOfItems(db, itemIds, true)
-			require.ErrorIs(t, err, database.ErrItemHidden)
+			require.ErrorIs(t, err, dberr.ErrItemHidden)
 
 			for _, itemId := range itemIds {
 				isFrozen, err := queries.IsItemFrozen(db, itemId)

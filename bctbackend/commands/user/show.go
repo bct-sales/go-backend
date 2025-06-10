@@ -2,7 +2,7 @@ package user
 
 import (
 	"bctbackend/commands/common"
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"database/sql"
@@ -51,7 +51,7 @@ func (c *showUserCommand) execute(args []string) error {
 		// Fetch user information from the database
 		user, err := queries.GetUserWithId(db, userId)
 		if err != nil {
-			if errors.Is(err, database.ErrNoSuchUser) {
+			if errors.Is(err, dberr.ErrNoSuchUser) {
 				c.PrintErrorf("User with ID %d does not exist.\n", userId)
 				return err
 			}
@@ -180,7 +180,7 @@ func (c *showUserCommand) printItems(categoryNameTable map[models.Id]string, ite
 		categoryName, ok := categoryNameTable[item.CategoryID]
 		if !ok {
 			c.PrintErrorf("No category found for item with ID %d\n", item.ItemID)
-			return database.ErrNoSuchCategory
+			return dberr.ErrNoSuchCategory
 		}
 
 		tableData = append(tableData, []string{

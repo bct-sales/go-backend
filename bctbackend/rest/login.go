@@ -1,7 +1,7 @@
 package rest
 
 import (
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/rest/failure_response"
@@ -58,13 +58,13 @@ func login(context *gin.Context, db *sql.DB) {
 	roleId, err := queries.AuthenticateUser(db, userId, password)
 
 	if err != nil {
-		if errors.Is(err, database.ErrNoSuchUser) {
+		if errors.Is(err, dberr.ErrNoSuchUser) {
 			slog.Info("Unknown user trying to log in", slog.String("userId", loginRequest.Username))
 			failure_response.UnknownUser(context, err.Error())
 			return
 		}
 
-		if errors.Is(err, database.ErrWrongPassword) {
+		if errors.Is(err, dberr.ErrWrongPassword) {
 			slog.Info("User entered wrong password", slog.String("userId", loginRequest.Username))
 			failure_response.WrongPassword(context, err.Error())
 			return

@@ -1,7 +1,7 @@
 package queries
 
 import (
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	models "bctbackend/database/models"
 	"database/sql"
 	"errors"
@@ -20,7 +20,7 @@ func AddUserWithId(
 	password string) error {
 
 	if !roleId.IsValid() {
-		return fmt.Errorf("invalid role id %d: %w", roleId.Id, database.ErrNoSuchRole)
+		return fmt.Errorf("invalid role id %d: %w", roleId.Id, dberr.ErrNoSuchRole)
 	}
 
 	_, err := db.Exec(
@@ -41,7 +41,7 @@ func AddUserWithId(
 			return err
 		}
 		if userExists {
-			return fmt.Errorf("trying to add user with id %d: %w", userId, database.ErrIdAlreadyInUse)
+			return fmt.Errorf("trying to add user with id %d: %w", userId, dberr.ErrIdAlreadyInUse)
 		}
 
 		return fmt.Errorf("failed to add user with id %d: %w", userId, err)
@@ -58,7 +58,7 @@ func AddUser(
 	password string) (models.Id, error) {
 
 	if !roleId.IsValid() {
-		return 0, fmt.Errorf("invalid role id %d: %w", roleId.Id, database.ErrNoSuchRole)
+		return 0, fmt.Errorf("invalid role id %d: %w", roleId.Id, dberr.ErrNoSuchRole)
 	}
 
 	result, err := db.Exec(
@@ -157,7 +157,7 @@ func GetUserWithId(db *sql.DB, userId models.Id) (*models.User, error) {
 	err := row.Scan(&roleId.Id, &createdAt, &lastActivity, &password)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("failed to get user with id %d: %w", userId, database.ErrNoSuchUser)
+			return nil, fmt.Errorf("failed to get user with id %d: %w", userId, dberr.ErrNoSuchUser)
 		}
 
 		return nil, err
@@ -273,7 +273,7 @@ func UpdateUserPassword(db *sql.DB, userId models.Id, password string) error {
 		return err
 	}
 	if !userExists {
-		return fmt.Errorf("failed to update password of user %d: %w", userId, database.ErrNoSuchUser)
+		return fmt.Errorf("failed to update password of user %d: %w", userId, dberr.ErrNoSuchUser)
 	}
 
 	_, err = db.Exec(
@@ -297,7 +297,7 @@ func EnsureUserExists(db *sql.DB, userId models.Id) error {
 		return fmt.Errorf("failed to ensure user %d exists: %w", userId, err)
 	}
 	if !userExists {
-		return fmt.Errorf("failed to ensure user %d exists: %w", userId, database.ErrNoSuchUser)
+		return fmt.Errorf("failed to ensure user %d exists: %w", userId, dberr.ErrNoSuchUser)
 	}
 	return nil
 }
@@ -313,7 +313,7 @@ func EnsureUserExistsAndHasRole(db *sql.DB, userId models.Id, expectedRoleId mod
 	}
 
 	if user.RoleId != expectedRoleId {
-		return fmt.Errorf("user %d expected to have role %s but is %s instead: %w", userId, expectedRoleId.Name(), user.RoleId.Name(), database.ErrWrongRole)
+		return fmt.Errorf("user %d expected to have role %s but is %s instead: %w", userId, expectedRoleId.Name(), user.RoleId.Name(), dberr.ErrWrongRole)
 	}
 
 	return nil
@@ -330,7 +330,7 @@ func RemoveUserWithId(db *sql.DB, userId models.Id) error {
 			return err
 		}
 		if !userExist {
-			return fmt.Errorf("failed to remove user with id %d: %w", userId, database.ErrNoSuchUser)
+			return fmt.Errorf("failed to remove user with id %d: %w", userId, dberr.ErrNoSuchUser)
 		}
 	}
 
@@ -352,7 +352,7 @@ func UpdateLastActivity(db *sql.DB, userId models.Id, lastActivity models.Timest
 			return err
 		}
 		if !userExist {
-			return fmt.Errorf("failed to update last activity of user %d: %w", userId, database.ErrNoSuchUser)
+			return fmt.Errorf("failed to update last activity of user %d: %w", userId, dberr.ErrNoSuchUser)
 		}
 	}
 

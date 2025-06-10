@@ -3,7 +3,7 @@
 package queries
 
 import (
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	. "bctbackend/test/setup"
@@ -31,6 +31,6 @@ func TestEnsureUserExists(t *testing.T) {
 		setup.RequireNoSuchUsers(t, nonexistentUserId)
 
 		err := queries.EnsureUserExists(db, nonexistentUserId)
-		require.ErrorIs(t, err, database.ErrNoSuchUser)
+		require.ErrorIs(t, err, dberr.ErrNoSuchUser)
 	})
 }

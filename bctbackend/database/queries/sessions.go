@@ -1,7 +1,7 @@
 package queries
 
 import (
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	models "bctbackend/database/models"
 	"bctbackend/security"
 	"database/sql"
@@ -54,7 +54,7 @@ func GetSessionById(
 	var expirationTime models.Timestamp
 	if err := row.Scan(&userId, &expirationTime); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("failed to get session with id %s: %w", sessionId, database.ErrNoSuchSession)
+			return nil, fmt.Errorf("failed to get session with id %s: %w", sessionId, dberr.ErrNoSuchSession)
 		}
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func GetSessionData(db *sql.DB, sessionId models.SessionId) (*SessionData, error
 	var roleId models.RoleId
 	if err := row.Scan(&userId, &roleId.Id); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, database.ErrNoSuchSession
+			return nil, dberr.ErrNoSuchSession
 		}
 		return nil, err
 	}
@@ -156,7 +156,7 @@ func DeleteSession(db *sql.DB, sessionId models.SessionId) error {
 		return fmt.Errorf("failed to delete session: %w", err)
 	}
 	if rowsAffected == 0 {
-		return database.ErrNoSuchSession
+		return dberr.ErrNoSuchSession
 	}
 
 	return nil

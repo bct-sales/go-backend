@@ -3,7 +3,7 @@
 package queries
 
 import (
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	"fmt"
@@ -56,7 +56,7 @@ func TestAddUserWithId(t *testing.T) {
 
 		{
 			err := queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
-			require.ErrorIs(t, err, database.ErrIdAlreadyInUse)
+			require.ErrorIs(t, err, dberr.ErrIdAlreadyInUse)
 		}
 	})
 
@@ -71,6 +71,6 @@ func TestAddUserWithId(t *testing.T) {
 		var lastAccess *models.Timestamp = nil
 
 		err := queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
-		require.ErrorIs(t, err, database.ErrNoSuchRole)
+		require.ErrorIs(t, err, dberr.ErrNoSuchRole)
 	})
 }

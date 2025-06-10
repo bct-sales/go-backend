@@ -2,6 +2,7 @@ package database
 
 import (
 	"bctbackend/algorithms"
+	dberr "bctbackend/database/errors"
 	models "bctbackend/database/models"
 	"database/sql"
 	"fmt"
@@ -47,7 +48,7 @@ func CreateDatabase(path string) (*sql.DB, error) {
 
 		if exists {
 			slog.Debug("Database file already exists", slog.String("path", path))
-			return nil, ErrDatabaseAlreadyExists
+			return nil, dberr.ErrDatabaseAlreadyExists
 		}
 	}
 

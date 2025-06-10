@@ -3,7 +3,7 @@
 package queries
 
 import (
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	. "bctbackend/test/setup"
@@ -39,6 +39,6 @@ func TestGetSessionData(t *testing.T) {
 
 		invalidSessionId := models.SessionId("invalid-session-id")
 		_, err := queries.GetSessionData(db, invalidSessionId)
-		require.ErrorIs(t, err, database.ErrNoSuchSession)
+		require.ErrorIs(t, err, dberr.ErrNoSuchSession)
 	})
 }

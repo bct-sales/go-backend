@@ -3,7 +3,7 @@
 package queries
 
 import (
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	. "bctbackend/test/setup"
@@ -42,6 +42,6 @@ func TestAddUser(t *testing.T) {
 		var lastActivity *models.Timestamp = nil
 
 		_, err := queries.AddUser(db, roleId, createdAt, lastActivity, password)
-		require.ErrorIs(t, err, database.ErrNoSuchRole)
+		require.ErrorIs(t, err, dberr.ErrNoSuchRole)
 	})
 }

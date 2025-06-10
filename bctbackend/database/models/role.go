@@ -1,7 +1,7 @@
 package models
 
 import (
-	"errors"
+	dberr "bctbackend/database/errors"
 	"fmt"
 )
 
@@ -51,8 +51,6 @@ func (roleId RoleId) Name() string {
 	}
 }
 
-var UnknownRoleError = errors.New("unknown role")
-
 func ParseRole(role string) (RoleId, error) {
 	switch role {
 	case "admin":
@@ -62,7 +60,7 @@ func ParseRole(role string) (RoleId, error) {
 	case "cashier":
 		return RoleId{Id: CashierRoleId}, nil
 	default:
-		return RoleId{}, fmt.Errorf("unknown role %s: %w", role, UnknownRoleError)
+		return RoleId{}, fmt.Errorf("unknown role %s: %w", role, dberr.ErrNoSuchRole)
 	}
 }
 

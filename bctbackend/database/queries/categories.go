@@ -1,7 +1,7 @@
 package queries
 
 import (
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	models "bctbackend/database/models"
 	"database/sql"
 	"errors"
@@ -10,7 +10,7 @@ import (
 
 func AddCategory(db *sql.DB, categoryName string) (models.Id, error) {
 	if !models.IsValidCategoryName(categoryName) {
-		return 0, database.ErrInvalidCategoryName
+		return 0, dberr.ErrInvalidCategoryName
 	}
 
 	query := `
@@ -33,7 +33,7 @@ func AddCategory(db *sql.DB, categoryName string) (models.Id, error) {
 
 func AddCategoryWithId(db *sql.DB, categoryId models.Id, categoryName string) error {
 	if !models.IsValidCategoryName(categoryName) {
-		return database.ErrInvalidCategoryName
+		return dberr.ErrInvalidCategoryName
 	}
 
 	_, err := db.Exec(
@@ -49,7 +49,7 @@ func AddCategoryWithId(db *sql.DB, categoryId models.Id, categoryName string) er
 		{
 			inUse, err := CategoryWithIdExists(db, categoryId)
 			if err == nil && inUse {
-				return fmt.Errorf("failed to add category with id %d: %w", categoryId, database.ErrIdAlreadyInUse)
+				return fmt.Errorf("failed to add category with id %d: %w", categoryId, dberr.ErrIdAlreadyInUse)
 			}
 		}
 

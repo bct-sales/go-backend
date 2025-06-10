@@ -3,7 +3,7 @@
 package queries
 
 import (
-	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	. "bctbackend/test/setup"
@@ -40,7 +40,7 @@ func TestAddSession(t *testing.T) {
 			setup.RequireNoSuchUsers(t, userId)
 			expirationTime := models.Timestamp(0)
 			_, err := queries.AddSession(db, userId, expirationTime)
-			require.ErrorIs(t, err, database.ErrNoSuchUser)
+			require.ErrorIs(t, err, dberr.ErrNoSuchUser)
 		})
 	})
 }
