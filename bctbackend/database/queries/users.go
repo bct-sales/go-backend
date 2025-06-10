@@ -10,7 +10,7 @@ import (
 )
 
 // AddUserWithId adds a user to the database with a specific user ID.
-// An UserIdAlreadyInUseError is returned if the user ID is already in use.
+// An ErrUserIdAlreadyInUse is returned if the user ID is already in use.
 func AddUserWithId(
 	db *sql.DB,
 	userId models.Id,

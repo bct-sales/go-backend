@@ -348,8 +348,8 @@ func CountItems(db *sql.DB, selection ItemSelection) (int, error) {
 // AddItem adds an item to the database.
 // An ErrNoSuchUser is returned if no user with the given sellerId exists.
 // An ErrWrongRole is returned if sellerId does not refer to a seller.
-// An NoSuchCategoryError is returned if the itemCategoryId is invalid.
-// An InvalidPriceError is returned if the priceInCents is invalid.
+// An ErrNoSuchCategory is returned if the itemCategoryId is invalid.
+// An ErrInvalidPrice is returned if the priceInCents is invalid.
 func AddItem(
 	db *sql.DB,
 	addedAt models.Timestamp,
