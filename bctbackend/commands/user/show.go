@@ -12,7 +12,6 @@ import (
 
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
-	"github.com/urfave/cli/v2"
 )
 
 type showUserCommand struct {
@@ -129,18 +128,21 @@ func (c *showUserCommand) showCashier(db *sql.DB, user *models.User) error {
 
 	soldItems, err := queries.GetItemsSoldBy(db, user.UserId)
 	if err != nil {
-		return cli.Exit(fmt.Sprintf("Failed to get items sold by cashier: %s", err.Error()), 1)
+		c.PrintErrorf("Failed to get items sold by cashier\n")
+		return err
 	}
 
 	categoryNameTable, err := queries.GetCategoryNameTable(db)
 	if err != nil {
-		return cli.Exit(fmt.Sprintf("Failed to get category names: %s", err.Error()), 1)
+		c.PrintErrorf("Failed to get category names\n")
+		return err
 	}
 
 	pterm.DefaultSection.Println("Sold Items")
 
 	if err := c.printItems(categoryNameTable, soldItems); err != nil {
-		return cli.Exit(fmt.Sprintf("Failed to print items: %s", err.Error()), 1)
+		c.PrintErrorf("Failed to print sold items\n")
+		return err
 	}
 
 	return nil
