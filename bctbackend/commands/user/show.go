@@ -61,18 +61,26 @@ func (c *showUserCommand) execute(args []string) error {
 		}
 
 		// Display user information based on their role
-		switch user.RoleId {
-		case models.AdminRoleId:
-			return c.showAdmin(user)
-		case models.SellerRoleId:
-			return c.showSeller(db, user)
-		case models.CashierRoleId:
-			return c.showCashier(db, user)
-		default:
-			c.PrintErrorf("Bug encountered: user has unrecognized role %d\n", user.RoleId)
-			return database.ErrNoSuchRole
-		}
+		return models.VisitRole(user.RoleId, &showUser{command: c, database: db, user: user})
 	})
+}
+
+type showUser struct {
+	command  *showUserCommand
+	database *sql.DB
+	user     *models.User
+}
+
+func (s *showUser) Admin() error {
+	return s.command.showAdmin(s.user)
+}
+
+func (s *showUser) Seller() error {
+	return s.command.showSeller(s.database, s.user)
+}
+
+func (s *showUser) Cashier() error {
+	return s.command.showCashier(s.database, s.user)
 }
 
 func (c *showUserCommand) showAdmin(user *models.User) error {

@@ -14,9 +14,8 @@ import (
 
 func TestGetSessionData(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		for _, roleId := range []models.Id{models.SellerRoleId, models.AdminRoleId, models.CashierRoleId} {
-			testLabel, err := models.NameOfRole(roleId)
-			require.NoError(t, err)
+		for _, roleId := range []models.RoleId{models.NewSellerRoleId(), models.NewAdminRoleId(), models.NewCashierRoleId()} {
+			testLabel := roleId.Name()
 
 			t.Run(testLabel, func(t *testing.T) {
 				t.Parallel()

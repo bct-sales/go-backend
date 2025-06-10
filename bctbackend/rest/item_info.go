@@ -34,7 +34,7 @@ type GetItemInformationSuccessResponse struct {
 // @Failure 403 {object} failure_response.FailureResponse "Only accessible to cashiers, admins and owner sellers"
 // @Failure 404 {object} failure_response.FailureResponse "Item not found"
 // @Router /items/{id} [get]
-func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
+func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	var uriParameters struct {
 		ItemId string `uri:"id" binding:"required"`
 	}
@@ -60,7 +60,7 @@ func GetItemInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 		return
 	}
 
-	if item.SellerID != userId && roleId == models.SellerRoleId {
+	if item.SellerID != userId && roleId.IsSeller() {
 		failure_response.WrongSeller(context, "Only the owning seller can access this item")
 		return
 	}

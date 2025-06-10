@@ -69,7 +69,7 @@ func GetSessionById(
 
 type SessionData struct {
 	UserId models.Id
-	RoleId models.Id
+	RoleId models.RoleId
 }
 
 func GetSessionData(db *sql.DB, sessionId models.SessionId) (*SessionData, error) {
@@ -85,8 +85,8 @@ func GetSessionData(db *sql.DB, sessionId models.SessionId) (*SessionData, error
 	)
 
 	var userId models.Id
-	var roleId models.Id
-	if err := row.Scan(&userId, &roleId); err != nil {
+	var roleId models.RoleId
+	if err := row.Scan(&userId, &roleId.Id); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, database.ErrNoSuchSession
 		}

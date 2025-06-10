@@ -84,20 +84,20 @@ func (s DatabaseFixture) DefaultCategories() {
 	}
 }
 
-func (s DatabaseFixture) User(roleId models.Id, options ...func(*aux.AddUserData)) *models.User {
+func (s DatabaseFixture) User(roleId models.RoleId, options ...func(*aux.AddUserData)) *models.User {
 	return aux.AddUserToDatabase(s.Db, roleId, options...)
 }
 
 func (s DatabaseFixture) Admin(options ...func(*aux.AddUserData)) *models.User {
-	return aux.AddUserToDatabase(s.Db, models.AdminRoleId, options...)
+	return aux.AddUserToDatabase(s.Db, models.NewAdminRoleId(), options...)
 }
 
 func (s DatabaseFixture) Cashier(options ...func(*aux.AddUserData)) *models.User {
-	return aux.AddUserToDatabase(s.Db, models.CashierRoleId, options...)
+	return aux.AddUserToDatabase(s.Db, models.NewCashierRoleId(), options...)
 }
 
 func (s DatabaseFixture) Seller(options ...func(*aux.AddUserData)) *models.User {
-	return aux.AddUserToDatabase(s.Db, models.SellerRoleId, options...)
+	return aux.AddUserToDatabase(s.Db, models.NewSellerRoleId(), options...)
 }
 
 func (s DatabaseFixture) Session(userId models.Id, options ...func(*aux.AddSessionData)) models.SessionId {

@@ -93,7 +93,7 @@ func convertSaleToGetUserInformationSale(sale *models.Sale) *GetUserInformationS
 // @Failure 404 {object} failure_response.FailureResponse "User not found"
 // @Failure 500 {object} failure_response.FailureResponse "Internal server error"
 // @Router /users/{id} [get]
-func GetUserInformation(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
+func GetUserInformation(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	// Retrieve id of user whose information is being requested
 	var uriParameters struct {
 		UserId string `uri:"id" binding:"required"`
@@ -110,17 +110,17 @@ func GetUserInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 		return
 	}
 
-	switch roleId {
-	case models.AdminRoleId:
+	if roleId.IsAdmin() {
+		// If the user is an admin, they can access any user's information
 		getUserInformationAsAdmin(context, db, queriedUserId)
 		return
-	case models.SellerRoleId:
+	} else if roleId.IsSeller() {
 		getUserInformationAsSeller(context, db, userId, queriedUserId)
 		return
-	case models.CashierRoleId:
+	} else if roleId.IsCashier() {
 		getUserInformationAsCashier(context, db, userId, queriedUserId)
 		return
-	default:
+	} else {
 		failure_response.Unknown(context, fmt.Sprintf("Bug: unhandled role %d", roleId))
 		return
 	}
@@ -140,29 +140,21 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 		return
 	}
 
-	roleName, err := models.NameOfRole(user.RoleId)
-	if err != nil {
-		failure_response.Unknown(context, err.Error())
-		return
-	}
-
 	basicInformation := GetUserInformationSuccessResponse{
 		UserId:       user.UserId,
-		Role:         roleName,
+		Role:         user.RoleId.Name(),
 		Password:     user.Password,
 		CreatedAt:    rest.ConvertTimestampToDateTime(user.CreatedAt),
 		LastActivity: algorithms.MapOptional(user.LastActivity, rest.ConvertTimestampToDateTime),
 	}
 
-	switch user.RoleId {
-	case models.AdminRoleId:
+	if user.RoleId.IsAdmin() {
 		response := GetAdminInformationSuccessResponse{
 			GetUserInformationSuccessResponse: basicInformation,
 		}
 		context.JSON(http.StatusOK, response)
 		return
-
-	case models.SellerRoleId:
+	} else if user.RoleId.IsSeller() {
 		items, err := queries.GetSellerItemsWithSaleCounts(db, user.UserId)
 		if err != nil {
 			{
@@ -188,8 +180,7 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 
 		context.JSON(http.StatusOK, response)
 		return
-
-	case models.CashierRoleId:
+	} else if user.RoleId.IsCashier() {
 		sales, err := queries.GetSalesWithCashier(db, user.UserId)
 		if err != nil {
 			if errors.Is(err, database.ErrNoSuchUser) {
@@ -212,9 +203,8 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 		}
 		context.JSON(http.StatusOK, response)
 		return
-
-	default:
-		failure_response.Unknown(context, fmt.Sprintf("Bug: unhandled role %s", roleName))
+	} else {
+		failure_response.Unknown(context, fmt.Sprintf("Bug: unhandled role %d", user.RoleId.Int64()))
 		return
 	}
 }

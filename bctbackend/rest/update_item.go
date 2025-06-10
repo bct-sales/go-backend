@@ -38,7 +38,7 @@ type UpdateItemSuccessResponse struct {
 // @Failure 404 {object} failure_response.FailureResponse "Item does not exist"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to update item"
 // @Router /items/{id} [put]
-func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
+func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	var uriParameters struct {
 		ItemId string `uri:"id" binding:"required"`
 	}
@@ -63,12 +63,12 @@ func UpdateItem(context *gin.Context, db *sql.DB, userId models.Id, roleId model
 		return
 	}
 
-	if roleId == models.SellerRoleId && item.SellerID != userId {
+	if roleId == models.NewSellerRoleId() && item.SellerID != userId {
 		failure_response.WrongSeller(context, "Only the owner of the item can update it")
 		return
 	}
 
-	if roleId != models.AdminRoleId && roleId != models.SellerRoleId {
+	if !roleId.IsAdmin() && !roleId.IsSeller() {
 		failure_response.WrongRole(context, "Must be seller or admin to update item")
 		return
 	}

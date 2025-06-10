@@ -42,8 +42,8 @@ type GetItemsSuccessResponse struct {
 // @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to fetch items"
 // @Router /items [get]
-func GetAllItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
-	if roleId != models.AdminRoleId {
+func GetAllItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId) {
+	if roleId != models.NewAdminRoleId() {
 		failure_response.WrongRole(context, "Only admins can list all items")
 		return
 	}

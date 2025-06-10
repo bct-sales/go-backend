@@ -14,10 +14,14 @@ import (
 func AddUserWithId(
 	db *sql.DB,
 	userId models.Id,
-	roleId models.Id,
+	roleId models.RoleId,
 	createdAt models.Timestamp,
 	lastActivity *models.Timestamp,
 	password string) error {
+
+	if !roleId.IsValid() {
+		return fmt.Errorf("invalid role id %d: %w", roleId.Id, database.ErrNoSuchRole)
+	}
 
 	_, err := db.Exec(
 		`
@@ -25,17 +29,13 @@ func AddUserWithId(
 			VALUES ($1, $2, $3, $4, $5)
 		`,
 		userId,
-		roleId,
+		roleId.Int64(),
 		createdAt,
 		lastActivity,
 		password,
 	)
 
 	if err != nil {
-		if !models.IsValidRole(roleId) {
-			return fmt.Errorf("failed to add user with role %d: %w", roleId, database.ErrNoSuchRole)
-		}
-
 		userExists, err := UserWithIdExists(db, userId)
 		if err != nil {
 			return err
@@ -52,13 +52,13 @@ func AddUserWithId(
 
 func AddUser(
 	db *sql.DB,
-	roleId models.Id,
+	roleId models.RoleId,
 	createdAt models.Timestamp,
 	lastActivity *models.Timestamp,
 	password string) (models.Id, error) {
 
-	if !models.IsValidRole(roleId) {
-		return 0, fmt.Errorf("cannot add user with role %d: %w", roleId, database.ErrNoSuchRole)
+	if !roleId.IsValid() {
+		return 0, fmt.Errorf("invalid role id %d: %w", roleId.Id, database.ErrNoSuchRole)
 	}
 
 	result, err := db.Exec(
@@ -66,7 +66,7 @@ func AddUser(
 			INSERT INTO users (role_id, created_at, last_activity, password)
 			VALUES ($1, $2, $3, $4)
 		`,
-		roleId,
+		roleId.Int64(),
 		createdAt,
 		lastActivity,
 		password,
@@ -84,16 +84,16 @@ func AddUser(
 	return models.Id(userId), nil
 }
 
-type AddUsersCallback func(addUser func(userId models.Id, roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string))
+type AddUsersCallback func(addUser func(userId models.Id, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string))
 
 func AddUsers(db *sql.DB, callback AddUsersCallback) error {
 	valuesString := []string{}
 	arguments := []any{}
 	tupleString := "(?, ?, ?, ?, ?)"
 
-	add := func(userId models.Id, roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string) {
+	add := func(userId models.Id, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string) {
 		valuesString = append(valuesString, tupleString)
-		arguments = append(arguments, userId, roleId, createdAt, lastActivity, password)
+		arguments = append(arguments, userId, roleId.Int64(), createdAt, lastActivity, password)
 	}
 
 	callback(add)
@@ -150,11 +150,11 @@ func GetUserWithId(db *sql.DB, userId models.Id) (*models.User, error) {
 		userId,
 	)
 
-	var roleId models.Id
+	var roleId models.RoleId
 	var createdAt models.Timestamp
 	var lastActivity *models.Timestamp
 	var password string
-	err := row.Scan(&roleId, &createdAt, &lastActivity, &password)
+	err := row.Scan(&roleId.Id, &createdAt, &lastActivity, &password)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("failed to get user with id %d: %w", userId, database.ErrNoSuchUser)
@@ -182,12 +182,12 @@ func GetUsers(db *sql.DB, receiver func(*models.User) error) (r_err error) {
 
 	for rows.Next() {
 		var userId models.Id
-		var roleId models.Id
+		var roleId models.RoleId
 		var createdAt models.Timestamp
 		var lastActivity *models.Timestamp
 		var password string
 
-		if err := rows.Scan(&userId, &roleId, &createdAt, &lastActivity, &password); err != nil {
+		if err := rows.Scan(&userId, &roleId.Id, &createdAt, &lastActivity, &password); err != nil {
 			return err
 		}
 
@@ -234,12 +234,12 @@ func GetUsersWithItemCount(db *sql.DB, itemSelection ItemSelection, receiver fun
 
 	for rows.Next() {
 		var userId models.Id
-		var roleId models.Id
+		var roleId models.RoleId
 		var createdAt models.Timestamp
 		var lastActivity *models.Timestamp
 		var password string
 		var itemCount int
-		if err := rows.Scan(&userId, &roleId, &createdAt, &lastActivity, &password, &itemCount); err != nil {
+		if err := rows.Scan(&userId, &roleId.Id, &createdAt, &lastActivity, &password, &itemCount); err != nil {
 			return err
 		}
 
@@ -305,11 +305,7 @@ func EnsureUserExists(db *sql.DB, userId models.Id) error {
 // EnsureUserExistsAndHasRole checks if a user has a specific role.
 // An NoSuchUserError is returned if the user does not exist.
 // A ErrWrongRole is returned if the user has a different role.
-func EnsureUserExistsAndHasRole(db *sql.DB, userId models.Id, expectedRoleId models.Id) error {
-	if !models.IsValidRole(expectedRoleId) {
-		return fmt.Errorf("invalid role %d: %w", expectedRoleId, database.ErrNoSuchRole)
-	}
-
+func EnsureUserExistsAndHasRole(db *sql.DB, userId models.Id, expectedRoleId models.RoleId) error {
 	user, err := GetUserWithId(db, userId)
 
 	if err != nil {
@@ -317,7 +313,7 @@ func EnsureUserExistsAndHasRole(db *sql.DB, userId models.Id, expectedRoleId mod
 	}
 
 	if user.RoleId != expectedRoleId {
-		return fmt.Errorf("user %d expected to have role %d: %w", userId, expectedRoleId, database.ErrWrongRole)
+		return fmt.Errorf("user %d expected to have role %s but is %s instead: %w", userId, expectedRoleId.Name(), user.RoleId.Name(), database.ErrWrongRole)
 	}
 
 	return nil
@@ -382,7 +378,7 @@ const (
 )
 
 func GetSellerItemCount(db *sql.DB, sellerId models.Id, frozen GetSellerItemCountFlag, hidden GetSellerItemCountFlag) (int, error) {
-	if err := EnsureUserExistsAndHasRole(db, sellerId, models.SellerRoleId); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleId()); err != nil {
 		return 0, fmt.Errorf("failed to get hidden item count of user %d: %w", sellerId, err)
 	}
 
@@ -426,7 +422,7 @@ func GetSellerItemCount(db *sql.DB, sellerId models.Id, frozen GetSellerItemCoun
 
 func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id, itemSelection ItemSelection) (models.MoneyInCents, error) {
 	// Ensure the user exists and is a seller
-	if err := EnsureUserExistsAndHasRole(db, sellerId, models.SellerRoleId); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleId()); err != nil {
 		return 0, fmt.Errorf("failed to get total price of all items of user %d: %w", sellerId, err)
 	}
 

@@ -86,13 +86,7 @@ func login(context *gin.Context, db *sql.DB) {
 
 	ensureSecure := false // TODO: set to true when using HTTPS
 	context.SetCookie(security.SessionCookieName, string(sessionId), security.SessionDurationInSeconds, "/", "localhost", ensureSecure, true)
-	roleName, err := models.NameOfRole(roleId)
-
-	if err != nil {
-		slog.Error("Failed to get role name", slog.Int64("roleId", int64(roleId)))
-		failure_response.Unknown(context, err.Error())
-		return
-	}
+	roleName := roleId.Name()
 
 	response := LoginSuccessResponse{Role: roleName}
 	context.JSON(http.StatusOK, response)

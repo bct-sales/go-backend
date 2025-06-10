@@ -21,12 +21,9 @@ func OutputUsers(db *sql.DB, writer io.Writer) error {
 
 	writeRow := func(user *models.User) error {
 		idString := user.UserId.String()
-		roleString, err := models.NameOfRole(user.RoleId)
-		if err != nil {
-			panic(fmt.Sprintf("failed to get name of role %d: %v", user.RoleId, err))
-		}
-		var lastActivityString string
+		roleString := user.RoleId.Name()
 
+		var lastActivityString string
 		if user.LastActivity != nil {
 			lastActivityString = user.LastActivity.FormattedDateTime()
 		} else {

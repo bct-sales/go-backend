@@ -14,7 +14,7 @@ import (
 // If the user does not exist, the function returns an NoSuchUserError.
 // If the password is wrong, the function returns a WrongPasswordError.
 // If there is an error while querying the database, the function returns the error.
-func AuthenticateUser(db *sql.DB, userId models.Id, password string) (models.Id, error) {
+func AuthenticateUser(db *sql.DB, userId models.Id, password string) (models.RoleId, error) {
 	row := db.QueryRow(
 		`
 			SELECT role_id, password
@@ -23,19 +23,19 @@ func AuthenticateUser(db *sql.DB, userId models.Id, password string) (models.Id,
 		`,
 		userId)
 
-	var roleId models.Id
+	var roleId models.RoleId
 	var expectedPassword string
-	err := row.Scan(&roleId, &expectedPassword)
+	err := row.Scan(&roleId.Id, &expectedPassword)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return 0, fmt.Errorf("failed to authenticate user %d: %w", userId, database.ErrNoSuchUser)
+			return models.RoleId{}, fmt.Errorf("failed to authenticate user %d: %w", userId, database.ErrNoSuchUser)
 		}
 
-		return 0, fmt.Errorf("failed to execute query to look up user %d in database: %w", userId, err)
+		return models.RoleId{}, fmt.Errorf("failed to execute query to look up user %d in database: %w", userId, err)
 	}
 
 	if expectedPassword != password {
-		return 0, database.ErrWrongPassword
+		return models.RoleId{}, database.ErrWrongPassword
 	}
 
 	return roleId, nil

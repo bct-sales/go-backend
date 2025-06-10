@@ -53,13 +53,7 @@ func listUsersInTableFormat(cmd *cobra.Command) error {
 
 		for _, user := range users {
 			idString := user.UserId.String()
-
-			roleString, err := models.NameOfRole(user.RoleId)
-
-			if err != nil {
-				return fmt.Errorf("error while converting role to string: %w", err)
-			}
-
+			roleString := user.RoleId.Name()
 			createdAtString := user.CreatedAt.FormattedDateTime()
 
 			var lastActivityString string

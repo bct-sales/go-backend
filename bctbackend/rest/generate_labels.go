@@ -38,8 +38,8 @@ type GenerateLabelsPayload struct {
 	ItemIds []models.Id `json:"itemIds"`
 }
 
-func GenerateLabels(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
-	if roleId != models.SellerRoleId {
+func GenerateLabels(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId) {
+	if !roleId.IsSeller() {
 		failure_response.WrongRole(context, "Only sellers can generate labels")
 		return
 	}

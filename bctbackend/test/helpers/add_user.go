@@ -10,7 +10,7 @@ import (
 
 type AddUserData struct {
 	UserId       *models.Id
-	RoleId       models.Id
+	RoleId       models.RoleId
 	Password     *string
 	CreatedAt    *models.Timestamp
 	LastActivity *models.Timestamp
@@ -52,7 +52,7 @@ func WithLastActivity(lastActivity models.Timestamp) func(*AddUserData) {
 	}
 }
 
-func AddUserToDatabase(db *sql.DB, roleId models.Id, options ...func(*AddUserData)) *models.User {
+func AddUserToDatabase(db *sql.DB, roleId models.RoleId, options ...func(*AddUserData)) *models.User {
 	data := AddUserData{
 		RoleId: roleId,
 	}
@@ -82,7 +82,6 @@ func AddUserToDatabase(db *sql.DB, roleId models.Id, options ...func(*AddUserDat
 	}
 
 	user, err := queries.GetUserWithId(db, userId)
-
 	if err != nil {
 		panic(err)
 	}

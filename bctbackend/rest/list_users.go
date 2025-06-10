@@ -38,13 +38,13 @@ type GetUsersSuccessResponse struct {
 // @Failure 403 {object} failure_response.FailureResponse "Only accessible to admins"
 // @Failure 500 {object} failure_response.FailureResponse "Internal error"
 // @Router /users [get]
-func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
+func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	slog.Info(
 		"User requested to fetch users",
 		slog.Int64("user_id", userId.Int64()),
 		slog.Int64("role_id", roleId.Int64()))
 
-	if roleId != models.AdminRoleId {
+	if !roleId.IsAdmin() {
 		slog.Info(
 			"Non-admin attempted to list all items",
 			slog.Int64("user_id", userId.Int64()),
@@ -63,14 +63,6 @@ func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 
 	var userData = []GetUsersUserData{}
 	for _, user := range users {
-		roleName, err := models.NameOfRole(user.RoleId)
-
-		if err != nil {
-			slog.Error("Failed to translate role ID to role name", slog.String("error", err.Error()))
-			failure_response.Unknown(context, err.Error())
-			return
-		}
-
 		createdAt := rest.ConvertTimestampToDateTime(user.CreatedAt)
 
 		var lastActivity *rest.DateTime
@@ -84,7 +76,7 @@ func GetUsers(context *gin.Context, db *sql.DB, userId models.Id, roleId models.
 		userDatum := GetUsersUserData{
 			Id:           user.UserId.Int64(),
 			Password:     user.Password,
-			Role:         roleName,
+			Role:         user.RoleId.Name(),
 			CreatedAt:    createdAt,
 			LastActivity: lastActivity,
 			ItemCount:    user.ItemCount,

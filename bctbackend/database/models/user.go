@@ -2,7 +2,7 @@ package models
 
 type User struct {
 	UserId       Id
-	RoleId       Id
+	RoleId       RoleId
 	CreatedAt    Timestamp
 	LastActivity *Timestamp
 	Password     string

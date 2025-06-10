@@ -19,10 +19,10 @@ func TestUpdatePassword(t *testing.T) {
 	password2 := "abc"
 	newPassword1 := "123"
 
-	user1Id, err := queries.AddUser(db, models.SellerRoleId, 0, nil, password1)
+	user1Id, err := queries.AddUser(db, models.NewSellerRoleId(), 0, nil, password1)
 	require.NoError(t, err)
 
-	user2Id, err := queries.AddUser(db, models.SellerRoleId, 0, nil, password2)
+	user2Id, err := queries.AddUser(db, models.NewSellerRoleId(), 0, nil, password2)
 	require.NoError(t, err)
 
 	err = queries.UpdateUserPassword(db, user1Id, newPassword1)

@@ -15,7 +15,7 @@ import (
 
 type pair struct {
 	UserId models.Id
-	RoleId models.Id
+	RoleId models.RoleId
 }
 
 func TestCheckUserRole(t *testing.T) {
@@ -25,12 +25,11 @@ func TestCheckUserRole(t *testing.T) {
 		cashierId := models.Id(3)
 
 		for _, pair := range []pair{
-			{UserId: sellerId, RoleId: models.SellerRoleId},
-			{UserId: adminId, RoleId: models.AdminRoleId},
-			{UserId: cashierId, RoleId: models.CashierRoleId},
+			{UserId: sellerId, RoleId: models.NewSellerRoleId()},
+			{UserId: adminId, RoleId: models.NewAdminRoleId()},
+			{UserId: cashierId, RoleId: models.NewCashierRoleId()},
 		} {
-			roleName, err := models.NameOfRole(pair.RoleId)
-			require.NoError(t, err)
+			roleName := pair.RoleId.Name()
 
 			t.Run(roleName, func(t *testing.T) {
 				setup, db := NewDatabaseFixture(WithDefaultCategories)
@@ -52,15 +51,14 @@ func TestCheckUserRole(t *testing.T) {
 		cashierId := models.Id(3)
 
 		for _, pair := range []pair{
-			{UserId: adminId, RoleId: models.SellerRoleId},
-			{UserId: cashierId, RoleId: models.SellerRoleId},
-			{UserId: sellerId, RoleId: models.AdminRoleId},
-			{UserId: cashierId, RoleId: models.AdminRoleId},
-			{UserId: sellerId, RoleId: models.CashierRoleId},
-			{UserId: adminId, RoleId: models.CashierRoleId},
+			{UserId: adminId, RoleId: models.NewSellerRoleId()},
+			{UserId: cashierId, RoleId: models.NewSellerRoleId()},
+			{UserId: sellerId, RoleId: models.NewAdminRoleId()},
+			{UserId: cashierId, RoleId: models.NewAdminRoleId()},
+			{UserId: sellerId, RoleId: models.NewCashierRoleId()},
+			{UserId: adminId, RoleId: models.NewCashierRoleId()},
 		} {
-			roleName, err := models.NameOfRole(pair.RoleId)
-			require.NoError(t, err)
+			roleName := pair.RoleId.Name()
 
 			t.Run(roleName, func(t *testing.T) {
 				setup, db := NewDatabaseFixture(WithDefaultCategories)
@@ -82,7 +80,7 @@ func TestCheckUserRole(t *testing.T) {
 
 		invalidId := models.Id(9999)
 
-		err := queries.EnsureUserExistsAndHasRole(db, invalidId, models.AdminRoleId)
+		err := queries.EnsureUserExistsAndHasRole(db, invalidId, models.NewAdminRoleId())
 		require.ErrorIs(t, err, database.ErrNoSuchUser)
 	})
 }

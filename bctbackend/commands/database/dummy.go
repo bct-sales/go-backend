@@ -60,12 +60,12 @@ func (c *dummyDatabaseCommand) execute() error {
 		c.Printf("Adding admin user\n")
 		{
 			id := models.Id(1)
-			role := models.AdminRoleId
+			roleId := models.NewAdminRoleId()
 			createdAt := models.Now()
 			var lastActivity *models.Timestamp = nil
 			password := "abc"
 
-			if err := queries.AddUserWithId(db, id, role, createdAt, lastActivity, password); err != nil {
+			if err := queries.AddUserWithId(db, id, roleId, createdAt, lastActivity, password); err != nil {
 				return fmt.Errorf("failed to add admin: %w", err)
 			}
 		}
@@ -73,22 +73,22 @@ func (c *dummyDatabaseCommand) execute() error {
 		c.Printf("Adding cashier user\n")
 		{
 			id := models.Id(2)
-			role := models.CashierRoleId
+			roleId := models.NewCashierRoleId()
 			createdAt := models.Now()
 			var lastActivity *models.Timestamp = nil
 			password := "abc"
 
-			if err := queries.AddUserWithId(db, id, role, createdAt, lastActivity, password); err != nil {
+			if err := queries.AddUserWithId(db, id, roleId, createdAt, lastActivity, password); err != nil {
 				return fmt.Errorf("failed to add cashier: %w", err)
 			}
 		}
 
 		c.Printf("Adding sellers\n")
-		addSellers := func(addUser func(userId models.Id, roleId models.Id, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
+		addSellers := func(addUser func(userId models.Id, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
 			for area := 1; area <= 12; area++ {
 				for offset := 0; offset != 4; offset++ {
 					userId := models.Id(area*100 + offset)
-					roleId := models.SellerRoleId
+					roleId := models.NewSellerRoleId()
 					createdAt := models.Now()
 					var lastActivity *models.Timestamp = nil
 					password := fmt.Sprintf("%d", userId)

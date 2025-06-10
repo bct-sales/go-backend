@@ -115,11 +115,8 @@ func TestGetAllItems(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Wrong role", func(t *testing.T) {
-			for _, roleId := range []models.Id{models.SellerRoleId, models.CashierRoleId} {
-				roleString, err := models.NameOfRole(roleId)
-				if err != nil {
-					panic(err)
-				}
+			for _, roleId := range []models.RoleId{models.NewSellerRoleId(), models.NewCashierRoleId()} {
+				roleString := roleId.Name()
 
 				t.Run("As "+roleString, func(t *testing.T) {
 					setup, router, writer := NewRestFixture(WithDefaultCategories)

@@ -11,7 +11,7 @@ import (
 )
 
 func RequireFailureType(t *testing.T, writer *httptest.ResponseRecorder, expectedStatusCode int, expectedFailureType string) {
-	require.Equal(t, expectedStatusCode, writer.Code, "unexpected status code: %s")
+	require.Equal(t, expectedStatusCode, writer.Code, "unexpected status code")
 
 	var response map[string]string
 	err := json.Unmarshal(writer.Body.Bytes(), &response)

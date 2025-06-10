@@ -18,7 +18,7 @@ func TestGetUsers(t *testing.T) {
 
 		password := "xyz"
 		userId := models.Id(1)
-		roleId := models.SellerRoleId
+		roleId := models.NewSellerRoleId()
 		createdAt := models.Timestamp(1)
 		lastActivity := models.Timestamp(2)
 
@@ -42,7 +42,7 @@ func TestGetUsers(t *testing.T) {
 
 		user1 := models.User{
 			UserId:       models.Id(1),
-			RoleId:       models.SellerRoleId,
+			RoleId:       models.NewSellerRoleId(),
 			CreatedAt:    models.Timestamp(1),
 			LastActivity: nil,
 			Password:     "xyz",
@@ -51,7 +51,7 @@ func TestGetUsers(t *testing.T) {
 		lastActivity2 := models.Timestamp(50)
 		user2 := models.User{
 			UserId:       models.Id(2),
-			RoleId:       models.AdminRoleId,
+			RoleId:       models.NewAdminRoleId(),
 			CreatedAt:    models.Timestamp(2),
 			LastActivity: &lastActivity2,
 			Password:     "abc",

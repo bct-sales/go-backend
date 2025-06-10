@@ -37,7 +37,7 @@ type CategoryData struct {
 // @Failure 403 {object} failure_response.FailureResponse "Unauthorized access"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to fetch category counts"
 // @Router /categories [get]
-func ListCategories(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
+func ListCategories(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	switch context.Query("counts") {
 	case "all":
 		listCategoriesWithCounts(context, db, userId, roleId, queries.AllItems)
@@ -57,8 +57,8 @@ func ListCategories(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 	}
 }
 
-func listCategoriesWithCounts(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id, itemSelection queries.ItemSelection) {
-	if roleId != models.AdminRoleId {
+func listCategoriesWithCounts(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId, itemSelection queries.ItemSelection) {
+	if !roleId.IsAdmin() {
 		slog.Error("Unauthorized access to category counts", "userId", userId, "roleId", roleId)
 		failure_response.WrongRole(context, "Only admins can access category counts")
 		return
@@ -103,8 +103,8 @@ func listCategoriesWithCounts(context *gin.Context, db *sql.DB, userId models.Id
 	context.IndentedJSON(http.StatusOK, response)
 }
 
-func listCategoriesWithoutCounts(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
-	if roleId != models.AdminRoleId && roleId != models.SellerRoleId {
+func listCategoriesWithoutCounts(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId) {
+	if !roleId.IsAdmin() && !roleId.IsSeller() {
 		slog.Error("Unauthorized access to category counts", "userId", userId, "roleId", roleId)
 		failure_response.WrongRole(context, "Only admins and sellers can access category names")
 		return

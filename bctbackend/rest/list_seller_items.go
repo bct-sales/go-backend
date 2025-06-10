@@ -43,8 +43,8 @@ type GetSellerItemsSuccessResponse struct {
 // @Failure 404 {object} failure_response.FailureResponse "No such user"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to fetch items"
 // @Router /seller/{seller_id}/items [get]
-func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id) {
-	if roleId != models.SellerRoleId && roleId != models.AdminRoleId {
+func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId) {
+	if !roleId.IsSeller() && !roleId.IsAdmin() {
 		failure_response.Forbidden(context, "wrong_role", "Only accessible to sellers and admins")
 		return
 	}
@@ -63,7 +63,7 @@ func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 		return
 	}
 
-	if err := queries.EnsureUserExistsAndHasRole(db, uriSellerId, models.SellerRoleId); err != nil {
+	if err := queries.EnsureUserExistsAndHasRole(db, uriSellerId, models.NewSellerRoleId()); err != nil {
 		if errors.Is(err, database.ErrNoSuchUser) {
 			failure_response.UnknownUser(context, err.Error())
 			return
@@ -78,7 +78,7 @@ func GetSellerItems(context *gin.Context, db *sql.DB, userId models.Id, roleId m
 		return
 	}
 
-	if userId != uriSellerId && roleId != models.AdminRoleId {
+	if userId != uriSellerId && !roleId.IsAdmin() {
 		failure_response.WrongSeller(context, "Logged in user does not match URI seller ID")
 		return
 	}

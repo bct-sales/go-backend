@@ -20,7 +20,7 @@ func TestGetUser(t *testing.T) {
 	user := models.User{
 		Password:     "xyz",
 		UserId:       models.Id(1),
-		RoleId:       models.SellerRoleId,
+		RoleId:       models.NewSellerRoleId(),
 		CreatedAt:    models.Timestamp(1),
 		LastActivity: &lastActivity,
 	}

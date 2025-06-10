@@ -20,9 +20,9 @@ func (e *NoSuchCategoryError) Error() string {
 func PrintUser(user *models.User) error {
 	tableData := pterm.TableData{
 		{"Property", "Value"},
-		{"ID", FormatId(user.UserId)},
-		{"Role", FormatRole(user.RoleId)},
-		{"Created At", FormatTimestamp(user.CreatedAt)},
+		{"ID", user.UserId.String()},
+		{"Role", user.RoleId.Name()},
+		{"Created At", user.CreatedAt.FormattedDateTime()},
 		{"Last Activity", FormatOptionalTimestamp(user.LastActivity)},
 	}
 
@@ -143,13 +143,8 @@ func FormatOptionalTimestamp(lastActivity *models.Timestamp) string {
 	return FormatTimestamp(*lastActivity)
 }
 
-func FormatRole(roleId models.Id) string {
-	string, err := models.NameOfRole(roleId)
-	if err != nil {
-		return fmt.Sprintf("<error: unknown role %d>", roleId)
-	}
-
-	return string
+func FormatRole(roleId models.RoleId) string {
+	return roleId.Name()
 }
 
 func FormatPrice(priceInCents models.MoneyInCents) string {

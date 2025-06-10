@@ -1,6 +1,9 @@
 package models
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 const (
 	AdminRoleId   Id     = 1
@@ -11,47 +14,89 @@ const (
 	CashierName   string = "cashier"
 )
 
-type Role struct {
-	RoleID Id
-	Name   string
+type RoleId struct {
+	Id
 }
 
-func ParseRole(role string) (Id, error) {
+func NewRoleId(id Id) RoleId {
+	if id != AdminRoleId && id != SellerRoleId && id != CashierRoleId {
+		panic(fmt.Sprintf("invalid role id: %d", id))
+	}
+
+	return RoleId{Id: id}
+}
+
+func NewAdminRoleId() RoleId {
+	return NewRoleId(AdminRoleId)
+}
+
+func NewSellerRoleId() RoleId {
+	return NewRoleId(SellerRoleId)
+}
+
+func NewCashierRoleId() RoleId {
+	return NewRoleId(CashierRoleId)
+}
+
+func (roleId RoleId) Name() string {
+	switch roleId.Id {
+	case AdminRoleId:
+		return AdminName
+	case SellerRoleId:
+		return SellerName
+	case CashierRoleId:
+		return CashierName
+	default:
+		panic(fmt.Sprintf("unknown role id: %d", roleId.Id))
+	}
+}
+
+var UnknownRoleError = errors.New("unknown role")
+
+func ParseRole(role string) (RoleId, error) {
 	switch role {
 	case "admin":
-		return AdminRoleId, nil
+		return RoleId{Id: AdminRoleId}, nil
 	case "seller":
-		return SellerRoleId, nil
+		return RoleId{Id: SellerRoleId}, nil
 	case "cashier":
-		return CashierRoleId, nil
+		return RoleId{Id: CashierRoleId}, nil
 	default:
-		return 0, fmt.Errorf("unknown role: %s", role)
+		return RoleId{}, fmt.Errorf("unknown role %s: %w", role, UnknownRoleError)
 	}
 }
 
-type UnknownRoleError struct {
-	RoleId Id
+func (roleId RoleId) IsAdmin() bool {
+	return roleId.Id == AdminRoleId
 }
 
-func (e *UnknownRoleError) Error() string {
-	return fmt.Sprintf("unknown role id: %d", e.RoleId)
+func (roleId RoleId) IsSeller() bool {
+	return roleId.Id == SellerRoleId
 }
 
-// NameOfRole returns the name of the role with the given id.
-// It returns UnknownRoleError if the role id is unknown.
-func NameOfRole(roleId Id) (string, error) {
-	switch roleId {
+func (roleId RoleId) IsCashier() bool {
+	return roleId.Id == CashierRoleId
+}
+
+type RoleVisitor[T any] interface {
+	Admin() T
+	Seller() T
+	Cashier() T
+}
+
+func VisitRole[T any](roleId RoleId, visitor RoleVisitor[T]) T {
+	switch roleId.Id {
 	case AdminRoleId:
-		return AdminName, nil
+		return visitor.Admin()
 	case SellerRoleId:
-		return SellerName, nil
+		return visitor.Seller()
 	case CashierRoleId:
-		return CashierName, nil
+		return visitor.Cashier()
 	default:
-		return "", &UnknownRoleError{RoleId: roleId}
+		panic(fmt.Sprintf("unknown role id: %d", roleId.Id))
 	}
 }
 
-func IsValidRole(roleId Id) bool {
-	return roleId == AdminRoleId || roleId == SellerRoleId || roleId == CashierRoleId
+func (roleId RoleId) IsValid() bool {
+	return roleId.Id == AdminRoleId || roleId.Id == SellerRoleId || roleId.Id == CashierRoleId
 }

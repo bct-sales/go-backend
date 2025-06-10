@@ -16,7 +16,7 @@ import (
 func TestAddUser(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		for _, password := range []string{"a", "xyz"} {
-			for _, roleId := range []models.Id{models.AdminRoleId, models.CashierRoleId, models.SellerRoleId} {
+			for _, roleId := range []models.RoleId{models.NewAdminRoleId(), models.NewCashierRoleId(), models.NewSellerRoleId()} {
 				t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
 					setup, db := NewDatabaseFixture(WithDefaultCategories)
 					defer setup.Close()
@@ -36,12 +36,10 @@ func TestAddUser(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		roleId := models.Id(10)
+		roleId := models.RoleId{Id: 999} // Assuming this ID does not exist in the database
 		password := "xyz"
 		createdAt := models.Timestamp(0)
 		var lastActivity *models.Timestamp = nil
-
-		require.False(t, models.IsValidRole(roleId), "sanity test: role id should be invalid")
 
 		_, err := queries.AddUser(db, roleId, createdAt, lastActivity, password)
 		require.ErrorIs(t, err, database.ErrNoSuchRole)

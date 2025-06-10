@@ -14,10 +14,10 @@ import (
 )
 
 func TestEnsureUserExistsAndHasRole(t *testing.T) {
-	roleIds := []models.Id{
-		models.SellerRoleId,
-		models.CashierRoleId,
-		models.AdminRoleId,
+	roleIds := []models.RoleId{
+		models.NewSellerRoleId(),
+		models.NewCashierRoleId(),
+		models.NewAdminRoleId(),
 	}
 
 	t.Run("Success", func(t *testing.T) {
@@ -63,19 +63,8 @@ func TestEnsureUserExistsAndHasRole(t *testing.T) {
 			nonexistentUserId := models.Id(9999) // Assuming this ID does not exist in the database
 			setup.RequireNoSuchUsers(t, nonexistentUserId)
 
-			err := queries.EnsureUserExistsAndHasRole(db, nonexistentUserId, models.SellerRoleId)
+			err := queries.EnsureUserExistsAndHasRole(db, nonexistentUserId, models.NewSellerRoleId())
 			require.ErrorIs(t, err, database.ErrNoSuchUser)
-		})
-
-		t.Run("Role does not exist", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
-			defer setup.Close()
-
-			seller := setup.Seller()
-			nonexistentRole := models.Id(9999)
-
-			err := queries.EnsureUserExistsAndHasRole(db, seller.UserId, nonexistentRole)
-			require.ErrorIs(t, err, database.ErrNoSuchRole)
 		})
 	})
 }

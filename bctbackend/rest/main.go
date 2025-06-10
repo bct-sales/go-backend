@@ -54,7 +54,7 @@ func SetUpCors(router *gin.Engine) {
 }
 
 func DefineEndpoints(db *sql.DB, router *gin.Engine) {
-	withUserAndRole := func(handler func(context *gin.Context, db *sql.DB, userId models.Id, roleId models.Id)) gin.HandlerFunc {
+	withUserAndRole := func(handler func(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId)) gin.HandlerFunc {
 		return func(context *gin.Context) {
 			sessionIdString, err := context.Cookie(security.SessionCookieName)
 			if err != nil {
