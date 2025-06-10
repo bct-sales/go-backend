@@ -2,13 +2,13 @@ package sale
 
 import (
 	"bctbackend/algorithms"
-	"bctbackend/cli/formatting"
 	"bctbackend/commands/common"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"database/sql"
 	"fmt"
 
+	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
 
@@ -55,12 +55,44 @@ func (c *addNewSaleCommand) execute() error {
 
 		c.Printf("Sale added successfully")
 
-		err = formatting.PrintSale(db, saleId)
+		err = c.printSale(db, saleId)
 		if err != nil {
-			c.PrintErrorf("Failed to show resulting sale; sale has been successfully added to the database though")
-			return nil // Don't return an error here, as the sale is already added to the database.
+			return nil // Don't return an error in this case, as the sale is already added to the database.
 		}
 
 		return nil
 	})
+}
+
+func (c *addNewSaleCommand) printSale(db *sql.DB, saleId models.Id) error {
+	sale, err := queries.GetSaleWithId(db, saleId)
+	if err != nil {
+		c.PrintErrorf("Failed to get sale back from database")
+		return fmt.Errorf("failed to get sale with id %d: %w", saleId, err)
+	}
+
+	saleItems, err := queries.GetSaleItems(db, saleId)
+	if err != nil {
+		c.PrintErrorf("Failed to get items associated with sale")
+		return fmt.Errorf("failed to get items associated with sale %d: %w", saleId, err)
+	}
+
+	tableData := pterm.TableData{
+		{"Cashier", sale.CashierID.String()},
+		{"Transaction Time", sale.TransactionTime.FormattedDateTime()},
+	}
+
+	for index, saleItem := range saleItems {
+		tableData = append(tableData, []string{
+			fmt.Sprintf("Item %d", index+1),
+			saleItem.ItemID.String(),
+		})
+	}
+
+	if err := pterm.DefaultTable.WithData(tableData).Render(); err != nil {
+		c.PrintErrorf("Failed to render sale table")
+		return fmt.Errorf("failed to render table: %w", err)
+	}
+
+	return nil
 }
