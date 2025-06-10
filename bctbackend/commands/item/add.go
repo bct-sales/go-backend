@@ -106,7 +106,7 @@ func (c *addItemCommand) execute() error {
 
 		err = c.printItem(db, addedItemId)
 		if err != nil {
-			return err
+			return nil // Don't return an error in this case, as the item is already added to the database.
 		}
 
 		return nil
