@@ -42,6 +42,7 @@ func AddSale(context *gin.Context, db *sql.DB, userId models.Id, roleId models.R
 
 	var payload AddSalePayload
 	if err := context.ShouldBindJSON(&payload); err != nil {
+		slog.Error("Failed to parse AddSale payload", "error", err, "payload", payload)
 		failure_response.InvalidRequest(context, "Failed to parse payload:"+err.Error())
 		return
 	}
