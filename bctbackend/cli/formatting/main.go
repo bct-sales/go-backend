@@ -134,7 +134,3 @@ func PrintSale(db *sql.DB, saleId models.Id) error {
 
 	return nil
 }
-
-func FormatTimestamp(timestamp models.Timestamp) string {
-	return timestamp.FormattedDateTime()
-}
