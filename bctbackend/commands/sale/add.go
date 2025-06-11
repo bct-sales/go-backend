@@ -53,7 +53,7 @@ func (c *addNewSaleCommand) execute() error {
 			return fmt.Errorf("failed to add sale: %w", err)
 		}
 
-		c.Printf("Sale added successfully")
+		c.Printf("Sale added successfully\n")
 
 		err = c.printSale(db, saleId)
 		if err != nil {
