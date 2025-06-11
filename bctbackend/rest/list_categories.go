@@ -17,7 +17,7 @@ import (
 )
 
 type ListCategoriesSuccessResponse struct {
-	Counts []CategoryData `json:"counts"`
+	Categories []CategoryData `json:"categories"`
 }
 
 type CategoryData struct {
@@ -77,7 +77,7 @@ func listCategoriesWithCounts(context *gin.Context, db *sql.DB, userId models.Id
 	}
 
 	response := ListCategoriesSuccessResponse{
-		Counts: []CategoryData{},
+		Categories: []CategoryData{},
 	}
 
 	categoryIds := slices.Collect(maps.Keys(categoryCounts))
@@ -97,7 +97,7 @@ func listCategoriesWithCounts(context *gin.Context, db *sql.DB, userId models.Id
 			Count:        &categoryCount,
 		}
 
-		response.Counts = append(response.Counts, translatedCategoryCount)
+		response.Categories = append(response.Categories, translatedCategoryCount)
 	}
 
 	context.IndentedJSON(http.StatusOK, response)
@@ -117,7 +117,7 @@ func listCategoriesWithoutCounts(context *gin.Context, db *sql.DB, userId models
 	}
 
 	response := ListCategoriesSuccessResponse{
-		Counts: []CategoryData{},
+		Categories: []CategoryData{},
 	}
 
 	for _, categoryCount := range categories {
@@ -127,7 +127,7 @@ func listCategoriesWithoutCounts(context *gin.Context, db *sql.DB, userId models
 			Count:        nil,
 		}
 
-		response.Counts = append(response.Counts, data)
+		response.Categories = append(response.Categories, data)
 	}
 
 	context.IndentedJSON(http.StatusOK, response)

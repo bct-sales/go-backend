@@ -40,7 +40,7 @@ func createSuccessResponse(countMap map[models.Id]int) rest.ListCategoriesSucces
 		return cmp.Compare(a.CategoryId, b.CategoryId)
 	})
 
-	return rest.ListCategoriesSuccessResponse{Counts: countArray}
+	return rest.ListCategoriesSuccessResponse{Categories: countArray}
 }
 
 func TestCategoryCounts(t *testing.T) {
@@ -62,10 +62,10 @@ func TestCategoryCounts(t *testing.T) {
 				expectedResponse := createSuccessResponse(countMap)
 				actualResponse := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 
-				require.Equal(t, len(expectedResponse.Counts), len(actualResponse.Counts))
-				for i := 0; i < len(expectedResponse.Counts); i++ {
-					expectedCount := expectedResponse.Counts[i]
-					actualCount := actualResponse.Counts[i]
+				require.Equal(t, len(expectedResponse.Categories), len(actualResponse.Categories))
+				for i := 0; i < len(expectedResponse.Categories); i++ {
+					expectedCount := expectedResponse.Categories[i]
+					actualCount := actualResponse.Categories[i]
 
 					require.Equal(t, expectedCount.CategoryId, actualCount.CategoryId)
 					require.Equal(t, expectedCount.CategoryName, actualCount.CategoryName)

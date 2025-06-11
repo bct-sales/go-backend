@@ -20,7 +20,7 @@ type GetCategoriesSuccessResponse struct {
 		CategoryId   models.Id `json:"categoryId"`
 		CategoryName string    `json:"categoryName"`
 		Count        *int64    `json:"count,omitempty"`
-	} `json:"counts"`
+	} `json:"categories"`
 }
 
 func TestGetCategories(t *testing.T) {
