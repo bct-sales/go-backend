@@ -14,6 +14,7 @@ func NewSaleCommand() *cobra.Command {
 	command.AddCommand(NewSaleListCommand())
 	command.AddCommand(NewSaleAddCommand())
 	command.AddCommand(NewSaleShowCommand())
+	command.AddCommand(NewRemoveAllSalesCommand())
 
 	return &command
 }
