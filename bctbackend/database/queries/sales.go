@@ -591,3 +591,53 @@ func RemoveAllSales(db *sql.DB) (r_err error) {
 
 	return nil
 }
+
+func GetCashierSales(db *sql.DB, cashierId models.Id, receiver func(*models.SaleSummary) error) (r_err error) {
+	if err := EnsureUserExistsAndHasRole(db, cashierId, models.NewCashierRoleId()); err != nil {
+		return err
+	}
+
+	rows, err := db.Query(
+		`
+			SELECT sales.sale_id, sales.cashier_id, sales.transaction_time, COUNT(sale_items.item_id) AS item_count, SUM(items.price_in_cents) AS total_price
+			FROM sales
+			INNER JOIN sale_items ON sales.sale_id = sale_items.sale_id
+			INNER JOIN items ON sale_items.item_id = items.item_id
+			WHERE sales.cashier_id = ?
+			GROUP BY sales.sale_id
+		`,
+		cashierId,
+	)
+	if err != nil {
+		return err
+	}
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
+
+	for rows.Next() {
+		var saleId models.Id
+		var cashierId models.Id
+		var transactionTime models.Timestamp
+		var itemCount int
+		var totalPriceInCents models.MoneyInCents
+		if err := rows.Scan(&saleId, &cashierId, &transactionTime, &itemCount, &totalPriceInCents); err != nil {
+			return err
+		}
+
+		saleSummary := models.SaleSummary{
+			SaleID:            saleId,
+			CashierID:         cashierId,
+			TransactionTime:   transactionTime,
+			ItemCount:         itemCount,
+			TotalPriceInCents: totalPriceInCents,
+		}
+		if err := receiver(&saleSummary); err != nil {
+			return err
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("error occurred while iterating over rows: %w", err)
+	}
+
+	return nil
+}
