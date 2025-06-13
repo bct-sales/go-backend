@@ -557,3 +557,36 @@ func GetSalesWithCashier(db *sql.DB, cashierId models.Id) (r_result []*models.Sa
 
 	return sales, nil
 }
+
+func RemoveAllSales(db *sql.DB) (r_err error) {
+	transaction, err := NewTransaction(db)
+	if err != nil {
+		return err
+	}
+	defer func() { r_err = errors.Join(r_err, transaction.Rollback()) }()
+
+	_, err = transaction.Exec(
+		`
+			DELETE FROM sale_items
+		`,
+	)
+	if err != nil {
+		return err
+	}
+
+	_, err = transaction.Exec(
+		`
+			DELETE FROM sales
+		`,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = transaction.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
