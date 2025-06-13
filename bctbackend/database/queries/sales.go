@@ -558,6 +558,7 @@ func GetSalesWithCashier(db *sql.DB, cashierId models.Id) (r_result []*models.Sa
 	return sales, nil
 }
 
+// RemoveAllSales removes all sales from the database.
 func RemoveAllSales(db *sql.DB) (r_err error) {
 	transaction, err := NewTransaction(db)
 	if err != nil {
