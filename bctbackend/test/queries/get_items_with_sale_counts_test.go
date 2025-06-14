@@ -8,7 +8,6 @@ import (
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
-	"fmt"
 	"slices"
 	"testing"
 
@@ -17,30 +16,30 @@ import (
 
 func TestGetItemsWithSaleCounts(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		t.Run("All items from all sellers", func(t *testing.T) {
-			for _, itemCount := range []int{0, 1, 2, 5, 15} {
-				testLabel := fmt.Sprintf("itemCount=%d", itemCount)
+		t.Run("All items from all sellers, zero sales", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
 
-				t.Run(testLabel, func(t *testing.T) {
-					setup, db := NewDatabaseFixture(WithDefaultCategories)
-					defer setup.Close()
+			seller1 := setup.Seller()
+			seller2 := setup.Seller()
+			seller3 := setup.Seller()
+			visibleItems1 := setup.Items(seller1.UserId, 1, aux.WithHidden(false), aux.WithFrozen(false))
+			hiddenItems1 := setup.Items(seller1.UserId, 1, aux.WithHidden(true), aux.WithFrozen(false))
+			visibleItems2 := setup.Items(seller2.UserId, 2, aux.WithHidden(false), aux.WithFrozen(false))
+			hiddenItems2 := setup.Items(seller2.UserId, 2, aux.WithHidden(true), aux.WithFrozen(false))
+			visibleItems3 := setup.Items(seller3.UserId, 4, aux.WithHidden(false), aux.WithFrozen(false))
+			hiddenItems3 := setup.Items(seller3.UserId, 4, aux.WithHidden(true), aux.WithFrozen(false))
 
-					seller1 := setup.Seller()
-					seller2 := setup.Seller()
-					seller3 := setup.Seller()
-					itemsIds1 := setup.Items(seller1.UserId, itemCount, aux.WithHidden(false))
-					itemsIds2 := setup.Items(seller2.UserId, itemCount, aux.WithHidden(false))
-					itemsIds3 := setup.Items(seller3.UserId, itemCount, aux.WithHidden(false))
-					expectedItems := slices.Concat(itemsIds1, itemsIds2, itemsIds3)
+			expectedItems := slices.Concat(visibleItems1, visibleItems2, visibleItems3, hiddenItems1, hiddenItems2, hiddenItems3)
+			actualItems, err := queries.GetItemsWithSaleCounts(db, queries.AllItems, nil)
+			require.NoError(t, err)
+			require.Equal(t, len(expectedItems), len(actualItems))
 
-					actualItems, err := queries.GetItemsWithSaleCounts(db, queries.AllItems, nil)
-					require.NoError(t, err)
-					require.Equal(t, itemCount*3, len(actualItems))
-
-					expectedItemIds := algorithms.Map(expectedItems, func(item *models.Item) models.Id { return item.ItemID })
-					actualItemIds := algorithms.Map(actualItems, func(item *queries.ItemWithSaleCount) models.Id { return item.ItemID })
-					require.ElementsMatch(t, expectedItemIds, actualItemIds)
-				})
+			expectedItemIds := algorithms.Map(expectedItems, func(item *models.Item) models.Id { return item.ItemID })
+			actualItemIds := algorithms.Map(actualItems, func(item *queries.ItemWithSaleCount) models.Id { return item.ItemID })
+			require.ElementsMatch(t, expectedItemIds, actualItemIds)
+			for _, item := range actualItems {
+				require.Equal(t, 0, item.SaleCount) // No sales in the fixture
 			}
 		})
 	})
