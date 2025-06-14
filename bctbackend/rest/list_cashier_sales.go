@@ -18,7 +18,7 @@ import (
 
 type GetCashierSaleData struct {
 	SaleId            models.Id           `json:"saleId"`
-	TransactionTime   rest.DateTime       `json:"addedAt"`
+	TransactionTime   rest.DateTime       `json:"transactionTime"`
 	ItemCount         int                 `json:"itemCount"`
 	TotalPriceInCents models.MoneyInCents `json:"totalPriceInCents"`
 }
