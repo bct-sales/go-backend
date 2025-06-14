@@ -138,6 +138,87 @@ type ItemWithSaleCount struct {
 	SaleCount int
 }
 
+// GetItemsWithSaleCounts looks up all items and how often they have been sold.
+// The items are ordered by their time of addition, then by id.
+// An ErrNoSuchUser is returned if no user with the given sellerId exists.
+// An ErrWrongRole is returned if sellerId does not refer to a seller.
+func GetItemsWithSaleCounts(db *sql.DB, itemSelection ItemSelection, sellerId *models.Id) (r_items []*ItemWithSaleCount, r_err error) {
+	if sellerId != nil {
+		if err := EnsureUserExistsAndHasRole(db, *sellerId, models.NewSellerRoleId()); err != nil {
+			return nil, err
+		}
+	}
+
+	itemsTable := ItemsTableFor(itemSelection)
+	var whereClause string
+	var arguments []any
+	if sellerId != nil {
+		whereClause = "WHERE seller_id = ?"
+		arguments = append(arguments, *sellerId)
+	} else {
+		whereClause = ""
+	}
+	query := fmt.Sprintf(`
+		SELECT i.item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden, COALESCE(COUNT(sale_items.sale_id), 0) AS sale_count
+		FROM %s i LEFT JOIN sale_items ON i.item_id = sale_items.item_id
+		%s
+		GROUP BY i.item_id
+		ORDER BY added_at, items.item_id ASC
+	`, itemsTable, whereClause)
+	rows, err := db.Query(query, arguments...)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute query to get seller items with sale counts from database: %w", err)
+	}
+
+	defer func() { err = errors.Join(err, rows.Close()) }()
+
+	itemsWithSaleCount := make([]*ItemWithSaleCount, 0)
+
+	for rows.Next() {
+		var id models.Id
+		var addedAt models.Timestamp
+		var description string
+		var priceInCents models.MoneyInCents
+		var itemCategoryId models.Id
+		var sellerId models.Id
+		var donation bool
+		var charity bool
+		var frozen bool
+		var hidden bool
+		var saleCount int
+
+		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity, &frozen, &hidden, &saleCount)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read row: %w", err)
+		}
+
+		itemWithSaleCount := ItemWithSaleCount{
+			Item: models.Item{
+				ItemID:       id,
+				AddedAt:      addedAt,
+				Description:  description,
+				PriceInCents: priceInCents,
+				CategoryID:   itemCategoryId,
+				SellerID:     sellerId,
+				Donation:     donation,
+				Charity:      charity,
+				Frozen:       frozen,
+				Hidden:       hidden,
+			},
+			SaleCount: saleCount,
+		}
+
+		itemsWithSaleCount = append(itemsWithSaleCount, &itemWithSaleCount)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
+	}
+
+	return itemsWithSaleCount, nil
+}
+
 // Returns the items associated with the given seller.
 // The items are ordered by their time of addition, then by id.
 // Hidden items are not included, as they cannot be sold.
