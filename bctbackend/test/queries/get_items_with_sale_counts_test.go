@@ -98,5 +98,32 @@ func TestGetItemsWithSaleCounts(t *testing.T) {
 				require.Equal(t, 0, item.SaleCount) // No sales in the fixture
 			}
 		})
+
+		t.Run("All visible items from all sellers, zero sales", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller1 := setup.Seller()
+			seller2 := setup.Seller()
+			seller3 := setup.Seller()
+			visibleItems1 := setup.Items(seller1.UserId, 1, aux.WithHidden(false), aux.WithFrozen(false))
+			setup.Items(seller1.UserId, 2, aux.WithHidden(true), aux.WithFrozen(false))
+			visibleItems2 := setup.Items(seller2.UserId, 4, aux.WithHidden(false), aux.WithFrozen(false))
+			setup.Items(seller2.UserId, 8, aux.WithHidden(true), aux.WithFrozen(false))
+			visibleItems3 := setup.Items(seller3.UserId, 16, aux.WithHidden(false), aux.WithFrozen(false))
+			setup.Items(seller3.UserId, 32, aux.WithHidden(true), aux.WithFrozen(false))
+
+			expectedItems := slices.Concat(visibleItems1, visibleItems2, visibleItems3)
+			actualItems, err := queries.GetItemsWithSaleCounts(db, queries.OnlyVisibleItems, nil)
+			require.NoError(t, err)
+			require.Equal(t, len(expectedItems), len(actualItems))
+
+			expectedItemIds := algorithms.Map(expectedItems, func(item *models.Item) models.Id { return item.ItemID })
+			actualItemIds := algorithms.Map(actualItems, func(item *queries.ItemWithSaleCount) models.Id { return item.ItemID })
+			require.ElementsMatch(t, expectedItemIds, actualItemIds)
+			for _, item := range actualItems {
+				require.Equal(t, 0, item.SaleCount) // No sales in the fixture
+			}
+		})
 	})
 }
