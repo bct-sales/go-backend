@@ -163,7 +163,7 @@ func GetItemsWithSaleCounts(db *sql.DB, itemSelection ItemSelection, sellerId *m
 		FROM %s i LEFT JOIN sale_items ON i.item_id = sale_items.item_id
 		%s
 		GROUP BY i.item_id
-		ORDER BY added_at, items.item_id ASC
+		ORDER BY added_at, i.item_id ASC
 	`, itemsTable, whereClause)
 	rows, err := db.Query(query, arguments...)
 
