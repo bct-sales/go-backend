@@ -72,6 +72,11 @@ func UnknownUser(context *gin.Context, message string) {
 	NotFound(context, "no_such_user", message)
 }
 
+// There is no sale with the given ID
+func UnknownSale(context *gin.Context, message string) {
+	NotFound(context, "no_such_sale", message)
+}
+
 func WrongUser(context *gin.Context, message string) {
 	Forbidden(context, "wrong_user", message)
 }
