@@ -95,16 +95,22 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 
 	router.POST(paths.Login().String(), func(context *gin.Context) { login(context, db) })
 	router.POST(paths.Logout().String(), func(context *gin.Context) { logout(context, db) })
+
 	router.GET(paths.Items().String(), withUserAndRole(GetAllItems))
+	router.GET(paths.Items().WithRawItemId(":id"), withUserAndRole(GetItemInformation))
 	router.PUT(paths.Items().WithRawItemId(":id"), withUserAndRole(UpdateItem))
+
 	router.GET(paths.Users().String(), withUserAndRole(GetUsers))
 	router.GET(paths.Users().WithRawUserId(":id"), withUserAndRole(GetUserInformation))
+
 	router.GET(paths.Categories().String(), withUserAndRole(ListCategories))
+
 	router.GET(paths.SellerItems().WithRawSellerId(":id"), withUserAndRole(GetSellerItems))
 	router.POST(paths.SellerItems().WithRawSellerId(":id"), withUserAndRole(AddSellerItem))
-	router.POST(paths.Sales().String(), withUserAndRole(AddSale))
-	router.GET(paths.Items().WithRawItemId(":id"), withUserAndRole(GetItemInformation))
+
 	router.POST(paths.Labels().String(), withUserAndRole(GenerateLabels))
-	router.GET(paths.CashierSales().WithRawCashierId(":id"), withUserAndRole(GetCashierSales))
+
 	router.GET(paths.Sales().String(), withUserAndRole(GetAllSales))
+	router.POST(paths.Sales().String(), withUserAndRole(AddSale))
+	router.GET(paths.CashierSales().WithRawCashierId(":id"), withUserAndRole(GetCashierSales))
 }
