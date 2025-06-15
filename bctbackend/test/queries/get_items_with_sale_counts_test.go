@@ -152,5 +152,38 @@ func TestGetItemsWithSaleCounts(t *testing.T) {
 				require.Equal(t, 0, item.SaleCount) // No sales in the fixture
 			}
 		})
+
+		t.Run("With sales", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller1 := setup.Seller()
+			seller2 := setup.Seller()
+			seller3 := setup.Seller()
+			items1 := setup.Items(seller1.UserId, 1, aux.WithHidden(false), aux.WithFrozen(false))
+			items2 := setup.Items(seller2.UserId, 4, aux.WithHidden(false), aux.WithFrozen(false))
+			items3 := setup.Items(seller3.UserId, 16, aux.WithHidden(false), aux.WithFrozen(false))
+			allItems := slices.Concat(items1, items2, items3)
+
+			cashier := setup.Cashier()
+			for _, item := range allItems {
+				for range item.ItemID.Int64() {
+					setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+				}
+			}
+
+			actualItems, err := queries.GetItemsWithSaleCounts(db, queries.AllItems, nil)
+			require.NoError(t, err)
+			require.Equal(t, len(allItems), len(actualItems))
+
+			expectedItemIds := algorithms.Map(allItems, func(item *models.Item) models.Id { return item.ItemID })
+			actualItemIds := algorithms.Map(actualItems, func(item *queries.ItemWithSaleCount) models.Id { return item.ItemID })
+			require.ElementsMatch(t, expectedItemIds, actualItemIds)
+			for _, item := range actualItems {
+				expectedSaleCount := item.ItemID.Int64()
+				actualSaleCount := int64(item.SaleCount)
+				require.Equal(t, expectedSaleCount, actualSaleCount, "Item %d has unexpected sale count: expected %d, got %d", item.ItemID, expectedSaleCount, actualSaleCount)
+			}
+		})
 	})
 }
