@@ -201,6 +201,7 @@ func SaleExists(db *sql.DB, saleId models.Id) (bool, error) {
 }
 
 // GetSaleItems lists all items associated with a specified sale.
+// Returns ErrNoSuchSale if the sale does not exist.
 func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []*models.Item, r_err error) {
 	saleExists, err := SaleExists(db, saleId)
 	if err != nil {
