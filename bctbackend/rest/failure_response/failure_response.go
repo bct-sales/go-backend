@@ -57,6 +57,11 @@ func InvalidItemId(context *gin.Context, message string) {
 	BadRequest(context, "invalid_item_id", "invalid item id: "+message)
 }
 
+// Ill-formed sale ID, e.g., "abc" instead of "123"
+func InvalidSaleId(context *gin.Context, message string) {
+	BadRequest(context, "invalid_sale_id", "invalid sale id: "+message)
+}
+
 // There is no item with the given ID
 func UnknownItem(context *gin.Context, message string) {
 	NotFound(context, "no_such_item", message)
