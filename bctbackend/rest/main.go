@@ -106,4 +106,5 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 	router.GET(paths.Items().WithRawItemId(":id"), withUserAndRole(GetItemInformation))
 	router.POST(paths.Labels().String(), withUserAndRole(GenerateLabels))
 	router.GET(paths.CashierSales().WithRawCashierId(":id"), withUserAndRole(GetCashierSales))
+	router.GET(paths.Sales().String(), withUserAndRole(GetAllSales))
 }
