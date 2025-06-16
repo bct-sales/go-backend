@@ -147,7 +147,7 @@ func (s DatabaseFixture) RequireNoSuchItems(t *testing.T, itemIds ...models.Id) 
 
 func (s DatabaseFixture) RequireNoSuchSales(t *testing.T, saleIds ...models.Id) {
 	for _, itemId := range saleIds {
-		exists, err := queries.SaleExists(s.Db, itemId)
+		exists, err := queries.SaleWithIdExists(s.Db, itemId)
 		require.NoError(t, err)
 		require.False(t, exists)
 	}

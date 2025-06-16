@@ -177,7 +177,7 @@ func GetSaleWithId(db *sql.DB, saleId models.Id) (*models.Sale, error) {
 	return &sale, nil
 }
 
-func SaleExists(db *sql.DB, saleId models.Id) (bool, error) {
+func SaleWithIdExists(db *sql.DB, saleId models.Id) (bool, error) {
 	var exists int64
 
 	err := db.QueryRow(
@@ -203,7 +203,7 @@ func SaleExists(db *sql.DB, saleId models.Id) (bool, error) {
 // GetSaleItems lists all items associated with a specified sale.
 // Returns ErrNoSuchSale if the sale does not exist.
 func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []*models.Item, r_err error) {
-	saleExists, err := SaleExists(db, saleId)
+	saleExists, err := SaleWithIdExists(db, saleId)
 	if err != nil {
 		return nil, err
 	}
@@ -265,7 +265,7 @@ func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []*models.Item, r_err 
 }
 
 func RemoveSale(db *sql.DB, saleId models.Id) (r_err error) {
-	saleExists, err := SaleExists(db, saleId)
+	saleExists, err := SaleWithIdExists(db, saleId)
 
 	if err != nil {
 		return err

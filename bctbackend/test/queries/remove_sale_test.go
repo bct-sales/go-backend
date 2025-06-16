@@ -34,11 +34,11 @@ func TestRemoveSale(t *testing.T) {
 	err := queries.RemoveSale(db, sale1Id)
 	require.NoError(t, err)
 
-	sale1Exists, err := queries.SaleExists(db, sale1Id)
+	sale1Exists, err := queries.SaleWithIdExists(db, sale1Id)
 	require.NoError(t, err)
 	require.False(t, sale1Exists)
 
-	sale2Exists, err := queries.SaleExists(db, sale2Id)
+	sale2Exists, err := queries.SaleWithIdExists(db, sale2Id)
 	require.NoError(t, err)
 	require.True(t, sale2Exists)
 }

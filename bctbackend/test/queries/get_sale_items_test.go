@@ -49,7 +49,7 @@ func TestGetSaleItemsOfNonexistentSale(t *testing.T) {
 
 	saleId := models.Id(1)
 
-	saleExists, err := queries.SaleExists(db, saleId)
+	saleExists, err := queries.SaleWithIdExists(db, saleId)
 
 	require.NoError(t, err)
 	require.False(t, saleExists)
