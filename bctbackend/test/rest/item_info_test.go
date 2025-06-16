@@ -112,74 +112,74 @@ func TestGetItemInformation(t *testing.T) {
 			require.NotNil(t, response.SoldIn)
 			require.Equal(t, []models.Id{}, *response.SoldIn)
 		})
+	})
 
-		t.Run("Failure", func(t *testing.T) {
-			t.Run("Invalid item ID", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
-				defer setup.Close()
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("Invalid item ID", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			defer setup.Close()
 
-				_, sessionId := setup.LoggedIn(setup.Cashier())
+			_, sessionId := setup.LoggedIn(setup.Cashier())
 
-				url := path.Items().WithRawItemId("abc")
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
-				router.ServeHTTP(writer, request)
-				RequireFailureType(t, writer, http.StatusBadRequest, "invalid_item_id")
-			})
+			url := path.Items().WithRawItemId("abc")
+			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_item_id")
+		})
 
-			t.Run("As nonowner seller", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
-				defer setup.Close()
+		t.Run("As nonowner seller", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			defer setup.Close()
 
-				_, sessionId := setup.LoggedIn(setup.Seller())
-				ownerSeller := setup.Seller()
-				item := setup.Item(ownerSeller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+			_, sessionId := setup.LoggedIn(setup.Seller())
+			ownerSeller := setup.Seller()
+			item := setup.Item(ownerSeller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-				url := path.Items().Id(item.ItemID)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
-				router.ServeHTTP(writer, request)
-				RequireFailureType(t, writer, http.StatusForbidden, "wrong_seller")
-			})
+			url := path.Items().Id(item.ItemID)
+			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusForbidden, "wrong_seller")
+		})
 
-			t.Run("Item does not exist", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
-				defer setup.Close()
+		t.Run("Item does not exist", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			defer setup.Close()
 
-				// Log in as cashier
-				_, sessionId := setup.LoggedIn(setup.Cashier())
+			// Log in as cashier
+			_, sessionId := setup.LoggedIn(setup.Cashier())
 
-				// Get ID for nonexisting item
-				nonexistentItem := models.Id(1)
-				setup.RequireNoSuchItems(t, nonexistentItem)
+			// Get ID for nonexisting item
+			nonexistentItem := models.Id(1)
+			setup.RequireNoSuchItems(t, nonexistentItem)
 
-				// Attempt to get information for nonexistent item
-				url := path.Items().Id(nonexistentItem)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			// Attempt to get information for nonexistent item
+			url := path.Items().Id(nonexistentItem)
+			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 
-				// Send request
-				router.ServeHTTP(writer, request)
+			// Send request
+			router.ServeHTTP(writer, request)
 
-				// Check response
-				RequireFailureType(t, writer, http.StatusNotFound, "no_such_item")
-			})
+			// Check response
+			RequireFailureType(t, writer, http.StatusNotFound, "no_such_item")
+		})
 
-			t.Run("Not logged in", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
-				defer setup.Close()
-				sale_count := 0
+		t.Run("Not logged in", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			defer setup.Close()
+			sale_count := 0
 
-				seller := setup.Seller()
-				cashier := setup.Cashier()
-				item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+			seller := setup.Seller()
+			cashier := setup.Cashier()
+			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-				for i := 0; i < sale_count; i++ {
-					setup.Sale(cashier.UserId, []models.Id{item.ItemID})
-				}
+			for i := 0; i < sale_count; i++ {
+				setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+			}
 
-				url := path.Items().Id(item.ItemID)
-				request := CreateGetRequest(url)
-				router.ServeHTTP(writer, request)
-				RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
-			})
+			url := path.Items().Id(item.ItemID)
+			request := CreateGetRequest(url)
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
 		})
 	})
 }
