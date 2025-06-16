@@ -101,5 +101,20 @@ func TestGetSaleInformation(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNotFound, writer.Code)
 		})
+
+		t.Run("As seller", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller, sessionId := setup.LoggedIn(setup.Seller())
+			cashier := setup.Cashier()
+			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+			saleId := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+
+			url := path.Sales().Id(saleId)
+			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusForbidden, writer.Code)
+		})
 	})
 }
