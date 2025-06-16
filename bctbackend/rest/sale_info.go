@@ -49,7 +49,7 @@ func GetSaleInformation(context *gin.Context, db *sql.DB, userId models.Id, role
 }
 
 func (endpoint *getSaleInformationEndpoint) execute() {
-	if !endpoint.ensureUserIsAdmin() {
+	if !endpoint.ensureUserHasRightRole() {
 		return
 	}
 
@@ -66,6 +66,11 @@ func (endpoint *getSaleInformationEndpoint) execute() {
 		}
 
 		failure_response.Unknown(endpoint.context, "Could not retrieve sale information: "+err.Error())
+		return
+	}
+
+	if endpoint.roleId.IsCashier() && sale.CashierID != endpoint.userId {
+		failure_response.Forbidden(endpoint.context, "wrong_sale", "Only accessible to cashiers and owning cashiers")
 		return
 	}
 
@@ -101,11 +106,12 @@ func (endpoint *getSaleInformationEndpoint) convertSaleItemToData(saleItem *mode
 	}
 }
 
-func (endpoint *getSaleInformationEndpoint) ensureUserIsAdmin() bool {
-	if !endpoint.roleId.IsAdmin() {
-		failure_response.Forbidden(endpoint.context, "wrong_role", "Only accessible to cashiers")
+func (endpoint *getSaleInformationEndpoint) ensureUserHasRightRole() bool {
+	if !endpoint.roleId.IsAdmin() && !endpoint.roleId.IsCashier() {
+		failure_response.Forbidden(endpoint.context, "wrong_role", "Only accessible to cashiers and owning cashiers")
 		return false
 	}
+
 	return true
 }
 
