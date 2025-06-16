@@ -53,6 +53,11 @@ func (endpoint *getSaleInformationEndpoint) execute() {
 		return
 	}
 
+	saleId, ok := endpoint.extractSaleIdFromUri()
+	if !ok {
+		return
+	}
+
 	sale, err := queries.GetSaleWithId(endpoint.db, saleId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchSale) {
@@ -84,14 +89,15 @@ func (endpoint *getSaleInformationEndpoint) execute() {
 	endpoint.context.JSON(http.StatusOK, response)
 }
 
-func (endpoint *getSaleInformationEndpoint) convertSaleItemToData(saleItem models.SaleItem) *GetSaleItemData {
+func (endpoint *getSaleInformationEndpoint) convertSaleItemToData(saleItem *models.Item) *GetSaleItemData {
 	return &GetSaleItemData{
 		ItemId:       saleItem.ItemID,
 		SellerId:     saleItem.SellerID,
 		Description:  saleItem.Description,
 		PriceInCents: saleItem.PriceInCents,
 		CategoryId:   saleItem.CategoryID,
-		Charity:      saleItem.Charity,
+		Charity:      &saleItem.Charity,
+		Donation:     &saleItem.Donation,
 	}
 }
 
