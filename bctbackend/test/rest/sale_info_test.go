@@ -86,4 +86,20 @@ func TestGetSaleInformation(t *testing.T) {
 			})
 		})
 	})
+
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("Unknown sale", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			_, sessionId := setup.LoggedIn(setup.Admin())
+			saleId := models.Id(9999) // Assuming this ID does not exist
+			setup.RequireNoSuchSales(t, saleId)
+
+			url := path.Sales().Id(saleId)
+			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusNotFound, writer.Code)
+		})
+	})
 }
