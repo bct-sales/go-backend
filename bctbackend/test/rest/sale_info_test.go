@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"testing"
 
+	"bctbackend/algorithms"
 	"bctbackend/database/models"
 	restapi "bctbackend/rest"
 	"bctbackend/rest/path"
@@ -47,6 +48,41 @@ func TestGetSaleInformation(t *testing.T) {
 				require.Equal(t, item.PriceInCents, response.Items[0].PriceInCents)
 				require.Equal(t, item.Charity, *response.Items[0].Charity)
 				require.Equal(t, item.Donation, *response.Items[0].Donation)
+			})
+
+			t.Run("Five item in sale", func(t *testing.T) {
+				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				defer setup.Close()
+
+				_, sessionId := setup.LoggedIn(setup.Admin())
+				seller := setup.Seller()
+				cashier := setup.Cashier()
+
+				transactionTime := models.Timestamp(100)
+				itemCount := 5
+				items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
+				itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
+				saleId := setup.Sale(cashier.UserId, itemIds, aux.WithTransactionTime(transactionTime))
+
+				url := path.Sales().Id(saleId)
+				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				router.ServeHTTP(writer, request)
+				require.Equal(t, http.StatusOK, writer.Code)
+
+				response := FromJson[restapi.GetSaleInformationSuccessResponse](t, writer.Body.String())
+				require.Equal(t, cashier.UserId, response.CashierId)
+				require.Equal(t, rest.ConvertTimestampToDateTime(transactionTime), response.TransactionTime)
+				require.Equal(t, itemCount, len(response.Items))
+
+				for i, item := range items {
+					require.Equal(t, item.ItemID, response.Items[i].ItemId)
+					require.Equal(t, item.SellerID, response.Items[i].SellerId)
+					require.Equal(t, item.CategoryID, response.Items[i].CategoryId)
+					require.Equal(t, item.Description, response.Items[i].Description)
+					require.Equal(t, item.PriceInCents, response.Items[i].PriceInCents)
+					require.Equal(t, item.Charity, *response.Items[i].Charity)
+					require.Equal(t, item.Donation, *response.Items[i].Donation)
+				}
 			})
 		})
 	})
