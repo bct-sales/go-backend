@@ -29,8 +29,8 @@ type GetUserInformationItem struct {
 }
 
 type GetUserInformationSale struct {
-	SaleId          models.Id        `json:"saleId" binding:"required"`
-	TransactionTime models.Timestamp `json:"transactionTime" binding:"required"`
+	SaleId          models.Id     `json:"saleId" binding:"required"`
+	TransactionTime rest.DateTime `json:"transactionTime" binding:"required"`
 }
 
 type GetUserInformationSuccessResponse struct {
@@ -80,7 +80,7 @@ func convertItemToGetUserInformationItem(item *queries.ItemWithSaleCount) *GetUs
 func convertSaleToGetUserInformationSale(sale *models.Sale) *GetUserInformationSale {
 	return &GetUserInformationSale{
 		SaleId:          sale.SaleID,
-		TransactionTime: sale.TransactionTime,
+		TransactionTime: rest.ConvertTimestampToDateTime(sale.TransactionTime),
 	}
 }
 
