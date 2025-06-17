@@ -11,7 +11,8 @@ import (
 const (
 	SessionIdByteLength      = 16
 	SessionCookieName        = "bct_session_id"
-	Hour                     = 60 * 60
+	Minute                   = 60
+	Hour                     = 60 * Minute
 	SessionDurationInSeconds = 24 * Hour // TODO
 )
 
