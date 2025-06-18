@@ -34,8 +34,8 @@ func TestGetItemInformation(t *testing.T) {
 
 					saleIds := []models.Id{}
 					for i := 0; i < sale_count; i++ {
-						saleId := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
-						saleIds = append(saleIds, saleId)
+						sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+						saleIds = append(saleIds, sale.SaleID)
 					}
 
 					url := path.Items().Id(item.ItemID)

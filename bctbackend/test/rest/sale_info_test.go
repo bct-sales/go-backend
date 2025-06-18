@@ -29,15 +29,15 @@ func TestGetSaleInformation(t *testing.T) {
 
 				transactionTime := models.Timestamp(100)
 				item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-				saleId := setup.Sale(cashier.UserId, []models.Id{item.ItemID}, aux.WithTransactionTime(transactionTime))
+				sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID}, aux.WithTransactionTime(transactionTime))
 
-				url := path.Sales().Id(saleId)
+				url := path.Sales().Id(sale.SaleID)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
 				response := FromJson[restapi.GetSaleInformationSuccessResponse](t, writer.Body.String())
-				require.Equal(t, saleId, response.SaleId)
+				require.Equal(t, sale.SaleID, response.SaleId)
 				require.Equal(t, cashier.UserId, response.CashierId)
 				require.Equal(t, rest.ConvertTimestampToDateTime(transactionTime), response.TransactionTime)
 				require.Equal(t, 1, len(response.Items))
@@ -62,9 +62,9 @@ func TestGetSaleInformation(t *testing.T) {
 				itemCount := 5
 				items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
 				itemIds := models.CollectItemIds(items)
-				saleId := setup.Sale(cashier.UserId, itemIds, aux.WithTransactionTime(transactionTime))
+				sale := setup.Sale(cashier.UserId, itemIds, aux.WithTransactionTime(transactionTime))
 
-				url := path.Sales().Id(saleId)
+				url := path.Sales().Id(sale.SaleID)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
@@ -98,9 +98,9 @@ func TestGetSaleInformation(t *testing.T) {
 				itemCount := 5
 				items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
 				itemIds := models.CollectItemIds(items)
-				saleId := setup.Sale(cashier.UserId, itemIds, aux.WithTransactionTime(transactionTime))
+				sale := setup.Sale(cashier.UserId, itemIds, aux.WithTransactionTime(transactionTime))
 
-				url := path.Sales().Id(saleId)
+				url := path.Sales().Id(sale.SaleID)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
@@ -145,9 +145,9 @@ func TestGetSaleInformation(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 			cashier := setup.Cashier()
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-			saleId := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+			sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
 
-			url := path.Sales().Id(saleId)
+			url := path.Sales().Id(sale.SaleID)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)
@@ -161,9 +161,9 @@ func TestGetSaleInformation(t *testing.T) {
 			cashier := setup.Cashier()
 			_, sessionId := setup.LoggedIn(setup.Cashier())
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-			saleId := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+			sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
 
-			url := path.Sales().Id(saleId)
+			url := path.Sales().Id(sale.SaleID)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)

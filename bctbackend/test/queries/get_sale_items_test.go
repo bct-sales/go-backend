@@ -26,9 +26,9 @@ func TestGetSaleItems(t *testing.T) {
 		setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false)).ItemID,
 	}
 
-	saleId := setup.Sale(cashier.UserId, itemIds)
+	sale := setup.Sale(cashier.UserId, itemIds)
 
-	actualItems, err := queries.GetSaleItems(db, saleId)
+	actualItems, err := queries.GetSaleItems(db, sale.SaleID)
 
 	require.NoError(t, err)
 	require.Len(t, actualItems, len(itemIds))

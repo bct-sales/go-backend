@@ -33,7 +33,7 @@ func TestGetSalesWithItem(t *testing.T) {
 
 				saleIds := make([]models.Id, saleCount)
 				for index := range saleIds {
-					saleIds[index] = setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+					saleIds[index] = setup.Sale(cashier.UserId, []models.Id{item.ItemID}).SaleID
 				}
 
 				actualSaleIds, err := queries.GetSalesWithItem(db, item.ItemID)

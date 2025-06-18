@@ -28,17 +28,17 @@ func TestRemoveSale(t *testing.T) {
 		setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false)).ItemID,
 	}
 
-	sale1Id := setup.Sale(cashier.UserId, sale1ItemIds)
-	sale2Id := setup.Sale(cashier.UserId, sale2ItemIds)
+	sale1 := setup.Sale(cashier.UserId, sale1ItemIds)
+	sale2 := setup.Sale(cashier.UserId, sale2ItemIds)
 
-	err := queries.RemoveSale(db, sale1Id)
+	err := queries.RemoveSale(db, sale1.SaleID)
 	require.NoError(t, err)
 
-	sale1Exists, err := queries.SaleWithIdExists(db, sale1Id)
+	sale1Exists, err := queries.SaleWithIdExists(db, sale1.SaleID)
 	require.NoError(t, err)
 	require.False(t, sale1Exists)
 
-	sale2Exists, err := queries.SaleWithIdExists(db, sale2Id)
+	sale2Exists, err := queries.SaleWithIdExists(db, sale2.SaleID)
 	require.NoError(t, err)
 	require.True(t, sale2Exists)
 }

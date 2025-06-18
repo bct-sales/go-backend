@@ -125,7 +125,7 @@ func (s DatabaseFixture) Items(seller models.Id, count int, options ...func(*aux
 	return items
 }
 
-func (s DatabaseFixture) Sale(cashier models.Id, itemIds []models.Id, options ...func(*aux.AddSaleData)) models.Id {
+func (s DatabaseFixture) Sale(cashier models.Id, itemIds []models.Id, options ...func(*aux.AddSaleData)) *models.Sale {
 	return aux.AddSaleToDatabase(s.Db, cashier, itemIds, options...)
 }
 

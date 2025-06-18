@@ -34,13 +34,13 @@ func TestGetSalesWithCashier(t *testing.T) {
 			seller := setup.Seller()
 
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-			saleId := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+			sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
 
 			sales, err := queries.GetSalesWithCashier(db, cashier.UserId)
 			require.NoError(t, err)
 
 			require.Len(t, sales, 1)
-			require.Equal(t, saleId, sales[0].SaleID)
+			require.Equal(t, sale.SaleID, sales[0].SaleID)
 			require.Equal(t, cashier.UserId, sales[0].CashierID)
 		})
 
@@ -53,15 +53,15 @@ func TestGetSalesWithCashier(t *testing.T) {
 
 			item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 			item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false))
-			saleId1 := setup.Sale(cashier.UserId, []models.Id{item1.ItemID})
-			saleId2 := setup.Sale(cashier.UserId, []models.Id{item2.ItemID})
+			sale1 := setup.Sale(cashier.UserId, []models.Id{item1.ItemID})
+			sale2 := setup.Sale(cashier.UserId, []models.Id{item2.ItemID})
 
 			sales, err := queries.GetSalesWithCashier(db, cashier.UserId)
 			require.NoError(t, err)
 
 			require.Len(t, sales, 2)
-			require.Equal(t, saleId1, sales[0].SaleID)
-			require.Equal(t, saleId2, sales[1].SaleID)
+			require.Equal(t, sale1.SaleID, sales[0].SaleID)
+			require.Equal(t, sale2.SaleID, sales[1].SaleID)
 		})
 	})
 

@@ -95,7 +95,7 @@ func TestGetUserInformation(t *testing.T) {
 					_, sessionId := setup.LoggedIn(setup.Admin())
 
 					item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-					saleId := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+					sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
 
 					url := path.Users().WithUserId(cashier.UserId)
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -107,7 +107,7 @@ func TestGetUserInformation(t *testing.T) {
 					require.Equal(t, cashier.Password, response.Password)
 					require.Equal(t, rest.ConvertTimestampToDateTime(cashier.CreatedAt), response.CreatedAt)
 					require.Len(t, *response.Sales, 1)
-					require.Equal(t, saleId, (*response.Sales)[0].SaleId)
+					require.Equal(t, sale.SaleID, (*response.Sales)[0].SaleId)
 				})
 
 				t.Run("Multiple sales", func(t *testing.T) {
