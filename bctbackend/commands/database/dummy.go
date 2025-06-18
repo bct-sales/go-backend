@@ -212,26 +212,6 @@ func (c *dummyDatabaseCommand) execute() error {
 	})
 }
 
-func (c *dummyDatabaseCommand) addDummyItem(
-	db *sql.DB,
-	addedAt models.Timestamp,
-	description string,
-	priceInCents models.MoneyInCents,
-	itemCategoryId models.Id,
-	sellerId models.Id,
-	donation bool,
-	charity bool,
-	frozen bool,
-	hidden bool) error {
-	_, err := queries.AddItem(db, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
-
-	if err != nil {
-		return fmt.Errorf("failed to add item: %w", err)
-	}
-
-	return nil
-}
-
 func (c *dummyDatabaseCommand) addCategories(db *sql.DB) error {
 	c.Printf("Adding categories\n")
 
