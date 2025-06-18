@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand/v2"
+	"slices"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
@@ -148,6 +149,7 @@ type dummyDatabaseCommand struct {
 	rng        *rand.Rand
 	cashierIds *[]models.Id
 	sellerIds  *[]models.Id
+	itemIds    *[]models.Id
 }
 
 func NewDatabaseDummyCommand() *cobra.Command {
@@ -192,6 +194,10 @@ func (c *dummyDatabaseCommand) execute() error {
 		}
 
 		if err := c.addItems(db); err != nil {
+			return err
+		}
+
+		if err := c.addSales(db); err != nil {
 			return err
 		}
 
@@ -320,6 +326,7 @@ func (c *dummyDatabaseCommand) getSellerId(zone int, offset int) models.Id {
 func (c *dummyDatabaseCommand) addItems(db *sql.DB) error {
 	c.Printf("Adding items\n")
 
+	itemIds := make([]models.Id, 0, 1000)
 	for _, sellerId := range *c.sellerIds {
 		itemCount := c.rng.IntN(20)
 
@@ -332,11 +339,16 @@ func (c *dummyDatabaseCommand) addItems(db *sql.DB) error {
 			hidden := false
 			addedAt := models.Now()
 
-			if _, err := queries.AddItem(db, addedAt, description, priceInCents, category, sellerId, donation, charity, frozen, hidden); err != nil {
+			itemId, err := queries.AddItem(db, addedAt, description, priceInCents, category, sellerId, donation, charity, frozen, hidden)
+			if err != nil {
 				return fmt.Errorf("failed to add item: %w", err)
 			}
+
+			itemIds = append(itemIds, itemId)
 		}
 	}
+
+	c.itemIds = &itemIds
 
 	return nil
 }
@@ -396,4 +408,28 @@ func (c *dummyDatabaseCommand) generateRandomToys() (string, models.Id) {
 	categoryId := CategoryId_Toys
 
 	return description, categoryId
+}
+
+func (c *dummyDatabaseCommand) addSales(db *sql.DB) error {
+	c.Printf("Adding sales\n")
+
+	saleCount := c.rng.IntN(100) + 10
+	itemIds := slices.Clone(*c.itemIds)
+	for range saleCount {
+		cashierId := pickRandom(c.rng, *c.cashierIds)
+		itemCount := c.rng.IntN(20) + 1
+
+		c.rng.Shuffle(len(*c.itemIds), func(i, j int) {
+			itemIds[i], itemIds[j] = itemIds[j], itemIds[i]
+		})
+		saleItems := itemIds[:itemCount]
+		transactionTime := models.Now()
+		_, err := queries.AddSale(db, cashierId, transactionTime, saleItems)
+
+		if err != nil {
+			return fmt.Errorf("failed to add sale: %w", err)
+		}
+	}
+
+	return nil
 }
