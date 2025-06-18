@@ -15,6 +15,7 @@ import (
 )
 
 type GetSaleInformationSuccessResponse struct {
+	SaleId          models.Id          `json:"saleId" binding:"required"`
 	CashierId       models.Id          `json:"cashierId" binding:"required"`
 	TransactionTime rest.DateTime      `json:"transactionTime" binding:"required"`
 	Items           []*GetSaleItemData `json:"items" binding:"required"`
@@ -28,6 +29,7 @@ type GetSaleItemData struct {
 	CategoryId   models.Id           `json:"categoryId" binding:"required"`
 	Charity      *bool               `json:"charity" binding:"required"`
 	Donation     *bool               `json:"donation" binding:"required"`
+	AddedAt      rest.DateTime       `json:"addedAt" binding:"required"`
 }
 
 type getSaleInformationEndpoint struct {
@@ -86,6 +88,7 @@ func (endpoint *getSaleInformationEndpoint) execute() {
 	}
 
 	response := GetSaleInformationSuccessResponse{
+		SaleId:          sale.SaleID,
 		CashierId:       sale.CashierID,
 		TransactionTime: rest.ConvertTimestampToDateTime(sale.TransactionTime),
 		Items:           algorithms.Map(saleItems, endpoint.convertSaleItemToData),
@@ -103,6 +106,7 @@ func (endpoint *getSaleInformationEndpoint) convertSaleItemToData(saleItem *mode
 		CategoryId:   saleItem.CategoryID,
 		Charity:      &saleItem.Charity,
 		Donation:     &saleItem.Donation,
+		AddedAt:      rest.ConvertTimestampToDateTime(saleItem.AddedAt),
 	}
 }
 

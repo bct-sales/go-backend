@@ -38,6 +38,7 @@ func TestGetSaleInformation(t *testing.T) {
 				require.Equal(t, http.StatusOK, writer.Code)
 
 				response := FromJson[restapi.GetSaleInformationSuccessResponse](t, writer.Body.String())
+				require.Equal(t, saleId, response.SaleId)
 				require.Equal(t, cashier.UserId, response.CashierId)
 				require.Equal(t, rest.ConvertTimestampToDateTime(transactionTime), response.TransactionTime)
 				require.Equal(t, 1, len(response.Items))
