@@ -7,30 +7,20 @@ import (
 	"testing"
 
 	models "bctbackend/database/models"
+	"bctbackend/rest"
 	"bctbackend/rest/path"
-	rest "bctbackend/rest/shared"
+
+	shared "bctbackend/rest/shared"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )
 
-type Item struct {
-	ItemId       models.Id           `json:"itemId"`
-	AddedAt      rest.DateTime       `json:"addedAt"`
-	Description  string              `json:"description"`
-	PriceInCents models.MoneyInCents `json:"priceInCents"`
-	CategoryId   models.Id           `json:"categoryId"`
-	SellerId     models.Id           `json:"sellerId"`
-	Donation     bool                `json:"donation"`
-	Charity      bool                `json:"charity"`
-	Frozen       bool                `json:"frozen"`
-}
-
-func FromModel(item *models.Item) *Item {
-	return &Item{
+func FromModel(item *models.Item) *rest.GetItemsItemData {
+	return &rest.GetItemsItemData{
 		ItemId:       item.ItemID,
-		AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
+		AddedAt:      shared.ConvertTimestampToDateTime(item.AddedAt),
 		Description:  item.Description,
 		PriceInCents: item.PriceInCents,
 		CategoryId:   item.CategoryID,
@@ -39,10 +29,6 @@ func FromModel(item *models.Item) *Item {
 		Charity:      item.Charity,
 		Frozen:       item.Frozen,
 	}
-}
-
-type SuccessResponse struct {
-	Items []Item `json:"items"`
 }
 
 type FailureResponse struct {
@@ -64,8 +50,8 @@ func TestGetAllItems(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			expected := SuccessResponse{Items: []Item{}}
-			actual := FromJson[SuccessResponse](t, writer.Body.String())
+			expected := rest.GetItemsSuccessResponse{Items: []rest.GetItemsItemData{}}
+			actual := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expected, *actual)
 		})
 
@@ -83,10 +69,10 @@ func TestGetAllItems(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			expected := SuccessResponse{
-				Items: []Item{*FromModel(item)},
+			expected := rest.GetItemsSuccessResponse{
+				Items: []rest.GetItemsItemData{*FromModel(item)},
 			}
-			actual := FromJson[SuccessResponse](t, writer.Body.String())
+			actual := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expected, *actual)
 		})
 
@@ -105,10 +91,10 @@ func TestGetAllItems(t *testing.T) {
 
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			expected := SuccessResponse{
-				Items: []Item{*FromModel(item1), *FromModel(item2)},
+			expected := rest.GetItemsSuccessResponse{
+				Items: []rest.GetItemsItemData{*FromModel(item1), *FromModel(item2)},
 			}
-			actual := FromJson[SuccessResponse](t, writer.Body.String())
+			actual := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expected, *actual)
 		})
 	})
