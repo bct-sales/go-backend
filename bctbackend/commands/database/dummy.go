@@ -50,48 +50,8 @@ func (c *dummyDatabaseCommand) execute() error {
 			return err
 		}
 
-		c.Printf("Adding admin user\n")
-		{
-			id := models.Id(1)
-			roleId := models.NewAdminRoleId()
-			createdAt := models.Now()
-			var lastActivity *models.Timestamp = nil
-			password := "abc"
-
-			if err := queries.AddUserWithId(db, id, roleId, createdAt, lastActivity, password); err != nil {
-				return fmt.Errorf("failed to add admin: %w", err)
-			}
-		}
-
-		c.Printf("Adding cashier user\n")
-		{
-			id := models.Id(2)
-			roleId := models.NewCashierRoleId()
-			createdAt := models.Now()
-			var lastActivity *models.Timestamp = nil
-			password := "abc"
-
-			if err := queries.AddUserWithId(db, id, roleId, createdAt, lastActivity, password); err != nil {
-				return fmt.Errorf("failed to add cashier: %w", err)
-			}
-		}
-
-		c.Printf("Adding sellers\n")
-		addSellers := func(addUser func(userId models.Id, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
-			for area := 1; area <= 12; area++ {
-				for offset := 0; offset != 4; offset++ {
-					userId := models.Id(area*100 + offset)
-					roleId := models.NewSellerRoleId()
-					createdAt := models.Now()
-					var lastActivity *models.Timestamp = nil
-					password := fmt.Sprintf("%d", userId)
-
-					addUser(userId, roleId, createdAt, lastActivity, password)
-				}
-			}
-		}
-		if err := queries.AddUsers(db, addSellers); err != nil {
-			return fmt.Errorf("failed to add sellers: %w", err)
+		if err := c.addUsers(db); err != nil {
+			return err
 		}
 
 		{
@@ -440,5 +400,53 @@ func (c *dummyDatabaseCommand) addCategories(db *sql.DB) error {
 	if err := GenerateDefaultCategories(addCategory); err != nil {
 		return fmt.Errorf("failed to add categories: %w", err)
 	}
+	return nil
+}
+
+func (c *dummyDatabaseCommand) addUsers(db *sql.DB) error {
+	c.Printf("Adding admin user\n")
+	{
+		id := models.Id(1)
+		roleId := models.NewAdminRoleId()
+		createdAt := models.Now()
+		var lastActivity *models.Timestamp = nil
+		password := "abc"
+
+		if err := queries.AddUserWithId(db, id, roleId, createdAt, lastActivity, password); err != nil {
+			return fmt.Errorf("failed to add admin: %w", err)
+		}
+	}
+
+	c.Printf("Adding cashier user\n")
+	{
+		id := models.Id(2)
+		roleId := models.NewCashierRoleId()
+		createdAt := models.Now()
+		var lastActivity *models.Timestamp = nil
+		password := "abc"
+
+		if err := queries.AddUserWithId(db, id, roleId, createdAt, lastActivity, password); err != nil {
+			return fmt.Errorf("failed to add cashier: %w", err)
+		}
+	}
+
+	c.Printf("Adding sellers\n")
+	addSellers := func(addUser func(userId models.Id, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
+		for area := 1; area <= 12; area++ {
+			for offset := 0; offset != 4; offset++ {
+				userId := models.Id(area*100 + offset)
+				roleId := models.NewSellerRoleId()
+				createdAt := models.Now()
+				var lastActivity *models.Timestamp = nil
+				password := fmt.Sprintf("%d", userId)
+
+				addUser(userId, roleId, createdAt, lastActivity, password)
+			}
+		}
+	}
+	if err := queries.AddUsers(db, addSellers); err != nil {
+		return fmt.Errorf("failed to add sellers: %w", err)
+	}
+
 	return nil
 }
