@@ -144,11 +144,8 @@ var toys = [...]string{
 
 type dummyDatabaseCommand struct {
 	common.Command
-	seed       uint64
-	rng        *rand.Rand
-	cashierIds *[]models.Id
-	sellerIds  *[]models.Id
-	itemIds    *[]models.Id
+	seed uint64
+	rng  *rand.Rand
 }
 
 func NewDatabaseDummyCommand() *cobra.Command {
@@ -193,19 +190,22 @@ func (c *dummyDatabaseCommand) execute() error {
 			return err
 		}
 
-		if err := c.addCashiers(db); err != nil {
+		cashierIds, err := c.addCashiers(db)
+		if err != nil {
 			return err
 		}
 
-		if err := c.addSellers(db); err != nil {
+		sellerIds, err := c.addSellers(db)
+		if err != nil {
 			return err
 		}
 
-		if err := c.addItems(db); err != nil {
+		itemIds, err := c.addItems(db, sellerIds)
+		if err != nil {
 			return err
 		}
 
-		if err := c.addSales(db); err != nil {
+		if err := c.addSales(db, cashierIds, itemIds); err != nil {
 			return err
 		}
 
@@ -242,7 +242,7 @@ func (c *dummyDatabaseCommand) addAdmin(db *sql.DB) (models.Id, error) {
 	return id, nil
 }
 
-func (c *dummyDatabaseCommand) addCashiers(db *sql.DB) error {
+func (c *dummyDatabaseCommand) addCashiers(db *sql.DB) ([]models.Id, error) {
 	c.Printf("Adding cashier users\n")
 
 	cashierCount := c.rng.IntN(10) + 1
@@ -257,18 +257,16 @@ func (c *dummyDatabaseCommand) addCashiers(db *sql.DB) error {
 		cashierId, err := queries.AddUser(db, roleId, createdAt, lastActivity, password)
 
 		if err != nil {
-			return fmt.Errorf("failed to add cashier: %w", err)
+			return nil, fmt.Errorf("failed to add cashier: %w", err)
 		}
 
 		cashierIDs = append(cashierIDs, cashierId)
 	}
 
-	c.cashierIds = &cashierIDs
-
-	return nil
+	return cashierIDs, nil
 }
 
-func (c *dummyDatabaseCommand) addSellers(db *sql.DB) error {
+func (c *dummyDatabaseCommand) addSellers(db *sql.DB) ([]models.Id, error) {
 	c.Printf("Adding sellers\n")
 
 	sellerIds := make([]models.Id, 0, zoneCount*10)
@@ -291,23 +289,21 @@ func (c *dummyDatabaseCommand) addSellers(db *sql.DB) error {
 		}
 	}
 	if err := queries.AddUsers(db, addSellers); err != nil {
-		return fmt.Errorf("failed to add sellers: %w", err)
+		return nil, fmt.Errorf("failed to add sellers: %w", err)
 	}
 
-	c.sellerIds = &sellerIds
-
-	return nil
+	return sellerIds, nil
 }
 
 func (c *dummyDatabaseCommand) getSellerId(zone int, offset int) models.Id {
 	return models.Id(zone*100 + offset)
 }
 
-func (c *dummyDatabaseCommand) addItems(db *sql.DB) error {
+func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIds []models.Id) ([]models.Id, error) {
 	c.Printf("Adding items\n")
 
 	itemIds := make([]models.Id, 0, 1000)
-	for _, sellerId := range *c.sellerIds {
+	for _, sellerId := range sellerIds {
 		itemCount := c.rng.IntN(20)
 
 		for range itemCount {
@@ -321,16 +317,14 @@ func (c *dummyDatabaseCommand) addItems(db *sql.DB) error {
 
 			itemId, err := queries.AddItem(db, addedAt, description, priceInCents, category, sellerId, donation, charity, frozen, hidden)
 			if err != nil {
-				return fmt.Errorf("failed to add item: %w", err)
+				return nil, fmt.Errorf("failed to add item: %w", err)
 			}
 
 			itemIds = append(itemIds, itemId)
 		}
 	}
 
-	c.itemIds = &itemIds
-
-	return nil
+	return itemIds, nil
 }
 
 func (c *dummyDatabaseCommand) generateRandomItemDescriptionAndCategory() (string, models.Id) {
@@ -390,16 +384,18 @@ func (c *dummyDatabaseCommand) generateRandomToys() (string, models.Id) {
 	return description, categoryId
 }
 
-func (c *dummyDatabaseCommand) addSales(db *sql.DB) error {
+func (c *dummyDatabaseCommand) addSales(db *sql.DB, cashierIds []models.Id, itemIds []models.Id) error {
 	c.Printf("Adding sales\n")
 
+	// Make copy because we need to shuffle it repeatedly
+	itemIds = slices.Clone(itemIds)
+
 	saleCount := c.rng.IntN(100) + 10
-	itemIds := slices.Clone(*c.itemIds)
 	for range saleCount {
-		cashierId := pickRandom(c.rng, *c.cashierIds)
+		cashierId := pickRandom(c.rng, cashierIds)
 		itemCount := c.rng.IntN(20) + 1
 
-		c.rng.Shuffle(len(*c.itemIds), func(i, j int) {
+		c.rng.Shuffle(len(itemIds), func(i, j int) {
 			itemIds[i], itemIds[j] = itemIds[j], itemIds[i]
 		})
 		saleItems := itemIds[:itemCount]
