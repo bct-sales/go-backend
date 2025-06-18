@@ -46,15 +46,8 @@ func (c *dummyDatabaseCommand) execute() error {
 			return fmt.Errorf("failed to reset database: %w", err)
 		}
 
-		c.Printf("Adding categories\n")
-		{
-			addCategory := func(id models.Id, name string) error {
-				return queries.AddCategoryWithId(db, id, name)
-			}
-
-			if err := GenerateDefaultCategories(addCategory); err != nil {
-				return fmt.Errorf("failed to add categories: %w", err)
-			}
+		if err := c.addCategories(db); err != nil {
+			return err
 		}
 
 		c.Printf("Adding admin user\n")
@@ -434,5 +427,18 @@ func (c *dummyDatabaseCommand) addDummyItem(
 		return fmt.Errorf("failed to add item: %w", err)
 	}
 
+	return nil
+}
+
+func (c *dummyDatabaseCommand) addCategories(db *sql.DB) error {
+	c.Printf("Adding categories\n")
+
+	addCategory := func(id models.Id, name string) error {
+		return queries.AddCategoryWithId(db, id, name)
+	}
+
+	if err := GenerateDefaultCategories(addCategory); err != nil {
+		return fmt.Errorf("failed to add categories: %w", err)
+	}
 	return nil
 }
