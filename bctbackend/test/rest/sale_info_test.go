@@ -86,7 +86,7 @@ func TestGetSaleInformation(t *testing.T) {
 			})
 		})
 
-		t.Run("As cashier", func(t *testing.T) {
+		t.Run("As owning cashier", func(t *testing.T) {
 			t.Run("Five item in sale", func(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
