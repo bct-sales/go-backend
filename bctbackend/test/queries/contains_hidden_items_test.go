@@ -3,7 +3,6 @@
 package queries
 
 import (
-	"bctbackend/algorithms"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -21,7 +20,7 @@ func TestContainsHiddenItems(t *testing.T) {
 
 			seller := setup.Seller()
 			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
+			itemIds := models.CollectItemIds(items)
 
 			result, err := queries.ContainsHiddenItems(db, itemIds)
 			require.NoError(t, err)
@@ -35,7 +34,7 @@ func TestContainsHiddenItems(t *testing.T) {
 			seller := setup.Seller()
 			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
 			items = append(items, setup.Item(seller.UserId, aux.WithHidden(true)))
-			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
+			itemIds := models.CollectItemIds(items)
 
 			result, err := queries.ContainsHiddenItems(db, itemIds)
 			require.NoError(t, err)
@@ -48,7 +47,7 @@ func TestContainsHiddenItems(t *testing.T) {
 
 			seller := setup.Seller()
 			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
+			itemIds := models.CollectItemIds(items)
 			itemIds = append(itemIds, itemIds...)
 
 			result, err := queries.ContainsHiddenItems(db, itemIds)
@@ -63,7 +62,7 @@ func TestContainsHiddenItems(t *testing.T) {
 			seller := setup.Seller()
 			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
 			items = append(items, setup.Item(seller.UserId, aux.WithHidden(true)))
-			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
+			itemIds := models.CollectItemIds(items)
 			itemIds = append(itemIds, itemIds...)
 
 			result, err := queries.ContainsHiddenItems(db, itemIds)
@@ -76,7 +75,7 @@ func TestContainsHiddenItems(t *testing.T) {
 
 			seller := setup.Seller()
 			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
+			itemIds := models.CollectItemIds(items)
 			nonexistentItemId := models.Id(1000)
 			setup.RequireNoSuchItems(t, nonexistentItemId)
 			itemIds = append(itemIds, nonexistentItemId)

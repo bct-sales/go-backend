@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"testing"
 
-	"bctbackend/algorithms"
 	"bctbackend/database/models"
 	restapi "bctbackend/rest"
 	"bctbackend/rest/path"
@@ -62,7 +61,7 @@ func TestGetSaleInformation(t *testing.T) {
 				transactionTime := models.Timestamp(100)
 				itemCount := 5
 				items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
-				itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
+				itemIds := models.CollectItemIds(items)
 				saleId := setup.Sale(cashier.UserId, itemIds, aux.WithTransactionTime(transactionTime))
 
 				url := path.Sales().Id(saleId)
@@ -98,7 +97,7 @@ func TestGetSaleInformation(t *testing.T) {
 				transactionTime := models.Timestamp(100)
 				itemCount := 5
 				items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
-				itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
+				itemIds := models.CollectItemIds(items)
 				saleId := setup.Sale(cashier.UserId, itemIds, aux.WithTransactionTime(transactionTime))
 
 				url := path.Sales().Id(saleId)

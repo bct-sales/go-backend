@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"testing"
 
-	"bctbackend/algorithms"
 	"bctbackend/database/models"
 	"bctbackend/rest"
 	restapi "bctbackend/rest"
@@ -56,7 +55,7 @@ func TestGenerateLabels(t *testing.T) {
 				seller, sessionId := setup.LoggedIn(setup.Seller())
 
 				items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-				itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
+				itemIds := models.CollectItemIds(items)
 
 				url := path.Labels().String()
 				request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
@@ -81,7 +80,7 @@ func TestGenerateLabels(t *testing.T) {
 
 			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
 			otherItems := setup.Items(otherSeller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
+			itemIds := models.CollectItemIds(items)
 
 			url := path.Labels().String()
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
@@ -107,7 +106,7 @@ func TestGenerateLabels(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 
 			items := setup.Items(seller.UserId, 10, aux.WithFrozen(true), aux.WithHidden(false))
-			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
+			itemIds := models.CollectItemIds(items)
 
 			url := path.Labels().String()
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
@@ -129,7 +128,7 @@ func TestGenerateLabels(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 
 			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
+			itemIds := models.CollectItemIds(items)
 
 			url := path.Labels().String()
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
@@ -530,7 +529,7 @@ func TestGenerateLabels(t *testing.T) {
 
 					seller, sessionId := setup.LoggedIn(setup.Seller())
 					items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-					itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
+					itemIds := models.CollectItemIds(items)
 
 					url := path.Labels().String()
 					request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{

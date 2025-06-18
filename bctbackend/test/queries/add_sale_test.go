@@ -25,7 +25,7 @@ func TestAddSale(t *testing.T) {
 			cashier := setup.Cashier()
 
 			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-			itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
+			itemIds := models.CollectItemIds(items)
 
 			saleItemIds := make([]models.Id, len(itemIndices))
 			for index, itemIndex := range itemIndices {

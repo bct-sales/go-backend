@@ -3,7 +3,6 @@
 package queries
 
 import (
-	"bctbackend/algorithms"
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -49,7 +48,7 @@ func TestHasAnyBeenSold(t *testing.T) {
 		seller := setup.Seller()
 
 		items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-		itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
+		itemIds := models.CollectItemIds(items)
 
 		actual, err := queries.HasAnyBeenSold(db, itemIds)
 		require.NoError(t, err)
@@ -64,7 +63,7 @@ func TestHasAnyBeenSold(t *testing.T) {
 		cashier := setup.Cashier()
 
 		items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-		itemIds := algorithms.Map(items, func(item *models.Item) models.Id { return item.ItemID })
+		itemIds := models.CollectItemIds(items)
 
 		setup.Sale(cashier.UserId, itemIds)
 
