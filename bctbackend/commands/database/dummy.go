@@ -404,32 +404,46 @@ func (c *dummyDatabaseCommand) addCategories(db *sql.DB) error {
 }
 
 func (c *dummyDatabaseCommand) addUsers(db *sql.DB) error {
+	return errors.Join(
+		c.addAdmin(db),
+		c.addCashier(db),
+		c.addSellers(db),
+	)
+}
+
+func (c *dummyDatabaseCommand) addAdmin(db *sql.DB) error {
 	c.Printf("Adding admin user\n")
-	{
-		id := models.Id(1)
-		roleId := models.NewAdminRoleId()
-		createdAt := models.Now()
-		var lastActivity *models.Timestamp = nil
-		password := "abc"
 
-		if err := queries.AddUserWithId(db, id, roleId, createdAt, lastActivity, password); err != nil {
-			return fmt.Errorf("failed to add admin: %w", err)
-		}
+	id := models.Id(1)
+	roleId := models.NewAdminRoleId()
+	createdAt := models.Now()
+	var lastActivity *models.Timestamp = nil
+	password := "abc"
+
+	if err := queries.AddUserWithId(db, id, roleId, createdAt, lastActivity, password); err != nil {
+		return fmt.Errorf("failed to add admin: %w", err)
 	}
 
+	return nil
+}
+
+func (c *dummyDatabaseCommand) addCashier(db *sql.DB) error {
 	c.Printf("Adding cashier user\n")
-	{
-		id := models.Id(2)
-		roleId := models.NewCashierRoleId()
-		createdAt := models.Now()
-		var lastActivity *models.Timestamp = nil
-		password := "abc"
 
-		if err := queries.AddUserWithId(db, id, roleId, createdAt, lastActivity, password); err != nil {
-			return fmt.Errorf("failed to add cashier: %w", err)
-		}
+	id := models.Id(2)
+	roleId := models.NewCashierRoleId()
+	createdAt := models.Now()
+	var lastActivity *models.Timestamp = nil
+	password := "abc"
+
+	if err := queries.AddUserWithId(db, id, roleId, createdAt, lastActivity, password); err != nil {
+		return fmt.Errorf("failed to add cashier: %w", err)
 	}
 
+	return nil
+}
+
+func (c *dummyDatabaseCommand) addSellers(db *sql.DB) error {
 	c.Printf("Adding sellers\n")
 	addSellers := func(addUser func(userId models.Id, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
 		for area := 1; area <= 12; area++ {
