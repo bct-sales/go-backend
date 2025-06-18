@@ -188,7 +188,8 @@ func (c *dummyDatabaseCommand) execute() error {
 			return err
 		}
 
-		if err := c.addAdmin(db); err != nil {
+		_, err := c.addAdmin(db)
+		if err != nil {
 			return err
 		}
 
@@ -225,7 +226,7 @@ func (c *dummyDatabaseCommand) addCategories(db *sql.DB) error {
 	return nil
 }
 
-func (c *dummyDatabaseCommand) addAdmin(db *sql.DB) error {
+func (c *dummyDatabaseCommand) addAdmin(db *sql.DB) (models.Id, error) {
 	c.Printf("Adding admin user\n")
 
 	id := models.Id(1)
@@ -235,10 +236,10 @@ func (c *dummyDatabaseCommand) addAdmin(db *sql.DB) error {
 	password := "abc"
 
 	if err := queries.AddUserWithId(db, id, roleId, createdAt, lastActivity, password); err != nil {
-		return fmt.Errorf("failed to add admin: %w", err)
+		return 0, fmt.Errorf("failed to add admin: %w", err)
 	}
 
-	return nil
+	return id, nil
 }
 
 func (c *dummyDatabaseCommand) addCashiers(db *sql.DB) error {
