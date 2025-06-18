@@ -6,7 +6,6 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"database/sql"
-	"errors"
 	"fmt"
 	"math/rand/v2"
 	"slices"
@@ -189,7 +188,15 @@ func (c *dummyDatabaseCommand) execute() error {
 			return err
 		}
 
-		if err := c.addUsers(db); err != nil {
+		if err := c.addAdmin(db); err != nil {
+			return err
+		}
+
+		if err := c.addCashiers(db); err != nil {
+			return err
+		}
+
+		if err := c.addSellers(db); err != nil {
 			return err
 		}
 
@@ -236,14 +243,6 @@ func (c *dummyDatabaseCommand) addCategories(db *sql.DB) error {
 		return fmt.Errorf("failed to add categories: %w", err)
 	}
 	return nil
-}
-
-func (c *dummyDatabaseCommand) addUsers(db *sql.DB) error {
-	return errors.Join(
-		c.addAdmin(db),
-		c.addCashiers(db),
-		c.addSellers(db),
-	)
 }
 
 func (c *dummyDatabaseCommand) addAdmin(db *sql.DB) error {
