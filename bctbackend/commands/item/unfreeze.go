@@ -5,7 +5,6 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"database/sql"
-	"fmt"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
@@ -31,25 +30,29 @@ func NewUnfreezeItemCommand() *cobra.Command {
 			   `),
 				Args: cobra.ExactArgs(1), // Expect exactly one argument (the item ID)
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return common.WithOpenedDatabase(cmd.ErrOrStderr(), func(db *sql.DB) error {
-						itemId, err := models.ParseId(args[0])
-						if err != nil {
-							fmt.Fprintf(cmd.ErrOrStderr(), "Invalid item ID: %s\n", args[0])
-							return err
-						}
-
-						if err := queries.UpdateFreezeStatusOfItems(db, []models.Id{itemId}, false); err != nil {
-							fmt.Fprintf(cmd.ErrOrStderr(), "Failed to unfreeze item: %v\n", err)
-							return err
-						}
-
-						fmt.Fprint(cmd.OutOrStdout(), "Item unfrozen successfully\n")
-						return nil
-					})
+					return command.execute(args)
 				},
 			},
 		},
 	}
 
 	return command.AsCobraCommand()
+}
+
+func (c *unfreezeItemCommand) execute(args []string) error {
+	return c.WithOpenedDatabase(func(db *sql.DB) error {
+		itemId, err := models.ParseId(args[0])
+		if err != nil {
+			c.PrintErrorf("Invalid item ID: %s\n", args[0])
+			return err
+		}
+
+		if err := queries.UpdateFreezeStatusOfItems(db, []models.Id{itemId}, false); err != nil {
+			c.PrintErrorf("Failed to unfreeze item: %v\n", err)
+			return err
+		}
+
+		c.Printf("Item unfrozen successfully\n")
+		return nil
+	})
 }
