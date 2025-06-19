@@ -4,7 +4,9 @@
         "bctbackend",
         "dberr",
         "exhaustruct",
-        "pterm"
+        "pterm",
+        "unhide",
+        "Unhides"
     ],
     "go.buildTags": "test",
     "terminal.integrated.env.linux": {
