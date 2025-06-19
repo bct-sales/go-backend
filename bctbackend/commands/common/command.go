@@ -1,6 +1,7 @@
 package common
 
 import (
+	"bctbackend/algorithms"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"database/sql"
@@ -39,6 +40,10 @@ func (c *Command) ParseUserId(str string) (models.Id, error) {
 
 func (c *Command) ParseSaleId(str string) (models.Id, error) {
 	return c.parseId(str, "sale")
+}
+
+func (c *Command) ParseItemIds(str []string) ([]models.Id, error) {
+	return algorithms.MapError(str, c.ParseItemId)
 }
 
 func (c *Command) parseId(str string, idType string) (models.Id, error) {
