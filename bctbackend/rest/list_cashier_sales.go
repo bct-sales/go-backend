@@ -46,10 +46,6 @@ func GetCashierSales(context *gin.Context, db *sql.DB, userId models.Id, roleId 
 }
 
 func (ep *getCashierSalesEndpoint) Execute() {
-	if !ep.ensureUserIsCashier() {
-		return
-	}
-
 	uriCashierId, ok := ep.extractCashierIdFromUri()
 	if !ok {
 		return
@@ -79,14 +75,10 @@ func (ep *getCashierSalesEndpoint) convertSaleSummaryToData(saleSummary *models.
 	}
 }
 
-func (ep *getCashierSalesEndpoint) ensureUserIsCashier() bool {
-	if !ep.roleId.IsCashier() {
-		failure_response.Forbidden(ep.context, "wrong_role", "Only accessible to cashiers")
-		return false
-	}
-	return true
-}
-
+// extractCashierIdFromUri extracts the cashier ID from the URI and validates it.
+// It returns the cashier ID and a boolean indicating success or failure.
+// If the extraction or validation fails, it sends an appropriate error response.
+// False indicates failure, true indicates success.
 func (endpoint *getCashierSalesEndpoint) extractCashierIdFromUri() (models.Id, bool) {
 	var uriParameters struct {
 		CashierId string `uri:"id" binding:"required"`
@@ -102,25 +94,40 @@ func (endpoint *getCashierSalesEndpoint) extractCashierIdFromUri() (models.Id, b
 		return 0, false
 	}
 
-	if err := queries.EnsureUserExistsAndHasRole(endpoint.db, uriUserId, models.NewCashierRoleId()); err != nil {
-		if errors.Is(err, dberr.ErrNoSuchUser) {
-			failure_response.UnknownUser(endpoint.context, err.Error())
-			return 0, false
-		}
-
-		if errors.Is(err, dberr.ErrWrongRole) {
-			failure_response.WrongUser(endpoint.context, "Can only list sales for cashiers")
-			return 0, false
-		}
-
-		failure_response.Unknown(endpoint.context, "Could not check user role: "+err.Error())
-		return 0, false
-	}
-
-	if endpoint.userId != uriUserId {
-		failure_response.WrongSeller(endpoint.context, "Logged in user does not match URI cashier ID")
+	if !endpoint.ensureUserHasPermission(uriUserId) {
 		return 0, false
 	}
 
 	return uriUserId, true
+}
+
+func (endpoint *getCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.Id) bool {
+	user, err := queries.GetUserWithId(endpoint.db, endpoint.userId)
+	if err != nil {
+		if errors.Is(err, dberr.ErrNoSuchUser) {
+			// This should not happen, as the userId is from the logged-in user
+			failure_response.Unknown(endpoint.context, "Bug: logged in user does not exist")
+			return false
+		}
+		failure_response.Unknown(endpoint.context, "Could not retrieve logged in user: "+err.Error())
+		return false
+	}
+
+	if user.RoleId.IsAdmin() {
+		return true
+	}
+
+	if user.RoleId.IsCashier() {
+		loggedInUser := endpoint.userId
+
+		if loggedInUser != queriedUser {
+			failure_response.Forbidden(endpoint.context, "wrong_role", "Only accessible to owning cashiers or admins")
+			return false
+		}
+
+		return true
+	}
+
+	failure_response.Forbidden(endpoint.context, "wrong_role", "Only accessible to owning cashiers or admins")
+	return false
 }
