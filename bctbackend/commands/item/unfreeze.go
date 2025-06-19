@@ -46,7 +46,7 @@ func (c *unfreezeItemCommand) execute(args []string) error {
 		}
 
 		if err := queries.UpdateFreezeStatusOfItems(db, itemIds, false); err != nil {
-			c.PrintErrorf("Failed to unfreeze item: %v\n", err)
+			c.PrintErrorf("Failed to unfreeze items: %v\n", err)
 			return err
 		}
 
