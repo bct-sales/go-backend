@@ -61,7 +61,7 @@ func (c *unfreezeItemCommand) parseIds(args []string) ([]models.Id, error) {
 	ids := make([]models.Id, len(args))
 
 	for i, arg := range args {
-		id, err := models.ParseId(arg)
+		id, err := c.ParseItemId(arg)
 		if err != nil {
 			c.PrintErrorf("Invalid item ID: %s\n", arg)
 			return nil, fmt.Errorf("failed to parse %d-nth id \"%s\": %w", i, arg, err)
