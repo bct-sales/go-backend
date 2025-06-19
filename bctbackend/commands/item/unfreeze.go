@@ -20,7 +20,7 @@ func NewUnfreezeItemCommand() *cobra.Command {
 		Command: common.Command{
 			CobraCommand: &cobra.Command{
 				Use:   "unfreeze <item-id> ...",
-				Short: "Unfreezes an item",
+				Short: "Unfreezes items",
 				Long: heredoc.Doc(`
 					This command unfreezes items so that they can be edited again.
 					Use with care: if labels were printed for the item, editing the item would make them inaccurate.
