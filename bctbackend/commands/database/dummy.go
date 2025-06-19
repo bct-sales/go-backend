@@ -82,7 +82,7 @@ var bootBrands = [...]string{
 }
 
 var bootTypes = [...]string{
-	"Combat boots", "Cowboy boots", "Harness boots", "Engineer boots", "Jodhpur boots", "Chelsea boots",
+	"combat boots", "cowboy boots", "harness boots", "engineer boots", "jodhpur boots", "chelsea boots",
 }
 
 var toys = [...]string{
