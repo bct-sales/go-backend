@@ -46,6 +46,10 @@ func (c *Command) ParseItemIds(str []string) ([]models.Id, error) {
 	return algorithms.MapError(str, c.ParseItemId)
 }
 
+func (c *Command) ParseUserIds(str []string) ([]models.Id, error) {
+	return algorithms.MapError(str, c.ParseUserId)
+}
+
 func (c *Command) parseId(str string, idType string) (models.Id, error) {
 	id, err := models.ParseId(str)
 
