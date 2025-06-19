@@ -20,6 +20,7 @@ func NewItemCommand() *cobra.Command {
 	command.AddCommand(NewUnhideItemCommand())
 	command.AddCommand(NewRemoveItemCommand())
 	command.AddCommand(NewCopyItemCommand())
+	command.AddCommand(NewUpdateItemCommand())
 
 	return &command
 }
