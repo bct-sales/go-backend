@@ -22,10 +22,10 @@ func NewUnfreezeItemCommand() *cobra.Command {
 				Use:   "unfreeze <item-id>",
 				Short: "Unfreezes an item",
 				Long: heredoc.Doc(`
-				This command unfreezes items so that they can be edited again.
-				Use with care: if labels were printed for the item, editing the item would make them inaccurate.
-				It is highly recommended not to unfreeze items but instead create a new item with the updated information.
-				See the item copy command.
+					This command unfreezes items so that they can be edited again.
+					Use with care: if labels were printed for the item, editing the item would make them inaccurate.
+					It is highly recommended not to unfreeze items but instead create a new item with the updated information.
+					See the item copy command.
 			   `),
 				Args: cobra.MinimumNArgs(1),
 				RunE: func(cmd *cobra.Command, args []string) error {
