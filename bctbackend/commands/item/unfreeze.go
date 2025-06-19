@@ -2,10 +2,8 @@ package item
 
 import (
 	"bctbackend/commands/common"
-	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"database/sql"
-	"fmt"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
@@ -42,7 +40,7 @@ func NewUnfreezeItemCommand() *cobra.Command {
 
 func (c *unfreezeItemCommand) execute(args []string) error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		itemIds, err := c.parseIds(args)
+		itemIds, err := c.ParseItemIds(args)
 		if err != nil {
 			return err
 		}
@@ -55,18 +53,4 @@ func (c *unfreezeItemCommand) execute(args []string) error {
 		c.Printf("Items unfrozen successfully\n")
 		return nil
 	})
-}
-
-func (c *unfreezeItemCommand) parseIds(args []string) ([]models.Id, error) {
-	ids := make([]models.Id, len(args))
-
-	for i, arg := range args {
-		id, err := c.ParseItemId(arg)
-		if err != nil {
-			c.PrintErrorf("Invalid item ID: %s\n", arg)
-			return nil, fmt.Errorf("failed to parse %d-nth id \"%s\": %w", i, arg, err)
-		}
-		ids[i] = id
-	}
-	return ids, nil
 }
