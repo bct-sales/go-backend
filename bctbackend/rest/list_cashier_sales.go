@@ -87,38 +87,38 @@ func (ep *getCashierSalesEndpoint) ensureUserIsCashier() bool {
 	return true
 }
 
-func (ep *getCashierSalesEndpoint) extractCashierIdFromUri() (models.Id, bool) {
+func (endpoint *getCashierSalesEndpoint) extractCashierIdFromUri() (models.Id, bool) {
 	var uriParameters struct {
 		CashierId string `uri:"id" binding:"required"`
 	}
-	if err := ep.context.ShouldBindUri(&uriParameters); err != nil {
-		failure_response.InvalidUriParameters(ep.context, err.Error())
+	if err := endpoint.context.ShouldBindUri(&uriParameters); err != nil {
+		failure_response.InvalidUriParameters(endpoint.context, err.Error())
 		return 0, false
 	}
 
 	uriUserId, err := models.ParseId(uriParameters.CashierId)
 	if err != nil {
-		failure_response.InvalidUserId(ep.context, err.Error())
+		failure_response.InvalidUserId(endpoint.context, err.Error())
 		return 0, false
 	}
 
-	if err := queries.EnsureUserExistsAndHasRole(ep.db, uriUserId, models.NewCashierRoleId()); err != nil {
+	if err := queries.EnsureUserExistsAndHasRole(endpoint.db, uriUserId, models.NewCashierRoleId()); err != nil {
 		if errors.Is(err, dberr.ErrNoSuchUser) {
-			failure_response.UnknownUser(ep.context, err.Error())
+			failure_response.UnknownUser(endpoint.context, err.Error())
 			return 0, false
 		}
 
 		if errors.Is(err, dberr.ErrWrongRole) {
-			failure_response.WrongUser(ep.context, "Can only list sales for cashiers")
+			failure_response.WrongUser(endpoint.context, "Can only list sales for cashiers")
 			return 0, false
 		}
 
-		failure_response.Unknown(ep.context, "Could not check user role: "+err.Error())
+		failure_response.Unknown(endpoint.context, "Could not check user role: "+err.Error())
 		return 0, false
 	}
 
-	if ep.userId != uriUserId {
-		failure_response.WrongSeller(ep.context, "Logged in user does not match URI cashier ID")
+	if endpoint.userId != uriUserId {
+		failure_response.WrongSeller(endpoint.context, "Logged in user does not match URI cashier ID")
 		return 0, false
 	}
 
