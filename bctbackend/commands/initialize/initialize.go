@@ -35,11 +35,29 @@ func NewInitializeCommand() *cobra.Command {
 }
 
 func (c *InitializeCommand) execute() error {
-	if err := viper.SafeWriteConfig(); err != nil {
+	copy := c.CopySettings()
+
+	if err := copy.SafeWriteConfig(); err != nil {
 		c.Printf("Failed to create configuration file: %v\n", err)
 		return err
 	}
 
 	c.Printf("Configuration file created successfully\n")
 	return nil
+}
+
+func (c *InitializeCommand) CopySettings() *viper.Viper {
+	v := viper.New()
+
+	v.SetConfigName("bctconfig")
+	v.SetConfigType("yaml")
+	v.AddConfigPath(".")
+
+	for key, value := range viper.AllSettings() {
+		if key != "config" {
+			v.Set(key, value)
+		}
+	}
+
+	return v
 }
