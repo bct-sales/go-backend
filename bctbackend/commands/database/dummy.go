@@ -304,7 +304,7 @@ func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIds []models.Id) ([]mo
 
 	itemIds := make([]models.Id, 0, 1000)
 	for _, sellerId := range sellerIds {
-		itemCount := c.rng.IntN(20)
+		itemCount := c.rng.IntN(50) + 5
 
 		for range itemCount {
 			description, category := c.generateRandomItemDescriptionAndCategory()
