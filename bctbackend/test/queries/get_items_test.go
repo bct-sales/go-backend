@@ -95,5 +95,25 @@ func TestGetItems(t *testing.T) {
 				require.Equal(t, item, actualItems[i])
 			}
 		})
+
+		t.Run("Get items 10-15", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			offset := 10
+			limit := 5
+
+			seller := setup.Seller()
+			items := setup.Items(seller.UserId, 20, aux.WithHidden(false))
+
+			actualItems := []*models.Item{}
+			err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.AllItems, queries.RowSelection(offset, limit))
+			require.NoError(t, err)
+			require.Equal(t, limit, len(actualItems))
+
+			for index, actualItem := range actualItems {
+				require.Equal(t, items[index+offset], actualItem)
+			}
+		})
 	})
 }
