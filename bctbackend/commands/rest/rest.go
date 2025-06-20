@@ -36,10 +36,10 @@ func NewRestCommand() *cobra.Command {
 func (c *RestCommand) execute() error {
 	configuration := rest.Configuration{
 		FontDirectory: viper.GetString(common.FlagFontDirectory),
-		FontFilename:  viper.GetString("font.filename"),
-		FontFamily:    viper.GetString("font.family"),
-		BarcodeWidth:  viper.GetInt("barcode.width"),
-		BarcodeHeight: viper.GetInt("barcode.height"),
+		FontFilename:  viper.GetString(common.FlagFontFilename),
+		FontFamily:    viper.GetString(common.FlagFontFamily),
+		BarcodeWidth:  viper.GetInt(common.FlagBarcodeWidth),
+		BarcodeHeight: viper.GetInt(common.FlagBarcodeHeight),
 	}
 
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
