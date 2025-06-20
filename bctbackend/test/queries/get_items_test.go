@@ -30,7 +30,7 @@ func TestGetItems(t *testing.T) {
 						items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
 
 						actualItems := []*models.Item{}
-						err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.OnlyVisibleItems)
+						err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.OnlyVisibleItems, queries.AllRows())
 						require.NoError(t, err)
 						require.Equal(t, itemCount, len(actualItems))
 
@@ -52,7 +52,7 @@ func TestGetItems(t *testing.T) {
 						setup.Items(seller.UserId, itemCount, aux.WithFrozen(false), aux.WithHidden(true))
 
 						actualItems := []*models.Item{}
-						err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.OnlyVisibleItems)
+						err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.OnlyVisibleItems, queries.AllRows())
 						require.NoError(t, err)
 						require.Equal(t, 0, len(actualItems))
 					})
@@ -69,7 +69,7 @@ func TestGetItems(t *testing.T) {
 			items = slices.Concat(items, setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(true)))
 
 			actualItems := []*models.Item{}
-			err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.AllItems)
+			err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.AllItems, queries.AllRows())
 			require.NoError(t, err)
 			require.Equal(t, 20, len(actualItems))
 
@@ -87,7 +87,7 @@ func TestGetItems(t *testing.T) {
 			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(true))
 
 			actualItems := []*models.Item{}
-			err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.OnlyHiddenItems)
+			err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.OnlyHiddenItems, queries.AllRows())
 			require.NoError(t, err)
 			require.Equal(t, 10, len(actualItems))
 

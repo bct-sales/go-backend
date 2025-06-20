@@ -12,13 +12,14 @@ import (
 	"strings"
 )
 
-func GetItems(db *sql.DB, receiver func(*models.Item) error, itemSelection ItemSelection) error {
+func GetItems(db *sql.DB, receiver func(*models.Item) error, itemSelection ItemSelection, rowSelection SQLOption) error {
 	// Build SQL query
 	query := fmt.Sprintf(`
 		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden
 		FROM %s
 		ORDER BY item_id ASC
-	`, ItemsTableFor(itemSelection))
+		%s
+	`, ItemsTableFor(itemSelection), rowSelection.SQL())
 
 	// Perform query
 	rows, err := db.Query(query)

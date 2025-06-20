@@ -46,7 +46,7 @@ func TestHeavyLoad(t *testing.T) {
 	}
 
 	itemsInDatabase := []*models.Item{}
-	err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems)
+	err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems, queries.AllRows())
 	require.NoError(t, err)
 	require.Equal(t, itemCount, len(itemsInDatabase))
 }

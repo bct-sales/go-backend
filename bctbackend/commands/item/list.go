@@ -57,15 +57,15 @@ func (c *listItemsCommand) execute() error {
 
 func (c *listItemsCommand) listItemsInTableFormat() error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		var hiddenStrategy queries.ItemSelection
+		var itemSelection queries.ItemSelection
 		if c.showHidden {
-			hiddenStrategy = queries.AllItems
+			itemSelection = queries.AllItems
 		} else {
-			hiddenStrategy = queries.OnlyVisibleItems
+			itemSelection = queries.OnlyVisibleItems
 		}
 
 		items := []*models.Item{}
-		if err := queries.GetItems(db, queries.CollectTo(&items), hiddenStrategy); err != nil {
+		if err := queries.GetItems(db, queries.CollectTo(&items), itemSelection, queries.AllRows()); err != nil {
 			c.PrintErrorf("Error while getting items: %v\n", err)
 			return err
 		}
@@ -121,7 +121,7 @@ func (c *listItemsCommand) listItemsInCSVFormat() error {
 		itemSelection := queries.ItemSelectionFromBool(c.showHidden)
 
 		items := []*models.Item{}
-		if err := queries.GetItems(db, queries.CollectTo(&items), itemSelection); err != nil {
+		if err := queries.GetItems(db, queries.CollectTo(&items), itemSelection, queries.AllRows()); err != nil {
 			return fmt.Errorf("failed to get items: %w", err)
 		}
 

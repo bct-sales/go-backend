@@ -63,3 +63,34 @@ func (t *Transaction) Query(query string, args ...any) (*sql.Rows, error) {
 func (t *Transaction) QueryRow(query string, args ...any) *sql.Row {
 	return t.transaction.QueryRow(query, args...)
 }
+
+type SQLOption interface {
+	SQL() string
+}
+
+type allRows struct{}
+
+func (*allRows) SQL() string {
+	return ""
+}
+
+type rowSelection struct {
+	Limit  int
+	Offset int
+}
+
+func (p *rowSelection) SQL() string {
+	return fmt.Sprintf("LIMIT %d OFFSET %d", p.Limit, p.Offset)
+}
+
+func AllRows() SQLOption {
+	return &allRows{}
+}
+
+func RowSelection(limit, offset int) SQLOption {
+	if limit < 0 || offset < 0 {
+		panic("limit and offset must be non-negative")
+	}
+
+	return &rowSelection{Limit: limit, Offset: offset}
+}

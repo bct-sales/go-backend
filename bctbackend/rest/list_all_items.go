@@ -59,7 +59,7 @@ func GetAllItems(context *gin.Context, configuration *Configuration, db *sql.DB,
 	}
 
 	items := []*models.Item{}
-	if err := queries.GetItems(db, queries.CollectTo(&items), itemSelection); err != nil {
+	if err := queries.GetItems(db, queries.CollectTo(&items), itemSelection, queries.AllRows()); err != nil {
 		failure_response.Unknown(context, "Failed to get items: "+err.Error())
 		return
 	}
