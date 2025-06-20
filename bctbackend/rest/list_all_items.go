@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"database/sql"
 	"net/http"
+	"strconv"
 
 	_ "bctbackend/docs"
 
@@ -58,8 +59,40 @@ func GetAllItems(context *gin.Context, configuration *Configuration, db *sql.DB,
 		itemSelection = queries.OnlyVisibleItems
 	}
 
+	var limit *int
+	limitString := context.Query("limit")
+	if context.Query(limitString) != "" {
+		parsedLimit, err := strconv.Atoi(limitString)
+
+		if err != nil {
+			failure_response.BadRequest(context, "invalid_uri_parameters", "Failed to parse limit: "+err.Error())
+			return
+		}
+
+		limit = &parsedLimit
+	} else {
+		limit = nil
+	}
+
+	var offset *int = nil
+	offsetString := context.Query("offset")
+	if context.Query(offsetString) != "" {
+		parsedOffset, err := strconv.Atoi(offsetString)
+
+		if err != nil {
+			failure_response.BadRequest(context, "invalid_uri_parameters", "Failed to parse limit: "+err.Error())
+			return
+		}
+
+		offset = &parsedOffset
+	} else {
+		offset = nil
+	}
+
+	rowSelection := queries.RowSelection(offset, limit)
+
 	items := []*models.Item{}
-	if err := queries.GetItems(db, queries.CollectTo(&items), itemSelection, queries.AllRows()); err != nil {
+	if err := queries.GetItems(db, queries.CollectTo(&items), itemSelection, rowSelection); err != nil {
 		failure_response.Unknown(context, "Failed to get items: "+err.Error())
 		return
 	}

@@ -91,6 +91,6 @@ func AllRows() SQLOption {
 	return &rowSelection{Limit: nil, Offset: nil}
 }
 
-func RowSelection(offset int, limit int) SQLOption {
-	return &rowSelection{Limit: &limit, Offset: &offset}
+func RowSelection(offset *int, limit *int) SQLOption {
+	return &rowSelection{Limit: limit, Offset: offset}
 }
