@@ -15,7 +15,7 @@ swagger:
 	swag init -g rest/main.go
 
 rest: build swagger
-	go run . server
+	go run . -v server
 
 build:
 	go build
