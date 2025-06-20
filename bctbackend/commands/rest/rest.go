@@ -35,7 +35,7 @@ func NewRestCommand() *cobra.Command {
 
 func (c *RestCommand) execute() error {
 	configuration := rest.Configuration{
-		FontDirectory: viper.GetString("font.directory"),
+		FontDirectory: viper.GetString(common.FlagFontDirectory),
 		FontFilename:  viper.GetString("font.filename"),
 		FontFamily:    viper.GetString("font.family"),
 		BarcodeWidth:  viper.GetInt("barcode.width"),
