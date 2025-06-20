@@ -40,6 +40,6 @@ func (c *InitializeCommand) execute() error {
 		return err
 	}
 
-	c.Printf("Configuration file created successfully at %s\n", viper.ConfigFileUsed())
+	c.Printf("Configuration file created successfully\n")
 	return nil
 }
