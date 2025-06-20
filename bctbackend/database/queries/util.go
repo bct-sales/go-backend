@@ -68,29 +68,29 @@ type SQLOption interface {
 	SQL() string
 }
 
-type allRows struct{}
-
-func (*allRows) SQL() string {
-	return ""
-}
-
 type rowSelection struct {
-	Limit  int
-	Offset int
+	Limit  *int
+	Offset *int
 }
 
 func (p *rowSelection) SQL() string {
-	return fmt.Sprintf("LIMIT %d OFFSET %d", p.Limit, p.Offset)
+	clauses := []string{}
+
+	if p.Limit != nil {
+		clauses = append(clauses, fmt.Sprintf("LIMIT %d", *p.Limit))
+	}
+
+	if p.Offset != nil {
+		clauses = append(clauses, fmt.Sprintf("OFFSET %d", *p.Offset))
+	}
+
+	return strings.Join(clauses, " ")
 }
 
 func AllRows() SQLOption {
-	return &allRows{}
+	return &rowSelection{Limit: nil, Offset: nil}
 }
 
 func RowSelection(offset int, limit int) SQLOption {
-	if limit < 0 || offset < 0 {
-		panic("limit and offset must be non-negative")
-	}
-
-	return &rowSelection{Limit: limit, Offset: offset}
+	return &rowSelection{Limit: &limit, Offset: &offset}
 }
