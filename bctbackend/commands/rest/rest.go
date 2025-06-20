@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 type RestCommand struct {
@@ -33,8 +34,16 @@ func NewRestCommand() *cobra.Command {
 }
 
 func (c *RestCommand) execute() error {
+	configuration := rest.Configuration{
+		FontDirectory: viper.GetString("font.directory"),
+		FontFilename:  viper.GetString("font.filename"),
+		FontFamily:    viper.GetString("font.family"),
+		BarcodeWidth:  viper.GetInt("barcode.width"),
+		BarcodeHeight: viper.GetInt("barcode.height"),
+	}
+
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		if err := rest.StartRestService(db); err != nil {
+		if err := rest.StartRestService(db, &configuration); err != nil {
 			c.PrintErrorf("Failed to start REST service\n")
 			return fmt.Errorf("failed to start REST service: %w", err)
 		}

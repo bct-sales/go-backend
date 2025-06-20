@@ -36,10 +36,10 @@ import (
 
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
-func StartRestService(db *sql.DB) error {
+func StartRestService(db *sql.DB, configuration *Configuration) error {
 	router := gin.Default()
 	SetUpCors(router)
-	DefineEndpoints(db, router)
+	DefineEndpoints(db, router, configuration)
 
 	return router.Run("localhost:8000")
 }
@@ -53,8 +53,8 @@ func SetUpCors(router *gin.Engine) {
 	router.Use(cors.New(config))
 }
 
-func DefineEndpoints(db *sql.DB, router *gin.Engine) {
-	withUserAndRole := func(handler func(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId)) gin.HandlerFunc {
+func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *Configuration) {
+	withUserAndRole := func(handler func(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId)) gin.HandlerFunc {
 		return func(context *gin.Context) {
 			sessionIdString, err := context.Cookie(security.SessionCookieName)
 			if err != nil {
@@ -87,7 +87,7 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine) {
 				// Keep going, we don't want to block the request
 			}
 
-			handler(context, db, userId, roleId)
+			handler(context, configuration, db, userId, roleId)
 		}
 	}
 

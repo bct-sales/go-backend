@@ -34,7 +34,7 @@ type getCashierSalesEndpoint struct {
 	roleId  models.RoleId
 }
 
-func GetCashierSales(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func GetCashierSales(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	endpoint := &getCashierSalesEndpoint{
 		context: context,
 		db:      db,

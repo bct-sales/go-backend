@@ -39,7 +39,7 @@ type getSaleInformationEndpoint struct {
 	roleId  models.RoleId
 }
 
-func GetSaleInformation(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func GetSaleInformation(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	endpoint := &getSaleInformationEndpoint{
 		context: context,
 		db:      db,

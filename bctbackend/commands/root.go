@@ -33,6 +33,7 @@ func NewRootCommand() *cobra.Command {
 	cobra.OnInitialize(func() {
 		if verbose {
 			slog.SetLogLoggerLevel(slog.LevelDebug)
+			slog.Info("Verbose mode enabled")
 		}
 
 		if noColor {
@@ -68,6 +69,9 @@ func NewRootCommand() *cobra.Command {
 
 	viper.BindPFlag(common.FlagConfigurationPath, rootCommand.PersistentFlags().Lookup("config"))
 	viper.BindPFlag(common.FlagDatabase, rootCommand.PersistentFlags().Lookup("db"))
+	viper.SetDefault("font.directory", ".")
+	viper.SetDefault("font.file", "arial.ttf")
+	viper.SetDefault("font.family", "Arial")
 	viper.SetDefault("barcode.width", 150)
 	viper.SetDefault("barcode.height", 30)
 

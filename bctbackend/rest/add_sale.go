@@ -34,7 +34,7 @@ type AddSaleSuccessResponse struct {
 // @Failure 404 {object} failure_response.FailureResponse "Unknown item in sale"
 // @Failure 500 {object} failure_response.FailureResponse "Internal server error"
 // @Router /sales [post]
-func AddSale(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func AddSale(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	if !roleId.IsCashier() {
 		failure_response.WrongRole(context, "Adding sale is only accessible to cashiers")
 		return

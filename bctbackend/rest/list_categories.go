@@ -37,7 +37,7 @@ type CategoryData struct {
 // @Failure 403 {object} failure_response.FailureResponse "Unauthorized access"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to fetch category counts"
 // @Router /categories [get]
-func ListCategories(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func ListCategories(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	switch context.Query("counts") {
 	case "all":
 		listCategoriesWithCounts(context, db, userId, roleId, queries.AllItems)

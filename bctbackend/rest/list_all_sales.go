@@ -25,7 +25,7 @@ type ListSalesSuccessResponse struct {
 	Sales []*ListSalesSaleData `json:"sales"`
 }
 
-func GetAllSales(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func GetAllSales(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	if roleId != models.NewAdminRoleId() {
 		failure_response.WrongRole(context, "Only admins can list all items")
 		return

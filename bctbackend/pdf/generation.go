@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"image/png"
-	"os"
+	"log/slog"
 
 	"bctbackend/barcode"
 
@@ -33,13 +33,20 @@ type PdfBuilder struct {
 	layout        *LayoutSettings
 	gridWalker    *GridWalker
 	labels        []*LabelData
-	barcodeWidth  int
-	barcodeHeight int
 	showGrid      bool
+	configuration *Configuration
 }
 
-func GeneratePdf(layout *LayoutSettings, labels []*LabelData) (*PdfBuilder, error) {
-	builder, err := newPdfBuilder(layout, labels)
+type Configuration struct {
+	FontDirectory string
+	FontFilename  string
+	FontFamily    string
+	BarcodeWidth  int
+	BarcodeHeight int
+}
+
+func GeneratePdf(configuration *Configuration, layout *LayoutSettings, labels []*LabelData) (*PdfBuilder, error) {
+	builder, err := newPdfBuilder(configuration, layout, labels)
 	if err != nil {
 		return nil, &PdfError{Message: "failed to create pdf builder", Wrapped: err}
 	}
@@ -67,25 +74,23 @@ func (builder *PdfBuilder) WriteToBuffer() (*bytes.Buffer, error) {
 	return &buffer, nil
 }
 
-func newPdfGenerator() *fpdf.Fpdf {
+func newPdfGenerator(fontDirectory string) *fpdf.Fpdf {
 	orientation := "P"
 	unit := "mm"
 	paperSize := "A4" // should not be used, new pages will have an explicitly specified size
-	fontDirectory := os.Getenv("BCT_FONT_DIR")
 
 	return fpdf.New(orientation, unit, paperSize, fontDirectory)
 }
 
-func newPdfBuilder(layout *LayoutSettings, labels []*LabelData) (*PdfBuilder, error) {
+func newPdfBuilder(configuration *Configuration, layout *LayoutSettings, labels []*LabelData) (*PdfBuilder, error) {
 	builder := PdfBuilder{
 		imageCache:    make(map[string]string),
-		pdf:           newPdfGenerator(),
+		pdf:           newPdfGenerator(configuration.FontDirectory),
 		layout:        layout,
 		gridWalker:    NewGridWalker(layout.columns, layout.rows),
 		labels:        labels,
-		barcodeWidth:  150,
-		barcodeHeight: 30,
 		showGrid:      false,
+		configuration: configuration,
 	}
 
 	if err := builder.setFont(); err != nil {
@@ -253,18 +258,28 @@ func formatPriceAndSeller(priceInCents int, sellerIdentifier int) string {
 }
 
 func (builder *PdfBuilder) setFont() error {
-	builder.pdf.AddUTF8Font("Arial", "", "Arial.ttf")
+	fontFamily := builder.configuration.FontFamily
+	fontStyle := ""
+	fontFilename := builder.configuration.FontFilename
+
+	slog.Debug("Setting font", slog.String("family", fontFamily), slog.String("style", fontStyle), slog.String("filename", fontFilename))
+	builder.pdf.AddUTF8Font(fontFamily, fontStyle, fontFilename)
 	if err := builder.pdf.Error(); err != nil {
+		slog.Error("Failed to set font", slog.String("error", err.Error()))
 		return &PdfError{Message: "failed to add font", Wrapped: err}
 	}
 
+	slog.Debug("Converting font size to points", slog.Float64("fontSize", builder.layout.fontSize))
 	fontSizeInPoints := builder.pdf.UnitToPointConvert(builder.layout.fontSize)
 	if err := builder.pdf.Error(); err != nil {
+		slog.Error("Failed to convert font size to points", slog.String("error", err.Error()))
 		return &PdfError{Message: "failed to convert font size to points", Wrapped: err}
 	}
 
-	builder.pdf.SetFont("Arial", "", fontSizeInPoints)
+	slog.Debug("Setting font", slog.String("family", fontFamily), slog.Float64("sizeInPoints", fontSizeInPoints))
+	builder.pdf.SetFont(fontFamily, "", fontSizeInPoints)
 	if err := builder.pdf.Error(); err != nil {
+		slog.Debug("Failed to set font", slog.String("error", err.Error()))
 		return &PdfError{Message: "failed to set font", Wrapped: err}
 	}
 
@@ -292,7 +307,7 @@ func (builder *PdfBuilder) generateBarcode(data string) (string, error) {
 	}
 
 	// Generate barcode image in memory
-	barcode, err := barcode.GenerateBarcode(data, builder.barcodeWidth, builder.barcodeHeight)
+	barcode, err := barcode.GenerateBarcode(data, builder.configuration.BarcodeWidth, builder.configuration.BarcodeHeight)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate barcode: %w", err)
 	}
