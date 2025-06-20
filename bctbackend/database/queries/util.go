@@ -87,7 +87,7 @@ func AllRows() SQLOption {
 	return &allRows{}
 }
 
-func RowSelection(limit, offset int) SQLOption {
+func RowSelection(offset int, limit int) SQLOption {
 	if limit < 0 || offset < 0 {
 		panic("limit and offset must be non-negative")
 	}
