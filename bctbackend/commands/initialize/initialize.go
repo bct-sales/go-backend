@@ -35,7 +35,7 @@ func NewInitializeCommand() *cobra.Command {
 }
 
 func (c *InitializeCommand) execute() error {
-	copy := c.CopySettings()
+	copy := c.copySettings()
 
 	if err := copy.SafeWriteConfig(); err != nil {
 		c.Printf("Failed to create configuration file: %v\n", err)
@@ -46,7 +46,7 @@ func (c *InitializeCommand) execute() error {
 	return nil
 }
 
-func (c *InitializeCommand) CopySettings() *viper.Viper {
+func (c *InitializeCommand) copySettings() *viper.Viper {
 	v := viper.New()
 
 	v.SetConfigName("bctconfig")
@@ -54,6 +54,7 @@ func (c *InitializeCommand) CopySettings() *viper.Viper {
 	v.AddConfigPath(".")
 
 	for key, value := range viper.AllSettings() {
+		// Skip the "config" key, it's a bit silly to have the config file reference itself
 		if key != "config" {
 			v.Set(key, value)
 		}
