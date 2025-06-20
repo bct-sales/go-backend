@@ -4,6 +4,7 @@ import (
 	"bctbackend/commands/category"
 	"bctbackend/commands/common"
 	"bctbackend/commands/database"
+	"bctbackend/commands/initialize"
 	"bctbackend/commands/item"
 	"bctbackend/commands/rest"
 	"bctbackend/commands/sale"
@@ -81,6 +82,7 @@ func NewRootCommand() *cobra.Command {
 	rootCommand.AddCommand(sale.NewSaleCommand())
 	rootCommand.AddCommand(rest.NewRestCommand())
 	rootCommand.AddCommand(category.NewCategoryCommand())
+	rootCommand.AddCommand(initialize.NewInitializeCommand())
 
 	return &rootCommand
 }
