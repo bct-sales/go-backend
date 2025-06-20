@@ -106,10 +106,15 @@ func handleMissingConfigurationFile() {
 	}
 
 	fmt.Print(heredoc.Docf(`
+		=======
+		WARNING
+		=======
 		I could not find the configuration file.
-		This is where I looked for it: %s.
+		I looked for it here: %s.
 
 		Possible solutions:
+		* Use this tool to generate a configuration file:
+			$ bctbackend init
 		* Specify a different path using the --config flag:
 		    $ bctbackend --config path/to/your/config.yaml ...
 		* You can also set the BCT_CONFIG environment variable to point to your configuration file.
@@ -117,7 +122,9 @@ func handleMissingConfigurationFile() {
 		* You can create a configuration file in the current directory with the name "bctconfig.yaml".
 		    $ touch bctconfig.yaml
 			$ bctbackend ...
+
+		For now, I will proceed with the default configuration,
+		but this is strongly discouraged as it may lead to unexpected behavior.
 		`,
 		absolutePathOfConfigurationFile))
-	os.Exit(1)
 }
