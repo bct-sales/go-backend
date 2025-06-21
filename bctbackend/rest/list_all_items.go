@@ -61,7 +61,7 @@ func GetAllItems(context *gin.Context, configuration *Configuration, db *sql.DB,
 
 	var limit *int
 	limitString := context.Query("limit")
-	if context.Query(limitString) != "" {
+	if limitString != "" {
 		parsedLimit, err := strconv.Atoi(limitString)
 
 		if err != nil {
@@ -76,7 +76,7 @@ func GetAllItems(context *gin.Context, configuration *Configuration, db *sql.DB,
 
 	var offset *int = nil
 	offsetString := context.Query("offset")
-	if context.Query(offsetString) != "" {
+	if offsetString != "" {
 		parsedOffset, err := strconv.Atoi(offsetString)
 
 		if err != nil {
