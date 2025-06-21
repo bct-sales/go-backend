@@ -3,6 +3,7 @@ package queries
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -74,17 +75,19 @@ type rowSelection struct {
 }
 
 func (p *rowSelection) SQL() string {
-	clauses := []string{}
+	clause := "LIMIT "
 
 	if p.Limit != nil {
-		clauses = append(clauses, fmt.Sprintf("LIMIT %d", *p.Limit))
+		clause += strconv.FormatInt(int64(*p.Limit), 10)
+	} else {
+		clause += "1000000"
 	}
 
 	if p.Offset != nil {
-		clauses = append(clauses, fmt.Sprintf("OFFSET %d", *p.Offset))
+		clause += fmt.Sprintf(" OFFSET %d", *p.Offset)
 	}
 
-	return strings.Join(clauses, " ")
+	return clause
 }
 
 func AllRows() SQLOption {
