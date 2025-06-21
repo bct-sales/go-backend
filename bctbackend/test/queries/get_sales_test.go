@@ -32,7 +32,7 @@ func TestGetSales(t *testing.T) {
 	}
 
 	actualSales := []*models.SaleSummary{}
-	err := queries.GetSales(db, queries.CollectTo(&actualSales))
+	err := queries.NewGetSalesQuery().Execute(db, queries.CollectTo(&actualSales))
 	require.NoError(t, err)
 	require.Len(t, actualSales, len(saleIds))
 

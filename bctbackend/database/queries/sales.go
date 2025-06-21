@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"slices"
 )
 
 // AddSale adds a sale to the database.
@@ -105,16 +106,33 @@ func AddSale(
 	return models.Id(saleId), nil
 }
 
-func GetSales(db *sql.DB, receiver func(*models.SaleSummary) error) (r_err error) {
-	rows, err := db.Query(
+type GetSalesQuery struct {
+	minimalId *models.Id // If set, only sales with an ID greater than or equal to this value are returned.
+}
+
+func (q *GetSalesQuery) WithIdGreaterThanOrEqualTo(minimalId models.Id) *GetSalesQuery {
+	q.minimalId = &minimalId
+	return q
+}
+
+func NewGetSalesQuery() *GetSalesQuery {
+	return &GetSalesQuery{}
+}
+
+func (q *GetSalesQuery) Execute(db *sql.DB, receiver func(*models.SaleSummary) error) (r_err error) {
+	query := fmt.Sprintf(
 		`
 			SELECT sales.sale_id, sales.cashier_id, sales.transaction_time, COUNT(sale_items.item_id) AS item_count, SUM(items.price_in_cents) AS total_price
 			FROM sales
 			INNER JOIN sale_items ON sales.sale_id = sale_items.sale_id
 			INNER JOIN items ON sale_items.item_id = items.item_id
+			%s
 			GROUP BY sales.sale_id
 		`,
-	)
+		q.whereClause())
+
+	queryArguments := slices.Concat(q.whereArguments())
+	rows, err := db.Query(query, queryArguments...)
 	if err != nil {
 		return err
 	}
@@ -147,6 +165,20 @@ func GetSales(db *sql.DB, receiver func(*models.SaleSummary) error) (r_err error
 	}
 
 	return nil
+}
+
+func (q *GetSalesQuery) whereClause() string {
+	if q.minimalId == nil {
+		return ""
+	}
+	return "WHERE sales.sale_id >= ?"
+}
+
+func (q *GetSalesQuery) whereArguments() []any {
+	if q.minimalId == nil {
+		return nil
+	}
+	return []any{*q.minimalId}
 }
 
 // GetSaleWithId returns the sale with the given saleId.

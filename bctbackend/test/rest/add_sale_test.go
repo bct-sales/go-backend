@@ -62,7 +62,7 @@ func TestAddSale(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
 			sales := []*models.SaleSummary{}
-			err := queries.GetSales(setup.Db, queries.CollectTo(&sales))
+			err := queries.NewGetSalesQuery().Execute(setup.Db, queries.CollectTo(&sales))
 			require.NoError(t, err)
 			require.Empty(t, sales)
 		})
@@ -82,7 +82,7 @@ func TestAddSale(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
 			sales := []*models.SaleSummary{}
-			err := queries.GetSales(setup.Db, queries.CollectTo(&sales))
+			err := queries.NewGetSalesQuery().Execute(setup.Db, queries.CollectTo(&sales))
 			require.NoError(t, err)
 			require.Empty(t, sales)
 		})
@@ -100,7 +100,7 @@ func TestAddSale(t *testing.T) {
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
 			sales := []*models.SaleSummary{}
-			err := queries.GetSales(setup.Db, queries.CollectTo(&sales))
+			err := queries.NewGetSalesQuery().Execute(setup.Db, queries.CollectTo(&sales))
 			require.NoError(t, err)
 			require.Empty(t, sales)
 		})
@@ -121,7 +121,7 @@ func TestAddSale(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_item")
 
 			sales := []*models.SaleSummary{}
-			err := queries.GetSales(setup.Db, queries.CollectTo(&sales))
+			err := queries.NewGetSalesQuery().Execute(setup.Db, queries.CollectTo(&sales))
 			require.NoError(t, err)
 			require.Empty(t, sales)
 		})
@@ -142,7 +142,7 @@ func TestAddSale(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "duplicate_item_in_sale")
 
 			sales := []*models.SaleSummary{}
-			err := queries.GetSales(setup.Db, queries.CollectTo(&sales))
+			err := queries.NewGetSalesQuery().Execute(setup.Db, queries.CollectTo(&sales))
 			require.NoError(t, err)
 			require.Empty(t, sales)
 		})

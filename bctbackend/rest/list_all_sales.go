@@ -11,6 +11,7 @@ import (
 	_ "bctbackend/docs"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/exp/slog"
 )
 
 type ListSalesSaleData struct {
@@ -27,6 +28,7 @@ type ListSalesSuccessResponse struct {
 
 func GetAllSales(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	if roleId != models.NewAdminRoleId() {
+		slog.Error("Unauthorized access to list all sales", "userId", userId, "roleId", roleId)
 		failure_response.WrongRole(context, "Only admins can list all items")
 		return
 	}
@@ -45,7 +47,8 @@ func GetAllSales(context *gin.Context, configuration *Configuration, db *sql.DB,
 		return nil
 	}
 
-	if err := queries.GetSales(db, processSale); err != nil {
+	if err := queries.NewGetSalesQuery().Execute(db, processSale); err != nil {
+		slog.Error("Failed to get sales", "error", err)
 		failure_response.Unknown(context, "Failed to get sales: "+err.Error())
 		return
 	}

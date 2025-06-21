@@ -62,7 +62,7 @@ func (command *saleListCommand) execute() error {
 			return nil
 		}
 
-		if err := queries.GetSales(db, addToTable); err != nil {
+		if err := queries.NewGetSalesQuery().Execute(db, addToTable); err != nil {
 			command.PrintErrorf("Error while listing sales\n")
 			return fmt.Errorf("error while listing sales: %w", err)
 		}
