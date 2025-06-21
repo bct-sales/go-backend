@@ -51,7 +51,10 @@ func TestGetAllItems(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			expected := rest.GetItemsSuccessResponse{Items: []rest.GetItemsItemData{}}
+			expected := rest.GetItemsSuccessResponse{
+				Items:          []rest.GetItemsItemData{},
+				TotalItemCount: 0,
+			}
 			actual := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expected, *actual)
 		})
@@ -71,7 +74,8 @@ func TestGetAllItems(t *testing.T) {
 			require.Equal(t, http.StatusOK, writer.Code)
 
 			expected := rest.GetItemsSuccessResponse{
-				Items: []rest.GetItemsItemData{*FromModel(item)},
+				Items:          []rest.GetItemsItemData{*FromModel(item)},
+				TotalItemCount: 1,
 			}
 			actual := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expected, *actual)
@@ -93,7 +97,8 @@ func TestGetAllItems(t *testing.T) {
 			require.Equal(t, http.StatusOK, writer.Code)
 
 			expected := rest.GetItemsSuccessResponse{
-				Items: []rest.GetItemsItemData{*FromModel(item1), *FromModel(item2)},
+				Items:          []rest.GetItemsItemData{*FromModel(item1), *FromModel(item2)},
+				TotalItemCount: 2,
 			}
 			actual := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expected, *actual)
@@ -105,9 +110,11 @@ func TestGetAllItems(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
+				itemCount := 100
+
 				_, sessionId := setup.LoggedIn(setup.Admin())
 				seller := setup.Seller()
-				items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
+				items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
 
 				url := path.Items().WithRowSelection(nil, &limit)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -119,6 +126,7 @@ func TestGetAllItems(t *testing.T) {
 				response := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
 				actualItems := response.Items
 				require.Len(t, actualItems, limit)
+				require.Equal(t, itemCount, response.TotalItemCount)
 
 				for i := range limit {
 					require.Equal(t, expectedItems[i].ItemID, actualItems[i].ItemId)
@@ -132,9 +140,11 @@ func TestGetAllItems(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
+				itemCount := 100
+
 				_, sessionId := setup.LoggedIn(setup.Admin())
 				seller := setup.Seller()
-				items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
+				items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
 
 				url := path.Items().WithRowSelection(&offset, nil)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -146,6 +156,7 @@ func TestGetAllItems(t *testing.T) {
 				response := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
 				actualItems := response.Items
 				require.Len(t, actualItems, len(expectedItems))
+				require.Equal(t, itemCount, response.TotalItemCount)
 
 				for i := range len(expectedItems) - offset {
 					require.Equal(t, expectedItems[i].ItemID, actualItems[i].ItemId)
@@ -160,9 +171,11 @@ func TestGetAllItems(t *testing.T) {
 					setup, router, writer := NewRestFixture(WithDefaultCategories)
 					defer setup.Close()
 
+					itemCount := 100
+
 					_, sessionId := setup.LoggedIn(setup.Admin())
 					seller := setup.Seller()
-					items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
+					items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
 
 					url := path.Items().WithRowSelection(&offset, &limit)
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -174,6 +187,7 @@ func TestGetAllItems(t *testing.T) {
 					response := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
 					actualItems := response.Items
 					require.Len(t, actualItems, len(expectedItems))
+					require.Equal(t, itemCount, response.TotalItemCount)
 
 					for i := range len(expectedItems) - offset {
 						require.Equal(t, expectedItems[i].ItemID, actualItems[i].ItemId)

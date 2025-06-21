@@ -31,7 +31,8 @@ type GetItemsItemData struct {
 }
 
 type GetItemsSuccessResponse struct {
-	Items []GetItemsItemData `json:"items"`
+	Items          []GetItemsItemData `json:"items"`
+	TotalItemCount int                `json:"totalItemCount"`
 }
 
 // @Summary List all items of all sellers.
@@ -103,7 +104,7 @@ func GetAllItems(context *gin.Context, configuration *Configuration, db *sql.DB,
 
 	switch context.Query("format") {
 	case "":
-		response := GetItemsSuccessResponse{Items: algorithms.Map(items, func(item *models.Item) GetItemsItemData {
+		items := algorithms.Map(items, func(item *models.Item) GetItemsItemData {
 			return GetItemsItemData{
 				ItemId:       item.ItemID,
 				AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
@@ -115,7 +116,18 @@ func GetAllItems(context *gin.Context, configuration *Configuration, db *sql.DB,
 				Charity:      item.Charity,
 				Frozen:       item.Frozen,
 			}
-		})}
+		})
+		itemCount, err := queries.CountItems(db, itemSelection)
+		if err != nil {
+			slog.Error("Failed to count items", "error", err)
+			failure_response.Unknown(context, "Failed to count items: "+err.Error())
+			return
+		}
+
+		response := GetItemsSuccessResponse{
+			Items:          items,
+			TotalItemCount: itemCount,
+		}
 
 		context.IndentedJSON(http.StatusOK, response)
 		return
