@@ -33,6 +33,10 @@ type getAllSalesEndpoint struct {
 	roleId  models.RoleId
 }
 
+type getAllSalesQueryParameters struct {
+	startId *models.Id
+}
+
 func GetAllSales(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	endpoint := &getAllSalesEndpoint{
 		context: context,
@@ -49,7 +53,12 @@ func (ep *getAllSalesEndpoint) execute() {
 		return
 	}
 
-	sales, ok := ep.getAllSales()
+	queryParameters, ok := ep.parseQueryParameters()
+	if !ok {
+		return
+	}
+
+	sales, ok := ep.getAllSales(queryParameters)
 	if !ok {
 		return
 	}
@@ -71,7 +80,7 @@ func (ep *getAllSalesEndpoint) ensureUserIsAdmin() bool {
 	return true
 }
 
-func (ep *getAllSalesEndpoint) getAllSales() ([]*ListSalesSaleData, bool) {
+func (ep *getAllSalesEndpoint) getAllSales(queryParameters *getAllSalesQueryParameters) ([]*ListSalesSaleData, bool) {
 	sales := make([]*ListSalesSaleData, 0, 25)
 	processSale := func(sale *models.SaleSummary) error {
 		saleData := ListSalesSaleData{
@@ -86,6 +95,12 @@ func (ep *getAllSalesEndpoint) getAllSales() ([]*ListSalesSaleData, bool) {
 		return nil
 	}
 
+	query := queries.NewGetSalesQuery()
+
+	if queryParameters.startId != nil {
+		query.WithIdGreaterThanOrEqualTo(*queryParameters.startId)
+	}
+
 	if err := queries.NewGetSalesQuery().Execute(ep.db, processSale); err != nil {
 		slog.Error("Failed to get sales", "error", err)
 		failure_response.Unknown(ep.context, "Failed to get sales: "+err.Error())
@@ -93,4 +108,21 @@ func (ep *getAllSalesEndpoint) getAllSales() ([]*ListSalesSaleData, bool) {
 	}
 
 	return sales, true
+}
+
+func (ep *getAllSalesEndpoint) parseQueryParameters() (*getAllSalesQueryParameters, bool) {
+	queryParameters := getAllSalesQueryParameters{
+		startId: nil,
+	}
+
+	if startIdStr, exists := ep.context.GetQuery("startId"); exists {
+		startId, err := models.ParseId(startIdStr)
+		if err != nil {
+			failure_response.BadRequest(ep.context, "invalid_uri_parameters", "Invalid startId parameter: "+err.Error())
+			return nil, false
+		}
+		queryParameters.startId = &startId
+	}
+
+	return &queryParameters, true
 }
