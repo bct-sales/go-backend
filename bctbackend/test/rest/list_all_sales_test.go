@@ -3,6 +3,7 @@
 package rest
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -17,36 +18,65 @@ import (
 )
 
 func TestGetAllSales(t *testing.T) {
-	url := path.Sales().String()
-
 	t.Run("Success", func(t *testing.T) {
-		setup, router, writer := NewRestFixture(WithDefaultCategories)
-		defer setup.Close()
+		t.Run("List all sales", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			defer setup.Close()
 
-		_, sessionId := setup.LoggedIn(setup.Admin())
-		seller := setup.Seller()
-		cashier := setup.Cashier()
-		items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
+			_, sessionId := setup.LoggedIn(setup.Admin())
+			seller := setup.Seller()
+			cashier := setup.Cashier()
+			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
 
-		sale := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
+			sale := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
 
-		request := CreateGetRequest(url, WithSessionCookie(sessionId))
-		router.ServeHTTP(writer, request)
-		require.Equal(t, http.StatusOK, writer.Code)
+			url := path.Sales().String()
+			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusOK, writer.Code)
 
-		actual := FromJson[rest.ListSalesSuccessResponse](t, writer.Body.String())
-		expected := &rest.ListSalesSuccessResponse{
-			Sales: []*rest.ListSalesSaleData{
-				{
-					SaleID:            sale.SaleID,
-					CashierID:         cashier.UserId,
-					TransactionTime:   shared.ConvertTimestampToDateTime(sale.TransactionTime),
-					ItemCount:         2,
-					TotalPriceInCents: items[0].PriceInCents + items[1].PriceInCents,
+			actual := FromJson[rest.ListSalesSuccessResponse](t, writer.Body.String())
+			expected := &rest.ListSalesSuccessResponse{
+				Sales: []*rest.ListSalesSaleData{
+					{
+						SaleID:            sale.SaleID,
+						CashierID:         cashier.UserId,
+						TransactionTime:   shared.ConvertTimestampToDateTime(sale.TransactionTime),
+						ItemCount:         2,
+						TotalPriceInCents: items[0].PriceInCents + items[1].PriceInCents,
+					},
 				},
-			},
-		}
-		require.Equal(t, expected, actual)
+			}
+			require.Equal(t, expected, actual)
+		})
+
+		t.Run("List all sales with startId", func(t *testing.T) {
+			for _, k := range []int{1, 2, 5, 25} {
+				testLabel := fmt.Sprintf("k = %d", k)
+				t.Run(testLabel, func(t *testing.T) {
+					setup, router, writer := NewRestFixture(WithDefaultCategories)
+					defer setup.Close()
+
+					_, sessionId := setup.LoggedIn(setup.Admin())
+					seller := setup.Seller()
+					cashier := setup.Cashier()
+					items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
+
+					for _, item := range items {
+						setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+					}
+
+					url := path.Sales().WithQueryParameters(models.Id(k))
+					request := CreateGetRequest(url, WithSessionCookie(sessionId))
+					router.ServeHTTP(writer, request)
+					require.Equal(t, http.StatusOK, writer.Code)
+
+					response := FromJson[rest.ListSalesSuccessResponse](t, writer.Body.String())
+					expectedSaleCount := len(items) - k + 1
+					require.Len(t, response.Sales, expectedSaleCount)
+				})
+			}
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
@@ -59,6 +89,7 @@ func TestGetAllSales(t *testing.T) {
 			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
 			setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
 
+			url := path.Sales().String()
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
@@ -74,6 +105,7 @@ func TestGetAllSales(t *testing.T) {
 			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
 			setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
 
+			url := path.Sales().String()
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
@@ -89,6 +121,7 @@ func TestGetAllSales(t *testing.T) {
 			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
 			setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
 
+			url := path.Sales().String()
 			request := CreateGetRequest(url)
 			router.ServeHTTP(writer, request)
 
@@ -104,6 +137,7 @@ func TestGetAllSales(t *testing.T) {
 			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
 			setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
 
+			url := path.Sales().String()
 			request := CreateGetRequest(url, WithSessionCookie("fake_session_id"))
 			router.ServeHTTP(writer, request)
 
@@ -119,6 +153,7 @@ func TestGetAllSales(t *testing.T) {
 			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
 			setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
 
+			url := path.Sales().String()
 			request := CreateGetRequest(url, WithCookie("whatever", "whatever"))
 			router.ServeHTTP(writer, request)
 
