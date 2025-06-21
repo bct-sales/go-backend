@@ -26,10 +26,28 @@ type ListSalesSuccessResponse struct {
 	Sales []*ListSalesSaleData `json:"sales"`
 }
 
+type getAllSalesEndpoint struct {
+	context *gin.Context
+	db      *sql.DB
+	userId  models.Id
+	roleId  models.RoleId
+}
+
 func GetAllSales(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
-	if roleId != models.NewAdminRoleId() {
-		slog.Error("Unauthorized access to list all sales", "userId", userId, "roleId", roleId)
-		failure_response.WrongRole(context, "Only admins can list all items")
+	endpoint := &getAllSalesEndpoint{
+		context: context,
+		db:      db,
+		userId:  userId,
+		roleId:  roleId,
+	}
+
+	endpoint.execute()
+}
+
+func (ep *getAllSalesEndpoint) execute() {
+	if ep.roleId != models.NewAdminRoleId() {
+		slog.Error("Unauthorized access to list all sales", "userId", ep.userId, "roleId", ep.roleId)
+		failure_response.WrongRole(ep.context, "Only admins can list all items")
 		return
 	}
 
@@ -47,9 +65,9 @@ func GetAllSales(context *gin.Context, configuration *Configuration, db *sql.DB,
 		return nil
 	}
 
-	if err := queries.NewGetSalesQuery().Execute(db, processSale); err != nil {
+	if err := queries.NewGetSalesQuery().Execute(ep.db, processSale); err != nil {
 		slog.Error("Failed to get sales", "error", err)
-		failure_response.Unknown(context, "Failed to get sales: "+err.Error())
+		failure_response.Unknown(ep.context, "Failed to get sales: "+err.Error())
 		return
 	}
 
@@ -57,5 +75,5 @@ func GetAllSales(context *gin.Context, configuration *Configuration, db *sql.DB,
 		Sales: sales,
 	}
 
-	context.IndentedJSON(http.StatusOK, response)
+	ep.context.IndentedJSON(http.StatusOK, response)
 }
