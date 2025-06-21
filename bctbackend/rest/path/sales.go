@@ -11,6 +11,10 @@ func Sales() *salesPath {
 	return &salesPath{}
 }
 
+func (path *salesPath) WithQueryParameters(startId models.Id) string {
+	return fmt.Sprintf("%s?startId=%s", path.String(), startId.String())
+}
+
 func (path *salesPath) String() string {
 	return "/api/v1/sales"
 }
