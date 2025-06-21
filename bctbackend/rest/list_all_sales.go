@@ -101,7 +101,7 @@ func (ep *getAllSalesEndpoint) getAllSales(queryParameters *getAllSalesQueryPara
 		query.WithIdGreaterThanOrEqualTo(*queryParameters.startId)
 	}
 
-	if err := queries.NewGetSalesQuery().Execute(ep.db, processSale); err != nil {
+	if err := query.Execute(ep.db, processSale); err != nil {
 		slog.Error("Failed to get sales", "error", err)
 		failure_response.Unknown(ep.context, "Failed to get sales: "+err.Error())
 		return nil, false
