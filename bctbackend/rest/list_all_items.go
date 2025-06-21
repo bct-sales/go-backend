@@ -9,6 +9,7 @@ import (
 	rest "bctbackend/rest/shared"
 	"bytes"
 	"database/sql"
+	"log/slog"
 	"net/http"
 	"strconv"
 
@@ -65,6 +66,7 @@ func GetAllItems(context *gin.Context, configuration *Configuration, db *sql.DB,
 		parsedLimit, err := strconv.Atoi(limitString)
 
 		if err != nil {
+			slog.Error("Failed to parse limit", "error", err)
 			failure_response.BadRequest(context, "invalid_uri_parameters", "Failed to parse limit: "+err.Error())
 			return
 		}
@@ -80,7 +82,8 @@ func GetAllItems(context *gin.Context, configuration *Configuration, db *sql.DB,
 		parsedOffset, err := strconv.Atoi(offsetString)
 
 		if err != nil {
-			failure_response.BadRequest(context, "invalid_uri_parameters", "Failed to parse limit: "+err.Error())
+			slog.Error("Failed to parse offset", "error", err)
+			failure_response.BadRequest(context, "invalid_uri_parameters", "Failed to parse offset: "+err.Error())
 			return
 		}
 
@@ -93,6 +96,7 @@ func GetAllItems(context *gin.Context, configuration *Configuration, db *sql.DB,
 
 	items := []*models.Item{}
 	if err := queries.GetItems(db, queries.CollectTo(&items), itemSelection, rowSelection); err != nil {
+		slog.Error("Failed to get items", "error", err)
 		failure_response.Unknown(context, "Failed to get items: "+err.Error())
 		return
 	}

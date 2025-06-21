@@ -3,6 +3,7 @@
 package rest
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -97,6 +98,89 @@ func TestGetAllItems(t *testing.T) {
 			actual := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expected, *actual)
 		})
+
+		for _, limit := range []int{1, 2, 10} {
+			testLabel := fmt.Sprintf("Limit %d", limit)
+			t.Run(testLabel, func(t *testing.T) {
+				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				defer setup.Close()
+
+				_, sessionId := setup.LoggedIn(setup.Admin())
+				seller := setup.Seller()
+				items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
+
+				url := path.Items().WithRowSelection(nil, &limit)
+				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				router.ServeHTTP(writer, request)
+
+				require.Equal(t, http.StatusOK, writer.Code)
+
+				expectedItems := items[:limit]
+				response := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
+				actualItems := response.Items
+				require.Len(t, actualItems, limit)
+
+				for i := range limit {
+					require.Equal(t, expectedItems[i].ItemID, actualItems[i].ItemId)
+				}
+			})
+		}
+
+		for _, offset := range []int{0, 1, 2, 10} {
+			testLabel := fmt.Sprintf("Offset %d", offset)
+			t.Run(testLabel, func(t *testing.T) {
+				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				defer setup.Close()
+
+				_, sessionId := setup.LoggedIn(setup.Admin())
+				seller := setup.Seller()
+				items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
+
+				url := path.Items().WithRowSelection(&offset, nil)
+				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				router.ServeHTTP(writer, request)
+
+				require.Equal(t, http.StatusOK, writer.Code)
+
+				expectedItems := items[offset:]
+				response := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
+				actualItems := response.Items
+				require.Len(t, actualItems, len(expectedItems))
+
+				for i := range len(expectedItems) - offset {
+					require.Equal(t, expectedItems[i].ItemID, actualItems[i].ItemId)
+				}
+			})
+		}
+
+		for _, limit := range []int{1, 2, 10, 25} {
+			for _, offset := range []int{0, 1, 2, 10, 25} {
+				testLabel := fmt.Sprintf("Offset %d", offset)
+				t.Run(testLabel, func(t *testing.T) {
+					setup, router, writer := NewRestFixture(WithDefaultCategories)
+					defer setup.Close()
+
+					_, sessionId := setup.LoggedIn(setup.Admin())
+					seller := setup.Seller()
+					items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
+
+					url := path.Items().WithRowSelection(&offset, &limit)
+					request := CreateGetRequest(url, WithSessionCookie(sessionId))
+					router.ServeHTTP(writer, request)
+
+					require.Equal(t, http.StatusOK, writer.Code)
+
+					expectedItems := items[offset : offset+limit]
+					response := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
+					actualItems := response.Items
+					require.Len(t, actualItems, len(expectedItems))
+
+					for i := range len(expectedItems) - offset {
+						require.Equal(t, expectedItems[i].ItemID, actualItems[i].ItemId)
+					}
+				})
+			}
+		}
 	})
 
 	t.Run("Failure", func(t *testing.T) {
