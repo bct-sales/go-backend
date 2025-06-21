@@ -7,6 +7,7 @@ import (
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -21,22 +22,16 @@ func TestGetSales(t *testing.T) {
 			seller := setup.Seller()
 			cashier := setup.Cashier()
 
-			itemIds := []models.Id{
-				setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID,
-				setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false)).ItemID,
-				setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false)).ItemID,
-				setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false)).ItemID,
-			}
+			items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
 
-			saleIds := make([]models.Id, len(itemIds))
-			for _, itemId := range itemIds {
-				setup.Sale(cashier.UserId, []models.Id{itemId})
+			for _, item := range items {
+				setup.Sale(cashier.UserId, []models.Id{item.ItemID})
 			}
 
 			actualSales := []*models.SaleSummary{}
 			err := queries.NewGetSalesQuery().Execute(db, queries.CollectTo(&actualSales))
 			require.NoError(t, err)
-			require.Len(t, actualSales, len(saleIds))
+			require.Len(t, actualSales, len(items))
 
 			for _, actualSale := range actualSales {
 				require.Equal(t, cashier.UserId, actualSale.CashierID)
@@ -44,6 +39,39 @@ func TestGetSales(t *testing.T) {
 				saleItems, err := queries.GetSaleItems(db, actualSale.SaleID)
 				require.NoError(t, err)
 				require.Equal(t, 1, len(saleItems))
+			}
+		})
+
+		t.Run("Get sales with id higher than", func(t *testing.T) {
+			for k := range 10 {
+				testLabel := fmt.Sprintf("k = %d", k)
+				t.Run(testLabel, func(t *testing.T) {
+					setup, db := NewDatabaseFixture(WithDefaultCategories)
+					defer setup.Close()
+
+					seller := setup.Seller()
+					cashier := setup.Cashier()
+
+					items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
+
+					saleIds := make([]models.Id, len(items))
+					for _, item := range items {
+						setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+					}
+
+					actualSales := []*models.SaleSummary{}
+					err := queries.NewGetSalesQuery().WithIdGreaterThanOrEqualTo(models.Id(k+1)).Execute(db, queries.CollectTo(&actualSales))
+					require.NoError(t, err)
+					require.Len(t, actualSales, len(saleIds)-k)
+
+					for _, actualSale := range actualSales {
+						require.Equal(t, cashier.UserId, actualSale.CashierID)
+
+						saleItems, err := queries.GetSaleItems(db, actualSale.SaleID)
+						require.NoError(t, err)
+						require.Equal(t, 1, len(saleItems))
+					}
+				})
 			}
 		})
 	})
