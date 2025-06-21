@@ -49,23 +49,8 @@ func (ep *getAllSalesEndpoint) execute() {
 		return
 	}
 
-	sales := make([]*ListSalesSaleData, 0, 25)
-	processSale := func(sale *models.SaleSummary) error {
-		saleData := ListSalesSaleData{
-			SaleID:            sale.SaleID,
-			CashierID:         sale.CashierID,
-			TransactionTime:   rest.ConvertTimestampToDateTime(sale.TransactionTime),
-			ItemCount:         sale.ItemCount,
-			TotalPriceInCents: sale.TotalPriceInCents,
-		}
-
-		sales = append(sales, &saleData)
-		return nil
-	}
-
-	if err := queries.NewGetSalesQuery().Execute(ep.db, processSale); err != nil {
-		slog.Error("Failed to get sales", "error", err)
-		failure_response.Unknown(ep.context, "Failed to get sales: "+err.Error())
+	sales, ok := ep.getAllSales()
+	if !ok {
 		return
 	}
 
@@ -84,4 +69,28 @@ func (ep *getAllSalesEndpoint) ensureUserIsAdmin() bool {
 	}
 
 	return true
+}
+
+func (ep *getAllSalesEndpoint) getAllSales() ([]*ListSalesSaleData, bool) {
+	sales := make([]*ListSalesSaleData, 0, 25)
+	processSale := func(sale *models.SaleSummary) error {
+		saleData := ListSalesSaleData{
+			SaleID:            sale.SaleID,
+			CashierID:         sale.CashierID,
+			TransactionTime:   rest.ConvertTimestampToDateTime(sale.TransactionTime),
+			ItemCount:         sale.ItemCount,
+			TotalPriceInCents: sale.TotalPriceInCents,
+		}
+
+		sales = append(sales, &saleData)
+		return nil
+	}
+
+	if err := queries.NewGetSalesQuery().Execute(ep.db, processSale); err != nil {
+		slog.Error("Failed to get sales", "error", err)
+		failure_response.Unknown(ep.context, "Failed to get sales: "+err.Error())
+		return nil, false
+	}
+
+	return sales, true
 }
