@@ -45,9 +45,7 @@ func GetAllSales(context *gin.Context, configuration *Configuration, db *sql.DB,
 }
 
 func (ep *getAllSalesEndpoint) execute() {
-	if ep.roleId != models.NewAdminRoleId() {
-		slog.Error("Unauthorized access to list all sales", "userId", ep.userId, "roleId", ep.roleId)
-		failure_response.WrongRole(ep.context, "Only admins can list all items")
+	if !ep.ensureUserIsAdmin() {
 		return
 	}
 
@@ -76,4 +74,14 @@ func (ep *getAllSalesEndpoint) execute() {
 	}
 
 	ep.context.IndentedJSON(http.StatusOK, response)
+}
+
+func (ep *getAllSalesEndpoint) ensureUserIsAdmin() bool {
+	if ep.roleId != models.NewAdminRoleId() {
+		slog.Error("Unauthorized access to list all sales", "userId", ep.userId, "roleId", ep.roleId)
+		failure_response.WrongRole(ep.context, "Only admins can list all items")
+		return false
+	}
+
+	return true
 }
