@@ -674,3 +674,19 @@ func GetCashierSales(db *sql.DB, cashierId models.Id, receiver func(*models.Sale
 
 	return nil
 }
+
+func GetSalesCount(db *sql.DB) (r_result int, r_err error) {
+	var count int
+	err := db.QueryRow(
+		`
+			SELECT COUNT(*)
+			FROM sales
+		`,
+	).Scan(&count)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
