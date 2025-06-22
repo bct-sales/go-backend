@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"golang.org/x/exp/slices"
 )
 
 func TestGetSales(t *testing.T) {
@@ -95,6 +96,46 @@ func TestGetSales(t *testing.T) {
 						expectedSales := sales[offset : offset+limit]
 						actualSales := []*models.SaleSummary{}
 						err := queries.NewGetSalesQuery().WithRowSelection(limit, offset).Execute(db, queries.CollectTo(&actualSales))
+						require.NoError(t, err)
+						require.Len(t, actualSales, limit)
+
+						for index, actualSale := range actualSales {
+							require.Equal(t, cashier.UserId, actualSale.CashierID)
+
+							saleItems, err := queries.GetSaleItems(db, actualSale.SaleID)
+							require.NoError(t, err)
+							require.Equal(t, 1, len(saleItems))
+							require.Equal(t, expectedSales[index].SaleID, actualSale.SaleID)
+						}
+					})
+				}
+			}
+		})
+
+		t.Run("Get sales with limit and offset, anti chronologically", func(t *testing.T) {
+			for _, limit := range []int{1, 2, 5, 10} {
+				for _, offset := range []int{0, 1, 2, 5, 10} {
+					testLabel := fmt.Sprintf("limit = %d, offset = %d", limit, offset)
+					t.Run(testLabel, func(t *testing.T) {
+						setup, db := NewDatabaseFixture(WithDefaultCategories)
+						defer setup.Close()
+
+						seller := setup.Seller()
+						cashier := setup.Cashier()
+
+						items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
+
+						sales := []*models.Sale{}
+						for index, item := range items {
+							sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID}, aux.WithTransactionTime(models.Timestamp(index)))
+							sales = append(sales, sale)
+						}
+
+						expectedSales := sales[:]
+						slices.Reverse(expectedSales)
+						expectedSales = expectedSales[offset : offset+limit]
+						actualSales := []*models.SaleSummary{}
+						err := queries.NewGetSalesQuery().WithRowSelection(limit, offset).OrderedAntiChronologically().Execute(db, queries.CollectTo(&actualSales))
 						require.NoError(t, err)
 						require.Len(t, actualSales, limit)
 
