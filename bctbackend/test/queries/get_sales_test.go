@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/algorithms"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -72,6 +73,41 @@ func TestGetSales(t *testing.T) {
 						require.Equal(t, 1, len(saleItems))
 					}
 				})
+			}
+		})
+
+		t.Run("Get sales with limit and offset", func(t *testing.T) {
+			for _, limit := range []int{1, 2, 5, 10} {
+				for _, offset := range []int{0, 1, 2, 5, 10} {
+					testLabel := fmt.Sprintf("limit = %d, offset = %d", limit, offset)
+					t.Run(testLabel, func(t *testing.T) {
+						setup, db := NewDatabaseFixture(WithDefaultCategories)
+						defer setup.Close()
+
+						seller := setup.Seller()
+						cashier := setup.Cashier()
+
+						items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
+						sales := algorithms.Map(items, func(item *models.Item) *models.Sale {
+							return setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+						})
+
+						expectedSales := sales[offset : offset+limit]
+						actualSales := []*models.SaleSummary{}
+						err := queries.NewGetSalesQuery().WithRowSelection(limit, offset).Execute(db, queries.CollectTo(&actualSales))
+						require.NoError(t, err)
+						require.Len(t, actualSales, limit)
+
+						for index, actualSale := range actualSales {
+							require.Equal(t, cashier.UserId, actualSale.CashierID)
+
+							saleItems, err := queries.GetSaleItems(db, actualSale.SaleID)
+							require.NoError(t, err)
+							require.Equal(t, 1, len(saleItems))
+							require.Equal(t, expectedSales[index].SaleID, actualSale.SaleID)
+						}
+					})
+				}
 			}
 		})
 	})

@@ -11,8 +11,16 @@ func Sales() *salesPath {
 	return &salesPath{}
 }
 
-func (path *salesPath) WithQueryParameters(startId models.Id) string {
-	return fmt.Sprintf("%s?startId=%s", path.String(), startId.String())
+func (path *salesPath) WithQueryParameters(query string) string {
+	return fmt.Sprintf("%s?%s", path.String(), query)
+}
+
+func (path *salesPath) StartingAt(startId models.Id) string {
+	return path.WithQueryParameters(fmt.Sprintf("startId=%d", startId))
+}
+
+func (path *salesPath) WithLimitAndOffset(limit int, offset int) string {
+	return path.WithQueryParameters(fmt.Sprintf("limit=%d&offset=%d", limit, offset))
 }
 
 func (path *salesPath) String() string {

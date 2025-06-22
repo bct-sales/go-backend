@@ -107,7 +107,15 @@ func AddSale(
 }
 
 type GetSalesQuery struct {
-	minimalId *models.Id // If set, only sales with an ID greater than or equal to this value are returned.
+	minimalId    *models.Id // If set, only sales with an ID greater than or equal to this value are returned.
+	rowSelection *struct {
+		limit  int
+		offset int
+	}
+}
+
+func NewGetSalesQuery() *GetSalesQuery {
+	return &GetSalesQuery{}
 }
 
 func (q *GetSalesQuery) WithIdGreaterThanOrEqualTo(minimalId models.Id) *GetSalesQuery {
@@ -115,8 +123,13 @@ func (q *GetSalesQuery) WithIdGreaterThanOrEqualTo(minimalId models.Id) *GetSale
 	return q
 }
 
-func NewGetSalesQuery() *GetSalesQuery {
-	return &GetSalesQuery{}
+func (q *GetSalesQuery) WithRowSelection(limit, offset int) *GetSalesQuery {
+	q.rowSelection = &struct {
+		limit  int
+		offset int
+	}{limit: limit, offset: offset}
+
+	return q
 }
 
 func (q *GetSalesQuery) Execute(db QueryHandler, receiver func(*models.SaleSummary) error) (r_err error) {
@@ -128,8 +141,11 @@ func (q *GetSalesQuery) Execute(db QueryHandler, receiver func(*models.SaleSumma
 			INNER JOIN items ON sale_items.item_id = items.item_id
 			%s
 			GROUP BY sales.sale_id
+			%s
 		`,
-		q.whereClause())
+		q.whereClause(),
+		q.rowSelectionClause(),
+	)
 
 	queryArguments := slices.Concat(q.whereArguments())
 	rows, err := db.Query(query, queryArguments...)
@@ -179,6 +195,13 @@ func (q *GetSalesQuery) whereArguments() []any {
 		return nil
 	}
 	return []any{*q.minimalId}
+}
+
+func (q *GetSalesQuery) rowSelectionClause() string {
+	if q.rowSelection == nil {
+		return ""
+	}
+	return fmt.Sprintf("LIMIT %d OFFSET %d", q.rowSelection.limit, q.rowSelection.offset)
 }
 
 // GetSaleWithId returns the sale with the given saleId.

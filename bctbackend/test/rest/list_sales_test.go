@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"testing"
 
+	"bctbackend/algorithms"
 	models "bctbackend/database/models"
 	"bctbackend/rest"
 	"bctbackend/rest/path"
@@ -109,7 +110,7 @@ func TestGetAllSales(t *testing.T) {
 						setup.Sale(cashier.UserId, []models.Id{item.ItemID})
 					}
 
-					url := path.Sales().WithQueryParameters(models.Id(k))
+					url := path.Sales().StartingAt(models.Id(k))
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code)
@@ -118,6 +119,37 @@ func TestGetAllSales(t *testing.T) {
 					expectedSaleCount := len(items) - k + 1
 					require.Len(t, response.Sales, expectedSaleCount)
 				})
+			}
+		})
+
+		t.Run("With limit and offset", func(t *testing.T) {
+			for _, limit := range []int{1, 2, 5, 10} {
+				for _, offset := range []int{0, 1, 2, 5, 10} {
+					testLabel := fmt.Sprintf("limit = %d, offset = %d", limit, offset)
+					t.Run(testLabel, func(t *testing.T) {
+						setup, router, writer := NewRestFixture(WithDefaultCategories)
+						defer setup.Close()
+
+						_, sessionId := setup.LoggedIn(setup.Admin())
+						seller := setup.Seller()
+						cashier := setup.Cashier()
+						items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
+						sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserId, []models.Id{item.ItemID}) })
+
+						url := path.Sales().WithLimitAndOffset(limit, offset)
+						request := CreateGetRequest(url, WithSessionCookie(sessionId))
+						router.ServeHTTP(writer, request)
+						require.Equal(t, http.StatusOK, writer.Code)
+
+						response := FromJson[rest.ListSalesSuccessResponse](t, writer.Body.String())
+						actualSales := response.Sales
+						expectedSales := sales[offset : offset+limit]
+						require.Len(t, actualSales, limit)
+						for i, sale := range actualSales {
+							require.Equal(t, expectedSales[i].SaleID, sale.SaleID)
+						}
+					})
+				}
 			}
 		})
 	})

@@ -7,6 +7,7 @@ import (
 	rest "bctbackend/rest/shared"
 	"database/sql"
 	"net/http"
+	"strconv"
 
 	_ "bctbackend/docs"
 
@@ -28,19 +29,23 @@ type ListSalesSuccessResponse struct {
 	TotalSaleValue models.MoneyInCents  `json:"totalSaleValue"`
 }
 
-type getAllSalesEndpoint struct {
+type getSalesEndpoint struct {
 	context *gin.Context
 	db      *sql.DB
 	userId  models.Id
 	roleId  models.RoleId
 }
 
-type getAllSalesQueryParameters struct {
-	startId *models.Id
+type getSalesQueryParameters struct {
+	startId      *models.Id
+	rowSelection *struct {
+		limit  int
+		offset int
+	}
 }
 
-func GetAllSales(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
-	endpoint := &getAllSalesEndpoint{
+func GetSales(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+	endpoint := &getSalesEndpoint{
 		context: context,
 		db:      db,
 		userId:  userId,
@@ -50,7 +55,7 @@ func GetAllSales(context *gin.Context, configuration *Configuration, db *sql.DB,
 	endpoint.execute()
 }
 
-func (ep *getAllSalesEndpoint) execute() {
+func (ep *getSalesEndpoint) execute() {
 	if !ep.ensureUserIsAdmin() {
 		return
 	}
@@ -60,7 +65,7 @@ func (ep *getAllSalesEndpoint) execute() {
 		return
 	}
 
-	sales, ok := ep.getAllSales(queryParameters)
+	sales, ok := ep.getSales(queryParameters)
 	if !ok {
 		return
 	}
@@ -84,7 +89,7 @@ func (ep *getAllSalesEndpoint) execute() {
 	ep.context.IndentedJSON(http.StatusOK, response)
 }
 
-func (ep *getAllSalesEndpoint) getSaleCount() (int, bool) {
+func (ep *getSalesEndpoint) getSaleCount() (int, bool) {
 	saleCount, err := queries.GetSalesCount(ep.db)
 
 	if err != nil {
@@ -96,7 +101,7 @@ func (ep *getAllSalesEndpoint) getSaleCount() (int, bool) {
 	return saleCount, true
 }
 
-func (ep *getAllSalesEndpoint) getTotalSalesValue() (models.MoneyInCents, bool) {
+func (ep *getSalesEndpoint) getTotalSalesValue() (models.MoneyInCents, bool) {
 	totalValue, err := queries.GetTotalSalesValue(ep.db)
 
 	if err != nil {
@@ -109,7 +114,7 @@ func (ep *getAllSalesEndpoint) getTotalSalesValue() (models.MoneyInCents, bool) 
 
 }
 
-func (ep *getAllSalesEndpoint) ensureUserIsAdmin() bool {
+func (ep *getSalesEndpoint) ensureUserIsAdmin() bool {
 	if ep.roleId != models.NewAdminRoleId() {
 		slog.Error("Unauthorized access to list all sales", "userId", ep.userId, "roleId", ep.roleId)
 		failure_response.WrongRole(ep.context, "Only admins can list all items")
@@ -119,7 +124,7 @@ func (ep *getAllSalesEndpoint) ensureUserIsAdmin() bool {
 	return true
 }
 
-func (ep *getAllSalesEndpoint) getAllSales(queryParameters *getAllSalesQueryParameters) ([]*ListSalesSaleData, bool) {
+func (ep *getSalesEndpoint) getSales(queryParameters *getSalesQueryParameters) ([]*ListSalesSaleData, bool) {
 	sales := make([]*ListSalesSaleData, 0, 25)
 	processSale := func(sale *models.SaleSummary) error {
 		saleData := ListSalesSaleData{
@@ -140,6 +145,10 @@ func (ep *getAllSalesEndpoint) getAllSales(queryParameters *getAllSalesQueryPara
 		query.WithIdGreaterThanOrEqualTo(*queryParameters.startId)
 	}
 
+	if queryParameters.rowSelection != nil {
+		query.WithRowSelection(queryParameters.rowSelection.limit, queryParameters.rowSelection.offset)
+	}
+
 	if err := query.Execute(ep.db, processSale); err != nil {
 		slog.Error("Failed to get sales", "error", err)
 		failure_response.Unknown(ep.context, "Failed to get sales: "+err.Error())
@@ -149,19 +158,86 @@ func (ep *getAllSalesEndpoint) getAllSales(queryParameters *getAllSalesQueryPara
 	return sales, true
 }
 
-func (ep *getAllSalesEndpoint) parseQueryParameters() (*getAllSalesQueryParameters, bool) {
-	queryParameters := getAllSalesQueryParameters{
-		startId: nil,
+func (ep *getSalesEndpoint) parseQueryParameters() (*getSalesQueryParameters, bool) {
+	startId, ok := ep.parseStartId()
+	if !ok {
+		return nil, false
 	}
 
+	rowSelection, ok := ep.parseRowSelection()
+	if !ok {
+		return nil, false
+	}
+
+	queryParameters := getSalesQueryParameters{
+		startId:      startId,
+		rowSelection: rowSelection,
+	}
+
+	return &queryParameters, true
+}
+
+func (ep *getSalesEndpoint) parseStartId() (*models.Id, bool) {
 	if startIdStr, exists := ep.context.GetQuery("startId"); exists {
 		startId, err := models.ParseId(startIdStr)
 		if err != nil {
 			failure_response.BadRequest(ep.context, "invalid_uri_parameters", "Invalid startId parameter: "+err.Error())
 			return nil, false
 		}
-		queryParameters.startId = &startId
+		return &startId, true
 	}
 
-	return &queryParameters, true
+	return nil, true
+}
+
+func (ep *getSalesEndpoint) parseRowSelection() (*struct {
+	limit  int
+	offset int
+}, bool) {
+
+	limitString, limitExists := ep.context.GetQuery("limit")
+	offsetString, offsetExists := ep.context.GetQuery("offset")
+
+	if !limitExists && !offsetExists {
+		return nil, true
+	}
+
+	if limitExists && !offsetExists {
+		offsetString = "0" // Default offset to 0 if limit is provided without offset
+	}
+
+	if !limitExists && offsetExists {
+		failure_response.BadRequest(ep.context, "invalid_uri_parameters", "offset parameter provided without limit")
+		return nil, false
+	}
+
+	limit, err := strconv.Atoi(limitString)
+	if err != nil {
+		failure_response.BadRequest(ep.context, "invalid_uri_parameters", "Invalid limit parameter: "+err.Error())
+		return nil, false
+	}
+	if limit < 1 {
+		failure_response.BadRequest(ep.context, "invalid_uri_parameters", "Limit must be greater than 0")
+		return nil, false
+	}
+
+	offset, err := strconv.Atoi(offsetString)
+	if err != nil {
+		failure_response.BadRequest(ep.context, "invalid_uri_parameters", "Invalid offset parameter: "+err.Error())
+		return nil, false
+	}
+	if offset < 0 {
+		failure_response.BadRequest(ep.context, "invalid_uri_parameters", "Offset must be 0 or greater")
+		return nil, false
+	}
+
+	rowSelection := struct {
+		limit  int
+		offset int
+	}{
+		limit:  limit,
+		offset: offset,
+	}
+
+	return &rowSelection, true
 }
