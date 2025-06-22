@@ -313,7 +313,7 @@ func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIds []models.Id) ([]mo
 			charity := c.rng.IntN(20) == 0
 			frozen := c.rng.IntN(20) == 0
 			hidden := false
-			addedAt := models.Now()
+			addedAt := c.generateRandomTime(60*60*24, 60*60*24*30)
 
 			itemId, err := queries.AddItem(db, addedAt, description, priceInCents, category, sellerId, donation, charity, frozen, hidden)
 			if err != nil {
@@ -325,6 +325,12 @@ func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIds []models.Id) ([]mo
 	}
 
 	return itemIds, nil
+}
+
+func (c *dummyDatabaseCommand) generateRandomTime(minDelta int64, maxDelta int64) models.Timestamp {
+	now := models.Now().Int64()
+	delta := c.rng.Int64N(maxDelta-minDelta) + minDelta
+	return models.Timestamp(now - delta)
 }
 
 func (c *dummyDatabaseCommand) generateRandomItemDescriptionAndCategory() (string, models.Id) {
@@ -399,7 +405,7 @@ func (c *dummyDatabaseCommand) addSales(db *sql.DB, cashierIds []models.Id, item
 			itemIds[i], itemIds[j] = itemIds[j], itemIds[i]
 		})
 		saleItems := itemIds[:itemCount]
-		transactionTime := models.Now()
+		transactionTime := c.generateRandomTime(0, 60*60*24)
 		_, err := queries.AddSale(db, cashierId, transactionTime, saleItems)
 
 		if err != nil {
