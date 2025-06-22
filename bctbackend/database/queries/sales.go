@@ -675,7 +675,7 @@ func GetCashierSales(db *sql.DB, cashierId models.Id, receiver func(*models.Sale
 	return nil
 }
 
-func GetSalesCount(db *sql.DB) (r_result int, r_err error) {
+func GetSalesCount(db QueryHandler) (r_result int, r_err error) {
 	var count int
 	err := db.QueryRow(
 		`
@@ -691,7 +691,7 @@ func GetSalesCount(db *sql.DB) (r_result int, r_err error) {
 	return count, nil
 }
 
-func GetTotalSalesValue(db *sql.DB) (r_result models.MoneyInCents, r_err error) {
+func GetTotalSalesValue(db QueryHandler) (r_result models.MoneyInCents, r_err error) {
 	var totalValue models.MoneyInCents
 	err := db.QueryRow(
 		`
