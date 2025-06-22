@@ -903,3 +903,30 @@ func UpdateItem(db *sql.DB, itemId models.Id, itemUpdate *ItemUpdate) error {
 
 	return nil
 }
+
+type AddItemsCallback func(addItem func(addedAt models.Timestamp, description string, priceInCents models.MoneyInCents, itemCategoryId models.Id, sellerId models.Id, donation bool, charity bool, frozen bool, hidden bool))
+
+func AddItems(db *sql.DB, callback AddItemsCallback) error {
+	valuesString := []string{}
+	arguments := []any{}
+	tupleString := "(?, ?, ?, ?, ?, ?, ?, ?, ?)"
+
+	add := func(addedAt models.Timestamp, description string, priceInCents models.MoneyInCents, itemCategoryId models.Id, sellerId models.Id, donation bool, charity bool, frozen bool, hidden bool) {
+		valuesString = append(valuesString, tupleString)
+		arguments = append(arguments, addedAt, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
+	}
+
+	callback(add)
+
+	if len(valuesString) == 0 {
+		return nil
+	}
+
+	query := `INSERT INTO items (added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden) VALUES ` + strings.Join(valuesString, ",")
+
+	if _, err := db.Exec(query, arguments...); err != nil {
+		return err
+	}
+
+	return nil
+}
