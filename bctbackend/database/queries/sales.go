@@ -119,7 +119,7 @@ func NewGetSalesQuery() *GetSalesQuery {
 	return &GetSalesQuery{}
 }
 
-func (q *GetSalesQuery) Execute(db *sql.DB, receiver func(*models.SaleSummary) error) (r_err error) {
+func (q *GetSalesQuery) Execute(db QueryHandler, receiver func(*models.SaleSummary) error) (r_err error) {
 	query := fmt.Sprintf(
 		`
 			SELECT sales.sale_id, sales.cashier_id, sales.transaction_time, COUNT(sale_items.item_id) AS item_count, SUM(items.price_in_cents) AS total_price
