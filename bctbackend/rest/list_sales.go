@@ -23,8 +23,9 @@ type ListSalesSaleData struct {
 }
 
 type ListSalesSuccessResponse struct {
-	Sales     []*ListSalesSaleData `json:"sales"`
-	SaleCount int                  `json:"saleCount"`
+	Sales          []*ListSalesSaleData `json:"sales"`
+	SaleCount      int                  `json:"saleCount"`
+	TotalSaleValue models.MoneyInCents  `json:"totalSaleValue"`
 }
 
 type getAllSalesEndpoint struct {
@@ -69,9 +70,15 @@ func (ep *getAllSalesEndpoint) execute() {
 		return
 	}
 
+	totalSaleValue, ok := ep.getTotalSalesValue()
+	if !ok {
+		return
+	}
+
 	response := ListSalesSuccessResponse{
-		Sales:     sales,
-		SaleCount: saleCount,
+		Sales:          sales,
+		SaleCount:      saleCount,
+		TotalSaleValue: totalSaleValue,
 	}
 
 	ep.context.IndentedJSON(http.StatusOK, response)
@@ -87,6 +94,19 @@ func (ep *getAllSalesEndpoint) getSaleCount() (int, bool) {
 	}
 
 	return saleCount, true
+}
+
+func (ep *getAllSalesEndpoint) getTotalSalesValue() (models.MoneyInCents, bool) {
+	totalValue, err := queries.GetTotalSalesValue(ep.db)
+
+	if err != nil {
+		slog.Error("Failed to get total sales value", "error", err)
+		failure_response.Unknown(ep.context, "Failed to get total sales value: "+err.Error())
+		return 0, false
+	}
+
+	return totalValue, true
+
 }
 
 func (ep *getAllSalesEndpoint) ensureUserIsAdmin() bool {

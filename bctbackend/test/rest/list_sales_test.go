@@ -46,7 +46,8 @@ func TestGetAllSales(t *testing.T) {
 						TotalPriceInCents: items[0].PriceInCents + items[1].PriceInCents,
 					},
 				},
-				SaleCount: 1,
+				SaleCount:      1,
+				TotalSaleValue: items[0].PriceInCents + items[1].PriceInCents,
 			}
 			require.Equal(t, expected, actual)
 		})
@@ -86,7 +87,8 @@ func TestGetAllSales(t *testing.T) {
 						TotalPriceInCents: items[2].PriceInCents + items[3].PriceInCents + items[4].PriceInCents,
 					},
 				},
-				SaleCount: 2,
+				SaleCount:      2,
+				TotalSaleValue: items[0].PriceInCents + items[1].PriceInCents + items[2].PriceInCents + items[3].PriceInCents + items[4].PriceInCents,
 			}
 			require.Equal(t, expected, actual)
 		})
