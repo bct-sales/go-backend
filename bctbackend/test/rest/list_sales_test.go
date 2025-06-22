@@ -19,7 +19,7 @@ import (
 
 func TestGetAllSales(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		t.Run("List all sales", func(t *testing.T) {
+		t.Run("Single sale", func(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
