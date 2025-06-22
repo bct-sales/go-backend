@@ -46,6 +46,7 @@ func TestGetAllSales(t *testing.T) {
 						TotalPriceInCents: items[0].PriceInCents + items[1].PriceInCents,
 					},
 				},
+				SaleCount: 1,
 			}
 			require.Equal(t, expected, actual)
 		})

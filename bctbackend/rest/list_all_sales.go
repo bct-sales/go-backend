@@ -23,7 +23,8 @@ type ListSalesSaleData struct {
 }
 
 type ListSalesSuccessResponse struct {
-	Sales []*ListSalesSaleData `json:"sales"`
+	Sales     []*ListSalesSaleData `json:"sales"`
+	SaleCount int                  `json:"saleCount"`
 }
 
 type getAllSalesEndpoint struct {
@@ -63,11 +64,29 @@ func (ep *getAllSalesEndpoint) execute() {
 		return
 	}
 
+	saleCount, ok := ep.getSaleCount()
+	if !ok {
+		return
+	}
+
 	response := ListSalesSuccessResponse{
-		Sales: sales,
+		Sales:     sales,
+		SaleCount: saleCount,
 	}
 
 	ep.context.IndentedJSON(http.StatusOK, response)
+}
+
+func (ep *getAllSalesEndpoint) getSaleCount() (int, bool) {
+	saleCount, err := queries.GetSalesCount(ep.db)
+
+	if err != nil {
+		slog.Error("Failed to get sales count", "error", err)
+		failure_response.Unknown(ep.context, "Failed to get sales count: "+err.Error())
+		return 0, false
+	}
+
+	return saleCount, true
 }
 
 func (ep *getAllSalesEndpoint) ensureUserIsAdmin() bool {
