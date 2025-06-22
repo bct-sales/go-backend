@@ -42,6 +42,7 @@ type getSalesQueryParameters struct {
 		limit  int
 		offset int
 	}
+	orderedAntiChronologically bool
 }
 
 func GetSales(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
@@ -139,6 +140,18 @@ func (ep *getSalesEndpoint) getSales(queryParameters *getSalesQueryParameters) (
 		return nil
 	}
 
+	query := ep.buildQuery(queryParameters)
+
+	if err := query.Execute(ep.db, processSale); err != nil {
+		slog.Error("Failed to get sales", "error", err)
+		failure_response.Unknown(ep.context, "Failed to get sales: "+err.Error())
+		return nil, false
+	}
+
+	return sales, true
+}
+
+func (ep *getSalesEndpoint) buildQuery(queryParameters *getSalesQueryParameters) *queries.GetSalesQuery {
 	query := queries.NewGetSalesQuery()
 
 	if queryParameters.startId != nil {
@@ -149,13 +162,11 @@ func (ep *getSalesEndpoint) getSales(queryParameters *getSalesQueryParameters) (
 		query.WithRowSelection(queryParameters.rowSelection.limit, queryParameters.rowSelection.offset)
 	}
 
-	if err := query.Execute(ep.db, processSale); err != nil {
-		slog.Error("Failed to get sales", "error", err)
-		failure_response.Unknown(ep.context, "Failed to get sales: "+err.Error())
-		return nil, false
+	if queryParameters.orderedAntiChronologically {
+		query.OrderedAntiChronologically()
 	}
 
-	return sales, true
+	return query
 }
 
 func (ep *getSalesEndpoint) parseQueryParameters() (*getSalesQueryParameters, bool) {
@@ -169,9 +180,15 @@ func (ep *getSalesEndpoint) parseQueryParameters() (*getSalesQueryParameters, bo
 		return nil, false
 	}
 
+	order, ok := ep.parseOrder()
+	if !ok {
+		return nil, false
+	}
+
 	queryParameters := getSalesQueryParameters{
-		startId:      startId,
-		rowSelection: rowSelection,
+		startId:                    startId,
+		rowSelection:               rowSelection,
+		orderedAntiChronologically: order,
 	}
 
 	return &queryParameters, true
@@ -240,4 +257,15 @@ func (ep *getSalesEndpoint) parseRowSelection() (*struct {
 	}
 
 	return &rowSelection, true
+}
+
+func (ep *getSalesEndpoint) parseOrder() (bool, bool) {
+	if order, exists := ep.context.GetQuery("order"); exists {
+		if order != "antichronological" {
+			failure_response.BadRequest(ep.context, "invalid_uri_parameters", "Order must be 'antichronological'")
+			return false, false
+		}
+		return true, true
+	}
+	return false, true
 }

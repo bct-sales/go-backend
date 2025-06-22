@@ -22,6 +22,9 @@ func (path *salesPath) StartingAt(startId models.Id) string {
 func (path *salesPath) WithLimitAndOffset(limit int, offset int) string {
 	return path.WithQueryParameters(fmt.Sprintf("limit=%d&offset=%d", limit, offset))
 }
+func (path *salesPath) WithLimitAndOffsetAndAntiChronologically(limit int, offset int) string {
+	return path.WithQueryParameters(fmt.Sprintf("limit=%d&offset=%d&order=antichronological", limit, offset))
+}
 
 func (path *salesPath) String() string {
 	return "/api/v1/sales"
