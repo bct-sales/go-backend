@@ -112,6 +112,7 @@ type GetSalesQuery struct {
 		limit  int
 		offset int
 	}
+	order *string
 }
 
 func NewGetSalesQuery() *GetSalesQuery {
@@ -132,6 +133,12 @@ func (q *GetSalesQuery) WithRowSelection(limit, offset int) *GetSalesQuery {
 	return q
 }
 
+func (q *GetSalesQuery) OrderedAntiChronologically() *GetSalesQuery {
+	order := "ORDER BY sales.transaction_time DESC, sales.sale_id DESC"
+	q.order = &order
+	return q
+}
+
 func (q *GetSalesQuery) Execute(db QueryHandler, receiver func(*models.SaleSummary) error) (r_err error) {
 	query := fmt.Sprintf(
 		`
@@ -142,8 +149,10 @@ func (q *GetSalesQuery) Execute(db QueryHandler, receiver func(*models.SaleSumma
 			%s
 			GROUP BY sales.sale_id
 			%s
+			%s
 		`,
 		q.whereClause(),
+		q.orderClause(),
 		q.rowSelectionClause(),
 	)
 
@@ -202,6 +211,14 @@ func (q *GetSalesQuery) rowSelectionClause() string {
 		return ""
 	}
 	return fmt.Sprintf("LIMIT %d OFFSET %d", q.rowSelection.limit, q.rowSelection.offset)
+}
+
+func (q *GetSalesQuery) orderClause() string {
+	if q.order == nil {
+		return ""
+	} else {
+		return *q.order
+	}
 }
 
 // GetSaleWithId returns the sale with the given saleId.
