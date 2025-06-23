@@ -20,8 +20,13 @@ func (path *SalesPath) StartingAt(startId models.Id) *SalesPath {
 	return path
 }
 
-func (path *SalesPath) WithLimitAndOffset(limit int, offset int) *SalesPath {
-	path.WithQueryIntParameter("limit", limit).WithQueryIntParameter("offset", offset)
+func (path *SalesPath) Limit(limit int) *SalesPath {
+	path.WithQueryIntParameter("limit", limit)
+	return path
+}
+
+func (path *SalesPath) Offset(offset int) *SalesPath {
+	path.WithQueryIntParameter("offset", offset)
 	return path
 }
 
