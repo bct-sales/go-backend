@@ -121,7 +121,7 @@ func TestGetItemInformation(t *testing.T) {
 
 			_, sessionId := setup.LoggedIn(setup.Cashier())
 
-			url := path.Items().WithRawItemId("abc").String()
+			url := path.Items().IdStr("abc").String()
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_item_id")

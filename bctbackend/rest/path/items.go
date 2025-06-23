@@ -34,7 +34,7 @@ func (path *ItemsPath) Id(id models.Id) *ItemsPath {
 	return path
 }
 
-func (path *ItemsPath) WithRawItemId(id string) *ItemsPath {
+func (path *ItemsPath) IdStr(id string) *ItemsPath {
 	path.id = &id
 	return path
 }
