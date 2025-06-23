@@ -7,29 +7,30 @@ import (
 	"strings"
 )
 
-type Path struct {
+type Path[T any] struct {
+	owner           T
 	queryParameters map[string]string
 }
 
-func (path *Path) WithQueryParameter(key string, value string) *Path {
+func (path *Path[T]) WithQueryParameter(key string, value string) T {
 	if path.queryParameters == nil {
 		path.queryParameters = make(map[string]string)
 	}
 
 	path.queryParameters[key] = value
 
-	return path
+	return path.owner
 }
 
-func (path *Path) WithQueryIntParameter(key string, value int) *Path {
+func (path *Path[T]) WithQueryIntParameter(key string, value int) T {
 	return path.WithQueryParameter(key, strconv.Itoa(value))
 }
 
-func (path *Path) WithQueryIdParameter(key string, id models.Id) *Path {
+func (path *Path[T]) WithQueryIdParameter(key string, id models.Id) T {
 	return path.WithQueryIntParameter(key, int(id.Int64()))
 }
 
-func (path *Path) QuerySuffixString() string {
+func (path *Path[T]) QuerySuffixString() string {
 	if len(path.queryParameters) > 0 {
 		pairs := []string{}
 

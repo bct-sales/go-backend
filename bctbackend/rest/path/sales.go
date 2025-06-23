@@ -7,12 +7,15 @@ import (
 )
 
 type SalesPath struct {
-	Path
+	Path[*SalesPath]
 	id *string
 }
 
 func Sales() *SalesPath {
-	return &SalesPath{}
+	//exhaustruct:ignore
+	salesPath := SalesPath{}
+	salesPath.owner = &salesPath
+	return &salesPath
 }
 
 func (path *SalesPath) StartingAt(startId models.Id) *SalesPath {
