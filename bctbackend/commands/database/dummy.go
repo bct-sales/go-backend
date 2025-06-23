@@ -406,7 +406,8 @@ func (c *dummyDatabaseCommand) addSales(db *sql.DB, cashierIds []models.Id, item
 	itemIds = slices.Clone(itemIds)
 
 	saleCount := c.rng.IntN(100) + 10
-	for range saleCount {
+	times := c.generateChronologicalTimes(saleCount, 0, 60*60*24)
+	for _, transactionTime := range times {
 		cashierId := pickRandom(c.rng, cashierIds)
 		itemCount := c.rng.IntN(20) + 1
 
@@ -414,7 +415,6 @@ func (c *dummyDatabaseCommand) addSales(db *sql.DB, cashierIds []models.Id, item
 			itemIds[i], itemIds[j] = itemIds[j], itemIds[i]
 		})
 		saleItems := itemIds[:itemCount]
-		transactionTime := c.generateRandomTime(0, 60*60*24)
 		_, err := queries.AddSale(db, cashierId, transactionTime, saleItems)
 
 		if err != nil {
