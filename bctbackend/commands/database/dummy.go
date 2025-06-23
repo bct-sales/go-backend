@@ -302,26 +302,27 @@ func (c *dummyDatabaseCommand) getSellerId(zone int, offset int) models.Id {
 func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIds []models.Id) ([]models.Id, error) {
 	c.Printf("Adding items\n")
 
-	itemIds := make([]models.Id, 0, 1000)
-	for _, sellerId := range sellerIds {
-		itemCount := c.rng.IntN(50) + 5
+	queries.AddItems(db, func(addItem queries.AddItemFunction) {
+		for _, sellerId := range sellerIds {
+			itemCount := c.rng.IntN(50) + 5
 
-		for range itemCount {
-			description, category := c.generateRandomItemDescriptionAndCategory()
-			priceInCents := models.MoneyInCents(c.rng.IntN(100)*50 + 50)
-			donation := c.rng.IntN(20) == 0
-			charity := c.rng.IntN(20) == 0
-			frozen := c.rng.IntN(20) == 0
-			hidden := false
-			addedAt := c.generateRandomTime(60*60*24, 60*60*24*30)
+			for range itemCount {
+				description, category := c.generateRandomItemDescriptionAndCategory()
+				priceInCents := models.MoneyInCents(c.rng.IntN(100)*50 + 50)
+				donation := c.rng.IntN(20) == 0
+				charity := c.rng.IntN(20) == 0
+				frozen := c.rng.IntN(20) == 0
+				hidden := false
+				addedAt := c.generateRandomTime(60*60*24, 60*60*24*30)
 
-			itemId, err := queries.AddItem(db, addedAt, description, priceInCents, category, sellerId, donation, charity, frozen, hidden)
-			if err != nil {
-				return nil, fmt.Errorf("failed to add item: %w", err)
+				addItem(addedAt, description, priceInCents, category, sellerId, donation, charity, frozen, hidden)
 			}
-
-			itemIds = append(itemIds, itemId)
 		}
+	})
+
+	itemIds, err := queries.GetItemIds(db)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get item IDs: %w", err)
 	}
 
 	return itemIds, nil
