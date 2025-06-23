@@ -46,7 +46,7 @@ func (path *SalesPath) Id(id models.Id) *SalesPath {
 	return path
 }
 
-func (path *SalesPath) WithRawSaleId(id string) *SalesPath {
+func (path *SalesPath) IdStr(id string) *SalesPath {
 	path.id = &id
 	return path
 }
