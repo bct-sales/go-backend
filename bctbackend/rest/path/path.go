@@ -43,3 +43,13 @@ func (path *Path[T]) QuerySuffixString() string {
 
 	return ""
 }
+
+func (path *Path[T]) Limit(limit int) T {
+	path.WithQueryIntParameter("limit", limit)
+	return path.owner
+}
+
+func (path *Path[T]) Offset(offset int) T {
+	path.WithQueryIntParameter("offset", offset)
+	return path.owner
+}

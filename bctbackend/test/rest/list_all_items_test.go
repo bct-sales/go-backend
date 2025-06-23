@@ -116,7 +116,7 @@ func TestGetAllItems(t *testing.T) {
 				seller := setup.Seller()
 				items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
 
-				url := path.Items().WithRowSelection(nil, &limit)
+				url := path.Items().Limit(limit).String()
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 
@@ -146,7 +146,7 @@ func TestGetAllItems(t *testing.T) {
 				seller := setup.Seller()
 				items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
 
-				url := path.Items().WithRowSelection(&offset, nil)
+				url := path.Items().Offset(offset).String()
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 
@@ -177,7 +177,7 @@ func TestGetAllItems(t *testing.T) {
 					seller := setup.Seller()
 					items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
 
-					url := path.Items().WithRowSelection(&offset, &limit)
+					url := path.Items().Limit(limit).Offset(offset).String()
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
 					router.ServeHTTP(writer, request)
 

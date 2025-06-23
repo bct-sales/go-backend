@@ -2,7 +2,6 @@ package path
 
 import (
 	"bctbackend/database/models"
-	"fmt"
 	"strconv"
 )
 
@@ -23,16 +22,6 @@ func (path *SalesPath) StartingAt(startId models.Id) *SalesPath {
 	return path
 }
 
-func (path *SalesPath) Limit(limit int) *SalesPath {
-	path.WithQueryIntParameter("limit", limit)
-	return path
-}
-
-func (path *SalesPath) Offset(offset int) *SalesPath {
-	path.WithQueryIntParameter("offset", offset)
-	return path
-}
-
 func (path *SalesPath) AntiChronologically() *SalesPath {
 	path.WithQueryParameter("order", "antichronological")
 	return path
@@ -42,7 +31,7 @@ func (path *SalesPath) String() string {
 	base := "/api/v1/sales"
 
 	if path.id != nil {
-		base = fmt.Sprintf("%s/%s", base, *path.id)
+		base += "/" + *path.id
 	}
 
 	base += path.QuerySuffixString()

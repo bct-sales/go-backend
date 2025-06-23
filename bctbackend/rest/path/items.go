@@ -2,45 +2,39 @@ package path
 
 import (
 	"bctbackend/database/models"
-	"fmt"
-	"strings"
 )
 
-type itemsPath struct{}
-
-func Items() *itemsPath {
-	return &itemsPath{}
+type ItemsPath struct {
+	Path[*ItemsPath]
+	id *string
 }
 
-func (path *itemsPath) String() string {
-	return "/api/v1/items"
+func Items() *ItemsPath {
+	//exhaustruct:ignore
+	path := ItemsPath{}
+	path.owner = &path
+	return &path
 }
 
-func (path *itemsPath) Id(id models.Id) string {
-	return path.WithRawItemId(id.String())
-}
+func (path *ItemsPath) String() string {
+	base := "/api/v1/items"
 
-func (path *itemsPath) WithRawItemId(id string) string {
-	return fmt.Sprintf("/api/v1/items/%s", id)
-}
-
-func (path *itemsPath) WithRowSelection(offset *int, limit *int) string {
-	parts := []string{}
-
-	if offset != nil {
-		parts = append(parts, fmt.Sprintf("offset=%d", *offset))
+	if path.id != nil {
+		base += "/" + *path.id
 	}
 
-	if limit != nil {
-		parts = append(parts, fmt.Sprintf("limit=%d", *limit))
-	}
+	base += path.QuerySuffixString()
 
-	joinedParts := strings.Join(parts, "&")
-	url := "/api/v1/items"
+	return base
+}
 
-	if joinedParts != "" {
-		url += "?" + joinedParts
-	}
+func (path *ItemsPath) Id(id models.Id) *ItemsPath {
+	s := id.String()
+	path.id = &s
+	return path
+}
 
-	return url
+func (path *ItemsPath) WithRawItemId(id string) *ItemsPath {
+	path.id = &id
+	return path
 }
