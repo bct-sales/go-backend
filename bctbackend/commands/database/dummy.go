@@ -1,6 +1,7 @@
 package database
 
 import (
+	"bctbackend/algorithms"
 	"bctbackend/commands/common"
 	"bctbackend/database"
 	"bctbackend/database/models"
@@ -306,14 +307,15 @@ func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIds []models.Id) ([]mo
 		for _, sellerId := range sellerIds {
 			itemCount := c.rng.IntN(50) + 5
 
-			for range itemCount {
+			times := c.generateChronologicalTimes(itemCount, 60*60*24, 60*60*24*30)
+
+			for _, addedAt := range times {
 				description, category := c.generateRandomItemDescriptionAndCategory()
 				priceInCents := models.MoneyInCents(c.rng.IntN(100)*50 + 50)
 				donation := c.rng.IntN(20) == 0
 				charity := c.rng.IntN(20) == 0
 				frozen := c.rng.IntN(20) == 0
 				hidden := false
-				addedAt := c.generateRandomTime(60*60*24, 60*60*24*30)
 
 				addItem(addedAt, description, priceInCents, category, sellerId, donation, charity, frozen, hidden)
 			}
@@ -332,6 +334,12 @@ func (c *dummyDatabaseCommand) generateRandomTime(minDelta int64, maxDelta int64
 	now := models.Now().Int64()
 	delta := c.rng.Int64N(maxDelta-minDelta) + minDelta
 	return models.Timestamp(now - delta)
+}
+
+func (c *dummyDatabaseCommand) generateChronologicalTimes(count int, minDelta int64, maxDelta int64) []models.Timestamp {
+	times := algorithms.RepeatCollect(count, func() models.Timestamp { return c.generateRandomTime(minDelta, maxDelta) })
+	slices.Sort(times)
+	return times
 }
 
 func (c *dummyDatabaseCommand) generateRandomItemDescriptionAndCategory() (string, models.Id) {
