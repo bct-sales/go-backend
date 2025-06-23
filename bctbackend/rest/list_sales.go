@@ -26,7 +26,7 @@ type ListSalesSaleData struct {
 type ListSalesSuccessResponse struct {
 	Sales          []*ListSalesSaleData `json:"sales"`
 	SaleCount      int                  `json:"saleCount"`
-	TotalSaleValue models.MoneyInCents  `json:"totalSaleValue"`
+	TotalSaleValue models.MoneyInCents  `json:"totalSaleValueInCents"`
 }
 
 type getSalesEndpoint struct {
