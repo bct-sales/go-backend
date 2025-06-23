@@ -442,6 +442,22 @@ func GetSoldItems(db *sql.DB) (r_result []*models.Item, r_err error) {
 	return items, nil
 }
 
+func GetSoldItemsCount(db QueryHandler) (r_result int, r_err error) {
+	var count int
+	err := db.QueryRow(
+		`
+			SELECT COUNT(si.item_id)
+			FROM sale_items si
+		`,
+	).Scan(&count)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 // HasAnyBeenSold checks if any one of the given item was involved in one or more sales.
 // Does not check if items exist.
 func HasAnyBeenSold(db *sql.DB, itemIds []models.Id) (r_result bool, r_err error) {
