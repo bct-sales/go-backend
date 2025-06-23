@@ -111,7 +111,7 @@ func TestGetAllSales(t *testing.T) {
 						setup.Sale(cashier.UserId, []models.Id{item.ItemID})
 					}
 
-					url := path.Sales().StartingAt(models.Id(k))
+					url := path.Sales().StartingAt(models.Id(k)).String()
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code)
@@ -137,7 +137,7 @@ func TestGetAllSales(t *testing.T) {
 						items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
 						sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserId, []models.Id{item.ItemID}) })
 
-						url := path.Sales().WithLimitAndOffset(limit, offset)
+						url := path.Sales().WithLimitAndOffset(limit, offset).String()
 						request := CreateGetRequest(url, WithSessionCookie(sessionId))
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code)
@@ -168,7 +168,7 @@ func TestGetAllSales(t *testing.T) {
 						items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
 						sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserId, []models.Id{item.ItemID}) })
 
-						url := path.Sales().WithLimitAndOffsetAndAntiChronologically(limit, offset)
+						url := path.Sales().WithLimitAndOffset(limit, offset).AntiChronologically().String()
 						request := CreateGetRequest(url, WithSessionCookie(sessionId))
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code)
