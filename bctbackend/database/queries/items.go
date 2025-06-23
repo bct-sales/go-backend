@@ -70,6 +70,35 @@ func GetItems(db *sql.DB, receiver func(*models.Item) error, itemSelection ItemS
 	return nil
 }
 
+func GetItemIds(db *sql.DB) (r_result []models.Id, r_err error) {
+	// Build SQL query
+	query := `
+		SELECT item_id
+		FROM items
+		ORDER BY item_id ASC
+	`
+
+	// Perform query
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute query to look up item ids in database: %w", err)
+	}
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
+
+	// Iterate over rows and collect item ids
+	var itemIds []models.Id
+	for rows.Next() {
+		var itemId models.Id
+		err = rows.Scan(&itemId)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+		itemIds = append(itemIds, itemId)
+	}
+
+	return itemIds, nil
+}
+
 // Returns the items associated with the given seller.
 // The items are ordered by their time of addition, then by id.
 // An ErrNoSuchUser is returned if no user with the given sellerId exists.
@@ -904,7 +933,9 @@ func UpdateItem(db *sql.DB, itemId models.Id, itemUpdate *ItemUpdate) error {
 	return nil
 }
 
-type AddItemsCallback func(addItem func(addedAt models.Timestamp, description string, priceInCents models.MoneyInCents, itemCategoryId models.Id, sellerId models.Id, donation bool, charity bool, frozen bool, hidden bool))
+type AddItemFunction func(addedAt models.Timestamp, description string, priceInCents models.MoneyInCents, itemCategoryId models.Id, sellerId models.Id, donation bool, charity bool, frozen bool, hidden bool)
+
+type AddItemsCallback func(addItem AddItemFunction)
 
 func AddItems(db *sql.DB, callback AddItemsCallback) error {
 	valuesString := []string{}
