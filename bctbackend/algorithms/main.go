@@ -75,6 +75,16 @@ func Repeat(count int, function func()) {
 	}
 }
 
+func RepeatCollect[T any](count int, function func() T) []T {
+	result := make([]T, count)
+
+	for i := 0; i < count; i++ {
+		result[i] = function()
+	}
+
+	return result
+}
+
 func Filter[T any](values []T, predicate func(T) bool) []T {
 	result := make([]T, 0)
 
