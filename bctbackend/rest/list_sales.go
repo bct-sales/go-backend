@@ -25,6 +25,8 @@ type ListSalesSaleData struct {
 
 type ListSalesSuccessResponse struct {
 	Sales          []*ListSalesSaleData `json:"sales"`
+	ItemCount      int                  `json:"itemCount"`
+	SoldItemCount  int                  `json:"soldItemCount"`
 	SaleCount      int                  `json:"saleCount"`
 	TotalSaleValue models.MoneyInCents  `json:"totalSaleValueInCents"`
 }
@@ -81,13 +83,47 @@ func (ep *getSalesEndpoint) execute() {
 		return
 	}
 
+	itemCount, ok := ep.getItemCount()
+	if !ok {
+		return
+	}
+
+	soldItemCount, ok := ep.getSoldItemCount()
+	if !ok {
+		return
+	}
+
 	response := ListSalesSuccessResponse{
 		Sales:          sales,
 		SaleCount:      saleCount,
 		TotalSaleValue: totalSaleValue,
+		ItemCount:      itemCount,
+		SoldItemCount:  soldItemCount,
 	}
 
 	ep.context.IndentedJSON(http.StatusOK, response)
+}
+
+func (ep *getSalesEndpoint) getItemCount() (int, bool) {
+	soldItemCount, err := queries.CountItems(ep.db, queries.OnlyVisibleItems)
+	if err != nil {
+		slog.Error("Failed to get sold item count", "error", err)
+		failure_response.Unknown(ep.context, "Failed to get sold item count: "+err.Error())
+		return 0, false
+	}
+	return soldItemCount, true
+}
+
+func (ep *getSalesEndpoint) getSoldItemCount() (int, bool) {
+	soldItemCount, err := queries.GetSoldItemsCount(ep.db)
+
+	if err != nil {
+		slog.Error("Failed to get sold item count", "error", err)
+		failure_response.Unknown(ep.context, "Failed to get sold item count: "+err.Error())
+		return 0, false
+	}
+
+	return soldItemCount, true
 }
 
 func (ep *getSalesEndpoint) getSaleCount() (int, bool) {

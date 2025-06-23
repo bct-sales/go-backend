@@ -50,11 +50,13 @@ func TestGetAllSales(t *testing.T) {
 				},
 				SaleCount:      1,
 				TotalSaleValue: items[0].PriceInCents + items[1].PriceInCents,
+				ItemCount:      5,
+				SoldItemCount:  2,
 			}
 			require.Equal(t, expected, actual)
 		})
 
-		t.Run("Two sale", func(t *testing.T) {
+		t.Run("Two sales", func(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
@@ -91,6 +93,8 @@ func TestGetAllSales(t *testing.T) {
 				},
 				SaleCount:      2,
 				TotalSaleValue: items[0].PriceInCents + items[1].PriceInCents + items[2].PriceInCents + items[3].PriceInCents + items[4].PriceInCents,
+				ItemCount:      5,
+				SoldItemCount:  5,
 			}
 			require.Equal(t, expected, actual)
 		})
@@ -119,6 +123,9 @@ func TestGetAllSales(t *testing.T) {
 					response := FromJson[rest.ListSalesSuccessResponse](t, writer.Body.String())
 					expectedSaleCount := len(items) - k + 1
 					require.Len(t, response.Sales, expectedSaleCount)
+					require.Equal(t, 100, response.ItemCount)
+					require.Equal(t, 100, response.SaleCount)
+					require.Equal(t, 100, response.SoldItemCount)
 				})
 			}
 		})
@@ -149,6 +156,9 @@ func TestGetAllSales(t *testing.T) {
 						for i, sale := range actualSales {
 							require.Equal(t, expectedSales[i].SaleID, sale.SaleID)
 						}
+						require.Equal(t, 100, response.ItemCount)
+						require.Equal(t, 100, response.SaleCount)
+						require.Equal(t, 100, response.SoldItemCount)
 					})
 				}
 			}
@@ -182,6 +192,9 @@ func TestGetAllSales(t *testing.T) {
 						for i, sale := range actualSales {
 							require.Equal(t, expectedSales[i].SaleID, sale.SaleID)
 						}
+						require.Equal(t, 100, response.ItemCount)
+						require.Equal(t, 100, response.SaleCount)
+						require.Equal(t, 100, response.SoldItemCount)
 					})
 				}
 			}
