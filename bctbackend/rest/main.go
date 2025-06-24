@@ -65,7 +65,7 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *Configuratio
 		return func(context *gin.Context) {
 			sessionIdString, err := context.Cookie(security.SessionCookieName)
 			if err != nil {
-				slog.Info("Unauthorized: missing session ID")
+				slog.Error("Unauthorized: missing session ID")
 				failure_response.MissingSessionId(context, err.Error())
 				return
 			}
@@ -74,7 +74,7 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *Configuratio
 			sessionData, err := queries.GetSessionData(db, sessionId)
 
 			if errors.Is(err, dberr.ErrNoSuchSession) {
-				slog.Info("Session not found")
+				slog.Error("Session not found")
 				failure_response.NoSuchSession(context, err.Error())
 				return
 			}
@@ -134,7 +134,6 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *Configuratio
 	}
 
 	websocketHandler := func(c *gin.Context) {
-		slog.Info("Establishing WebSocket connection")
 		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 		if err != nil {
 			slog.Error("Failed to upgrade connection to WebSocket", slog.String("error", err.Error()))
@@ -159,8 +158,6 @@ type AddSubscriberMessage struct {
 }
 
 func (m *AddSubscriberMessage) execute(broadcasterState *BroadcasterState) {
-	slog.Info("Adding subscriber to broadcaster state")
-
 	subscriber := &Subscriber{
 		connection: m.connection,
 		active:     true,
@@ -172,14 +169,11 @@ func (m *AddSubscriberMessage) execute(broadcasterState *BroadcasterState) {
 	go func() {
 		m.connection.SetReadDeadline(time.Time{})
 
-		_, buffer, err := m.connection.ReadMessage()
+		_, _, err := m.connection.ReadMessage()
 		if err != nil {
 			slog.Error("Failed to read message from WebSocket", slog.String("error", err.Error()))
 		}
 
-		slog.Info("Received message from WebSocket", slog.String("message", string(buffer)))
-
-		slog.Info("Removing subscriber")
 		broadcasterState.messageChannel <- &RemoveSubscriberMessage{subscriber: subscriber}
 	}()
 }
@@ -189,7 +183,6 @@ type RemoveSubscriberMessage struct {
 }
 
 func (m *RemoveSubscriberMessage) execute(broadcasterState *BroadcasterState) {
-	slog.Info("Removing subscriber from broadcaster state")
 	m.subscriber.active = false
 	m.subscriber.connection.Close()
 }
