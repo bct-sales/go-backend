@@ -21,7 +21,7 @@ const (
 
 var colors = [...]string{"red", "green", "blue", "yellow", "orange", "purple", "black", "white"}
 
-var clothing = [...]string{"t-shirt", "hoodie", "jacket", "sweater", "jeans", "pants", "shorts", "skirt", "dress", "hat", "scarf", "socks", "gloves"}
+var clothing = [...]string{"T-shirt", "hoodie", "jacket", "sweater", "jeans", "pants", "shorts", "skirt", "dress", "hat", "scarf", "socks", "gloves"}
 
 var clothingCategories = [...]models.Id{
 	CategoryId_Clothing50_56,
@@ -74,8 +74,8 @@ var shoeTypes = [...]string{
 	"Jordan sneakers",
 	"Under Armour sneakers",
 	"Crocs Classic clogs",
-	"Crocs Echo Clogs",
-	"Crocs Crush Clogs",
+	"Crocs Echo clogs",
+	"Crocs Crush clogs",
 }
 
 var bootBrands = [...]string{
