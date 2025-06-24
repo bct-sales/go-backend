@@ -1,12 +1,12 @@
-package rest
+package server
 
 import (
 	"bctbackend/algorithms"
 	"bctbackend/database/csv"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/rest/failure_response"
-	rest "bctbackend/rest/shared"
+	"bctbackend/server/failure_response"
+	rest "bctbackend/server/shared"
 	"bytes"
 	"database/sql"
 	"log/slog"

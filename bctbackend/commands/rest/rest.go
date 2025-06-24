@@ -2,7 +2,7 @@ package rest
 
 import (
 	"bctbackend/commands/common"
-	"bctbackend/rest"
+	"bctbackend/server"
 	"database/sql"
 	"fmt"
 
@@ -34,7 +34,7 @@ func NewRestCommand() *cobra.Command {
 }
 
 func (c *RestCommand) execute() error {
-	configuration := rest.Configuration{
+	configuration := server.Configuration{
 		FontDirectory: viper.GetString(common.FlagFontDirectory),
 		FontFilename:  viper.GetString(common.FlagFontFilename),
 		FontFamily:    viper.GetString(common.FlagFontFamily),
@@ -43,7 +43,7 @@ func (c *RestCommand) execute() error {
 	}
 
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		if err := rest.StartRestService(db, &configuration); err != nil {
+		if err := server.StartRestService(db, &configuration); err != nil {
 			c.PrintErrorf("Failed to start REST service\n")
 			return fmt.Errorf("failed to start REST service: %w", err)
 		}

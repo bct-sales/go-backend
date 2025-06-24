@@ -3,8 +3,8 @@
 package rest
 
 import (
-	"bctbackend/rest"
-	"bctbackend/rest/path"
+	"bctbackend/server"
+	"bctbackend/server/path"
 	. "bctbackend/test/setup"
 	"net/http"
 	"testing"
@@ -19,7 +19,7 @@ func TestLogout(t *testing.T) {
 	_, sessionId := setup.LoggedIn(setup.Admin())
 
 	url := path.Logout().String()
-	request := CreatePostRequest(url, &rest.LogoutPayload{}, WithSessionCookie(sessionId))
+	request := CreatePostRequest(url, &server.LogoutPayload{}, WithSessionCookie(sessionId))
 	router.ServeHTTP(writer, request)
 	require.Equal(t, http.StatusOK, writer.Code)
 }

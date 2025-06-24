@@ -1,11 +1,11 @@
-package rest
+package server
 
 import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/rest/failure_response"
-	paths "bctbackend/rest/path"
+	"bctbackend/server/failure_response"
+	paths "bctbackend/server/path"
 	"bctbackend/security"
 	"database/sql"
 	"errors"

@@ -8,18 +8,18 @@ import (
 	"testing"
 
 	models "bctbackend/database/models"
-	"bctbackend/rest"
-	"bctbackend/rest/path"
+	"bctbackend/server"
+	"bctbackend/server/path"
 
-	shared "bctbackend/rest/shared"
+	shared "bctbackend/server/shared"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )
 
-func FromModel(item *models.Item) *rest.GetItemsItemData {
-	return &rest.GetItemsItemData{
+func FromModel(item *models.Item) *server.GetItemsItemData {
+	return &server.GetItemsItemData{
 		ItemId:       item.ItemID,
 		AddedAt:      shared.ConvertTimestampToDateTime(item.AddedAt),
 		Description:  item.Description,
@@ -51,11 +51,11 @@ func TestGetAllItems(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			expected := rest.GetItemsSuccessResponse{
-				Items:          []rest.GetItemsItemData{},
+			expected := server.GetItemsSuccessResponse{
+				Items:          []server.GetItemsItemData{},
 				TotalItemCount: 0,
 			}
-			actual := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
+			actual := FromJson[server.GetItemsSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expected, *actual)
 		})
 
@@ -73,11 +73,11 @@ func TestGetAllItems(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			expected := rest.GetItemsSuccessResponse{
-				Items:          []rest.GetItemsItemData{*FromModel(item)},
+			expected := server.GetItemsSuccessResponse{
+				Items:          []server.GetItemsItemData{*FromModel(item)},
 				TotalItemCount: 1,
 			}
-			actual := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
+			actual := FromJson[server.GetItemsSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expected, *actual)
 		})
 
@@ -96,11 +96,11 @@ func TestGetAllItems(t *testing.T) {
 
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			expected := rest.GetItemsSuccessResponse{
-				Items:          []rest.GetItemsItemData{*FromModel(item1), *FromModel(item2)},
+			expected := server.GetItemsSuccessResponse{
+				Items:          []server.GetItemsItemData{*FromModel(item1), *FromModel(item2)},
 				TotalItemCount: 2,
 			}
-			actual := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
+			actual := FromJson[server.GetItemsSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expected, *actual)
 		})
 
@@ -123,7 +123,7 @@ func TestGetAllItems(t *testing.T) {
 				require.Equal(t, http.StatusOK, writer.Code)
 
 				expectedItems := items[:limit]
-				response := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
+				response := FromJson[server.GetItemsSuccessResponse](t, writer.Body.String())
 				actualItems := response.Items
 				require.Len(t, actualItems, limit)
 				require.Equal(t, itemCount, response.TotalItemCount)
@@ -153,7 +153,7 @@ func TestGetAllItems(t *testing.T) {
 				require.Equal(t, http.StatusOK, writer.Code)
 
 				expectedItems := items[offset:]
-				response := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
+				response := FromJson[server.GetItemsSuccessResponse](t, writer.Body.String())
 				actualItems := response.Items
 				require.Len(t, actualItems, len(expectedItems))
 				require.Equal(t, itemCount, response.TotalItemCount)
@@ -184,7 +184,7 @@ func TestGetAllItems(t *testing.T) {
 					require.Equal(t, http.StatusOK, writer.Code)
 
 					expectedItems := items[offset : offset+limit]
-					response := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
+					response := FromJson[server.GetItemsSuccessResponse](t, writer.Body.String())
 					actualItems := response.Items
 					require.Len(t, actualItems, len(expectedItems))
 					require.Equal(t, itemCount, response.TotalItemCount)

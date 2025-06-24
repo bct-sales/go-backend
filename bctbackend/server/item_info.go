@@ -1,11 +1,11 @@
-package rest
+package server
 
 import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/rest/failure_response"
-	rest "bctbackend/rest/shared"
+	"bctbackend/server/failure_response"
+	rest "bctbackend/server/shared"
 	"database/sql"
 	"errors"
 	"net/http"

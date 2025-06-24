@@ -8,7 +8,7 @@ import (
 
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/rest/path"
+	"bctbackend/server/path"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 

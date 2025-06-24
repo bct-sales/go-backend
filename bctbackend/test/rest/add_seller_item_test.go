@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"testing"
 
-	restapi "bctbackend/rest"
-	"bctbackend/rest/path"
+	restapi "bctbackend/server"
+	"bctbackend/server/path"
 	. "bctbackend/test/setup"
 
 	models "bctbackend/database/models"

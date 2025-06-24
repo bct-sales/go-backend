@@ -5,8 +5,8 @@ package rest
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/rest/path"
 	"bctbackend/security"
+	"bctbackend/server/path"
 	. "bctbackend/test/setup"
 	"bytes"
 	"encoding/json"

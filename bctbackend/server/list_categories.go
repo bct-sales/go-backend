@@ -1,9 +1,9 @@
-package rest
+package server
 
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/rest/failure_response"
+	"bctbackend/server/failure_response"
 	"database/sql"
 	"fmt"
 	"log/slog"

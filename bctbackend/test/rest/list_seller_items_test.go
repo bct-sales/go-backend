@@ -8,9 +8,9 @@ import (
 	"testing"
 
 	models "bctbackend/database/models"
-	"bctbackend/rest"
-	"bctbackend/rest/path"
-	shared "bctbackend/rest/shared"
+	"bctbackend/server"
+	"bctbackend/server/path"
+	shared "bctbackend/server/shared"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 
@@ -30,10 +30,10 @@ func TestListSellerItems(t *testing.T) {
 
 						seller, sessionId := setup.LoggedIn(setup.Seller(aux.WithUserId(sellerId)))
 
-						expectedItems := []*rest.GetSellerItemsItemData{}
+						expectedItems := []*server.GetSellerItemsItemData{}
 						for i := 0; i < itemCount; i++ {
 							item := setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
-							expectedItems = append(expectedItems, &rest.GetSellerItemsItemData{
+							expectedItems = append(expectedItems, &server.GetSellerItemsItemData{
 								ItemId:       item.ItemID,
 								Description:  item.Description,
 								PriceInCents: item.PriceInCents,
@@ -51,7 +51,7 @@ func TestListSellerItems(t *testing.T) {
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code)
 
-						actual := FromJson[rest.GetSellerItemsSuccessResponse](t, writer.Body.String())
+						actual := FromJson[server.GetSellerItemsSuccessResponse](t, writer.Body.String())
 						require.NotNil(t, actual)
 						require.Equal(t, expectedItems, actual.Items)
 					})
@@ -67,10 +67,10 @@ func TestListSellerItems(t *testing.T) {
 			_, sessionId := setup.LoggedIn(setup.Admin())
 			itemCount := 10
 
-			expectedItems := []*rest.GetSellerItemsItemData{}
+			expectedItems := []*server.GetSellerItemsItemData{}
 			for i := 0; i < itemCount; i++ {
 				item := setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
-				expectedItems = append(expectedItems, &rest.GetSellerItemsItemData{
+				expectedItems = append(expectedItems, &server.GetSellerItemsItemData{
 					ItemId:       item.ItemID,
 					Description:  item.Description,
 					PriceInCents: item.PriceInCents,
@@ -88,7 +88,7 @@ func TestListSellerItems(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
-			actual := FromJson[rest.GetSellerItemsSuccessResponse](t, writer.Body.String())
+			actual := FromJson[server.GetSellerItemsSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expectedItems, actual.Items)
 		})
 	})

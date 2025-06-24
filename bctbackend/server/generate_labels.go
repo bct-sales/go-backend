@@ -1,4 +1,4 @@
-package rest
+package server
 
 import (
 	"bctbackend/algorithms"
@@ -6,7 +6,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/pdf"
-	"bctbackend/rest/failure_response"
+	"bctbackend/server/failure_response"
 	"database/sql"
 	"errors"
 	"fmt"

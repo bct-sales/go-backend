@@ -3,7 +3,7 @@
 package rest
 
 import (
-	"bctbackend/rest/path"
+	"bctbackend/server/path"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 	"net/http"

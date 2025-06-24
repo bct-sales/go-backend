@@ -1,4 +1,4 @@
-package rest
+package server
 
 type Configuration struct {
 	FontDirectory string

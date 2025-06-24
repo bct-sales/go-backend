@@ -10,9 +10,9 @@ import (
 
 	"bctbackend/algorithms"
 	models "bctbackend/database/models"
-	"bctbackend/rest"
-	"bctbackend/rest/path"
-	shared "bctbackend/rest/shared"
+	"bctbackend/server"
+	"bctbackend/server/path"
+	shared "bctbackend/server/shared"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 
@@ -37,9 +37,9 @@ func TestGetAllSales(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			actual := FromJson[rest.ListSalesSuccessResponse](t, writer.Body.String())
-			expected := &rest.ListSalesSuccessResponse{
-				Sales: []*rest.ListSalesSaleData{
+			actual := FromJson[server.ListSalesSuccessResponse](t, writer.Body.String())
+			expected := &server.ListSalesSuccessResponse{
+				Sales: []*server.ListSalesSaleData{
 					{
 						SaleID:            sale.SaleID,
 						CashierID:         cashier.UserId,
@@ -73,9 +73,9 @@ func TestGetAllSales(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			actual := FromJson[rest.ListSalesSuccessResponse](t, writer.Body.String())
-			expected := &rest.ListSalesSuccessResponse{
-				Sales: []*rest.ListSalesSaleData{
+			actual := FromJson[server.ListSalesSuccessResponse](t, writer.Body.String())
+			expected := &server.ListSalesSuccessResponse{
+				Sales: []*server.ListSalesSaleData{
 					{
 						SaleID:            sale1.SaleID,
 						CashierID:         cashier.UserId,
@@ -120,7 +120,7 @@ func TestGetAllSales(t *testing.T) {
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code)
 
-					response := FromJson[rest.ListSalesSuccessResponse](t, writer.Body.String())
+					response := FromJson[server.ListSalesSuccessResponse](t, writer.Body.String())
 					expectedSaleCount := len(items) - k + 1
 					require.Len(t, response.Sales, expectedSaleCount)
 					require.Equal(t, 100, response.ItemCount)
@@ -149,7 +149,7 @@ func TestGetAllSales(t *testing.T) {
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code)
 
-						response := FromJson[rest.ListSalesSuccessResponse](t, writer.Body.String())
+						response := FromJson[server.ListSalesSuccessResponse](t, writer.Body.String())
 						actualSales := response.Sales
 						expectedSales := sales[offset : offset+limit]
 						require.Len(t, actualSales, limit)
@@ -183,7 +183,7 @@ func TestGetAllSales(t *testing.T) {
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code)
 
-						response := FromJson[rest.ListSalesSuccessResponse](t, writer.Body.String())
+						response := FromJson[server.ListSalesSuccessResponse](t, writer.Body.String())
 						actualSales := response.Sales
 						expectedSales := sales[:]
 						slices.Reverse(expectedSales)
