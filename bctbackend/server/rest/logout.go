@@ -1,4 +1,4 @@
-package server
+package rest
 
 import (
 	"database/sql"
@@ -18,7 +18,7 @@ type LogoutPayload struct{}
 // @Description Logs out the user.
 // @Tags authentication
 // @Router /logout [post]
-func logout(context *gin.Context, db *sql.DB) {
+func Logout(context *gin.Context, db *sql.DB) {
 	sessionIdString, err := context.Cookie(security.SessionCookieName)
 	if err != nil {
 		context.JSON(http.StatusOK, gin.H{"message": "Unauthorized: missing session ID"})

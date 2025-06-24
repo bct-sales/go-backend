@@ -1,8 +1,9 @@
-package server
+package rest
 
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
 	"database/sql"
@@ -47,7 +48,7 @@ type getSalesQueryParameters struct {
 	orderedAntiChronologically bool
 }
 
-func GetSales(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func GetSales(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	endpoint := &getSalesEndpoint{
 		context: context,
 		db:      db,

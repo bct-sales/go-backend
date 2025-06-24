@@ -1,10 +1,11 @@
-package server
+package rest
 
 import (
 	"bctbackend/algorithms"
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
 	"database/sql"
@@ -43,7 +44,7 @@ type GetSellerItemsSuccessResponse struct {
 // @Failure 404 {object} failure_response.FailureResponse "No such user"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to fetch items"
 // @Router /seller/{seller_id}/items [get]
-func GetSellerItems(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func GetSellerItems(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	if !roleId.IsSeller() && !roleId.IsAdmin() {
 		failure_response.Forbidden(context, "wrong_role", "Only accessible to sellers and admins")
 		return

@@ -1,11 +1,11 @@
-package server
+package rest
 
 import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/server/failure_response"
 	"bctbackend/security"
+	"bctbackend/server/failure_response"
 	"database/sql"
 	"errors"
 	"log/slog"
@@ -38,7 +38,7 @@ type LoginSuccessResponse struct {
 // @Param username formData string true "username"
 // @Param password formData string true "password"
 // @Tags authentication
-func login(context *gin.Context, db *sql.DB) {
+func Login(context *gin.Context, db *sql.DB) {
 	var loginRequest LoginRequest
 
 	if err := context.ShouldBind(&loginRequest); err != nil {

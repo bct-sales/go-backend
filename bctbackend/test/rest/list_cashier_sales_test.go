@@ -8,8 +8,8 @@ import (
 
 	"bctbackend/algorithms"
 	models "bctbackend/database/models"
-	"bctbackend/server"
 	"bctbackend/server/path"
+	"bctbackend/server/rest"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 
@@ -36,7 +36,7 @@ func TestListCashierSales(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			actual := FromJson[server.GetCashierSalesSuccessResponse](t, writer.Body.String())
+			actual := FromJson[rest.GetCashierSalesSuccessResponse](t, writer.Body.String())
 			require.NotNil(t, actual)
 			require.Equal(t, len(sales), len(actual.Sales))
 		})
@@ -60,7 +60,7 @@ func TestListCashierSales(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			actual := FromJson[server.GetCashierSalesSuccessResponse](t, writer.Body.String())
+			actual := FromJson[rest.GetCashierSalesSuccessResponse](t, writer.Body.String())
 			require.NotNil(t, actual)
 			require.Equal(t, len(sales), len(actual.Sales))
 		})

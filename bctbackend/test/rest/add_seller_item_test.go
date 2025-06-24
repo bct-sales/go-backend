@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"testing"
 
-	restapi "bctbackend/server"
 	"bctbackend/server/path"
+	"bctbackend/server/rest"
 	. "bctbackend/test/setup"
 
 	models "bctbackend/database/models"
@@ -35,7 +35,7 @@ func TestAddSellerItem(t *testing.T) {
 									seller, sessionId := setup.LoggedIn(setup.Seller(aux.WithUserId(sellerId)))
 
 									url := path.SellerItems().WithSellerId(seller.UserId)
-									payload := restapi.AddSellerItemPayload{
+									payload := rest.AddSellerItemPayload{
 										Price:       &price,
 										Description: &description,
 										CategoryId:  categoryId,
@@ -46,7 +46,7 @@ func TestAddSellerItem(t *testing.T) {
 									router.ServeHTTP(writer, request)
 
 									require.Equal(t, http.StatusCreated, writer.Code)
-									response := FromJson[restapi.AddSellerItemResponse](t, writer.Body.String())
+									response := FromJson[rest.AddSellerItemResponse](t, writer.Body.String())
 
 									itemsInDatabase := []*models.Item{}
 									err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems, queries.AllRows())
@@ -84,7 +84,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
-			payload := restapi.AddSellerItemPayload{
+			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
 				CategoryId:  categoryId,
@@ -114,7 +114,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
-			payload := restapi.AddSellerItemPayload{
+			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
 				CategoryId:  categoryId,
@@ -146,7 +146,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
-			payload := restapi.AddSellerItemPayload{
+			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
 				CategoryId:  categoryId,
@@ -177,7 +177,7 @@ func TestAddSellerItem(t *testing.T) {
 			_, sessionId := setup.LoggedIn(setup.Admin())
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
-			payload := restapi.AddSellerItemPayload{
+			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
 				CategoryId:  categoryId,
@@ -207,7 +207,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Cashier())
 			url := path.SellerItems().WithSellerId(seller.UserId)
-			payload := restapi.AddSellerItemPayload{
+			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
 				CategoryId:  categoryId,
@@ -237,7 +237,7 @@ func TestAddSellerItem(t *testing.T) {
 			_, sessionId := setup.LoggedIn(setup.Seller())
 
 			url := path.SellerItems().WithRawSellerId("a")
-			payload := restapi.AddSellerItemPayload{
+			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
 				CategoryId:  categoryId,
@@ -268,7 +268,7 @@ func TestAddSellerItem(t *testing.T) {
 			_, sessionId := setup.LoggedIn(setup.Seller())
 
 			url := path.SellerItems().WithSellerId(seller1.UserId)
-			payload := restapi.AddSellerItemPayload{
+			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
 				CategoryId:  categoryId,
@@ -300,7 +300,7 @@ func TestAddSellerItem(t *testing.T) {
 			setup.RequireNoSuchUsers(t, nonexistentUserId)
 
 			url := path.SellerItems().WithSellerId(nonexistentUserId)
-			payload := restapi.AddSellerItemPayload{
+			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
 				CategoryId:  categoryId,
@@ -330,7 +330,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller := setup.Seller()
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
-			payload := restapi.AddSellerItemPayload{
+			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
 				CategoryId:  categoryId,
@@ -361,7 +361,7 @@ func TestAddSellerItem(t *testing.T) {
 			invalidSessionId := models.SessionId("xxx")
 
 			url := path.SellerItems().WithSellerId(seller.UserId)
-			payload := restapi.AddSellerItemPayload{
+			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
 				CategoryId:  categoryId,

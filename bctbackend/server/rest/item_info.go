@@ -1,9 +1,10 @@
-package server
+package rest
 
 import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
 	"database/sql"
@@ -34,7 +35,7 @@ type GetItemInformationSuccessResponse struct {
 // @Failure 403 {object} failure_response.FailureResponse "Only accessible to cashiers, admins and owner sellers"
 // @Failure 404 {object} failure_response.FailureResponse "Item not found"
 // @Router /items/{id} [get]
-func GetItemInformation(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func GetItemInformation(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	var uriParameters struct {
 		ItemId string `uri:"id" binding:"required"`
 	}

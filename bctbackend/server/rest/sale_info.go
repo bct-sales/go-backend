@@ -1,10 +1,11 @@
-package server
+package rest
 
 import (
 	"bctbackend/algorithms"
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
 	"database/sql"
@@ -39,7 +40,7 @@ type getSaleInformationEndpoint struct {
 	roleId  models.RoleId
 }
 
-func GetSaleInformation(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func GetSaleInformation(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	endpoint := &getSaleInformationEndpoint{
 		context: context,
 		db:      db,

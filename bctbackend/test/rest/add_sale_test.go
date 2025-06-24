@@ -8,8 +8,8 @@ import (
 
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	rest_api "bctbackend/server"
 	"bctbackend/server/path"
+	"bctbackend/server/rest"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 
@@ -27,14 +27,14 @@ func TestAddSale(t *testing.T) {
 		cashier, sessionId := setup.LoggedIn(setup.Cashier())
 		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-		payload := rest_api.AddSalePayload{
+		payload := rest.AddSalePayload{
 			Items: []models.Id{item.ItemID},
 		}
 		request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 		router.ServeHTTP(writer, request)
 		require.Equal(t, http.StatusCreated, writer.Code)
 
-		response := FromJson[rest_api.AddSaleSuccessResponse](t, writer.Body.String())
+		response := FromJson[rest.AddSaleSuccessResponse](t, writer.Body.String())
 
 		sale, err := queries.GetSaleWithId(setup.Db, response.SaleId)
 		require.NoError(t, err)
@@ -54,7 +54,7 @@ func TestAddSale(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-			payload := rest_api.AddSalePayload{
+			payload := rest.AddSalePayload{
 				Items: []models.Id{item.ItemID},
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
@@ -74,7 +74,7 @@ func TestAddSale(t *testing.T) {
 			_, sessionId := setup.LoggedIn(setup.Admin())
 			seller := setup.Seller()
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-			payload := rest_api.AddSalePayload{
+			payload := rest.AddSalePayload{
 				Items: []models.Id{item.ItemID},
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
@@ -92,7 +92,7 @@ func TestAddSale(t *testing.T) {
 			defer setup.Close()
 
 			_, sessionId := setup.LoggedIn(setup.Cashier())
-			payload := rest_api.AddSalePayload{
+			payload := rest.AddSalePayload{
 				Items: []models.Id{},
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
@@ -113,7 +113,7 @@ func TestAddSale(t *testing.T) {
 			nonexistentItemId := models.Id(1000)
 			setup.RequireNoSuchItems(t, nonexistentItemId)
 
-			payload := rest_api.AddSalePayload{
+			payload := rest.AddSalePayload{
 				Items: []models.Id{nonexistentItemId},
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
@@ -134,7 +134,7 @@ func TestAddSale(t *testing.T) {
 			seller := setup.Seller()
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-			payload := rest_api.AddSalePayload{
+			payload := rest.AddSalePayload{
 				Items: []models.Id{item.ItemID, item.ItemID},
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
@@ -154,7 +154,7 @@ func TestAddSale(t *testing.T) {
 			seller := setup.Seller()
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-			payload := rest_api.AddSalePayload{
+			payload := rest.AddSalePayload{
 				Items: []models.Id{item.ItemID},
 			}
 			request := CreatePostRequest(url, &payload)
@@ -169,7 +169,7 @@ func TestAddSale(t *testing.T) {
 			seller := setup.Seller()
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-			payload := rest_api.AddSalePayload{
+			payload := rest.AddSalePayload{
 				Items: []models.Id{item.ItemID},
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie("fake_session_id"))

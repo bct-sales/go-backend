@@ -4,9 +4,11 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/security"
+	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
 	paths "bctbackend/server/path"
-	"bctbackend/security"
+	"bctbackend/server/rest"
 	"database/sql"
 	"errors"
 	"log/slog"
@@ -39,7 +41,7 @@ import (
 
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
-func StartRestService(db *sql.DB, configuration *Configuration) error {
+func StartRestService(db *sql.DB, configuration *configuration.Configuration) error {
 	router := gin.Default()
 	SetUpCors(router)
 	DefineEndpoints(db, router, configuration)
@@ -56,9 +58,9 @@ func SetUpCors(router *gin.Engine) {
 	router.Use(cors.New(config))
 }
 
-type HandlerFunction func(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId)
+type HandlerFunction func(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId)
 
-func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *Configuration) {
+func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *configuration.Configuration) {
 	broadcasterChannel := NewWebsocketBroadcaster()
 
 	withUserAndRole := func(handler HandlerFunction, mutates bool) gin.HandlerFunc {
@@ -105,27 +107,27 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *Configuratio
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	router.POST(paths.Login().String(), func(context *gin.Context) { login(context, db) })
-	router.POST(paths.Logout().String(), func(context *gin.Context) { logout(context, db) })
+	router.POST(paths.Login().String(), func(context *gin.Context) { rest.Login(context, db) })
+	router.POST(paths.Logout().String(), func(context *gin.Context) { rest.Logout(context, db) })
 
-	router.GET(paths.Items().String(), withUserAndRole(GetAllItems, false))
-	router.GET(paths.Items().IdStr(":id").String(), withUserAndRole(GetItemInformation, false))
-	router.PUT(paths.Items().IdStr(":id").String(), withUserAndRole(UpdateItem, true))
+	router.GET(paths.Items().String(), withUserAndRole(rest.GetAllItems, false))
+	router.GET(paths.Items().IdStr(":id").String(), withUserAndRole(rest.GetItemInformation, false))
+	router.PUT(paths.Items().IdStr(":id").String(), withUserAndRole(rest.UpdateItem, true))
 
-	router.GET(paths.Users().String(), withUserAndRole(GetUsers, false))
-	router.GET(paths.Users().WithRawUserId(":id"), withUserAndRole(GetUserInformation, false))
+	router.GET(paths.Users().String(), withUserAndRole(rest.GetUsers, false))
+	router.GET(paths.Users().WithRawUserId(":id"), withUserAndRole(rest.GetUserInformation, false))
 
-	router.GET(paths.Categories().String(), withUserAndRole(ListCategories, false))
+	router.GET(paths.Categories().String(), withUserAndRole(rest.ListCategories, false))
 
-	router.GET(paths.SellerItems().WithRawSellerId(":id"), withUserAndRole(GetSellerItems, false))
-	router.POST(paths.SellerItems().WithRawSellerId(":id"), withUserAndRole(AddSellerItem, true))
+	router.GET(paths.SellerItems().WithRawSellerId(":id"), withUserAndRole(rest.GetSellerItems, false))
+	router.POST(paths.SellerItems().WithRawSellerId(":id"), withUserAndRole(rest.AddSellerItem, true))
 
-	router.POST(paths.Labels().String(), withUserAndRole(GenerateLabels, true))
+	router.POST(paths.Labels().String(), withUserAndRole(rest.GenerateLabels, true))
 
-	router.GET(paths.Sales().String(), withUserAndRole(GetSales, false))
-	router.GET(paths.Sales().IdStr(":id").String(), withUserAndRole(GetSaleInformation, false))
-	router.POST(paths.Sales().String(), withUserAndRole(AddSale, true))
-	router.GET(paths.CashierSales().WithRawCashierId(":id"), withUserAndRole(GetCashierSales, false))
+	router.GET(paths.Sales().String(), withUserAndRole(rest.GetSales, false))
+	router.GET(paths.Sales().IdStr(":id").String(), withUserAndRole(rest.GetSaleInformation, false))
+	router.POST(paths.Sales().String(), withUserAndRole(rest.AddSale, true))
+	router.GET(paths.CashierSales().WithRawCashierId(":id"), withUserAndRole(rest.GetCashierSales, false))
 
 	var upgrader = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {

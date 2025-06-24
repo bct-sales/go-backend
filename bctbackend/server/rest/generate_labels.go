@@ -1,7 +1,8 @@
-package server
+package rest
 
 import (
 	"bctbackend/algorithms"
+	"bctbackend/server/configuration"
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
@@ -40,7 +41,7 @@ type GenerateLabelsPayload struct {
 	ItemIds []models.Id `json:"itemIds"`
 }
 
-func GenerateLabels(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func GenerateLabels(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	if !roleId.IsSeller() {
 		slog.Error("GenerateLabels called with wrong role", "userId", userId, "roleId", roleId)
 		failure_response.WrongRole(context, "Only sellers can generate labels")

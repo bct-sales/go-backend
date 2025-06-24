@@ -1,8 +1,9 @@
-package server
+package rest
 
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
 	"database/sql"
@@ -38,7 +39,7 @@ type GetUsersSuccessResponse struct {
 // @Failure 403 {object} failure_response.FailureResponse "Only accessible to admins"
 // @Failure 500 {object} failure_response.FailureResponse "Internal error"
 // @Router /users [get]
-func GetUsers(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func GetUsers(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	slog.Info(
 		"User requested to fetch users",
 		slog.Int64("user_id", userId.Int64()),

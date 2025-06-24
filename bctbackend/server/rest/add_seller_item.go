@@ -1,9 +1,10 @@
-package server
+package rest
 
 import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
 	"database/sql"
 	"errors"
@@ -36,7 +37,7 @@ type AddSellerItemResponse struct {
 // @Failure 404 {object} failure_response.FailureResponse "No such user or category"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to add item"
 // @Router /seller/{seller_id}/items [put]
-func AddSellerItem(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func AddSellerItem(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	if !roleId.IsSeller() {
 		failure_response.WrongRole(context, "Must be seller to add item")
 		return

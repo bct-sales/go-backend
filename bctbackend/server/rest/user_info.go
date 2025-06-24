@@ -1,10 +1,11 @@
-package server
+package rest
 
 import (
 	"bctbackend/algorithms"
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
 	"database/sql"
@@ -93,7 +94,7 @@ func convertSaleToGetUserInformationSale(sale *models.Sale) *GetUserInformationS
 // @Failure 404 {object} failure_response.FailureResponse "User not found"
 // @Failure 500 {object} failure_response.FailureResponse "Internal server error"
 // @Router /users/{id} [get]
-func GetUserInformation(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func GetUserInformation(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	// Retrieve id of user whose information is being requested
 	var uriParameters struct {
 		UserId string `uri:"id" binding:"required"`

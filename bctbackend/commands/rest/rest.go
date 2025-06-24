@@ -3,6 +3,7 @@ package rest
 import (
 	"bctbackend/commands/common"
 	"bctbackend/server"
+	"bctbackend/server/configuration"
 	"database/sql"
 	"fmt"
 
@@ -34,7 +35,7 @@ func NewRestCommand() *cobra.Command {
 }
 
 func (c *RestCommand) execute() error {
-	configuration := server.Configuration{
+	configuration := configuration.Configuration{
 		FontDirectory: viper.GetString(common.FlagFontDirectory),
 		FontFilename:  viper.GetString(common.FlagFontFilename),
 		FontFamily:    viper.GetString(common.FlagFontFamily),
