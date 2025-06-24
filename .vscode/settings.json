@@ -7,7 +7,8 @@
         "exhaustruct",
         "pterm",
         "unhide",
-        "Unhides"
+        "Unhides",
+        "upgrader"
     ],
     "go.buildTags": "test",
     "terminal.integrated.env.linux": {
