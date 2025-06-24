@@ -9,16 +9,15 @@ import (
 	"bctbackend/server/failure_response"
 	paths "bctbackend/server/path"
 	"bctbackend/server/rest"
+	"bctbackend/server/websocket"
 	"database/sql"
 	"errors"
 	"log/slog"
-	"net/http"
 
 	_ "bctbackend/docs"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -60,7 +59,7 @@ func SetUpCors(router *gin.Engine) {
 type HandlerFunction func(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId)
 
 func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *configuration.Configuration) {
-	broadcasterChannel := NewWebsocketBroadcaster()
+	broadcaster := websocket.NewWebsocketBroadcaster()
 
 	withUserAndRole := func(handler HandlerFunction, mutates bool) gin.HandlerFunc {
 		return func(context *gin.Context) {
@@ -98,8 +97,7 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *configuratio
 			handler(context, configuration, db, userId, roleId)
 
 			if mutates {
-				message := &BroadcastMessage{message: "update"}
-				broadcasterChannel <- message
+				broadcaster.Broadcast("update")
 			}
 		}
 	}
@@ -128,24 +126,5 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *configuratio
 	router.POST(paths.Sales().String(), withUserAndRole(rest.AddSale, true))
 	router.GET(paths.CashierSales().WithRawCashierId(":id"), withUserAndRole(rest.GetCashierSales, false))
 
-	var upgrader = websocket.Upgrader{
-		CheckOrigin: func(r *http.Request) bool {
-			return true // Replace with origin check in production
-		},
-	}
-
-	websocketHandler := func(c *gin.Context) {
-		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-		if err != nil {
-			slog.Error("Failed to upgrade connection to WebSocket", slog.String("error", err.Error()))
-			return
-		}
-
-		message := AddSubscriberMessage{
-			connection: conn,
-		}
-		broadcasterChannel <- &message
-	}
-
-	router.GET("/api/v1/websocket", websocketHandler)
+	router.GET("/api/v1/websocket", broadcaster.CreateHandler())
 }

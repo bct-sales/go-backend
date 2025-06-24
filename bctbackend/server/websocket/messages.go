@@ -1,4 +1,4 @@
-package server
+package websocket
 
 import (
 	"log/slog"
@@ -8,15 +8,15 @@ import (
 )
 
 type WebsocketBroadcasterMessage interface {
-	execute(broadcasterState *BroadcasterState)
+	execute(broadcasterState *broadcasterState)
 }
 
 type AddSubscriberMessage struct {
 	connection *websocket.Conn
 }
 
-func (m *AddSubscriberMessage) execute(broadcasterState *BroadcasterState) {
-	subscriber := &Subscriber{
+func (m *AddSubscriberMessage) execute(broadcasterState *broadcasterState) {
+	subscriber := &subscriber{
 		connection: m.connection,
 		active:     true,
 		next:       broadcasterState.subscribers,
@@ -37,10 +37,10 @@ func (m *AddSubscriberMessage) execute(broadcasterState *BroadcasterState) {
 }
 
 type RemoveSubscriberMessage struct {
-	subscriber *Subscriber
+	subscriber *subscriber
 }
 
-func (m *RemoveSubscriberMessage) execute(broadcasterState *BroadcasterState) {
+func (m *RemoveSubscriberMessage) execute(broadcasterState *broadcasterState) {
 	m.subscriber.active = false
 	m.subscriber.connection.Close()
 }
@@ -49,8 +49,8 @@ type BroadcastMessage struct {
 	message string
 }
 
-func (m *BroadcastMessage) execute(broadcasterState *BroadcasterState) {
-	var dummy *Subscriber
+func (m *BroadcastMessage) execute(broadcasterState *broadcasterState) {
+	var dummy *subscriber
 	previousSubscriberNext := &dummy
 
 	current := broadcasterState.subscribers
@@ -71,32 +71,4 @@ func (m *BroadcastMessage) execute(broadcasterState *BroadcasterState) {
 
 		current = current.next
 	}
-}
-
-type Subscriber struct {
-	connection *websocket.Conn
-	active     bool
-	next       *Subscriber
-}
-
-type BroadcasterState struct {
-	subscribers    *Subscriber
-	messageChannel chan<- WebsocketBroadcasterMessage
-}
-
-func NewWebsocketBroadcaster() chan<- WebsocketBroadcasterMessage {
-	messageChannel := make(chan WebsocketBroadcasterMessage)
-
-	state := BroadcasterState{
-		subscribers:    nil,
-		messageChannel: messageChannel,
-	}
-
-	go func() {
-		for message := range messageChannel {
-			message.execute(&state)
-		}
-	}()
-
-	return messageChannel
 }
