@@ -54,6 +54,7 @@ func (m *BroadcastMessage) execute(broadcasterState *broadcasterState) {
 	previousSubscriberNext := &dummy
 
 	current := broadcasterState.subscribers
+	subscriberCount := 0
 
 	for current != nil {
 		if !current.active {
@@ -66,9 +67,12 @@ func (m *BroadcastMessage) execute(broadcasterState *broadcasterState) {
 				current.connection.Close()
 			}
 
+			subscriberCount++
 			previousSubscriberNext = &current.next
 		}
 
 		current = current.next
 	}
+
+	slog.Info("Broadcasted message", slog.String("message", m.message), slog.Int("subscribers", subscriberCount))
 }
