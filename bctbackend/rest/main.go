@@ -10,11 +10,14 @@ import (
 	"database/sql"
 	"errors"
 	"log/slog"
+	"net/http"
+	"time"
 
 	_ "bctbackend/docs"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -53,8 +56,12 @@ func SetUpCors(router *gin.Engine) {
 	router.Use(cors.New(config))
 }
 
+type HandlerFunction func(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId)
+
 func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *Configuration) {
-	withUserAndRole := func(handler func(context *gin.Context, configuration *Configuration, db *sql.DB, userId models.Id, roleId models.RoleId)) gin.HandlerFunc {
+	broadcasterChannel := NewWebsocketBroadcaster()
+
+	withUserAndRole := func(handler HandlerFunction, mutates bool) gin.HandlerFunc {
 		return func(context *gin.Context) {
 			sessionIdString, err := context.Cookie(security.SessionCookieName)
 			if err != nil {
@@ -88,6 +95,11 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *Configuratio
 			}
 
 			handler(context, configuration, db, userId, roleId)
+
+			if mutates {
+				message := &BroadcastMessage{message: "update"}
+				broadcasterChannel <- message
+			}
 		}
 	}
 
@@ -96,22 +108,144 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *Configuratio
 	router.POST(paths.Login().String(), func(context *gin.Context) { login(context, db) })
 	router.POST(paths.Logout().String(), func(context *gin.Context) { logout(context, db) })
 
-	router.GET(paths.Items().String(), withUserAndRole(GetAllItems))
-	router.GET(paths.Items().IdStr(":id").String(), withUserAndRole(GetItemInformation))
-	router.PUT(paths.Items().IdStr(":id").String(), withUserAndRole(UpdateItem))
+	router.GET(paths.Items().String(), withUserAndRole(GetAllItems, false))
+	router.GET(paths.Items().IdStr(":id").String(), withUserAndRole(GetItemInformation, false))
+	router.PUT(paths.Items().IdStr(":id").String(), withUserAndRole(UpdateItem, true))
 
-	router.GET(paths.Users().String(), withUserAndRole(GetUsers))
-	router.GET(paths.Users().WithRawUserId(":id"), withUserAndRole(GetUserInformation))
+	router.GET(paths.Users().String(), withUserAndRole(GetUsers, false))
+	router.GET(paths.Users().WithRawUserId(":id"), withUserAndRole(GetUserInformation, false))
 
-	router.GET(paths.Categories().String(), withUserAndRole(ListCategories))
+	router.GET(paths.Categories().String(), withUserAndRole(ListCategories, false))
 
-	router.GET(paths.SellerItems().WithRawSellerId(":id"), withUserAndRole(GetSellerItems))
-	router.POST(paths.SellerItems().WithRawSellerId(":id"), withUserAndRole(AddSellerItem))
+	router.GET(paths.SellerItems().WithRawSellerId(":id"), withUserAndRole(GetSellerItems, false))
+	router.POST(paths.SellerItems().WithRawSellerId(":id"), withUserAndRole(AddSellerItem, true))
 
-	router.POST(paths.Labels().String(), withUserAndRole(GenerateLabels))
+	router.POST(paths.Labels().String(), withUserAndRole(GenerateLabels, true))
 
-	router.GET(paths.Sales().String(), withUserAndRole(GetSales))
-	router.GET(paths.Sales().IdStr(":id").String(), withUserAndRole(GetSaleInformation))
-	router.POST(paths.Sales().String(), withUserAndRole(AddSale))
-	router.GET(paths.CashierSales().WithRawCashierId(":id"), withUserAndRole(GetCashierSales))
+	router.GET(paths.Sales().String(), withUserAndRole(GetSales, false))
+	router.GET(paths.Sales().IdStr(":id").String(), withUserAndRole(GetSaleInformation, false))
+	router.POST(paths.Sales().String(), withUserAndRole(AddSale, true))
+	router.GET(paths.CashierSales().WithRawCashierId(":id"), withUserAndRole(GetCashierSales, false))
+
+	var upgrader = websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			return true // Replace with origin check in production
+		},
+	}
+
+	websocketHandler := func(c *gin.Context) {
+		slog.Info("Establishing WebSocket connection")
+		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+		if err != nil {
+			slog.Error("Failed to upgrade connection to WebSocket", slog.String("error", err.Error()))
+			return
+		}
+
+		message := AddSubscriberMessage{
+			connection: conn,
+		}
+		broadcasterChannel <- &message
+	}
+
+	router.GET("/api/v1/websocket", websocketHandler)
+}
+
+type WebsocketBroadcasterMessage interface {
+	execute(broadcasterState *BroadcasterState)
+}
+
+type AddSubscriberMessage struct {
+	connection *websocket.Conn
+}
+
+func (m *AddSubscriberMessage) execute(broadcasterState *BroadcasterState) {
+	slog.Info("Adding subscriber to broadcaster state")
+
+	subscriber := &Subscriber{
+		connection: m.connection,
+		active:     true,
+		next:       broadcasterState.subscribers,
+	}
+
+	broadcasterState.subscribers = subscriber
+
+	go func() {
+		m.connection.SetReadDeadline(time.Time{})
+
+		_, buffer, err := m.connection.ReadMessage()
+		if err != nil {
+			slog.Error("Failed to read message from WebSocket", slog.String("error", err.Error()))
+		}
+
+		slog.Info("Received message from WebSocket", slog.String("message", string(buffer)))
+
+		slog.Info("Removing subscriber")
+		broadcasterState.messageChannel <- &RemoveSubscriberMessage{subscriber: subscriber}
+	}()
+}
+
+type RemoveSubscriberMessage struct {
+	subscriber *Subscriber
+}
+
+func (m *RemoveSubscriberMessage) execute(broadcasterState *BroadcasterState) {
+	slog.Info("Removing subscriber from broadcaster state")
+	m.subscriber.active = false
+	m.subscriber.connection.Close()
+}
+
+type BroadcastMessage struct {
+	message string
+}
+
+func (m *BroadcastMessage) execute(broadcasterState *BroadcasterState) {
+	var dummy *Subscriber
+	previousSubscriberNext := &dummy
+
+	current := broadcasterState.subscribers
+
+	for current != nil {
+		if !current.active {
+			*previousSubscriberNext = current.next
+		} else {
+			current.connection.SetWriteDeadline(time.Now().Add(2 * time.Second))
+			if err := current.connection.WriteMessage(websocket.TextMessage, []byte(m.message)); err != nil {
+				slog.Error("Failed to write message to WebSocket", slog.String("error", err.Error()))
+				current.active = false
+				current.connection.Close()
+			}
+
+			previousSubscriberNext = &current.next
+		}
+
+		current = current.next
+	}
+}
+
+type Subscriber struct {
+	connection *websocket.Conn
+	active     bool
+	next       *Subscriber
+}
+
+type BroadcasterState struct {
+	subscribers    *Subscriber
+	messageChannel chan<- WebsocketBroadcasterMessage
+}
+
+func NewWebsocketBroadcaster() chan<- WebsocketBroadcasterMessage {
+	messageChannel := make(chan WebsocketBroadcasterMessage)
+
+	state := BroadcasterState{
+		subscribers:    nil,
+		messageChannel: messageChannel,
+	}
+
+	go func() {
+		for message := range messageChannel {
+			message.execute(&state)
+		}
+	}()
+
+	return messageChannel
 }
