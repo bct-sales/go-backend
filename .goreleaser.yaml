@@ -1,0 +1,10 @@
+builds:
+  - id: bctbackend
+    main: ./bctbackend/main.go
+    goos:
+      - linux
+      - windows
+    goarch:
+      - amd64
+    goamd64:
+      - v1
