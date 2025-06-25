@@ -18,7 +18,7 @@ jobs:
         go-version: 1.23.1
 
     - name: Build
-      run: go build -v bctbackend/...
+      run: cd bctbackend && go build -v ./...
 
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v6
@@ -27,6 +27,7 @@ jobs:
         distribution: goreleaser
         # 'latest', 'nightly', or a semver
         version: "~> v2"
+        workdir: bctbackend
         args: release --clean
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
