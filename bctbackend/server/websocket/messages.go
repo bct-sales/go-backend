@@ -73,6 +73,4 @@ func (m *BroadcastMessage) execute(broadcasterState *broadcasterState) {
 
 		current = current.next
 	}
-
-	slog.Info("Broadcasted message", slog.String("message", m.message), slog.Int("subscribers", subscriberCount))
 }
