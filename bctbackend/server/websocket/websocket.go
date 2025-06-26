@@ -42,32 +42,32 @@ func NewWebsocketBroadcaster() *WebsocketBroadcaster {
 	}
 }
 
-func (wun *WebsocketBroadcaster) AddSubscriber(connection *websocket.Conn) {
+func (wb *WebsocketBroadcaster) AddSubscriber(connection *websocket.Conn) {
 	message := &AddSubscriberMessage{
 		connection: connection,
 	}
-	wun.sendMessage(message)
+	wb.sendMessage(message)
 }
 
-func (wun *WebsocketBroadcaster) RemoveSubscriber(subscriber *subscriber) {
+func (wb *WebsocketBroadcaster) RemoveSubscriber(subscriber *subscriber) {
 	message := &RemoveSubscriberMessage{
 		subscriber: subscriber,
 	}
-	wun.sendMessage(message)
+	wb.sendMessage(message)
 }
 
-func (wun *WebsocketBroadcaster) Broadcast(msg string) {
+func (wb *WebsocketBroadcaster) Broadcast(msg string) {
 	message := &BroadcastMessage{
 		message: msg,
 	}
-	wun.sendMessage(message)
+	wb.sendMessage(message)
 }
 
-func (wun *WebsocketBroadcaster) sendMessage(message WebsocketBroadcasterMessage) {
-	wun.messageChannel <- message
+func (wb *WebsocketBroadcaster) sendMessage(message WebsocketBroadcasterMessage) {
+	wb.messageChannel <- message
 }
 
-func (wun *WebsocketBroadcaster) CreateHandler() func(*gin.Context) {
+func (wb *WebsocketBroadcaster) CreateHandler() func(*gin.Context) {
 	var upgrader = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			return true // TODO Replace with origin check
@@ -84,7 +84,7 @@ func (wun *WebsocketBroadcaster) CreateHandler() func(*gin.Context) {
 		message := AddSubscriberMessage{
 			connection: conn,
 		}
-		wun.sendMessage(&message)
+		wb.sendMessage(&message)
 	}
 
 	return websocketHandler
