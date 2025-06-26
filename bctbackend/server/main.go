@@ -122,7 +122,7 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *configuratio
 	router.POST(paths.Labels().String(), withUserAndRole(rest.GenerateLabels, true))
 
 	router.GET(paths.Sales().String(), withUserAndRole(rest.GetSales, false))
-	router.GET(paths.Sales().IdStr(":id").String(), withUserAndRole(rest.GetSaleInformation, false))
+	router.GET(paths.SaleStr(":id").String(), withUserAndRole(rest.GetSaleInformation, false))
 	router.POST(paths.Sales().String(), withUserAndRole(rest.AddSale, true))
 	router.GET(paths.CashierSales().WithRawCashierId(":id"), withUserAndRole(rest.GetCashierSales, false))
 

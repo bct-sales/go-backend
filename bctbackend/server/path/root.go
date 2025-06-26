@@ -116,3 +116,15 @@ func UserStr(userId string) *URL {
 func User(id models.Id) *URL {
 	return UserStr(id.String())
 }
+
+func Sales() *URL {
+	return RESTRoot().AddPathSegment("sales")
+}
+
+func SaleStr(saleId string) *URL {
+	return Sales().AddPathSegment(saleId)
+}
+
+func Sale(id models.Id) *URL {
+	return SaleStr(id.String())
+}

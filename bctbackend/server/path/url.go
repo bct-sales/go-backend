@@ -57,3 +57,15 @@ func (u *URL) Limit(limit int) *URL {
 func (u *URL) Offset(offset int) *URL {
 	return u.WithQueryIntParameter("offset", offset)
 }
+
+func (u *URL) Order(order string) *URL {
+	return u.AddQueryParameter("order", order)
+}
+
+func (u *URL) AntiChronologically() *URL {
+	return u.Order("antichronological")
+}
+
+func (u *URL) StartId(startId models.Id) *URL {
+	return u.WithQueryIdParameter("startId", startId)
+}

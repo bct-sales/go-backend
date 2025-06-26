@@ -115,7 +115,7 @@ func TestGetAllSales(t *testing.T) {
 						setup.Sale(cashier.UserId, []models.Id{item.ItemID})
 					}
 
-					url := path.Sales().StartingAt(models.Id(k)).String()
+					url := path.Sales().StartId(models.Id(k)).String()
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code)
