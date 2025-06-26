@@ -1,6 +1,9 @@
 package path
 
-import "bctbackend/database/models"
+import (
+	"bctbackend/database/models"
+	"bctbackend/database/queries"
+)
 
 type PathNode struct {
 	parent      *PathNode
@@ -139,4 +142,21 @@ func ItemStr(itemId string) *URL {
 
 func Item(id models.Id) *URL {
 	return ItemStr(id.String())
+}
+
+func Categories() *URL {
+	return RESTRoot().AddPathSegment("categories")
+}
+
+func CategoriesWithCounts(itemSelection queries.ItemSelection) *URL {
+	switch itemSelection {
+	case queries.AllItems:
+		return Categories().AddQueryParameter("counts", "all")
+	case queries.OnlyHiddenItems:
+		return Categories().AddQueryParameter("counts", "hidden")
+	case queries.OnlyVisibleItems:
+		return Categories().AddQueryParameter("counts", "visible")
+	default:
+		panic("bug: unknown item selection")
+	}
 }

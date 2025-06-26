@@ -53,7 +53,7 @@ func TestGetCategories(t *testing.T) {
 
 				_, sessionId := setup.LoggedIn(setup.Admin())
 
-				url := path.Categories().WithCounts(queries.AllItems)
+				url := path.CategoriesWithCounts(queries.AllItems).String()
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
@@ -92,7 +92,7 @@ func TestGetCategories(t *testing.T) {
 
 				_, sessionId := setup.LoggedIn(setup.Seller())
 
-				url := path.Categories().WithCounts(queries.AllItems)
+				url := path.CategoriesWithCounts(queries.AllItems).String()
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
@@ -118,7 +118,7 @@ func TestGetCategories(t *testing.T) {
 
 				_, sessionId := setup.LoggedIn(setup.Cashier())
 
-				url := path.Categories().WithCounts(queries.AllItems)
+				url := path.CategoriesWithCounts(queries.AllItems).String()
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
