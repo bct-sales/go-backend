@@ -3,7 +3,7 @@ package rest
 import (
 	"bctbackend/database/models"
 	"bctbackend/security"
-	"bctbackend/server/path"
+	path "bctbackend/server/paths"
 	"io"
 	"net/http"
 	"strings"

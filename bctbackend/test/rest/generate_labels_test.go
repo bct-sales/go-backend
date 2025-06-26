@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"bctbackend/database/models"
-	"bctbackend/server/path"
+	path "bctbackend/server/paths"
 	"bctbackend/server/rest"
 	restapi "bctbackend/server/rest"
 	aux "bctbackend/test/helpers"

@@ -10,7 +10,7 @@ import (
 
 	"bctbackend/algorithms"
 	models "bctbackend/database/models"
-	"bctbackend/server/path"
+	path "bctbackend/server/paths"
 	"bctbackend/server/rest"
 	shared "bctbackend/server/shared"
 	aux "bctbackend/test/helpers"

@@ -1,4 +1,4 @@
-package path
+package paths
 
 import (
 	"bctbackend/database/models"

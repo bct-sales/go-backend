@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	models "bctbackend/database/models"
-	"bctbackend/server/path"
+	path "bctbackend/server/paths"
 	"bctbackend/server/rest"
 
 	shared "bctbackend/server/shared"

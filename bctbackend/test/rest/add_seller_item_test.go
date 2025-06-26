@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"testing"
 
-	"bctbackend/server/path"
+	path "bctbackend/server/paths"
 	"bctbackend/server/rest"
 	. "bctbackend/test/setup"
 

@@ -6,7 +6,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/security"
-	"bctbackend/server/path"
+	path "bctbackend/server/paths"
 	. "bctbackend/test/setup"
 	"bytes"
 	"encoding/json"

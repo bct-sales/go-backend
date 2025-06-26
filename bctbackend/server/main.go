@@ -7,7 +7,7 @@ import (
 	"bctbackend/security"
 	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
-	paths "bctbackend/server/path"
+	"bctbackend/server/paths"
 	"bctbackend/server/rest"
 	"bctbackend/server/websocket"
 	"database/sql"
