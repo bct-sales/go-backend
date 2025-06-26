@@ -2,20 +2,25 @@ package path
 
 import "bctbackend/database/models"
 
-type usersPath struct{}
-
-func Users() *usersPath {
-	return &usersPath{}
+type UserPath struct {
+	Path[*UserPath]
 }
 
-func (path *usersPath) String() string {
+func Users() *UserPath {
+	//exhaustruct:ignore
+	path := UserPath{}
+	path.owner = &path
+	return &path
+}
+
+func (path *UserPath) String() string {
 	return "/api/v1/users"
 }
 
-func (path *usersPath) WithUserId(userId models.Id) string {
+func (path *UserPath) WithUserId(userId models.Id) string {
 	return path.WithRawUserId(userId.String())
 }
 
-func (path *usersPath) WithRawUserId(userId string) string {
+func (path *UserPath) WithRawUserId(userId string) string {
 	return "/api/v1/users/" + userId
 }
