@@ -31,7 +31,7 @@ func TestListCashierSales(t *testing.T) {
 			items2 := setup.Items(seller.UserId, 20, aux.WithHidden(false))
 			algorithms.Map(items2, func(item *models.Item) *models.Sale { return setup.Sale(cashier2.UserId, []models.Id{item.ItemID}) })
 
-			url := path.CashierSales().WithCashierId(cashier.UserId)
+			url := path.CashierSales(cashier.UserId)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
@@ -55,7 +55,7 @@ func TestListCashierSales(t *testing.T) {
 			items2 := setup.Items(seller.UserId, 20, aux.WithHidden(false))
 			algorithms.Map(items2, func(item *models.Item) *models.Sale { return setup.Sale(cashier2.UserId, []models.Id{item.ItemID}) })
 
-			url := path.CashierSales().WithCashierId(cashier.UserId)
+			url := path.CashierSales(cashier.UserId)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
@@ -80,7 +80,7 @@ func TestListCashierSales(t *testing.T) {
 			items2 := setup.Items(seller.UserId, 20, aux.WithHidden(false))
 			algorithms.Map(items2, func(item *models.Item) *models.Sale { return setup.Sale(cashier2.UserId, []models.Id{item.ItemID}) })
 
-			url := path.CashierSales().WithCashierId(cashier.UserId)
+			url := path.CashierSales(cashier.UserId)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)
@@ -99,7 +99,7 @@ func TestListCashierSales(t *testing.T) {
 			items2 := setup.Items(seller.UserId, 20, aux.WithHidden(false))
 			algorithms.Map(items2, func(item *models.Item) *models.Sale { return setup.Sale(cashier2.UserId, []models.Id{item.ItemID}) })
 
-			url := path.CashierSales().WithCashierId(cashier.UserId)
+			url := path.CashierSales(cashier.UserId)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)

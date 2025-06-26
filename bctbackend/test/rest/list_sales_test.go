@@ -32,7 +32,7 @@ func TestGetAllSales(t *testing.T) {
 
 			sale := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
 
-			url := path.Sales().String()
+			url := path.Sales()
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
@@ -68,7 +68,7 @@ func TestGetAllSales(t *testing.T) {
 			sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
 			sale2 := setup.Sale(cashier.UserId, []models.Id{items[2].ItemID, items[3].ItemID, items[4].ItemID})
 
-			url := path.Sales().String()
+			url := path.Sales()
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
@@ -115,7 +115,7 @@ func TestGetAllSales(t *testing.T) {
 						setup.Sale(cashier.UserId, []models.Id{item.ItemID})
 					}
 
-					url := path.Sales().StartId(models.Id(k)).String()
+					url := path.Sales().StartId(models.Id(k))
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code)
@@ -144,7 +144,7 @@ func TestGetAllSales(t *testing.T) {
 						items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
 						sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserId, []models.Id{item.ItemID}) })
 
-						url := path.Sales().Limit(limit).Offset(offset).String()
+						url := path.Sales().Limit(limit).Offset(offset)
 						request := CreateGetRequest(url, WithSessionCookie(sessionId))
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code)
@@ -178,7 +178,7 @@ func TestGetAllSales(t *testing.T) {
 						items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
 						sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserId, []models.Id{item.ItemID}) })
 
-						url := path.Sales().Limit(limit).Offset(offset).AntiChronologically().String()
+						url := path.Sales().Limit(limit).Offset(offset).AntiChronologically()
 						request := CreateGetRequest(url, WithSessionCookie(sessionId))
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code)
@@ -211,7 +211,7 @@ func TestGetAllSales(t *testing.T) {
 			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
 			setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
 
-			url := path.Sales().String()
+			url := path.Sales()
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
@@ -227,7 +227,7 @@ func TestGetAllSales(t *testing.T) {
 			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
 			setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
 
-			url := path.Sales().String()
+			url := path.Sales()
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 
@@ -243,7 +243,7 @@ func TestGetAllSales(t *testing.T) {
 			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
 			setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
 
-			url := path.Sales().String()
+			url := path.Sales()
 			request := CreateGetRequest(url)
 			router.ServeHTTP(writer, request)
 
@@ -259,7 +259,7 @@ func TestGetAllSales(t *testing.T) {
 			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
 			setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
 
-			url := path.Sales().String()
+			url := path.Sales()
 			request := CreateGetRequest(url, WithSessionCookie("fake_session_id"))
 			router.ServeHTTP(writer, request)
 
@@ -275,7 +275,7 @@ func TestGetAllSales(t *testing.T) {
 			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
 			setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
 
-			url := path.Sales().String()
+			url := path.Sales()
 			request := CreateGetRequest(url, WithCookie("whatever", "whatever"))
 			router.ServeHTTP(writer, request)
 

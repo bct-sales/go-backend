@@ -34,7 +34,7 @@ func TestAddSellerItem(t *testing.T) {
 
 									seller, sessionId := setup.LoggedIn(setup.Seller(aux.WithUserId(sellerId)))
 
-									url := path.SellerItems().WithSellerId(seller.UserId)
+									url := path.SellerItems(seller.UserId)
 									payload := rest.AddSellerItemPayload{
 										Price:       &price,
 										Description: &description,
@@ -83,7 +83,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 
-			url := path.SellerItems().WithSellerId(seller.UserId)
+			url := path.SellerItems(seller.UserId)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
@@ -113,7 +113,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 
-			url := path.SellerItems().WithSellerId(seller.UserId)
+			url := path.SellerItems(seller.UserId)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
@@ -145,7 +145,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 
-			url := path.SellerItems().WithSellerId(seller.UserId)
+			url := path.SellerItems(seller.UserId)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
@@ -176,7 +176,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Admin())
 
-			url := path.SellerItems().WithSellerId(seller.UserId)
+			url := path.SellerItems(seller.UserId)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
@@ -206,7 +206,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			seller := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Cashier())
-			url := path.SellerItems().WithSellerId(seller.UserId)
+			url := path.SellerItems(seller.UserId)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
@@ -236,7 +236,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			_, sessionId := setup.LoggedIn(setup.Seller())
 
-			url := path.SellerItems().WithRawSellerId("a")
+			url := path.SellerItemsStr("a")
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
@@ -267,7 +267,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller1 := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Seller())
 
-			url := path.SellerItems().WithSellerId(seller1.UserId)
+			url := path.SellerItems(seller1.UserId)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
@@ -299,7 +299,7 @@ func TestAddSellerItem(t *testing.T) {
 			nonexistentUserId := models.Id(1000)
 			setup.RequireNoSuchUsers(t, nonexistentUserId)
 
-			url := path.SellerItems().WithSellerId(nonexistentUserId)
+			url := path.SellerItems(nonexistentUserId)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
@@ -329,7 +329,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			seller := setup.Seller()
 
-			url := path.SellerItems().WithSellerId(seller.UserId)
+			url := path.SellerItems(seller.UserId)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
@@ -360,7 +360,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller := setup.Seller()
 			invalidSessionId := models.SessionId("xxx")
 
-			url := path.SellerItems().WithSellerId(seller.UserId)
+			url := path.SellerItems(seller.UserId)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,

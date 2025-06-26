@@ -17,7 +17,7 @@ import (
 )
 
 func TestAddSale(t *testing.T) {
-	url := path.Sales().String()
+	url := path.Sales()
 
 	t.Run("Success", func(t *testing.T) {
 		setup, router, writer := NewRestFixture(WithDefaultCategories)

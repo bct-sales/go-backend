@@ -160,3 +160,19 @@ func CategoriesWithCounts(itemSelection queries.ItemSelection) *URL {
 		panic("bug: unknown item selection")
 	}
 }
+
+func SellerItemsStr(sellerId string) *URL {
+	return RESTRoot().AddPathSegment("sellers").AddPathSegment(sellerId).AddPathSegment("items")
+}
+
+func SellerItems(sellerId models.Id) *URL {
+	return SellerItemsStr(sellerId.String())
+}
+
+func CashierSalesStr(cashierId string) *URL {
+	return RESTRoot().AddPathSegment("cashiers").AddPathSegment(cashierId).AddPathSegment("sales")
+}
+
+func CashierSales(cashierId models.Id) *URL {
+	return CashierSalesStr(cashierId.String())
+}

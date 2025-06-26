@@ -3,6 +3,7 @@ package rest
 import (
 	"bctbackend/database/models"
 	"bctbackend/security"
+	"bctbackend/server/path"
 	"io"
 	"net/http"
 	"strings"
@@ -16,13 +17,13 @@ const (
 	HTTP_VERB_DELETE = "DELETE"
 )
 
-func createRequest[T any](verb string, url string, payload *T, options ...func(*http.Request)) *http.Request {
+func createRequest[T any](verb string, url *path.URL, payload *T, options ...func(*http.Request)) *http.Request {
 	var reader io.Reader
 	if payload != nil {
 		payloadJson := ToJson(payload)
 		reader = strings.NewReader(payloadJson)
 	}
-	request, err := http.NewRequest(verb, url, reader)
+	request, err := http.NewRequest(verb, url.String(), reader)
 
 	if err != nil {
 		panic(err)
@@ -35,16 +36,16 @@ func createRequest[T any](verb string, url string, payload *T, options ...func(*
 	return request
 }
 
-func CreateGetRequest(url string, options ...func(*http.Request)) *http.Request {
+func CreateGetRequest(url *path.URL, options ...func(*http.Request)) *http.Request {
 	return createRequest[any](HTTP_VERB_GET, url, nil, options...)
 }
 
-func CreatePostRequest[T any](url string, payload *T, options ...func(*http.Request)) *http.Request {
+func CreatePostRequest[T any](url *path.URL, payload *T, options ...func(*http.Request)) *http.Request {
 	options = append(options, WithJsonContentType())
 	return createRequest(HTTP_VERB_POST, url, payload, options...)
 }
 
-func CreatePutRequest[T any](url string, payload *T, options ...func(*http.Request)) *http.Request {
+func CreatePutRequest[T any](url *path.URL, payload *T, options ...func(*http.Request)) *http.Request {
 	options = append(options, WithJsonContentType())
 	return createRequest(HTTP_VERB_PUT, url, payload, options...)
 }

@@ -48,7 +48,7 @@ func TestCategoryCounts(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		t.Run("No hidden items involved", func(t *testing.T) {
-			url := path.CategoriesWithCounts(queries.AllItems).String()
+			url := path.CategoriesWithCounts(queries.AllItems)
 
 			t.Run("Zero items", func(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
@@ -151,7 +151,7 @@ func TestCategoryCounts(t *testing.T) {
 				setup.Items(seller.UserId, 5, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(false))
 				setup.Items(seller.UserId, 3, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(true))
 
-				url := path.CategoriesWithCounts(queries.AllItems).String()
+				url := path.CategoriesWithCounts(queries.AllItems)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				countMap := map[models.Id]int{category: 8}
@@ -172,7 +172,7 @@ func TestCategoryCounts(t *testing.T) {
 				setup.Items(seller.UserId, 5, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(false))
 				setup.Items(seller.UserId, 3, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(true))
 
-				url := path.CategoriesWithCounts(queries.OnlyHiddenItems).String()
+				url := path.CategoriesWithCounts(queries.OnlyHiddenItems)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				countMap := map[models.Id]int{category: 3}
@@ -193,7 +193,7 @@ func TestCategoryCounts(t *testing.T) {
 				setup.Items(seller.UserId, 5, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(false))
 				setup.Items(seller.UserId, 3, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(true))
 
-				url := path.CategoriesWithCounts(queries.OnlyVisibleItems).String()
+				url := path.CategoriesWithCounts(queries.OnlyVisibleItems)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				countMap := map[models.Id]int{category: 5}
@@ -211,7 +211,7 @@ func TestCategoryCounts(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			url := path.CategoriesWithCounts(queries.OnlyVisibleItems).String()
+			url := path.CategoriesWithCounts(queries.OnlyVisibleItems)
 			request := CreateGetRequest(url)
 			router.ServeHTTP(writer, request)
 
@@ -224,7 +224,7 @@ func TestCategoryCounts(t *testing.T) {
 
 			_, sessionId := setup.LoggedIn(setup.Cashier())
 
-			url := path.CategoriesWithCounts(queries.OnlyVisibleItems).String()
+			url := path.CategoriesWithCounts(queries.OnlyVisibleItems)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 

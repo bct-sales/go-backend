@@ -46,7 +46,7 @@ func TestListSellerItems(t *testing.T) {
 							})
 						}
 
-						url := path.SellerItems().WithSellerId(seller.UserId)
+						url := path.SellerItems(seller.UserId)
 						request := CreateGetRequest(url, WithSessionCookie(sessionId))
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code)
@@ -83,7 +83,7 @@ func TestListSellerItems(t *testing.T) {
 				})
 			}
 
-			url := path.SellerItems().WithSellerId(seller.UserId)
+			url := path.SellerItems(seller.UserId)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
@@ -105,7 +105,7 @@ func TestListSellerItems(t *testing.T) {
 				setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
 			}
 
-			url := path.SellerItems().WithSellerId(seller.UserId)
+			url := path.SellerItems(seller.UserId)
 			request := CreateGetRequest(url)
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
@@ -123,7 +123,7 @@ func TestListSellerItems(t *testing.T) {
 				setup.Item(itemOwningSeller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
 			}
 
-			url := path.SellerItems().WithSellerId(itemOwningSeller.UserId)
+			url := path.SellerItems(itemOwningSeller.UserId)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_seller")
@@ -141,7 +141,7 @@ func TestListSellerItems(t *testing.T) {
 				setup.Item(itemOwningSeller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
 			}
 
-			url := path.SellerItems().WithSellerId(itemOwningSeller.UserId)
+			url := path.SellerItems(itemOwningSeller.UserId)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
@@ -158,7 +158,7 @@ func TestListSellerItems(t *testing.T) {
 				setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
 			}
 
-			url := path.SellerItems().WithRawSellerId("xxx")
+			url := path.SellerItemsStr("xxx")
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_user_id")
@@ -172,7 +172,7 @@ func TestListSellerItems(t *testing.T) {
 			nonexistentSellerId := models.Id(1000)
 			setup.RequireNoSuchUsers(t, nonexistentSellerId)
 
-			url := path.SellerItems().WithSellerId(nonexistentSellerId)
+			url := path.SellerItems(nonexistentSellerId)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_user")
@@ -185,7 +185,7 @@ func TestListSellerItems(t *testing.T) {
 			admin := setup.Admin()
 			_, sessionId := setup.LoggedIn(setup.Seller())
 
-			url := path.SellerItems().WithSellerId(admin.UserId)
+			url := path.SellerItems(admin.UserId)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_user")
@@ -198,7 +198,7 @@ func TestListSellerItems(t *testing.T) {
 			admin := setup.Admin()
 			setup.LoggedIn(setup.Seller())
 
-			url := path.SellerItems().WithSellerId(admin.UserId)
+			url := path.SellerItems(admin.UserId)
 			request := CreateGetRequest(url)
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
@@ -211,7 +211,7 @@ func TestListSellerItems(t *testing.T) {
 			admin := setup.Admin()
 			setup.LoggedIn(setup.Seller())
 
-			url := path.SellerItems().WithSellerId(admin.UserId)
+			url := path.SellerItems(admin.UserId)
 			request := CreateGetRequest(url, WithSessionCookie("dummy_session_id"))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")

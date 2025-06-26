@@ -38,7 +38,7 @@ type FailureResponse struct {
 }
 
 func TestGetAllItems(t *testing.T) {
-	url := path.Items().String()
+	url := path.Items()
 
 	t.Run("Success", func(t *testing.T) {
 		t.Run("No items", func(t *testing.T) {
@@ -116,7 +116,7 @@ func TestGetAllItems(t *testing.T) {
 				seller := setup.Seller()
 				items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
 
-				url := path.Items().Limit(limit).String()
+				url := path.Items().Limit(limit)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 
@@ -146,7 +146,7 @@ func TestGetAllItems(t *testing.T) {
 				seller := setup.Seller()
 				items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
 
-				url := path.Items().Offset(offset).String()
+				url := path.Items().Offset(offset)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 
@@ -177,7 +177,7 @@ func TestGetAllItems(t *testing.T) {
 					seller := setup.Seller()
 					items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
 
-					url := path.Items().Limit(limit).Offset(offset).String()
+					url := path.Items().Limit(limit).Offset(offset)
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
 					router.ServeHTTP(writer, request)
 

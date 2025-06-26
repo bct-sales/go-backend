@@ -16,7 +16,7 @@ func TestSessionExpiration(t *testing.T) {
 
 	_, sessionId := setup.LoggedIn(setup.Admin(), aux.WithExpiration(-1))
 
-	url := path.Items().String()
+	url := path.Items()
 	request := CreateGetRequest(url, WithSessionCookie(sessionId))
 	router.ServeHTTP(writer, request)
 	RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
@@ -28,7 +28,7 @@ func TestMissingSessionId(t *testing.T) {
 
 	setup.LoggedIn(setup.Admin(), aux.WithExpiration(-1))
 
-	url := path.Items().String()
+	url := path.Items()
 	request := CreateGetRequest(url)
 
 	router.ServeHTTP(writer, request)

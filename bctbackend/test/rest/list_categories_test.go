@@ -34,7 +34,7 @@ func TestGetCategories(t *testing.T) {
 
 				_, sessionId := setup.LoggedIn(setup.Admin())
 
-				url := path.Categories().String()
+				url := path.Categories()
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
@@ -53,7 +53,7 @@ func TestGetCategories(t *testing.T) {
 
 				_, sessionId := setup.LoggedIn(setup.Admin())
 
-				url := path.CategoriesWithCounts(queries.AllItems).String()
+				url := path.CategoriesWithCounts(queries.AllItems)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
@@ -74,7 +74,7 @@ func TestGetCategories(t *testing.T) {
 
 				_, sessionId := setup.LoggedIn(setup.Seller())
 
-				url := path.Categories().String()
+				url := path.Categories()
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
@@ -92,7 +92,7 @@ func TestGetCategories(t *testing.T) {
 
 				_, sessionId := setup.LoggedIn(setup.Seller())
 
-				url := path.CategoriesWithCounts(queries.AllItems).String()
+				url := path.CategoriesWithCounts(queries.AllItems)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
@@ -106,7 +106,7 @@ func TestGetCategories(t *testing.T) {
 
 				_, sessionId := setup.LoggedIn(setup.Cashier())
 
-				url := path.Categories().String()
+				url := path.Categories()
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
@@ -118,7 +118,7 @@ func TestGetCategories(t *testing.T) {
 
 				_, sessionId := setup.LoggedIn(setup.Cashier())
 
-				url := path.CategoriesWithCounts(queries.AllItems).String()
+				url := path.CategoriesWithCounts(queries.AllItems)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")

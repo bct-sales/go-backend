@@ -22,7 +22,7 @@ func TestHeavyLoad(t *testing.T) {
 	defer setup.Close()
 
 	seller, sessionId := setup.LoggedIn(setup.Seller())
-	url := path.SellerItems().WithSellerId(seller.UserId)
+	url := path.SellerItems(seller.UserId)
 
 	itemCount := 1000
 	for i := 0; i < itemCount; i++ {
