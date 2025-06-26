@@ -128,3 +128,15 @@ func SaleStr(saleId string) *URL {
 func Sale(id models.Id) *URL {
 	return SaleStr(id.String())
 }
+
+func Items() *URL {
+	return RESTRoot().AddPathSegment("items")
+}
+
+func ItemStr(itemId string) *URL {
+	return Items().AddPathSegment(itemId)
+}
+
+func Item(id models.Id) *URL {
+	return ItemStr(id.String())
+}

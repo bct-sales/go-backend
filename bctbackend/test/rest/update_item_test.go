@@ -27,7 +27,7 @@ func TestUpdateItem(t *testing.T) {
 			newDescription := "new description"
 			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithDescription(originalDescription), aux.WithHidden(false))
 
-			url := path.Items().Id(originalItem.ItemID).String()
+			url := path.Item(originalItem.ItemID).String()
 			payload := struct {
 				Description string `json:"description"`
 			}{
@@ -55,7 +55,7 @@ func TestUpdateItem(t *testing.T) {
 			newDescription := "new description"
 			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithDescription(originalDescription), aux.WithHidden(false))
 
-			url := path.Items().Id(originalItem.ItemID).String()
+			url := path.Item(originalItem.ItemID).String()
 			payload := struct {
 				Description string `json:"description"`
 			}{
@@ -82,7 +82,7 @@ func TestUpdateItem(t *testing.T) {
 			newPrice := 200
 			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithPriceInCents(models.MoneyInCents(originalPrice)), aux.WithHidden(false))
 
-			url := path.Items().Id(originalItem.ItemID).String()
+			url := path.Item(originalItem.ItemID).String()
 			payload := struct {
 				PriceInCents int `json:"priceInCents"`
 			}{
@@ -107,7 +107,7 @@ func TestUpdateItem(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithCharity(false), aux.WithDonation(false), aux.WithHidden(false))
 
-			url := path.Items().Id(originalItem.ItemID).String()
+			url := path.Item(originalItem.ItemID).String()
 			payload := struct {
 				Donation bool `json:"donation"`
 				Charity  bool `json:"charity"`
@@ -137,7 +137,7 @@ func TestUpdateItem(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(true), aux.WithHidden(false))
 
-			url := path.Items().Id(originalItem.ItemID).String()
+			url := path.Item(originalItem.ItemID).String()
 			payload := struct {
 				Description string `json:"description"`
 			}{
@@ -162,7 +162,7 @@ func TestUpdateItem(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 			originalItem := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-			url := path.Items().Id(originalItem.ItemID).String()
+			url := path.Item(originalItem.ItemID).String()
 			payload := struct {
 				PriceInCents int `json:"priceInCents"`
 			}{
@@ -186,7 +186,7 @@ func TestUpdateItem(t *testing.T) {
 			_, sessionId := setup.LoggedIn(setup.Seller())
 
 			nonexistingItemId := models.Id(123)
-			url := path.Items().Id(nonexistingItemId).String()
+			url := path.Item(nonexistingItemId).String()
 			setup.RequireNoSuchItems(t, nonexistingItemId)
 
 			payload := struct {
@@ -207,7 +207,7 @@ func TestUpdateItem(t *testing.T) {
 			_, sessionId := setup.LoggedIn(setup.Seller())
 			originalItem := setup.Item(ownerSeller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-			url := path.Items().Id(originalItem.ItemID).String()
+			url := path.Item(originalItem.ItemID).String()
 			payload := struct {
 				PriceInCents int `json:"priceInCents"`
 			}{
@@ -232,7 +232,7 @@ func TestUpdateItem(t *testing.T) {
 			_, sessionId := setup.LoggedIn(setup.Cashier())
 			originalItem := setup.Item(ownerSeller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-			url := path.Items().Id(originalItem.ItemID).String()
+			url := path.Item(originalItem.ItemID).String()
 			payload := struct {
 				PriceInCents int `json:"priceInCents"`
 			}{
