@@ -102,10 +102,12 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *configuratio
 		}
 	}
 
+	root := paths.Root()
+
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	router.POST(paths.Login().String(), func(context *gin.Context) { rest.Login(context, db) })
-	router.POST(paths.Logout().String(), func(context *gin.Context) { rest.Logout(context, db) })
+	router.POST(root.Login().String(), func(context *gin.Context) { rest.Login(context, db) })
+	router.POST(root.Logout().String(), func(context *gin.Context) { rest.Logout(context, db) })
 
 	router.GET(paths.Items().String(), withUserAndRole(rest.GetAllItems, false))
 	router.GET(paths.Items().IdStr(":id").String(), withUserAndRole(rest.GetItemInformation, false))

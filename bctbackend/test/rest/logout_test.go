@@ -18,7 +18,7 @@ func TestLogout(t *testing.T) {
 
 	_, sessionId := setup.LoggedIn(setup.Admin())
 
-	url := path.Logout().String()
+	url := path.Root().Logout().String()
 	request := CreatePostRequest(url, &rest.LogoutPayload{}, WithSessionCookie(sessionId))
 	router.ServeHTTP(writer, request)
 	require.Equal(t, http.StatusOK, writer.Code)
