@@ -1,5 +1,7 @@
 package path
 
+import "bctbackend/database/models"
+
 type PathNode struct {
 	parent      *PathNode
 	pathSegment string
@@ -101,4 +103,16 @@ func Logout() *URL {
 
 func Labels() *URL {
 	return RESTRoot().AddPathSegment("labels")
+}
+
+func Users() *URL {
+	return RESTRoot().AddPathSegment("users")
+}
+
+func UserStr(userId string) *URL {
+	return Users().AddPathSegment(userId)
+}
+
+func User(id models.Id) *URL {
+	return UserStr(id.String())
 }
