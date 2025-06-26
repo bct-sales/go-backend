@@ -10,12 +10,10 @@ import (
 
 func TestPath(t *testing.T) {
 	t.Run("Root", func(t *testing.T) {
-		path := NewRootPath("test")
-
-		require.Equal(t, "test", path.String())
+		require.Equal(t, "/api/v1", RESTRoot().String())
 	})
 
 	t.Run("Login", func(t *testing.T) {
-		require.Equal(t, "/api/v1/login", Root().Login().String())
+		require.Equal(t, "/api/v1/login", Login().String())
 	})
 }

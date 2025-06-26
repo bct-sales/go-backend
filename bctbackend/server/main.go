@@ -102,12 +102,10 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *configuratio
 		}
 	}
 
-	root := paths.Root()
-
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	router.POST(root.Login().String(), func(context *gin.Context) { rest.Login(context, db) })
-	router.POST(root.Logout().String(), func(context *gin.Context) { rest.Logout(context, db) })
+	router.POST(paths.Login().String(), func(context *gin.Context) { rest.Login(context, db) })
+	router.POST(paths.Logout().String(), func(context *gin.Context) { rest.Logout(context, db) })
 
 	router.GET(paths.Items().String(), withUserAndRole(rest.GetAllItems, false))
 	router.GET(paths.Items().IdStr(":id").String(), withUserAndRole(rest.GetItemInformation, false))
@@ -121,7 +119,7 @@ func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *configuratio
 	router.GET(paths.SellerItems().WithRawSellerId(":id"), withUserAndRole(rest.GetSellerItems, false))
 	router.POST(paths.SellerItems().WithRawSellerId(":id"), withUserAndRole(rest.AddSellerItem, true))
 
-	router.POST(root.Labels().String(), withUserAndRole(rest.GenerateLabels, true))
+	router.POST(paths.Labels().String(), withUserAndRole(rest.GenerateLabels, true))
 
 	router.GET(paths.Sales().String(), withUserAndRole(rest.GetSales, false))
 	router.GET(paths.Sales().IdStr(":id").String(), withUserAndRole(rest.GetSaleInformation, false))

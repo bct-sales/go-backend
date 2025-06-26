@@ -83,46 +83,22 @@ type RootPath struct {
 	PPath
 }
 
-func Root() RootPath {
-	return RootPath{
-		PPath: PPath{
-			raw: NewRootPath("/api/v1"),
-		},
-	}
+func Root() *URL {
+	return NewURL()
 }
 
-type LoginPath struct {
-	PPath
+func RESTRoot() *URL {
+	return Root().AddPathSegment("api").AddPathSegment("v1")
 }
 
-func (r RootPath) Login() LoginPath {
-	return LoginPath{
-		PPath: PPath{
-			raw: r.raw.Descend("login"),
-		},
-	}
+func Login() *URL {
+	return RESTRoot().AddPathSegment("login")
 }
 
-type LogoutPath struct {
-	PPath
+func Logout() *URL {
+	return RESTRoot().AddPathSegment("logout")
 }
 
-func (r RootPath) Logout() LogoutPath {
-	return LogoutPath{
-		PPath: PPath{
-			raw: r.raw.Descend("logout"),
-		},
-	}
-}
-
-type LabelsPath struct {
-	PPath
-}
-
-func (r RootPath) Labels() LabelsPath {
-	return LabelsPath{
-		PPath: PPath{
-			raw: r.raw.Descend("labels"),
-		},
-	}
+func Labels() *URL {
+	return RESTRoot().AddPathSegment("labels")
 }

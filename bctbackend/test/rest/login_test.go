@@ -29,7 +29,7 @@ func TestLogin(t *testing.T) {
 			form.Add("username", seller.UserId.String())
 			form.Add("password", seller.Password)
 
-			url := path.Root().Login().String()
+			url := path.Login().String()
 			request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))
 			require.NoError(t, err)
 
@@ -70,7 +70,7 @@ func TestLogin(t *testing.T) {
 			form.Add("username", admin.UserId.String())
 			form.Add("password", admin.Password)
 
-			url := path.Root().Login().String()
+			url := path.Login().String()
 			request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))
 			require.NoError(t, err)
 
@@ -111,7 +111,7 @@ func TestLogin(t *testing.T) {
 			form.Add("username", cashier.UserId.String())
 			form.Add("password", cashier.Password)
 
-			url := path.Root().Login().String()
+			url := path.Login().String()
 			request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))
 			require.NoError(t, err)
 
@@ -155,7 +155,7 @@ func TestLogin(t *testing.T) {
 			form.Add("username", userId.String())
 			form.Add("password", password)
 
-			url := path.Root().Login().String()
+			url := path.Login().String()
 			request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))
 			require.NoError(t, err)
 
@@ -178,7 +178,7 @@ func TestLogin(t *testing.T) {
 			form.Add("username", userId.String())
 			form.Add("password", password)
 
-			url := path.Root().Login().String()
+			url := path.Login().String()
 			request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))
 			require.NoError(t, err)
 
@@ -196,7 +196,7 @@ func TestLogin(t *testing.T) {
 			form := url.Values{}
 			form.Add("password", cashier.Password)
 
-			url := path.Root().Login().String()
+			url := path.Login().String()
 			request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))
 			require.NoError(t, err)
 
@@ -214,7 +214,7 @@ func TestLogin(t *testing.T) {
 			form := url.Values{}
 			form.Add("username", cashier.UserId.String())
 
-			url := path.Root().Login().String()
+			url := path.Login().String()
 			request, err := http.NewRequest("POST", url, bytes.NewBufferString(form.Encode()))
 			require.NoError(t, err)
 
