@@ -114,3 +114,15 @@ func (r RootPath) Logout() LogoutPath {
 		},
 	}
 }
+
+type LabelsPath struct {
+	PPath
+}
+
+func (r RootPath) Labels() LabelsPath {
+	return LabelsPath{
+		PPath: PPath{
+			raw: r.raw.Descend("labels"),
+		},
+	}
+}
