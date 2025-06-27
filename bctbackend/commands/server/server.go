@@ -13,6 +13,7 @@ import (
 
 type ServerCommand struct {
 	common.Command
+	port int
 }
 
 func NewServerCommand() *cobra.Command {
@@ -31,6 +32,10 @@ func NewServerCommand() *cobra.Command {
 		},
 	}
 
+	command.CobraCommand.Flags().Int("port", 8000, "Port to run the server on")
+	viper.BindPFlag("port", command.CobraCommand.Flags().Lookup("port"))
+	viper.SetDefault("port", 8000)
+
 	return command.AsCobraCommand()
 }
 
@@ -41,6 +46,7 @@ func (c *ServerCommand) execute() error {
 		FontFamily:    viper.GetString(common.FlagFontFamily),
 		BarcodeWidth:  viper.GetInt(common.FlagBarcodeWidth),
 		BarcodeHeight: viper.GetInt(common.FlagBarcodeHeight),
+		Port: viper.GetInt("port"),
 	}
 
 	return c.WithOpenedDatabase(func(db *sql.DB) error {

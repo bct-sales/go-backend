@@ -12,6 +12,7 @@ import (
 	"bctbackend/server/websocket"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log/slog"
 
 	_ "bctbackend/docs"
@@ -111,7 +112,9 @@ func (server *Server) PUT(path *paths.URL, handler HandlerFunction) {
 }
 
 func (server *Server) run() error {
-	if err := server.router.Run("localhost:8000"); err != nil {
+	address := fmt.Sprintf("localhost:%d", server.configuration.Port)
+
+	if err := server.router.Run(address); err != nil {
 		return err
 	}
 

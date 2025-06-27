@@ -6,4 +6,5 @@ type Configuration struct {
 	FontFamily    string
 	BarcodeWidth  int
 	BarcodeHeight int
+	Port          int
 }
