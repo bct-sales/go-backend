@@ -40,26 +40,103 @@ import (
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func StartRestService(db *sql.DB, configuration *configuration.Configuration) error {
-	router := gin.Default()
-	SetUpCors(router)
-	DefineEndpoints(db, router, configuration)
+	restService := restService{
+		db:            db,
+		configuration: configuration,
+		broadcaster:   websocket.NewWebsocketBroadcaster(),
+		router:        createGinRouter(),
+	}
 
-	return router.Run("localhost:8000")
+	restService.defineEndpoints()
+	restService.run()
+
+	if err := restService.run(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func SetUpCors(router *gin.Engine) {
+type restService struct {
+	db            *sql.DB
+	configuration *configuration.Configuration
+	broadcaster   *websocket.WebsocketBroadcaster
+	router        *gin.Engine
+}
+
+func (restService *restService) defineEndpoints() {
+	DefineEndpoints(restService.db, restService.router, restService.configuration)
+}
+
+func (restService *restService) run() error {
+	if err := restService.router.Run("localhost:8000"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createGinRouter() *gin.Engine {
+	router := gin.Default()
+
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
 	// config.AllowOrigins = []string{"http://localhost:5173"}
 	config.AllowCredentials = true
 
 	router.Use(cors.New(config))
+
+	return router
 }
 
 type HandlerFunction func(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId)
 
+func (restService *restService) withUserAndRole(handler HandlerFunction, mutates bool) gin.HandlerFunc {
+	db := restService.db
+	configuration := restService.configuration
+	broadcaster := restService.broadcaster
+
+	return func(context *gin.Context) {
+		sessionIdString, err := context.Cookie(security.SessionCookieName)
+		if err != nil {
+			slog.Error("Unauthorized: missing session ID")
+			failure_response.MissingSessionId(context, err.Error())
+			return
+		}
+
+		sessionId := models.SessionId(sessionIdString)
+		sessionData, err := queries.GetSessionData(db, sessionId)
+
+		if errors.Is(err, dberr.ErrNoSuchSession) {
+			slog.Error("Session not found")
+			failure_response.NoSuchSession(context, err.Error())
+			return
+		}
+
+		if err != nil {
+			slog.Error("Failed to retrieve session from database", slog.String("error", err.Error()))
+			failure_response.Unknown(context, "Failed to retrieve session from database: "+err.Error())
+			return
+		}
+
+		userId := sessionData.UserId
+		roleId := sessionData.RoleId
+
+		now := models.Now()
+		if err := queries.UpdateLastActivity(db, userId, now); err != nil {
+			slog.Error("Failed to update last activity", slog.String("error", err.Error()))
+			// Keep going, we don't want to block the request
+		}
+
+		handler(context, configuration, db, userId, roleId)
+
+		if mutates {
+			broadcaster.Broadcast("update")
+		}
+	}
+}
+
 func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *configuration.Configuration) {
-	broadcaster := websocket.NewWebsocketBroadcaster()
 
 	withUserAndRole := func(handler HandlerFunction, mutates bool) gin.HandlerFunc {
 		return func(context *gin.Context) {
