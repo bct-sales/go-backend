@@ -11,19 +11,19 @@ import (
 	"github.com/spf13/viper"
 )
 
-type RestCommand struct {
+type ServerCommand struct {
 	common.Command
 }
 
-func NewRestCommand() *cobra.Command {
-	var command *RestCommand
+func NewServerCommand() *cobra.Command {
+	var command *ServerCommand
 
-	command = &RestCommand{
+	command = &ServerCommand{
 		Command: common.Command{
 			CobraCommand: &cobra.Command{
 				Use:   "server",
-				Short: "Start REST server",
-				Long:  `This command starts the REST server for the BCT application.`,
+				Short: "Start server",
+				Long:  `This command starts the backend server for the BCT application.`,
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return command.execute()
 				},
@@ -34,7 +34,7 @@ func NewRestCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *RestCommand) execute() error {
+func (c *ServerCommand) execute() error {
 	configuration := configuration.Configuration{
 		FontDirectory: viper.GetString(common.FlagFontDirectory),
 		FontFilename:  viper.GetString(common.FlagFontFilename),
@@ -44,7 +44,7 @@ func (c *RestCommand) execute() error {
 	}
 
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		if err := server.StartRestService(db, &configuration); err != nil {
+		if err := server.StartServer(db, &configuration); err != nil {
 			c.PrintErrorf("Failed to start REST service\n")
 			return fmt.Errorf("failed to start REST service: %w", err)
 		}

@@ -39,79 +39,79 @@ import (
 
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
-func StartRestService(db *sql.DB, configuration *configuration.Configuration) error {
-	restService := restService{
+func StartServer(db *sql.DB, configuration *configuration.Configuration) error {
+	server := Server{
 		database:      db,
 		configuration: configuration,
 		broadcaster:   websocket.NewWebsocketBroadcaster(),
 		router:        createGinRouter(),
 	}
 
-	restService.defineEndpoints()
-	restService.run()
+	server.defineEndpoints()
+	server.run()
 
-	if err := restService.run(); err != nil {
+	if err := server.run(); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-type restService struct {
+type Server struct {
 	database      *sql.DB
 	configuration *configuration.Configuration
 	broadcaster   *websocket.WebsocketBroadcaster
 	router        *gin.Engine
 }
 
-func (restService *restService) defineEndpoints() {
-	router := restService.router
+func (server *Server) defineEndpoints() {
+	router := server.router
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	restService.RawPOST(paths.Login(), rest.Login)
-	restService.RawPOST(paths.Logout(), rest.Logout)
+	server.RawPOST(paths.Login(), rest.Login)
+	server.RawPOST(paths.Logout(), rest.Logout)
 
-	restService.GET(paths.Items(), rest.GetAllItems)
-	restService.GET(paths.ItemStr(":id"), rest.GetItemInformation)
-	restService.PUT(paths.ItemStr(":id"), rest.UpdateItem)
+	server.GET(paths.Items(), rest.GetAllItems)
+	server.GET(paths.ItemStr(":id"), rest.GetItemInformation)
+	server.PUT(paths.ItemStr(":id"), rest.UpdateItem)
 
-	restService.GET(paths.Users(), rest.GetUsers)
-	restService.GET(paths.UserStr(":id"), rest.GetUserInformation)
+	server.GET(paths.Users(), rest.GetUsers)
+	server.GET(paths.UserStr(":id"), rest.GetUserInformation)
 
-	restService.GET(paths.Categories(), rest.ListCategories)
+	server.GET(paths.Categories(), rest.ListCategories)
 
-	restService.GET(paths.SellerItemsStr(":id"), rest.GetSellerItems)
-	restService.POST(paths.SellerItemsStr(":id"), rest.AddSellerItem)
+	server.GET(paths.SellerItemsStr(":id"), rest.GetSellerItems)
+	server.POST(paths.SellerItemsStr(":id"), rest.AddSellerItem)
 
-	restService.POST(paths.Labels(), rest.GenerateLabels)
+	server.POST(paths.Labels(), rest.GenerateLabels)
 
-	restService.GET(paths.Sales(), rest.GetSales)
-	restService.GET(paths.SaleStr(":id"), rest.GetSaleInformation)
-	restService.POST(paths.Sales(), rest.AddSale)
-	restService.GET(paths.CashierSalesStr(":id"), rest.GetCashierSales)
+	server.GET(paths.Sales(), rest.GetSales)
+	server.GET(paths.SaleStr(":id"), rest.GetSaleInformation)
+	server.POST(paths.Sales(), rest.AddSale)
+	server.GET(paths.CashierSalesStr(":id"), rest.GetCashierSales)
 
-	router.GET(paths.Websocket().String(), restService.broadcaster.CreateHandler())
+	router.GET(paths.Websocket().String(), server.broadcaster.CreateHandler())
 }
 
-func (restService *restService) RawPOST(path *paths.URL, handler func(context *gin.Context, database *sql.DB)) {
-	restService.router.POST(path.String(), func(context *gin.Context) { handler(context, restService.database) })
+func (server *Server) RawPOST(path *paths.URL, handler func(context *gin.Context, database *sql.DB)) {
+	server.router.POST(path.String(), func(context *gin.Context) { handler(context, server.database) })
 }
 
-func (restService *restService) GET(path *paths.URL, handler HandlerFunction) {
-	restService.router.GET(path.String(), restService.withUserAndRole(handler, false))
+func (server *Server) GET(path *paths.URL, handler HandlerFunction) {
+	server.router.GET(path.String(), server.withUserAndRole(handler, false))
 }
 
-func (restService *restService) POST(path *paths.URL, handler HandlerFunction) {
-	restService.router.POST(path.String(), restService.withUserAndRole(handler, true))
+func (server *Server) POST(path *paths.URL, handler HandlerFunction) {
+	server.router.POST(path.String(), server.withUserAndRole(handler, true))
 }
 
-func (restService *restService) PUT(path *paths.URL, handler HandlerFunction) {
-	restService.router.PUT(path.String(), restService.withUserAndRole(handler, true))
+func (server *Server) PUT(path *paths.URL, handler HandlerFunction) {
+	server.router.PUT(path.String(), server.withUserAndRole(handler, true))
 }
 
-func (restService *restService) run() error {
-	if err := restService.router.Run("localhost:8000"); err != nil {
+func (server *Server) run() error {
+	if err := server.router.Run("localhost:8000"); err != nil {
 		return err
 	}
 
@@ -133,10 +133,10 @@ func createGinRouter() *gin.Engine {
 
 type HandlerFunction func(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId)
 
-func (restService *restService) withUserAndRole(handler HandlerFunction, mutates bool) gin.HandlerFunc {
-	db := restService.database
-	configuration := restService.configuration
-	broadcaster := restService.broadcaster
+func (server *Server) withUserAndRole(handler HandlerFunction, mutates bool) gin.HandlerFunc {
+	db := server.database
+	configuration := server.configuration
+	broadcaster := server.broadcaster
 
 	return func(context *gin.Context) {
 		sessionIdString, err := context.Cookie(security.SessionCookieName)

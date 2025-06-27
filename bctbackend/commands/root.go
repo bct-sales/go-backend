@@ -80,7 +80,7 @@ func NewRootCommand() *cobra.Command {
 	rootCommand.AddCommand(user.NewUserCommand())
 	rootCommand.AddCommand(database.NewDatabaseCommand())
 	rootCommand.AddCommand(sale.NewSaleCommand())
-	rootCommand.AddCommand(rest.NewRestCommand())
+	rootCommand.AddCommand(rest.NewServerCommand())
 	rootCommand.AddCommand(category.NewCategoryCommand())
 	rootCommand.AddCommand(initialize.NewInitializeCommand())
 
