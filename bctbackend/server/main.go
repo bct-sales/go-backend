@@ -66,12 +66,11 @@ type restService struct {
 
 func (restService *restService) defineEndpoints() {
 	router := restService.router
-	database := restService.database
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	router.POST(paths.Login().String(), func(context *gin.Context) { rest.Login(context, database) })
-	router.POST(paths.Logout().String(), func(context *gin.Context) { rest.Logout(context, database) })
+	restService.RawPOST(paths.Login(), rest.Login)
+	restService.RawPOST(paths.Logout(), rest.Logout)
 
 	restService.GET(paths.Items(), rest.GetAllItems)
 	restService.GET(paths.ItemStr(":id"), rest.GetItemInformation)
@@ -93,6 +92,10 @@ func (restService *restService) defineEndpoints() {
 	restService.GET(paths.CashierSalesStr(":id"), rest.GetCashierSales)
 
 	router.GET("/api/v1/websocket", restService.broadcaster.CreateHandler())
+}
+
+func (restService *restService) RawPOST(path *paths.URL, handler func(context *gin.Context, database *sql.DB)) {
+	restService.router.POST(path.String(), func(context *gin.Context) { handler(context, restService.database) })
 }
 
 func (restService *restService) GET(path *paths.URL, handler HandlerFunction) {
