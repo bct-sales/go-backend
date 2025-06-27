@@ -41,7 +41,7 @@ import (
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func StartRestService(db *sql.DB, configuration *configuration.Configuration) error {
 	restService := restService{
-		db:            db,
+		database:      db,
 		configuration: configuration,
 		broadcaster:   websocket.NewWebsocketBroadcaster(),
 		router:        createGinRouter(),
@@ -58,14 +58,53 @@ func StartRestService(db *sql.DB, configuration *configuration.Configuration) er
 }
 
 type restService struct {
-	db            *sql.DB
+	database      *sql.DB
 	configuration *configuration.Configuration
 	broadcaster   *websocket.WebsocketBroadcaster
 	router        *gin.Engine
 }
 
 func (restService *restService) defineEndpoints() {
-	DefineEndpoints(restService.db, restService.router, restService.configuration)
+	router := restService.router
+	database := restService.database
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	router.POST(paths.Login().String(), func(context *gin.Context) { rest.Login(context, database) })
+	router.POST(paths.Logout().String(), func(context *gin.Context) { rest.Logout(context, database) })
+
+	restService.GET(paths.Items(), rest.GetAllItems)
+	restService.GET(paths.ItemStr(":id"), rest.GetItemInformation)
+	restService.PUT(paths.ItemStr(":id"), rest.UpdateItem)
+
+	restService.GET(paths.Users(), rest.GetUsers)
+	restService.GET(paths.UserStr(":id"), rest.GetUserInformation)
+
+	restService.GET(paths.Categories(), rest.ListCategories)
+
+	restService.GET(paths.SellerItemsStr(":id"), rest.GetSellerItems)
+	restService.POST(paths.SellerItemsStr(":id"), rest.AddSellerItem)
+
+	restService.POST(paths.Labels(), rest.GenerateLabels)
+
+	restService.GET(paths.Sales(), rest.GetSales)
+	restService.GET(paths.SaleStr(":id"), rest.GetSaleInformation)
+	restService.POST(paths.Sales(), rest.AddSale)
+	restService.GET(paths.CashierSalesStr(":id"), rest.GetCashierSales)
+
+	router.GET("/api/v1/websocket", restService.broadcaster.CreateHandler())
+}
+
+func (restService *restService) GET(path *paths.URL, handler HandlerFunction) {
+	restService.router.GET(path.String(), restService.withUserAndRole(handler, false))
+}
+
+func (restService *restService) POST(path *paths.URL, handler HandlerFunction) {
+	restService.router.POST(path.String(), restService.withUserAndRole(handler, true))
+}
+
+func (restService *restService) PUT(path *paths.URL, handler HandlerFunction) {
+	restService.router.PUT(path.String(), restService.withUserAndRole(handler, true))
 }
 
 func (restService *restService) run() error {
@@ -92,7 +131,7 @@ func createGinRouter() *gin.Engine {
 type HandlerFunction func(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId)
 
 func (restService *restService) withUserAndRole(handler HandlerFunction, mutates bool) gin.HandlerFunc {
-	db := restService.db
+	db := restService.database
 	configuration := restService.configuration
 	broadcaster := restService.broadcaster
 
@@ -134,74 +173,4 @@ func (restService *restService) withUserAndRole(handler HandlerFunction, mutates
 			broadcaster.Broadcast("update")
 		}
 	}
-}
-
-func DefineEndpoints(db *sql.DB, router *gin.Engine, configuration *configuration.Configuration) {
-
-	withUserAndRole := func(handler HandlerFunction, mutates bool) gin.HandlerFunc {
-		return func(context *gin.Context) {
-			sessionIdString, err := context.Cookie(security.SessionCookieName)
-			if err != nil {
-				slog.Error("Unauthorized: missing session ID")
-				failure_response.MissingSessionId(context, err.Error())
-				return
-			}
-
-			sessionId := models.SessionId(sessionIdString)
-			sessionData, err := queries.GetSessionData(db, sessionId)
-
-			if errors.Is(err, dberr.ErrNoSuchSession) {
-				slog.Error("Session not found")
-				failure_response.NoSuchSession(context, err.Error())
-				return
-			}
-
-			if err != nil {
-				slog.Error("Failed to retrieve session from database", slog.String("error", err.Error()))
-				failure_response.Unknown(context, "Failed to retrieve session from database: "+err.Error())
-				return
-			}
-
-			userId := sessionData.UserId
-			roleId := sessionData.RoleId
-
-			now := models.Now()
-			if err := queries.UpdateLastActivity(db, userId, now); err != nil {
-				slog.Error("Failed to update last activity", slog.String("error", err.Error()))
-				// Keep going, we don't want to block the request
-			}
-
-			handler(context, configuration, db, userId, roleId)
-
-			if mutates {
-				broadcaster.Broadcast("update")
-			}
-		}
-	}
-
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
-	router.POST(paths.Login().String(), func(context *gin.Context) { rest.Login(context, db) })
-	router.POST(paths.Logout().String(), func(context *gin.Context) { rest.Logout(context, db) })
-
-	router.GET(paths.Items().String(), withUserAndRole(rest.GetAllItems, false))
-	router.GET(paths.ItemStr(":id").String(), withUserAndRole(rest.GetItemInformation, false))
-	router.PUT(paths.ItemStr(":id").String(), withUserAndRole(rest.UpdateItem, true))
-
-	router.GET(paths.Users().String(), withUserAndRole(rest.GetUsers, false))
-	router.GET(paths.UserStr(":id").String(), withUserAndRole(rest.GetUserInformation, false))
-
-	router.GET(paths.Categories().String(), withUserAndRole(rest.ListCategories, false))
-
-	router.GET(paths.SellerItemsStr(":id").String(), withUserAndRole(rest.GetSellerItems, false))
-	router.POST(paths.SellerItemsStr(":id").String(), withUserAndRole(rest.AddSellerItem, true))
-
-	router.POST(paths.Labels().String(), withUserAndRole(rest.GenerateLabels, true))
-
-	router.GET(paths.Sales().String(), withUserAndRole(rest.GetSales, false))
-	router.GET(paths.SaleStr(":id").String(), withUserAndRole(rest.GetSaleInformation, false))
-	router.POST(paths.Sales().String(), withUserAndRole(rest.AddSale, true))
-	router.GET(paths.CashierSalesStr(":id").String(), withUserAndRole(rest.GetCashierSales, false))
-
-	router.GET("/api/v1/websocket", broadcaster.CreateHandler())
 }
