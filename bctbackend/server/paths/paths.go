@@ -176,3 +176,7 @@ func CashierSalesStr(cashierId string) *URL {
 func CashierSales(cashierId models.Id) *URL {
 	return CashierSalesStr(cashierId.String())
 }
+
+func Websocket() *URL {
+	return RESTRoot().AddPathSegment("websocket")
+}

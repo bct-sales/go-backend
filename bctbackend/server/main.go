@@ -91,7 +91,7 @@ func (restService *restService) defineEndpoints() {
 	restService.POST(paths.Sales(), rest.AddSale)
 	restService.GET(paths.CashierSalesStr(":id"), rest.GetCashierSales)
 
-	router.GET("/api/v1/websocket", restService.broadcaster.CreateHandler())
+	router.GET(paths.Websocket().String(), restService.broadcaster.CreateHandler())
 }
 
 func (restService *restService) RawPOST(path *paths.URL, handler func(context *gin.Context, database *sql.DB)) {
