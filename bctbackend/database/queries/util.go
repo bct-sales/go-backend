@@ -29,6 +29,7 @@ func NewTransaction(db *sql.DB) (*Transaction, error) {
 
 	return &Transaction{
 		transaction: tx,
+		committed:   false,
 	}, nil
 }
 
