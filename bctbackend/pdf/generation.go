@@ -336,8 +336,9 @@ func (builder *PdfBuilder) generateBarcode(data string) (string, error) {
 
 func (builder *PdfBuilder) drawImage(imageName string, x float64, y float64) error {
 	imageOptions := fpdf.ImageOptions{
-		ImageType: "png",
-		ReadDpi:   true,
+		ImageType:             "png",
+		ReadDpi:               true,
+		AllowNegativePosition: false,
 	}
 
 	builder.pdf.ImageOptions(imageName, x, y, -1, -1, false, imageOptions, 0, "")
