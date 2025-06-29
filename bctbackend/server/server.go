@@ -66,13 +66,13 @@ func NewServer(db *sql.DB, configuration *configuration.Configuration) *Server {
 		router:        createGinRouter(configuration.GinMode),
 	}
 
-	server.defineEndpoints()
+	server.defineRESTEndpoints()
 	server.defineWebsocketEndpoint()
 
 	return &server
 }
 
-func (server *Server) defineEndpoints() {
+func (server *Server) defineRESTEndpoints() {
 	router := server.router
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
