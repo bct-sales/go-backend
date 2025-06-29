@@ -1,3 +1,5 @@
+bctconfig.yaml
+index.html
 *.exe
 *.db
 coverage-data
