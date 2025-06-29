@@ -68,6 +68,7 @@ func NewServer(db *sql.DB, configuration *configuration.Configuration) *Server {
 
 	server.defineRESTEndpoints()
 	server.defineWebsocketEndpoint()
+	server.defineStaticFilesRoutes()
 
 	return &server
 }
@@ -102,6 +103,12 @@ func (server *Server) defineRESTEndpoints() {
 
 func (server *Server) defineWebsocketEndpoint() {
 	server.router.GET(paths.Websocket().String(), server.broadcaster.CreateHandler())
+}
+
+func (server *Server) defineStaticFilesRoutes() {
+	server.router.NoRoute(func(context *gin.Context) {
+		context.File("index.html")
+	})
 }
 
 func (server *Server) RawPOST(path *paths.URL, handler func(context *gin.Context, database *sql.DB)) {
