@@ -67,6 +67,7 @@ func NewServer(db *sql.DB, configuration *configuration.Configuration) *Server {
 	}
 
 	server.defineEndpoints()
+	server.defineWebsocketEndpoint()
 
 	return &server
 }
@@ -97,8 +98,10 @@ func (server *Server) defineEndpoints() {
 	server.GET(paths.SaleStr(":id"), rest.GetSaleInformation)
 	server.POST(paths.Sales(), rest.AddSale)
 	server.GET(paths.CashierSalesStr(":id"), rest.GetCashierSales)
+}
 
-	router.GET(paths.Websocket().String(), server.broadcaster.CreateHandler())
+func (server *Server) defineWebsocketEndpoint() {
+	server.router.GET(paths.Websocket().String(), server.broadcaster.CreateHandler())
 }
 
 func (server *Server) RawPOST(path *paths.URL, handler func(context *gin.Context, database *sql.DB)) {
