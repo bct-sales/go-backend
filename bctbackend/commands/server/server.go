@@ -13,7 +13,8 @@ import (
 
 type ServerCommand struct {
 	common.Command
-	port int
+	port      int
+	debugMode bool
 }
 
 func NewServerCommand() *cobra.Command {
@@ -33,20 +34,31 @@ func NewServerCommand() *cobra.Command {
 	}
 
 	command.CobraCommand.Flags().Int("port", 8000, "Port to run the server on")
+	command.CobraCommand.Flags().Bool("debug", false, "Run server in debug mode")
 	viper.BindPFlag("port", command.CobraCommand.Flags().Lookup("port"))
+	viper.BindPFlag("debug", command.CobraCommand.Flags().Lookup("debug"))
 	viper.SetDefault("port", 8000)
+	viper.SetDefault("debug", false)
 
 	return command.AsCobraCommand()
 }
 
 func (c *ServerCommand) execute() error {
+	var ginMode string
+	if viper.GetBool("debug") {
+		ginMode = "debug"
+	} else {
+		ginMode = "release"
+	}
+
 	configuration := configuration.Configuration{
 		FontDirectory: viper.GetString(common.FlagFontDirectory),
 		FontFilename:  viper.GetString(common.FlagFontFilename),
 		FontFamily:    viper.GetString(common.FlagFontFamily),
 		BarcodeWidth:  viper.GetInt(common.FlagBarcodeWidth),
 		BarcodeHeight: viper.GetInt(common.FlagBarcodeHeight),
-		Port: viper.GetInt("port"),
+		Port:          viper.GetInt("port"),
+		GinMode:       ginMode,
 	}
 
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
