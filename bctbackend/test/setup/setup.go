@@ -8,10 +8,10 @@ import (
 
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/server"
 	aux "bctbackend/test/helpers"
 	"database/sql"
 
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
 )
@@ -48,26 +48,26 @@ func (f *DatabaseFixture) Close() {
 
 type RestFixture struct {
 	DatabaseFixture
-	Router *gin.Engine
+	Server *server.Server
 	Writer *httptest.ResponseRecorder
 }
 
 func initializeRestFixture(fixture *RestFixture, databaseOptions ...func(*DatabaseFixture)) {
 	initializeDatabaseFixture(&fixture.DatabaseFixture, databaseOptions...)
-	router := aux.CreateRestRouter(fixture.DatabaseFixture.Db)
-	fixture.Router = router
+	server := aux.CreateRestServer(fixture.DatabaseFixture.Db)
+	fixture.Server = server
 	fixture.Writer = httptest.NewRecorder()
 }
 
-func NewRestFixture(databaseOptions ...func(*DatabaseFixture)) (RestFixture, *gin.Engine, *httptest.ResponseRecorder) {
+func NewRestFixture(databaseOptions ...func(*DatabaseFixture)) (RestFixture, *server.Server, *httptest.ResponseRecorder) {
 	var fixture RestFixture
 	initializeRestFixture(&fixture, databaseOptions...)
-	return fixture, fixture.Router, fixture.Writer
+	return fixture, fixture.Server, fixture.Writer
 }
 
 func (f *RestFixture) Close() {
 	f.DatabaseFixture.Close()
-	f.Router = nil
+	f.Server = nil
 	f.Writer = nil
 }
 

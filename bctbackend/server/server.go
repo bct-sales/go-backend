@@ -14,6 +14,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/http"
 
 	_ "bctbackend/docs"
 
@@ -41,15 +42,7 @@ import (
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func StartServer(db *sql.DB, configuration *configuration.Configuration) error {
-	server := Server{
-		database:      db,
-		configuration: configuration,
-		broadcaster:   websocket.NewWebsocketBroadcaster(),
-		router:        createGinRouter(),
-	}
-
-	server.defineEndpoints()
-	server.run()
+	server := NewServer(db, configuration)
 
 	if err := server.run(); err != nil {
 		return err
@@ -63,6 +56,19 @@ type Server struct {
 	configuration *configuration.Configuration
 	broadcaster   *websocket.WebsocketBroadcaster
 	router        *gin.Engine
+}
+
+func NewServer(db *sql.DB, configuration *configuration.Configuration) *Server {
+	server := Server{
+		database:      db,
+		configuration: configuration,
+		broadcaster:   websocket.NewWebsocketBroadcaster(),
+		router:        createGinRouter(configuration.GinMode),
+	}
+
+	server.defineEndpoints()
+
+	return &server
 }
 
 func (server *Server) defineEndpoints() {
@@ -121,7 +127,9 @@ func (server *Server) run() error {
 	return nil
 }
 
-func createGinRouter() *gin.Engine {
+func createGinRouter(ginMode string) *gin.Engine {
+	gin.SetMode(ginMode)
+
 	router := gin.Default()
 
 	config := cors.DefaultConfig()
@@ -179,4 +187,12 @@ func (server *Server) withUserAndRole(handler HandlerFunction, mutates bool) gin
 			broadcaster.Broadcast("update")
 		}
 	}
+}
+
+func (server *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	if server.router == nil {
+		panic("Server router is not initialized")
+	}
+
+	server.router.ServeHTTP(writer, request)
 }

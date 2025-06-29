@@ -7,4 +7,5 @@ type Configuration struct {
 	BarcodeWidth  int
 	BarcodeHeight int
 	Port          int
+	GinMode       string // GinMode can be "debug", "release", or "test"
 }

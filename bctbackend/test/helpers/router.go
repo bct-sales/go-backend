@@ -11,17 +11,17 @@ import (
 	gin "github.com/gin-gonic/gin"
 )
 
-func CreateRestRouter(db *sql.DB) *gin.Engine {
-	gin.SetMode(gin.TestMode)
-	router := gin.New()
+func CreateRestServer(db *sql.DB) *server.Server {
 	configuration := configuration.Configuration{
 		FontDirectory: os.Getenv("BCT_FONT_DIR"),
 		FontFilename:  os.Getenv("BCT_FONT_FILE"),
 		FontFamily:    os.Getenv("BCT_FONT_FAMILY"),
 		BarcodeWidth:  150,
 		BarcodeHeight: 30,
+		GinMode:       gin.TestMode,
 	}
-	server.DefineEndpoints(db, router, &configuration)
 
-	return router
+	server := server.NewServer(db, &configuration)
+
+	return server
 }

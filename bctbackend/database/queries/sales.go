@@ -10,37 +10,21 @@ import (
 	"slices"
 )
 
-// AddSale adds a sale to the database.
+type AddSaleQuery struct {
+	CashierId       models.Id
+	TransactionTime models.Timestamp
+	ItemIds         []models.Id
+}
+
+// Execute adds a sale to the database.
 // A ErrSaleMissingItems is returned if itemIds is empty.
 // A ErrNoSuchItem is returned if any item ID in itemIds does not correspond to any item.
 // A ErrNoSuchUser is returned if the cashierId does not correspond to any user.
 // A ErrSaleRequiresCashier is returned if the cashierId does not correspond to a cashier.
 // A ErrDuplicateItemInSale is returned if itemIds contains duplicate item IDs.
-func AddSale(
-	db *sql.DB,
-	cashierId models.Id,
-	transactionTime models.Timestamp,
-	itemIds []models.Id) (r_result models.Id, r_err error) {
-
-	// Ensure there is at least one item in the sale.
-	if len(itemIds) == 0 {
-		return 0, dberr.ErrSaleMissingItems
-	}
-
-	// Check for duplicates in the item IDs.
-	indexOfDuplicate := algorithms.ContainsDuplicate(itemIds)
-	if indexOfDuplicate != -1 {
-		duplicatedItemId := itemIds[indexOfDuplicate]
-		return 0, fmt.Errorf("failed to add sale with duplicated item %d: %w", duplicatedItemId, dberr.ErrDuplicateItemInSale)
-	}
-
-	// Ensure the user exists and is a cashier
-	cashier, err := GetUserWithId(db, cashierId)
-	if err != nil {
+func (q *AddSaleQuery) Execute(db *sql.DB) (r_result models.Id, r_err error) {
+	if err := q.ensureInputsValidity(db); err != nil {
 		return 0, err
-	}
-	if !cashier.RoleId.IsCashier() {
-		return 0, dberr.ErrSaleRequiresCashier
 	}
 
 	// Start a transaction
@@ -51,7 +35,7 @@ func AddSale(
 	defer func() { r_err = errors.Join(r_err, transaction.Rollback()) }()
 
 	// Check if all items exist
-	exists, err := ItemsExist(transaction.transaction, itemIds)
+	exists, err := ItemsExist(transaction.transaction, q.ItemIds)
 	if err != nil {
 		return 0, err
 	}
@@ -60,7 +44,7 @@ func AddSale(
 	}
 
 	// Check if any of the items are hidden
-	if err := EnsureNoHiddenItems(transaction, itemIds); err != nil {
+	if err := EnsureNoHiddenItems(transaction, q.ItemIds); err != nil {
 		return 0, err
 	}
 
@@ -70,8 +54,8 @@ func AddSale(
 			INSERT INTO sales(cashier_id, transaction_time)
 			VALUES (?, ?)
 		`,
-		cashierId,
-		transactionTime,
+		q.CashierId,
+		q.TransactionTime,
 	)
 	if err != nil {
 		return 0, err
@@ -83,7 +67,7 @@ func AddSale(
 	}
 
 	// Add items to sale
-	for _, itemId := range itemIds {
+	for _, itemId := range q.ItemIds {
 		_, err := transaction.Exec(
 			`
 				INSERT INTO sale_items(sale_id, item_id)
@@ -104,6 +88,50 @@ func AddSale(
 	}
 
 	return models.Id(saleId), nil
+}
+
+func (q *AddSaleQuery) ensureInputsValidity(db *sql.DB) error {
+	// Ensure there is at least one item in the sale.
+	if len(q.ItemIds) == 0 {
+		return dberr.ErrSaleMissingItems
+	}
+
+	// Check for duplicates in the item IDs.
+	indexOfDuplicate := algorithms.ContainsDuplicate(q.ItemIds)
+	if indexOfDuplicate != -1 {
+		duplicatedItemId := q.ItemIds[indexOfDuplicate]
+		return fmt.Errorf("failed to add sale with duplicated item %d: %w", duplicatedItemId, dberr.ErrDuplicateItemInSale)
+	}
+
+	// Ensure the user exists and is a cashier
+	cashier, err := GetUserWithId(db, q.CashierId)
+	if err != nil {
+		return err
+	}
+	if !cashier.RoleId.IsCashier() {
+		return dberr.ErrSaleRequiresCashier
+	}
+
+	return nil
+}
+
+// AddSale adds a sale to the database.
+// A ErrSaleMissingItems is returned if itemIds is empty.
+// A ErrNoSuchItem is returned if any item ID in itemIds does not correspond to any item.
+// A ErrNoSuchUser is returned if the cashierId does not correspond to any user.
+// A ErrSaleRequiresCashier is returned if the cashierId does not correspond to a cashier.
+// A ErrDuplicateItemInSale is returned if itemIds contains duplicate item IDs.
+func AddSale(
+	db *sql.DB,
+	cashierId models.Id,
+	transactionTime models.Timestamp,
+	itemIds []models.Id) (r_result models.Id, r_err error) {
+
+	return (&AddSaleQuery{
+		CashierId:       cashierId,
+		TransactionTime: transactionTime,
+		ItemIds:         itemIds,
+	}).Execute(db)
 }
 
 type GetSalesQuery struct {
