@@ -40,11 +40,6 @@ type GetUsersSuccessResponse struct {
 // @Failure 500 {object} failure_response.FailureResponse "Internal error"
 // @Router /users [get]
 func GetUsers(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
-	slog.Info(
-		"User requested to fetch users",
-		slog.Int64("user_id", userId.Int64()),
-		slog.Int64("role_id", roleId.Int64()))
-
 	if !roleId.IsAdmin() {
 		slog.Info(
 			"Non-admin attempted to list all items",
