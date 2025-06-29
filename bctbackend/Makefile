@@ -12,10 +12,10 @@ coverage:
 	go tool cover -html=coverage-data
 
 swagger:
-	swag init -g server/main.go
+	swag init -g server/server.go
 
 rest: swagger build
-	go run . -v server
+	go run . -v server --debug
 
 build:
 	go build
