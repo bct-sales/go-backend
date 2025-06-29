@@ -1,6 +1,7 @@
 package server
 
 import (
+	"bctbackend/algorithms"
 	"bctbackend/commands/common"
 	"bctbackend/server"
 	"bctbackend/server/configuration"
@@ -13,8 +14,6 @@ import (
 
 type ServerCommand struct {
 	common.Command
-	port      int
-	debugMode bool
 }
 
 func NewServerCommand() *cobra.Command {
@@ -61,6 +60,10 @@ func (c *ServerCommand) execute() error {
 		GinMode:       ginMode,
 	}
 
+	if err := c.ensureRequiredFilesExist(&configuration); err != nil {
+		return err
+	}
+
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		if err := server.StartServer(db, &configuration); err != nil {
 			c.PrintErrorf("Failed to start REST service\n")
@@ -69,4 +72,28 @@ func (c *ServerCommand) execute() error {
 
 		return nil
 	})
+}
+
+func (c *ServerCommand) ensureRequiredFilesExist(configuration *configuration.Configuration) error {
+	if err := c.ensureFileExists(configuration.FontFilename); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *ServerCommand) ensureFileExists(path string) error {
+	exists, err := algorithms.FileExists(path)
+
+	if err != nil {
+		c.PrintErrorf("Failed to check if file exists: %v\n", err)
+		return fmt.Errorf("failed to check if file exists: %w", err)
+	}
+
+	if !exists {
+		c.PrintErrorf("Required file does not exist: %s\n", path)
+		return fmt.Errorf("required file does not exist: %s", path)
+	}
+
+	return nil
 }
