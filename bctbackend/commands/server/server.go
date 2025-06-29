@@ -7,6 +7,7 @@ import (
 	"bctbackend/server/configuration"
 	"database/sql"
 	"fmt"
+	"path"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -34,10 +35,13 @@ func NewServerCommand() *cobra.Command {
 
 	command.CobraCommand.Flags().Int("port", 8000, "Port to run the server on")
 	command.CobraCommand.Flags().Bool("debug", false, "Run server in debug mode")
+	command.CobraCommand.Flags().String("html", "index.html", "Path to the HTML file to serve")
 	viper.BindPFlag("port", command.CobraCommand.Flags().Lookup("port"))
 	viper.BindPFlag("debug", command.CobraCommand.Flags().Lookup("debug"))
+	viper.BindPFlag("html", command.CobraCommand.Flags().Lookup("html"))
 	viper.SetDefault("port", 8000)
 	viper.SetDefault("debug", false)
+	viper.SetDefault("html", "index.html")
 
 	return command.AsCobraCommand()
 }
@@ -58,6 +62,7 @@ func (c *ServerCommand) execute() error {
 		BarcodeHeight: viper.GetInt(common.FlagBarcodeHeight),
 		Port:          viper.GetInt("port"),
 		GinMode:       ginMode,
+		HTMLPath:      viper.GetString("html"),
 	}
 
 	if err := c.ensureRequiredFilesExist(&configuration); err != nil {
@@ -75,8 +80,13 @@ func (c *ServerCommand) execute() error {
 }
 
 func (c *ServerCommand) ensureRequiredFilesExist(configuration *configuration.Configuration) error {
-	if err := c.ensureFileExists(configuration.FontFilename); err != nil {
-		return err
+	fontPath := path.Join(configuration.FontDirectory, configuration.FontFilename)
+	if err := c.ensureFileExists(fontPath); err != nil {
+		return fmt.Errorf("failed while checking font file existence: %w", err)
+	}
+
+	if err := c.ensureFileExists(configuration.HTMLPath); err != nil {
+		return fmt.Errorf("failed while checking for html file existence: %w", err)
 	}
 
 	return nil

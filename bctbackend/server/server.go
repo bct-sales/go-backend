@@ -68,7 +68,7 @@ func NewServer(db *sql.DB, configuration *configuration.Configuration) *Server {
 
 	server.defineRESTEndpoints()
 	server.defineWebsocketEndpoint()
-	server.defineStaticFilesRoutes()
+	server.defineStaticFilesRoutes(configuration.HTMLPath)
 
 	return &server
 }
@@ -105,9 +105,9 @@ func (server *Server) defineWebsocketEndpoint() {
 	server.router.GET(paths.Websocket().String(), server.broadcaster.CreateHandler())
 }
 
-func (server *Server) defineStaticFilesRoutes() {
+func (server *Server) defineStaticFilesRoutes(htmlPath string) {
 	server.router.NoRoute(func(context *gin.Context) {
-		context.File("index.html")
+		context.File(htmlPath)
 	})
 }
 
