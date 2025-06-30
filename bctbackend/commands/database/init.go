@@ -25,7 +25,12 @@ func NewDatabaseInitCommand() *cobra.Command {
 			or delete the existing database.
 		`),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			databasePath := common.GetDatabasePath()
+			databasePath, err := common.GetDatabasePath()
+			if err != nil {
+				// TODO Write to correct output stream
+				fmt.Fprintf(cmd.ErrOrStderr(), "Failed to get database path: %s\n", err.Error())
+				return err
+			}
 
 			db, err := database.CreateDatabase(databasePath)
 

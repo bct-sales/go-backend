@@ -37,6 +37,10 @@ func NewShowItemCommand() *cobra.Command {
 }
 
 func (c *showItemCommand) execute(args []string) error {
+	if err := c.EnsureConfigurationFileLoaded(); err != nil {
+		return err
+	}
+
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		itemId, err := c.ParseItemId(args[0])
 		if err != nil {

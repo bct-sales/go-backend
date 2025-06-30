@@ -47,6 +47,10 @@ func NewServerCommand() *cobra.Command {
 }
 
 func (c *ServerCommand) execute() error {
+	if err := c.EnsureConfigurationFileLoaded(); err != nil {
+		return err
+	}
+
 	var ginMode string
 	if viper.GetBool("debug") {
 		ginMode = "debug"

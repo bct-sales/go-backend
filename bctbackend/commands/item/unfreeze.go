@@ -39,6 +39,10 @@ func NewUnfreezeItemCommand() *cobra.Command {
 }
 
 func (c *unfreezeItemCommand) execute(args []string) error {
+	if err := c.EnsureConfigurationFileLoaded(); err != nil {
+		return err
+	}
+
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		itemIds, err := c.ParseItemIds(args)
 		if err != nil {

@@ -43,6 +43,10 @@ func NewCopyItemCommand() *cobra.Command {
 }
 
 func (c *copyItemCommand) execute(args []string) error {
+	if err := c.EnsureConfigurationFileLoaded(); err != nil {
+		return err
+	}
+
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		itemId, err := models.ParseId(args[0])
 		if err != nil {
