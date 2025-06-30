@@ -13,33 +13,46 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewUserListCommand() *cobra.Command {
-	var format string
+type ListUsersCommand struct {
+	common.Command
+	format string
+}
 
-	command := cobra.Command{
-		Use:   "list",
-		Short: "List all users",
-		Long:  `This command lists all users in the database.`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			switch format {
-			case "table":
-				return listUsersInTableFormat(cmd)
-			case "csv":
-				return listUsersInCSVFormat(cmd)
-			default:
-				fmt.Fprintf(cmd.ErrOrStderr(), "Invalid format: %s\n", format)
-				return fmt.Errorf("unknown format: %s", format)
-			}
+func NewUserListCommand() *cobra.Command {
+	var command *ListUsersCommand
+
+	command = &ListUsersCommand{
+		Command: common.Command{
+			CobraCommand: &cobra.Command{
+				Use:   "list",
+				Short: "List all users",
+				Long:  `This command lists all users in the database.`,
+				RunE: func(cmd *cobra.Command, args []string) error {
+					return command.execute(args)
+				},
+			},
 		},
 	}
 
-	command.Flags().StringVar(&format, "format", "table", "Output format (table, csv)")
+	command.CobraCommand.Flags().StringVar(&command.format, "format", "table", "Output format (table, csv)")
 
-	return &command
+	return command.AsCobraCommand()
 }
 
-func listUsersInTableFormat(cmd *cobra.Command) error {
-	return common.WithOpenedDatabase(cmd.ErrOrStderr(), func(db *sql.DB) error {
+func (c *ListUsersCommand) execute(args []string) error {
+	switch c.format {
+	case "table":
+		return c.listUsersInTableFormat()
+	case "csv":
+		return c.listUsersInCSVFormat()
+	default:
+		c.PrintErrorf("Invalid format: %s\n", c.format)
+		return fmt.Errorf("unknown format: %s", c.format)
+	}
+}
+
+func (c *ListUsersCommand) listUsersInTableFormat() error {
+	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		users := []*models.User{}
 		if err := queries.GetUsers(db, queries.CollectTo(&users)); err != nil {
 			return fmt.Errorf("error while listing users: %w", err)
@@ -77,19 +90,21 @@ func listUsersInTableFormat(cmd *cobra.Command) error {
 		}
 
 		if err := pterm.DefaultTable.WithHasHeader().WithData(tableData).Render(); err != nil {
+			c.PrintErrorf("Failed to render table: %v\n", err)
 			return fmt.Errorf("error while rendering table: %w", err)
 		}
 
-		fmt.Fprintf(cmd.OutOrStdout(), "Number of users listed: %d\n", userCount)
+		c.Printf("Number of users listed: %d\n", userCount)
 
 		return nil
 	})
 }
 
-func listUsersInCSVFormat(cmd *cobra.Command) error {
-	return common.WithOpenedDatabase(cmd.ErrOrStderr(), func(db *sql.DB) error {
+func (c *ListUsersCommand) listUsersInCSVFormat() error {
+	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		err := dbcsv.OutputUsers(db, os.Stdout)
 		if err != nil {
+			c.PrintErrorf("Failed to output users: %v\n", err)
 			return fmt.Errorf("failed to output users: %w", err)
 		}
 
