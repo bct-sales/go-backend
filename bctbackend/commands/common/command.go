@@ -127,6 +127,8 @@ func (c *Command) LoadConfigurationFile() error {
 					$ BCT_CONFIG=path/to/your/config.yaml bctbackend ...
 			`,
 			absolutePathOfConfigurationFile))
+
+		return err
 	}
 
 	return nil
