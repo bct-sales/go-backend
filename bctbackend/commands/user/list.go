@@ -33,7 +33,7 @@ func NewUserListCommand() *cobra.Command {
 		},
 	}
 
-	command.Flags().StringVar(&format, "format", "table", "Output format (format, csv)")
+	command.Flags().StringVar(&format, "format", "table", "Output format (table, csv)")
 
 	return &command
 }
