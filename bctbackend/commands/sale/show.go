@@ -38,10 +38,6 @@ func NewSaleShowCommand() *cobra.Command {
 }
 
 func (command *saleShowCommand) Execute(args []string) error {
-	if err := command.EnsureConfigurationFileLoaded(); err != nil {
-		return err
-	}
-
 	return command.WithOpenedDatabase(func(db *sql.DB) error {
 		saleId, err := command.parseSaleId(args[0])
 		if err != nil {

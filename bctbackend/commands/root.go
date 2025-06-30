@@ -53,6 +53,11 @@ func NewRootCommand() *cobra.Command {
 			// Load configuration from specified file
 			viper.SetConfigFile(configurationPath)
 		}
+
+		slog.Debug("Reading configuration")
+		if err := viper.ReadInConfig(); err != nil {
+			slog.Warn("Could not read configuration file", "error", err.Error())
+		}
 	})
 
 	rootCommand.PersistentFlags().String("config", "", "Path to the configuration file")

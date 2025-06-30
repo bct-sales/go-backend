@@ -36,10 +36,6 @@ func NewSaleListCommand() *cobra.Command {
 }
 
 func (command *saleListCommand) execute() error {
-	if err := command.EnsureConfigurationFileLoaded(); err != nil {
-		return err
-	}
-
 	return command.WithOpenedDatabase(func(db *sql.DB) error {
 		saleCount := 0
 		tableData := pterm.TableData{

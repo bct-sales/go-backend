@@ -41,10 +41,6 @@ func NewCategoryCountCommand() *cobra.Command {
 }
 
 func (c *categoryCountCommand) execute() error {
-	if err := c.EnsureConfigurationFileLoaded(); err != nil {
-		return err
-	}
-
 	return c.WithOpenedDatabase(func(database *sql.DB) error {
 		categoryCounts, err := c.getCategoryCounts(database)
 		if err != nil {

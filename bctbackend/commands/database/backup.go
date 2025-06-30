@@ -36,10 +36,6 @@ func NewDatabaseBackupCommand() *cobra.Command {
 }
 
 func (c *backupDatabaseCommand) execute(args []string) error {
-	if err := c.EnsureConfigurationFileLoaded(); err != nil {
-		return err
-	}
-
 	targetPath := args[0]
 
 	return c.WithOpenedDatabase(func(db *sql.DB) error {

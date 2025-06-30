@@ -60,10 +60,6 @@ func NewUpdateItemCommand() *cobra.Command {
 }
 
 func (c *updateItemCommand) execute(args []string) error {
-	if err := c.EnsureConfigurationFileLoaded(); err != nil {
-		return err
-	}
-
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		if err := c.updateItem(db); err != nil {
 			return err

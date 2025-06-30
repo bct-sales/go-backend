@@ -44,10 +44,6 @@ func NewListItemsCommand() *cobra.Command {
 }
 
 func (c *listItemsCommand) execute() error {
-	if err := c.EnsureConfigurationFileLoaded(); err != nil {
-		return err
-	}
-
 	switch c.format {
 	case "table":
 		return c.listItemsInTableFormat()

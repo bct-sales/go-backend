@@ -37,10 +37,6 @@ func NewRemoveAllSalesCommand() *cobra.Command {
 }
 
 func (c *removeAllSalesCommand) execute() error {
-	if err := c.EnsureConfigurationFileLoaded(); err != nil {
-		return err
-	}
-
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		err := queries.RemoveAllSales(db)
 		if err != nil {

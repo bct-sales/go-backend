@@ -34,10 +34,6 @@ func NewCategoryListCommand() *cobra.Command {
 }
 
 func (c *listCategoriesCommand) execute() error {
-	if err := c.EnsureConfigurationFileLoaded(); err != nil {
-		return err
-	}
-
 	return c.WithOpenedDatabase(func(database *sql.DB) error {
 		categories, err := queries.GetCategories(database)
 		if err != nil {

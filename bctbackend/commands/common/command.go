@@ -8,13 +8,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log/slog"
-	"os"
-	"path/filepath"
 
-	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 type Command struct {
@@ -100,45 +95,4 @@ func (c *Command) GetCategoryNameTable(db *sql.DB) (map[models.Id]string, error)
 	}
 
 	return categoryNameTable, nil
-}
-
-func (c *Command) LoadConfigurationFile() error {
-	absolutePathOfConfigurationFile, err := filepath.Abs(viper.ConfigFileUsed())
-
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error determining absolute path of configuration file:", err)
-		os.Exit(1)
-	}
-
-	slog.Debug("Reading configuration")
-	if err := viper.ReadInConfig(); err != nil {
-		fmt.Print(heredoc.Docf(
-			`
-				I could not find the configuration file.
-				I looked for it here: %s.
-
-				Possible solutions:
-				* Use this tool to generate a configuration file:
-					$ bctbackend init
-				after which you can edit the configuration file.
-				* Specify a different path using the --config flag:
-					$ bctbackend --config path/to/your/config.yaml ...
-				* You can also set the BCT_CONFIG environment variable to point to your configuration file.
-					$ BCT_CONFIG=path/to/your/config.yaml bctbackend ...
-			`,
-			absolutePathOfConfigurationFile))
-
-		return err
-	}
-
-	return nil
-}
-
-func (c *Command) EnsureConfigurationFileLoaded() error {
-	if c.LoadConfigurationFile() != nil {
-		c.PrintErrorf("Failed to load configuration file.\n")
-		return fmt.Errorf("failed to load configuration file")
-	}
-
-	return nil
 }
