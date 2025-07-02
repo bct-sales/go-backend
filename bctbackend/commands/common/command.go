@@ -10,6 +10,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 type Command struct {
@@ -95,4 +96,31 @@ func (c *Command) GetCategoryNameTable(db *sql.DB) (map[models.Id]string, error)
 	}
 
 	return categoryNameTable, nil
+}
+
+func (c *Command) GetConfigurationInt(key string) (int, error) {
+	if !viper.IsSet(key) {
+		c.PrintErrorf("Configuration key '%s' is not set\n", key)
+		return 0, fmt.Errorf("configuration key '%s' is not set", key)
+	}
+
+	return viper.GetInt(key), nil
+}
+
+func (c *Command) GetConfigurationString(key string) (string, error) {
+	if !viper.IsSet(key) {
+		c.PrintErrorf("Configuration key '%s' is not set\n", key)
+		return "", fmt.Errorf("configuration key '%s' is not set", key)
+	}
+
+	return viper.GetString(key), nil
+}
+
+func (c *Command) GetConfigurationBool(key string) (bool, error) {
+	if !viper.IsSet(key) {
+		c.PrintErrorf("Configuration key '%s' is not set\n", key)
+		return false, fmt.Errorf("configuration key '%s' is not set", key)
+	}
+
+	return viper.GetBool(key), nil
 }

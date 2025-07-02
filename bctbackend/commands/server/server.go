@@ -47,36 +47,83 @@ func NewServerCommand() *cobra.Command {
 }
 
 func (c *ServerCommand) execute() error {
-	var ginMode string
-	if viper.GetBool("debug") {
-		ginMode = "debug"
-	} else {
-		ginMode = "release"
+	configuration, err := c.getConfiguration()
+	if err != nil {
+		return err
 	}
 
-	configuration := configuration.Configuration{
-		FontDirectory: viper.GetString(common.FlagFontDirectory),
-		FontFilename:  viper.GetString(common.FlagFontFilename),
-		FontFamily:    viper.GetString(common.FlagFontFamily),
-		BarcodeWidth:  viper.GetInt(common.FlagBarcodeWidth),
-		BarcodeHeight: viper.GetInt(common.FlagBarcodeHeight),
-		Port:          viper.GetInt("port"),
-		GinMode:       ginMode,
-		HTMLPath:      viper.GetString("html"),
-	}
-
-	if err := c.ensureRequiredFilesExist(&configuration); err != nil {
+	if err := c.ensureRequiredFilesExist(configuration); err != nil {
 		return err
 	}
 
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		if err := server.StartServer(db, &configuration); err != nil {
+		if err := server.StartServer(db, configuration); err != nil {
 			c.PrintErrorf("Failed to start REST service\n")
 			return fmt.Errorf("failed to start REST service: %w", err)
 		}
 
 		return nil
 	})
+}
+
+func (c *ServerCommand) getConfiguration() (*configuration.Configuration, error) {
+	fontDirectory, err := c.GetConfigurationString(common.FlagFontDirectory)
+	if err != nil {
+		return nil, err
+	}
+
+	fontFilename, err := c.GetConfigurationString(common.FlagFontFilename)
+	if err != nil {
+		return nil, err
+	}
+
+	fontFamily, err := c.GetConfigurationString(common.FlagFontFamily)
+	if err != nil {
+		return nil, err
+	}
+
+	barcodeWidth, err := c.GetConfigurationInt(common.FlagBarcodeWidth)
+	if err != nil {
+		return nil, err
+	}
+
+	barcodeHeight, err := c.GetConfigurationInt(common.FlagBarcodeHeight)
+	if err != nil {
+		return nil, err
+	}
+
+	port, err := c.GetConfigurationInt("port")
+	if err != nil {
+		return nil, err
+	}
+
+	debugMode, err := c.GetConfigurationBool("debug")
+	if err != nil {
+		return nil, err
+	}
+
+	var ginMode string
+	if debugMode {
+		ginMode = "debug"
+	} else {
+		ginMode = "release"
+	}
+
+	htmlPath, err := c.GetConfigurationString("html")
+	if err != nil {
+		return nil, err
+	}
+
+	return &configuration.Configuration{
+		FontDirectory: fontDirectory,
+		FontFilename:  fontFilename,
+		FontFamily:    fontFamily,
+		BarcodeWidth:  barcodeWidth,
+		BarcodeHeight: barcodeHeight,
+		Port:          port,
+		GinMode:       ginMode,
+		HTMLPath:      htmlPath,
+	}, nil
 }
 
 func (c *ServerCommand) ensureRequiredFilesExist(configuration *configuration.Configuration) error {
