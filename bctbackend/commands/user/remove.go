@@ -49,7 +49,7 @@ func (c *RemoveUserCommand) execute(args []string) error {
 		}
 
 		if err = queries.RemoveUserWithId(db, userId); err != nil {
-			c.PrintErrorf("Failed to remove user")
+			c.PrintErrorf("Failed to remove user\n")
 			return err
 		}
 

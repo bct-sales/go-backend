@@ -40,7 +40,7 @@ func (c *backupDatabaseCommand) execute(args []string) error {
 
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		if _, err := db.Exec("VACUUM INTO ?", targetPath); err != nil {
-			c.PrintErrorf("Failed to backup database")
+			c.PrintErrorf("Failed to backup database\n")
 			return fmt.Errorf("failed to backup database %s: %w", targetPath, err)
 		}
 

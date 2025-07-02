@@ -37,7 +37,7 @@ func (c *listCategoriesCommand) execute() error {
 	return c.WithOpenedDatabase(func(database *sql.DB) error {
 		categories, err := queries.GetCategories(database)
 		if err != nil {
-			c.PrintErrorf("Failed to list categories")
+			c.PrintErrorf("Failed to list categories\n")
 			return fmt.Errorf("failed to list categories: %w", err)
 		}
 
@@ -57,7 +57,7 @@ func (c *listCategoriesCommand) execute() error {
 
 		err = pterm.DefaultTable.WithHasHeader().WithData(tableData).Render()
 		if err != nil {
-			c.PrintErrorf("Error while rendering table")
+			c.PrintErrorf("Error while rendering table\n")
 			return fmt.Errorf("error while rendering table: %w", err)
 		}
 

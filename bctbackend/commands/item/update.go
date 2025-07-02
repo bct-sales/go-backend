@@ -123,7 +123,7 @@ func (c *updateItemCommand) updateItem(db *sql.DB) error {
 
 	err := queries.UpdateItem(db, models.Id(c.itemId), &itemUpdate)
 	if err != nil {
-		c.PrintErrorf("Failed to update item")
+		c.PrintErrorf("Failed to update item\n")
 		return err
 	}
 
@@ -135,13 +135,13 @@ func (c *updateItemCommand) showUpdatedItem(db *sql.DB) error {
 	itemId := models.Id(c.itemId)
 	categoryNameTable, err := c.GetCategoryNameTable(db)
 	if err != nil {
-		c.PrintErrorf("Failed to get category name table")
+		c.PrintErrorf("Failed to get category name table\n")
 		return err
 	}
 
 	item, err := queries.GetItemWithId(db, itemId)
 	if err != nil {
-		c.PrintErrorf("Failed to get item back from database")
+		c.PrintErrorf("Failed to get item back from database\n")
 		return fmt.Errorf("failed to get item with id %d: %w", itemId, err)
 	}
 

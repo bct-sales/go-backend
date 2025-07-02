@@ -67,13 +67,13 @@ func (c *addNewSaleCommand) execute() error {
 func (c *addNewSaleCommand) printSale(db *sql.DB, saleId models.Id) error {
 	sale, err := queries.GetSaleWithId(db, saleId)
 	if err != nil {
-		c.PrintErrorf("Failed to get sale back from database")
+		c.PrintErrorf("Failed to get sale back from database\n")
 		return fmt.Errorf("failed to get sale with id %d: %w", saleId, err)
 	}
 
 	saleItems, err := queries.GetSaleItems(db, saleId)
 	if err != nil {
-		c.PrintErrorf("Failed to get items associated with sale")
+		c.PrintErrorf("Failed to get items associated with sale\n")
 		return fmt.Errorf("failed to get items associated with sale %d: %w", saleId, err)
 	}
 
@@ -90,7 +90,7 @@ func (c *addNewSaleCommand) printSale(db *sql.DB, saleId models.Id) error {
 	}
 
 	if err := pterm.DefaultTable.WithData(tableData).Render(); err != nil {
-		c.PrintErrorf("Failed to render sale table")
+		c.PrintErrorf("Failed to render sale table\n")
 		return fmt.Errorf("failed to render table: %w", err)
 	}
 

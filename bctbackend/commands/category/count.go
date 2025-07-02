@@ -72,7 +72,7 @@ func (c *categoryCountCommand) getCategoryCounts(database *sql.DB) (map[models.I
 	categoryCounts, err := queries.GetCategoryCounts(database, itemSelection)
 
 	if err != nil {
-		c.PrintErrorf("Failed to get category counts")
+		c.PrintErrorf("Failed to get category counts\n")
 		return nil, fmt.Errorf("failed to get category counts: %w", err)
 	}
 
@@ -108,7 +108,7 @@ func (c *categoryCountCommand) printCategoryCounts(categoryCounts map[models.Id]
 	}
 
 	if err := pterm.DefaultTable.WithHasHeader().WithData(tableData).Render(); err != nil {
-		c.PrintErrorf("Error while rendering table")
+		c.PrintErrorf("Error while rendering table\n")
 		return fmt.Errorf("error while rendering table: %w", err)
 	}
 

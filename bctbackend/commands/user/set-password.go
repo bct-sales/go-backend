@@ -46,7 +46,7 @@ func (c *SetUserPasswordCommand) execute(args []string) error {
 
 		err = queries.UpdateUserPassword(db, userId, newPassword)
 		if err != nil {
-			c.PrintErrorf("Failed to update user password")
+			c.PrintErrorf("Failed to update user password\n")
 			return fmt.Errorf("failed to update database: %w", err)
 		}
 

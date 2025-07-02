@@ -65,7 +65,7 @@ func (c *addSellersCommand) execute() error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		zones, err := parseZones(c.zonesString)
 		if err != nil {
-			c.PrintErrorf("failed to parse zones")
+			c.PrintErrorf("failed to parse zones\n")
 			return err
 		}
 
@@ -86,7 +86,7 @@ func (c *addSellersCommand) execute() error {
 			}
 		}
 		if err := queries.AddUsers(db, callback); err != nil {
-			c.PrintErrorf("failed to add sellers")
+			c.PrintErrorf("failed to add sellers\n")
 			return fmt.Errorf("failed to add sellers: %w", err)
 		}
 
@@ -149,7 +149,7 @@ func (c *addSellersCommand) determineSellersToBeCreated(db *sql.DB, zones []int,
 
 			if !existingSellers.Contains(sellerId) {
 				if passwordIndex == len(passwords) {
-					c.PrintErrorf("ran out of unique passwords")
+					c.PrintErrorf("ran out of unique passwords\n")
 					return nil, fmt.Errorf("ran out of unique passwords")
 				}
 
@@ -239,7 +239,7 @@ func (c *addSellersCommand) showAddedSellers(sellers []*sellerCreationData) erro
 
 	c.Printf("Added the following sellers:\n\n")
 	if err := pterm.DefaultTable.WithData(tableData).Render(); err != nil {
-		c.PrintErrorf("failed to render table: %v", err)
+		c.PrintErrorf("failed to render table: %v\n", err)
 		return err
 	}
 
