@@ -5,48 +5,64 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"database/sql"
-	"fmt"
 
 	"github.com/spf13/cobra"
 )
 
+type AddUserCommand struct {
+	common.Command
+	userId   int
+	role     string
+	password string
+}
+
 func NewUserAddCommand() *cobra.Command {
-	var userId int
-	var role string
-	var password string
+	var command *AddUserCommand
 
-	command := cobra.Command{
-		Use:   "add",
-		Short: "Add a new user",
-		Long:  `This command adds a new user to the database.`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return common.WithOpenedDatabase(cmd.ErrOrStderr(), func(db *sql.DB) error {
-				roleId, err := models.ParseRole(role)
-				if err != nil {
-					fmt.Fprintln(cmd.ErrOrStderr(), "Invalid role; should be admin, seller or cashier")
-					return err
-				}
-
-				timestamp := models.Now()
-				var lastActivity *models.Timestamp = nil
-
-				if err := queries.AddUserWithId(db, models.Id(userId), roleId, timestamp, lastActivity, password); err != nil {
-					fmt.Fprintln(cmd.ErrOrStderr(), "Failed to add user")
-					return err
-				}
-
-				fmt.Fprintln(cmd.OutOrStdout(), "User added successfully")
-				return nil
-			})
+	command = &AddUserCommand{
+		Command: common.Command{
+			CobraCommand: &cobra.Command{
+				Use:   "add",
+				Short: "Add a new user",
+				Long:  `This command adds a new user to the database.`,
+				RunE: func(cmd *cobra.Command, args []string) error {
+					return command.execute()
+				},
+			},
 		},
 	}
 
-	command.Flags().IntVar(&userId, "id", 0, "ID of the user to add")
-	command.Flags().StringVar(&role, "role", "", "Role of the user (admin, seller, cashier)")
-	command.Flags().StringVar(&password, "password", "", "Password for the user")
-	command.MarkFlagRequired("id")
-	command.MarkFlagRequired("role")
-	command.MarkFlagRequired("password")
+	command.CobraCommand.Flags().IntVar(&command.userId, "id", 0, "ID of the user to add")
+	command.CobraCommand.Flags().StringVar(&command.role, "role", "", "Role of the user (admin, seller, cashier)")
+	command.CobraCommand.Flags().StringVar(&command.password, "password", "", "Password for the user")
+	command.CobraCommand.MarkFlagRequired("id")
+	command.CobraCommand.MarkFlagRequired("role")
+	command.CobraCommand.MarkFlagRequired("password")
 
-	return &command
+	return command.AsCobraCommand()
+}
+
+func (c *AddUserCommand) execute() error {
+	role := c.role
+	userId := c.userId
+	password := c.password
+
+	return c.WithOpenedDatabase(func(db *sql.DB) error {
+		roleId, err := models.ParseRole(role)
+		if err != nil {
+			c.PrintErrorf("Invalid role; should be admin, seller or cashier\n")
+			return err
+		}
+
+		timestamp := models.Now()
+		var lastActivity *models.Timestamp = nil
+
+		if err := queries.AddUserWithId(db, models.Id(userId), roleId, timestamp, lastActivity, password); err != nil {
+			c.PrintErrorf("Failed to add user\n")
+			return err
+		}
+
+		c.Printf("User added successfully\n")
+		return nil
+	})
 }
