@@ -71,11 +71,6 @@ func NewRootCommand() *cobra.Command {
 
 	viper.BindPFlag(common.FlagConfigurationPath, rootCommand.PersistentFlags().Lookup("config"))
 	viper.BindPFlag(common.FlagDatabase, rootCommand.PersistentFlags().Lookup("db"))
-	viper.SetDefault(common.FlagFontDirectory, ".")
-	viper.SetDefault(common.FlagFontFilename, "arial.ttf")
-	viper.SetDefault(common.FlagFontFamily, "Arial")
-	viper.SetDefault(common.FlagBarcodeWidth, 150)
-	viper.SetDefault(common.FlagBarcodeHeight, 30)
 
 	rootCommand.AddCommand(item.NewItemCommand())
 	rootCommand.AddCommand(user.NewUserCommand())

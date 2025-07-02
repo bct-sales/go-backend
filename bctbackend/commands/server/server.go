@@ -39,9 +39,6 @@ func NewServerCommand() *cobra.Command {
 	viper.BindPFlag("port", command.CobraCommand.Flags().Lookup("port"))
 	viper.BindPFlag("debug", command.CobraCommand.Flags().Lookup("debug"))
 	viper.BindPFlag("html", command.CobraCommand.Flags().Lookup("html"))
-	viper.SetDefault("port", 8000)
-	viper.SetDefault("debug", false)
-	viper.SetDefault("html", "index.html")
 
 	return command.AsCobraCommand()
 }
