@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -104,15 +105,21 @@ func (c *Command) GetConfigurationInt(key string) (int, error) {
 		return 0, fmt.Errorf("configuration key '%s' is not set", key)
 	}
 
-	return viper.GetInt(key), nil
+	value := viper.GetInt(key)
+	slog.Debug("GetConfigurationInt", "key", key, "value", value)
+	return value, nil
 }
 
 func (c *Command) GetConfigurationString(key string) (string, error) {
+	slog.Debug("GetConfigurationString", "key", key, "isSet", viper.IsSet(key))
+
 	if !viper.IsSet(key) {
 		c.PrintErrorf("Configuration key '%s' is not set\n", key)
 		return "", fmt.Errorf("configuration key '%s' is not set", key)
 	}
 
+	value := viper.GetString(key)
+	slog.Debug("GetConfigurationString", "key", key, "value", value)
 	return viper.GetString(key), nil
 }
 
@@ -122,5 +129,7 @@ func (c *Command) GetConfigurationBool(key string) (bool, error) {
 		return false, fmt.Errorf("configuration key '%s' is not set", key)
 	}
 
-	return viper.GetBool(key), nil
+	value := viper.GetBool(key)
+	slog.Debug("GetConfigurationBool", "key", key, "value", value)
+	return value, nil
 }
