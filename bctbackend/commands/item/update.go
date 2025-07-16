@@ -19,14 +19,11 @@ type updateItemCommand struct {
 	description  string `exhaustruct:"optional"`
 	priceInCents uint64 `exhaustruct:"optional"`
 	categoryId   uint64 `exhaustruct:"optional"`
-	donation     bool   `exhaustruct:"optional"`
-	charity      bool   `exhaustruct:"optional"`
-	noDonation   bool   `exhaustruct:"optional"`
-	noCharity    bool   `exhaustruct:"optional"`
 }
 
 func NewUpdateItemCommand() *cobra.Command {
 	var command *updateItemCommand
+
 	command = &updateItemCommand{
 		Command: common.Command{
 			CobraCommand: &cobra.Command{
@@ -47,10 +44,10 @@ func NewUpdateItemCommand() *cobra.Command {
 	command.CobraCommand.Flags().StringVar(&command.description, "description", "", "New description for the item")
 	command.CobraCommand.Flags().Uint64Var(&command.priceInCents, "price", 0, "New price in cents for the item")
 	command.CobraCommand.Flags().Uint64Var(&command.categoryId, "category", 0, "New category ID for the item")
-	command.CobraCommand.Flags().BoolVar(&command.donation, "donation", false, "Set item as a donation")
-	command.CobraCommand.Flags().BoolVar(&command.donation, "no-donation", false, "Unset item as a donation")
-	command.CobraCommand.Flags().BoolVar(&command.charity, "charity", false, "Set item as a charity item")
-	command.CobraCommand.Flags().BoolVar(&command.charity, "no-charity", false, "Unset item as a charity item")
+	command.CobraCommand.Flags().Bool("donation", false, "Set item as a donation")
+	command.CobraCommand.Flags().Bool("no-donation", false, "Unset item as a donation")
+	command.CobraCommand.Flags().Bool("charity", false, "Set item as a charity item")
+	command.CobraCommand.Flags().Bool("no-charity", false, "Unset item as a charity item")
 
 	command.CobraCommand.MarkFlagRequired("id")
 	command.CobraCommand.MarkFlagsMutuallyExclusive("donation", "no-donation")
@@ -95,11 +92,13 @@ func (c *updateItemCommand) updateItem(db *sql.DB) error {
 	}
 
 	if c.CobraCommand.Flags().Changed("donation") {
-		donation = &c.donation
+		value := true
+		donation = &value
 	}
 
 	if c.CobraCommand.Flags().Changed("charity") {
-		charity = &c.charity
+		value := true
+		charity = &value
 	}
 
 	if c.CobraCommand.Flags().Changed("no-donation") {
