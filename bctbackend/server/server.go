@@ -155,7 +155,7 @@ func createGinRouter(ginMode string) *gin.Engine {
 type HandlerFunction func(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId)
 
 func (server *Server) withUserAndRole(handler HandlerFunction, mutates bool) gin.HandlerFunc {
-	db := server.database
+	database := server.database
 	configuration := server.configuration
 	broadcaster := server.broadcaster
 
@@ -168,7 +168,7 @@ func (server *Server) withUserAndRole(handler HandlerFunction, mutates bool) gin
 		}
 
 		sessionId := models.SessionId(sessionIdString)
-		sessionData, err := queries.GetSessionData(db, sessionId)
+		sessionData, err := queries.GetSessionData(database, sessionId)
 
 		if errors.Is(err, dberr.ErrNoSuchSession) {
 			slog.Error("Session not found")
@@ -186,12 +186,12 @@ func (server *Server) withUserAndRole(handler HandlerFunction, mutates bool) gin
 		roleId := sessionData.RoleId
 
 		now := models.Now()
-		if err := queries.UpdateLastActivity(db, userId, now); err != nil {
+		if err := queries.UpdateLastActivity(database, userId, now); err != nil {
 			slog.Error("Failed to update last activity", slog.String("error", err.Error()))
 			// Keep going, we don't want to block the request
 		}
 
-		handler(context, configuration, db, userId, roleId)
+		handler(context, configuration, database, userId, roleId)
 
 		if mutates {
 			broadcaster.Broadcast("update")
