@@ -21,4 +21,4 @@ build:
 	go build
 
 lint:
-	golangci-lint run
+	golangci-lint run | tee lint.txt
