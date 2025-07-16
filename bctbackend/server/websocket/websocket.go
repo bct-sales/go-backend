@@ -68,6 +68,7 @@ func (wb *WebsocketBroadcaster) sendMessage(message WebsocketBroadcasterMessage)
 }
 
 func (wb *WebsocketBroadcaster) CreateHandler() func(*gin.Context) {
+	// exhaustruct:ignore
 	var upgrader = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			return true // TODO Replace with origin check
