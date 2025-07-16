@@ -367,7 +367,7 @@ func (builder *PdfBuilder) determineImageSize(imageName string) (float64, float6
 	return imageWidth, imageHeight, nil
 }
 
-func (builder *PdfBuilder) drawBarcode(data string, x float64, y float64) (string, error) {
+func (builder *PdfBuilder) drawBarcode(data string, xCoordinate float64, yCoordinate float64) (string, error) {
 	imageName, err := builder.generateBarcode(data)
 	if err != nil {
 		return "", &PdfError{
@@ -376,7 +376,7 @@ func (builder *PdfBuilder) drawBarcode(data string, x float64, y float64) (strin
 		}
 	}
 
-	if err := builder.drawImage(imageName, x, y); err != nil {
+	if err := builder.drawImage(imageName, xCoordinate, yCoordinate); err != nil {
 		return "", &PdfError{
 			Message: "failed to draw barcode",
 			Wrapped: err,
