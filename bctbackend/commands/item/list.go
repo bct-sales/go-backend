@@ -17,8 +17,8 @@ import (
 
 type listItemsCommand struct {
 	common.Command
-	showHidden bool
-	format     string
+	showHidden bool   `exhaustruct:"optional"`
+	format     string `exhaustruct:"optional"`
 }
 
 func NewListItemsCommand() *cobra.Command {

@@ -21,9 +21,9 @@ import (
 
 type addSellersCommand struct {
 	common.Command
-	seed           uint64
-	zonesString    string
-	sellersPerZone int
+	seed           uint64 `exhaustruct:"optional"`
+	zonesString    string `exhaustruct:"optional"`
+	sellersPerZone int    `exhaustruct:"optional"`
 }
 
 func NewUserAddSellersCommand() *cobra.Command {

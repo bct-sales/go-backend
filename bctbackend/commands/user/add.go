@@ -11,9 +11,9 @@ import (
 
 type AddUserCommand struct {
 	common.Command
-	userId   int
-	role     string
-	password string
+	userId   int    `exhaustruct:"optional"`
+	role     string `exhaustruct:"optional"`
+	password string `exhaustruct:"optional"`
 }
 
 func NewUserAddCommand() *cobra.Command {

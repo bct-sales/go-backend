@@ -15,14 +15,14 @@ import (
 
 type updateItemCommand struct {
 	common.Command
-	itemId       uint64
-	description  string
-	priceInCents uint64
-	categoryId   uint64
-	donation     bool
-	charity      bool
-	noDonation   bool
-	noCharity    bool
+	itemId       uint64 `exhaustruct:"optional"`
+	description  string `exhaustruct:"optional"`
+	priceInCents uint64 `exhaustruct:"optional"`
+	categoryId   uint64 `exhaustruct:"optional"`
+	donation     bool   `exhaustruct:"optional"`
+	charity      bool   `exhaustruct:"optional"`
+	noDonation   bool   `exhaustruct:"optional"`
+	noCharity    bool   `exhaustruct:"optional"`
 }
 
 func NewUpdateItemCommand() *cobra.Command {

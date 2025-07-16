@@ -12,8 +12,8 @@ import (
 
 type addCategoryCommand struct {
 	common.Command
-	name string
-	id   uint64
+	name string `exhaustruct:"optional"`
+	id   uint64 `exhaustruct:"optional"`
 }
 
 func NewCategoryAddCommand() *cobra.Command {

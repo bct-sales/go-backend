@@ -145,8 +145,8 @@ var toys = [...]string{
 
 type dummyDatabaseCommand struct {
 	common.Command
-	seed uint64
-	rng  *rand.Rand
+	seed uint64     `exhaustruct:"optional"`
+	rng  *rand.Rand `exhaustruct:"optional"`
 }
 
 func NewDatabaseDummyCommand() *cobra.Command {

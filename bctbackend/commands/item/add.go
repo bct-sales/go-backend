@@ -17,12 +17,12 @@ import (
 
 type addItemCommand struct {
 	common.Command
-	description  string
-	priceInCents int
-	categoryId   int
-	sellerId     int
-	donation     bool
-	charity      bool
+	description  string `exhaustruct:"optional"`
+	priceInCents int    `exhaustruct:"optional"`
+	categoryId   int    `exhaustruct:"optional"`
+	sellerId     int    `exhaustruct:"optional"`
+	donation     bool   `exhaustruct:"optional"`
+	charity      bool   `exhaustruct:"optional"`
 }
 
 func NewAddItemCommand() *cobra.Command {

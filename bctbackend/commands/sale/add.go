@@ -14,8 +14,8 @@ import (
 
 type addNewSaleCommand struct {
 	common.Command
-	rawCashierID uint64
-	rawItemIDs   []int64
+	rawCashierID uint64  `exhaustruct:"optional"`
+	rawItemIDs   []int64 `exhaustruct:"optional"`
 }
 
 func NewSaleAddCommand() *cobra.Command {

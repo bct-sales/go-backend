@@ -15,7 +15,7 @@ import (
 
 type ListUsersCommand struct {
 	common.Command
-	format string
+	format string `exhaustruct:"optional"`
 }
 
 func NewUserListCommand() *cobra.Command {

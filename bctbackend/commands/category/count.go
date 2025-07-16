@@ -16,7 +16,7 @@ import (
 
 type categoryCountCommand struct {
 	common.Command
-	includeHidden bool
+	includeHidden bool `exhaustruct:"optional"`
 }
 
 func NewCategoryCountCommand() *cobra.Command {
