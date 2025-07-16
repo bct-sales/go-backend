@@ -144,7 +144,11 @@ type GetSalesQuery struct {
 }
 
 func NewGetSalesQuery() *GetSalesQuery {
-	return &GetSalesQuery{}
+	return &GetSalesQuery{
+		minimalId:    nil,
+		rowSelection: nil,
+		order:        nil,
+	}
 }
 
 func (q *GetSalesQuery) WithIdGreaterThanOrEqualTo(minimalId models.Id) *GetSalesQuery {
