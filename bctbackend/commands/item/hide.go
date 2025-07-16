@@ -15,6 +15,7 @@ type hideItemCommand struct {
 
 func NewHideItemCommand() *cobra.Command {
 	var command *hideItemCommand
+
 	command = &hideItemCommand{
 		Command: common.Command{
 			CobraCommand: &cobra.Command{
