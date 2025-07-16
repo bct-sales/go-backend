@@ -12,7 +12,7 @@ import (
 
 type InitializeDatabaseCommand struct {
 	common.Command
-	noCategories bool
+	noCategories bool `exhaustruct:"optional"`
 }
 
 func NewDatabaseInitCommand() *cobra.Command {
