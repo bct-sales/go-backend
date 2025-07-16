@@ -33,7 +33,7 @@ func NewUpdateItemCommand() *cobra.Command {
 				Use:   "update <item-id>",
 				Short: "Updates an item",
 				Long: heredoc.Doc(`
-				This command updates an existing item in the database.
+					This command updates an existing item in the database.
 			   `),
 				Args: cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
