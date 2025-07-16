@@ -158,9 +158,9 @@ func NewDatabaseDummyCommand() *cobra.Command {
 				Use:   "dummy",
 				Short: "Add dummy data to the database",
 				Long: heredoc.Doc(`
-			This command adds dummy data to the database for testing purposes.
-			WARNING: This will reset the database and remove all existing data.
-		`),
+					This command adds dummy data to the database for testing purposes.
+					WARNING: This will reset the database and remove all existing data.
+				`),
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return command.execute()
 				},
