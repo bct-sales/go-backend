@@ -23,8 +23,8 @@ func NewDatabaseBackupCommand() *cobra.Command {
 				Short: "Backup the database",
 				Args:  cobra.ExactArgs(1),
 				Long: heredoc.Doc(`
-			This command makes a copy of the current database.
-		`),
+					This command makes a copy of the current database.
+				`),
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return command.execute(args)
 				},
