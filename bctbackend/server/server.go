@@ -41,8 +41,8 @@ import (
 
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
-func StartServer(db *sql.DB, configuration *configuration.Configuration) error {
-	server := NewServer(db, configuration)
+func StartServer(database *sql.DB, configuration *configuration.Configuration) error {
+	server := NewServer(database, configuration)
 
 	if err := server.run(); err != nil {
 		return err
