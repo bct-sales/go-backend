@@ -22,9 +22,9 @@ func NewFreezeItemCommand() *cobra.Command {
 				Use:   "freeze <item-id> ...",
 				Short: "Freezes items",
 				Long: heredoc.Doc(`
-				This command freezes items so that they cannot be edited anymore.
-				You can unfreeze them later if needed.
-				Items are automatically frozen when labels are generated for them.
+					This command freezes items so that they cannot be edited anymore.
+					You can unfreeze them later if needed.
+					Items are automatically frozen when labels are generated for them.
 			   `),
 				Args: cobra.MinimumNArgs(1),
 				RunE: func(cmd *cobra.Command, args []string) error {
