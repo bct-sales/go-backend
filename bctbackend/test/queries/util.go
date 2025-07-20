@@ -15,7 +15,7 @@ func requireDatabaseWrappedError(t *testing.T, err error, expectedWrapped error)
 		t.Fatalf("Expected error, got nil")
 	}
 
-	var wrappedErr *dberr.ErrDatabase
-	require.ErrorAsf(t, err, &wrappedErr, "expected error to be wrapped in ErrDatabase")
+	var wrappedErr dberr.ErrDatabase
+	require.IsTypef(t, &wrappedErr, err, "expected error to be of type ErrDatabase")
 	require.ErrorIs(t, err, expectedWrapped)
 }
