@@ -67,9 +67,10 @@ func AddCategoryWithId(db *sql.DB, categoryId models.Id, categoryName string) (r
 	return nil
 }
 
-func CategoryWithIdExists(
-	db *sql.DB,
-	categoryId models.Id) (bool, error) {
+func CategoryWithIdExists(db *sql.DB, categoryId models.Id) (r_result bool, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
 
 	row := db.QueryRow(
 		`
