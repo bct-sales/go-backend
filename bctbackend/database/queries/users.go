@@ -233,6 +233,10 @@ type UserWithItemCount struct {
 }
 
 func GetUsersWithItemCount(db *sql.DB, itemSelection ItemSelection, receiver func(*UserWithItemCount) error) (r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	query := fmt.Sprintf(
 		`
 			SELECT users.user_id, role_id, created_at, last_activity, password, COALESCE(COUNT(i.item_id), 0) AS item_count
