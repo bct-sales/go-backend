@@ -38,6 +38,14 @@ func NewCashierRoleId() RoleId {
 	return NewRoleId(CashierRoleId)
 }
 
+func ListRoles() []RoleId {
+	return []RoleId{
+		NewAdminRoleId(),
+		NewSellerRoleId(),
+		NewCashierRoleId(),
+	}
+}
+
 func (roleId RoleId) Name() string {
 	switch roleId.Id {
 	case AdminRoleId:
