@@ -12,7 +12,11 @@ import (
 	"strings"
 )
 
-func GetItems(db *sql.DB, receiver func(*models.Item) error, itemSelection ItemSelection, rowSelection SQLOption) error {
+func GetItems(db *sql.DB, receiver func(*models.Item) error, itemSelection ItemSelection, rowSelection SQLOption) (r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	// Build SQL query
 	query := fmt.Sprintf(`
 		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden
