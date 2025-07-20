@@ -293,7 +293,11 @@ func GetSaleWithId(db *sql.DB, saleId models.Id) (r_result *models.Sale, r_err e
 	return &sale, nil
 }
 
-func SaleWithIdExists(db *sql.DB, saleId models.Id) (bool, error) {
+func SaleWithIdExists(db *sql.DB, saleId models.Id) (r_result bool, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	var exists int64
 
 	err := db.QueryRow(
