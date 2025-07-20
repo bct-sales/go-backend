@@ -50,7 +50,7 @@ func TestRemoveSoldItem(t *testing.T) {
 	setup.Sale(cashier.UserId, []models.Id{itemId})
 
 	err := queries.RemoveItemWithId(db, itemId)
-	require.Error(t, err)
+	requireDatabaseWrappedError(t, err, dberr.ErrItemSold)
 
 	itemExists, err := queries.ItemWithIdExists(db, itemId)
 	require.NoError(t, err)
