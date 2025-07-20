@@ -584,7 +584,11 @@ func ItemWithIdExists(db *sql.DB, itemId models.Id) (bool, error) {
 	return true, nil
 }
 
-func ItemsExist(db QueryHandler, itemIds []models.Id) (bool, error) {
+func ItemsExist(db QueryHandler, itemIds []models.Id) (r_result bool, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	if len(itemIds) == 0 {
 		return true, nil
 	}
