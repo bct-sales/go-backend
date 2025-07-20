@@ -8,7 +8,11 @@ import (
 	"fmt"
 )
 
-func AddCategory(db *sql.DB, categoryName string) (models.Id, error) {
+func AddCategory(db *sql.DB, categoryName string) (r_result models.Id, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	if !models.IsValidCategoryName(categoryName) {
 		return 0, dberr.ErrInvalidCategoryName
 	}
