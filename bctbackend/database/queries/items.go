@@ -560,7 +560,11 @@ func AddItem(
 }
 
 // Returns true if an item with the given identifier exists in the database.
-func ItemWithIdExists(db *sql.DB, itemId models.Id) (bool, error) {
+func ItemWithIdExists(db *sql.DB, itemId models.Id) (r_result bool, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	row := db.QueryRow(
 		`
 			SELECT 1
