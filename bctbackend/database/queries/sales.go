@@ -23,6 +23,10 @@ type AddSaleQuery struct {
 // A ErrSaleRequiresCashier is returned if the cashierId does not correspond to a cashier.
 // A ErrDuplicateItemInSale is returned if itemIds contains duplicate item IDs.
 func (q *AddSaleQuery) Execute(db *sql.DB) (r_result models.Id, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	if err := q.ensureInputsValidity(db); err != nil {
 		return 0, err
 	}
