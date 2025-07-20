@@ -134,7 +134,11 @@ func GetCategories(db *sql.DB) (r_result []*models.ItemCategory, r_err error) {
 	return categories, nil
 }
 
-func GetCategoryNameTable(db *sql.DB) (map[models.Id]string, error) {
+func GetCategoryNameTable(db *sql.DB) (r_result map[models.Id]string, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	categories, err := GetCategories(db)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get categories: %w", err)
