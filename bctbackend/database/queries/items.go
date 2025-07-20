@@ -778,7 +778,11 @@ func PartitionItemsByHiddenStatus(db QueryHandler, itemIds []models.Id) (r_visib
 
 // PartitionItemsByFrozenStatus partitions the given item IDs into two sets: one for nonfrozen items and one for frozen items.
 // If an item ID does not exist in the database, it is ignored.
-func PartitionItemsByFrozenStatus(db QueryHandler, itemIds []models.Id) (*algorithms.Set[models.Id], *algorithms.Set[models.Id], error) {
+func PartitionItemsByFrozenStatus(db QueryHandler, itemIds []models.Id) (r_nonfrozen *algorithms.Set[models.Id], r_frozen *algorithms.Set[models.Id], r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	return partitionItemsBy(db, itemIds, "frozen")
 }
 
