@@ -35,7 +35,11 @@ func AddCategory(db *sql.DB, categoryName string) (r_result models.Id, r_err err
 	return models.Id(categoryId), nil
 }
 
-func AddCategoryWithId(db *sql.DB, categoryId models.Id, categoryName string) error {
+func AddCategoryWithId(db *sql.DB, categoryId models.Id, categoryName string) (r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	if !models.IsValidCategoryName(categoryName) {
 		return dberr.ErrInvalidCategoryName
 	}
