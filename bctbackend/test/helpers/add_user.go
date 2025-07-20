@@ -46,6 +46,12 @@ func WithCreatedAt(createdAt models.Timestamp) func(*AddUserData) {
 	}
 }
 
+func WithNoLastActivity() func(*AddUserData) {
+	return func(data *AddUserData) {
+		data.LastActivity = nil
+	}
+}
+
 func WithLastActivity(lastActivity models.Timestamp) func(*AddUserData) {
 	return func(data *AddUserData) {
 		data.LastActivity = &lastActivity
