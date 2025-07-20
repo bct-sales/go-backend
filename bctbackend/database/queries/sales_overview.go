@@ -1,6 +1,7 @@
 package queries
 
 import (
+	dberr "bctbackend/database/errors"
 	models "bctbackend/database/models"
 	"database/sql"
 	"errors"
@@ -14,6 +15,10 @@ type CategorySaleTotal struct {
 }
 
 func GetSalesOverview(db *sql.DB) (r_result []CategorySaleTotal, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	rows, err := db.Query(
 		`
 			SELECT item_categories.item_category_id, item_categories.name, SUM(COALESCE(i.price_in_cents, 0))
