@@ -16,6 +16,6 @@ func requireDatabaseWrappedError(t *testing.T, err error, expectedWrapped error)
 	}
 
 	var wrappedErr *dberr.ErrDatabase
-	require.ErrorAsf(t, err, &wrappedErr, "expected error %v to be wrapped in ErrDatabase", err)
+	require.ErrorAsf(t, err, &wrappedErr, "expected error to be wrapped in ErrDatabase")
 	require.ErrorIs(t, err, expectedWrapped)
 }
