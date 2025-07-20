@@ -95,6 +95,10 @@ func CategoryWithIdExists(db *sql.DB, categoryId models.Id) (r_result bool, r_er
 }
 
 func GetCategories(db *sql.DB) (r_result []*models.ItemCategory, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	rows, err := db.Query(
 		`
 			SELECT item_category_id, name
