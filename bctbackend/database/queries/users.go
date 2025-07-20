@@ -182,6 +182,10 @@ func GetUserWithId(db *sql.DB, userId models.Id) (*models.User, error) {
 
 // GetUsers retrieves all users from the database.
 func GetUsers(db *sql.DB, receiver func(*models.User) error) (r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	rows, err := db.Query(
 		`
 			SELECT user_id, role_id, created_at, last_activity, password
