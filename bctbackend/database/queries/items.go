@@ -858,7 +858,11 @@ type ItemUpdate struct {
 	Charity      *bool
 }
 
-func UpdateItem(db *sql.DB, itemId models.Id, itemUpdate *ItemUpdate) error {
+func UpdateItem(db *sql.DB, itemId models.Id, itemUpdate *ItemUpdate) (r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	if itemUpdate == nil {
 		slog.Error("parameter itemUpdate is nil")
 		os.Exit(1)
