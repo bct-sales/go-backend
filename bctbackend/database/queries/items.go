@@ -769,7 +769,11 @@ func ContainsHiddenItems(qh QueryHandler, itemIds []models.Id) (bool, error) {
 // ContainsFrozenItems checks if any of the given items are frozen.
 // It returns true if at least one item is frozen, and false otherwise.
 // It is not an error when nonexistent items are passed in, they are simply ignored.
-func ContainsFrozenItems(qh QueryHandler, itemIds []models.Id) (bool, error) {
+func ContainsFrozenItems(qh QueryHandler, itemIds []models.Id) (r_result bool, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	if len(itemIds) == 0 {
 		return false, nil
 	}
