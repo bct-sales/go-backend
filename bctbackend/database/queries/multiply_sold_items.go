@@ -1,6 +1,7 @@
 package queries
 
 import (
+	dberr "bctbackend/database/errors"
 	models "bctbackend/database/models"
 	"database/sql"
 	"errors"
@@ -13,6 +14,10 @@ type MultiplySoldItem struct {
 }
 
 func GetMultiplySoldItems(db *sql.DB) (r_result []MultiplySoldItem, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	rows, err := db.Query(
 		`
 			SELECT item.item_id,
