@@ -71,6 +71,10 @@ func GetItems(db *sql.DB, receiver func(*models.Item) error, itemSelection ItemS
 }
 
 func GetItemIds(db *sql.DB) (r_result []models.Id, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	// Build SQL query
 	query := `
 		SELECT item_id
