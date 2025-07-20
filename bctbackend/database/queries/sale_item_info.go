@@ -20,7 +20,11 @@ type SaleItemInformation struct {
 // If the item is not found, it returns an ErrNoSuchItem.
 func GetSaleItemInformation(
 	db *sql.DB,
-	itemId models.Id) (*SaleItemInformation, error) {
+	itemId models.Id) (r_result *SaleItemInformation, r_err error) {
+
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
 
 	row := db.QueryRow(
 		`
