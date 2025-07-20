@@ -453,7 +453,11 @@ func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (r_result map[models.Id]*m
 }
 
 // Returns the total number of items in the database.
-func CountItems(db QueryHandler, selection ItemSelection) (int, error) {
+func CountItems(db QueryHandler, selection ItemSelection) (r_result int, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	query := fmt.Sprintf(`
 		SELECT COUNT(item_id)
 		FROM %s
