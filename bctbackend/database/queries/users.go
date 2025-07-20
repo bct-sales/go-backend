@@ -382,7 +382,11 @@ func RemoveUserWithId(db *sql.DB, userId models.Id) (r_err error) {
 	return err
 }
 
-func UpdateLastActivity(db *sql.DB, userId models.Id, lastActivity models.Timestamp) error {
+func UpdateLastActivity(db *sql.DB, userId models.Id, lastActivity models.Timestamp) (r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	{
 		userExist, err := UserWithIdExists(db, userId)
 		if err != nil {
