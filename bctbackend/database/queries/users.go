@@ -209,7 +209,7 @@ func GetUsers(db *sql.DB, receiver func(*models.User) error) (r_err error) {
 		var lastActivity *models.Timestamp
 		var password string
 
-		if err := rows.Scan(&userId, &roleId, &createdAt, &lastActivity, &password); err != nil {
+		if err := rows.Scan(&userId, &roleId.Id, &createdAt, &lastActivity, &password); err != nil {
 			return err
 		}
 
