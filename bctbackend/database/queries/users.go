@@ -124,9 +124,10 @@ func AddUsers(db *sql.DB, callback AddUsersCallback) (r_err error) {
 	return nil
 }
 
-func UserWithIdExists(
-	db *sql.DB,
-	userId models.Id) (bool, error) {
+func UserWithIdExists(db *sql.DB, userId models.Id) (r_result bool, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
 
 	row := db.QueryRow(
 		`
