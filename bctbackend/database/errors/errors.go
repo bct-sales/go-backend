@@ -25,3 +25,31 @@ var ErrNoSuchRole = errors.New("no such role")
 var ErrInvalidPrice = errors.New("invalid price")
 var ErrInvalidItemDescription = errors.New("invalid item description")
 var ErrInvalidCategoryName = errors.New("category name is invalid")
+
+type ErrDatabase struct {
+	wrapped error
+}
+
+func (e *ErrDatabase) Error() string {
+	if e.wrapped != nil {
+		return "database layer error: " + e.wrapped.Error()
+	}
+	return "database layer error"
+}
+
+func (e *ErrDatabase) Unwrap() error {
+	return e.wrapped
+}
+
+func WrapError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	var databaseError *ErrDatabase
+	if errors.As(err, &databaseError) {
+		return databaseError
+	}
+
+	return &ErrDatabase{wrapped: err}
+}
