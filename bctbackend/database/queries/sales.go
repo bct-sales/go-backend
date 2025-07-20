@@ -521,6 +521,10 @@ func GetSoldItemsCount(db QueryHandler) (r_result int, r_err error) {
 // HasAnyBeenSold checks if any one of the given item was involved in one or more sales.
 // Does not check if items exist.
 func HasAnyBeenSold(db *sql.DB, itemIds []models.Id) (r_result bool, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	query := fmt.Sprintf(`
 		SELECT 1
 		FROM items INNER JOIN sale_items ON items.item_id = sale_items.item_id
