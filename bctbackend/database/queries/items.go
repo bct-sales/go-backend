@@ -935,7 +935,19 @@ func RemoveItemWithId(db *sql.DB, itemId models.Id) (r_err error) {
 		itemId,
 	)
 
-	return err
+	if err != nil {
+		sold, err2 := HasAnyBeenSold(db, []models.Id{itemId})
+		if err2 != nil {
+			return err
+		}
+		if sold {
+			return fmt.Errorf("failed to remove item with id %d: %w", itemId, dberr.ErrItemSold)
+		}
+
+		return fmt.Errorf("failed to remove item with id %d: %w", itemId, err)
+	}
+
+	return nil
 }
 
 type ItemUpdate struct {
