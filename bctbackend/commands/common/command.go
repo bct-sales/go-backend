@@ -14,6 +14,23 @@ import (
 	"github.com/spf13/viper"
 )
 
+type ErrCommand struct {
+	wrapped error
+}
+
+var ErrMissingConfiguration = errors.New("missing configuration")
+
+func (e *ErrCommand) Error() string {
+	if e.wrapped != nil {
+		return "command error: " + e.wrapped.Error()
+	}
+	return "command error"
+}
+
+func (e *ErrCommand) Unwrap() error {
+	return e.wrapped
+}
+
 type Command struct {
 	CobraCommand *cobra.Command
 }
@@ -30,13 +47,13 @@ func (c *Command) WithOpenedDatabase(fn func(db *sql.DB) error) (r_err error) {
 	databasePath, err := GetDatabasePath()
 	if err != nil {
 		c.PrintErrorf("Failed to get database path: %s\n", err.Error())
-		return err
+		return &ErrCommand{wrapped: err}
 	}
 
 	db, err := database.OpenDatabase(databasePath)
 	if err != nil {
 		c.PrintErrorf("Failed to open database %s\n", databasePath)
-		return err
+		return &ErrCommand{wrapped: err}
 	}
 
 	defer func() {
@@ -115,7 +132,7 @@ func (c *Command) GetConfigurationString(key string) (string, error) {
 
 	if !viper.IsSet(key) {
 		c.PrintErrorf("Configuration key '%s' is not set\n", key)
-		return "", fmt.Errorf("configuration key '%s' is not set", key)
+		return "", fmt.Errorf("configuration key '%s' is not set: %w", key, ErrMissingConfiguration)
 	}
 
 	value := viper.GetString(key)
@@ -126,7 +143,7 @@ func (c *Command) GetConfigurationString(key string) (string, error) {
 func (c *Command) GetConfigurationBool(key string) (bool, error) {
 	if !viper.IsSet(key) {
 		c.PrintErrorf("Configuration key '%s' is not set\n", key)
-		return false, fmt.Errorf("configuration key '%s' is not set", key)
+		return false, fmt.Errorf("configuration key '%s' is not set: %w", key, ErrMissingConfiguration)
 	}
 
 	value := viper.GetBool(key)
