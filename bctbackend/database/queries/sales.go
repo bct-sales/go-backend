@@ -816,6 +816,10 @@ func GetSalesCount(db QueryHandler) (r_result int, r_err error) {
 }
 
 func GetTotalSalesValue(db QueryHandler) (r_result models.MoneyInCents, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	var totalValue models.MoneyInCents
 	err := db.QueryRow(
 		`
