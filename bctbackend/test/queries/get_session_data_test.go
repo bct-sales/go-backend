@@ -14,7 +14,7 @@ import (
 
 func TestGetSessionData(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		for _, roleId := range []models.RoleId{models.NewSellerRoleId(), models.NewAdminRoleId(), models.NewCashierRoleId()} {
+		for _, roleId := range models.ListRoles() {
 			testLabel := roleId.Name()
 
 			t.Run(testLabel, func(t *testing.T) {
