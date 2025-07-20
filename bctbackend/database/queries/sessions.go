@@ -110,6 +110,10 @@ func GetSessionData(db *sql.DB, sessionId models.SessionId) (r_result *SessionDa
 }
 
 func GetSessions(db *sql.DB) (r_result []models.Session, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	rows, err := db.Query(
 		`
 			SELECT session_id, user_id, expiration_time
