@@ -150,6 +150,10 @@ func GetCategoryNameTable(db *sql.DB) (map[models.Id]string, error) {
 }
 
 func GetCategoryCounts(db *sql.DB, itemSelection ItemSelection) (r_counts map[models.Id]int, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	itemsTable := ItemsTableFor(itemSelection)
 
 	query := fmt.Sprintf(`
