@@ -153,7 +153,11 @@ func UserWithIdExists(
 
 // GetUserWithId retrieves a user from the database by their user ID.
 // An ErrNoSuchUser is returned if the user does not exist.
-func GetUserWithId(db *sql.DB, userId models.Id) (*models.User, error) {
+func GetUserWithId(db *sql.DB, userId models.Id) (r_result *models.User, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	row := db.QueryRow(
 		`
 			SELECT role_id, created_at, last_activity, password
