@@ -14,6 +14,7 @@ var ErrItemFrozen = errors.New("item is frozen")
 var ErrItemHidden = errors.New("item is hidden")
 var ErrHiddenFrozenItem = errors.New("items cannot be hidden and frozen at the same time")
 var ErrDatabaseAlreadyExists = errors.New("database already exists")
+var ErrItemSold = errors.New("item is already sold")
 
 var ErrNoSuchUser = errors.New("no such user")
 var ErrNoSuchItem = errors.New("no such item")
