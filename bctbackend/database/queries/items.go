@@ -768,7 +768,11 @@ func partitionItemsBy(db QueryHandler, itemIds []models.Id, columnName string) (
 
 // PartitionItemsByHiddenStatus partitions the given item IDs into two sets: one for unhidden items and one for hidden items.
 // If an item ID does not exist in the database, it is ignored.
-func PartitionItemsByHiddenStatus(db QueryHandler, itemIds []models.Id) (*algorithms.Set[models.Id], *algorithms.Set[models.Id], error) {
+func PartitionItemsByHiddenStatus(db QueryHandler, itemIds []models.Id) (r_visible *algorithms.Set[models.Id], r_hidden *algorithms.Set[models.Id], r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	return partitionItemsBy(db, itemIds, "hidden")
 }
 
