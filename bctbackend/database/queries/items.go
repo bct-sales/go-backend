@@ -989,7 +989,11 @@ type AddItemFunction func(addedAt models.Timestamp, description string, priceInC
 
 type AddItemsCallback func(addItem AddItemFunction)
 
-func AddItems(db *sql.DB, callback AddItemsCallback) error {
+func AddItems(db *sql.DB, callback AddItemsCallback) (r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	valuesString := []string{}
 	arguments := []any{}
 	tupleString := "(?, ?, ?, ?, ?, ?, ?, ?, ?)"
