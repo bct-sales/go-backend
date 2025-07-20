@@ -61,7 +61,7 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 			defer setup.Close()
 
 			err := queries.UpdateFreezeStatusOfItems(db, []models.Id{1}, true)
-			require.Error(t, err)
+			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 		})
 
 		t.Run("Cannot freeze hidden item", func(t *testing.T) {
