@@ -56,7 +56,7 @@ func TestAddUserWithId(t *testing.T) {
 
 		{
 			err := queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
-			require.ErrorIs(t, err, dberr.ErrIdAlreadyInUse)
+			requireDatabaseWrappedError(t, err, dberr.ErrIdAlreadyInUse)
 		}
 	})
 
@@ -71,6 +71,6 @@ func TestAddUserWithId(t *testing.T) {
 		var lastAccess *models.Timestamp = nil
 
 		err := queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
-		require.ErrorIs(t, err, dberr.ErrNoSuchRole)
+		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchRole)
 	})
 }

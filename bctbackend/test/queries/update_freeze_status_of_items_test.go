@@ -77,7 +77,7 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 			itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(10), aux.WithFrozen(false), aux.WithHidden(true)).ItemID)
 
 			err := queries.UpdateFreezeStatusOfItems(db, itemIds, true)
-			require.ErrorIs(t, err, dberr.ErrItemHidden)
+			requireDatabaseWrappedError(t, err, dberr.ErrItemHidden)
 
 			for _, itemId := range itemIds {
 				isFrozen, err := queries.IsItemFrozen(db, itemId)

@@ -36,6 +36,6 @@ func TestEnsureNoFrozenItems(t *testing.T) {
 		itemIds := append(models.CollectItemIds(unfrozenItems), frozenItem.ItemID)
 
 		err := queries.EnsureNoFrozenItems(db, itemIds)
-		require.ErrorIs(t, err, dberr.ErrItemFrozen)
+		requireDatabaseWrappedError(t, err, dberr.ErrItemFrozen)
 	})
 }

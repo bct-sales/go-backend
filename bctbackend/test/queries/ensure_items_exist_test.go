@@ -51,6 +51,6 @@ func TestEnsureItemsExist(t *testing.T) {
 		itemIds := append(models.CollectItemIds(items), nonexistentItemId)
 
 		err := queries.EnsureItemsExist(db, itemIds)
-		require.ErrorIs(t, err, dberr.ErrNoSuchItem)
+		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 	})
 }

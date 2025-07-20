@@ -155,7 +155,7 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 			setup.RequireNoSuchUsers(t, nonExistentSellerId)
 
 			_, err := queries.GetSellerTotalPriceOfAllItems(db, nonExistentSellerId, queries.AllItems)
-			require.ErrorIs(t, err, dberr.ErrNoSuchUser)
+			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 
 		t.Run("Sum of item prices of cashier", func(t *testing.T) {
@@ -165,7 +165,7 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 			cashier := setup.Cashier()
 
 			_, err := queries.GetSellerTotalPriceOfAllItems(db, cashier.UserId, queries.AllItems)
-			require.ErrorIs(t, err, dberr.ErrWrongRole)
+			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 
 		t.Run("Sum of item prices of admin", func(t *testing.T) {
@@ -175,7 +175,7 @@ func TestSellerTotalPriceOfAllTimes(t *testing.T) {
 			admin := setup.Admin()
 
 			_, err := queries.GetSellerTotalPriceOfAllItems(db, admin.UserId, queries.AllItems)
-			require.ErrorIs(t, err, dberr.ErrWrongRole)
+			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 	})
 }

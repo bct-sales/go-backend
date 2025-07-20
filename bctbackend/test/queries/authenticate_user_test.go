@@ -42,7 +42,7 @@ func TestAuthentication(t *testing.T) {
 
 		{
 			_, err := queries.AuthenticateUser(db, userId, password)
-			require.ErrorIs(t, err, dberr.ErrNoSuchUser)
+			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		}
 	})
 
@@ -58,6 +58,6 @@ func TestAuthentication(t *testing.T) {
 		queries.AddUserWithId(db, userId, roleId, 0, nil, password)
 
 		_, err := queries.AuthenticateUser(db, userId, wrongPassword)
-		require.ErrorIs(t, err, dberr.ErrWrongPassword)
+		requireDatabaseWrappedError(t, err, dberr.ErrWrongPassword)
 	})
 }

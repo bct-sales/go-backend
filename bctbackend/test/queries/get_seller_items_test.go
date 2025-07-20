@@ -115,7 +115,7 @@ func TestGetSellerItems(t *testing.T) {
 			setup.RequireNoSuchUsers(t, unknownSellerId)
 
 			_, err := queries.GetSellerItems(db, unknownSellerId, queries.AllItems)
-			require.ErrorIs(t, err, dberr.ErrNoSuchUser)
+			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 
 		t.Run("Wrong role: cashier", func(t *testing.T) {
@@ -125,7 +125,7 @@ func TestGetSellerItems(t *testing.T) {
 			cashier := setup.Cashier()
 
 			_, err := queries.GetSellerItems(db, cashier.UserId, queries.AllItems)
-			require.ErrorIs(t, err, dberr.ErrWrongRole)
+			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 
 		t.Run("Wrong role: admin", func(t *testing.T) {
@@ -135,7 +135,7 @@ func TestGetSellerItems(t *testing.T) {
 			admin := setup.Admin()
 
 			_, err := queries.GetSellerItems(db, admin.UserId, queries.AllItems)
-			require.ErrorIs(t, err, dberr.ErrWrongRole)
+			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 	})
 }

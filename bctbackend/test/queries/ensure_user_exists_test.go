@@ -31,6 +31,6 @@ func TestEnsureUserExists(t *testing.T) {
 		setup.RequireNoSuchUsers(t, nonexistentUserId)
 
 		err := queries.EnsureUserExists(db, nonexistentUserId)
-		require.ErrorIs(t, err, dberr.ErrNoSuchUser)
+		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 	})
 }

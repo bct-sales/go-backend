@@ -39,6 +39,6 @@ func TestGetSessionData(t *testing.T) {
 
 		invalidSessionId := models.SessionId("invalid-session-id")
 		_, err := queries.GetSessionData(db, invalidSessionId)
-		require.ErrorIs(t, err, dberr.ErrNoSuchSession)
+		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSession)
 	})
 }

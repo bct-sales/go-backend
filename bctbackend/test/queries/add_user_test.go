@@ -42,6 +42,6 @@ func TestAddUser(t *testing.T) {
 		var lastActivity *models.Timestamp = nil
 
 		_, err := queries.AddUser(db, roleId, createdAt, lastActivity, password)
-		require.ErrorIs(t, err, dberr.ErrNoSuchRole)
+		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchRole)
 	})
 }

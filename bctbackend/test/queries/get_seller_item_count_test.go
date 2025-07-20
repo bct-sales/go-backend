@@ -115,7 +115,7 @@ func TestGetSellerItemCount(t *testing.T) {
 			setup.RequireNoSuchUsers(t, nonExistentSellerId)
 
 			_, err := queries.GetSellerItemCount(db, nonExistentSellerId, queries.Include, queries.Include)
-			require.ErrorIs(t, err, dberr.ErrNoSuchUser)
+			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 
 		t.Run("Count items of cashier", func(t *testing.T) {
@@ -125,7 +125,7 @@ func TestGetSellerItemCount(t *testing.T) {
 			cashier := setup.Cashier()
 
 			_, err := queries.GetSellerItemCount(db, cashier.UserId, queries.Include, queries.Include)
-			require.ErrorIs(t, err, dberr.ErrWrongRole)
+			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 
 		t.Run("Count items of admin", func(t *testing.T) {
@@ -135,7 +135,7 @@ func TestGetSellerItemCount(t *testing.T) {
 			admin := setup.Admin()
 
 			_, err := queries.GetSellerItemCount(db, admin.UserId, queries.Include, queries.Include)
-			require.ErrorIs(t, err, dberr.ErrWrongRole)
+			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 	})
 }

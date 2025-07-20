@@ -79,7 +79,7 @@ func TestGetSalesWithItem(t *testing.T) {
 			setup.Sale(cashier.UserId, []models.Id{item2.ItemID})
 
 			_, err := queries.GetSalesWithItem(db, invalidItemId)
-			require.ErrorIs(t, err, dberr.ErrNoSuchItem)
+			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 		})
 	})
 }

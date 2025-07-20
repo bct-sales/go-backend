@@ -69,7 +69,7 @@ func TestCheckUserRole(t *testing.T) {
 				setup.Seller(aux.WithUserId(sellerId))
 
 				err := queries.EnsureUserExistsAndHasRole(db, pair.UserId, pair.RoleId)
-				require.ErrorIs(t, err, dberr.ErrWrongRole)
+				requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 			})
 		}
 	})
@@ -81,6 +81,6 @@ func TestCheckUserRole(t *testing.T) {
 		invalidId := models.Id(9999)
 
 		err := queries.EnsureUserExistsAndHasRole(db, invalidId, models.NewAdminRoleId())
-		require.ErrorIs(t, err, dberr.ErrNoSuchUser)
+		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 	})
 }

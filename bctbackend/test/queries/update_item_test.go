@@ -141,7 +141,7 @@ func TestUpdateItem(t *testing.T) {
 			itemId := models.Id(1)
 			itemUpdate := queries.ItemUpdate{}
 			err := queries.UpdateItem(db, itemId, &itemUpdate)
-			require.ErrorIs(t, err, dberr.ErrNoSuchItem)
+			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 		})
 
 		t.Run("Frozen item", func(t *testing.T) {
@@ -158,7 +158,7 @@ func TestUpdateItem(t *testing.T) {
 
 			itemUpdate := queries.ItemUpdate{}
 			err := queries.UpdateItem(db, item.ItemID, &itemUpdate)
-			require.ErrorIs(t, err, dberr.ErrItemFrozen)
+			requireDatabaseWrappedError(t, err, dberr.ErrItemFrozen)
 		})
 
 		t.Run("Hidden item", func(t *testing.T) {
@@ -175,7 +175,7 @@ func TestUpdateItem(t *testing.T) {
 
 			itemUpdate := queries.ItemUpdate{}
 			err := queries.UpdateItem(db, item.ItemID, &itemUpdate)
-			require.ErrorIs(t, err, dberr.ErrItemHidden)
+			requireDatabaseWrappedError(t, err, dberr.ErrItemHidden)
 		})
 
 		t.Run("Invalid price", func(t *testing.T) {
@@ -196,7 +196,7 @@ func TestUpdateItem(t *testing.T) {
 			}
 
 			err := queries.UpdateItem(db, item.ItemID, &itemUpdate)
-			require.ErrorIs(t, err, dberr.ErrInvalidPrice)
+			requireDatabaseWrappedError(t, err, dberr.ErrInvalidPrice)
 		})
 	})
 }

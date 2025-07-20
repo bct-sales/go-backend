@@ -49,7 +49,7 @@ func TestEnsureUserExistsAndHasRole(t *testing.T) {
 							user := setup.User(actualRoleId)
 
 							err := queries.EnsureUserExistsAndHasRole(db, user.UserId, expectedRoleId)
-							require.ErrorIs(t, err, dberr.ErrWrongRole)
+							requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 						})
 					}
 				}
@@ -64,7 +64,7 @@ func TestEnsureUserExistsAndHasRole(t *testing.T) {
 			setup.RequireNoSuchUsers(t, nonexistentUserId)
 
 			err := queries.EnsureUserExistsAndHasRole(db, nonexistentUserId, models.NewSellerRoleId())
-			require.ErrorIs(t, err, dberr.ErrNoSuchUser)
+			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 	})
 }

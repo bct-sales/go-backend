@@ -36,6 +36,6 @@ func TestEnsureNoHiddenItems(t *testing.T) {
 		itemIds := append(models.CollectItemIds(visibleItems), hiddenItem.ItemID)
 
 		err := queries.EnsureNoHiddenItems(db, itemIds)
-		require.ErrorIs(t, err, dberr.ErrItemHidden)
+		requireDatabaseWrappedError(t, err, dberr.ErrItemHidden)
 	})
 }
