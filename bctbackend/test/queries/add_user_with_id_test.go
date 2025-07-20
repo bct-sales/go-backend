@@ -18,7 +18,7 @@ func TestAddUserWithId(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		for _, password := range []string{"a", "xyz"} {
 			for _, userId := range []models.Id{1, 5} {
-				for _, roleId := range []models.RoleId{models.NewAdminRoleId(), models.NewCashierRoleId(), models.NewSellerRoleId()} {
+				for _, roleId := range models.ListRoles() {
 					t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
 						setup, db := NewDatabaseFixture(WithDefaultCategories)
 						defer setup.Close()
