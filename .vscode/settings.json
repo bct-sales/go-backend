@@ -6,6 +6,7 @@
         "dberr",
         "exhaustruct",
         "pterm",
+        "Typef",
         "unhide",
         "Unhides",
         "upgrader"
