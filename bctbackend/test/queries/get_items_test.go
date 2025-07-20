@@ -7,6 +7,7 @@ import (
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
+	"errors"
 	"fmt"
 	"slices"
 	"testing"
@@ -114,6 +115,25 @@ func TestGetItems(t *testing.T) {
 			for index, actualItem := range actualItems {
 				require.Equal(t, items[index+offset], actualItem)
 			}
+		})
+	})
+
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("Failing callback", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
+			items = slices.Concat(items, setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(true)))
+
+			dummyError := errors.New("test error")
+			callback := func(item *models.Item) error {
+				return dummyError
+			}
+
+			err := queries.GetItems(db, callback, queries.AllItems, queries.AllRows())
+			requireDatabaseWrappedError(t, err, dummyError)
 		})
 	})
 }
