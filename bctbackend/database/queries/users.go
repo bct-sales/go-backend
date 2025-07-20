@@ -356,7 +356,11 @@ func EnsureUserExistsAndHasRole(db *sql.DB, userId models.Id, expectedRoleId mod
 // An ErrNoSuchUser is returned if the user does not exist.
 // An error is returned if the user cannot be removed, e.g., because items or sales are
 // associated with the user.
-func RemoveUserWithId(db *sql.DB, userId models.Id) error {
+func RemoveUserWithId(db *sql.DB, userId models.Id) (r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	{
 		userExist, err := UserWithIdExists(db, userId)
 		if err != nil {
