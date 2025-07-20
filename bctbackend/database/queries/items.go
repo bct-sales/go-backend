@@ -471,7 +471,11 @@ func AddItem(
 	donation bool,
 	charity bool,
 	frozen bool,
-	hidden bool) (models.Id, error) {
+	hidden bool) (r_result models.Id, r_err error) {
+
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
 
 	if !models.IsValidPrice(priceInCents) {
 		return 0, fmt.Errorf("failed to add item with price %d: %w", priceInCents, dberr.ErrInvalidPrice)
