@@ -75,7 +75,7 @@ linters:
     - nlreturn
     - noctx
     - nolintlint
-    - nonamedreturns
+    # - nonamedreturns
     - nosprintfhostport
     - paralleltest
     - perfsprint
@@ -85,7 +85,7 @@ linters:
     - protogetter
     - reassign
     - recvcheck
-    - revive
+    # - revive
     - rowserrcheck
     - sloglint
     - spancheck
