@@ -12,7 +12,11 @@ import (
 func AddSession(
 	db *sql.DB,
 	userId models.Id,
-	expirationTime models.Timestamp) (models.SessionId, error) {
+	expirationTime models.Timestamp) (r_result models.SessionId, r_err error) {
+
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
 
 	if err := EnsureUserExists(db, userId); err != nil {
 		return "", fmt.Errorf("failed to add session: %w", err)
