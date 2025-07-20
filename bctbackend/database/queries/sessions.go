@@ -37,9 +37,10 @@ func AddSession(
 	return sessionId, nil
 }
 
-func GetSessionById(
-	db *sql.DB,
-	sessionId models.SessionId) (*models.Session, error) {
+func GetSessionById(db *sql.DB, sessionId models.SessionId) (r_result *models.Session, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
 
 	row := db.QueryRow(
 		`
@@ -72,7 +73,11 @@ type SessionData struct {
 	RoleId models.RoleId
 }
 
-func GetSessionData(db *sql.DB, sessionId models.SessionId) (*SessionData, error) {
+func GetSessionData(db *sql.DB, sessionId models.SessionId) (r_result *SessionData, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	now := models.Now()
 	row := db.QueryRow(
 		`
@@ -139,7 +144,11 @@ func GetSessions(db *sql.DB) (r_result []models.Session, r_err error) {
 	return sessions, nil
 }
 
-func DeleteSession(db *sql.DB, sessionId models.SessionId) error {
+func DeleteSession(db *sql.DB, sessionId models.SessionId) (r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	result, err := db.Exec(
 		`
 			DELETE FROM sessions

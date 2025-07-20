@@ -18,7 +18,11 @@ func AddUserWithId(
 	roleId models.RoleId,
 	createdAt models.Timestamp,
 	lastActivity *models.Timestamp,
-	password string) error {
+	password string) (r_err error) {
+
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
 
 	if !roleId.IsValid() {
 		return fmt.Errorf("invalid role id %d: %w", roleId.Id, dberr.ErrNoSuchRole)
@@ -56,7 +60,11 @@ func AddUser(
 	roleId models.RoleId,
 	createdAt models.Timestamp,
 	lastActivity *models.Timestamp,
-	password string) (models.Id, error) {
+	password string) (r_result models.Id, r_err error) {
+
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
 
 	if !roleId.IsValid() {
 		return 0, fmt.Errorf("invalid role id %d: %w", roleId.Id, dberr.ErrNoSuchRole)
@@ -292,7 +300,11 @@ func UpdateUserPassword(db *sql.DB, userId models.Id, password string) error {
 
 // EnsureUserExists checks if a user exists in the database by their user ID.
 // An ErrNoSuchUser is returned if the user does not exist.
-func EnsureUserExists(db *sql.DB, userId models.Id) error {
+func EnsureUserExists(db *sql.DB, userId models.Id) (r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	userExists, err := UserWithIdExists(db, userId)
 	if err != nil {
 		return fmt.Errorf("failed to ensure user %d exists: %w", userId, err)
@@ -306,7 +318,11 @@ func EnsureUserExists(db *sql.DB, userId models.Id) error {
 // EnsureUserExistsAndHasRole checks if a user has a specific role.
 // An ErrNoSuchUser is returned if the user does not exist.
 // A ErrWrongRole is returned if the user has a different role.
-func EnsureUserExistsAndHasRole(db *sql.DB, userId models.Id, expectedRoleId models.RoleId) error {
+func EnsureUserExistsAndHasRole(db *sql.DB, userId models.Id, expectedRoleId models.RoleId) (r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	user, err := GetUserWithId(db, userId)
 
 	if err != nil {
@@ -378,7 +394,11 @@ const (
 	Exclusive
 )
 
-func GetSellerItemCount(db *sql.DB, sellerId models.Id, frozen GetSellerItemCountFlag, hidden GetSellerItemCountFlag) (int, error) {
+func GetSellerItemCount(db *sql.DB, sellerId models.Id, frozen GetSellerItemCountFlag, hidden GetSellerItemCountFlag) (r_result int, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleId()); err != nil {
 		return 0, fmt.Errorf("failed to get hidden item count of user %d: %w", sellerId, err)
 	}
@@ -421,7 +441,11 @@ func GetSellerItemCount(db *sql.DB, sellerId models.Id, frozen GetSellerItemCoun
 	return itemCount, nil
 }
 
-func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id, itemSelection ItemSelection) (models.MoneyInCents, error) {
+func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id, itemSelection ItemSelection) (r_result models.MoneyInCents, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	// Ensure the user exists and is a seller
 	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleId()); err != nil {
 		return 0, fmt.Errorf("failed to get total price of all items of user %d: %w", sellerId, err)

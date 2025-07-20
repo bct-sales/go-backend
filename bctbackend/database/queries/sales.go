@@ -127,6 +127,10 @@ func AddSale(
 	transactionTime models.Timestamp,
 	itemIds []models.Id) (r_result models.Id, r_err error) {
 
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	return (&AddSaleQuery{
 		CashierId:       cashierId,
 		TransactionTime: transactionTime,
@@ -307,6 +311,10 @@ func SaleWithIdExists(db *sql.DB, saleId models.Id) (bool, error) {
 // GetSaleItems lists all items associated with a specified sale.
 // Returns ErrNoSuchSale if the sale does not exist.
 func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []*models.Item, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	saleExists, err := SaleWithIdExists(db, saleId)
 	if err != nil {
 		return nil, err
@@ -369,6 +377,10 @@ func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []*models.Item, r_err 
 }
 
 func RemoveSale(db *sql.DB, saleId models.Id) (r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	saleExists, err := SaleWithIdExists(db, saleId)
 
 	if err != nil {
@@ -521,6 +533,10 @@ func HasAnyBeenSold(db *sql.DB, itemIds []models.Id) (r_result bool, r_err error
 // GetItemsSoldBy returns a list of all items sold by a specified cashier.
 // The items are ordered by transaction time (most recent first) and item ID (lowest first).
 func GetItemsSoldBy(db *sql.DB, cashierId models.Id) (r_result []*models.Item, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	if err := EnsureUserExistsAndHasRole(db, cashierId, models.NewCashierRoleId()); err != nil {
 		return nil, err
 	}
@@ -587,6 +603,10 @@ func GetItemsSoldBy(db *sql.DB, cashierId models.Id) (r_result []*models.Item, r
 // GetSalesWithItem returns a list of the ids of all sales that include a specified item.
 // The ids are returned in ascending order.
 func GetSalesWithItem(db *sql.DB, itemId models.Id) (r_result []models.Id, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	if itemExists, err := ItemWithIdExists(db, itemId); err != nil || !itemExists {
 		if !itemExists {
 			return nil, fmt.Errorf("failed to get sales with item %d: %w", itemId, dberr.ErrNoSuchItem)
@@ -636,6 +656,10 @@ func GetSalesWithItem(db *sql.DB, itemId models.Id) (r_result []models.Id, r_err
 // Returns ErrNoSuchUser if the cashierId does not correspond to any user.
 // Returns ErrWrongRole if the cashierId does not correspond to a cashier.
 func GetSalesWithCashier(db *sql.DB, cashierId models.Id) (r_result []*models.Sale, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	if err := EnsureUserExistsAndHasRole(db, cashierId, models.NewCashierRoleId()); err != nil {
 		return nil, err
 	}
