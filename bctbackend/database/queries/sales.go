@@ -499,6 +499,10 @@ func GetSoldItems(db *sql.DB) (r_result []*models.Item, r_err error) {
 }
 
 func GetSoldItemsCount(db QueryHandler) (r_result int, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	var count int
 	err := db.QueryRow(
 		`
