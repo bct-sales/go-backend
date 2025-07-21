@@ -33,10 +33,10 @@ type ListSalesSuccessResponse struct {
 }
 
 type getSalesEndpoint struct {
-	context *gin.Context
-	db      *sql.DB
-	userId  models.Id
-	roleId  models.RoleId
+	context     *gin.Context
+	transaction *queries.Transaction
+	userId      models.Id
+	roleId      models.RoleId
 }
 
 type getSalesQueryParameters struct {
@@ -49,11 +49,19 @@ type getSalesQueryParameters struct {
 }
 
 func GetSales(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+	transaction, err := queries.NewTransaction(db)
+	if err != nil {
+		slog.Error("Failed to create transaction", "error", err)
+		failure_response.Unknown(context, "Failed to create transaction: "+err.Error())
+		return
+	}
+	defer transaction.Commit()
+
 	endpoint := &getSalesEndpoint{
-		context: context,
-		db:      db,
-		userId:  userId,
-		roleId:  roleId,
+		context:     context,
+		transaction: transaction,
+		userId:      userId,
+		roleId:      roleId,
 	}
 
 	endpoint.execute()
@@ -106,7 +114,7 @@ func (ep *getSalesEndpoint) execute() {
 }
 
 func (ep *getSalesEndpoint) getItemCount() (int, bool) {
-	soldItemCount, err := queries.CountItems(ep.db, queries.OnlyVisibleItems)
+	soldItemCount, err := queries.CountItems(ep.transaction, queries.OnlyVisibleItems)
 	if err != nil {
 		slog.Error("Failed to get sold item count", "error", err)
 		failure_response.Unknown(ep.context, "Failed to get sold item count: "+err.Error())
@@ -116,7 +124,7 @@ func (ep *getSalesEndpoint) getItemCount() (int, bool) {
 }
 
 func (ep *getSalesEndpoint) getSoldItemCount() (int, bool) {
-	soldItemCount, err := queries.GetSoldItemsCount(ep.db)
+	soldItemCount, err := queries.GetSoldItemsCount(ep.transaction)
 
 	if err != nil {
 		slog.Error("Failed to get sold item count", "error", err)
@@ -128,7 +136,7 @@ func (ep *getSalesEndpoint) getSoldItemCount() (int, bool) {
 }
 
 func (ep *getSalesEndpoint) getSaleCount() (int, bool) {
-	saleCount, err := queries.GetSalesCount(ep.db)
+	saleCount, err := queries.GetSalesCount(ep.transaction)
 
 	if err != nil {
 		slog.Error("Failed to get sales count", "error", err)
@@ -140,7 +148,7 @@ func (ep *getSalesEndpoint) getSaleCount() (int, bool) {
 }
 
 func (ep *getSalesEndpoint) getTotalSalesValue() (models.MoneyInCents, bool) {
-	totalValue, err := queries.GetTotalSalesValue(ep.db)
+	totalValue, err := queries.GetTotalSalesValue(ep.transaction)
 
 	if err != nil {
 		slog.Error("Failed to get total sales value", "error", err)
@@ -179,7 +187,7 @@ func (ep *getSalesEndpoint) getSales(queryParameters *getSalesQueryParameters) (
 
 	query := ep.buildQuery(queryParameters)
 
-	if err := query.Execute(ep.db, processSale); err != nil {
+	if err := query.Execute(ep.transaction, processSale); err != nil {
 		slog.Error("Failed to get sales", "error", err)
 		failure_response.Unknown(ep.context, "Failed to get sales: "+err.Error())
 		return nil, false
