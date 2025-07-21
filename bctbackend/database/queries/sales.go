@@ -135,11 +135,13 @@ func AddSale(
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	return (&addSaleQuery{
+	query := addSaleQuery{
 		CashierId:       cashierId,
 		TransactionTime: transactionTime,
 		ItemIds:         itemIds,
-	}).execute(db)
+	}
+
+	return query.execute(db)
 }
 
 type GetSalesQuery struct {
