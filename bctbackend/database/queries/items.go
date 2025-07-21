@@ -181,6 +181,7 @@ type ItemWithSaleCount struct {
 }
 
 // GetItemsWithSaleCounts looks up all items and how often they have been sold.
+// Specifying a non-nil sellerId will return only items from that seller, otherwise items from all sellers are returned.
 // The items are ordered by their time of addition, then by id.
 // An ErrNoSuchUser is returned if no user with the given sellerId exists.
 // An ErrWrongRole is returned if sellerId does not refer to a seller.
