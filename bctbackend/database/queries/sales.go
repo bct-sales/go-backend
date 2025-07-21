@@ -811,6 +811,7 @@ func GetCashierSales(db *sql.DB, cashierId models.Id, receiver func(*models.Sale
 	return nil
 }
 
+// GetSalesCount returns the total number of sales in the database.
 func GetSalesCount(db QueryHandler) (r_result int, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
