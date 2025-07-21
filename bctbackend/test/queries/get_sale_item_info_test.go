@@ -3,6 +3,7 @@
 package queries
 
 import (
+	dberr "bctbackend/database/errors"
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -50,7 +51,7 @@ func TestGetSaleItemInformation(t *testing.T) {
 			setup.RequireNoSuchItems(t, nonexistentItemId)
 
 			_, err := queries.GetSaleItemInformation(db, 1)
-			require.Error(t, err)
+			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 		})
 	})
 }
