@@ -57,14 +57,7 @@ func GetSales(context *gin.Context, configuration *configuration.Configuration, 
 	endpoint.execute(db)
 }
 
-func (ep *getSalesEndpoint) execute(db *sql.DB) {
-	transaction, err := queries.NewTransaction(db)
-	if err != nil {
-		slog.Error("Failed to create transaction", "error", err)
-		failure_response.Unknown(ep.context, "Failed to create transaction: "+err.Error())
-		return
-	}
-	defer transaction.Commit()
+func (ep *getSalesEndpoint) execute(database *sql.DB) {
 
 	if !ep.ensureUserIsAdmin() {
 		return
@@ -75,7 +68,7 @@ func (ep *getSalesEndpoint) execute(db *sql.DB) {
 		return
 	}
 
-	response, ok := ep.fetchData(transaction, queryParameters)
+	response, ok := ep.fetchData(database, queryParameters)
 	if !ok {
 		return
 	}
@@ -83,29 +76,42 @@ func (ep *getSalesEndpoint) execute(db *sql.DB) {
 	ep.context.IndentedJSON(http.StatusOK, response)
 }
 
-func (ep *getSalesEndpoint) fetchData(transaction *queries.Transaction, queryParameters *getSalesQueryParameters) (*ListSalesSuccessResponse, bool) {
+func (ep *getSalesEndpoint) fetchData(database *sql.DB, queryParameters *getSalesQueryParameters) (*ListSalesSuccessResponse, bool) {
+	transaction, err := queries.NewTransaction(database)
+	if err != nil {
+		slog.Error("Failed to create transaction", "error", err)
+		failure_response.Unknown(ep.context, "Failed to create transaction: "+err.Error())
+		return nil, false
+	}
+	defer transaction.Commit()
+
 	sales, ok := ep.getSales(transaction, queryParameters)
 	if !ok {
+		transaction.Rollback()
 		return nil, false
 	}
 
 	saleCount, ok := ep.getSaleCount(transaction)
 	if !ok {
+		transaction.Rollback()
 		return nil, false
 	}
 
 	totalSaleValue, ok := ep.getTotalSalesValue(transaction)
 	if !ok {
+		transaction.Rollback()
 		return nil, false
 	}
 
 	itemCount, ok := ep.getItemCount(transaction)
 	if !ok {
+		transaction.Rollback()
 		return nil, false
 	}
 
 	soldItemCount, ok := ep.getSoldItemCount(transaction)
 	if !ok {
+		transaction.Rollback()
 		return nil, false
 	}
 
