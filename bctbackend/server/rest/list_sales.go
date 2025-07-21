@@ -75,40 +75,49 @@ func (ep *getSalesEndpoint) execute(db *sql.DB) {
 		return
 	}
 
-	sales, ok := ep.getSales(transaction, queryParameters)
+	response, ok := ep.fetchData(transaction, queryParameters)
 	if !ok {
 		return
+	}
+
+	ep.context.IndentedJSON(http.StatusOK, response)
+}
+
+func (ep *getSalesEndpoint) fetchData(transaction *queries.Transaction, queryParameters *getSalesQueryParameters) (*ListSalesSuccessResponse, bool) {
+	sales, ok := ep.getSales(transaction, queryParameters)
+	if !ok {
+		return nil, false
 	}
 
 	saleCount, ok := ep.getSaleCount(transaction)
 	if !ok {
-		return
+		return nil, false
 	}
 
 	totalSaleValue, ok := ep.getTotalSalesValue(transaction)
 	if !ok {
-		return
+		return nil, false
 	}
 
 	itemCount, ok := ep.getItemCount(transaction)
 	if !ok {
-		return
+		return nil, false
 	}
 
 	soldItemCount, ok := ep.getSoldItemCount(transaction)
 	if !ok {
-		return
+		return nil, false
 	}
 
 	response := ListSalesSuccessResponse{
 		Sales:          sales,
-		SaleCount:      saleCount,
-		TotalSaleValue: totalSaleValue,
 		ItemCount:      itemCount,
 		SoldItemCount:  soldItemCount,
+		SaleCount:      saleCount,
+		TotalSaleValue: totalSaleValue,
 	}
 
-	ep.context.IndentedJSON(http.StatusOK, response)
+	return &response, true
 }
 
 func (ep *getSalesEndpoint) getItemCount(transaction *queries.Transaction) (int, bool) {
