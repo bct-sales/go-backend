@@ -10,19 +10,19 @@ import (
 	"slices"
 )
 
-type AddSaleQuery struct {
+type addSaleQuery struct {
 	CashierId       models.Id
 	TransactionTime models.Timestamp
 	ItemIds         []models.Id
 }
 
-// Execute adds a sale to the database.
+// execute adds a sale to the database.
 // A ErrSaleMissingItems is returned if itemIds is empty.
 // A ErrNoSuchItem is returned if any item ID in itemIds does not correspond to any item.
 // A ErrNoSuchUser is returned if the cashierId does not correspond to any user.
 // A ErrSaleRequiresCashier is returned if the cashierId does not correspond to a cashier.
 // A ErrDuplicateItemInSale is returned if itemIds contains duplicate item IDs.
-func (q *AddSaleQuery) Execute(db *sql.DB) (r_result models.Id, r_err error) {
+func (q *addSaleQuery) execute(db *sql.DB) (r_result models.Id, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -94,7 +94,7 @@ func (q *AddSaleQuery) Execute(db *sql.DB) (r_result models.Id, r_err error) {
 	return models.Id(saleId), nil
 }
 
-func (q *AddSaleQuery) ensureInputsValidity(db *sql.DB) error {
+func (q *addSaleQuery) ensureInputsValidity(db *sql.DB) error {
 	// Ensure there is at least one item in the sale.
 	if len(q.ItemIds) == 0 {
 		return dberr.ErrSaleMissingItems
@@ -135,11 +135,11 @@ func AddSale(
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	return (&AddSaleQuery{
+	return (&addSaleQuery{
 		CashierId:       cashierId,
 		TransactionTime: transactionTime,
 		ItemIds:         itemIds,
-	}).Execute(db)
+	}).execute(db)
 }
 
 type GetSalesQuery struct {
