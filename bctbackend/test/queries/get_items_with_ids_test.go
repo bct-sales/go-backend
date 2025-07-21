@@ -4,6 +4,7 @@ package queries
 
 import (
 	"bctbackend/algorithms"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -56,26 +57,28 @@ func TestGetItemsWithIds(t *testing.T) {
 	})
 
 	t.Run("Failure", func(t *testing.T) {
-		selections := [][]models.Id{
-			{100},
-			{1, 2, 3, 15},
-		}
-		for _, selection := range selections {
-			testLabel := fmt.Sprintf("Selection: %v", selection)
-			t.Run(testLabel, func(t *testing.T) {
-				setup, db := NewDatabaseFixture(WithDefaultCategories)
-				defer setup.Close()
+		t.Run("Nonexistent item", func(t *testing.T) {
+			selections := [][]models.Id{
+				{100},
+				{1, 2, 3, 15},
+			}
+			for _, selection := range selections {
+				testLabel := fmt.Sprintf("Selection: %v", selection)
+				t.Run(testLabel, func(t *testing.T) {
+					setup, db := NewDatabaseFixture(WithDefaultCategories)
+					defer setup.Close()
 
-				seller := setup.Seller()
+					seller := setup.Seller()
 
-				for i := 0; i != 10; i++ {
-					setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
-				}
+					for i := 0; i != 10; i++ {
+						setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
+					}
 
-				actual, err := queries.GetItemsWithIds(db, selection)
-				require.Nil(t, actual)
-				require.Error(t, err)
-			})
-		}
+					actual, err := queries.GetItemsWithIds(db, selection)
+					require.Nil(t, actual)
+					requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
+				})
+			}
+		})
 	})
 }
