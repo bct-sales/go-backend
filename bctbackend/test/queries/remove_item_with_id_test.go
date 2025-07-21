@@ -13,46 +13,50 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestRemoveExistingItem(t *testing.T) {
-	setup, db := NewDatabaseFixture(WithDefaultCategories)
-	defer setup.Close()
+func TestRemoveItemWithId(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		defer setup.Close()
 
-	seller := setup.Seller()
-	itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
+		seller := setup.Seller()
+		itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
 
-	err := queries.RemoveItemWithId(db, itemId)
+		err := queries.RemoveItemWithId(db, itemId)
 
-	require.NoError(t, err)
+		require.NoError(t, err)
 
-	itemExists, err := queries.ItemWithIdExists(db, itemId)
-	require.NoError(t, err)
-	require.False(t, itemExists)
-}
+		itemExists, err := queries.ItemWithIdExists(db, itemId)
+		require.NoError(t, err)
+		require.False(t, itemExists)
+	})
 
-func TestRemoveNonexistingItem(t *testing.T) {
-	setup, db := NewDatabaseFixture(WithDefaultCategories)
-	defer setup.Close()
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("Nonexistent item", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
 
-	itemId := models.Id(1)
+			itemId := models.Id(1)
 
-	err := queries.RemoveItemWithId(db, itemId)
-	requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
-}
+			err := queries.RemoveItemWithId(db, itemId)
+			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
+		})
 
-func TestRemoveSoldItem(t *testing.T) {
-	setup, db := NewDatabaseFixture(WithDefaultCategories)
-	defer setup.Close()
+		t.Run("Sold item", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
 
-	seller := setup.Seller()
-	cashier := setup.Cashier()
-	itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
+			seller := setup.Seller()
+			cashier := setup.Cashier()
+			itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
 
-	setup.Sale(cashier.UserId, []models.Id{itemId})
+			setup.Sale(cashier.UserId, []models.Id{itemId})
 
-	err := queries.RemoveItemWithId(db, itemId)
-	requireDatabaseWrappedError(t, err, dberr.ErrItemSold)
+			err := queries.RemoveItemWithId(db, itemId)
+			requireDatabaseWrappedError(t, err, dberr.ErrItemSold)
 
-	itemExists, err := queries.ItemWithIdExists(db, itemId)
-	require.NoError(t, err)
-	require.True(t, itemExists)
+			itemExists, err := queries.ItemWithIdExists(db, itemId)
+			require.NoError(t, err)
+			require.True(t, itemExists)
+		})
+	})
 }
