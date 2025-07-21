@@ -14,5 +14,8 @@
     "go.buildTags": "test",
     "terminal.integrated.env.linux": {
 
+    },
+    "files.exclude": {
+        "bctbackend/vendor": true
     }
 }
