@@ -3,6 +3,7 @@
 package queries
 
 import (
+	dberr "bctbackend/database/errors"
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	. "bctbackend/test/setup"
@@ -43,7 +44,7 @@ func TestDeleteExpiredSessions(t *testing.T) {
 
 				for _, sessionId := range expiredSessions {
 					_, err := queries.GetSessionById(db, sessionId)
-					require.Error(t, err)
+					requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSession)
 				}
 
 				for _, sessionId := range unexpiredSessions {
