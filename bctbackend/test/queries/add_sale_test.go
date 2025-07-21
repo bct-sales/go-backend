@@ -60,7 +60,7 @@ func TestAddSale(t *testing.T) {
 			timestamp := models.Timestamp(0)
 
 			_, err := queries.AddSale(db, cashier.UserId, timestamp, []models.Id{})
-			require.Error(t, err)
+			requireDatabaseWrappedError(t, err, dberr.ErrSaleMissingItems)
 		})
 
 		t.Run("As seller", func(t *testing.T) {
@@ -72,7 +72,7 @@ func TestAddSale(t *testing.T) {
 			itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
 
 			_, err := queries.AddSale(db, seller.UserId, timestamp, []models.Id{itemId})
-			require.Error(t, err)
+			requireDatabaseWrappedError(t, err, dberr.ErrSaleRequiresCashier)
 		})
 
 		t.Run("As admin", func(t *testing.T) {
@@ -85,7 +85,7 @@ func TestAddSale(t *testing.T) {
 			itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
 
 			_, err := queries.AddSale(db, admin.UserId, timestamp, []models.Id{itemId})
-			require.Error(t, err)
+			requireDatabaseWrappedError(t, err, dberr.ErrSaleRequiresCashier)
 		})
 
 		t.Run("Duplicate item in sale", func(t *testing.T) {
