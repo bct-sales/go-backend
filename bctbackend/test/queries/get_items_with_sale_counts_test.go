@@ -4,6 +4,7 @@ package queries
 
 import (
 	"bctbackend/algorithms"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -184,6 +185,34 @@ func TestGetItemsWithSaleCounts(t *testing.T) {
 				actualSaleCount := int64(item.SaleCount)
 				require.Equal(t, expectedSaleCount, actualSaleCount, "Item %d has unexpected sale count: expected %d, got %d", item.ItemID, expectedSaleCount, actualSaleCount)
 			}
+		})
+	})
+
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("Invalid seller id", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+			setup.Items(seller.UserId, 4, aux.WithHidden(false), aux.WithFrozen(false))
+
+			invalidSellerId := models.Id(999)
+			setup.RequireNoSuchUsers(t, invalidSellerId)
+
+			_, err := queries.GetItemsWithSaleCounts(db, queries.AllItems, &invalidSellerId)
+			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
+		})
+
+		t.Run("Seller is not a seller", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+			admin := setup.Admin()
+			setup.Items(seller.UserId, 4, aux.WithHidden(false), aux.WithFrozen(false))
+
+			_, err := queries.GetItemsWithSaleCounts(db, queries.AllItems, &admin.UserId)
+			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 	})
 }
