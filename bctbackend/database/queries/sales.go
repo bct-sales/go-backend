@@ -16,17 +16,7 @@ type addSaleQuery struct {
 	ItemIds         []models.Id
 }
 
-// execute adds a sale to the database.
-// A ErrSaleMissingItems is returned if itemIds is empty.
-// A ErrNoSuchItem is returned if any item ID in itemIds does not correspond to any item.
-// A ErrNoSuchUser is returned if the cashierId does not correspond to any user.
-// A ErrSaleRequiresCashier is returned if the cashierId does not correspond to a cashier.
-// A ErrDuplicateItemInSale is returned if itemIds contains duplicate item IDs.
 func (q *addSaleQuery) execute(db *sql.DB) (r_result models.Id, r_err error) {
-	defer func() {
-		r_err = dberr.WrapError(r_err)
-	}()
-
 	if err := q.ensureInputsValidity(db); err != nil {
 		return 0, err
 	}
