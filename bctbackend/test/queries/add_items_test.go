@@ -7,6 +7,7 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/test/helpers"
 	. "bctbackend/test/setup"
+	"fmt"
 
 	"testing"
 
@@ -72,6 +73,36 @@ func TestAddItems(t *testing.T) {
 			require.Equal(t, charity, item.Charity)
 			require.Equal(t, frozen, item.Frozen)
 			require.Equal(t, hidden, item.Hidden)
+		})
+
+		t.Run("Add multiple items", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+
+			itemCount := 15
+			callback := func(addItem queries.AddItemFunction) {
+				for i := range itemCount {
+					addedAt := models.Timestamp(100)
+					description := fmt.Sprintf("Item %d", i)
+					priceInCents := models.MoneyInCents(50 * (i + 1))
+					categoryID := helpers.CategoryId_Clothing56_62
+					sellerID := seller.UserId
+					donation := i%2 == 0
+					charity := i%3 == 0
+					frozen := false
+					hidden := false
+					addItem(addedAt, description, priceInCents, categoryID, sellerID, donation, charity, frozen, hidden)
+				}
+			}
+
+			err := queries.AddItems(db, callback)
+			require.NoError(t, err)
+
+			count, err := queries.CountItems(db, queries.AllItems)
+			require.NoError(t, err)
+			require.Equal(t, itemCount, count)
 		})
 	})
 }
