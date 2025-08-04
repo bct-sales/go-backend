@@ -39,6 +39,7 @@ type AddSellerItemResponse struct {
 // @Router /seller/{seller_id}/items [put]
 func AddSellerItem(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	if !roleId.IsSeller() {
+		slog.Warn("Blocked attempt to add item with wrong role; front end should prevent this", "userId", userId, "roleId", roleId)
 		failure_response.WrongRole(context, "Must be seller to add item")
 		return
 	}
@@ -47,12 +48,14 @@ func AddSellerItem(context *gin.Context, configuration *configuration.Configurat
 		SellerId string `uri:"id" binding:"required"`
 	}
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
+		slog.Warn("Failed to parse URI parameters", "error", err, "uriParameters", uriParameters)
 		failure_response.InvalidUriParameters(context, err.Error())
 		return
 	}
 
 	uriSellerId, err := models.ParseId(uriParameters.SellerId)
 	if err != nil {
+		slog.Warn("Failed to parse seller ID in URI", "error", err, "sellerId", uriParameters.SellerId)
 		failure_response.InvalidUserId(context, err.Error())
 		return
 	}
@@ -60,22 +63,26 @@ func AddSellerItem(context *gin.Context, configuration *configuration.Configurat
 	{
 		sellerExists, err := queries.UserWithIdExists(db, uriSellerId)
 		if err != nil {
+			slog.Error("Failed to check if seller exists", "error", err, "sellerId", uriSellerId)
 			failure_response.Unknown(context, err.Error())
 			return
 		}
 		if !sellerExists {
+			slog.Warn("Blocked attempt to add item for non-existing seller", "sellerId", uriSellerId)
 			failure_response.UnknownUser(context, "Seller does not exist")
 			return
 		}
 	}
 
 	if uriSellerId != userId {
+		slog.Warn("Blocked attempt to add item for different seller", "uriSellerId", uriSellerId, "userId", userId)
 		failure_response.WrongSeller(context, "Logged in user does not match URI seller ID")
 		return
 	}
 
 	var payload AddSellerItemPayload
 	if err := context.ShouldBindJSON(&payload); err != nil {
+		slog.Warn("Failed to parse AddSellerItem payload", "error", err, "payload", payload)
 		failure_response.InvalidRequest(context, err.Error())
 		return
 	}
@@ -97,11 +104,13 @@ func AddSellerItem(context *gin.Context, configuration *configuration.Configurat
 
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchCategory) {
+			slog.Warn("Blocked attempt to add item with unknown category", "categoryId", payload.CategoryId)
 			failure_response.UnknownCategory(context, err.Error())
 			return
 		}
 
 		if errors.Is(err, dberr.ErrNoSuchUser) {
+			slog.Warn("Blocked attempt to add item for non-existing user", "userId", userId)
 			failure_response.UnknownUser(context, err.Error())
 			return
 		}
@@ -113,11 +122,13 @@ func AddSellerItem(context *gin.Context, configuration *configuration.Configurat
 		}
 
 		if errors.Is(err, dberr.ErrInvalidPrice) {
+			slog.Warn("Blocked attempt to add item with invalid price", "price", payload.Price)
 			failure_response.InvalidPrice(context, err.Error())
 			return
 		}
 
 		if errors.Is(err, dberr.ErrInvalidItemDescription) {
+			slog.Warn("Blocked attempt to add item with invalid description", "description", payload.Description)
 			failure_response.InvalidItemDescription(context, err.Error())
 			return
 		}

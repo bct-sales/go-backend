@@ -46,7 +46,7 @@ func AddSale(context *gin.Context, configuration *configuration.Configuration, d
 	// Fetch sale data
 	var payload AddSalePayload
 	if err := context.ShouldBindJSON(&payload); err != nil {
-		slog.Error("Failed to parse AddSale payload", "error", err, "payload", payload)
+		slog.Warn("Failed to parse AddSale payload", "error", err, "payload", payload)
 		failure_response.InvalidRequest(context, "Failed to parse payload:"+err.Error())
 		return
 	}
