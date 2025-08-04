@@ -48,10 +48,11 @@ func TestGetAllSales(t *testing.T) {
 						TotalPriceInCents: items[0].PriceInCents + items[1].PriceInCents,
 					},
 				},
-				SaleCount:      1,
-				TotalSaleValue: items[0].PriceInCents + items[1].PriceInCents,
-				ItemCount:      5,
-				SoldItemCount:  2,
+				SaleCount:             1,
+				TotalSaleValue:        items[0].PriceInCents + items[1].PriceInCents,
+				ItemCount:             5,
+				DistinctSoldItemCount: 2,
+				TotalSoldItemCount:    2,
 			}
 			require.Equal(t, expected, actual)
 		})
@@ -91,10 +92,11 @@ func TestGetAllSales(t *testing.T) {
 						TotalPriceInCents: items[2].PriceInCents + items[3].PriceInCents + items[4].PriceInCents,
 					},
 				},
-				SaleCount:      2,
-				TotalSaleValue: items[0].PriceInCents + items[1].PriceInCents + items[2].PriceInCents + items[3].PriceInCents + items[4].PriceInCents,
-				ItemCount:      5,
-				SoldItemCount:  5,
+				SaleCount:             2,
+				TotalSaleValue:        items[0].PriceInCents + items[1].PriceInCents + items[2].PriceInCents + items[3].PriceInCents + items[4].PriceInCents,
+				ItemCount:             5,
+				DistinctSoldItemCount: 5,
+				TotalSoldItemCount:    5,
 			}
 			require.Equal(t, expected, actual)
 		})
@@ -125,7 +127,7 @@ func TestGetAllSales(t *testing.T) {
 					require.Len(t, response.Sales, expectedSaleCount)
 					require.Equal(t, 100, response.ItemCount)
 					require.Equal(t, 100, response.SaleCount)
-					require.Equal(t, 100, response.SoldItemCount)
+					require.Equal(t, 100, response.DistinctSoldItemCount)
 				})
 			}
 		})
@@ -158,7 +160,7 @@ func TestGetAllSales(t *testing.T) {
 						}
 						require.Equal(t, 100, response.ItemCount)
 						require.Equal(t, 100, response.SaleCount)
-						require.Equal(t, 100, response.SoldItemCount)
+						require.Equal(t, 100, response.DistinctSoldItemCount)
 					})
 				}
 			}
@@ -194,7 +196,7 @@ func TestGetAllSales(t *testing.T) {
 						}
 						require.Equal(t, 100, response.ItemCount)
 						require.Equal(t, 100, response.SaleCount)
-						require.Equal(t, 100, response.SoldItemCount)
+						require.Equal(t, 100, response.DistinctSoldItemCount)
 					})
 				}
 			}

@@ -25,11 +25,12 @@ type ListSalesSaleData struct {
 }
 
 type ListSalesSuccessResponse struct {
-	Sales          []*ListSalesSaleData `json:"sales"`
-	ItemCount      int                  `json:"itemCount"`
-	SoldItemCount  int                  `json:"soldItemCount"`
-	SaleCount      int                  `json:"saleCount"`
-	TotalSaleValue models.MoneyInCents  `json:"totalSaleValueInCents"`
+	Sales                 []*ListSalesSaleData `json:"sales"`
+	ItemCount             int                  `json:"itemCount"`
+	DistinctSoldItemCount int                  `json:"distinctSoldItemCount"`
+	TotalSoldItemCount    int                  `json:"totalSoldItemCount"`
+	SaleCount             int                  `json:"saleCount"`
+	TotalSaleValue        models.MoneyInCents  `json:"totalSaleValueInCents"`
 }
 
 type getSalesEndpoint struct {
@@ -109,18 +110,19 @@ func (ep *getSalesEndpoint) fetchData(database *sql.DB, queryParameters *getSale
 		return nil, false
 	}
 
-	soldItemCount, ok := ep.getSoldItemCount(transaction)
+	distinctSoldItemCount, totalSoldItemCount, ok := ep.getSoldItemCount(transaction)
 	if !ok {
 		transaction.Rollback()
 		return nil, false
 	}
 
 	response := ListSalesSuccessResponse{
-		Sales:          sales,
-		ItemCount:      itemCount,
-		SoldItemCount:  soldItemCount,
-		SaleCount:      saleCount,
-		TotalSaleValue: totalSaleValue,
+		Sales:                 sales,
+		ItemCount:             itemCount,
+		DistinctSoldItemCount: distinctSoldItemCount,
+		TotalSoldItemCount:    totalSoldItemCount,
+		SaleCount:             saleCount,
+		TotalSaleValue:        totalSaleValue,
 	}
 
 	return &response, true
@@ -136,16 +138,16 @@ func (ep *getSalesEndpoint) getItemCount(transaction *queries.Transaction) (int,
 	return soldItemCount, true
 }
 
-func (ep *getSalesEndpoint) getSoldItemCount(transaction *queries.Transaction) (int, bool) {
-	soldItemCount, _, err := queries.GetSoldItemsCount(transaction)
+func (ep *getSalesEndpoint) getSoldItemCount(transaction *queries.Transaction) (int, int, bool) {
+	distinctSoldItemCount, totalSoldItemCount, err := queries.GetSoldItemsCount(transaction)
 
 	if err != nil {
 		slog.Error("Failed to get sold item count", "error", err)
 		failure_response.Unknown(ep.context, "Failed to get sold item count: "+err.Error())
-		return 0, false
+		return 0, 0, false
 	}
 
-	return soldItemCount, true
+	return distinctSoldItemCount, totalSoldItemCount, true
 }
 
 func (ep *getSalesEndpoint) getSaleCount(transaction *queries.Transaction) (int, bool) {
