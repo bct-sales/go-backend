@@ -36,11 +36,13 @@ type AddSaleSuccessResponse struct {
 // @Failure 500 {object} failure_response.FailureResponse "Internal server error"
 // @Router /sales [post]
 func AddSale(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+	// Make sure user has the right role
 	if !roleId.IsCashier() {
 		failure_response.WrongRole(context, "Adding sale is only accessible to cashiers")
 		return
 	}
 
+	// Fetch sale data
 	var payload AddSalePayload
 	if err := context.ShouldBindJSON(&payload); err != nil {
 		slog.Error("Failed to parse AddSale payload", "error", err, "payload", payload)
@@ -48,8 +50,10 @@ func AddSale(context *gin.Context, configuration *configuration.Configuration, d
 		return
 	}
 
+	// Determine current time, which will be used as the sale timestamp
 	timestamp := models.Now()
 
+	// Add the sale to the database
 	saleId, err := queries.AddSale(
 		db,
 		userId,
