@@ -494,9 +494,9 @@ func GetSoldItems(db *sql.DB) (r_result []*models.Item, r_err error) {
 	return items, nil
 }
 
-// GetSoldItemsCount returns the total number of items that have been sold.
+// CountSoldItems returns the total number of items that have been sold.
 // Two counts are returned: one where each item is counted only once, and one where each item is counted for each sale it was involved in.
-func GetSoldItemsCount(db QueryHandler) (r_result *struct {
+func CountSoldItems(db QueryHandler) (r_result *struct {
 	Distinct         int
 	IncludeMultiples int
 }, r_err error) {
