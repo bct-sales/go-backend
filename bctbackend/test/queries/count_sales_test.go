@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetSalesCount(t *testing.T) {
+func TestCountSales(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Zero sales", func(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
