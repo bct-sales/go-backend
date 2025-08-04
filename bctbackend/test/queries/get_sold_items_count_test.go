@@ -18,7 +18,7 @@ func TestGetSoldItemsCount(t *testing.T) {
 
 		seller := setup.Seller()
 
-		setup.Items(seller.UserId, 1, aux.WithHidden(false))
+		setup.Items(seller.UserId, 10, aux.WithHidden(false))
 
 		actual, err := queries.GetSoldItemsCount(db)
 		require.NoError(t, err)
