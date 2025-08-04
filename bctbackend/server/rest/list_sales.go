@@ -151,7 +151,7 @@ func (ep *getSalesEndpoint) countSoldItems(transaction *queries.Transaction) (in
 }
 
 func (ep *getSalesEndpoint) countSales(transaction *queries.Transaction) (int, bool) {
-	saleCount, err := queries.GetSalesCount(transaction)
+	saleCount, err := queries.CountSales(transaction)
 
 	if err != nil {
 		slog.Error("Failed to get sales count", "error", err)
