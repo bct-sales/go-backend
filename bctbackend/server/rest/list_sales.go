@@ -92,7 +92,7 @@ func (ep *getSalesEndpoint) fetchData(database *sql.DB, queryParameters *getSale
 		return nil, false
 	}
 
-	saleCount, ok := ep.getSaleCount(transaction)
+	saleCount, ok := ep.countSales(transaction)
 	if !ok {
 		transaction.Rollback()
 		return nil, false
@@ -150,7 +150,7 @@ func (ep *getSalesEndpoint) getSoldItemCount(transaction *queries.Transaction) (
 	return counts.Distinct, counts.IncludeMultiples, true
 }
 
-func (ep *getSalesEndpoint) getSaleCount(transaction *queries.Transaction) (int, bool) {
+func (ep *getSalesEndpoint) countSales(transaction *queries.Transaction) (int, bool) {
 	saleCount, err := queries.GetSalesCount(transaction)
 
 	if err != nil {
