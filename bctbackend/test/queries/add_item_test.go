@@ -6,6 +6,7 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/test/helpers"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 	"maps"
@@ -89,7 +90,7 @@ func TestAddItem(t *testing.T) {
 			timestamp := models.Timestamp(0)
 			description := "description"
 			priceInCents := models.MoneyInCents(100)
-			itemCategoryId := models.Id(1)
+			itemCategoryId := helpers.CategoryId_Clothing140_152
 			charity := false
 			sellerId := models.Id(1)
 			donation := false
@@ -146,7 +147,7 @@ func TestAddItem(t *testing.T) {
 
 			timestamp := models.Timestamp(0)
 			description := "description"
-			itemCategoryId := models.Id(1)
+			itemCategoryId := helpers.CategoryId_Toys
 			charity := false
 			seller := setup.Seller()
 			donation := false
@@ -172,7 +173,7 @@ func TestAddItem(t *testing.T) {
 
 			timestamp := models.Timestamp(0)
 			description := "description"
-			itemCategoryId := models.Id(1)
+			itemCategoryId := helpers.CategoryId_Toys
 			charity := false
 			seller := setup.Seller()
 			donation := false
@@ -196,7 +197,7 @@ func TestAddItem(t *testing.T) {
 			description := "description"
 			invalidSeller := setup.Cashier()
 			priceInCents := models.MoneyInCents(100)
-			itemCategoryId := models.Id(1)
+			itemCategoryId := helpers.CategoryId_Toys
 			charity := false
 			donation := false
 			frozen := false
@@ -220,7 +221,7 @@ func TestAddItem(t *testing.T) {
 			description := "description"
 			invalidSeller := setup.Admin()
 			priceInCents := models.MoneyInCents(100)
-			itemCategoryId := models.Id(1)
+			itemCategoryId := helpers.CategoryId_Toys
 			charity := false
 			donation := false
 			frozen := false
@@ -246,7 +247,7 @@ func TestAddItem(t *testing.T) {
 			description := "description"
 			seller := setup.Seller()
 			priceInCents := models.MoneyInCents(100)
-			itemCategoryId := models.Id(1)
+			itemCategoryId := helpers.CategoryId_Toys
 			charity := false
 			donation := false
 			frozen := true
