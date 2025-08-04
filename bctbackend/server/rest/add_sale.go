@@ -38,6 +38,7 @@ type AddSaleSuccessResponse struct {
 func AddSale(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
 	// Make sure user has the right role
 	if !roleId.IsCashier() {
+		slog.Warn("Blocked attempt to add sale with wrong role; front end should prevent this", "userId", userId, "roleId", roleId)
 		failure_response.WrongRole(context, "Adding sale is only accessible to cashiers")
 		return
 	}
