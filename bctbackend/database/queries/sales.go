@@ -496,7 +496,10 @@ func GetSoldItems(db *sql.DB) (r_result []*models.Item, r_err error) {
 
 // GetSoldItemsCount returns the total number of items that have been sold.
 // Two counts are returned: one where each item is counted only once, and one where each item is counted for each sale it was involved in.
-func GetSoldItemsCount(db QueryHandler) (r_distinct int, r_total int, r_err error) {
+func GetSoldItemsCount(db QueryHandler) (r_result *struct {
+	Distinct         int
+	IncludeMultiples int
+}, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -511,10 +514,17 @@ func GetSoldItemsCount(db QueryHandler) (r_distinct int, r_total int, r_err erro
 	).Scan(&totalCount, &distinctCount)
 
 	if err != nil {
-		return 0, 0, err
+		return nil, err
 	}
 
-	return distinctCount, totalCount, nil
+	result := struct {
+		Distinct         int
+		IncludeMultiples int
+	}{
+		Distinct:         distinctCount,
+		IncludeMultiples: totalCount,
+	}
+	return &result, nil
 }
 
 // HasAnyBeenSold checks if any one of the given item was involved in one or more sales.

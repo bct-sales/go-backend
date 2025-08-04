@@ -139,7 +139,7 @@ func (ep *getSalesEndpoint) getItemCount(transaction *queries.Transaction) (int,
 }
 
 func (ep *getSalesEndpoint) getSoldItemCount(transaction *queries.Transaction) (int, int, bool) {
-	distinctSoldItemCount, totalSoldItemCount, err := queries.GetSoldItemsCount(transaction)
+	counts, err := queries.GetSoldItemsCount(transaction)
 
 	if err != nil {
 		slog.Error("Failed to get sold item count", "error", err)
@@ -147,7 +147,7 @@ func (ep *getSalesEndpoint) getSoldItemCount(transaction *queries.Transaction) (
 		return 0, 0, false
 	}
 
-	return distinctSoldItemCount, totalSoldItemCount, true
+	return counts.Distinct, counts.IncludeMultiples, true
 }
 
 func (ep *getSalesEndpoint) getSaleCount(transaction *queries.Transaction) (int, bool) {
