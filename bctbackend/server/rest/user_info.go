@@ -216,21 +216,21 @@ func getUserInformationAsSeller(context *gin.Context, db *sql.DB, userId models.
 		return
 	}
 
-	itemCount, err := queries.GetSellerItemCount(db, queriedUserId, queries.Include, queries.Exclude)
+	itemCount, err := queries.CountSellerItems(db, queriedUserId, queries.Include, queries.Exclude)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
 		failure_response.Unknown(context, err.Error())
 		return
 	}
 
-	frozenItemCount, err := queries.GetSellerItemCount(db, queriedUserId, queries.Exclusive, queries.Include)
+	frozenItemCount, err := queries.CountSellerItems(db, queriedUserId, queries.Exclusive, queries.Include)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
 		failure_response.Unknown(context, err.Error())
 		return
 	}
 
-	hiddenItemCount, err := queries.GetSellerItemCount(db, queriedUserId, queries.Include, queries.Exclusive)
+	hiddenItemCount, err := queries.CountSellerItems(db, queriedUserId, queries.Include, queries.Exclusive)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
 		failure_response.Unknown(context, err.Error())

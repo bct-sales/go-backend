@@ -423,7 +423,7 @@ const (
 	Exclusive
 )
 
-func GetSellerItemCount(db *sql.DB, sellerId models.Id, frozen GetSellerItemCountFlag, hidden GetSellerItemCountFlag) (r_result int, r_err error) {
+func CountSellerItems(db *sql.DB, sellerId models.Id, frozen GetSellerItemCountFlag, hidden GetSellerItemCountFlag) (r_result int, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
