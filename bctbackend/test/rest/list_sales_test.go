@@ -101,6 +101,50 @@ func TestGetAllSales(t *testing.T) {
 			require.Equal(t, expected, actual)
 		})
 
+		t.Run("Two sales with shared item", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			_, sessionId := setup.LoggedIn(setup.Admin())
+			seller := setup.Seller()
+			cashier := setup.Cashier()
+			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
+
+			sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
+			sale2 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[2].ItemID})
+
+			url := path.Sales()
+			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusOK, writer.Code)
+
+			actual := FromJson[rest.ListSalesSuccessResponse](t, writer.Body.String())
+			expected := &rest.ListSalesSuccessResponse{
+				Sales: []*rest.ListSalesSaleData{
+					{
+						SaleID:            sale1.SaleID,
+						CashierID:         cashier.UserId,
+						TransactionTime:   shared.ConvertTimestampToDateTime(sale1.TransactionTime),
+						ItemCount:         2,
+						TotalPriceInCents: items[0].PriceInCents + items[1].PriceInCents,
+					},
+					{
+						SaleID:            sale2.SaleID,
+						CashierID:         cashier.UserId,
+						TransactionTime:   shared.ConvertTimestampToDateTime(sale2.TransactionTime),
+						ItemCount:         2,
+						TotalPriceInCents: items[0].PriceInCents + items[2].PriceInCents,
+					},
+				},
+				SaleCount:             2,
+				TotalSaleValue:        2*items[0].PriceInCents + items[1].PriceInCents + items[2].PriceInCents,
+				ItemCount:             5,
+				DistinctSoldItemCount: 3,
+				TotalSoldItemCount:    4,
+			}
+			require.Equal(t, expected, actual)
+		})
+
 		t.Run("List all sales with startId", func(t *testing.T) {
 			for _, k := range []int{1, 2, 5, 25} {
 				testLabel := fmt.Sprintf("k = %d", k)
