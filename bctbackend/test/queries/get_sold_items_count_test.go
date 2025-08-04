@@ -3,6 +3,7 @@
 package queries
 
 import (
+	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
@@ -24,5 +25,22 @@ func TestGetSoldItemsCount(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, 0, actual.Distinct)
 		require.Equal(t, 0, actual.IncludeMultiples)
+	})
+
+	t.Run("Sales without overlaps", func(t *testing.T) {
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		defer setup.Close()
+
+		seller := setup.Seller()
+		cashier := setup.Cashier()
+
+		items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
+		setup.Sale(cashier.UserId, []models.Id{items[0].ItemID})
+		setup.Sale(cashier.UserId, []models.Id{items[1].ItemID, items[2].ItemID})
+
+		actual, err := queries.GetSoldItemsCount(db)
+		require.NoError(t, err)
+		require.Equal(t, 3, actual.Distinct)
+		require.Equal(t, 3, actual.IncludeMultiples)
 	})
 }
