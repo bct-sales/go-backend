@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetSoldItemsCount(t *testing.T) {
+func TestCountSoldItems(t *testing.T) {
 	t.Run("Only unsold items", func(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
