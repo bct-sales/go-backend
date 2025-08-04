@@ -3,7 +3,9 @@
 package queries
 
 import (
+	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 
 	"testing"
@@ -25,6 +27,51 @@ func TestAddItems(t *testing.T) {
 			count, err := queries.CountItems(db, queries.AllItems)
 			require.NoError(t, err)
 			require.Equal(t, 0, count)
+		})
+
+		t.Run("Add single item", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+
+			addedAt := models.Timestamp(100)
+			description := "Black T-Shirt"
+			priceInCents := models.MoneyInCents(1500)
+			categoryID := helpers.CategoryId_Clothing56_62
+			sellerID := seller.UserId
+			donation := false
+			charity := false
+			frozen := false
+			hidden := false
+			callback := func(addItem queries.AddItemFunction) {
+				addItem(addedAt, description, priceInCents, categoryID, sellerID, donation, charity, frozen, hidden)
+			}
+
+			err := queries.AddItems(db, callback)
+			require.NoError(t, err)
+
+			count, err := queries.CountItems(db, queries.AllItems)
+			require.NoError(t, err)
+			require.Equal(t, 1, count)
+
+			itemIds, err := queries.GetItemIds(db)
+			require.NoError(t, err)
+			require.Len(t, itemIds, 1)
+
+			itemId := itemIds[0]
+			item, err := queries.GetItemWithId(db, itemId)
+			require.NoError(t, err)
+			require.Equal(t, itemId, item.ItemID)
+			require.Equal(t, addedAt, item.AddedAt)
+			require.Equal(t, description, item.Description)
+			require.Equal(t, priceInCents, item.PriceInCents)
+			require.Equal(t, categoryID, item.CategoryID)
+			require.Equal(t, sellerID, item.SellerID)
+			require.Equal(t, donation, item.Donation)
+			require.Equal(t, charity, item.Charity)
+			require.Equal(t, frozen, item.Frozen)
+			require.Equal(t, hidden, item.Hidden)
 		})
 	})
 }
