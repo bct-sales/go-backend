@@ -43,4 +43,21 @@ func TestGetSoldItemsCount(t *testing.T) {
 		require.Equal(t, 3, actual.Distinct)
 		require.Equal(t, 3, actual.IncludeMultiples)
 	})
+
+	t.Run("Sales with shared items", func(t *testing.T) {
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		defer setup.Close()
+
+		seller := setup.Seller()
+		cashier := setup.Cashier()
+
+		items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
+		setup.Sale(cashier.UserId, []models.Id{items[0].ItemID})
+		setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[2].ItemID})
+
+		actual, err := queries.GetSoldItemsCount(db)
+		require.NoError(t, err)
+		require.Equal(t, 2, actual.Distinct)
+		require.Equal(t, 3, actual.IncludeMultiples)
+	})
 }
