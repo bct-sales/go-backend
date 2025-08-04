@@ -62,16 +62,19 @@ func AddSale(context *gin.Context, configuration *configuration.Configuration, d
 	)
 	if err != nil {
 		if errors.Is(err, dberr.ErrSaleMissingItems) {
+			slog.Warn("Blocked attempt to add sale with missing items; front end should prevent this")
 			failure_response.MissingItems(context, err.Error())
 			return
 		}
 
 		if errors.Is(err, dberr.ErrDuplicateItemInSale) {
+			slog.Warn("Blocked attempt to add sale with duplicate items; front end should prevent this")
 			failure_response.DuplicateItemInSale(context, err.Error())
 			return
 		}
 
 		if errors.Is(err, dberr.ErrNoSuchItem) {
+			slog.Warn("Blocked attempt to add sale with unknown item; front end should prevent this")
 			failure_response.UnknownItem(context, err.Error())
 			return
 		}
