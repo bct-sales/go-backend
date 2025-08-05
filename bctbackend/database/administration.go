@@ -280,8 +280,10 @@ func createItemTable(db *sql.DB) error {
 			hidden              BOOLEAN NOT NULL,
 
 			PRIMARY KEY (item_id),
-			CONSTRAINT items_foreign_key_user FOREIGN KEY (seller_id) REFERENCES users (user_id),
-			CONSTRAINT items_foreign_key_item_category FOREIGN KEY (item_category_id) REFERENCES item_categories (item_category_id)
+			CONSTRAINT items_foreign_key_user
+			           FOREIGN KEY (seller_id) REFERENCES users (user_id),
+			CONSTRAINT items_foreign_key_item_category
+			           FOREIGN KEY (item_category_id) REFERENCES item_categories (item_category_id)
 		)
 	`)
 
