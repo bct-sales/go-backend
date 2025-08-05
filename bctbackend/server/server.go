@@ -89,7 +89,7 @@ func (server *Server) defineRESTEndpoints() {
 	server.GET(paths.ItemStr(":id"), rest.GetItemInformation)
 	server.PUT(paths.ItemStr(":id"), rest.UpdateItem)
 
-	server.GET(paths.Users(), rest.GetUsers)
+	server.GET(paths.Users(), rest.ListUsers)
 	server.GET(paths.UserStr(":id"), rest.GetUserInformation)
 
 	server.GET(paths.Categories(), rest.ListCategories)

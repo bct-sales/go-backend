@@ -34,7 +34,7 @@ type GetUsersSuccessResponse struct {
 // @Failure 403 {object} failure_response.FailureResponse "Only accessible to admins"
 // @Failure 500 {object} failure_response.FailureResponse "Internal error"
 // @Router /users [get]
-func GetUsers(arguments *HandlerFunctionArguments) {
+func ListUsers(arguments *HandlerFunctionArguments) {
 	context := arguments.Context
 	userId := arguments.UserId
 	roleId := arguments.RoleId
