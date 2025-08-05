@@ -6,7 +6,6 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/server/failure_response"
 	"errors"
-	"log/slog"
 	"net/http"
 )
 
@@ -38,9 +37,10 @@ func AddSellerItem(arguments *HandlerFunctionArguments) {
 	userId := arguments.UserId
 	roleId := arguments.RoleId
 	db := arguments.Database
+	logger := arguments.Logger
 
 	if !roleId.IsSeller() {
-		slog.Warn("Blocked attempt to add item with wrong role; front end should prevent this", "userId", userId, "roleId", roleId)
+		logger.InvalidRequest("Blocked attempt to add item with wrong role")
 		failure_response.WrongRole(context, "Must be seller to add item")
 		return
 	}
@@ -49,14 +49,14 @@ func AddSellerItem(arguments *HandlerFunctionArguments) {
 		SellerId string `uri:"id" binding:"required"`
 	}
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
-		slog.Warn("Failed to parse URI parameters", "error", err, "uriParameters", uriParameters)
+		logger.InvalidInput("Failed to parse URI parameters", "error", err, "uriParameters", uriParameters)
 		failure_response.InvalidUriParameters(context, err.Error())
 		return
 	}
 
 	uriSellerId, err := models.ParseId(uriParameters.SellerId)
 	if err != nil {
-		slog.Warn("Failed to parse seller ID in URI", "error", err, "sellerId", uriParameters.SellerId)
+		logger.InvalidInput("Failed to parse seller ID from URI", "error", err, "sellerId", uriParameters.SellerId)
 		failure_response.InvalidUserId(context, err.Error())
 		return
 	}
@@ -64,26 +64,26 @@ func AddSellerItem(arguments *HandlerFunctionArguments) {
 	{
 		sellerExists, err := queries.UserWithIdExists(db, uriSellerId)
 		if err != nil {
-			slog.Error("Failed to check if seller exists", "error", err, "sellerId", uriSellerId)
+			logger.DatabaseError("Failed to check if seller exists", "error", err, "sellerId", uriSellerId)
 			failure_response.Unknown(context, err.Error())
 			return
 		}
 		if !sellerExists {
-			slog.Warn("Blocked attempt to add item for non-existing seller", "sellerId", uriSellerId)
+			logger.InvalidRequest("Blocked attempt to add item for non-existing seller", "sellerId", uriSellerId)
 			failure_response.UnknownUser(context, "Seller does not exist")
 			return
 		}
 	}
 
 	if uriSellerId != userId {
-		slog.Warn("Blocked attempt to add item for different seller", "uriSellerId", uriSellerId, "userId", userId)
+		logger.InvalidRequest("Blocked attempt to add item for different seller", "uriSellerId", uriSellerId)
 		failure_response.WrongSeller(context, "Logged in user does not match URI seller ID")
 		return
 	}
 
 	var payload AddSellerItemPayload
 	if err := context.ShouldBindJSON(&payload); err != nil {
-		slog.Warn("Failed to parse AddSellerItem payload", "error", err, "payload", payload)
+		logger.InvalidInput("Failed to parse AddSellerItem payload", "error", err, "payload", payload)
 		failure_response.InvalidRequest(context, err.Error())
 		return
 	}
@@ -105,36 +105,36 @@ func AddSellerItem(arguments *HandlerFunctionArguments) {
 
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchCategory) {
-			slog.Warn("Blocked attempt to add item with unknown category", "categoryId", payload.CategoryId)
+			logger.InvalidRequest("Blocked attempt to add item with unknown category", "categoryId", payload.CategoryId)
 			failure_response.UnknownCategory(context, err.Error())
 			return
 		}
 
 		if errors.Is(err, dberr.ErrNoSuchUser) {
-			slog.Warn("Blocked attempt to add item for non-existing user", "userId", userId)
+			logger.InvalidRequest("Blocked attempt to add item for non-existing user", "userId", userId)
 			failure_response.UnknownUser(context, err.Error())
 			return
 		}
 
 		if errors.Is(err, dberr.ErrWrongRole) {
-			slog.Error("[BUG] Failed to add item to non-seller; this error should have been caught earlier")
+			logger.Bug("[BUG] Failed to add item to non-seller; this error should have been caught earlier")
 			failure_response.Unknown(context, "Bug: this error should not happen")
 			return
 		}
 
 		if errors.Is(err, dberr.ErrInvalidPrice) {
-			slog.Warn("Blocked attempt to add item with invalid price", "price", payload.Price)
+			logger.InvalidRequest("Blocked attempt to add item with invalid price", "price", payload.Price)
 			failure_response.InvalidPrice(context, err.Error())
 			return
 		}
 
 		if errors.Is(err, dberr.ErrInvalidItemDescription) {
-			slog.Warn("Blocked attempt to add item with invalid description", "description", payload.Description)
+			logger.InvalidRequest("Blocked attempt to add item with invalid description", "description", payload.Description)
 			failure_response.InvalidItemDescription(context, err.Error())
 			return
 		}
 
-		slog.Error("Failed to add seller item", "error", err)
+		logger.DatabaseError("Failed to add seller item", "error", err)
 		failure_response.Unknown(context, err.Error())
 		return
 	}
