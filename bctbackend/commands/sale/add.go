@@ -36,8 +36,12 @@ func NewSaleAddCommand() *cobra.Command {
 
 	command.CobraCommand.Flags().Uint64Var(&command.rawCashierID, "cashier", 0, "ID of the cashier")
 	command.CobraCommand.Flags().Int64SliceVar(&command.rawItemIDs, "items", nil, "Items to be added to the sale (comma-separated list of IDs)")
-	command.CobraCommand.MarkFlagRequired("cashier")
-	command.CobraCommand.MarkFlagRequired("items")
+	if err := command.CobraCommand.MarkFlagRequired("cashier"); err != nil {
+		panic(fmt.Sprintf("failed to mark 'cashier' flag as required: %v", err))
+	}
+	if err := command.CobraCommand.MarkFlagRequired("items"); err != nil {
+		panic(fmt.Sprintf("failed to mark 'items' flag as required: %v", err))
+	}
 
 	return command.AsCobraCommand()
 }
