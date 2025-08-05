@@ -3,7 +3,6 @@ package rest
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
 	"database/sql"
@@ -48,14 +47,14 @@ type getSalesQueryParameters struct {
 	orderedAntiChronologically bool
 }
 
-func GetSales(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func GetSales(arguments *HandlerFunctionArguments) {
 	endpoint := &getSalesEndpoint{
-		context: context,
-		userId:  userId,
-		roleId:  roleId,
+		context: arguments.Context,
+		userId:  arguments.UserId,
+		roleId:  arguments.RoleId,
 	}
 
-	endpoint.execute(db)
+	endpoint.execute(arguments.Database)
 }
 
 func (ep *getSalesEndpoint) execute(database *sql.DB) {

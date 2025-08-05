@@ -6,7 +6,6 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/pdf"
-	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
 	"database/sql"
 	"errors"
@@ -14,8 +13,6 @@ import (
 	"net/http"
 
 	"log/slog"
-
-	"github.com/gin-gonic/gin"
 )
 
 type Insets struct {
@@ -41,7 +38,13 @@ type GenerateLabelsPayload struct {
 	ItemIds []models.Id `json:"itemIds"`
 }
 
-func GenerateLabels(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func GenerateLabels(arguments *HandlerFunctionArguments) {
+	context := arguments.Context
+	userId := arguments.UserId
+	roleId := arguments.RoleId
+	db := arguments.Database
+	configuration := arguments.Configuration
+
 	if !roleId.IsSeller() {
 		slog.Warn("Blocked attempt at generating labels by a user with the wrong role", "userId", userId, "roleId", roleId)
 		failure_response.WrongRole(context, "Only sellers can generate labels")

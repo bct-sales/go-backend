@@ -5,7 +5,6 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
 	"database/sql"
@@ -94,7 +93,12 @@ func convertSaleToGetUserInformationSale(sale *models.Sale) *GetUserInformationS
 // @Failure 404 {object} failure_response.FailureResponse "User not found"
 // @Failure 500 {object} failure_response.FailureResponse "Internal server error"
 // @Router /users/{id} [get]
-func GetUserInformation(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func GetUserInformation(arguments *HandlerFunctionArguments) {
+	context := arguments.Context
+	userId := arguments.UserId
+	roleId := arguments.RoleId
+	db := arguments.Database
+
 	// Retrieve id of user whose information is being requested
 	var uriParameters struct {
 		UserId string `uri:"id" binding:"required"`
@@ -128,7 +132,6 @@ func GetUserInformation(context *gin.Context, configuration *configuration.Confi
 }
 
 func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId models.Id) {
-
 	// Look up user in database
 	user, err := queries.GetUserWithId(db, queriedUserId)
 	if err != nil {

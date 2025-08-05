@@ -4,16 +4,12 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
-	"database/sql"
 	"errors"
 	"log/slog"
 	"net/http"
 
 	_ "bctbackend/docs"
-
-	"github.com/gin-gonic/gin"
 )
 
 type UpdateItemData struct {
@@ -39,7 +35,12 @@ type UpdateItemSuccessResponse struct {
 // @Failure 404 {object} failure_response.FailureResponse "Item does not exist"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to update item"
 // @Router /items/{id} [put]
-func UpdateItem(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func UpdateItem(arguments *HandlerFunctionArguments) {
+	context := arguments.Context
+	userId := arguments.UserId
+	roleId := arguments.RoleId
+	db := arguments.Database
+
 	var uriParameters struct {
 		ItemId string `uri:"id" binding:"required"`
 	}

@@ -5,7 +5,6 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
 	"database/sql"
@@ -35,12 +34,12 @@ type getCashierSalesEndpoint struct {
 	roleId  models.RoleId
 }
 
-func GetCashierSales(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func GetCashierSales(arguments *HandlerFunctionArguments) {
 	endpoint := &getCashierSalesEndpoint{
-		context: context,
-		db:      db,
-		userId:  userId,
-		roleId:  roleId,
+		context: arguments.Context,
+		db:      arguments.Database,
+		userId:  arguments.UserId,
+		roleId:  arguments.RoleId,
 	}
 
 	endpoint.Execute()

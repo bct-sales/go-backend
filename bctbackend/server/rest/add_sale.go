@@ -4,14 +4,10 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
-	"database/sql"
 	"errors"
 	"log/slog"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
 type AddSalePayload struct {
@@ -35,7 +31,12 @@ type AddSaleSuccessResponse struct {
 // @Failure 404 {object} failure_response.FailureResponse "Unknown item in sale"
 // @Failure 500 {object} failure_response.FailureResponse "Internal server error"
 // @Router /sales [post]
-func AddSale(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func AddSale(arguments *HandlerFunctionArguments) {
+	context := arguments.Context
+	userId := arguments.UserId
+	roleId := arguments.RoleId
+	db := arguments.Database
+
 	// Make sure user has the right role
 	if !roleId.IsCashier() {
 		slog.Warn("Blocked attempt to add sale with wrong role; front end should prevent this", "userId", userId, "roleId", roleId)

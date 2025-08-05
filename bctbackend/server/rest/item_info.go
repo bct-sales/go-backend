@@ -4,14 +4,10 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
-	"database/sql"
 	"errors"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
 type GetItemInformationSuccessResponse struct {
@@ -35,7 +31,12 @@ type GetItemInformationSuccessResponse struct {
 // @Failure 403 {object} failure_response.FailureResponse "Only accessible to cashiers, admins and owner sellers"
 // @Failure 404 {object} failure_response.FailureResponse "Item not found"
 // @Router /items/{id} [get]
-func GetItemInformation(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func GetItemInformation(arguments *HandlerFunctionArguments) {
+	context := arguments.Context
+	userId := arguments.UserId
+	roleId := arguments.RoleId
+	db := arguments.Database
+
 	var uriParameters struct {
 		ItemId string `uri:"id" binding:"required"`
 	}

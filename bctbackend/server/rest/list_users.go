@@ -1,18 +1,13 @@
 package rest
 
 import (
-	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
-	"database/sql"
 	"log/slog"
 	"net/http"
 
 	_ "bctbackend/docs"
-
-	"github.com/gin-gonic/gin"
 )
 
 type GetUsersUserData struct {
@@ -39,7 +34,12 @@ type GetUsersSuccessResponse struct {
 // @Failure 403 {object} failure_response.FailureResponse "Only accessible to admins"
 // @Failure 500 {object} failure_response.FailureResponse "Internal error"
 // @Router /users [get]
-func GetUsers(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func GetUsers(arguments *HandlerFunctionArguments) {
+	context := arguments.Context
+	userId := arguments.UserId
+	roleId := arguments.RoleId
+	db := arguments.Database
+
 	if !roleId.IsAdmin() {
 		slog.Info(
 			"Non-admin attempted to list all items",

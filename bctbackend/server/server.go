@@ -115,15 +115,15 @@ func (server *Server) RawPOST(path *paths.URL, handler func(context *gin.Context
 	server.router.POST(path.String(), func(context *gin.Context) { handler(context, server.database) })
 }
 
-func (server *Server) GET(path *paths.URL, handler HandlerFunction) {
+func (server *Server) GET(path *paths.URL, handler rest.HandlerFunction) {
 	server.router.GET(path.String(), server.withUserAndRole(handler, false))
 }
 
-func (server *Server) POST(path *paths.URL, handler HandlerFunction) {
+func (server *Server) POST(path *paths.URL, handler rest.HandlerFunction) {
 	server.router.POST(path.String(), server.withUserAndRole(handler, true))
 }
 
-func (server *Server) PUT(path *paths.URL, handler HandlerFunction) {
+func (server *Server) PUT(path *paths.URL, handler rest.HandlerFunction) {
 	server.router.PUT(path.String(), server.withUserAndRole(handler, true))
 }
 
@@ -140,7 +140,7 @@ func (server *Server) run() error {
 func createGinRouter(ginMode string) *gin.Engine {
 	gin.SetMode(ginMode)
 
-	router := gin.Default()
+	router := gin.New()
 
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
@@ -152,9 +152,7 @@ func createGinRouter(ginMode string) *gin.Engine {
 	return router
 }
 
-type HandlerFunction func(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId)
-
-func (server *Server) withUserAndRole(handler HandlerFunction, mutates bool) gin.HandlerFunc {
+func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool) gin.HandlerFunc {
 	database := server.database
 	configuration := server.configuration
 	broadcaster := server.broadcaster
@@ -191,7 +189,14 @@ func (server *Server) withUserAndRole(handler HandlerFunction, mutates bool) gin
 			// Keep going, we don't want to block the request
 		}
 
-		handler(context, configuration, database, userId, roleId)
+		arguments := rest.HandlerFunctionArguments{
+			Context:       context,
+			Configuration: configuration,
+			Database:      database,
+			UserId:        userId,
+			RoleId:        roleId,
+		}
+		handler(&arguments)
 
 		if mutates {
 			broadcaster.Broadcast("update")

@@ -5,18 +5,14 @@ import (
 	"bctbackend/database/csv"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
 	"bytes"
-	"database/sql"
 	"log/slog"
 	"net/http"
 	"strconv"
 
 	_ "bctbackend/docs"
-
-	"github.com/gin-gonic/gin"
 )
 
 type GetItemsItemData struct {
@@ -46,7 +42,11 @@ type GetItemsSuccessResponse struct {
 // @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to fetch items"
 // @Router /items [get]
-func GetAllItems(context *gin.Context, configuration *configuration.Configuration, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func GetAllItems(arguments *HandlerFunctionArguments) {
+	context := arguments.Context
+	roleId := arguments.RoleId
+	db := arguments.Database
+
 	if roleId != models.NewAdminRoleId() {
 		failure_response.WrongRole(context, "Only admins can list all items")
 		return
