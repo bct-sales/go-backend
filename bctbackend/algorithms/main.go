@@ -78,7 +78,7 @@ func Repeat(count int, function func()) {
 func RepeatCollect[T any](count int, function func() T) []T {
 	result := make([]T, count)
 
-	for i := 0; i < count; i++ {
+	for i := range count {
 		result[i] = function()
 	}
 
