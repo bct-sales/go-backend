@@ -187,13 +187,16 @@ func parseZones(str string) ([]int, error) {
 
 		for _, part := range parts {
 			endpoints := strings.Split(part, "-")
-			if len(endpoints) == 1 {
+
+			switch len(endpoints) {
+			case 1:
 				zone, err := strconv.Atoi(strings.TrimSpace(endpoints[0]))
 				if err != nil {
 					return nil, fmt.Errorf("invalid zone format %s: %w, %w", part, err, ErrInvalidZoneFormat)
 				}
 				result = append(result, zone)
-			} else if len(endpoints) == 2 {
+
+			case 2:
 				start, err := strconv.Atoi(strings.TrimSpace(endpoints[0]))
 				if err != nil {
 					return nil, fmt.Errorf("invalid zone format %s: %w, %w", part, err, ErrInvalidZoneFormat)
@@ -208,7 +211,8 @@ func parseZones(str string) ([]int, error) {
 				for i := start; i <= end; i++ {
 					result = append(result, i)
 				}
-			} else {
+
+			default:
 				return nil, fmt.Errorf("invalid zone format %s: %w", part, ErrInvalidZoneFormat)
 			}
 		}
