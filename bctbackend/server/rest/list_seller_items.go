@@ -45,8 +45,10 @@ func GetSellerItems(arguments *HandlerFunctionArguments) {
 	userId := arguments.UserId
 	roleId := arguments.RoleId
 	db := arguments.Database
+	logger := arguments.Logger
 
 	if !roleId.IsSeller() && !roleId.IsAdmin() {
+		logger.InvalidRequest("User lacks permissions to access seller items")
 		failure_response.Forbidden(context, "wrong_role", "Only accessible to sellers and admins")
 		return
 	}
@@ -55,32 +57,38 @@ func GetSellerItems(arguments *HandlerFunctionArguments) {
 		SellerId string `uri:"id" binding:"required"`
 	}
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
+		logger.InvalidInput("Failed to bind URI parameters for GetSellerItems", "error", err)
 		failure_response.InvalidUriParameters(context, err.Error())
 		return
 	}
 
 	uriSellerId, err := models.ParseId(uriParameters.SellerId)
 	if err != nil {
+		logger.InvalidInput("Failed to parse seller ID from URI", "error", err, "sellerId", uriParameters.SellerId)
 		failure_response.InvalidUserId(context, err.Error())
 		return
 	}
 
 	if err := queries.EnsureUserExistsAndHasRole(db, uriSellerId, models.NewSellerRoleId()); err != nil {
 		if errors.Is(err, dberr.ErrNoSuchUser) {
+			logger.InvalidRequest("Seller does not exist", "error", err, "sellerId", uriSellerId)
 			failure_response.UnknownUser(context, err.Error())
 			return
 		}
 
 		if errors.Is(err, dberr.ErrWrongRole) {
+			logger.InvalidRequest("Can only list items of sellers", "nonSellerId", uriSellerId)
 			failure_response.WrongUser(context, "Can only list items of sellers")
 			return
 		}
 
+		logger.InternalError("Could not check user role", "error", err)
 		failure_response.Unknown(context, "Could not check user role: "+err.Error())
 		return
 	}
 
 	if userId != uriSellerId && !roleId.IsAdmin() {
+		logger.InvalidRequest("Logged in user does not match URI seller ID", "uriSellerId", uriSellerId)
 		failure_response.WrongSeller(context, "Logged in user does not match URI seller ID")
 		return
 	}
@@ -97,6 +105,7 @@ func GetSellerItems(arguments *HandlerFunctionArguments) {
 
 	items, err := queries.GetSellerItems(db, uriSellerId, itemSelection)
 	if err != nil {
+		logger.InternalError("Could not retrieve seller items", "error", err, "sellerId", uriSellerId)
 		failure_response.Unknown(context, "Could not retrieve seller items: "+err.Error())
 		return
 	}
