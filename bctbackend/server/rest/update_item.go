@@ -6,7 +6,6 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/server/failure_response"
 	"errors"
-	"log/slog"
 	"net/http"
 
 	_ "bctbackend/docs"
@@ -40,17 +39,20 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 	userId := arguments.UserId
 	roleId := arguments.RoleId
 	db := arguments.Database
+	logger := arguments.Logger
 
 	var uriParameters struct {
 		ItemId string `binding:"required" uri:"id"`
 	}
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
+		logger.InvalidInput("Invalid URI parameters", "error", err)
 		failure_response.InvalidRequest(context, err.Error())
 		return
 	}
 
 	itemId, err := models.ParseId(uriParameters.ItemId)
 	if err != nil {
+		logger.InvalidInput("Invalid item ID in URI", "itemId", uriParameters.ItemId, "error", err)
 		failure_response.InvalidItemId(context, err.Error())
 		return
 	}
@@ -58,25 +60,31 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 	item, err := queries.GetItemWithId(db, itemId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
+			logger.InvalidRequest("No such item", "itemId", itemId, "error", err)
 			failure_response.UnknownItem(context, err.Error())
 			return
 		}
+
+		logger.InternalError("Could not retrieve item", "itemId", itemId, "error", err)
 		failure_response.Unknown(context, err.Error())
 		return
 	}
 
 	if roleId.IsSeller() && item.SellerID != userId {
+		logger.InvalidRequest("Unauthorized item update attempt", "itemId", itemId, "ownerId", item.SellerID)
 		failure_response.WrongSeller(context, "Only the owner of the item can update it")
 		return
 	}
 
 	if !roleId.IsAdmin() && !roleId.IsSeller() {
+		logger.InvalidRequest("Unauthorized role for item update", "itemId", itemId)
 		failure_response.WrongRole(context, "Must be seller or admin to update item")
 		return
 	}
 
 	var payload UpdateItemData
 	if err := context.ShouldBindJSON(&payload); err != nil {
+		logger.InvalidInput("Invalid update data", "error", err)
 		failure_response.InvalidRequest(context, err.Error())
 		return
 	}
@@ -91,7 +99,7 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 	}
 	if err := queries.UpdateItem(db, itemId, &itemUpdate); err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
-			slog.Error(
+			logger.InternalError(
 				"Failed to update item",
 				"itemId", itemId,
 				"description", payload.Description,
@@ -105,14 +113,17 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 			return
 		}
 		if errors.Is(err, dberr.ErrItemFrozen) {
+			logger.InvalidRequest("Cannot update frozen item", "itemId", itemId, "error", err)
 			failure_response.CannotUpdateFrozenItem(context, err.Error())
 			return
 		}
 		if errors.Is(err, dberr.ErrInvalidPrice) {
+			logger.InvalidInput("Invalid price in item update", "itemId", itemId, "priceInCents", payload.PriceInCents, "error", err)
 			failure_response.InvalidPrice(context, err.Error())
 			return
 		}
 
+		logger.InternalError("Failed to update item", "itemId", itemId, "error", err)
 		failure_response.Unknown(context, err.Error())
 	}
 
