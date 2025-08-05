@@ -146,12 +146,11 @@ func createGinRouter(ginMode string) *gin.Engine {
 
 	router := gin.New()
 
-	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true
+	corsConfiguration := cors.DefaultConfig()
+	corsConfiguration.AllowAllOrigins = true
 	// config.AllowOrigins = []string{"http://localhost:5173"}
-	config.AllowCredentials = true
-
-	router.Use(cors.New(config))
+	corsConfiguration.AllowCredentials = true
+	router.Use(cors.New(corsConfiguration))
 
 	return router
 }
