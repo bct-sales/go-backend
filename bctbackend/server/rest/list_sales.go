@@ -64,13 +64,13 @@ func (ep *getSalesEndpoint) execute(database *sql.DB) {
 		return
 	}
 
-	queryParameters, ok := ep.parseQueryParameters()
-	if !ok {
+	queryParameters, queryParametersOk := ep.parseQueryParameters()
+	if !queryParametersOk {
 		return
 	}
 
-	response, ok := ep.fetchData(database, queryParameters)
-	if !ok {
+	response, responseOk := ep.fetchData(database, queryParameters)
+	if !responseOk {
 		return
 	}
 
