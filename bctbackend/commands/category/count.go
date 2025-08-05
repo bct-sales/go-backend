@@ -88,13 +88,13 @@ func (c *categoryCountCommand) printCategoryCounts(categoryCounts map[models.Id]
 	sortedCategoryIds := slices.Sorted(categoryIds)
 
 	for _, categoryId := range sortedCategoryIds {
-		categoryCount, ok := categoryCounts[categoryId]
-		if !ok {
+		categoryCount, categoryCountOk := categoryCounts[categoryId]
+		if !categoryCountOk {
 			panic("Bug: category ID not found in counts map")
 		}
 
-		categoryName, ok := categoryNameTable[categoryId]
-		if !ok {
+		categoryName, categoryNameOk := categoryNameTable[categoryId]
+		if !categoryNameOk {
 			panic("Bug: category ID not found in category name table")
 		}
 
