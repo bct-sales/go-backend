@@ -42,7 +42,7 @@ type GetItemsSuccessResponse struct {
 // @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
 // @Failure 500 {object} failure_response.FailureResponse "Failed to fetch items"
 // @Router /items [get]
-func GetAllItems(arguments *HandlerFunctionArguments) {
+func ListAllItems(arguments *HandlerFunctionArguments) {
 	context := arguments.Context
 	roleId := arguments.RoleId
 	db := arguments.Database

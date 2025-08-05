@@ -85,7 +85,7 @@ func (server *Server) defineRESTEndpoints() {
 	server.RawPOST(paths.Login(), rest.Login)
 	server.RawPOST(paths.Logout(), rest.Logout)
 
-	server.GET(paths.Items(), rest.GetAllItems)
+	server.GET(paths.Items(), rest.ListAllItems)
 	server.GET(paths.ItemStr(":id"), rest.GetItemInformation)
 	server.PUT(paths.ItemStr(":id"), rest.UpdateItem)
 
