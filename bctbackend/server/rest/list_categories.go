@@ -4,16 +4,12 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/server/failure_response"
-	"database/sql"
 	"fmt"
-	"log/slog"
 	"maps"
 	"net/http"
 	"slices"
 
 	_ "bctbackend/docs"
-
-	"github.com/gin-gonic/gin"
 )
 
 type ListCategoriesSuccessResponse struct {
@@ -39,44 +35,48 @@ type CategoryData struct {
 // @Router /categories [get]
 func ListCategories(arguments *HandlerFunctionArguments) {
 	context := arguments.Context
-	userId := arguments.UserId
-	roleId := arguments.RoleId
-	db := arguments.Database
 
 	switch context.Query("counts") {
 	case "all":
-		listCategoriesWithCounts(context, db, userId, roleId, queries.AllItems)
+		listCategoriesWithCounts(arguments, queries.AllItems)
 		return
 
 	case "hidden":
-		listCategoriesWithCounts(context, db, userId, roleId, queries.OnlyHiddenItems)
+		listCategoriesWithCounts(arguments, queries.OnlyHiddenItems)
 		return
 
 	case "visible":
-		listCategoriesWithCounts(context, db, userId, roleId, queries.OnlyVisibleItems)
+		listCategoriesWithCounts(arguments, queries.OnlyVisibleItems)
 		return
 
 	default:
-		listCategoriesWithoutCounts(context, db, userId, roleId)
+		listCategoriesWithoutCounts(arguments)
 		return
 	}
 }
 
-func listCategoriesWithCounts(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId, itemSelection queries.ItemSelection) {
+func listCategoriesWithCounts(arguments *HandlerFunctionArguments, itemSelection queries.ItemSelection) {
+	context := arguments.Context
+	db := arguments.Database
+	roleId := arguments.RoleId
+	logger := arguments.Logger
+
 	if !roleId.IsAdmin() {
-		slog.Error("Unauthorized access to category counts", "userId", userId, "roleId", roleId)
+		logger.InvalidRequest("Unauthorized access to category counts")
 		failure_response.WrongRole(context, "Only admins can access category counts")
 		return
 	}
 
 	categoryCounts, err := queries.GetCategoryCounts(db, itemSelection)
 	if err != nil {
+		logger.InternalError("Failed to fetch category counts", "error", err)
 		failure_response.Unknown(context, "Failed to fetch category counts: "+err.Error())
 		return
 	}
 
 	categoryNameTable, err := queries.GetCategoryNameTable(db)
 	if err != nil {
+		logger.InternalError("Failed to fetch category name table", "error", err)
 		failure_response.Unknown(context, "Failed to fetch category table: "+err.Error())
 		return
 	}
@@ -92,7 +92,8 @@ func listCategoriesWithCounts(context *gin.Context, db *sql.DB, userId models.Id
 		categoryCount := categoryCounts[categoryId]
 		categoryName, ok := categoryNameTable[categoryId]
 		if !ok {
-			failure_response.Unknown(context, fmt.Sprintf("Unknown category ID %d", categoryId))
+			logger.InvalidRequest("Unknown category ID", "categoryId", categoryId)
+			failure_response.UnknownCategory(context, fmt.Sprintf("Unknown category ID %d", categoryId))
 			return
 		}
 
@@ -108,15 +109,21 @@ func listCategoriesWithCounts(context *gin.Context, db *sql.DB, userId models.Id
 	context.IndentedJSON(http.StatusOK, response)
 }
 
-func listCategoriesWithoutCounts(context *gin.Context, db *sql.DB, userId models.Id, roleId models.RoleId) {
+func listCategoriesWithoutCounts(arguments *HandlerFunctionArguments) {
+	context := arguments.Context
+	db := arguments.Database
+	roleId := arguments.RoleId
+	logger := arguments.Logger
+
 	if !roleId.IsAdmin() && !roleId.IsSeller() {
-		slog.Error("Unauthorized access to category counts", "userId", userId, "roleId", roleId)
+		logger.InvalidRequest("Unauthorized access to category counts")
 		failure_response.WrongRole(context, "Only admins and sellers can access category names")
 		return
 	}
 
 	categories, err := queries.GetCategories(db)
 	if err != nil {
+		logger.InternalError("Failed to fetch categories", "error", err)
 		failure_response.Unknown(context, "Failed to fetch categories: "+err.Error())
 		return
 	}
