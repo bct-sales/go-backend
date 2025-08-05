@@ -6,6 +6,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/server/failure_response"
+	"bctbackend/server/logger"
 	rest "bctbackend/server/shared"
 	"database/sql"
 	"errors"
@@ -98,12 +99,14 @@ func GetUserInformation(arguments *HandlerFunctionArguments) {
 	userId := arguments.UserId
 	roleId := arguments.RoleId
 	db := arguments.Database
+	logger := arguments.Logger
 
 	// Retrieve id of user whose information is being requested
 	var uriParameters struct {
 		UserId string `binding:"required" uri:"id"`
 	}
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
+		logger.InvalidInput("Invalid URI parameters", "error", err)
 		failure_response.InvalidUriParameters(context, "Invalid URI parameters: "+err.Error())
 		return
 	}
@@ -111,19 +114,20 @@ func GetUserInformation(arguments *HandlerFunctionArguments) {
 	// Parse user id
 	queriedUserId, err := models.ParseId(uriParameters.UserId)
 	if err != nil {
+		logger.InvalidInput("Invalid user ID", "error", err, "userId", uriParameters.UserId)
 		failure_response.InvalidUserId(context, err.Error())
 		return
 	}
 
 	if roleId.IsAdmin() {
 		// If the user is an admin, they can access any user's information
-		getUserInformationAsAdmin(context, db, queriedUserId)
+		getUserInformationAsAdmin(logger, context, db, queriedUserId)
 		return
 	} else if roleId.IsSeller() {
-		getUserInformationAsSeller(context, db, userId, queriedUserId)
+		getUserInformationAsSeller(logger, context, db, userId, queriedUserId)
 		return
 	} else if roleId.IsCashier() {
-		getUserInformationAsCashier(context, db, userId, queriedUserId)
+		getUserInformationAsCashier(logger, context, db, userId, queriedUserId)
 		return
 	} else {
 		failure_response.Unknown(context, fmt.Sprintf("Bug: unhandled role %d", roleId))
@@ -131,15 +135,17 @@ func GetUserInformation(arguments *HandlerFunctionArguments) {
 	}
 }
 
-func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId models.Id) {
+func getUserInformationAsAdmin(logger logger.Logger, context *gin.Context, db *sql.DB, queriedUserId models.Id) {
 	// Look up user in database
 	user, err := queries.GetUserWithId(db, queriedUserId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchUser) {
+			logger.InvalidRequest("User not found", "queriedUserId", queriedUserId)
 			failure_response.UnknownUser(context, err.Error())
 			return
 		}
 
+		logger.InternalError("Could not find user in database", "queriedUserId", queriedUserId, "error", err)
 		failure_response.Unknown(context, err.Error())
 		return
 	}
@@ -163,14 +169,18 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 		if err != nil {
 			{
 				if errors.Is(err, dberr.ErrNoSuchUser) {
+					logger.Bug("User not found; should have been caught earlier", "queriedUserId", queriedUserId)
 					failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
 					return
 				}
 			}
 			if errors.Is(err, dberr.ErrWrongRole) {
+				logger.Bug("User has the wrong role; should have been caught earlier", "queriedUserId", queriedUserId)
 				failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
 				return
 			}
+
+			logger.InternalError("Failed to get seller items with sale counts", "queriedUserId", queriedUserId, "error", err)
 			failure_response.Unknown(context, fmt.Errorf("failed to find information about seller: %w", err).Error())
 			return
 		}
@@ -188,13 +198,17 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 		sales, err := queries.GetSalesWithCashier(db, user.UserId)
 		if err != nil {
 			if errors.Is(err, dberr.ErrNoSuchUser) {
+				logger.Bug("User not found; should have been caught earlier", "queriedUserId", queriedUserId)
 				failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
 				return
 			}
 			if errors.Is(err, dberr.ErrWrongRole) {
+				logger.Bug("User has the wrong role; should have been caught earlier", "queriedUserId", queriedUserId)
 				failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
 				return
 			}
+
+			logger.InternalError("Failed to get sales with cashier", "queriedUserId", queriedUserId, "error", err)
 			failure_response.Unknown(context, err.Error())
 			return
 		}
@@ -208,13 +222,15 @@ func getUserInformationAsAdmin(context *gin.Context, db *sql.DB, queriedUserId m
 		context.JSON(http.StatusOK, response)
 		return
 	} else {
+		logger.Bug("Unhandled user role")
 		failure_response.Unknown(context, fmt.Sprintf("Bug: unhandled role %d", user.RoleId.Int64()))
 		return
 	}
 }
 
-func getUserInformationAsSeller(context *gin.Context, db *sql.DB, userId models.Id, queriedUserId models.Id) {
+func getUserInformationAsSeller(logger logger.Logger, context *gin.Context, db *sql.DB, userId models.Id, queriedUserId models.Id) {
 	if userId != queriedUserId {
+		logger.InvalidRequest("Seller attempted to access another user's information", "queriedUserId", queriedUserId)
 		failure_response.WrongRole(context, "Only admins can access other users' information")
 		return
 	}
@@ -222,6 +238,7 @@ func getUserInformationAsSeller(context *gin.Context, db *sql.DB, userId models.
 	itemCount, err := queries.CountSellerItems(db, queriedUserId, queries.Include, queries.Exclude)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
+		logger.InternalError("Failed to count seller items", "queriedUserId", queriedUserId, "error", err)
 		failure_response.Unknown(context, err.Error())
 		return
 	}
@@ -229,6 +246,7 @@ func getUserInformationAsSeller(context *gin.Context, db *sql.DB, userId models.
 	frozenItemCount, err := queries.CountSellerItems(db, queriedUserId, queries.Exclusive, queries.Include)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
+		logger.InternalError("Failed to count frozen seller items", "queriedUserId", queriedUserId, "error", err)
 		failure_response.Unknown(context, err.Error())
 		return
 	}
@@ -236,6 +254,7 @@ func getUserInformationAsSeller(context *gin.Context, db *sql.DB, userId models.
 	hiddenItemCount, err := queries.CountSellerItems(db, queriedUserId, queries.Include, queries.Exclusive)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
+		logger.InternalError("Failed to count hidden seller items", "queriedUserId", queriedUserId, "error", err)
 		failure_response.Unknown(context, err.Error())
 		return
 	}
@@ -243,6 +262,7 @@ func getUserInformationAsSeller(context *gin.Context, db *sql.DB, userId models.
 	totalPrice, err := queries.GetSellerTotalPriceOfAllItems(db, queriedUserId, queries.OnlyVisibleItems)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
+		logger.InternalError("Failed to get total price of seller items", "queriedUserId", queriedUserId, "error", err)
 		failure_response.Unknown(context, err.Error())
 		return
 	}
@@ -257,8 +277,9 @@ func getUserInformationAsSeller(context *gin.Context, db *sql.DB, userId models.
 	context.JSON(http.StatusOK, response)
 }
 
-func getUserInformationAsCashier(context *gin.Context, db *sql.DB, userId models.Id, queriedUserId models.Id) {
+func getUserInformationAsCashier(logger logger.Logger, context *gin.Context, db *sql.DB, userId models.Id, queriedUserId models.Id) {
 	if userId != queriedUserId {
+		logger.InvalidRequest("Cashier attempted to access another user's information", "queriedUserId", queriedUserId)
 		failure_response.WrongRole(context, "Only admins can access users' information")
 		return
 	}
