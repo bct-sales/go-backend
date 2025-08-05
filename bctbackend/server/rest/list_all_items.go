@@ -79,7 +79,7 @@ func ListAllItems(arguments *HandlerFunctionArguments) {
 		limit = nil
 	}
 
-	var offset *int = nil
+	var offset *int
 	offsetString := context.Query("offset")
 	if offsetString != "" {
 		parsedOffset, err := strconv.Atoi(offsetString)
