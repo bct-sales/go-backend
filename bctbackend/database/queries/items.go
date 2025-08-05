@@ -805,6 +805,7 @@ func ContainsHiddenItems(qh QueryHandler, itemIds []models.Id) (r_result bool, r
 	}
 
 	containsHidden := hidden.Len() > 0
+
 	return containsHidden, nil
 }
 
@@ -826,6 +827,7 @@ func ContainsFrozenItems(qh QueryHandler, itemIds []models.Id) (r_result bool, r
 	}
 
 	containsFrozen := frozen.Len() > 0
+
 	return containsFrozen, nil
 }
 
