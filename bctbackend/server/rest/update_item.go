@@ -42,7 +42,7 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 	db := arguments.Database
 
 	var uriParameters struct {
-		ItemId string `binding:"required"uri:"id"`
+		ItemId string `binding:"required" uri:"id"`
 	}
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
 		failure_response.InvalidRequest(context, err.Error())
