@@ -39,9 +39,10 @@ func ListUsers(arguments *HandlerFunctionArguments) {
 	userId := arguments.UserId
 	roleId := arguments.RoleId
 	db := arguments.Database
+	logger := arguments.Logger
 
 	if !roleId.IsAdmin() {
-		slog.Info(
+		logger.InvalidRequest(
 			"Non-admin attempted to list all items",
 			slog.Int64("user_id", userId.Int64()),
 			slog.Int64("role_id", roleId.Int64()))
@@ -52,7 +53,7 @@ func ListUsers(arguments *HandlerFunctionArguments) {
 
 	users := []*queries.UserWithItemCount{}
 	if err := queries.GetUsersWithItemCount(db, queries.OnlyVisibleItems, queries.CollectTo(&users)); err != nil {
-		slog.Error("Failed to fetch users", slog.String("error", err.Error()))
+		logger.InternalError("Failed to fetch users", slog.String("error", err.Error()))
 		failure_response.Unknown(context, err.Error())
 		return
 	}
