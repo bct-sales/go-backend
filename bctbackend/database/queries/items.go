@@ -7,8 +7,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log/slog"
-	"os"
 	"strings"
 )
 
@@ -966,11 +964,6 @@ func UpdateItem(db *sql.DB, itemId models.Id, itemUpdate *ItemUpdate) (r_err err
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
-
-	if itemUpdate == nil {
-		slog.Error("parameter itemUpdate is nil")
-		os.Exit(1)
-	}
 
 	item, err := GetItemWithId(db, itemId)
 	if err != nil {
