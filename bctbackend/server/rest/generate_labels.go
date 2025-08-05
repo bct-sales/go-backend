@@ -87,7 +87,7 @@ func GenerateLabels(arguments *HandlerFunctionArguments) {
 
 	labelData, err := collectLabelData(db, itemTable, payload.ItemIds)
 	if err != nil {
-		logger.DatabaseError("Failed to collect label data", "error", err)
+		logger.InternalError("Failed to collect label data", "error", err)
 		failure_response.Unknown(context, "Failed to collect label data: "+err.Error())
 		return
 	}
@@ -140,13 +140,13 @@ func GenerateLabels(arguments *HandlerFunctionArguments) {
 
 	buffer, err := builder.WriteToBuffer()
 	if err != nil {
-		logger.DatabaseError("Failed to write PDF to buffer", "error", err)
+		logger.InternalError("Failed to write PDF to buffer", "error", err)
 		failure_response.InvalidRequest(context, "Failed to write PDF to buffer: "+err.Error())
 		return
 	}
 
 	if err := queries.UpdateFreezeStatusOfItems(db, payload.ItemIds, true); err != nil {
-		logger.DatabaseError("Failed to freeze items", "error", err)
+		logger.InternalError("Failed to freeze items", "error", err)
 		failure_response.Unknown(context, "Failed to freeze items: "+err.Error())
 		return
 	}

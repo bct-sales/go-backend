@@ -87,7 +87,7 @@ func AddSale(arguments *HandlerFunctionArguments) {
 			return
 		}
 
-		logger.DatabaseError("Failed to add sale", "error", err)
+		logger.InternalError("Failed to add sale", "error", err)
 		failure_response.Unknown(context, "Failed to add sale: "+err.Error())
 		return
 	}

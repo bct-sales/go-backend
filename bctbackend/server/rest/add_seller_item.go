@@ -64,7 +64,7 @@ func AddSellerItem(arguments *HandlerFunctionArguments) {
 	{
 		sellerExists, err := queries.UserWithIdExists(db, uriSellerId)
 		if err != nil {
-			logger.DatabaseError("Failed to check if seller exists", "error", err, "sellerId", uriSellerId)
+			logger.InternalError("Failed to check if seller exists", "error", err, "sellerId", uriSellerId)
 			failure_response.Unknown(context, err.Error())
 			return
 		}
@@ -134,7 +134,7 @@ func AddSellerItem(arguments *HandlerFunctionArguments) {
 			return
 		}
 
-		logger.DatabaseError("Failed to add seller item", "error", err)
+		logger.InternalError("Failed to add seller item", "error", err)
 		failure_response.Unknown(context, err.Error())
 		return
 	}

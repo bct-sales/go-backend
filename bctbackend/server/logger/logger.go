@@ -5,7 +5,7 @@ import "log/slog"
 type Logger interface {
 	InvalidInput(message string, args ...any)
 	InvalidRequest(message string, args ...any)
-	DatabaseError(message string, args ...any)
+	InternalError(message string, args ...any)
 	Bug(message string, args ...any)
 }
 
@@ -25,7 +25,7 @@ func (l *LoggerWrapper) InvalidRequest(message string, args ...any) {
 	l.logger.Warn(message, args...)
 }
 
-func (l *LoggerWrapper) DatabaseError(message string, args ...any) {
+func (l *LoggerWrapper) InternalError(message string, args ...any) {
 	l.logger.Error(message, args...)
 }
 
