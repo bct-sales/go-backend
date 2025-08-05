@@ -6,7 +6,6 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/server/failure_response"
 	"errors"
-	"log/slog"
 	"net/http"
 )
 
@@ -36,10 +35,11 @@ func AddSale(arguments *HandlerFunctionArguments) {
 	userId := arguments.UserId
 	roleId := arguments.RoleId
 	db := arguments.Database
+	logger := arguments.Logger
 
 	// Make sure user has the right role
 	if !roleId.IsCashier() {
-		slog.Warn("Blocked attempt to add sale with wrong role; front end should prevent this", "userId", userId, "roleId", roleId)
+		logger.InvalidRequest("Blocked attempt to add sale with wrong role")
 		failure_response.WrongRole(context, "Adding sale is only accessible to cashiers")
 		return
 	}
@@ -47,7 +47,7 @@ func AddSale(arguments *HandlerFunctionArguments) {
 	// Fetch sale data
 	var payload AddSalePayload
 	if err := context.ShouldBindJSON(&payload); err != nil {
-		slog.Warn("Failed to parse AddSale payload", "error", err, "payload", payload)
+		logger.InvalidInput("Failed to parse AddSale payload", "error", err, "payload", payload)
 		failure_response.InvalidRequest(context, "Failed to parse payload:"+err.Error())
 		return
 	}
@@ -64,30 +64,30 @@ func AddSale(arguments *HandlerFunctionArguments) {
 	)
 	if err != nil {
 		if errors.Is(err, dberr.ErrSaleMissingItems) {
-			slog.Warn("Blocked attempt to add sale with missing items; front end should prevent this")
+			logger.InvalidRequest("Blocked attempt to add sale with missing items")
 			failure_response.MissingItems(context, err.Error())
 			return
 		}
 
 		if errors.Is(err, dberr.ErrDuplicateItemInSale) {
-			slog.Warn("Blocked attempt to add sale with duplicate items; front end should prevent this")
+			logger.InvalidRequest("Blocked attempt to add sale with duplicate items")
 			failure_response.DuplicateItemInSale(context, err.Error())
 			return
 		}
 
 		if errors.Is(err, dberr.ErrNoSuchItem) {
-			slog.Warn("Blocked attempt to add sale with unknown item; front end should prevent this")
+			logger.InvalidRequest("Blocked attempt to add sale with unknown item; front end should prevent this")
 			failure_response.UnknownItem(context, err.Error())
 			return
 		}
 
 		if errors.Is(err, dberr.ErrSaleRequiresCashier) {
-			slog.Error("[BUG] AddSale failed with ErrSaleRequiresCashier, but this should never occur as the role is checked before", "error", err)
+			logger.Bug("AddSale failed with ErrSaleRequiresCashier, but this should never occur as the role is checked before", "error", err)
 			failure_response.Unknown(context, "Bug: should never occur as this is checked before")
 			return
 		}
 
-		slog.Error("Failed to add sale", "error", err)
+		logger.DatabaseError("Failed to add sale", "error", err)
 		failure_response.Unknown(context, "Failed to add sale: "+err.Error())
 		return
 	}
