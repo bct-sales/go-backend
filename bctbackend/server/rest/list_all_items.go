@@ -8,7 +8,6 @@ import (
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
 	"bytes"
-	"log/slog"
 	"net/http"
 	"strconv"
 
@@ -46,8 +45,10 @@ func ListAllItems(arguments *HandlerFunctionArguments) {
 	context := arguments.Context
 	roleId := arguments.RoleId
 	db := arguments.Database
+	logger := arguments.Logger
 
 	if roleId != models.NewAdminRoleId() {
+		logger.InvalidRequest("Unauthorized access attempt to list all items")
 		failure_response.WrongRole(context, "Only admins can list all items")
 		return
 	}
@@ -68,7 +69,7 @@ func ListAllItems(arguments *HandlerFunctionArguments) {
 		parsedLimit, err := strconv.Atoi(limitString)
 
 		if err != nil {
-			slog.Error("Failed to parse limit", "error", err)
+			logger.InvalidInput("Failed to parse limit", "error", err, "limit", limitString)
 			failure_response.BadRequest(context, "invalid_uri_parameters", "Failed to parse limit: "+err.Error())
 			return
 		}
@@ -84,7 +85,7 @@ func ListAllItems(arguments *HandlerFunctionArguments) {
 		parsedOffset, err := strconv.Atoi(offsetString)
 
 		if err != nil {
-			slog.Error("Failed to parse offset", "error", err)
+			logger.InvalidInput("Failed to parse offset", "error", err, "offset", offsetString)
 			failure_response.BadRequest(context, "invalid_uri_parameters", "Failed to parse offset: "+err.Error())
 			return
 		}
@@ -98,12 +99,13 @@ func ListAllItems(arguments *HandlerFunctionArguments) {
 
 	items := []*models.Item{}
 	if err := queries.GetItems(db, queries.CollectTo(&items), itemSelection, rowSelection); err != nil {
-		slog.Error("Failed to get items", "error", err)
+		logger.InternalError("Failed to get items", "error", err)
 		failure_response.Unknown(context, "Failed to get items: "+err.Error())
 		return
 	}
 
-	switch context.Query("format") {
+	requestedFormat := context.Query("format")
+	switch requestedFormat {
 	case "":
 		items := algorithms.Map(items, func(item *models.Item) GetItemsItemData {
 			return GetItemsItemData{
@@ -120,7 +122,7 @@ func ListAllItems(arguments *HandlerFunctionArguments) {
 		})
 		itemCount, err := queries.CountItems(db, itemSelection)
 		if err != nil {
-			slog.Error("Failed to count items", "error", err)
+			logger.InternalError("Failed to count items", "error", err)
 			failure_response.Unknown(context, "Failed to count items: "+err.Error())
 			return
 		}
@@ -145,6 +147,7 @@ func ListAllItems(arguments *HandlerFunctionArguments) {
 	case "csv":
 		categoryNameTable, err := queries.GetCategoryNameTable(db)
 		if err != nil {
+			logger.InternalError("Failed to get category map", "error", err)
 			failure_response.Unknown(context, "Failed to get category map: "+err.Error())
 			return
 		}
@@ -156,6 +159,7 @@ func ListAllItems(arguments *HandlerFunctionArguments) {
 
 		buffer := new(bytes.Buffer)
 		if err := csv.FormatItemsAsCSV(items, categoryNameTable, buffer); err != nil {
+			logger.InternalError("Failed to format items as CSV", "error", err)
 			failure_response.Unknown(context, "Failed to format items as CSV: "+err.Error())
 			return
 		}
@@ -164,7 +168,8 @@ func ListAllItems(arguments *HandlerFunctionArguments) {
 		return
 
 	default:
-		failure_response.Unknown(context, "Unknown format: "+context.Query("format"))
+		logger.InvalidInput("Unknown format requested", "format", requestedFormat)
+		failure_response.Unknown(context, "Unknown format: "+requestedFormat)
 		return
 	}
 }
