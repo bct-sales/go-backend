@@ -6,6 +6,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/server/failure_response"
+	"bctbackend/server/logger"
 	rest "bctbackend/server/shared"
 	"database/sql"
 	"errors"
@@ -32,6 +33,7 @@ type getCashierSalesEndpoint struct {
 	db      *sql.DB
 	userId  models.Id
 	roleId  models.RoleId
+	logger  logger.Logger
 }
 
 func GetCashierSales(arguments *HandlerFunctionArguments) {
@@ -40,6 +42,7 @@ func GetCashierSales(arguments *HandlerFunctionArguments) {
 		db:      arguments.Database,
 		userId:  arguments.UserId,
 		roleId:  arguments.RoleId,
+		logger:  arguments.Logger,
 	}
 
 	endpoint.Execute()
@@ -53,6 +56,7 @@ func (ep *getCashierSalesEndpoint) Execute() {
 
 	var saleSummaries []*models.SaleSummary
 	if err := queries.GetCashierSales(ep.db, uriCashierId, queries.CollectTo(&saleSummaries)); err != nil {
+		ep.logger.InternalError("Failed to retrieve cashier sales for user %d: %v", uriCashierId, err)
 		failure_response.Unknown(ep.context, "Could not retrieve cashier sales: "+err.Error())
 		return
 	}
@@ -84,12 +88,14 @@ func (endpoint *getCashierSalesEndpoint) extractCashierIdFromUri() (models.Id, b
 		CashierId string `uri:"id" binding:"required"`
 	}
 	if err := endpoint.context.ShouldBindUri(&uriParameters); err != nil {
+		endpoint.logger.InvalidInput("Failed to bind URI parameters: %v", err)
 		failure_response.InvalidUriParameters(endpoint.context, err.Error())
 		return 0, false
 	}
 
 	uriUserId, err := models.ParseId(uriParameters.CashierId)
 	if err != nil {
+		endpoint.logger.InvalidInput("Failed to parse cashier ID \"%s\" from URI: %v", uriParameters.CashierId, err)
 		failure_response.InvalidUserId(endpoint.context, err.Error())
 		return 0, false
 	}
@@ -106,6 +112,7 @@ func (endpoint *getCashierSalesEndpoint) ensureUserHasPermission(queriedUser mod
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchUser) {
 			// This should not happen, as the userId is from the logged-in user
+			endpoint.logger.Bug("Logged in user does not exist")
 			failure_response.Unknown(endpoint.context, "Bug: logged in user does not exist")
 			return false
 		}
@@ -121,6 +128,7 @@ func (endpoint *getCashierSalesEndpoint) ensureUserHasPermission(queriedUser mod
 		loggedInUser := endpoint.userId
 
 		if loggedInUser != queriedUser {
+			endpoint.logger.InvalidRequest("User tried to access sales of cashier %d, but is not the owning cashier", queriedUser)
 			failure_response.Forbidden(endpoint.context, "wrong_role", "Only accessible to owning cashiers or admins")
 			return false
 		}
@@ -128,6 +136,7 @@ func (endpoint *getCashierSalesEndpoint) ensureUserHasPermission(queriedUser mod
 		return true
 	}
 
+	endpoint.logger.InvalidRequest("User tried to access sales of cashier %d, but is not a cashier or admin", queriedUser)
 	failure_response.Forbidden(endpoint.context, "wrong_role", "Only accessible to owning cashiers or admins")
 	return false
 }
