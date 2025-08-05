@@ -84,35 +84,35 @@ func (ep *getSalesEndpoint) fetchData(database *sql.DB, queryParameters *getSale
 		failure_response.Unknown(ep.context, "Failed to create transaction: "+err.Error())
 		return nil, false
 	}
-	defer transaction.Commit()
+	defer func() {
+		if err := transaction.Rollback(); err != nil {
+			ep.logger.InternalError("Failed to rollback transaction", "error", err)
+			failure_response.Unknown(ep.context, "Failed to close transaction: "+err.Error())
+		}
+	}()
 
 	sales, ok := ep.getSales(transaction, queryParameters)
 	if !ok {
-		transaction.Rollback()
 		return nil, false
 	}
 
 	saleCount, ok := ep.countSales(transaction)
 	if !ok {
-		transaction.Rollback()
 		return nil, false
 	}
 
 	totalSaleValue, ok := ep.getTotalSalesValue(transaction)
 	if !ok {
-		transaction.Rollback()
 		return nil, false
 	}
 
 	itemCount, ok := ep.countItems(transaction)
 	if !ok {
-		transaction.Rollback()
 		return nil, false
 	}
 
 	distinctSoldItemCount, totalSoldItemCount, ok := ep.countSoldItems(transaction)
 	if !ok {
-		transaction.Rollback()
 		return nil, false
 	}
 
@@ -123,6 +123,13 @@ func (ep *getSalesEndpoint) fetchData(database *sql.DB, queryParameters *getSale
 		TotalSoldItemCount:    totalSoldItemCount,
 		SaleCount:             saleCount,
 		TotalSaleValue:        totalSaleValue,
+	}
+
+	if err := transaction.Commit(); err != nil {
+		// Unclear what to do, as only read operations were performed during the transaction
+		ep.logger.InternalError("Failed to commit transaction", "error", err)
+		failure_response.Unknown(ep.context, "Failed to commit transaction: "+err.Error())
+		return nil, false
 	}
 
 	return &response, true
