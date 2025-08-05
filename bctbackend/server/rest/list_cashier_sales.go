@@ -48,29 +48,29 @@ func ListCashierSales(arguments *HandlerFunctionArguments) {
 	endpoint.Execute()
 }
 
-func (ep *listCashierSalesEndpoint) Execute() {
-	uriCashierId, ok := ep.extractCashierIdFromUri()
+func (endpoint *listCashierSalesEndpoint) Execute() {
+	uriCashierId, ok := endpoint.extractCashierIdFromUri()
 	if !ok {
 		return
 	}
 
 	var saleSummaries []*models.SaleSummary
-	if err := queries.GetCashierSales(ep.db, uriCashierId, queries.CollectTo(&saleSummaries)); err != nil {
-		ep.logger.InternalError("Failed to retrieve cashier sales for user %d: %v", uriCashierId, err)
-		failure_response.Unknown(ep.context, "Could not retrieve cashier sales: "+err.Error())
+	if err := queries.GetCashierSales(endpoint.db, uriCashierId, queries.CollectTo(&saleSummaries)); err != nil {
+		endpoint.logger.InternalError("Failed to retrieve cashier sales for user %d: %v", uriCashierId, err)
+		failure_response.Unknown(endpoint.context, "Could not retrieve cashier sales: "+err.Error())
 		return
 	}
 
 	successResponse := ListCashierSalesSuccessResponse{
 		Sales: algorithms.Map(saleSummaries, func(saleSummary *models.SaleSummary) *ListCashierSaleData {
-			return ep.convertSaleSummaryToData(saleSummary)
+			return endpoint.convertSaleSummaryToData(saleSummary)
 		}),
 	}
 
-	ep.context.IndentedJSON(http.StatusOK, successResponse)
+	endpoint.context.IndentedJSON(http.StatusOK, successResponse)
 }
 
-func (ep *listCashierSalesEndpoint) convertSaleSummaryToData(saleSummary *models.SaleSummary) *ListCashierSaleData {
+func (endpoint *listCashierSalesEndpoint) convertSaleSummaryToData(saleSummary *models.SaleSummary) *ListCashierSaleData {
 	return &ListCashierSaleData{
 		SaleId:            saleSummary.SaleID,
 		TransactionTime:   rest.ConvertTimestampToDateTime(saleSummary.TransactionTime),
