@@ -319,7 +319,7 @@ func (c *dummyDatabaseCommand) getSellerId(zone int, offset int) models.Id {
 func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIds []models.Id) ([]models.Id, error) {
 	c.Printf("Adding items\n")
 
-	queries.AddItems(db, func(addItem queries.AddItemFunction) {
+	err := queries.AddItems(db, func(addItem queries.AddItemFunction) {
 		for _, sellerId := range sellerIds {
 			itemCount := c.rng.IntN(50) + 5
 
@@ -337,6 +337,10 @@ func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIds []models.Id) ([]mo
 			}
 		}
 	})
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to add items: %w", err)
+	}
 
 	itemIds, err := queries.GetItemIds(db)
 	if err != nil {
