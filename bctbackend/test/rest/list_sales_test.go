@@ -19,7 +19,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetAllSales(t *testing.T) {
+func TestListAllSales(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Single sale", func(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)

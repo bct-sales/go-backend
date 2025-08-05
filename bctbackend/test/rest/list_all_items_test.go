@@ -37,7 +37,7 @@ type FailureResponse struct {
 	Message string `json:"message"`
 }
 
-func TestGetAllItems(t *testing.T) {
+func TestListAllItems(t *testing.T) {
 	url := path.Items()
 
 	t.Run("Success", func(t *testing.T) {

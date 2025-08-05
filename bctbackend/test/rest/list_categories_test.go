@@ -23,7 +23,7 @@ type GetCategoriesSuccessResponse struct {
 	} `json:"categories"`
 }
 
-func TestGetCategories(t *testing.T) {
+func TestListCategories(t *testing.T) {
 	defaultCategoryNameTable := aux.DefaultCategoryNameTable()
 
 	t.Run("Success", func(t *testing.T) {
