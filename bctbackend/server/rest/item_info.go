@@ -36,17 +36,20 @@ func GetItemInformation(arguments *HandlerFunctionArguments) {
 	userId := arguments.UserId
 	roleId := arguments.RoleId
 	db := arguments.Database
+	logger := arguments.Logger
 
 	var uriParameters struct {
 		ItemId string `uri:"id" binding:"required"`
 	}
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
+		logger.InvalidInput("Failed to parse URI parameters", "error", err)
 		failure_response.InvalidUriParameters(context, "Invalid URI parameters: "+err.Error())
 		return
 	}
 
 	itemId, err := models.ParseId(uriParameters.ItemId)
 	if err != nil {
+		logger.InvalidInput("Failed to parse item ID", "error", err, "itemId", uriParameters.ItemId)
 		failure_response.InvalidItemId(context, err.Error())
 		return
 	}
@@ -54,6 +57,7 @@ func GetItemInformation(arguments *HandlerFunctionArguments) {
 	item, err := queries.GetItemWithId(db, itemId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
+			logger.InvalidRequest("Attempt to access a non-existing item", "itemId", itemId)
 			failure_response.UnknownItem(context, err.Error())
 			return
 		}
@@ -63,6 +67,7 @@ func GetItemInformation(arguments *HandlerFunctionArguments) {
 	}
 
 	if item.SellerID != userId && roleId.IsSeller() {
+		logger.InvalidRequest("Blocked attempt to access item not owned by the seller", "itemId", item.ItemID, "itemUserId", item.SellerID)
 		failure_response.WrongSeller(context, "Only the owning seller can access this item")
 		return
 	}
@@ -70,10 +75,12 @@ func GetItemInformation(arguments *HandlerFunctionArguments) {
 	soldIn, err := queries.GetSalesWithItem(db, itemId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
+			logger.Bug("Unknown item; should have been caught earlier", "itemId", itemId)
 			failure_response.Unknown(context, "Bug: this should be caught by the previous query")
 			return
 		}
 
+		logger.InternalError("Failed to get sales for item", "error", err, "itemId", itemId)
 		failure_response.Unknown(context, err.Error())
 		return
 	}
