@@ -4,6 +4,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/server/failure_response"
+	"bctbackend/server/logger"
 	rest "bctbackend/server/shared"
 	"database/sql"
 	"net/http"
@@ -12,7 +13,6 @@ import (
 	_ "bctbackend/docs"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/exp/slog"
 )
 
 type ListSalesSaleData struct {
@@ -36,6 +36,7 @@ type getSalesEndpoint struct {
 	context *gin.Context
 	userId  models.Id
 	roleId  models.RoleId
+	logger  logger.Logger
 }
 
 type getSalesQueryParameters struct {
@@ -52,13 +53,13 @@ func GetSales(arguments *HandlerFunctionArguments) {
 		context: arguments.Context,
 		userId:  arguments.UserId,
 		roleId:  arguments.RoleId,
+		logger:  arguments.Logger,
 	}
 
 	endpoint.execute(arguments.Database)
 }
 
 func (ep *getSalesEndpoint) execute(database *sql.DB) {
-
 	if !ep.ensureUserIsAdmin() {
 		return
 	}
@@ -79,7 +80,7 @@ func (ep *getSalesEndpoint) execute(database *sql.DB) {
 func (ep *getSalesEndpoint) fetchData(database *sql.DB, queryParameters *getSalesQueryParameters) (*ListSalesSuccessResponse, bool) {
 	transaction, err := queries.NewTransaction(database)
 	if err != nil {
-		slog.Error("Failed to create transaction", "error", err)
+		ep.logger.InternalError("Failed to create transaction", err)
 		failure_response.Unknown(ep.context, "Failed to create transaction: "+err.Error())
 		return nil, false
 	}
@@ -130,7 +131,7 @@ func (ep *getSalesEndpoint) fetchData(database *sql.DB, queryParameters *getSale
 func (ep *getSalesEndpoint) countItems(transaction *queries.Transaction) (int, bool) {
 	soldItemCount, err := queries.CountItems(transaction, queries.OnlyVisibleItems)
 	if err != nil {
-		slog.Error("Failed to get sold item count", "error", err)
+		ep.logger.InternalError("Failed to get sold item count", "error", err)
 		failure_response.Unknown(ep.context, "Failed to get sold item count: "+err.Error())
 		return 0, false
 	}
@@ -141,7 +142,7 @@ func (ep *getSalesEndpoint) countSoldItems(transaction *queries.Transaction) (in
 	counts, err := queries.CountSoldItems(transaction)
 
 	if err != nil {
-		slog.Error("Failed to get sold item count", "error", err)
+		ep.logger.InternalError("Failed to get sold item count", "error", err)
 		failure_response.Unknown(ep.context, "Failed to get sold item count: "+err.Error())
 		return 0, 0, false
 	}
@@ -153,7 +154,7 @@ func (ep *getSalesEndpoint) countSales(transaction *queries.Transaction) (int, b
 	saleCount, err := queries.CountSales(transaction)
 
 	if err != nil {
-		slog.Error("Failed to get sales count", "error", err)
+		ep.logger.InternalError("Failed to get sales count", "error", err)
 		failure_response.Unknown(ep.context, "Failed to get sales count: "+err.Error())
 		return 0, false
 	}
@@ -165,7 +166,7 @@ func (ep *getSalesEndpoint) getTotalSalesValue(transaction *queries.Transaction)
 	totalValue, err := queries.GetTotalSalesValue(transaction)
 
 	if err != nil {
-		slog.Error("Failed to get total sales value", "error", err)
+		ep.logger.InternalError("Failed to get total sales value", "error", err)
 		failure_response.Unknown(ep.context, "Failed to get total sales value: "+err.Error())
 		return 0, false
 	}
@@ -176,7 +177,7 @@ func (ep *getSalesEndpoint) getTotalSalesValue(transaction *queries.Transaction)
 
 func (ep *getSalesEndpoint) ensureUserIsAdmin() bool {
 	if ep.roleId != models.NewAdminRoleId() {
-		slog.Error("Unauthorized access to list all sales", "userId", ep.userId, "roleId", ep.roleId)
+		ep.logger.InvalidRequest("Unauthorized access to list all sales", "userId", ep.userId, "roleId", ep.roleId)
 		failure_response.WrongRole(ep.context, "Only admins can list all items")
 		return false
 	}
@@ -202,7 +203,7 @@ func (ep *getSalesEndpoint) getSales(transaction *queries.Transaction, queryPara
 	query := ep.buildQuery(queryParameters)
 
 	if err := query.Execute(transaction, processSale); err != nil {
-		slog.Error("Failed to get sales", "error", err)
+		ep.logger.InternalError("Failed to get sales", "error", err)
 		failure_response.Unknown(ep.context, "Failed to get sales: "+err.Error())
 		return nil, false
 	}
@@ -257,6 +258,7 @@ func (ep *getSalesEndpoint) parseStartId() (*models.Id, bool) {
 	if startIdStr, exists := ep.context.GetQuery("startId"); exists {
 		startId, err := models.ParseId(startIdStr)
 		if err != nil {
+			ep.logger.InvalidInput("Failed to parse startId parameter", "startId", startIdStr, "error", err)
 			failure_response.BadRequest(ep.context, "invalid_uri_parameters", "Invalid startId parameter: "+err.Error())
 			return nil, false
 		}
@@ -283,26 +285,31 @@ func (ep *getSalesEndpoint) parseRowSelection() (*struct {
 	}
 
 	if !limitExists && offsetExists {
+		ep.logger.InvalidInput("Missing limit parameter")
 		failure_response.BadRequest(ep.context, "invalid_uri_parameters", "offset parameter provided without limit")
 		return nil, false
 	}
 
 	limit, err := strconv.Atoi(limitString)
 	if err != nil {
+		ep.logger.InvalidInput("Failed to parse limit parameter", "limit", limitString, "error", err)
 		failure_response.BadRequest(ep.context, "invalid_uri_parameters", "Invalid limit parameter: "+err.Error())
 		return nil, false
 	}
 	if limit < 1 {
+		ep.logger.InvalidRequest("Invalid limit parameter", "limit", limit)
 		failure_response.BadRequest(ep.context, "invalid_uri_parameters", "Limit must be greater than 0")
 		return nil, false
 	}
 
 	offset, err := strconv.Atoi(offsetString)
 	if err != nil {
+		ep.logger.InvalidInput("Failed to parse offset parameter", "offset", offsetString, "error", err)
 		failure_response.BadRequest(ep.context, "invalid_uri_parameters", "Invalid offset parameter: "+err.Error())
 		return nil, false
 	}
 	if offset < 0 {
+		ep.logger.InvalidRequest("Invalid offset parameter", "offset", offset)
 		failure_response.BadRequest(ep.context, "invalid_uri_parameters", "Offset must be 0 or greater")
 		return nil, false
 	}
@@ -321,10 +328,12 @@ func (ep *getSalesEndpoint) parseRowSelection() (*struct {
 func (ep *getSalesEndpoint) parseOrder() (bool, bool) {
 	if order, exists := ep.context.GetQuery("order"); exists {
 		if order != "antichronological" {
+			ep.logger.InvalidInput("Invalid order parameter", "order", order)
 			failure_response.BadRequest(ep.context, "invalid_uri_parameters", "Order must be 'antichronological'")
 			return false, false
 		}
 		return true, true
 	}
+
 	return false, true
 }
