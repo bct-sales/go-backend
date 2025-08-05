@@ -7,6 +7,7 @@ import (
 	"bctbackend/security"
 	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
+	"bctbackend/server/logger"
 	"bctbackend/server/paths"
 	"bctbackend/server/rest"
 	"bctbackend/server/websocket"
@@ -15,6 +16,9 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"reflect"
+	"runtime"
+	"strings"
 
 	_ "bctbackend/docs"
 
@@ -189,12 +193,19 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 			// Keep going, we don't want to block the request
 		}
 
+		decoratedSlogger := slog.Default().With(
+			slog.String("user_id", userId.String()),
+			slog.String("role_id", roleId.String()),
+			slog.String("handler", getFunctionName(handler)),
+		)
+		logger := logger.NewLoggerWrapper(decoratedSlogger)
 		arguments := rest.HandlerFunctionArguments{
 			Context:       context,
 			Configuration: configuration,
 			Database:      database,
 			UserId:        userId,
 			RoleId:        roleId,
+			Logger:        logger,
 		}
 		handler(&arguments)
 
@@ -210,4 +221,10 @@ func (server *Server) ServeHTTP(writer http.ResponseWriter, request *http.Reques
 	}
 
 	server.router.ServeHTTP(writer, request)
+}
+
+func getFunctionName(x any) string {
+	fullyQualifiedName := runtime.FuncForPC(reflect.ValueOf(x).Pointer()).Name()
+	indexOfDot := strings.Index(fullyQualifiedName, ".")
+	return fullyQualifiedName[indexOfDot+1:]
 }
