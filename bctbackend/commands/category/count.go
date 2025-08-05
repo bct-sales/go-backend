@@ -35,7 +35,12 @@ func NewCategoryCountCommand() *cobra.Command {
 		},
 	}
 
-	command.CobraCommand.Flags().BoolVar(&command.includeHidden, "include-hidden", false, "Include hidden items in the count")
+	command.CobraCommand.Flags().BoolVar(
+		&command.includeHidden,
+		"include-hidden",
+		false,
+		"Include hidden items in the count",
+	)
 
 	return command.AsCobraCommand()
 }
