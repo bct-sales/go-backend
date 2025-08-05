@@ -11,16 +11,16 @@ import (
 )
 
 type GetItemInformationSuccessResponse struct {
-	ItemId       models.Id           `json:"itemId" binding:"required"`
-	AddedAt      rest.DateTime       `json:"addedAt" binding:"required"`
-	SellerId     models.Id           `json:"sellerId" binding:"required"`
-	Description  string              `json:"description" binding:"required"`
-	PriceInCents models.MoneyInCents `json:"priceInCents" binding:"required"`
-	CategoryId   models.Id           `json:"categoryId" binding:"required"`
-	Charity      *bool               `json:"charity" binding:"required"`
-	Donation     *bool               `json:"donation" binding:"required"`
-	Frozen       *bool               `json:"frozen" binding:"required"`
-	SoldIn       *[]models.Id        `json:"soldIn" binding:"required"`
+	ItemId       models.Id           `binding:"required" json:"itemId"`
+	AddedAt      rest.DateTime       `binding:"required" json:"addedAt"`
+	SellerId     models.Id           `binding:"required" json:"sellerId"`
+	Description  string              `binding:"required" json:"description"`
+	PriceInCents models.MoneyInCents `binding:"required" json:"priceInCents"`
+	CategoryId   models.Id           `binding:"required" json:"categoryId"`
+	Charity      *bool               `binding:"required" json:"charity"`
+	Donation     *bool               `binding:"required" json:"donation"`
+	Frozen       *bool               `binding:"required" json:"frozen"`
+	SoldIn       *[]models.Id        `binding:"required" json:"soldIn"`
 }
 
 // @Summary Get information about an item
@@ -39,7 +39,7 @@ func GetItemInformation(arguments *HandlerFunctionArguments) {
 	logger := arguments.Logger
 
 	var uriParameters struct {
-		ItemId string `uri:"id" binding:"required"`
+		ItemId string `binding:"required" uri:"id"`
 	}
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
 		logger.InvalidInput("Failed to parse URI parameters", "error", err)

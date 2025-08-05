@@ -10,11 +10,11 @@ import (
 )
 
 type AddSellerItemPayload struct {
-	Price       *models.MoneyInCents `json:"priceInCents" binding:"required"`
-	Description *string              `json:"description" binding:"required"`
-	CategoryId  models.Id            `json:"categoryId" binding:"required"`
-	Donation    *bool                `json:"donation" binding:"required"` // needs to be a pointer to differentiate between false and not present
-	Charity     *bool                `json:"charity" binding:"required"`  // needs to be a pointer to differentiate between false and not present
+	Price       *models.MoneyInCents `binding:"required" json:"priceInCents"`
+	Description *string              `binding:"required" json:"description"`
+	CategoryId  models.Id            `binding:"required" json:"categoryId"`
+	Donation    *bool                `binding:"required" json:"donation"` // needs to be a pointer to differentiate between false and not present
+	Charity     *bool                `binding:"required" json:"charity"`  // needs to be a pointer to differentiate between false and not present
 }
 
 type AddSellerItemResponse struct {
@@ -46,7 +46,7 @@ func AddSellerItem(arguments *HandlerFunctionArguments) {
 	}
 
 	var uriParameters struct {
-		SellerId string `uri:"id" binding:"required"`
+		SellerId string `binding:"required" uri:"id"`
 	}
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
 		logger.InvalidInput("Failed to parse URI parameters", "error", err, "uriParameters", uriParameters)

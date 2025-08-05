@@ -16,11 +16,11 @@ import (
 )
 
 type ListSalesSaleData struct {
-	SaleID            models.Id           `json:"saleId"`
-	CashierID         models.Id           `json:"cashierId"`
-	TransactionTime   rest.DateTime       `json:"transactionTime"`
-	ItemCount         int                 `json:"itemCount"`
-	TotalPriceInCents models.MoneyInCents `json:"totalPriceInCents"`
+	SaleID            models.Id           `binding:"required" json:"saleId"`
+	CashierID         models.Id           `binding:"required" json:"cashierId"`
+	TransactionTime   rest.DateTime       `binding:"required" json:"transactionTime"`
+	ItemCount         int                 `binding:"required" json:"itemCount"`
+	TotalPriceInCents models.MoneyInCents `binding:"required" json:"totalPriceInCents"`
 }
 
 type ListSalesSuccessResponse struct {

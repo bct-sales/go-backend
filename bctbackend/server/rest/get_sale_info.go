@@ -121,7 +121,7 @@ func (endpoint *getSaleInformationEndpoint) ensureUserHasRightRole() bool {
 
 func (endpoint *getSaleInformationEndpoint) extractSaleIdFromUri() (models.Id, bool) {
 	var uriParameters struct {
-		SaleId string `uri:"id" binding:"required"`
+		SaleId string `binding:"required" uri:"id"`
 	}
 	if err := endpoint.context.ShouldBindUri(&uriParameters); err != nil {
 		failure_response.InvalidUriParameters(endpoint.context, "Invalid URI parameters: "+err.Error())

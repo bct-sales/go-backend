@@ -17,8 +17,8 @@ import (
 )
 
 type LoginRequest struct {
-	Username string `form:"username" binding:"required" json:"username"`
-	Password string `form:"password" binding:"required" json:"password"`
+	Username string `binding:"required" form:"username" json:"username"`
+	Password string `binding:"required" form:"password" json:"password"`
 }
 
 type LoginSuccessResponse struct {

@@ -14,15 +14,15 @@ import (
 )
 
 type GetSellerItemsItemData struct {
-	ItemId       models.Id           `json:"itemId"`
-	AddedAt      rest.DateTime       `json:"addedAt"`
-	Description  string              `json:"description"`
-	PriceInCents models.MoneyInCents `json:"priceInCents"`
-	CategoryId   models.Id           `json:"categoryId"`
-	SellerId     models.Id           `json:"sellerId"`
-	Donation     bool                `json:"donation"`
-	Charity      bool                `json:"charity"`
-	Frozen       bool                `json:"frozen"`
+	ItemId       models.Id           `binding:"required" json:"itemId"`
+	AddedAt      rest.DateTime       `binding:"required" json:"addedAt"`
+	Description  string              `binding:"required" json:"description"`
+	PriceInCents models.MoneyInCents `binding:"required" json:"priceInCents"`
+	CategoryId   models.Id           `binding:"required" json:"categoryId"`
+	SellerId     models.Id           `binding:"required" json:"sellerId"`
+	Donation     bool                `binding:"required" json:"donation"`
+	Charity      bool                `binding:"required" json:"charity"`
+	Frozen       bool                `binding:"required" json:"frozen"`
 }
 
 type GetSellerItemsSuccessResponse struct {
@@ -54,7 +54,7 @@ func GetSellerItems(arguments *HandlerFunctionArguments) {
 	}
 
 	var uriParameters struct {
-		SellerId string `uri:"id" binding:"required"`
+		SellerId string `binding:"required" uri:"id"`
 	}
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
 		logger.InvalidInput("Failed to bind URI parameters for GetSellerItems", "error", err)

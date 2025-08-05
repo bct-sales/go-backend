@@ -16,34 +16,34 @@ import (
 )
 
 type GetUserInformationItem struct {
-	ItemId       models.Id           `json:"itemId" binding:"required"`
-	AddedAt      rest.DateTime       `json:"addedAt" binding:"required"`
-	SellerId     models.Id           `json:"sellerId" binding:"required"`
-	Description  string              `json:"description" binding:"required"`
-	PriceInCents models.MoneyInCents `json:"priceInCents" binding:"required"`
-	CategoryId   models.Id           `json:"categoryId" binding:"required"`
-	Charity      *bool               `json:"charity" binding:"required"`
-	Donation     *bool               `json:"donation" binding:"required"`
-	Frozen       *bool               `json:"frozen" binding:"required"`
-	SaleCount    *int                `json:"saleCount" binding:"required"`
+	ItemId       models.Id           `binding:"required" json:"itemId"`
+	AddedAt      rest.DateTime       `binding:"required" json:"addedAt"`
+	SellerId     models.Id           `binding:"required" json:"sellerId"`
+	Description  string              `binding:"required" json:"description"`
+	PriceInCents models.MoneyInCents `binding:"required" json:"priceInCents"`
+	CategoryId   models.Id           `binding:"required" json:"categoryId"`
+	Charity      *bool               `binding:"required" json:"charity"`
+	Donation     *bool               `binding:"required" json:"donation"`
+	Frozen       *bool               `binding:"required" json:"frozen"`
+	SaleCount    *int                `binding:"required" json:"saleCount"`
 }
 
 type GetUserInformationSale struct {
-	SaleId          models.Id     `json:"saleId" binding:"required"`
-	TransactionTime rest.DateTime `json:"transactionTime" binding:"required"`
+	SaleId          models.Id     `binding:"required" json:"saleId"`
+	TransactionTime rest.DateTime `binding:"required" json:"transactionTime"`
 }
 
 type GetUserInformationSuccessResponse struct {
-	UserId       models.Id      `json:"userId" binding:"required"`
-	Role         string         `json:"role" binding:"required"`
-	Password     string         `json:"password" binding:"required"`
-	CreatedAt    rest.DateTime  `json:"createdAt" binding:"required"`
+	UserId       models.Id      `binding:"required"            json:"userId"`
+	Role         string         `binding:"required"            json:"role"`
+	Password     string         `binding:"required"            json:"password"`
+	CreatedAt    rest.DateTime  `binding:"required"            json:"createdAt"`
 	LastActivity *rest.DateTime `json:"lastActivity,omitempty"`
 }
 
 type GetSellerInformationSuccessResponse struct {
 	GetUserInformationSuccessResponse
-	Items *[]*GetUserInformationItem `json:"items" binding:"required"`
+	Items *[]*GetUserInformationItem `binding:"required" json:"items"`
 }
 
 type GetAdminInformationSuccessResponse struct {
@@ -52,14 +52,14 @@ type GetAdminInformationSuccessResponse struct {
 
 type GetCashierInformationSuccessResponse struct {
 	GetUserInformationSuccessResponse
-	Sales *[]*GetUserInformationSale `json:"sales" binding:"required"`
+	Sales *[]*GetUserInformationSale `binding:"required" json:"sales"`
 }
 
 type GetSellerSummarySuccessResponse struct {
-	ItemCount       int                 `json:"itemCount" binding:"required"`
-	FrozenItemCount int                 `json:"frozenItemCount" binding:"required"`
-	HiddenItemCount int                 `json:"hiddenItemCount" binding:"required"`
-	TotalPrice      models.MoneyInCents `json:"totalPrice" binding:"required"`
+	ItemCount       int                 `binding:"required" json:"itemCount"`
+	FrozenItemCount int                 `binding:"required" json:"frozenItemCount"`
+	HiddenItemCount int                 `binding:"required" json:"hiddenItemCount"`
+	TotalPrice      models.MoneyInCents `binding:"required" json:"totalPrice"`
 }
 
 func convertItemToGetUserInformationItem(item *queries.ItemWithSaleCount) *GetUserInformationItem {
@@ -101,7 +101,7 @@ func GetUserInformation(arguments *HandlerFunctionArguments) {
 
 	// Retrieve id of user whose information is being requested
 	var uriParameters struct {
-		UserId string `uri:"id" binding:"required"`
+		UserId string `binding:"required" uri:"id"`
 	}
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
 		failure_response.InvalidUriParameters(context, "Invalid URI parameters: "+err.Error())

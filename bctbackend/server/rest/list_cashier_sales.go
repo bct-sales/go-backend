@@ -85,7 +85,7 @@ func (endpoint *listCashierSalesEndpoint) convertSaleSummaryToData(saleSummary *
 // False indicates failure, true indicates success.
 func (endpoint *listCashierSalesEndpoint) extractCashierIdFromUri() (models.Id, bool) {
 	var uriParameters struct {
-		CashierId string `uri:"id" binding:"required"`
+		CashierId string `binding:"required" uri:"id"`
 	}
 	if err := endpoint.context.ShouldBindUri(&uriParameters); err != nil {
 		endpoint.logger.InvalidInput("Failed to bind URI parameters: %v", err)
