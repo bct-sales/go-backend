@@ -79,11 +79,27 @@ var shoeTypes = [...]string{
 }
 
 var bootBrands = [...]string{
-	"Sendra", "Timberland", "Dr. Martens", "Solovair", "New Rock", "Red Wing", "Frye", "Ariat", "Justin", "Lucchese", "Carmina", "Tony Mora",
+	"Sendra",
+	"Timberland",
+	"Dr. Martens",
+	"Solovair",
+	"New Rock",
+	"Red Wing",
+	"Frye",
+	"Ariat",
+	"Justin",
+	"Lucchese",
+	"Carmina",
+	"Tony Mora",
 }
 
 var bootTypes = [...]string{
-	"combat boots", "cowboy boots", "harness boots", "engineer boots", "Jodhpur boots", "Chelsea boots",
+	"combat boots",
+	"cowboy boots",
+	"harness boots",
+	"engineer boots",
+	"Jodhpur boots",
+	"Chelsea boots",
 }
 
 var toys = [...]string{
