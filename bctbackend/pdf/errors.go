@@ -9,6 +9,7 @@ func (e *PdfError) Error() string {
 	if e.Wrapped != nil {
 		return e.Message + ": " + e.Wrapped.Error()
 	}
+
 	return e.Message
 }
 
