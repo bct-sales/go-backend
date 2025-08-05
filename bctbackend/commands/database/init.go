@@ -42,7 +42,7 @@ func NewDatabaseInitCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *InitializeDatabaseCommand) execute() error {
+func (c *InitializeDatabaseCommand) execute() (r_err error) {
 	databasePath, err := common.GetDatabasePath()
 	if err != nil {
 		c.PrintErrorf("Failed to get database path: %s\n", err.Error())
@@ -66,7 +66,12 @@ func (c *InitializeDatabaseCommand) execute() error {
 		return err
 	}
 
-	defer db.Close()
+	defer func() {
+		if err := db.Close(); err != nil {
+			c.PrintErrorf("Failed to close database %s\n", databasePath)
+			r_err = errors.Join(r_err, err)
+		}
+	}()
 
 	c.Printf("Database file successfully created at %s\n", databasePath)
 	return nil
