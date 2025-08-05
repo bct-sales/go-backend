@@ -71,6 +71,7 @@ func (builder *PdfBuilder) WriteToBuffer() (*bytes.Buffer, error) {
 	if err := builder.pdf.Output(&buffer); err != nil {
 		return nil, &PdfError{Message: "failed to save PDF to buffer", Wrapped: err}
 	}
+
 	return &buffer, nil
 }
 
