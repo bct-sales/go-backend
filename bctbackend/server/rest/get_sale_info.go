@@ -15,21 +15,21 @@ import (
 )
 
 type GetSaleInformationSuccessResponse struct {
-	SaleId          models.Id          `json:"saleId" binding:"required"`
-	CashierId       models.Id          `json:"cashierId" binding:"required"`
-	TransactionTime rest.DateTime      `json:"transactionTime" binding:"required"`
-	Items           []*GetSaleItemData `json:"items" binding:"required"`
+	SaleId          models.Id          `binding:"required" json:"saleId"`
+	CashierId       models.Id          `binding:"required" json:"cashierId"`
+	TransactionTime rest.DateTime      `binding:"required" json:"transactionTime"`
+	Items           []*GetSaleItemData `binding:"required" json:"items"`
 }
 
 type GetSaleItemData struct {
-	ItemId       models.Id           `json:"itemId" binding:"required"`
-	SellerId     models.Id           `json:"sellerId" binding:"required"`
-	Description  string              `json:"description" binding:"required"`
-	PriceInCents models.MoneyInCents `json:"priceInCents" binding:"required"`
-	CategoryId   models.Id           `json:"categoryId" binding:"required"`
-	Charity      *bool               `json:"charity" binding:"required"`
-	Donation     *bool               `json:"donation" binding:"required"`
-	AddedAt      rest.DateTime       `json:"addedAt" binding:"required"`
+	ItemId       models.Id           `binding:"required" json:"itemId"`
+	SellerId     models.Id           `binding:"required" json:"sellerId"`
+	Description  string              `binding:"required" json:"description"`
+	PriceInCents models.MoneyInCents `binding:"required" json:"priceInCents"`
+	CategoryId   models.Id           `binding:"required" json:"categoryId"`
+	Charity      *bool               `binding:"required" json:"charity"`
+	Donation     *bool               `binding:"required" json:"donation"`
+	AddedAt      rest.DateTime       `binding:"required" json:"addedAt"`
 }
 
 type getSaleInformationEndpoint struct {
