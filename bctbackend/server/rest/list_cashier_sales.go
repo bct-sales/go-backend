@@ -17,18 +17,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type GetCashierSaleData struct {
+type ListCashierSaleData struct {
 	SaleId            models.Id           `json:"saleId"`
 	TransactionTime   rest.DateTime       `json:"transactionTime"`
 	ItemCount         int                 `json:"itemCount"`
 	TotalPriceInCents models.MoneyInCents `json:"totalPriceInCents"`
 }
 
-type GetCashierSalesSuccessResponse struct {
-	Sales []*GetCashierSaleData `json:"sales"`
+type ListCashierSalesSuccessResponse struct {
+	Sales []*ListCashierSaleData `json:"sales"`
 }
 
-type getCashierSalesEndpoint struct {
+type listCashierSalesEndpoint struct {
 	context *gin.Context
 	db      *sql.DB
 	userId  models.Id
@@ -36,8 +36,8 @@ type getCashierSalesEndpoint struct {
 	logger  logger.Logger
 }
 
-func GetCashierSales(arguments *HandlerFunctionArguments) {
-	endpoint := &getCashierSalesEndpoint{
+func ListCashierSales(arguments *HandlerFunctionArguments) {
+	endpoint := &listCashierSalesEndpoint{
 		context: arguments.Context,
 		db:      arguments.Database,
 		userId:  arguments.UserId,
@@ -48,7 +48,7 @@ func GetCashierSales(arguments *HandlerFunctionArguments) {
 	endpoint.Execute()
 }
 
-func (ep *getCashierSalesEndpoint) Execute() {
+func (ep *listCashierSalesEndpoint) Execute() {
 	uriCashierId, ok := ep.extractCashierIdFromUri()
 	if !ok {
 		return
@@ -61,8 +61,8 @@ func (ep *getCashierSalesEndpoint) Execute() {
 		return
 	}
 
-	successResponse := GetCashierSalesSuccessResponse{
-		Sales: algorithms.Map(saleSummaries, func(saleSummary *models.SaleSummary) *GetCashierSaleData {
+	successResponse := ListCashierSalesSuccessResponse{
+		Sales: algorithms.Map(saleSummaries, func(saleSummary *models.SaleSummary) *ListCashierSaleData {
 			return ep.convertSaleSummaryToData(saleSummary)
 		}),
 	}
@@ -70,8 +70,8 @@ func (ep *getCashierSalesEndpoint) Execute() {
 	ep.context.IndentedJSON(http.StatusOK, successResponse)
 }
 
-func (ep *getCashierSalesEndpoint) convertSaleSummaryToData(saleSummary *models.SaleSummary) *GetCashierSaleData {
-	return &GetCashierSaleData{
+func (ep *listCashierSalesEndpoint) convertSaleSummaryToData(saleSummary *models.SaleSummary) *ListCashierSaleData {
+	return &ListCashierSaleData{
 		SaleId:            saleSummary.SaleID,
 		TransactionTime:   rest.ConvertTimestampToDateTime(saleSummary.TransactionTime),
 		ItemCount:         saleSummary.ItemCount,
@@ -83,7 +83,7 @@ func (ep *getCashierSalesEndpoint) convertSaleSummaryToData(saleSummary *models.
 // It returns the cashier ID and a boolean indicating success or failure.
 // If the extraction or validation fails, it sends an appropriate error response.
 // False indicates failure, true indicates success.
-func (endpoint *getCashierSalesEndpoint) extractCashierIdFromUri() (models.Id, bool) {
+func (endpoint *listCashierSalesEndpoint) extractCashierIdFromUri() (models.Id, bool) {
 	var uriParameters struct {
 		CashierId string `uri:"id" binding:"required"`
 	}
@@ -107,7 +107,7 @@ func (endpoint *getCashierSalesEndpoint) extractCashierIdFromUri() (models.Id, b
 	return uriUserId, true
 }
 
-func (endpoint *getCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.Id) bool {
+func (endpoint *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.Id) bool {
 	user, err := queries.GetUserWithId(endpoint.db, endpoint.userId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchUser) {

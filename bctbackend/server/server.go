@@ -102,7 +102,7 @@ func (server *Server) defineRESTEndpoints() {
 	server.GET(paths.Sales(), rest.GetSales)
 	server.GET(paths.SaleStr(":id"), rest.GetSaleInformation)
 	server.POST(paths.Sales(), rest.AddSale)
-	server.GET(paths.CashierSalesStr(":id"), rest.GetCashierSales)
+	server.GET(paths.CashierSalesStr(":id"), rest.ListCashierSales)
 }
 
 func (server *Server) defineWebsocketEndpoint() {
