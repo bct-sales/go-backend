@@ -79,6 +79,7 @@ func (wb *WebsocketBroadcaster) CreateHandler() func(*gin.Context) {
 		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 		if err != nil {
 			slog.Error("Failed to upgrade connection to WebSocket", slog.String("error", err.Error()))
+
 			return
 		}
 
