@@ -469,7 +469,7 @@ func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (r_result map[models.Id]*m
 }
 
 // Returns the total number of items in the database.
-func CountItems(db QueryHandler, selection ItemSelection) (r_result int, r_err error) {
+func CountItems(db DatabaseQuerier, selection ItemSelection) (r_result int, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -587,7 +587,7 @@ func ItemWithIdExists(db *sql.DB, itemId models.Id) (r_result bool, r_err error)
 	return true, nil
 }
 
-func ItemsExist(db QueryHandler, itemIds []models.Id) (r_result bool, r_err error) {
+func ItemsExist(db DatabaseQuerier, itemIds []models.Id) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -620,7 +620,7 @@ func ItemsExist(db QueryHandler, itemIds []models.Id) (r_result bool, r_err erro
 
 // EnsureItemsExist checks if all items with the given IDs exist in the database.
 // If any item does not exist, it returns a ErrNoSuchItem.
-func EnsureItemsExist(db QueryHandler, itemIds []models.Id) (r_err error) {
+func EnsureItemsExist(db DatabaseQuerier, itemIds []models.Id) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -727,7 +727,7 @@ func UpdateHiddenStatusOfItems(db *sql.DB, itemIds []models.Id, hidden bool) (r_
 	return nil
 }
 
-func partitionItemsBy(db QueryHandler, itemIds []models.Id, columnName string) (*algorithms.Set[models.Id], *algorithms.Set[models.Id], error) {
+func partitionItemsBy(db DatabaseQuerier, itemIds []models.Id, columnName string) (*algorithms.Set[models.Id], *algorithms.Set[models.Id], error) {
 	query := fmt.Sprintf(`
 		SELECT item_id, %s
 		FROM items
@@ -767,7 +767,7 @@ func partitionItemsBy(db QueryHandler, itemIds []models.Id, columnName string) (
 
 // PartitionItemsByHiddenStatus partitions the given item IDs into two sets: one for unhidden items and one for hidden items.
 // If an item ID does not exist in the database, it is ignored.
-func PartitionItemsByHiddenStatus(db QueryHandler, itemIds []models.Id) (r_visible *algorithms.Set[models.Id], r_hidden *algorithms.Set[models.Id], r_err error) {
+func PartitionItemsByHiddenStatus(db DatabaseQuerier, itemIds []models.Id) (r_visible *algorithms.Set[models.Id], r_hidden *algorithms.Set[models.Id], r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -777,7 +777,7 @@ func PartitionItemsByHiddenStatus(db QueryHandler, itemIds []models.Id) (r_visib
 
 // PartitionItemsByFrozenStatus partitions the given item IDs into two sets: one for nonfrozen items and one for frozen items.
 // If an item ID does not exist in the database, it is ignored.
-func PartitionItemsByFrozenStatus(db QueryHandler, itemIds []models.Id) (r_nonfrozen *algorithms.Set[models.Id], r_frozen *algorithms.Set[models.Id], r_err error) {
+func PartitionItemsByFrozenStatus(db DatabaseQuerier, itemIds []models.Id) (r_nonfrozen *algorithms.Set[models.Id], r_frozen *algorithms.Set[models.Id], r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -788,7 +788,7 @@ func PartitionItemsByFrozenStatus(db QueryHandler, itemIds []models.Id) (r_nonfr
 // ContainsHiddenItems checks if any of the given items are hidden.
 // It returns true if at least one item is hidden, and false otherwise.
 // It is not an error when nonexistent items are passed in, they are simply ignored.
-func ContainsHiddenItems(qh QueryHandler, itemIds []models.Id) (r_result bool, r_err error) {
+func ContainsHiddenItems(qh DatabaseQuerier, itemIds []models.Id) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -810,7 +810,7 @@ func ContainsHiddenItems(qh QueryHandler, itemIds []models.Id) (r_result bool, r
 // ContainsFrozenItems checks if any of the given items are frozen.
 // It returns true if at least one item is frozen, and false otherwise.
 // It is not an error when nonexistent items are passed in, they are simply ignored.
-func ContainsFrozenItems(qh QueryHandler, itemIds []models.Id) (r_result bool, r_err error) {
+func ContainsFrozenItems(qh DatabaseQuerier, itemIds []models.Id) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -830,7 +830,7 @@ func ContainsFrozenItems(qh QueryHandler, itemIds []models.Id) (r_result bool, r
 }
 
 // IsItemFrozen checks if none of the items is frozen.
-func EnsureNoFrozenItems(qh QueryHandler, itemIds []models.Id) (r_err error) {
+func EnsureNoFrozenItems(qh DatabaseQuerier, itemIds []models.Id) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -849,7 +849,7 @@ func EnsureNoFrozenItems(qh QueryHandler, itemIds []models.Id) (r_err error) {
 }
 
 // EnsureNoHiddenItems checks if none of the items is hidden.
-func EnsureNoHiddenItems(qh QueryHandler, itemIds []models.Id) (r_err error) {
+func EnsureNoHiddenItems(qh DatabaseQuerier, itemIds []models.Id) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()

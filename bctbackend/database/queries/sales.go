@@ -171,7 +171,7 @@ func (q *GetSalesQuery) OrderedAntiChronologically() *GetSalesQuery {
 	return q
 }
 
-func (q *GetSalesQuery) Execute(db QueryHandler, receiver func(*models.SaleSummary) error) (r_err error) {
+func (q *GetSalesQuery) Execute(db DatabaseQuerier, receiver func(*models.SaleSummary) error) (r_err error) {
 	query := fmt.Sprintf(
 		`
 			SELECT sales.sale_id, sales.cashier_id, sales.transaction_time, COUNT(sale_items.item_id) AS item_count, SUM(items.price_in_cents) AS total_price
@@ -496,7 +496,7 @@ func GetSoldItems(db *sql.DB) (r_result []*models.Item, r_err error) {
 
 // CountSoldItems returns the total number of items that have been sold.
 // Two counts are returned: one where each item is counted only once, and one where each item is counted for each sale it was involved in.
-func CountSoldItems(db QueryHandler) (r_result *struct {
+func CountSoldItems(db DatabaseQuerier) (r_result *struct {
 	Distinct         int
 	IncludeMultiples int
 }, r_err error) {
@@ -825,7 +825,7 @@ func GetCashierSales(db *sql.DB, cashierId models.Id, receiver func(*models.Sale
 }
 
 // CountSales returns the total number of sales in the database.
-func CountSales(db QueryHandler) (r_result int, r_err error) {
+func CountSales(db DatabaseQuerier) (r_result int, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -848,7 +848,7 @@ func CountSales(db QueryHandler) (r_result int, r_err error) {
 // GetTotalSalesValue returns the total value of all sales in the database.
 // The value is calculated as the sum of the prices of all items sold.
 // If an item was sold multiple times, its price is counted each time.
-func GetTotalSalesValue(db QueryHandler) (r_result models.MoneyInCents, r_err error) {
+func GetTotalSalesValue(db DatabaseQuerier) (r_result models.MoneyInCents, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
