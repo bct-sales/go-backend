@@ -134,7 +134,7 @@ func GetCategories(db DatabaseQuerier) (r_result []*models.ItemCategory, r_err e
 	return categories, nil
 }
 
-func GetCategoryNameTable(db *sql.DB) (r_result map[models.Id]string, r_err error) {
+func GetCategoryNameTable(db DatabaseQuerier) (r_result map[models.Id]string, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
