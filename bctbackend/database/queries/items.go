@@ -403,7 +403,7 @@ func GetItemWithId(db DatabaseQuerier, itemId models.Id) (r_result *models.Item,
 
 // Returns all items with the given ids as a map.
 // If itemIds contains a nonexistent item id, a ErrNoSuchItem is returned.
-func GetItemsWithIds(db *sql.DB, itemIds []models.Id) (r_result map[models.Id]*models.Item, r_err error) {
+func GetItemsWithIds(db DatabaseQuerier, itemIds []models.Id) (r_result map[models.Id]*models.Item, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
