@@ -348,7 +348,7 @@ func GetSellerItemsWithSaleCounts(db DatabaseQuerier, sellerId models.Id) (r_ite
 
 // Returns the item with the given identifier.
 // A ErrNoSuchItem is returned if no item with the given identifier exists.
-func GetItemWithId(db *sql.DB, itemId models.Id) (r_result *models.Item, r_err error) {
+func GetItemWithId(db DatabaseQuerier, itemId models.Id) (r_result *models.Item, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
