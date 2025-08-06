@@ -34,8 +34,19 @@ func AddSale(arguments *HandlerFunctionArguments) {
 	context := arguments.Context
 	userId := arguments.UserId
 	roleId := arguments.RoleId
-	db := arguments.Database
 	logger := arguments.Logger
+
+	transaction, err := queries.NewTransactionDatabaseQuerier(arguments.Database)
+	if err != nil {
+		logger.InternalError("Failed to start transaction for AddSale", "error", err)
+		failure_response.Unknown(context, "Failed to start transaction: "+err.Error())
+		return
+	}
+	defer func() {
+		if rollbackErr := transaction.Rollback(); rollbackErr != nil {
+			logger.InternalError("Failed to roll back transaction for AddSale", "error", rollbackErr)
+		}
+	}()
 
 	// Make sure user has the right role
 	if !roleId.IsCashier() {
@@ -57,7 +68,7 @@ func AddSale(arguments *HandlerFunctionArguments) {
 
 	// Add the sale to the database
 	saleId, err := queries.AddSale(
-		db,
+		transaction,
 		userId,
 		timestamp,
 		payload.Items,
@@ -89,6 +100,12 @@ func AddSale(arguments *HandlerFunctionArguments) {
 
 		logger.InternalError("Failed to add sale", "error", err)
 		failure_response.Unknown(context, "Failed to add sale: "+err.Error())
+		return
+	}
+
+	if err := transaction.Commit(); err != nil {
+		logger.InternalError("Failed to commit transaction for AddSale", "error", err)
+		failure_response.Unknown(context, "Failed to commit transaction: "+err.Error())
 		return
 	}
 

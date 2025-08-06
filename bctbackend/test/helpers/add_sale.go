@@ -5,7 +5,6 @@ package helpers
 import (
 	models "bctbackend/database/models"
 	queries "bctbackend/database/queries"
-	"database/sql"
 )
 
 type AddSaleData struct {
@@ -25,7 +24,7 @@ func (data *AddSaleData) FillWithDefaults() {
 	}
 }
 
-func AddSaleToDatabase(db *sql.DB, cashierId models.Id, itemIds []models.Id, options ...func(*AddSaleData)) *models.Sale {
+func AddSaleToDatabase(db *queries.TransactionalDatabaseQuerier, cashierId models.Id, itemIds []models.Id, options ...func(*AddSaleData)) *models.Sale {
 	data := AddSaleData{}
 
 	for _, option := range options {

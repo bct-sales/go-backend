@@ -126,7 +126,18 @@ func (s DatabaseFixture) Items(seller models.Id, count int, options ...func(*aux
 }
 
 func (s DatabaseFixture) Sale(cashier models.Id, itemIds []models.Id, options ...func(*aux.AddSaleData)) *models.Sale {
-	return aux.AddSaleToDatabase(s.Db, cashier, itemIds, options...)
+	transaction, err := queries.NewTransactionDatabaseQuerier(s.Db)
+	if err != nil {
+		panic(err)
+	}
+
+	sale := aux.AddSaleToDatabase(transaction, cashier, itemIds, options...)
+
+	if err := transaction.Commit(); err != nil {
+		panic(err)
+	}
+
+	return sale
 }
 
 func (s DatabaseFixture) RequireNoSuchUsers(t *testing.T, userIds ...models.Id) {

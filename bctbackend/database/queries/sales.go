@@ -16,20 +16,13 @@ type addSaleQuery struct {
 	ItemIds         []models.Id
 }
 
-func (q *addSaleQuery) execute(db *sql.DB) (r_result models.Id, r_err error) {
+func (q *addSaleQuery) execute(db *TransactionalDatabaseQuerier) (r_result models.Id, r_err error) {
 	if err := q.ensureInputsValidity(db); err != nil {
 		return 0, err
 	}
 
-	// Start a transaction
-	transaction, err := NewTransactionDatabaseQuerier(db)
-	if err != nil {
-		return 0, err
-	}
-	defer func() { r_err = errors.Join(r_err, transaction.Rollback()) }()
-
 	// Check if all items exist
-	exists, err := ItemsExist(transaction.transaction, q.ItemIds)
+	exists, err := ItemsExist(db, q.ItemIds)
 	if err != nil {
 		return 0, err
 	}
@@ -38,12 +31,12 @@ func (q *addSaleQuery) execute(db *sql.DB) (r_result models.Id, r_err error) {
 	}
 
 	// Check if any of the items are hidden
-	if err := EnsureNoHiddenItems(transaction, q.ItemIds); err != nil {
+	if err := EnsureNoHiddenItems(db, q.ItemIds); err != nil {
 		return 0, err
 	}
 
 	// Create sale
-	result, err := transaction.Exec(
+	result, err := db.Exec(
 		`
 			INSERT INTO sales(cashier_id, transaction_time)
 			VALUES (?, ?)
@@ -62,7 +55,7 @@ func (q *addSaleQuery) execute(db *sql.DB) (r_result models.Id, r_err error) {
 
 	// Add items to sale
 	for _, itemId := range q.ItemIds {
-		_, err := transaction.Exec(
+		_, err := db.Exec(
 			`
 				INSERT INTO sale_items(sale_id, item_id)
 				VALUES (?, ?)
@@ -76,15 +69,10 @@ func (q *addSaleQuery) execute(db *sql.DB) (r_result models.Id, r_err error) {
 		}
 	}
 
-	err = transaction.Commit()
-	if err != nil {
-		return 0, err
-	}
-
 	return models.Id(saleId), nil
 }
 
-func (q *addSaleQuery) ensureInputsValidity(db *sql.DB) error {
+func (q *addSaleQuery) ensureInputsValidity(db DatabaseQuerier) error {
 	// Ensure there is at least one item in the sale.
 	if len(q.ItemIds) == 0 {
 		return dberr.ErrSaleMissingItems
@@ -116,7 +104,7 @@ func (q *addSaleQuery) ensureInputsValidity(db *sql.DB) error {
 // A ErrSaleRequiresCashier is returned if the cashierId does not correspond to a cashier.
 // A ErrDuplicateItemInSale is returned if itemIds contains duplicate item IDs.
 func AddSale(
-	db *sql.DB,
+	db *TransactionalDatabaseQuerier,
 	cashierId models.Id,
 	transactionTime models.Timestamp,
 	itemIds []models.Id) (r_result models.Id, r_err error) {

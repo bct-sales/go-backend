@@ -5,7 +5,6 @@ import (
 	"bctbackend/commands/common"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"database/sql"
 	"fmt"
 
 	"github.com/pterm/pterm"
@@ -47,7 +46,7 @@ func NewSaleAddCommand() *cobra.Command {
 }
 
 func (c *addNewSaleCommand) execute() error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+	return c.WithTransaction(func(db *queries.TransactionalDatabaseQuerier) error {
 		timestamp := models.Now()
 
 		itemIDs := algorithms.Map(c.rawItemIDs, func(id int64) models.Id { return models.Id(id) })
@@ -68,7 +67,7 @@ func (c *addNewSaleCommand) execute() error {
 	})
 }
 
-func (c *addNewSaleCommand) printSale(db *sql.DB, saleId models.Id) error {
+func (c *addNewSaleCommand) printSale(db queries.DatabaseQuerier, saleId models.Id) error {
 	sale, err := queries.GetSaleWithId(db, saleId)
 	if err != nil {
 		c.PrintErrorf("Failed to get sale back from database\n")

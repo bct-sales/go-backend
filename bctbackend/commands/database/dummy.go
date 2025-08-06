@@ -7,6 +7,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"database/sql"
+	"errors"
 	"fmt"
 	"math/rand/v2"
 	"slices"
@@ -419,8 +420,17 @@ func (c *dummyDatabaseCommand) generateRandomToys() (string, models.Id) {
 	return description, categoryId
 }
 
-func (c *dummyDatabaseCommand) addSales(db *sql.DB, cashierIds []models.Id, itemIds []models.Id) error {
+func (c *dummyDatabaseCommand) addSales(db *sql.DB, cashierIds []models.Id, itemIds []models.Id) (r_err error) {
 	c.Printf("Adding sales\n")
+
+	transaction, err := queries.NewTransactionDatabaseQuerier(db)
+	if err != nil {
+		return fmt.Errorf("failed to start transaction: %w", err)
+	}
+
+	defer func() {
+		r_err = errors.Join(r_err, transaction.Rollback())
+	}()
 
 	// Make copy because we need to shuffle it repeatedly
 	itemIds = slices.Clone(itemIds)
@@ -435,11 +445,15 @@ func (c *dummyDatabaseCommand) addSales(db *sql.DB, cashierIds []models.Id, item
 			itemIds[i], itemIds[j] = itemIds[j], itemIds[i]
 		})
 		saleItems := itemIds[:itemCount]
-		_, err := queries.AddSale(db, cashierId, transactionTime, saleItems)
+		_, err := queries.AddSale(transaction, cashierId, transactionTime, saleItems)
 
 		if err != nil {
 			return fmt.Errorf("failed to add sale: %w", err)
 		}
+	}
+
+	if err := transaction.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
 	return nil
