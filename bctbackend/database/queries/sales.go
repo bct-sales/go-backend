@@ -285,7 +285,7 @@ func GetSaleWithId(db DatabaseQuerier, saleId models.Id) (r_result *models.Sale,
 	return &sale, nil
 }
 
-func SaleWithIdExists(db *sql.DB, saleId models.Id) (r_result bool, r_err error) {
+func SaleWithIdExists(db DatabaseQuerier, saleId models.Id) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
