@@ -314,7 +314,7 @@ func SaleWithIdExists(db DatabaseQuerier, saleId models.Id) (r_result bool, r_er
 
 // GetSaleItems lists all items associated with a specified sale.
 // Returns ErrNoSuchSale if the sale does not exist.
-func GetSaleItems(db *sql.DB, saleId models.Id) (r_result []*models.Item, r_err error) {
+func GetSaleItems(db DatabaseQuerier, saleId models.Id) (r_result []*models.Item, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
