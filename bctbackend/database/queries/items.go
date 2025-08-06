@@ -874,7 +874,7 @@ func EnsureNoHiddenItems(qh DatabaseQuerier, itemIds []models.Id) (r_err error) 
 	return nil
 }
 
-func IsItemFrozen(db *sql.DB, itemId models.Id) (r_result bool, r_err error) {
+func IsItemFrozen(db DatabaseQuerier, itemId models.Id) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
