@@ -920,7 +920,7 @@ func IsItemHidden(db DatabaseQuerier, itemId models.Id) (r_result bool, r_err er
 	return false, fmt.Errorf("failed to check if item %d is hidden: %w", itemId, dberr.ErrNoSuchItem)
 }
 
-func RemoveItemWithId(db *sql.DB, itemId models.Id) (r_err error) {
+func RemoveItemWithId(db DatabaseQuerier, itemId models.Id) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
