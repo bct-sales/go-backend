@@ -768,7 +768,7 @@ func RemoveAllSales(db *sql.DB) (r_err error) {
 	return nil
 }
 
-func GetCashierSales(db *sql.DB, cashierId models.Id, receiver func(*models.SaleSummary) error) (r_err error) {
+func GetCashierSales(db DatabaseQuerier, cashierId models.Id, receiver func(*models.SaleSummary) error) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
