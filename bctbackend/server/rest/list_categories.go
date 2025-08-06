@@ -67,7 +67,7 @@ func listCategoriesWithCounts(arguments *HandlerFunctionArguments, itemSelection
 		return
 	}
 
-	categoryCounts, err := queries.GetCategoryCounts(db, itemSelection)
+	categoryCounts, err := queries.CountItemsPerCategory(db, itemSelection)
 	if err != nil {
 		logger.InternalError("Failed to fetch category counts", "error", err)
 		failure_response.Unknown(context, "Failed to fetch category counts: "+err.Error())

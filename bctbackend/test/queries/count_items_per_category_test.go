@@ -58,7 +58,7 @@ func TestGetCategoryCounts(t *testing.T) {
 					}
 				}
 
-				actualCounts, err := queries.GetCategoryCounts(db, queries.AllItems)
+				actualCounts, err := queries.CountItemsPerCategory(db, queries.AllItems)
 				require.NoError(t, err)
 				require.Equal(t, len(defaultCategoryNameTable), len(actualCounts))
 
@@ -120,7 +120,7 @@ func TestGetCategoryCounts(t *testing.T) {
 							}
 						}
 
-						actualCounts, err := queries.GetCategoryCounts(db, queries.OnlyVisibleItems)
+						actualCounts, err := queries.CountItemsPerCategory(db, queries.OnlyVisibleItems)
 						require.NoError(t, err)
 						require.Equal(t, len(defaultCategoryNameTable), len(actualCounts))
 
@@ -180,7 +180,7 @@ func TestGetCategoryCounts(t *testing.T) {
 							}
 						}
 
-						actualCounts, err := queries.GetCategoryCounts(db, queries.OnlyHiddenItems)
+						actualCounts, err := queries.CountItemsPerCategory(db, queries.OnlyHiddenItems)
 						require.NoError(t, err)
 						require.Equal(t, len(defaultCategoryNameTable), len(actualCounts))
 
@@ -242,7 +242,7 @@ func TestGetCategoryCounts(t *testing.T) {
 							}
 						}
 
-						actualCounts, err := queries.GetCategoryCounts(db, queries.AllItems)
+						actualCounts, err := queries.CountItemsPerCategory(db, queries.AllItems)
 						require.NoError(t, err)
 						require.Equal(t, len(defaultCategoryNameTable), len(actualCounts))
 

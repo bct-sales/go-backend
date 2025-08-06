@@ -74,7 +74,7 @@ func (c *categoryCountCommand) getCategoryCounts(database *sql.DB) (map[models.I
 		itemSelection = queries.OnlyVisibleItems
 	}
 
-	categoryCounts, err := queries.GetCategoryCounts(database, itemSelection)
+	categoryCounts, err := queries.CountItemsPerCategory(database, itemSelection)
 
 	if err != nil {
 		c.PrintErrorf("Failed to get category counts\n")
