@@ -72,6 +72,8 @@ func AddCategoryWithId(db DatabaseQuerier, categoryId models.Id, categoryName st
 	return nil
 }
 
+// CategoryWithIdExists checks if a category with the given ID exists in the database.
+// Returns true if such a category exists, false otherwise.
 func CategoryWithIdExists(db DatabaseQuerier, categoryId models.Id) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
