@@ -114,6 +114,8 @@ func GetSellerItems(db DatabaseQuerier, sellerId models.Id, itemSelection ItemSe
 		r_err = dberr.WrapError(r_err)
 	}()
 
+	// Note: GetSellerItems performs multiple queries, but no transaction is necessary
+	// since once a user exists with a certain role, it will not disappear.
 	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleId()); err != nil {
 		return nil, err
 	}
