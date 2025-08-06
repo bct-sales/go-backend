@@ -1043,7 +1043,7 @@ type CategorySaleTotal struct {
 	TotalInCents models.MoneyInCents
 }
 
-func GetSalesOverview(db *sql.DB) (r_result []CategorySaleTotal, r_err error) {
+func GetSalesOverview(db DatabaseQuerier) (r_result []CategorySaleTotal, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
