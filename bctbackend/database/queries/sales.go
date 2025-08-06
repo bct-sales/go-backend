@@ -682,7 +682,7 @@ func GetSalesWithItem(db DatabaseQuerier, itemId models.Id) (r_result []models.I
 // The sales are ordered by transaction time (chronologically) and sale ID (lowest first).
 // Returns ErrNoSuchUser if the cashierId does not correspond to any user.
 // Returns ErrWrongRole if the cashierId does not correspond to a cashier.
-func GetSalesWithCashier(db *sql.DB, cashierId models.Id) (r_result []*models.Sale, r_err error) {
+func GetSalesWithCashier(db DatabaseQuerier, cashierId models.Id) (r_result []*models.Sale, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
