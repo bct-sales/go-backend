@@ -897,7 +897,7 @@ func IsItemFrozen(db DatabaseQuerier, itemId models.Id) (r_result bool, r_err er
 	return false, fmt.Errorf("failed to check if item %d is frozen: %w", itemId, dberr.ErrNoSuchItem)
 }
 
-func IsItemHidden(db *sql.DB, itemId models.Id) (r_result bool, r_err error) {
+func IsItemHidden(db DatabaseQuerier, itemId models.Id) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
