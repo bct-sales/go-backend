@@ -653,11 +653,9 @@ func GetSalesWithItem(db DatabaseQuerier, itemId models.Id) (r_result []models.I
 		`,
 		itemId,
 	)
-
 	if err != nil {
 		return nil, err
 	}
-
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	saleIds := []models.Id{}
