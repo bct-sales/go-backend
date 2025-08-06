@@ -38,6 +38,8 @@ func AddCategory(db DatabaseQuerier, categoryName string) (r_result models.Id, r
 	return models.Id(categoryId), nil
 }
 
+// AddCategoryWithId adds a new category with the given ID and name to the database.
+// If the category name is invalid, it returns an ErrInvalidCategoryName error.
 func AddCategoryWithId(db DatabaseQuerier, categoryId models.Id, categoryName string) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
