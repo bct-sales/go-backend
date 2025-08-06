@@ -879,7 +879,7 @@ func IsItemFrozen(db DatabaseQuerier, itemId models.Id) (r_result bool, r_err er
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	nonfrozen, frozen, err := PartitionItemsByFrozenStatus(db, []models.Id{itemId})
+	nonFrozen, frozen, err := PartitionItemsByFrozenStatus(db, []models.Id{itemId})
 	if err != nil {
 		return false, err
 	}
@@ -889,7 +889,7 @@ func IsItemFrozen(db DatabaseQuerier, itemId models.Id) (r_result bool, r_err er
 		return true, nil
 	}
 
-	isUnfrozen := nonfrozen.Len() > 0
+	isUnfrozen := nonFrozen.Len() > 0
 	if isUnfrozen {
 		return false, nil
 	}
