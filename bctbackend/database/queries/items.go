@@ -185,7 +185,7 @@ type ItemWithSaleCount struct {
 // The items are ordered by their time of addition, then by id.
 // An ErrNoSuchUser is returned if no user with the given sellerId exists.
 // An ErrWrongRole is returned if sellerId does not refer to a seller.
-func GetItemsWithSaleCounts(db *sql.DB, itemSelection ItemSelection, sellerId *models.Id) (r_items []*ItemWithSaleCount, r_err error) {
+func GetItemsWithSaleCounts(db DatabaseQuerier, itemSelection ItemSelection, sellerId *models.Id) (r_items []*ItemWithSaleCount, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
