@@ -14,16 +14,14 @@ import (
 
 func TestGetTotalSalesValue(t *testing.T) {
 	t.Run("Zero sales", func(t *testing.T) {
-		t.Run("Only visible items in count", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
-			defer setup.Close()
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		defer setup.Close()
 
-			seller := setup.Seller()
-			setup.Items(seller.UserId, 0, aux.WithHidden(false))
+		seller := setup.Seller()
+		setup.Items(seller.UserId, 0, aux.WithHidden(false))
 
-			total, err := queries.GetTotalSalesValue(db)
-			require.NoError(t, err)
-			require.Equal(t, models.MoneyInCents(0), total)
-		})
+		total, err := queries.GetTotalSalesValue(db)
+		require.NoError(t, err)
+		require.Equal(t, models.MoneyInCents(0), total)
 	})
 }
