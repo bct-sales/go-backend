@@ -11,6 +11,26 @@ type DatabaseQuerier interface {
 	QueryRow(query string, args ...any) *sql.Row
 }
 
+type SimpleDatabaseQuerier struct {
+	db *sql.DB
+}
+
+func NewSimpleDatabaseQuerier(db *sql.DB) *SimpleDatabaseQuerier {
+	return &SimpleDatabaseQuerier{db: db}
+}
+
+func (s *SimpleDatabaseQuerier) Exec(query string, args ...any) (sql.Result, error) {
+	return s.db.Exec(query, args...)
+}
+
+func (s *SimpleDatabaseQuerier) Query(query string, args ...any) (*sql.Rows, error) {
+	return s.db.Query(query, args...)
+}
+
+func (s *SimpleDatabaseQuerier) QueryRow(query string, args ...any) *sql.Row {
+	return s.db.QueryRow(query, args...)
+}
+
 type TransactionalDatabaseQuerier struct {
 	transaction *sql.Tx
 	committed   bool
