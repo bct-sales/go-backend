@@ -109,7 +109,7 @@ func GetItemIds(db DatabaseQuerier) (r_result []models.Id, r_err error) {
 // The items are ordered by their time of addition, then by id.
 // An ErrNoSuchUser is returned if no user with the given sellerId exists.
 // An ErrWrongRole is returned if sellerId does not refer to a seller.
-func GetSellerItems(db *sql.DB, sellerId models.Id, itemSelection ItemSelection) (r_items []*models.Item, r_err error) {
+func GetSellerItems(db DatabaseQuerier, sellerId models.Id, itemSelection ItemSelection) (r_items []*models.Item, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
