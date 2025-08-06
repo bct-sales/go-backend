@@ -61,4 +61,20 @@ func TestGetTotalSalesValue(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, items[0].PriceInCents+items[1].PriceInCents+items[2].PriceInCents, total)
 	})
+
+	t.Run("Multiple sales, single cashier, no shared items among sales", func(t *testing.T) {
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		defer setup.Close()
+
+		seller := setup.Seller()
+		cashier := setup.Cashier()
+		items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
+		setup.Sale(cashier.UserId, []models.Id{items[0].ItemID})
+		setup.Sale(cashier.UserId, []models.Id{items[1].ItemID})
+		setup.Sale(cashier.UserId, []models.Id{items[2].ItemID})
+
+		total, err := queries.GetTotalSalesValue(db)
+		require.NoError(t, err)
+		require.Equal(t, items[0].PriceInCents+items[1].PriceInCents+items[2].PriceInCents, total)
+	})
 }
