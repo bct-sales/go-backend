@@ -11,24 +11,24 @@ type DatabaseQuerier interface {
 	QueryRow(query string, args ...any) *sql.Row
 }
 
-type TransactionedDatabaseQuerier struct {
+type TransactionalDatabaseQuerier struct {
 	transaction *sql.Tx
 	committed   bool
 }
 
-func NewTransactionDatabaseQuerier(db *sql.DB) (*TransactionedDatabaseQuerier, error) {
+func NewTransactionDatabaseQuerier(db *sql.DB) (*TransactionalDatabaseQuerier, error) {
 	tx, err := db.Begin()
 	if err != nil {
 		return nil, fmt.Errorf("failed to start new transaction: %w", err)
 	}
 
-	return &TransactionedDatabaseQuerier{
+	return &TransactionalDatabaseQuerier{
 		transaction: tx,
 		committed:   false,
 	}, nil
 }
 
-func (t *TransactionedDatabaseQuerier) Commit() error {
+func (t *TransactionalDatabaseQuerier) Commit() error {
 	if err := t.transaction.Commit(); err != nil {
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
@@ -37,7 +37,7 @@ func (t *TransactionedDatabaseQuerier) Commit() error {
 	return nil
 }
 
-func (t *TransactionedDatabaseQuerier) Rollback() error {
+func (t *TransactionalDatabaseQuerier) Rollback() error {
 	if t.committed {
 		return nil
 	}
@@ -49,14 +49,14 @@ func (t *TransactionedDatabaseQuerier) Rollback() error {
 	return nil
 }
 
-func (t *TransactionedDatabaseQuerier) Exec(query string, args ...any) (sql.Result, error) {
+func (t *TransactionalDatabaseQuerier) Exec(query string, args ...any) (sql.Result, error) {
 	return t.transaction.Exec(query, args...)
 }
 
-func (t *TransactionedDatabaseQuerier) Query(query string, args ...any) (*sql.Rows, error) {
+func (t *TransactionalDatabaseQuerier) Query(query string, args ...any) (*sql.Rows, error) {
 	return t.transaction.Query(query, args...)
 }
 
-func (t *TransactionedDatabaseQuerier) QueryRow(query string, args ...any) *sql.Row {
+func (t *TransactionalDatabaseQuerier) QueryRow(query string, args ...any) *sql.Row {
 	return t.transaction.QueryRow(query, args...)
 }
