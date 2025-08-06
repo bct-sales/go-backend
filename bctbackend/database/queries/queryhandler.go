@@ -2,6 +2,7 @@ package queries
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 )
 
@@ -59,4 +60,24 @@ func (t *TransactionalDatabaseQuerier) Query(query string, args ...any) (*sql.Ro
 
 func (t *TransactionalDatabaseQuerier) QueryRow(query string, args ...any) *sql.Row {
 	return t.transaction.QueryRow(query, args...)
+}
+
+func WithTransaction[T any](db *sql.DB, fn func(transaction *TransactionalDatabaseQuerier) (T, error)) (T, error) {
+	transaction, err := NewTransactionDatabaseQuerier(db)
+	if err != nil {
+		var dummy T
+		return dummy, err
+	}
+
+	result, err := fn(transaction)
+	if err != nil {
+		rollbackErr := transaction.Rollback()
+		return result, errors.Join(err, rollbackErr)
+	} else {
+		if err := transaction.Commit(); err != nil {
+			return result, err
+		}
+	}
+
+	return result, nil
 }
