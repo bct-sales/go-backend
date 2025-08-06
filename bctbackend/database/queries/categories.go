@@ -143,6 +143,8 @@ func GetCategories(db DatabaseQuerier) (r_result []*models.ItemCategory, r_err e
 	return categories, nil
 }
 
+// GetCategoryNameTable retrieves the IDs and names of all categories from the database.
+// Returns a map where the keys are category IDs and the values are category names.
 func GetCategoryNameTable(db DatabaseQuerier) (r_result map[models.Id]string, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
