@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func GetItems(db *sql.DB, receiver func(*models.Item) error, itemSelection ItemSelection, rowSelection SQLOption) (r_err error) {
+func GetItems(db DatabaseQuerier, receiver func(*models.Item) error, itemSelection ItemSelection, rowSelection SQLOption) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
