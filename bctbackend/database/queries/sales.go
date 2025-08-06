@@ -873,7 +873,7 @@ type MultiplySoldItem struct {
 	Sales []models.Sale
 }
 
-func GetMultiplySoldItems(db *sql.DB) (r_result []MultiplySoldItem, r_err error) {
+func GetMultiplySoldItems(db DatabaseQuerier) (r_result []MultiplySoldItem, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
