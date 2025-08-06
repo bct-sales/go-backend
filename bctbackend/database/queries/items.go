@@ -273,7 +273,7 @@ func GetItemsWithSaleCounts(db DatabaseQuerier, itemSelection ItemSelection, sel
 // Hidden items are not included, as they cannot be sold.
 // An ErrNoSuchUser is returned if no user with the given sellerId exists.
 // An ErrWrongRole is returned if sellerId does not refer to a seller.
-func GetSellerItemsWithSaleCounts(db *sql.DB, sellerId models.Id) (r_items []*ItemWithSaleCount, r_err error) {
+func GetSellerItemsWithSaleCounts(db DatabaseQuerier, sellerId models.Id) (r_items []*ItemWithSaleCount, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
