@@ -8,6 +8,9 @@ import (
 	"fmt"
 )
 
+// AddCategory adds a new category with the given name to the database.
+// If the category name is invalid, it returns an ErrInvalidCategoryName error.
+// Returns the ID of the newly created category.
 func AddCategory(db DatabaseQuerier, categoryName string) (r_result models.Id, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
