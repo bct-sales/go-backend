@@ -18,7 +18,7 @@ func TestGetTotalSalesValue(t *testing.T) {
 		defer setup.Close()
 
 		seller := setup.Seller()
-		setup.Items(seller.UserId, 0, aux.WithHidden(false))
+		setup.Items(seller.UserId, 10, aux.WithHidden(false))
 
 		total, err := queries.GetTotalSalesValue(db)
 		require.NoError(t, err)
