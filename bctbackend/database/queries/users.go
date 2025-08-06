@@ -470,7 +470,7 @@ func CountSellerItems(db DatabaseQuerier, sellerId models.Id, frozen GetSellerIt
 	return itemCount, nil
 }
 
-func GetSellerTotalPriceOfAllItems(db *sql.DB, sellerId models.Id, itemSelection ItemSelection) (r_result models.MoneyInCents, r_err error) {
+func GetSellerTotalPriceOfAllItems(db DatabaseQuerier, sellerId models.Id, itemSelection ItemSelection) (r_result models.MoneyInCents, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
