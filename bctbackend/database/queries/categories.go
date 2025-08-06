@@ -101,6 +101,8 @@ func CategoryWithIdExists(db DatabaseQuerier, categoryId models.Id) (r_result bo
 	return true, nil
 }
 
+// GetCategories retrieves all categories from the database.
+// The categories are returned in ascending order by their ID.
 func GetCategories(db DatabaseQuerier) (r_result []*models.ItemCategory, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
