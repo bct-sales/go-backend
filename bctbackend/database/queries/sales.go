@@ -255,7 +255,7 @@ func (q *GetSalesQuery) orderClause() string {
 
 // GetSaleWithId returns the sale with the given saleId.
 // A ErrNoSuchSale is returned if no sale with the given saleId exists.
-func GetSaleWithId(db *sql.DB, saleId models.Id) (r_result *models.Sale, r_err error) {
+func GetSaleWithId(db DatabaseQuerier, saleId models.Id) (r_result *models.Sale, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
