@@ -521,6 +521,7 @@ func AddItem(
 	if !models.IsValidItemDescription(description) {
 		return 0, fmt.Errorf("failed to add item with description %s: %w", description, dberr.ErrInvalidItemDescription)
 	}
+	// No transaction is necessary here, since users don't change
 	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleId()); err != nil {
 		return 0, fmt.Errorf("could not ensure user %d exists and is seller: %w", sellerId, err)
 	}
