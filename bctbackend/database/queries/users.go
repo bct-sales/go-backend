@@ -154,7 +154,7 @@ func UserWithIdExists(db *sql.DB, userId models.Id) (r_result bool, r_err error)
 
 // GetUserWithId retrieves a user from the database by their user ID.
 // An ErrNoSuchUser is returned if the user does not exist.
-func GetUserWithId(db *sql.DB, userId models.Id) (r_result *models.User, r_err error) {
+func GetUserWithId(db DatabaseQuerier, userId models.Id) (r_result *models.User, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
