@@ -339,7 +339,7 @@ func EnsureUserExists(db *sql.DB, userId models.Id) (r_err error) {
 // EnsureUserExistsAndHasRole checks if a user has a specific role.
 // An ErrNoSuchUser is returned if the user does not exist.
 // A ErrWrongRole is returned if the user has a different role.
-func EnsureUserExistsAndHasRole(db *sql.DB, userId models.Id, expectedRoleId models.RoleId) (r_err error) {
+func EnsureUserExistsAndHasRole(db DatabaseQuerier, userId models.Id, expectedRoleId models.RoleId) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
