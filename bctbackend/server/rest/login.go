@@ -6,6 +6,7 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/security"
 	"bctbackend/server/failure_response"
+	"bctbackend/server/logger"
 	"database/sql"
 	"errors"
 	"log/slog"
@@ -38,18 +39,18 @@ type LoginSuccessResponse struct {
 // @Param username formData string true "username"
 // @Param password formData string true "password"
 // @Tags authentication
-func Login(context *gin.Context, db *sql.DB) {
+func Login(logger logger.Logger, context *gin.Context, db *sql.DB) {
 	var loginRequest LoginRequest
 
 	if err := context.ShouldBind(&loginRequest); err != nil {
-		slog.Info("Failed to parse login request", slog.String("error", err.Error()))
+		logger.InvalidInput("Failed to parse login request", slog.String("error", err.Error()))
 		failure_response.InvalidRequest(context, "Failed to parse request")
 		return
 	}
 
 	userId, err := models.ParseId(loginRequest.Username)
 	if err != nil {
-		slog.Info("Someone tried to login with an invalid user ID", slog.String("userId", loginRequest.Username))
+		logger.InvalidRequest("Someone tried to login with an invalid user ID", slog.String("userId", loginRequest.Username))
 		failure_response.InvalidUserId(context, err.Error())
 		return
 	}
@@ -59,18 +60,18 @@ func Login(context *gin.Context, db *sql.DB) {
 
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchUser) {
-			slog.Info("Unknown user trying to log in", slog.String("userId", loginRequest.Username))
+			logger.InvalidRequest("Unknown user trying to log in")
 			failure_response.UnknownUser(context, err.Error())
 			return
 		}
 
 		if errors.Is(err, dberr.ErrWrongPassword) {
-			slog.Info("User entered wrong password", slog.String("userId", loginRequest.Username))
+			logger.InvalidRequest("User entered wrong password", slog.String("userId", userId.String()), slog.String("wrongPassword", password))
 			failure_response.WrongPassword(context, err.Error())
 			return
 		}
 
-		slog.Error("Failed authentication for unknown reasons", slog.String("userId", loginRequest.Username), slog.String("error", err.Error()))
+		logger.InternalError("Failed authentication for unknown reasons", slog.String("userId", loginRequest.Username), slog.String("error", err.Error()))
 		failure_response.Unknown(context, err.Error())
 		return
 	}
@@ -79,7 +80,7 @@ func Login(context *gin.Context, db *sql.DB) {
 	sessionId, err := queries.AddSession(db, userId, expirationTime)
 
 	if err != nil {
-		slog.Error("Failed to create session", slog.String("userId", loginRequest.Username), slog.String("error", err.Error()))
+		logger.InternalError("Failed to create session", slog.String("userId", loginRequest.Username), slog.String("error", err.Error()))
 		failure_response.Unknown(context, err.Error())
 		return
 	}
@@ -90,6 +91,4 @@ func Login(context *gin.Context, db *sql.DB) {
 
 	response := LoginSuccessResponse{Role: roleName}
 	context.JSON(http.StatusOK, response)
-
-	slog.Info("User logged in successfully", slog.String("userId", loginRequest.Username))
 }

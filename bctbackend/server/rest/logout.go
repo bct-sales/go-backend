@@ -2,12 +2,14 @@ package rest
 
 import (
 	"database/sql"
+	"log/slog"
 	"net/http"
 
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	_ "bctbackend/docs"
 	"bctbackend/security"
+	"bctbackend/server/logger"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,9 +20,10 @@ type LogoutPayload struct{}
 // @Description Logs out the user.
 // @Tags authentication
 // @Router /logout [post]
-func Logout(context *gin.Context, db *sql.DB) {
+func Logout(logger logger.Logger, context *gin.Context, db *sql.DB) {
 	sessionIdString, err := context.Cookie(security.SessionCookieName)
 	if err != nil {
+		logger.InvalidRequest("Cannot logout without session ID", slog.String("error", err.Error()))
 		context.JSON(http.StatusOK, gin.H{"message": "Unauthorized: missing session ID"})
 		return
 	}
@@ -29,6 +32,7 @@ func Logout(context *gin.Context, db *sql.DB) {
 	err = queries.DeleteSession(db, sessionId)
 
 	if err != nil {
+		logger.InternalError("Failed to delete session", slog.String("error", err.Error()))
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to delete session"})
 		return
 	}
