@@ -56,7 +56,7 @@ func AddUserWithId(
 }
 
 func AddUser(
-	db *sql.DB,
+	db DatabaseQuerier,
 	roleId models.RoleId,
 	createdAt models.Timestamp,
 	lastActivity *models.Timestamp,
