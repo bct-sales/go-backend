@@ -500,7 +500,7 @@ func CountItems(db DatabaseQuerier, selection ItemSelection) (r_result int, r_er
 // An ErrNoSuchCategory is returned if the itemCategoryId is invalid.
 // An ErrInvalidPrice is returned if the priceInCents is invalid.
 func AddItem(
-	db *sql.DB,
+	db DatabaseQuerier,
 	addedAt models.Timestamp,
 	description string,
 	priceInCents models.MoneyInCents,
