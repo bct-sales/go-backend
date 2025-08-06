@@ -153,7 +153,7 @@ func GetCategoryNameTable(db DatabaseQuerier) (r_result map[models.Id]string, r_
 	return result, nil
 }
 
-func GetCategoryCounts(db *sql.DB, itemSelection ItemSelection) (r_counts map[models.Id]int, r_err error) {
+func GetCategoryCounts(db DatabaseQuerier, itemSelection ItemSelection) (r_counts map[models.Id]int, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
