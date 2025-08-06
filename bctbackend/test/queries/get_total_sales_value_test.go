@@ -33,4 +33,32 @@ func TestGetTotalSalesValue(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, models.MoneyInCents(0), total)
 	})
+
+	t.Run("Single sale with single item", func(t *testing.T) {
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		defer setup.Close()
+
+		seller := setup.Seller()
+		cashier := setup.Cashier()
+		items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
+		setup.Sale(cashier.UserId, []models.Id{items[0].ItemID})
+
+		total, err := queries.GetTotalSalesValue(db)
+		require.NoError(t, err)
+		require.Equal(t, items[0].PriceInCents, total)
+	})
+
+	t.Run("Single sale with multiple item", func(t *testing.T) {
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		defer setup.Close()
+
+		seller := setup.Seller()
+		cashier := setup.Cashier()
+		items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
+		setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID, items[2].ItemID})
+
+		total, err := queries.GetTotalSalesValue(db)
+		require.NoError(t, err)
+		require.Equal(t, items[0].PriceInCents+items[1].PriceInCents+items[2].PriceInCents, total)
+	})
 }
