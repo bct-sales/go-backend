@@ -72,7 +72,7 @@ func GetItems(db DatabaseQuerier, receiver func(*models.Item) error, itemSelecti
 	return nil
 }
 
-func GetItemIds(db *sql.DB) (r_result []models.Id, r_err error) {
+func GetItemIds(db DatabaseQuerier) (r_result []models.Id, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
