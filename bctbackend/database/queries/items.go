@@ -648,7 +648,7 @@ func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) (r_
 	itemIds = algorithms.RemoveDuplicates(itemIds)
 	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
 
-	transaction, err := NewTransaction(db)
+	transaction, err := NewTransactionDatabaseQuerier(db)
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
@@ -693,7 +693,7 @@ func UpdateHiddenStatusOfItems(db *sql.DB, itemIds []models.Id, hidden bool) (r_
 	itemIds = algorithms.RemoveDuplicates(itemIds)
 	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
 
-	transaction, err := NewTransaction(db)
+	transaction, err := NewTransactionDatabaseQuerier(db)
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}

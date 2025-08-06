@@ -78,7 +78,7 @@ func (ep *getSalesEndpoint) execute(database *sql.DB) {
 }
 
 func (ep *getSalesEndpoint) fetchData(database *sql.DB, queryParameters *getSalesQueryParameters) (*ListSalesSuccessResponse, bool) {
-	transaction, err := queries.NewTransaction(database)
+	transaction, err := queries.NewTransactionDatabaseQuerier(database)
 	if err != nil {
 		ep.logger.InternalError("Failed to create transaction", err)
 		failure_response.Unknown(ep.context, "Failed to create transaction: "+err.Error())
@@ -135,7 +135,7 @@ func (ep *getSalesEndpoint) fetchData(database *sql.DB, queryParameters *getSale
 	return &response, true
 }
 
-func (ep *getSalesEndpoint) countItems(transaction *queries.Transaction) (int, bool) {
+func (ep *getSalesEndpoint) countItems(transaction *queries.TransactionedDatabaseQuerier) (int, bool) {
 	soldItemCount, err := queries.CountItems(transaction, queries.OnlyVisibleItems)
 	if err != nil {
 		ep.logger.InternalError("Failed to get sold item count", "error", err)
@@ -145,7 +145,7 @@ func (ep *getSalesEndpoint) countItems(transaction *queries.Transaction) (int, b
 	return soldItemCount, true
 }
 
-func (ep *getSalesEndpoint) countSoldItems(transaction *queries.Transaction) (int, int, bool) {
+func (ep *getSalesEndpoint) countSoldItems(transaction *queries.TransactionedDatabaseQuerier) (int, int, bool) {
 	counts, err := queries.CountSoldItems(transaction)
 
 	if err != nil {
@@ -157,7 +157,7 @@ func (ep *getSalesEndpoint) countSoldItems(transaction *queries.Transaction) (in
 	return counts.Distinct, counts.IncludeMultiples, true
 }
 
-func (ep *getSalesEndpoint) countSales(transaction *queries.Transaction) (int, bool) {
+func (ep *getSalesEndpoint) countSales(transaction *queries.TransactionedDatabaseQuerier) (int, bool) {
 	saleCount, err := queries.CountSales(transaction)
 
 	if err != nil {
@@ -169,7 +169,7 @@ func (ep *getSalesEndpoint) countSales(transaction *queries.Transaction) (int, b
 	return saleCount, true
 }
 
-func (ep *getSalesEndpoint) getTotalSalesValue(transaction *queries.Transaction) (models.MoneyInCents, bool) {
+func (ep *getSalesEndpoint) getTotalSalesValue(transaction *queries.TransactionedDatabaseQuerier) (models.MoneyInCents, bool) {
 	totalValue, err := queries.GetTotalSalesValue(transaction)
 
 	if err != nil {
@@ -192,7 +192,7 @@ func (ep *getSalesEndpoint) ensureUserIsAdmin() bool {
 	return true
 }
 
-func (ep *getSalesEndpoint) getSales(transaction *queries.Transaction, queryParameters *getSalesQueryParameters) ([]*ListSalesSaleData, bool) {
+func (ep *getSalesEndpoint) getSales(transaction *queries.TransactionedDatabaseQuerier, queryParameters *getSalesQueryParameters) ([]*ListSalesSaleData, bool) {
 	sales := make([]*ListSalesSaleData, 0, 25)
 	processSale := func(sale *models.SaleSummary) error {
 		saleData := ListSalesSaleData{

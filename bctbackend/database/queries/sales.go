@@ -22,7 +22,7 @@ func (q *addSaleQuery) execute(db *sql.DB) (r_result models.Id, r_err error) {
 	}
 
 	// Start a transaction
-	transaction, err := NewTransaction(db)
+	transaction, err := NewTransactionDatabaseQuerier(db)
 	if err != nil {
 		return 0, err
 	}
@@ -395,7 +395,7 @@ func RemoveSale(db *sql.DB, saleId models.Id) (r_err error) {
 		return fmt.Errorf("failed to remove sale %d: %w", saleId, dberr.ErrNoSuchSale)
 	}
 
-	transaction, err := NewTransaction(db)
+	transaction, err := NewTransactionDatabaseQuerier(db)
 	if err != nil {
 		return err
 	}
@@ -738,7 +738,7 @@ func RemoveAllSales(db *sql.DB) (r_err error) {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	transaction, err := NewTransaction(db)
+	transaction, err := NewTransactionDatabaseQuerier(db)
 	if err != nil {
 		return err
 	}
