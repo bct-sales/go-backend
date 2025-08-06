@@ -845,6 +845,9 @@ func CountSales(db QueryHandler) (r_result int, r_err error) {
 	return count, nil
 }
 
+// GetTotalSalesValue returns the total value of all sales in the database.
+// The value is calculated as the sum of the prices of all items sold.
+// If an item was sold multiple times, its price is counted each time.
 func GetTotalSalesValue(db QueryHandler) (r_result models.MoneyInCents, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
