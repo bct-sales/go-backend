@@ -164,6 +164,9 @@ func GetCategoryNameTable(db DatabaseQuerier) (r_result map[models.Id]string, r_
 	return result, nil
 }
 
+// GetCategoryCounts retrieves the count of items in each category.
+// Returns a map where the keys are category IDs and the values are the counts of items in that category.
+// The itemSelection parameter allows filtering items based on specific criteria.
 func GetCategoryCounts(db DatabaseQuerier, itemSelection ItemSelection) (r_counts map[models.Id]int, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
