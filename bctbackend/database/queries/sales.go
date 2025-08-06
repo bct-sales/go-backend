@@ -436,7 +436,7 @@ func RemoveSale(db *sql.DB, saleId models.Id) (r_err error) {
 
 // GetSoldItems returns a list of all items that have been sold.
 // The items are ordered by transaction time (most recent first) and item ID (lowest first).
-func GetSoldItems(db *sql.DB) (r_result []*models.Item, r_err error) {
+func GetSoldItems(db DatabaseQuerier) (r_result []*models.Item, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
