@@ -529,7 +529,7 @@ func CountSoldItems(db DatabaseQuerier) (r_result *struct {
 
 // HasAnyBeenSold checks if any one of the given item was involved in one or more sales.
 // Does not check if items exist.
-func HasAnyBeenSold(db *sql.DB, itemIds []models.Id) (r_result bool, r_err error) {
+func HasAnyBeenSold(db DatabaseQuerier, itemIds []models.Id) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
