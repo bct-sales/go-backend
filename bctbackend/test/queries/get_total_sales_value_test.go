@@ -13,6 +13,15 @@ import (
 )
 
 func TestGetTotalSalesValue(t *testing.T) {
+	t.Run("Zero sales, zero items", func(t *testing.T) {
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		defer setup.Close()
+
+		total, err := queries.GetTotalSalesValue(db)
+		require.NoError(t, err)
+		require.Equal(t, models.MoneyInCents(0), total)
+	})
+
 	t.Run("Zero sales", func(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
