@@ -94,7 +94,7 @@ func CategoryWithIdExists(db DatabaseQuerier, categoryId models.Id) (r_result bo
 	return true, nil
 }
 
-func GetCategories(db *sql.DB) (r_result []*models.ItemCategory, r_err error) {
+func GetCategories(db DatabaseQuerier) (r_result []*models.ItemCategory, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
