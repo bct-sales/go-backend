@@ -66,6 +66,32 @@ func (c *Command) WithOpenedDatabase(fn func(db *sql.DB) error) (r_err error) {
 	return fn(db)
 }
 
+func (c *Command) WithTransaction(fn func(db *queries.TransactionalDatabaseQuerier) error) error {
+	return c.WithOpenedDatabase(func(db *sql.DB) (r_err error) {
+		transaction, err := queries.NewTransactionDatabaseQuerier(db)
+		if err != nil {
+			c.PrintErrorf("Failed to start transaction: %s\n", err.Error())
+			return &ErrCommand{wrapped: err}
+		}
+		defer func() {
+			if rollbackErr := transaction.Rollback(); rollbackErr != nil {
+				c.PrintErrorf("Failed to roll back transaction: %s\n", rollbackErr.Error())
+				r_err = errors.Join(r_err, rollbackErr)
+			}
+		}()
+
+		if err := fn(transaction); err != nil {
+			return fmt.Errorf("transaction failed: %w", err)
+		}
+
+		if err := transaction.Commit(); err != nil {
+			return fmt.Errorf("failed to commit transaction: %w", err)
+		}
+
+		return nil
+	})
+}
+
 func (c *Command) AsCobraCommand() *cobra.Command {
 	return c.CobraCommand
 }
