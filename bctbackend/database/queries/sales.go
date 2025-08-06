@@ -561,7 +561,7 @@ func HasAnyBeenSold(db DatabaseQuerier, itemIds []models.Id) (r_result bool, r_e
 
 // GetItemsSoldBy returns a list of all items sold by a specified cashier.
 // The items are ordered by transaction time (most recent first) and item ID (lowest first).
-func GetItemsSoldBy(db *sql.DB, cashierId models.Id) (r_result []*models.Item, r_err error) {
+func GetItemsSoldBy(db DatabaseQuerier, cashierId models.Id) (r_result []*models.Item, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
