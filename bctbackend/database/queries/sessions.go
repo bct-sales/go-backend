@@ -179,7 +179,7 @@ func DeleteSession(db DatabaseQuerier, sessionId models.SessionId) (r_err error)
 	return nil
 }
 
-func DeleteExpiredSessions(db *sql.DB, cutOff models.Timestamp) (r_err error) {
+func DeleteExpiredSessions(db DatabaseQuerier, cutOff models.Timestamp) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
