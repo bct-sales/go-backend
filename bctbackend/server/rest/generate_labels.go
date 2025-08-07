@@ -193,12 +193,9 @@ func (endpoint *generateLabelsEndpoint) freezeItems(db *sql.DB, itemIds []models
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
+	defer transaction.Rollback()
 
 	if err := queries.UpdateFreezeStatusOfItems(transaction, itemIds, true); err != nil {
-		rollbackErr := transaction.Rollback()
-		if rollbackErr != nil {
-			return fmt.Errorf("failed to freeze items and roll back transaction: %w; rollback error: %s", err, rollbackErr.Error())
-		}
 		return fmt.Errorf("failed to freeze items: %w", err)
 	}
 

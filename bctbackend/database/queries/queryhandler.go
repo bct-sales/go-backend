@@ -2,8 +2,8 @@ package queries
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
+	"log/slog"
 )
 
 type DatabaseQuerier interface {
@@ -14,7 +14,6 @@ type DatabaseQuerier interface {
 
 type TransactionalDatabaseQuerier struct {
 	transaction *sql.Tx
-	committed   bool
 }
 
 func NewTransactionDatabaseQuerier(db *sql.DB) (*TransactionalDatabaseQuerier, error) {
@@ -23,10 +22,8 @@ func NewTransactionDatabaseQuerier(db *sql.DB) (*TransactionalDatabaseQuerier, e
 		return nil, fmt.Errorf("failed to start new transaction: %w", err)
 	}
 
-	return &TransactionalDatabaseQuerier{
-		transaction: tx,
-		committed:   false,
-	}, nil
+	querier := TransactionalDatabaseQuerier{transaction: tx}
+	return &querier, nil
 }
 
 func (t *TransactionalDatabaseQuerier) Commit() error {
@@ -34,20 +31,13 @@ func (t *TransactionalDatabaseQuerier) Commit() error {
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	t.committed = true
 	return nil
 }
 
-func (t *TransactionalDatabaseQuerier) Rollback() error {
-	if t.committed {
-		return nil
-	}
-
+func (t *TransactionalDatabaseQuerier) Rollback() {
 	if err := t.transaction.Rollback(); err != nil {
-		return fmt.Errorf("failed to roll back transaction: %w", err)
+		slog.Error("failed to roll back transaction", "error", err)
 	}
-
-	return nil
 }
 
 func (t *TransactionalDatabaseQuerier) Exec(query string, args ...any) (sql.Result, error) {
@@ -68,15 +58,15 @@ func WithTransaction[T any](db *sql.DB, fn func(transaction *TransactionalDataba
 		var dummy T
 		return dummy, err
 	}
+	defer transaction.Rollback()
 
 	result, err := fn(transaction)
 	if err != nil {
-		rollbackErr := transaction.Rollback()
-		return result, errors.Join(err, rollbackErr)
-	} else {
-		if err := transaction.Commit(); err != nil {
-			return result, err
-		}
+		return result, err
+	}
+
+	if err := transaction.Commit(); err != nil {
+		return result, err
 	}
 
 	return result, nil

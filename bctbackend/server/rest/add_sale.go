@@ -42,11 +42,7 @@ func AddSale(arguments *HandlerFunctionArguments) {
 		failure_response.Unknown(context, "Failed to start transaction: "+err.Error())
 		return
 	}
-	defer func() {
-		if rollbackErr := transaction.Rollback(); rollbackErr != nil {
-			logger.InternalError("Failed to roll back transaction for AddSale", "error", rollbackErr)
-		}
-	}()
+	defer transaction.Rollback()
 
 	// Make sure user has the right role
 	if !roleId.IsCashier() {

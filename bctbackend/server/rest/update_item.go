@@ -95,6 +95,7 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 		logger.InternalError("Failed to begin transaction for item update", "itemId", itemId, "error", err)
 		failure_response.Unknown(context, err.Error())
 	}
+	defer transaction.Rollback()
 
 	itemUpdate := queries.ItemUpdate{
 		AddedAt:      nil,
@@ -105,13 +106,6 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 		Charity:      payload.Charity,
 	}
 	if updateErr := queries.UpdateItem(transaction, itemId, &itemUpdate); updateErr != nil {
-		rollbackErr := transaction.Rollback()
-		if rollbackErr != nil {
-			logger.InternalError("Failed to rollback transaction after item update failure", "itemId", itemId, "rollbackError", rollbackErr, "updateError", updateErr)
-			failure_response.Unknown(context, fmt.Sprintf("Error occurred: %s. Also failed to rollback transaction: %s", updateErr.Error(), rollbackErr.Error()))
-			return
-		}
-
 		if errors.Is(updateErr, dberr.ErrNoSuchItem) {
 			logger.InternalError(
 				"Failed to update item",
@@ -142,14 +136,6 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 	}
 
 	if commitErr := transaction.Commit(); commitErr != nil {
-		rollbackErr := transaction.Rollback()
-
-		if rollbackErr != nil {
-			logger.InternalError("Failed to rollback transaction after commit failure", "itemId", itemId, "rollbackError", rollbackErr, "commitError", commitErr)
-			failure_response.Unknown(context, fmt.Sprintf("Error occurred: %s. Also failed to rollback transaction: %s", commitErr.Error(), rollbackErr.Error()))
-			return
-		}
-
 		logger.InternalError("Failed to commit transaction after item update", "itemId", itemId, "error", commitErr)
 		failure_response.Unknown(context, fmt.Sprintf("Failed to commit item update: %s", commitErr.Error()))
 		return

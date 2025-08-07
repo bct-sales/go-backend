@@ -73,12 +73,7 @@ func (c *Command) WithTransaction(fn func(db *queries.TransactionalDatabaseQueri
 			c.PrintErrorf("Failed to start transaction: %s\n", err.Error())
 			return &ErrCommand{wrapped: err}
 		}
-		defer func() {
-			if rollbackErr := transaction.Rollback(); rollbackErr != nil {
-				c.PrintErrorf("Failed to roll back transaction: %s\n", rollbackErr.Error())
-				r_err = errors.Join(r_err, rollbackErr)
-			}
-		}()
+		defer transaction.Rollback()
 
 		if err := fn(transaction); err != nil {
 			return fmt.Errorf("transaction failed: %w", err)
