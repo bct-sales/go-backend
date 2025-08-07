@@ -3,7 +3,6 @@ package sale
 import (
 	"bctbackend/commands/common"
 	"bctbackend/database/queries"
-	"database/sql"
 	"fmt"
 
 	"github.com/MakeNowJust/heredoc"
@@ -37,8 +36,8 @@ func NewRemoveAllSalesCommand() *cobra.Command {
 }
 
 func (c *removeAllSalesCommand) execute() error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		err := queries.RemoveAllSales(db)
+	return c.WithTransaction(func(transaction *queries.TransactionalDatabaseQuerier) error {
+		err := queries.RemoveAllSales(transaction)
 		if err != nil {
 			c.PrintErrorf("Failed to remove all sales\n")
 			return fmt.Errorf("failed to remove all sales: %w", err)

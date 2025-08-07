@@ -707,38 +707,31 @@ func GetSalesWithCashier(db DatabaseQuerier, cashierId models.Id) (r_result []*m
 }
 
 // RemoveAllSales removes all sales from the database.
-func RemoveAllSales(db *sql.DB) (r_err error) {
+func RemoveAllSales(transaction *TransactionalDatabaseQuerier) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	transaction, err := NewTransactionDatabaseQuerier(db)
-	if err != nil {
-		return err
-	}
-	defer func() { r_err = errors.Join(r_err, transaction.Rollback()) }()
-
-	_, err = transaction.Exec(
-		`
+	{
+		_, err := transaction.Exec(
+			`
 			DELETE FROM sale_items
 		`,
-	)
-	if err != nil {
-		return err
+		)
+		if err != nil {
+			return err
+		}
 	}
 
-	_, err = transaction.Exec(
-		`
+	{
+		_, err := transaction.Exec(
+			`
 			DELETE FROM sales
 		`,
-	)
-	if err != nil {
-		return err
-	}
-
-	err = transaction.Commit()
-	if err != nil {
-		return err
+		)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

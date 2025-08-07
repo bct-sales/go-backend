@@ -30,8 +30,10 @@ func TestRemoveAllSales(t *testing.T) {
 		sale2 := setup.Sale(cashier1.UserId, models.CollectItemIds(items2))
 		sale3 := setup.Sale(cashier2.UserId, models.CollectItemIds(items3))
 
-		err := queries.RemoveAllSales(db)
-		require.NoError(t, err)
+		setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
+			err := queries.RemoveAllSales(transaction)
+			require.NoError(t, err)
+		})
 
 		for _, sale := range []*models.Sale{sale1, sale2, sale3} {
 			exists, err := queries.SaleWithIdExists(db, sale.SaleID)
