@@ -109,7 +109,7 @@ func GetSessionData(db DatabaseQuerier, sessionId models.SessionId) (r_result *S
 	return &sessionData, nil
 }
 
-func GetSessions(db *sql.DB) (r_result []models.Session, r_err error) {
+func GetSessions(db DatabaseQuerier) (r_result []models.Session, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
