@@ -172,7 +172,7 @@ func (endpoint *generateLabelsEndpoint) execute() {
 	}
 
 	// Do this last, to ensure items are only frozen if the PDF was generated successfully
-	if err := freezeItems(db, payload.ItemIds); err != nil {
+	if err := endpoint.freezeItems(db, payload.ItemIds); err != nil {
 		logger.InternalError("Failed to freeze items", "error", err)
 		failure_response.Unknown(context, "Failed to freeze items: "+err.Error())
 		return
@@ -188,7 +188,7 @@ func (endpoint *generateLabelsEndpoint) execute() {
 	)
 }
 
-func freezeItems(db *sql.DB, itemIds []models.Id) error {
+func (endpoint *generateLabelsEndpoint) freezeItems(db *sql.DB, itemIds []models.Id) error {
 	transaction, err := queries.NewTransactionDatabaseQuerier(db)
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
