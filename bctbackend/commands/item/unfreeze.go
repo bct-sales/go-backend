@@ -3,7 +3,6 @@ package item
 import (
 	"bctbackend/commands/common"
 	"bctbackend/database/queries"
-	"database/sql"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
@@ -39,18 +38,23 @@ func NewUnfreezeItemCommand() *cobra.Command {
 }
 
 func (c *unfreezeItemCommand) execute(args []string) error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		itemIds, err := c.ParseItemIds(args)
-		if err != nil {
-			return err
-		}
+	itemIds, err := c.ParseItemIds(args)
+	if err != nil {
+		return err
+	}
 
+	transactionErr := c.WithTransaction(func(db *queries.TransactionalDatabaseQuerier) error {
 		if err := queries.UpdateFreezeStatusOfItems(db, itemIds, false); err != nil {
 			c.PrintErrorf("Failed to unfreeze items: %v\n", err)
 			return err
 		}
 
-		c.Printf("Items unfrozen successfully\n")
 		return nil
 	})
+	if transactionErr != nil {
+		return transactionErr
+	}
+
+	c.Printf("Items unfrozen successfully\n")
+	return nil
 }

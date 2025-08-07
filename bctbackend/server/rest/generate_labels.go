@@ -145,7 +145,8 @@ func GenerateLabels(arguments *HandlerFunctionArguments) {
 		return
 	}
 
-	if err := queries.UpdateFreezeStatusOfItems(db, payload.ItemIds, true); err != nil {
+	// Do this last, to ensure items are only frozen if the PDF was generated successfully
+	if err := freezeItems(db, payload.ItemIds); err != nil {
 		logger.InternalError("Failed to freeze items", "error", err)
 		failure_response.Unknown(context, "Failed to freeze items: "+err.Error())
 		return
@@ -159,6 +160,27 @@ func GenerateLabels(arguments *HandlerFunctionArguments) {
 		buffer,
 		map[string]string{"Content-Disposition": "attachment; filename=labels.pdf"},
 	)
+}
+
+func freezeItems(db *sql.DB, itemIds []models.Id) error {
+	transaction, err := queries.NewTransactionDatabaseQuerier(db)
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+
+	if err := queries.UpdateFreezeStatusOfItems(transaction, itemIds, true); err != nil {
+		rollbackErr := transaction.Rollback()
+		if rollbackErr != nil {
+			return fmt.Errorf("failed to freeze items and roll back transaction: %w; rollback error: %s", err, rollbackErr.Error())
+		}
+		return fmt.Errorf("failed to freeze items: %w", err)
+	}
+
+	if err := transaction.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
 }
 
 func collectLabelData(db *sql.DB, itemTable map[models.Id]*models.Item, itemIds []models.Id) ([]*pdf.LabelData, error) {

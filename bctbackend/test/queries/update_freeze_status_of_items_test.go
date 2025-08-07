@@ -42,8 +42,10 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 					itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
 				}
 
-				err := queries.UpdateFreezeStatusOfItems(db, selection, true)
-				require.NoError(t, err)
+				setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
+					err := queries.UpdateFreezeStatusOfItems(db, selection, true)
+					require.NoError(t, err)
+				})
 
 				for _, itemId := range itemIds {
 					isFrozen, err := queries.IsItemFrozen(db, itemId)
@@ -57,11 +59,13 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("No such item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, _ := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			err := queries.UpdateFreezeStatusOfItems(db, []models.Id{1}, true)
-			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
+			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
+				err := queries.UpdateFreezeStatusOfItems(db, []models.Id{1}, true)
+				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
+			})
 		})
 
 		t.Run("Cannot freeze hidden item", func(t *testing.T) {
@@ -76,8 +80,10 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 			}
 			itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(10), aux.WithFrozen(false), aux.WithHidden(true)).ItemID)
 
-			err := queries.UpdateFreezeStatusOfItems(db, itemIds, true)
-			requireDatabaseWrappedError(t, err, dberr.ErrItemHidden)
+			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
+				err := queries.UpdateFreezeStatusOfItems(db, itemIds, true)
+				requireDatabaseWrappedError(t, err, dberr.ErrItemHidden)
+			})
 
 			for _, itemId := range itemIds {
 				isFrozen, err := queries.IsItemFrozen(db, itemId)

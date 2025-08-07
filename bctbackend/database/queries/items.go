@@ -643,7 +643,7 @@ func EnsureItemsExist(db DatabaseQuerier, itemIds []models.Id) (r_err error) {
 	return nil
 }
 
-func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) (r_err error) {
+func UpdateFreezeStatusOfItems(transaction *TransactionalDatabaseQuerier, itemIds []models.Id, frozen bool) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -654,12 +654,6 @@ func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) (r_
 
 	itemIds = algorithms.RemoveDuplicates(itemIds)
 	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
-
-	transaction, err := NewTransactionDatabaseQuerier(db)
-	if err != nil {
-		return fmt.Errorf("failed to begin transaction: %w", err)
-	}
-	defer func() { r_err = errors.Join(r_err, transaction.Rollback()) }()
 
 	if err := EnsureItemsExist(transaction, itemIds); err != nil {
 		return err
@@ -679,10 +673,6 @@ func UpdateFreezeStatusOfItems(db *sql.DB, itemIds []models.Id, frozen bool) (r_
 
 	if _, err := transaction.Exec(query, sqlValues...); err != nil {
 		return err
-	}
-
-	if err := transaction.Commit(); err != nil {
-		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
 	return nil
