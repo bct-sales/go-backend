@@ -41,7 +41,7 @@ func AddSession(
 	return sessionId, nil
 }
 
-func GetSessionById(db *sql.DB, sessionId models.SessionId) (r_result *models.Session, r_err error) {
+func GetSessionById(db DatabaseQuerier, sessionId models.SessionId) (r_result *models.Session, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
