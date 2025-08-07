@@ -293,7 +293,7 @@ func GetUsersWithItemCount(db DatabaseQuerier, itemSelection ItemSelection, rece
 
 // UpdateUserPassword updates the password of a user in the database by their user ID.
 // An ErrNoSuchUser is returned if the user does not exist.
-func UpdateUserPassword(db *sql.DB, userId models.Id, password string) (r_err error) {
+func UpdateUserPassword(db DatabaseQuerier, userId models.Id, password string) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
