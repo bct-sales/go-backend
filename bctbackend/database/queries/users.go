@@ -95,7 +95,7 @@ func AddUser(
 
 type AddUsersCallback func(addUser func(userId models.Id, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string))
 
-func AddUsers(db *sql.DB, callback AddUsersCallback) (r_err error) {
+func AddUsers(db DatabaseQuerier, callback AddUsersCallback) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
