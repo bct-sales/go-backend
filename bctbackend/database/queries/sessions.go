@@ -77,7 +77,7 @@ type SessionData struct {
 	RoleId models.RoleId
 }
 
-func GetSessionData(db *sql.DB, sessionId models.SessionId) (r_result *SessionData, r_err error) {
+func GetSessionData(db DatabaseQuerier, sessionId models.SessionId) (r_result *SessionData, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
