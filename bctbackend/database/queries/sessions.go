@@ -152,7 +152,7 @@ func GetSessions(db DatabaseQuerier) (r_result []models.Session, r_err error) {
 	return sessions, nil
 }
 
-func DeleteSession(db *sql.DB, sessionId models.SessionId) (r_err error) {
+func DeleteSession(db DatabaseQuerier, sessionId models.SessionId) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
