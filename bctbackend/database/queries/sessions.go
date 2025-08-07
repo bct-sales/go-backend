@@ -10,7 +10,7 @@ import (
 )
 
 func AddSession(
-	db *sql.DB,
+	db DatabaseQuerier,
 	userId models.Id,
 	expirationTime models.Timestamp) (r_result models.SessionId, r_err error) {
 
