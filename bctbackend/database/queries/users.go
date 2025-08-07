@@ -13,7 +13,7 @@ import (
 // An ErrUserIdAlreadyInUse is returned if the user ID is already in use.
 // An ErrNoSuchRole is returned if the role ID is invalid.
 func AddUserWithId(
-	db *sql.DB,
+	db DatabaseQuerier,
 	userId models.Id,
 	roleId models.RoleId,
 	createdAt models.Timestamp,
