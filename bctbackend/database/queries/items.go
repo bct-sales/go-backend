@@ -947,7 +947,7 @@ type ItemUpdate struct {
 	Charity      *bool
 }
 
-func UpdateItem(db *sql.DB, itemId models.Id, itemUpdate *ItemUpdate) (r_err error) {
+func UpdateItem(db *TransactionalDatabaseQuerier, itemId models.Id, itemUpdate *ItemUpdate) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()

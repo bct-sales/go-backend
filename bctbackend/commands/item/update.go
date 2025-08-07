@@ -4,7 +4,6 @@ import (
 	"bctbackend/commands/common"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"database/sql"
 	"fmt"
 	"strconv"
 
@@ -57,7 +56,7 @@ func NewUpdateItemCommand() *cobra.Command {
 }
 
 func (c *updateItemCommand) execute(args []string) error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+	return c.WithTransaction(func(db *queries.TransactionalDatabaseQuerier) error {
 		if err := c.updateItem(db); err != nil {
 			return err
 		}
@@ -70,7 +69,7 @@ func (c *updateItemCommand) execute(args []string) error {
 	})
 }
 
-func (c *updateItemCommand) updateItem(db *sql.DB) error {
+func (c *updateItemCommand) updateItem(db *queries.TransactionalDatabaseQuerier) error {
 	var description *string
 	var priceInCents *models.MoneyInCents
 	var categoryId *models.Id
@@ -130,7 +129,7 @@ func (c *updateItemCommand) updateItem(db *sql.DB) error {
 	return nil
 }
 
-func (c *updateItemCommand) showUpdatedItem(db *sql.DB) error {
+func (c *updateItemCommand) showUpdatedItem(db *queries.TransactionalDatabaseQuerier) error {
 	itemId := models.Id(c.itemId)
 	categoryNameTable, err := c.GetCategoryNameTable(db)
 	if err != nil {

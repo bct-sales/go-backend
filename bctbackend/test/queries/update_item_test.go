@@ -104,13 +104,15 @@ func TestUpdateItem(t *testing.T) {
 										expectedCategory = newCategory
 									}
 
-									err := queries.UpdateItem(
-										db,
-										item.ItemID,
-										&itemUpdate,
-									)
+									setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
+										err := queries.UpdateItem(
+											transaction,
+											item.ItemID,
+											&itemUpdate,
+										)
 
-									require.NoError(t, err)
+										require.NoError(t, err)
+									})
 
 									updatedItem, err := queries.GetItemWithId(db, item.ItemID)
 									require.NoError(t, err)
@@ -135,17 +137,20 @@ func TestUpdateItem(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Nonexistent item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, _ := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			itemId := models.Id(1)
 			itemUpdate := queries.ItemUpdate{}
-			err := queries.UpdateItem(db, itemId, &itemUpdate)
-			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
+
+			setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
+				err := queries.UpdateItem(transaction, itemId, &itemUpdate)
+				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
+			})
 		})
 
 		t.Run("Frozen item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, _ := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -157,12 +162,15 @@ func TestUpdateItem(t *testing.T) {
 			)
 
 			itemUpdate := queries.ItemUpdate{}
-			err := queries.UpdateItem(db, item.ItemID, &itemUpdate)
-			requireDatabaseWrappedError(t, err, dberr.ErrItemFrozen)
+
+			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
+				err := queries.UpdateItem(db, item.ItemID, &itemUpdate)
+				requireDatabaseWrappedError(t, err, dberr.ErrItemFrozen)
+			})
 		})
 
 		t.Run("Hidden item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, _ := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -174,12 +182,15 @@ func TestUpdateItem(t *testing.T) {
 			)
 
 			itemUpdate := queries.ItemUpdate{}
-			err := queries.UpdateItem(db, item.ItemID, &itemUpdate)
-			requireDatabaseWrappedError(t, err, dberr.ErrItemHidden)
+
+			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
+				err := queries.UpdateItem(db, item.ItemID, &itemUpdate)
+				requireDatabaseWrappedError(t, err, dberr.ErrItemHidden)
+			})
 		})
 
 		t.Run("Invalid price", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, _ := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -195,8 +206,10 @@ func TestUpdateItem(t *testing.T) {
 				PriceInCents: &invalidPrice,
 			}
 
-			err := queries.UpdateItem(db, item.ItemID, &itemUpdate)
-			requireDatabaseWrappedError(t, err, dberr.ErrInvalidPrice)
+			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
+				err := queries.UpdateItem(db, item.ItemID, &itemUpdate)
+				requireDatabaseWrappedError(t, err, dberr.ErrInvalidPrice)
+			})
 		})
 	})
 }

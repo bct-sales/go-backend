@@ -6,6 +6,7 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/server/failure_response"
 	"errors"
+	"fmt"
 	"net/http"
 
 	_ "bctbackend/docs"
@@ -89,6 +90,12 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 		return
 	}
 
+	transaction, err := queries.NewTransactionDatabaseQuerier(db)
+	if err != nil {
+		logger.InternalError("Failed to begin transaction for item update", "itemId", itemId, "error", err)
+		failure_response.Unknown(context, err.Error())
+	}
+
 	itemUpdate := queries.ItemUpdate{
 		AddedAt:      nil,
 		Description:  payload.Description,
@@ -97,8 +104,15 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 		Donation:     payload.Donation,
 		Charity:      payload.Charity,
 	}
-	if err := queries.UpdateItem(db, itemId, &itemUpdate); err != nil {
-		if errors.Is(err, dberr.ErrNoSuchItem) {
+	if updateErr := queries.UpdateItem(transaction, itemId, &itemUpdate); updateErr != nil {
+		rollbackErr := transaction.Rollback()
+		if rollbackErr != nil {
+			logger.InternalError("Failed to rollback transaction after item update failure", "itemId", itemId, "rollbackError", rollbackErr, "updateError", updateErr)
+			failure_response.Unknown(context, fmt.Sprintf("Error occurred: %s. Also failed to rollback transaction: %s", updateErr.Error(), rollbackErr.Error()))
+			return
+		}
+
+		if errors.Is(updateErr, dberr.ErrNoSuchItem) {
 			logger.InternalError(
 				"Failed to update item",
 				"itemId", itemId,
@@ -107,24 +121,38 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 				"categoryId", payload.CategoryId,
 				"donation", payload.Donation,
 				"charity", payload.Charity,
-				"error", err,
+				"error", updateErr,
 			)
-			failure_response.UnknownItem(context, err.Error())
+			failure_response.UnknownItem(context, updateErr.Error())
 			return
 		}
-		if errors.Is(err, dberr.ErrItemFrozen) {
-			logger.InvalidRequest("Cannot update frozen item", "itemId", itemId, "error", err)
-			failure_response.CannotUpdateFrozenItem(context, err.Error())
+		if errors.Is(updateErr, dberr.ErrItemFrozen) {
+			logger.InvalidRequest("Cannot update frozen item", "itemId", itemId, "error", updateErr)
+			failure_response.CannotUpdateFrozenItem(context, updateErr.Error())
 			return
 		}
-		if errors.Is(err, dberr.ErrInvalidPrice) {
-			logger.InvalidInput("Invalid price in item update", "itemId", itemId, "priceInCents", payload.PriceInCents, "error", err)
-			failure_response.InvalidPrice(context, err.Error())
+		if errors.Is(updateErr, dberr.ErrInvalidPrice) {
+			logger.InvalidInput("Invalid price in item update", "itemId", itemId, "priceInCents", payload.PriceInCents, "error", updateErr)
+			failure_response.InvalidPrice(context, updateErr.Error())
 			return
 		}
 
-		logger.InternalError("Failed to update item", "itemId", itemId, "error", err)
-		failure_response.Unknown(context, err.Error())
+		logger.InternalError("Failed to update item", "itemId", itemId, "error", updateErr)
+		failure_response.Unknown(context, updateErr.Error())
+	}
+
+	if commitErr := transaction.Commit(); commitErr != nil {
+		rollbackErr := transaction.Rollback()
+
+		if rollbackErr != nil {
+			logger.InternalError("Failed to rollback transaction after commit failure", "itemId", itemId, "rollbackError", rollbackErr, "commitError", commitErr)
+			failure_response.Unknown(context, fmt.Sprintf("Error occurred: %s. Also failed to rollback transaction: %s", commitErr.Error(), rollbackErr.Error()))
+			return
+		}
+
+		logger.InternalError("Failed to commit transaction after item update", "itemId", itemId, "error", commitErr)
+		failure_response.Unknown(context, fmt.Sprintf("Failed to commit item update: %s", commitErr.Error()))
+		return
 	}
 
 	context.JSON(http.StatusNoContent, nil)

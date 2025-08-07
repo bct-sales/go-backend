@@ -131,7 +131,7 @@ func (c *Command) parseId(str string, idType string) (models.Id, error) {
 	return id, nil
 }
 
-func (c *Command) GetCategoryNameTable(db *sql.DB) (map[models.Id]string, error) {
+func (c *Command) GetCategoryNameTable(db queries.DatabaseQuerier) (map[models.Id]string, error) {
 	categoryNameTable, err := queries.GetCategoryNameTable(db)
 
 	if err != nil {
