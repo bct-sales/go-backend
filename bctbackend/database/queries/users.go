@@ -186,7 +186,7 @@ func GetUserWithId(db DatabaseQuerier, userId models.Id) (r_result *models.User,
 }
 
 // GetUsers retrieves all users from the database.
-func GetUsers(db *sql.DB, receiver func(*models.User) error) (r_err error) {
+func GetUsers(db DatabaseQuerier, receiver func(*models.User) error) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
