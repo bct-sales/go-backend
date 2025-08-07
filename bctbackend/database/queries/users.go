@@ -237,7 +237,7 @@ type UserWithItemCount struct {
 	ItemCount int
 }
 
-func GetUsersWithItemCount(db *sql.DB, itemSelection ItemSelection, receiver func(*UserWithItemCount) error) (r_err error) {
+func GetUsersWithItemCount(db DatabaseQuerier, itemSelection ItemSelection, receiver func(*UserWithItemCount) error) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
