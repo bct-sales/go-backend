@@ -321,7 +321,7 @@ func UpdateUserPassword(db DatabaseQuerier, userId models.Id, password string) (
 
 // EnsureUserExists checks if a user exists in the database by their user ID.
 // An ErrNoSuchUser is returned if the user does not exist.
-func EnsureUserExists(db *sql.DB, userId models.Id) (r_err error) {
+func EnsureUserExists(db DatabaseQuerier, userId models.Id) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
