@@ -221,7 +221,7 @@ func (endpoint *generateLabelsEndpoint) collectLabelData(db *sql.DB, itemTable m
 			return nil, err
 		}
 
-		return createLabelDataFromItem(categoryNameTable, item)
+		return endpoint.createLabelDataFromItem(categoryNameTable, item)
 	}
 
 	labelData, err := algorithms.MapError(itemIds, createLabelData)
@@ -232,7 +232,7 @@ func (endpoint *generateLabelsEndpoint) collectLabelData(db *sql.DB, itemTable m
 	return labelData, nil
 }
 
-func createLabelDataFromItem(categoryNameTable map[models.Id]string, item *models.Item) (*pdf.LabelData, error) {
+func (endpoint *generateLabelsEndpoint) createLabelDataFromItem(categoryNameTable map[models.Id]string, item *models.Item) (*pdf.LabelData, error) {
 	barcode := fmt.Sprintf("%dx", item.ItemID)
 
 	category, ok := categoryNameTable[item.CategoryID]
