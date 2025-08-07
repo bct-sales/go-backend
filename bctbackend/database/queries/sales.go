@@ -368,12 +368,12 @@ func GetSaleItems(db DatabaseQuerier, saleId models.Id) (r_result []*models.Item
 	return items, nil
 }
 
-func RemoveSale(db *sql.DB, saleId models.Id) (r_err error) {
+func RemoveSale(transaction *TransactionalDatabaseQuerier, saleId models.Id) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	saleExists, err := SaleWithIdExists(db, saleId)
+	saleExists, err := SaleWithIdExists(transaction, saleId)
 
 	if err != nil {
 		return err
@@ -382,12 +382,6 @@ func RemoveSale(db *sql.DB, saleId models.Id) (r_err error) {
 	if !saleExists {
 		return fmt.Errorf("failed to remove sale %d: %w", saleId, dberr.ErrNoSuchSale)
 	}
-
-	transaction, err := NewTransactionDatabaseQuerier(db)
-	if err != nil {
-		return err
-	}
-	defer func() { r_err = errors.Join(r_err, transaction.Rollback()) }()
 
 	_, err = transaction.Exec(
 		`
@@ -408,12 +402,6 @@ func RemoveSale(db *sql.DB, saleId models.Id) (r_err error) {
 		`,
 		saleId,
 	)
-
-	if err != nil {
-		return err
-	}
-
-	err = transaction.Commit()
 
 	if err != nil {
 		return err

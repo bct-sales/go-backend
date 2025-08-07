@@ -32,8 +32,10 @@ func TestRemoveSale(t *testing.T) {
 		sale1 := setup.Sale(cashier.UserId, sale1ItemIds)
 		sale2 := setup.Sale(cashier.UserId, sale2ItemIds)
 
-		err := queries.RemoveSale(db, sale1.SaleID)
-		require.NoError(t, err)
+		setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
+			err := queries.RemoveSale(transaction, sale1.SaleID)
+			require.NoError(t, err)
+		})
 
 		sale1Exists, err := queries.SaleWithIdExists(db, sale1.SaleID)
 		require.NoError(t, err)
@@ -46,11 +48,13 @@ func TestRemoveSale(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Nonexistent sale", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, _ := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			err := queries.RemoveSale(db, 0)
-			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSale)
+			setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
+				err := queries.RemoveSale(transaction, 0)
+				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSale)
+			})
 		})
 	})
 }
