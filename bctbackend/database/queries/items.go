@@ -678,7 +678,7 @@ func UpdateFreezeStatusOfItems(transaction *TransactionalDatabaseQuerier, itemId
 	return nil
 }
 
-func UpdateHiddenStatusOfItems(db *sql.DB, itemIds []models.Id, hidden bool) (r_err error) {
+func UpdateHiddenStatusOfItems(transaction *TransactionalDatabaseQuerier, itemIds []models.Id, hidden bool) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -689,12 +689,6 @@ func UpdateHiddenStatusOfItems(db *sql.DB, itemIds []models.Id, hidden bool) (r_
 
 	itemIds = algorithms.RemoveDuplicates(itemIds)
 	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
-
-	transaction, err := NewTransactionDatabaseQuerier(db)
-	if err != nil {
-		return fmt.Errorf("failed to begin transaction: %w", err)
-	}
-	defer func() { r_err = errors.Join(r_err, transaction.Rollback()) }()
 
 	if err := EnsureItemsExist(transaction, itemIds); err != nil {
 		return err
@@ -715,10 +709,6 @@ func UpdateHiddenStatusOfItems(db *sql.DB, itemIds []models.Id, hidden bool) (r_
 
 	if _, err := transaction.Exec(query, sqlValues...); err != nil {
 		return err
-	}
-
-	if err := transaction.Commit(); err != nil {
-		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
 	return nil

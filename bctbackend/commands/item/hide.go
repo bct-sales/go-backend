@@ -3,7 +3,6 @@ package item
 import (
 	"bctbackend/commands/common"
 	"bctbackend/database/queries"
-	"database/sql"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
@@ -37,18 +36,24 @@ func NewHideItemCommand() *cobra.Command {
 }
 
 func (c *hideItemCommand) execute(args []string) error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		itemIds, err := c.ParseItemIds(args)
-		if err != nil {
-			return err
-		}
+	itemIds, err := c.ParseItemIds(args)
+	if err != nil {
+		return err
+	}
 
-		if err := queries.UpdateHiddenStatusOfItems(db, itemIds, true); err != nil {
+	transactionErr := c.WithTransaction(func(transaction *queries.TransactionalDatabaseQuerier) error {
+		if err := queries.UpdateHiddenStatusOfItems(transaction, itemIds, true); err != nil {
 			c.PrintErrorf("Failed to hide items: %v\n", err)
 			return err
 		}
 
-		c.Printf("Items hidden successfully\n")
 		return nil
 	})
+	if transactionErr != nil {
+		return transactionErr
+	}
+
+	c.Printf("Items hidden successfully\n")
+
+	return nil
 }
