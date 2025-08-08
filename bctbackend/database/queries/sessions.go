@@ -7,7 +7,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"strings"
 )
 
 func AddSession(
@@ -192,9 +191,7 @@ func DeleteExpiredSessions(db DatabaseQuerier, cutOff models.Timestamp) (r_err e
 	_, err := db.Exec(query, cutOff)
 
 	if err != nil {
-		tableNames, _ := GetTables(db)
-
-		return fmt.Errorf("failed to delete expired sessions: \"%w\", query executed: %s, tables: [%s]", err, query, strings.Join(tableNames, ", "))
+		return fmt.Errorf("failed to delete expired sessions: %w", err)
 	}
 
 	return nil
