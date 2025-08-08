@@ -14,6 +14,7 @@ type DatabaseQuerier interface {
 
 type TransactionalDatabaseQuerier struct {
 	transaction *sql.Tx
+	committed   bool
 }
 
 func NewTransactionDatabaseQuerier(db *sql.DB) (*TransactionalDatabaseQuerier, error) {
@@ -22,33 +23,52 @@ func NewTransactionDatabaseQuerier(db *sql.DB) (*TransactionalDatabaseQuerier, e
 		return nil, fmt.Errorf("failed to start new transaction: %w", err)
 	}
 
-	querier := TransactionalDatabaseQuerier{transaction: tx}
+	querier := TransactionalDatabaseQuerier{transaction: tx, committed: false}
 	return &querier, nil
 }
 
 func (t *TransactionalDatabaseQuerier) Commit() error {
+	if t.committed {
+		slog.Warn("Commit called on already committed transaction")
+	}
+
 	if err := t.transaction.Commit(); err != nil {
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
-
+	t.committed = true
 	return nil
 }
 
 func (t *TransactionalDatabaseQuerier) Rollback() {
-	if err := t.transaction.Rollback(); err != nil {
-		slog.Error("failed to roll back transaction", "error", err)
+	if !t.committed {
+		err := t.transaction.Rollback()
+		if err != nil {
+			slog.Error("Failed to rollback transaction", "error", err)
+		}
 	}
 }
 
 func (t *TransactionalDatabaseQuerier) Exec(query string, args ...any) (sql.Result, error) {
+	if t.committed {
+		slog.Warn("Exec called on already committed transaction")
+	}
+
 	return t.transaction.Exec(query, args...)
 }
 
 func (t *TransactionalDatabaseQuerier) Query(query string, args ...any) (*sql.Rows, error) {
+	if t.committed {
+		slog.Warn("Query called on already committed transaction")
+	}
+
 	return t.transaction.Query(query, args...)
 }
 
 func (t *TransactionalDatabaseQuerier) QueryRow(query string, args ...any) *sql.Row {
+	if t.committed {
+		slog.Warn("QueryRow called on already committed transaction")
+	}
+
 	return t.transaction.QueryRow(query, args...)
 }
 
