@@ -547,7 +547,7 @@ func AddItem(
 	if err != nil {
 		categoryExists, err2 := CategoryWithIdExists(db, itemCategoryId)
 		if err2 != nil {
-			return 0, fmt.Errorf("failed ot determine whether category with given id exists: %w", err)
+			return 0, fmt.Errorf("failed to determine whether category with given id exists: %w", err)
 		}
 
 		if !categoryExists {
