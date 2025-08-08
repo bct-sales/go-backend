@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 )
 
 func AddSession(
@@ -184,13 +185,58 @@ func DeleteExpiredSessions(db DatabaseQuerier, cutOff models.Timestamp) (r_err e
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	_, err := db.Exec(
+	query := `
+		DELETE FROM sessions
+		WHERE expiration_time < ?
+	`
+	_, err := db.Exec(query, cutOff)
+
+	if err != nil {
+		tableNames, _ := GetTables(db)
+
+		return fmt.Errorf("failed to delete expired sessions: \"%w\", query executed: %s, tables: [%s]", err, query, strings.Join(tableNames, ", "))
+	}
+
+	return nil
+}
+
+func GetTables(db DatabaseQuerier) (r_result []string, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
+	rows, err := db.Query(
 		`
-			DELETE FROM sessions
-			WHERE expiration_time < ?
+			SELECT
+				name
+			FROM
+				sqlite_schema
+			WHERE
+				type ='table' AND
+				name NOT LIKE 'sqlite_%';
 		`,
-		cutOff,
 	)
 
-	return err
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
+
+	var tableNames []string
+
+	for rows.Next() {
+		var tableName string
+		if err := rows.Scan(&tableName); err != nil {
+			return nil, err
+		}
+
+		tableNames = append(tableNames, tableName)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
+	}
+
+	return tableNames, nil
 }
