@@ -19,6 +19,7 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
+	"time"
 
 	_ "bctbackend/docs"
 
@@ -60,6 +61,7 @@ type Server struct {
 	configuration *configuration.Configuration
 	broadcaster   *websocket.WebsocketBroadcaster
 	router        *gin.Engine
+	channel       chan int
 }
 
 func NewServer(db *sql.DB, configuration *configuration.Configuration) *Server {
@@ -68,13 +70,49 @@ func NewServer(db *sql.DB, configuration *configuration.Configuration) *Server {
 		configuration: configuration,
 		broadcaster:   websocket.NewWebsocketBroadcaster(),
 		router:        createGinRouter(configuration.GinMode),
+		channel:       make(chan int),
 	}
 
 	server.defineRESTEndpoints()
 	server.defineWebsocketEndpoint()
 	server.defineStaticFilesRoutes(configuration.HTMLPath)
+	server.startPeriodicExpiredSessionCleanerUpper()
 
 	return &server
+}
+
+func (server *Server) Shutdown() {
+	slog.Info("Shutting down server")
+
+	server.channel <- 0
+	if err := server.database.Close(); err != nil {
+		slog.Error("Failed to close database connection", slog.String("error", err.Error()))
+	}
+
+	slog.Info("Server shutdown complete")
+}
+
+func (server *Server) startPeriodicExpiredSessionCleanerUpper() {
+	duration := time.Second
+	ticker := time.NewTicker(duration)
+
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				now := models.Now()
+				slog.Info("Cleaning up expired sessions", slog.String("current_time", now.String()))
+				if err := queries.DeleteExpiredSessions(server.database, now); err != nil {
+					slog.Error("Failed to clean up expired sessions", slog.String("error", err.Error()))
+				}
+
+			case <-server.channel:
+				slog.Info("Stopping periodic expired session cleaner upper")
+				ticker.Stop()
+				return
+			}
+		}
+	}()
 }
 
 func (server *Server) defineRESTEndpoints() {

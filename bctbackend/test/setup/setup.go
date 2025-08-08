@@ -66,6 +66,7 @@ func NewRestFixture(databaseOptions ...func(*DatabaseFixture)) (RestFixture, *se
 }
 
 func (f *RestFixture) Close() {
+	f.Server.Shutdown()
 	f.DatabaseFixture.Close()
 	f.Server = nil
 	f.Writer = nil
