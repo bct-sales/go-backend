@@ -93,7 +93,7 @@ func (server *Server) Shutdown() {
 }
 
 func (server *Server) startPeriodicExpiredSessionCleanerUpper() {
-	duration := time.Second
+	duration := time.Duration(server.configuration.ExpiredSessionPruneInterval) * time.Second
 	ticker := time.NewTicker(duration)
 
 	go func() {

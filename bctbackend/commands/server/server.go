@@ -99,6 +99,11 @@ func (c *ServerCommand) getConfiguration() (*configuration.Configuration, error)
 		return nil, err
 	}
 
+	expiredSessionPruningInterval, err := c.GetConfigurationInt("expired_session_prune_interval")
+	if err != nil {
+		return nil, err
+	}
+
 	var ginMode string
 	if debugMode {
 		ginMode = "debug"
@@ -112,14 +117,15 @@ func (c *ServerCommand) getConfiguration() (*configuration.Configuration, error)
 	}
 
 	return &configuration.Configuration{
-		FontDirectory: fontDirectory,
-		FontFilename:  fontFilename,
-		FontFamily:    fontFamily,
-		BarcodeWidth:  barcodeWidth,
-		BarcodeHeight: barcodeHeight,
-		Port:          port,
-		GinMode:       ginMode,
-		HTMLPath:      htmlPath,
+		FontDirectory:               fontDirectory,
+		FontFilename:                fontFilename,
+		FontFamily:                  fontFamily,
+		BarcodeWidth:                barcodeWidth,
+		BarcodeHeight:               barcodeHeight,
+		Port:                        port,
+		GinMode:                     ginMode,
+		HTMLPath:                    htmlPath,
+		ExpiredSessionPruneInterval: expiredSessionPruningInterval,
 	}, nil
 }
 
