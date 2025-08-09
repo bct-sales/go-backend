@@ -848,6 +848,7 @@ func ContainsFrozenItems(qh DatabaseQuerier, itemIds []models.Id) (r_result bool
 }
 
 // IsItemFrozen checks if none of the items is frozen.
+// If one or more items are frozen, it returns an ErrItemFrozen error.
 func EnsureNoFrozenItems(qh DatabaseQuerier, itemIds []models.Id) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -867,6 +868,7 @@ func EnsureNoFrozenItems(qh DatabaseQuerier, itemIds []models.Id) (r_err error) 
 }
 
 // EnsureNoHiddenItems checks if none of the items is hidden.
+// If one or more items are hidden, it returns an ErrItemHidden error.
 func EnsureNoHiddenItems(qh DatabaseQuerier, itemIds []models.Id) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -885,6 +887,8 @@ func EnsureNoHiddenItems(qh DatabaseQuerier, itemIds []models.Id) (r_err error) 
 	return nil
 }
 
+// IsItemFrozen checks whether the item with the given ID is frozen.
+// ErrNoSuchItem is returned if the item does not exist.
 func IsItemFrozen(db DatabaseQuerier, itemId models.Id) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -908,6 +912,8 @@ func IsItemFrozen(db DatabaseQuerier, itemId models.Id) (r_result bool, r_err er
 	return false, fmt.Errorf("failed to check if item %d is frozen: %w", itemId, dberr.ErrNoSuchItem)
 }
 
+// IsItemHidden checks whether the item with the given ID is hidden.
+// ErrNoSuchItem is returned if the item does not exist.
 func IsItemHidden(db DatabaseQuerier, itemId models.Id) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
