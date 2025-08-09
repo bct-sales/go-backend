@@ -65,6 +65,7 @@ func GetItems(db DatabaseQuerier, receiver func(*models.Item) error, itemSelecti
 			Hidden:       hidden,
 		}
 
+		// If receiver returns error, abort enumeration
 		if err := receiver(&item); err != nil {
 			return fmt.Errorf("receiver failed: %w", err)
 		}
@@ -77,6 +78,7 @@ func GetItems(db DatabaseQuerier, receiver func(*models.Item) error, itemSelecti
 	return nil
 }
 
+// GetItemIds retrieves the IDs of all items in the database.
 func GetItemIds(db DatabaseQuerier) (r_result []models.Id, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -111,6 +113,7 @@ func GetItemIds(db DatabaseQuerier) (r_result []models.Id, r_err error) {
 }
 
 // Returns the items associated with the given seller.
+// The itemSelection parameter allows specifying whether to include visible/hidden items or not.
 // The items are ordered by their time of addition, then by id.
 // An ErrNoSuchUser is returned if no user with the given sellerId exists.
 // An ErrWrongRole is returned if sellerId does not refer to a seller.
@@ -406,7 +409,9 @@ func GetItemWithId(db DatabaseQuerier, itemId models.Id) (r_result *models.Item,
 	return &item, nil
 }
 
-// Returns all items with the given ids as a map.
+// GetItemsWithIds looks up items with the given IDs.
+// The result is a map that relates item IDs to the corresponding item.
+// Duplicates in itemIds are ignored.
 // If itemIds contains a nonexistent item id, a ErrNoSuchItem is returned.
 func GetItemsWithIds(db DatabaseQuerier, itemIds []models.Id) (r_result map[models.Id]*models.Item, r_err error) {
 	defer func() {
@@ -473,14 +478,15 @@ func GetItemsWithIds(db DatabaseQuerier, itemIds []models.Id) (r_result map[mode
 		}
 
 		// If we get past the loop, it means that all items were found
-		// but there were duplicates in the requested IDs, which is not an error
+		// There were duplicates in the requested IDs, but this is not an error
 	}
 
 	return items, nil
 }
 
-// Returns the total number of items in the database.
-func CountItems(db DatabaseQuerier, selection ItemSelection) (r_result int, r_err error) {
+// CountItems returns the number of items in the database.
+// The itemSelection parameter allows specifying which items to count: only hidden, only visible or both.
+func CountItems(db DatabaseQuerier, itemSelection ItemSelection) (r_result int, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -488,7 +494,7 @@ func CountItems(db DatabaseQuerier, selection ItemSelection) (r_result int, r_er
 	query := fmt.Sprintf(`
 		SELECT COUNT(item_id)
 		FROM %s
-	`, ItemsTableFor(selection))
+	`, ItemsTableFor(itemSelection))
 	row := db.QueryRow(query)
 
 	var count int
@@ -500,10 +506,12 @@ func CountItems(db DatabaseQuerier, selection ItemSelection) (r_result int, r_er
 }
 
 // AddItem adds an item to the database.
+// The ID of the newly added item is returned.
 // An ErrNoSuchUser is returned if no user with the given sellerId exists.
 // An ErrWrongRole is returned if sellerId does not refer to a seller.
 // An ErrNoSuchCategory is returned if the itemCategoryId is invalid.
 // An ErrInvalidPrice is returned if the priceInCents is invalid.
+// An ErrInvalidItemDescription is returned if the description is invalid.
 func AddItem(
 	db DatabaseQuerier,
 	addedAt models.Timestamp,
@@ -520,6 +528,7 @@ func AddItem(
 		r_err = dberr.WrapError(r_err)
 	}()
 
+	// Validate inputs
 	if !models.IsValidPrice(priceInCents) {
 		return 0, fmt.Errorf("failed to add item with price %d: %w", priceInCents, dberr.ErrInvalidPrice)
 	}
@@ -534,6 +543,7 @@ func AddItem(
 		return 0, fmt.Errorf("failed to add item: %w", dberr.ErrHiddenFrozenItem)
 	}
 
+	// Insert the item into the database
 	result, err := db.Exec(
 		`
 			INSERT INTO items (added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden)
@@ -562,6 +572,7 @@ func AddItem(
 		return 0, fmt.Errorf("failed to insert item: %w", err)
 	}
 
+	// Get ID of the inserted item
 	itemId, err := result.LastInsertId()
 	if err != nil {
 		return 0, fmt.Errorf("failed to determine id of inserted item: %w", err)
