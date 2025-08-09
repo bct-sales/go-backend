@@ -6,6 +6,7 @@ import (
 	"bctbackend/server"
 	"bctbackend/server/configuration"
 	"database/sql"
+	"errors"
 	"fmt"
 	"path"
 
@@ -64,44 +65,55 @@ func (c *ServerCommand) execute() error {
 }
 
 func (c *ServerCommand) getConfiguration() (*configuration.Configuration, error) {
+	errs := []error{}
+
 	fontDirectory, err := c.GetConfigurationString(common.FlagFontDirectory)
 	if err != nil {
-		return nil, err
+		errs = append(errs, err)
 	}
 
 	fontFilename, err := c.GetConfigurationString(common.FlagFontFilename)
 	if err != nil {
-		return nil, err
+		errs = append(errs, err)
 	}
 
 	fontFamily, err := c.GetConfigurationString(common.FlagFontFamily)
 	if err != nil {
-		return nil, err
+		errs = append(errs, err)
 	}
 
 	barcodeWidth, err := c.GetConfigurationInt(common.FlagBarcodeWidth)
 	if err != nil {
-		return nil, err
+		errs = append(errs, err)
 	}
 
 	barcodeHeight, err := c.GetConfigurationInt(common.FlagBarcodeHeight)
 	if err != nil {
-		return nil, err
+		errs = append(errs, err)
 	}
 
 	port, err := c.GetConfigurationInt("port")
 	if err != nil {
-		return nil, err
+		errs = append(errs, err)
 	}
 
 	debugMode, err := c.GetConfigurationBool("debug")
 	if err != nil {
-		return nil, err
+		errs = append(errs, err)
 	}
 
 	expiredSessionPruningInterval, err := c.GetConfigurationInt("expired_session_prune_interval")
 	if err != nil {
-		return nil, err
+		errs = append(errs, err)
+	}
+
+	htmlPath, err := c.GetConfigurationString("html")
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	if len(errs) > 0 {
+		return nil, fmt.Errorf("failed to get configuration: %w", errors.Join(errs...))
 	}
 
 	var ginMode string
@@ -109,11 +121,6 @@ func (c *ServerCommand) getConfiguration() (*configuration.Configuration, error)
 		ginMode = "debug"
 	} else {
 		ginMode = "release"
-	}
-
-	htmlPath, err := c.GetConfigurationString("html")
-	if err != nil {
-		return nil, err
 	}
 
 	return &configuration.Configuration{
