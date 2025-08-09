@@ -10,6 +10,11 @@ import (
 	"strings"
 )
 
+// GetItems can be used to fetch items from the database.
+// For each item found, the given receiver function is called.
+// If an error occurs while processing an item, the error is returned.
+// The itemSelection parameter specifies which items to retrieve: only hidden, only visible or both.
+// The rowSelection parameter specifies which rows to retrieve.
 func GetItems(db DatabaseQuerier, receiver func(*models.Item) error, itemSelection ItemSelection, rowSelection SQLOption) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
