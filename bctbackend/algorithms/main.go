@@ -24,6 +24,8 @@ func ContainsDuplicate[T comparable](values []T) int {
 	return -1
 }
 
+// Map applies the given function f to each value and collects results in a slice.
+// This version of Map expects f not to return error values.
 func Map[T any, U any](values []T, f func(T) U) []U {
 	result := make([]U, len(values))
 
@@ -34,6 +36,9 @@ func Map[T any, U any](values []T, f func(T) U) []U {
 	return result
 }
 
+// MapError applies the given function f to each value and collects results in a slice.
+// It expects f to return an error value.
+// As soon as one error is encountered, the processing stops and the error is returned.
 func MapError[T any, U any](values []T, f func(T) (U, error)) ([]U, error) {
 	result := make([]U, len(values))
 
@@ -49,6 +54,8 @@ func MapError[T any, U any](values []T, f func(T) (U, error)) ([]U, error) {
 	return result, nil
 }
 
+// MapOptional applies the given function f to the value if it is not nil.
+// If the value is nil, it returns nil.
 func MapOptional[T any, U any](value *T, f func(T) U) *U {
 	if value == nil {
 		return nil
@@ -59,6 +66,8 @@ func MapOptional[T any, U any](value *T, f func(T) U) *U {
 	return &result
 }
 
+// RepeatWithError calls the given function count times.
+// If any invocation returns an error, the error is returned immediately.
 func RepeatWithError(count int, function func() error) error {
 	for range count {
 		if err := function(); err != nil {
@@ -69,12 +78,14 @@ func RepeatWithError(count int, function func() error) error {
 	return nil
 }
 
+// Repeat calls the given function count times.
 func Repeat(count int, function func()) {
 	for range count {
 		function()
 	}
 }
 
+// RepeatCollect calls the given function count times and collects the results in a slice.
 func RepeatCollect[T any](count int, function func() T) []T {
 	result := make([]T, count)
 
@@ -85,6 +96,8 @@ func RepeatCollect[T any](count int, function func() T) []T {
 	return result
 }
 
+// Filter selects the values that satisfy the given predicate.
+// The order of the values is preserved.
 func Filter[T any](values []T, predicate func(T) bool) []T {
 	result := make([]T, 0)
 
@@ -97,11 +110,14 @@ func Filter[T any](values []T, predicate func(T) bool) []T {
 	return result
 }
 
+// RemoveDuplicates removes duplicate values from the slice.
+// The order is not necessarily preserved.
 func RemoveDuplicates[T comparable](values []T) []T {
 	set := NewSet(values...)
 	return set.ToSlice()
 }
 
+// Range returns a slice of integers from start to end (exclusive).
 func Range(start, end int) []int {
 	size := max(end-start, 0)
 	result := make([]int, size)
@@ -113,6 +129,8 @@ func Range(start, end int) []int {
 	return result
 }
 
+// FileExists checks if a file exists at the given path.
+// Returns true if the file exists, false otherwise.
 func FileExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
