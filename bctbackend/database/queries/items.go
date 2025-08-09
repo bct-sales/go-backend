@@ -610,6 +610,9 @@ func ItemWithIdExists(db DatabaseQuerier, itemId models.Id) (r_result bool, r_er
 	return true, nil
 }
 
+// ItemsExists checks if all given items exist in the database.
+// Duplicates in itemIds have no effect on the result.
+// Returns true if all items exist, false otherwise.
 func ItemsExist(db DatabaseQuerier, itemIds []models.Id) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -659,6 +662,12 @@ func EnsureItemsExist(db DatabaseQuerier, itemIds []models.Id) (r_err error) {
 	return nil
 }
 
+// UpdateFreezeStatusOfItems updates the frozen status of multiple items at once.
+// If any item does not exist, it returns an ErrNoSuchItem.
+// If any item is hidden, it returns a ErrItemHidden error.
+// Duplicates in itemIds are ignored.
+// In case of an error, no items are updated.
+// This function consists of multiple database interactions, so it must run within a transaction.
 func UpdateFreezeStatusOfItems(transaction *TransactionalDatabaseQuerier, itemIds []models.Id, frozen bool) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -694,6 +703,12 @@ func UpdateFreezeStatusOfItems(transaction *TransactionalDatabaseQuerier, itemId
 	return nil
 }
 
+// UpdateHiddenStatusOfItems updates the hidden status of multiple items at once.
+// If any item does not exist, it returns an ErrNoSuchItem.
+// If any item is hidden, it returns a ErrItemFrozen error.
+// Duplicates in itemIds are ignored.
+// In case of an error, no items are updated.
+// This function consists of multiple database interactions, so it must run within a transaction.
 func UpdateHiddenStatusOfItems(transaction *TransactionalDatabaseQuerier, itemIds []models.Id, hidden bool) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
