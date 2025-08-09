@@ -76,7 +76,7 @@ func NewServer(db *sql.DB, configuration *configuration.Configuration) *Server {
 	server.defineRESTEndpoints()
 	server.defineWebsocketEndpoint()
 	server.defineStaticFilesRoutes(configuration.HTMLPath)
-	server.startPeriodicExpiredSessionCleanerUpper()
+	server.startPeriodicExpiredSessionPruner()
 
 	return &server
 }
@@ -92,7 +92,7 @@ func (server *Server) Shutdown() {
 	slog.Info("Server shutdown complete")
 }
 
-func (server *Server) startPeriodicExpiredSessionCleanerUpper() {
+func (server *Server) startPeriodicExpiredSessionPruner() {
 	duration := time.Duration(server.configuration.ExpiredSessionPruneInterval) * time.Second
 	ticker := time.NewTicker(duration)
 
