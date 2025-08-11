@@ -1,3 +1,5 @@
+*.json
+*.log
 bctconfig.yaml
 index.html
 *.exe
