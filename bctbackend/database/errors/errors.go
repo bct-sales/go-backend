@@ -26,6 +26,7 @@ var ErrNoSuchRole = errors.New("no such role")
 var ErrInvalidPrice = errors.New("invalid price")
 var ErrInvalidItemDescription = errors.New("invalid item description")
 var ErrInvalidCategoryName = errors.New("category name is invalid")
+var ErrDuplicateCategoryName = errors.New("category name is already in use")
 
 type ErrDatabase struct {
 	wrapped error

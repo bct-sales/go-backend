@@ -1,6 +1,7 @@
 package queries
 
 import (
+	"bctbackend/algorithms"
 	dberr "bctbackend/database/errors"
 	models "bctbackend/database/models"
 	"database/sql"
@@ -9,8 +10,9 @@ import (
 )
 
 // AddCategory adds a new category with the given name to the database.
-// If the category name is invalid, it returns an ErrInvalidCategoryName error.
 // Returns the ID of the newly created category.
+// Returns ErrInvalidCategoryName if the category name is invalid.
+// Returns ErrDuplicateCategoryName if there already exists a category with that name.
 func AddCategory(db DatabaseQuerier, categoryName string) (r_result models.Id, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -27,6 +29,15 @@ func AddCategory(db DatabaseQuerier, categoryName string) (r_result models.Id, r
 	`
 	result, err := db.Exec(query, categoryName)
 	if err != nil {
+		existingCategories, getCategoriesErr := GetCategories(db)
+		if getCategoriesErr != nil {
+			return 0, fmt.Errorf("failed to insert category: %w", err)
+		}
+
+		if algorithms.Any(existingCategories, func(category *models.ItemCategory) bool { return category.Name == categoryName }) {
+			return 0, fmt.Errorf("failed to insert category: %w", dberr.ErrDuplicateCategoryName)
+		}
+
 		return 0, fmt.Errorf("failed to insert category: %w", err)
 	}
 
