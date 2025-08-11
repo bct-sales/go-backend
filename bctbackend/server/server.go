@@ -30,6 +30,7 @@ import (
 	sloggin "github.com/samber/slog-gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 )
 
 type Server struct {
@@ -108,12 +109,15 @@ func createLogger(filename *string) (*LoggerResources, error) {
 		writer = os.Stderr
 		loggerFile = nil
 	} else {
-		loggerFile, err := os.OpenFile(*filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-		if err != nil {
-			return nil, fmt.Errorf("failed to open log file: %w", err)
+		loggerFile := lumberjack.Logger{
+			Filename:   *filename,
+			MaxSize:    10, // megabytes
+			MaxBackups: 3,
+			MaxAge:     28,   //days
+			Compress:   true, // disabled by default
 		}
 
-		writer = io.MultiWriter(os.Stderr, loggerFile)
+		writer = io.MultiWriter(os.Stderr, &loggerFile)
 	}
 
 	slogger := slog.New(slog.NewJSONHandler(writer, nil))
