@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSellerTotalPriceOfAllTimes(t *testing.T) {
+func TestSellerTotalValueOfAllTimes(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Single seller", func(t *testing.T) {
 			for _, itemCount := range []int64{0, 1, 2, 10, 100} {
