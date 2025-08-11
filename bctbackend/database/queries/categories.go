@@ -71,6 +71,10 @@ func AddCategoryWithId(db DatabaseQuerier, categoryId models.Id, categoryName st
 			}
 		}
 
+		if categoryExists, existenceErr := CategoryWithNameExists(db, categoryName); existenceErr == nil && categoryExists {
+			return fmt.Errorf("failed to insert category: %w", dberr.ErrDuplicateCategoryName)
+		}
+
 		return fmt.Errorf("failed to insert category with id %d: %w", categoryId, err)
 	}
 
