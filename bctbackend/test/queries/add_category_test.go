@@ -43,5 +43,17 @@ func TestAddCategory(t *testing.T) {
 			_, err := queries.AddCategory(db, categoryName)
 			requireDatabaseWrappedError(t, err, dberr.ErrInvalidCategoryName)
 		})
+
+		t.Run("Duplicate name", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			categoryName := "Test Category"
+			_, err := queries.AddCategory(db, categoryName)
+			require.NoError(t, err, `Failed to add category: %v`, err)
+
+			_, err = queries.AddCategory(db, categoryName)
+			requireDatabaseWrappedError(t, err, dberr.ErrDuplicateCategoryName)
+		})
 	})
 }
