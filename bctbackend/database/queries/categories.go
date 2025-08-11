@@ -221,3 +221,30 @@ func CountItemsPerCategory(db DatabaseQuerier, itemSelection ItemSelection) (r_c
 
 	return counts, nil
 }
+
+func CategoryWithNameExists(db DatabaseQuerier, categoryName string) (r_result bool, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
+	row := db.QueryRow(
+		`
+			SELECT 1
+			FROM item_categories
+			WHERE name = $1
+		`,
+		categoryName,
+	)
+
+	var dummy int
+	err := row.Scan(&dummy)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
+
+		return false, fmt.Errorf("failed to read row: %w", err)
+	}
+
+	return true, nil
+}
