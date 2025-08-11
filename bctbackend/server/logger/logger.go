@@ -1,6 +1,8 @@
 package logger
 
-import "log/slog"
+import (
+	"log/slog"
+)
 
 type Logger interface {
 	InvalidInput(message string, args ...any)
@@ -10,25 +12,25 @@ type Logger interface {
 }
 
 type LoggerWrapper struct {
-	logger *slog.Logger
+	Logger *slog.Logger
 }
 
 func NewLoggerWrapper(logger *slog.Logger) *LoggerWrapper {
-	return &LoggerWrapper{logger: logger}
+	return &LoggerWrapper{Logger: logger}
 }
 
 func (l *LoggerWrapper) InvalidInput(message string, args ...any) {
-	l.logger.Warn(message, args...)
+	l.Logger.Warn(message, args...)
 }
 
 func (l *LoggerWrapper) InvalidRequest(message string, args ...any) {
-	l.logger.Warn(message, args...)
+	l.Logger.Warn(message, args...)
 }
 
 func (l *LoggerWrapper) InternalError(message string, args ...any) {
-	l.logger.Error(message, args...)
+	l.Logger.Error(message, args...)
 }
 
 func (l *LoggerWrapper) Bug(message string, args ...any) {
-	l.logger.Error(message, args...)
+	l.Logger.Error(message, args...)
 }

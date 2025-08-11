@@ -32,6 +32,20 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+type Server struct {
+	loggerResources *LoggerResources
+	database        *sql.DB
+	configuration   *configuration.Configuration
+	broadcaster     *websocket.WebsocketBroadcaster
+	router          *gin.Engine
+	channel         chan int
+}
+
+type LoggerResources struct {
+	loggerFile *os.File
+	logger     *slog.Logger
+}
+
 // @title           BCT Sales
 // @version         1.0
 // @description     BCT Sales REST API
@@ -63,30 +77,19 @@ func StartServer(database *sql.DB, configuration *configuration.Configuration) e
 	return nil
 }
 
-type Server struct {
-	loggerFile    *os.File
-	logger        *slog.Logger
-	database      *sql.DB
-	configuration *configuration.Configuration
-	broadcaster   *websocket.WebsocketBroadcaster
-	router        *gin.Engine
-	channel       chan int
-}
-
 func NewServer(db *sql.DB, configuration *configuration.Configuration) (*Server, error) {
-	logger, loggerFile, err := createLogger(configuration.LogFilename)
+	loggerResources, err := createLogger(configuration.LogFilename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create logger: %w", err)
 	}
 
 	server := Server{
-		loggerFile:    loggerFile,
-		logger:        logger,
-		database:      db,
-		configuration: configuration,
-		broadcaster:   websocket.NewWebsocketBroadcaster(),
-		router:        createGinRouter(configuration.GinMode, logger),
-		channel:       make(chan int),
+		loggerResources: loggerResources,
+		database:        db,
+		configuration:   configuration,
+		broadcaster:     websocket.NewWebsocketBroadcaster(),
+		router:          createGinRouter(configuration.GinMode, loggerResources.logger),
+		channel:         make(chan int),
 	}
 
 	server.defineRESTEndpoints()
@@ -97,7 +100,7 @@ func NewServer(db *sql.DB, configuration *configuration.Configuration) (*Server,
 	return &server, nil
 }
 
-func createLogger(filename *string) (*slog.Logger, *os.File, error) {
+func createLogger(filename *string) (*LoggerResources, error) {
 	var writer io.Writer
 	var loggerFile *os.File
 
@@ -107,13 +110,18 @@ func createLogger(filename *string) (*slog.Logger, *os.File, error) {
 	} else {
 		loggerFile, err := os.OpenFile(*filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
-			return nil, nil, fmt.Errorf("failed to open log file: %w", err)
+			return nil, fmt.Errorf("failed to open log file: %w", err)
 		}
 
 		writer = io.MultiWriter(os.Stderr, loggerFile)
 	}
 
-	return slog.New(slog.NewJSONHandler(writer, nil)), loggerFile, nil
+	slogger := slog.New(slog.NewJSONHandler(writer, nil))
+	loggerResources := LoggerResources{
+		loggerFile: loggerFile,
+		logger:     slogger,
+	}
+	return &loggerResources, nil
 }
 
 func (server *Server) Shutdown() {
@@ -124,7 +132,7 @@ func (server *Server) Shutdown() {
 		slog.Error("Failed to close database connection", slog.String("error", err.Error()))
 	}
 
-	server.loggerFile.Close()
+	server.loggerResources.Close()
 
 	slog.Info("Server shutdown complete")
 }
@@ -191,7 +199,7 @@ func (server *Server) defineStaticFilesRoutes(htmlPath string) {
 }
 
 func (server *Server) RawPOST(path *paths.URL, handler func(logger logger.Logger, context *gin.Context, database *sql.DB)) {
-	decoratedSlogger := server.logger.With(slog.String("handler", getFunctionName(handler)))
+	decoratedSlogger := server.loggerResources.logger.With(slog.String("handler", getFunctionName(handler)))
 	logger := logger.NewLoggerWrapper(decoratedSlogger)
 
 	server.router.POST(path.String(), func(context *gin.Context) { handler(logger, context, server.database) })
@@ -271,7 +279,7 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 			// Keep going, we don't want to block the request
 		}
 
-		decoratedSlogger := server.logger.With(
+		decoratedSlogger := server.loggerResources.logger.With(
 			slog.String("user_id", userId.String()),
 			slog.String("role_id", roleId.String()),
 			slog.String("handler", getFunctionName(handler)),
@@ -305,4 +313,8 @@ func getFunctionName(x any) string {
 	fullyQualifiedName := runtime.FuncForPC(reflect.ValueOf(x).Pointer()).Name()
 	indexOfDot := strings.Index(fullyQualifiedName, ".")
 	return fullyQualifiedName[indexOfDot+1:]
+}
+
+func (l *LoggerResources) Close() {
+	l.loggerFile.Close()
 }
