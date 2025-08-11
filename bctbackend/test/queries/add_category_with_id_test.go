@@ -47,6 +47,25 @@ func TestAddCategoryWithId(t *testing.T) {
 			requireDatabaseWrappedError(t, err, dberr.ErrInvalidCategoryName)
 		})
 
+		t.Run("Duplicate name", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			categoryName := "Foo"
+
+			{
+				id := models.Id(1)
+				err := queries.AddCategoryWithId(db, id, categoryName)
+				require.NoError(t, err)
+			}
+
+			{
+				id := models.Id(2)
+				err := queries.AddCategoryWithId(db, id, categoryName)
+				requireDatabaseWrappedError(t, err, dberr.ErrDuplicateCategoryName)
+			}
+		})
+
 		t.Run("Same id used twice", func(t *testing.T) {
 			setup, db := NewDatabaseFixture()
 			defer setup.Close()
