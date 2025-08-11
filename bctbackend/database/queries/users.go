@@ -338,7 +338,7 @@ func EnsureUserExists(db DatabaseQuerier, userId models.Id) (r_err error) {
 
 // EnsureUserExistsAndHasRole checks if a user has a specific role.
 // An ErrNoSuchUser is returned if the user does not exist.
-// A ErrWrongRole is returned if the user has a different role.
+// An ErrWrongRole is returned if the user has a different role.
 func EnsureUserExistsAndHasRole(db DatabaseQuerier, userId models.Id, expectedRoleId models.RoleId) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -387,6 +387,8 @@ func RemoveUserWithId(db DatabaseQuerier, userId models.Id) (r_err error) {
 	return err
 }
 
+// UpdateLastActivity updates the last activity timestamp of a user in the database by their user ID.
+// An ErrNoSuchUser is returned if the user does not exist.
 func UpdateLastActivity(db DatabaseQuerier, userId models.Id, lastActivity models.Timestamp) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -418,11 +420,18 @@ func UpdateLastActivity(db DatabaseQuerier, userId models.Id, lastActivity model
 type GetSellerItemCountFlag int
 
 const (
-	Include GetSellerItemCountFlag = iota
+	IncludeAll GetSellerItemCountFlag = iota
 	Exclude
-	Exclusive
+	IncludeOnly
 )
 
+// CountSellerItems returns the number of sold items owned by a given seller.
+// An ErrNoSuchUser is returned if the user does not exist.
+// An ErrWrongRole is returned if the user with the given id is not a seller.
+// The frozen and hidden parameters allow to specify whether to include or exclude frozen and hidden items.
+// For example, if frozen equals IncludeAll, both frozen and unfrozen items are included.
+// If frozen equals Exclude, only unfrozen items are included.
+// If frozen equals IncludeOnly, only frozen items are included.
 func CountSellerItems(db DatabaseQuerier, sellerId models.Id, frozen GetSellerItemCountFlag, hidden GetSellerItemCountFlag) (r_result int, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -435,20 +444,20 @@ func CountSellerItems(db DatabaseQuerier, sellerId models.Id, frozen GetSellerIt
 	whereCondition := "items.seller_id = $1"
 
 	switch frozen {
-	case Include:
+	case IncludeAll:
 		// No additional condition needed, all items are included
 	case Exclude:
 		whereCondition += " AND items.frozen = false"
-	case Exclusive:
+	case IncludeOnly:
 		whereCondition += " AND items.frozen = true"
 	}
 
 	switch hidden {
-	case Include:
+	case IncludeAll:
 		// No additional condition needed, all items are included
 	case Exclude:
 		whereCondition += " AND items.hidden = false"
-	case Exclusive:
+	case IncludeOnly:
 		whereCondition += " AND items.hidden = true"
 	}
 
@@ -470,7 +479,11 @@ func CountSellerItems(db DatabaseQuerier, sellerId models.Id, frozen GetSellerIt
 	return itemCount, nil
 }
 
-func GetSellerTotalPriceOfAllItems(db DatabaseQuerier, sellerId models.Id, itemSelection ItemSelection) (r_result models.MoneyInCents, r_err error) {
+// GetSellerTotalValueOfAllItems returns the total value of all items owned by a given seller.
+// Note that whether an item has been sold does not matter.
+// An ErrNoSuchUser is returned if the user does not exist.
+// An ErrWrongRole is returned if the user with the given id is not a seller.
+func GetSellerTotalValueOfAllItems(db DatabaseQuerier, sellerId models.Id, itemSelection ItemSelection) (r_result models.MoneyInCents, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()

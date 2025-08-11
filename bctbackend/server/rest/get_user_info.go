@@ -235,7 +235,7 @@ func getUserInformationAsSeller(logger logger.Logger, context *gin.Context, db *
 		return
 	}
 
-	itemCount, err := queries.CountSellerItems(db, queriedUserId, queries.Include, queries.Exclude)
+	itemCount, err := queries.CountSellerItems(db, queriedUserId, queries.IncludeAll, queries.Exclude)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
 		logger.InternalError("Failed to count seller items", "queriedUserId", queriedUserId, "error", err)
@@ -243,7 +243,7 @@ func getUserInformationAsSeller(logger logger.Logger, context *gin.Context, db *
 		return
 	}
 
-	frozenItemCount, err := queries.CountSellerItems(db, queriedUserId, queries.Exclusive, queries.Include)
+	frozenItemCount, err := queries.CountSellerItems(db, queriedUserId, queries.IncludeOnly, queries.IncludeAll)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
 		logger.InternalError("Failed to count frozen seller items", "queriedUserId", queriedUserId, "error", err)
@@ -251,7 +251,7 @@ func getUserInformationAsSeller(logger logger.Logger, context *gin.Context, db *
 		return
 	}
 
-	hiddenItemCount, err := queries.CountSellerItems(db, queriedUserId, queries.Include, queries.Exclusive)
+	hiddenItemCount, err := queries.CountSellerItems(db, queriedUserId, queries.IncludeAll, queries.IncludeOnly)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
 		logger.InternalError("Failed to count hidden seller items", "queriedUserId", queriedUserId, "error", err)
@@ -259,7 +259,7 @@ func getUserInformationAsSeller(logger logger.Logger, context *gin.Context, db *
 		return
 	}
 
-	totalPrice, err := queries.GetSellerTotalPriceOfAllItems(db, queriedUserId, queries.OnlyVisibleItems)
+	totalPrice, err := queries.GetSellerTotalValueOfAllItems(db, queriedUserId, queries.OnlyVisibleItems)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
 		logger.InternalError("Failed to get total price of seller items", "queriedUserId", queriedUserId, "error", err)
