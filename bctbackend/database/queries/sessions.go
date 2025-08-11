@@ -222,8 +222,7 @@ func GetTables(db DatabaseQuerier) (r_result []string, r_err error) {
 			FROM
 				sqlite_schema
 			WHERE
-				type ='table' AND
-				name NOT LIKE 'sqlite_%';
+				type ='table' AND name NOT LIKE 'sqlite_%';
 		`,
 	)
 
