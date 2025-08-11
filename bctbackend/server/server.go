@@ -57,6 +57,7 @@ func StartServer(database *sql.DB, configuration *configuration.Configuration) e
 }
 
 type Server struct {
+	logger        *slog.Logger
 	database      *sql.DB
 	configuration *configuration.Configuration
 	broadcaster   *websocket.WebsocketBroadcaster
@@ -66,6 +67,7 @@ type Server struct {
 
 func NewServer(db *sql.DB, configuration *configuration.Configuration) *Server {
 	server := Server{
+		logger:        slog.Default(),
 		database:      db,
 		configuration: configuration,
 		broadcaster:   websocket.NewWebsocketBroadcaster(),
@@ -154,7 +156,7 @@ func (server *Server) defineStaticFilesRoutes(htmlPath string) {
 }
 
 func (server *Server) RawPOST(path *paths.URL, handler func(logger logger.Logger, context *gin.Context, database *sql.DB)) {
-	decoratedSlogger := slog.Default().With(slog.String("handler", getFunctionName(handler)))
+	decoratedSlogger := server.logger.With(slog.String("handler", getFunctionName(handler)))
 	logger := logger.NewLoggerWrapper(decoratedSlogger)
 
 	server.router.POST(path.String(), func(context *gin.Context) { handler(logger, context, server.database) })
@@ -233,7 +235,7 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 			// Keep going, we don't want to block the request
 		}
 
-		decoratedSlogger := slog.Default().With(
+		decoratedSlogger := server.logger.With(
 			slog.String("user_id", userId.String()),
 			slog.String("role_id", roleId.String()),
 			slog.String("handler", getFunctionName(handler)),
