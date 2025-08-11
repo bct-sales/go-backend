@@ -142,3 +142,14 @@ func FileExists(path string) (bool, error) {
 
 	return false, fmt.Errorf("failed to determine if file %s exists: %w", path, err)
 }
+
+// Any checks if any value in values satisfies the given predicate.
+func Any[T any](values []T, predicate func(T) bool) bool {
+	for _, value := range values {
+		if predicate(value) {
+			return true
+		}
+	}
+
+	return false
+}
