@@ -19,9 +19,32 @@ const (
 	zoneCount = 12
 )
 
-var colors = [...]string{"red", "green", "blue", "yellow", "orange", "purple", "black", "white"}
+var colors = [...]string{
+	"red",
+	"green",
+	"blue",
+	"yellow",
+	"orange",
+	"purple",
+	"black",
+	"white",
+}
 
-var clothing = [...]string{"T-shirt", "hoodie", "jacket", "sweater", "jeans", "pants", "shorts", "skirt", "dress", "hat", "scarf", "socks", "gloves"}
+var clothing = [...]string{
+	"T-shirt",
+	"hoodie",
+	"jacket",
+	"sweater",
+	"jeans",
+	"pants",
+	"shorts",
+	"skirt",
+	"dress",
+	"hat",
+	"scarf",
+	"socks",
+	"gloves",
+}
 
 var clothingCategories = [...]models.Id{
 	CategoryId_Clothing50_56,
