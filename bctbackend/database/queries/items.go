@@ -978,15 +978,21 @@ func RemoveItemWithId(db DatabaseQuerier, itemId models.Id) (r_err error) {
 	return nil
 }
 
+// ItemUpdate represents the fields that can be updated in an item.
+// It is used by the function UpdateItem.
 type ItemUpdate struct {
-	AddedAt      *models.Timestamp
-	Description  *string
-	PriceInCents *models.MoneyInCents
-	CategoryId   *models.Id
-	Donation     *bool
-	Charity      *bool
+	AddedAt      *models.Timestamp    // If nil, the AddedAt field is not updated.
+	Description  *string              // If nil, the Description field is not updated.
+	PriceInCents *models.MoneyInCents // If nil, the PriceInCents field is not updated.
+	CategoryId   *models.Id           // If nil, the CategoryId field is not updated.
+	Donation     *bool                // If nil, the Donation field is not updated.
+	Charity      *bool                // If nil, the Charity field is not updated.
 }
 
+// UpdateItem updates the item with the given ID in the database.
+// If the item does not exist, ErrNoSuchItem is returned.
+// If the item is frozen, ErrItemFrozen is returned.
+// If the item is hidden, ErrItemHidden is returned.
 func UpdateItem(db *TransactionalDatabaseQuerier, itemId models.Id, itemUpdate *ItemUpdate) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -1069,6 +1075,7 @@ type AddItemFunction func(addedAt models.Timestamp, description string, priceInC
 
 type AddItemsCallback func(addItem AddItemFunction)
 
+// AddItems allows to add multiple items to the database at once.
 func AddItems(db DatabaseQuerier, callback AddItemsCallback) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
