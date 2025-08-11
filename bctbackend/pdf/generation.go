@@ -45,7 +45,12 @@ type Configuration struct {
 	BarcodeHeight int
 }
 
-func GeneratePdf(configuration *Configuration, layout *LayoutSettings, labels []*LabelData) (*PdfBuilder, error) {
+func GeneratePdf(
+	configuration *Configuration,
+	layout *LayoutSettings,
+	labels []*LabelData,
+) (*PdfBuilder, error) {
+
 	builder, err := newPdfBuilder(configuration, layout, labels)
 	if err != nil {
 		return nil, &PdfError{Message: "failed to create pdf builder", Wrapped: err}
@@ -83,7 +88,12 @@ func newPdfGenerator(fontDirectory string) *fpdf.Fpdf {
 	return fpdf.New(orientation, unit, paperSize, fontDirectory)
 }
 
-func newPdfBuilder(configuration *Configuration, layout *LayoutSettings, labels []*LabelData) (*PdfBuilder, error) {
+func newPdfBuilder(
+	configuration *Configuration,
+	layout *LayoutSettings,
+	labels []*LabelData,
+) (*PdfBuilder, error) {
+
 	builder := PdfBuilder{
 		imageCache:    make(map[string]string),
 		pdf:           newPdfGenerator(configuration.FontDirectory),
@@ -137,7 +147,10 @@ func (builder *PdfBuilder) drawLabels() error {
 			}
 		}
 
-		rectangle := builder.layout.GetRectangle(builder.gridWalker.CurrentColumn, builder.gridWalker.CurrentRow)
+		rectangle := builder.layout.GetRectangle(
+			builder.gridWalker.CurrentColumn,
+			builder.gridWalker.CurrentRow,
+		)
 
 		err := builder.drawLabel(rectangle, label)
 		if err != nil {
@@ -151,7 +164,13 @@ func (builder *PdfBuilder) drawLabels() error {
 }
 
 func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *LabelData) error {
-	builder.pdf.ClipRect(labelRectangle.Left, labelRectangle.Top, labelRectangle.Width, labelRectangle.Height, false)
+	builder.pdf.ClipRect(
+		labelRectangle.Left,
+		labelRectangle.Top,
+		labelRectangle.Width,
+		labelRectangle.Height,
+		false,
+	)
 	defer builder.pdf.ClipEnd()
 
 	if err := builder.drawLabelBorder(labelRectangle); err != nil {
@@ -263,21 +282,33 @@ func (builder *PdfBuilder) setFont() error {
 	fontStyle := ""
 	fontFilename := builder.configuration.FontFilename
 
-	slog.Debug("Setting font", slog.String("family", fontFamily), slog.String("style", fontStyle), slog.String("filename", fontFilename))
+	slog.Debug(
+		"Setting font",
+		slog.String("family", fontFamily),
+		slog.String("style", fontStyle),
+		slog.String("filename", fontFilename),
+	)
 	builder.pdf.AddUTF8Font(fontFamily, fontStyle, fontFilename)
 	if err := builder.pdf.Error(); err != nil {
 		slog.Error("Failed to set font", slog.String("error", err.Error()))
 		return &PdfError{Message: "failed to add font", Wrapped: err}
 	}
 
-	slog.Debug("Converting font size to points", slog.Float64("fontSize", builder.layout.fontSize))
+	slog.Debug(
+		"Converting font size to points",
+		slog.Float64("fontSize", builder.layout.fontSize),
+	)
 	fontSizeInPoints := builder.pdf.UnitToPointConvert(builder.layout.fontSize)
 	if err := builder.pdf.Error(); err != nil {
 		slog.Error("Failed to convert font size to points", slog.String("error", err.Error()))
 		return &PdfError{Message: "failed to convert font size to points", Wrapped: err}
 	}
 
-	slog.Debug("Setting font", slog.String("family", fontFamily), slog.Float64("sizeInPoints", fontSizeInPoints))
+	slog.Debug(
+		"Setting font",
+		slog.String("family", fontFamily),
+		slog.Float64("sizeInPoints", fontSizeInPoints),
+	)
 	builder.pdf.SetFont(fontFamily, "", fontSizeInPoints)
 	if err := builder.pdf.Error(); err != nil {
 		slog.Debug("Failed to set font", slog.String("error", err.Error()))
