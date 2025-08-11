@@ -22,9 +22,21 @@ func GetItems(db DatabaseQuerier, receiver func(*models.Item) error, itemSelecti
 
 	// Build SQL query
 	query := fmt.Sprintf(`
-		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden
-		FROM %s
-		ORDER BY item_id ASC
+		SELECT
+			item_id,
+			added_at,
+			description,
+			price_in_cents,
+			item_category_id,
+			seller_id,
+			donation,
+			charity,
+			frozen,
+			hidden
+		FROM
+			%s
+		ORDER BY
+			item_id ASC
 		%s
 	`, ItemsTableFor(itemSelection), rowSelection.SQL())
 
@@ -47,7 +59,18 @@ func GetItems(db DatabaseQuerier, receiver func(*models.Item) error, itemSelecti
 		var charity bool
 		var frozen bool
 		var hidden bool
-		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity, &frozen, &hidden)
+		err = rows.Scan(
+			&id,
+			&addedAt,
+			&description,
+			&priceInCents,
+			&itemCategoryId,
+			&sellerId,
+			&donation,
+			&charity,
+			&frozen,
+			&hidden,
+		)
 		if err != nil {
 			return fmt.Errorf("failed to scan row: %w", err)
 		}
@@ -86,9 +109,12 @@ func GetItemIds(db DatabaseQuerier) (r_result []models.Id, r_err error) {
 
 	// Build SQL query
 	query := `
-		SELECT item_id
-		FROM items
-		ORDER BY item_id ASC
+		SELECT
+			item_id
+		FROM
+			items
+		ORDER BY
+			item_id ASC
 	`
 
 	// Perform query
@@ -130,10 +156,23 @@ func GetSellerItems(db DatabaseQuerier, sellerId models.Id, itemSelection ItemSe
 
 	// Build SQL query
 	query := fmt.Sprintf(`
-		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden
-		FROM %s
-		WHERE seller_id = ?
-		ORDER BY added_at, item_id ASC
+		SELECT
+			item_id,
+			added_at,
+			description,
+			price_in_cents,
+			item_category_id,
+			seller_id,
+			donation,
+			charity,
+			frozen,
+			hidden
+		FROM
+			%s
+		WHERE
+			seller_id = ?
+		ORDER BY
+			added_at, item_id ASC
 	`, ItemsTableFor(itemSelection))
 
 	rows, err := db.Query(query, sellerId)
@@ -156,7 +195,18 @@ func GetSellerItems(db DatabaseQuerier, sellerId models.Id, itemSelection ItemSe
 		var frozen bool
 		var hidden bool
 
-		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity, &frozen, &hidden)
+		err = rows.Scan(
+			&id,
+			&addedAt,
+			&description,
+			&priceInCents,
+			&itemCategoryId,
+			&sellerId,
+			&donation,
+			&charity,
+			&frozen,
+			&hidden,
+		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read row: %w", err)
 		}
@@ -216,11 +266,25 @@ func GetItemsWithSaleCounts(db DatabaseQuerier, itemSelection ItemSelection, sel
 		whereClause = ""
 	}
 	query := fmt.Sprintf(`
-		SELECT i.item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden, COALESCE(COUNT(sale_items.sale_id), 0) AS sale_count
-		FROM %s i LEFT JOIN sale_items ON i.item_id = sale_items.item_id
+		SELECT
+			i.item_id,
+			added_at,
+			description,
+			price_in_cents,
+			item_category_id,
+			seller_id,
+			donation,
+			charity,
+			frozen,
+			hidden,
+			COALESCE(COUNT(sale_items.sale_id), 0) AS sale_count
+		FROM
+			%s i LEFT JOIN sale_items ON i.item_id = sale_items.item_id
 		%s
-		GROUP BY i.item_id
-		ORDER BY added_at, i.item_id ASC
+		GROUP BY
+			i.item_id
+		ORDER BY
+			added_at, i.item_id ASC
 	`, itemsTable, whereClause)
 	rows, err := db.Query(query, arguments...)
 
@@ -294,11 +358,26 @@ func GetSellerItemsWithSaleCounts(db DatabaseQuerier, sellerId models.Id) (r_ite
 
 	rows, err := db.Query(
 		`
-			SELECT items.item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden, COALESCE(COUNT(sale_items.sale_id), 0) AS sale_count
-			FROM items LEFT JOIN sale_items ON items.item_id = sale_items.item_id
-			WHERE seller_id = ? AND hidden = false
-			GROUP BY items.item_id
-			ORDER BY added_at, items.item_id ASC
+			SELECT
+				items.item_id,
+				added_at,
+				description,
+				price_in_cents,
+				item_category_id,
+				seller_id,
+				donation,
+				charity,
+				frozen,
+				hidden,
+				COALESCE(COUNT(sale_items.sale_id), 0) AS sale_count
+			FROM
+				items LEFT JOIN sale_items ON items.item_id = sale_items.item_id
+			WHERE
+				seller_id = ? AND hidden = false
+			GROUP BY
+				items.item_id
+			ORDER BY
+				added_at, items.item_id ASC
 		`,
 		sellerId,
 	)
@@ -323,7 +402,18 @@ func GetSellerItemsWithSaleCounts(db DatabaseQuerier, sellerId models.Id) (r_ite
 		var hidden bool
 		var saleCount int
 
-		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity, &frozen, &hidden, &saleCount)
+		err = rows.Scan(&id,
+			&addedAt,
+			&description,
+			&priceInCents,
+			&itemCategoryId,
+			&sellerId,
+			&donation,
+			&charity,
+			&frozen,
+			&hidden,
+			&saleCount,
+		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read row: %w", err)
 		}
@@ -362,9 +452,20 @@ func GetItemWithId(db DatabaseQuerier, itemId models.Id) (r_result *models.Item,
 	}()
 
 	row := db.QueryRow(`
-		SELECT added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden
-		FROM items
-		WHERE item_id = ?
+		SELECT
+			added_at,
+			description,
+			price_in_cents,
+			item_category_id,
+			seller_id,
+			donation,
+			charity,
+			frozen,
+			hidden
+		FROM
+			items
+		WHERE
+			item_id = ?
 	`, itemId)
 
 	var addedAt models.Timestamp
@@ -421,9 +522,21 @@ func GetItemsWithIds(db DatabaseQuerier, itemIds []models.Id) (r_result map[mode
 	// Set up SQL query
 	// Note that this does not detect nonexistent items, we deal with that later
 	query := fmt.Sprintf(`
-		SELECT item_id, added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden
-		FROM items
-		WHERE item_id IN (%s)
+		SELECT
+			item_id,
+			added_at,
+			description,
+			price_in_cents,
+			item_category_id,
+			seller_id,
+			donation,
+			charity,
+			frozen,
+			hidden
+		FROM
+			items
+		WHERE
+			item_id IN (%s)
 	`, placeholderString(len(itemIds)))
 	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
 	rows, err := db.Query(query, convertedItemIds...)
@@ -445,7 +558,18 @@ func GetItemsWithIds(db DatabaseQuerier, itemIds []models.Id) (r_result map[mode
 		var frozen bool
 		var hidden bool
 
-		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity, &frozen, &hidden)
+		err = rows.Scan(
+			&id,
+			&addedAt,
+			&description,
+			&priceInCents,
+			&itemCategoryId,
+			&sellerId,
+			&donation,
+			&charity,
+			&frozen,
+			&hidden,
+		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read row: %w", err)
 		}
@@ -492,8 +616,10 @@ func CountItems(db DatabaseQuerier, itemSelection ItemSelection) (r_result int, 
 	}()
 
 	query := fmt.Sprintf(`
-		SELECT COUNT(item_id)
-		FROM %s
+		SELECT
+			COUNT(item_id)
+		FROM
+			%s
 	`, ItemsTableFor(itemSelection))
 	row := db.QueryRow(query)
 
@@ -589,9 +715,12 @@ func ItemWithIdExists(db DatabaseQuerier, itemId models.Id) (r_result bool, r_er
 
 	row := db.QueryRow(
 		`
-			SELECT 1
-			FROM items
-			WHERE item_id = $1
+			SELECT
+				1
+			FROM
+				items
+			WHERE
+				item_id = $1
 		`,
 		itemId,
 	)
@@ -626,9 +755,12 @@ func ItemsExist(db DatabaseQuerier, itemIds []models.Id) (r_result bool, r_err e
 
 	// Set up SQL query
 	query := fmt.Sprintf(`
-		SELECT COUNT(item_id)
-		FROM items
-		WHERE item_id IN (%s)
+		SELECT
+			COUNT(item_id)
+		FROM
+			items
+		WHERE
+			item_id IN (%s)
 	`, placeholderString(len(itemIds)))
 
 	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
@@ -747,9 +879,13 @@ func UpdateHiddenStatusOfItems(transaction *TransactionalDatabaseQuerier, itemId
 
 func partitionItemsBy(db DatabaseQuerier, itemIds []models.Id, columnName string) (*algorithms.Set[models.Id], *algorithms.Set[models.Id], error) {
 	query := fmt.Sprintf(`
-		SELECT item_id, %s
-		FROM items
-		WHERE item_id IN (%s)
+		SELECT
+			item_id,
+			%s
+		FROM
+			items
+		WHERE
+			item_id IN (%s)
 	`, columnName, placeholderString(len(itemIds)))
 	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
 	rows, err := db.Query(query, convertedItemIds...)
