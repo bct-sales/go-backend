@@ -1,7 +1,6 @@
 package queries
 
 import (
-	"bctbackend/algorithms"
 	dberr "bctbackend/database/errors"
 	models "bctbackend/database/models"
 	"database/sql"
@@ -29,12 +28,7 @@ func AddCategory(db DatabaseQuerier, categoryName string) (r_result models.Id, r
 	`
 	result, err := db.Exec(query, categoryName)
 	if err != nil {
-		existingCategories, getCategoriesErr := GetCategories(db)
-		if getCategoriesErr != nil {
-			return 0, fmt.Errorf("failed to insert category: %w", err)
-		}
-
-		if algorithms.Any(existingCategories, func(category *models.ItemCategory) bool { return category.Name == categoryName }) {
+		if categoryExists, existenceErr := CategoryWithNameExists(db, categoryName); existenceErr == nil && categoryExists {
 			return 0, fmt.Errorf("failed to insert category: %w", dberr.ErrDuplicateCategoryName)
 		}
 
