@@ -74,12 +74,10 @@ type Server struct {
 }
 
 func NewServer(db *sql.DB, configuration *configuration.Configuration) (*Server, error) {
-	loggerFile, err := os.OpenFile("server-log.json", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	logger, loggerFile, err := createLogger(configuration.LogFilename)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open log file: %w", err)
+		return nil, fmt.Errorf("failed to create logger: %w", err)
 	}
-
-	logger := createLogger(loggerFile)
 
 	server := Server{
 		loggerFile:    loggerFile,
@@ -99,8 +97,23 @@ func NewServer(db *sql.DB, configuration *configuration.Configuration) (*Server,
 	return &server, nil
 }
 
-func createLogger(writer io.Writer) *slog.Logger {
-	return slog.New(slog.NewJSONHandler(io.MultiWriter(os.Stderr, writer), nil))
+func createLogger(filename *string) (*slog.Logger, *os.File, error) {
+	var writer io.Writer
+	var loggerFile *os.File
+
+	if filename == nil {
+		writer = os.Stderr
+		loggerFile = nil
+	} else {
+		loggerFile, err := os.OpenFile(*filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to open log file: %w", err)
+		}
+
+		writer = io.MultiWriter(os.Stderr, loggerFile)
+	}
+
+	return slog.New(slog.NewJSONHandler(writer, nil)), loggerFile, nil
 }
 
 func (server *Server) Shutdown() {

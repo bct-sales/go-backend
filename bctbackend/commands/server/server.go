@@ -67,6 +67,17 @@ func (c *ServerCommand) execute() error {
 func (c *ServerCommand) getConfiguration() (*configuration.Configuration, error) {
 	errs := []error{}
 
+	var logFilename *string
+	logFileSetting, err := c.GetConfigurationString("log_file")
+	if err != nil {
+		if errors.Is(err, common.ErrMissingConfiguration) {
+			logFilename = nil
+		} else {
+			return nil, fmt.Errorf("failed to get log_file configuration: %w", err)
+		}
+	}
+	logFilename = &logFileSetting
+
 	fontDirectory, err := c.GetConfigurationString(common.FlagFontDirectory)
 	if err != nil {
 		errs = append(errs, err)
@@ -124,6 +135,7 @@ func (c *ServerCommand) getConfiguration() (*configuration.Configuration, error)
 	}
 
 	return &configuration.Configuration{
+		LogFilename:                 logFilename,
 		FontDirectory:               fontDirectory,
 		FontFilename:                fontFilename,
 		FontFamily:                  fontFamily,

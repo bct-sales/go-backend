@@ -1,6 +1,7 @@
 package configuration
 
 type Configuration struct {
+	LogFilename                 *string
 	FontDirectory               string
 	FontFilename                string
 	FontFamily                  string
