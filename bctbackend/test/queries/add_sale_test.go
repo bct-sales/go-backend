@@ -69,6 +69,22 @@ func TestAddSale(t *testing.T) {
 			})
 		})
 
+		t.Run("Sale with nonexistent items", func(t *testing.T) {
+			setup, _ := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			cashier := setup.Cashier()
+			timestamp := models.Timestamp(0)
+
+			nonexistentItemId := models.Id(9999)
+			setup.RequireNoSuchItems(t, nonexistentItemId)
+
+			setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
+				_, err := queries.AddSale(transaction, cashier.UserId, timestamp, []models.Id{nonexistentItemId})
+				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
+			})
+		})
+
 		t.Run("As seller", func(t *testing.T) {
 			setup, _ := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
