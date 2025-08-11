@@ -113,8 +113,8 @@ func createLogger(filename *string) (*LoggerResources, error) {
 			Filename:   *filename,
 			MaxSize:    10, // megabytes
 			MaxBackups: 3,
-			MaxAge:     28,   //days
-			Compress:   true, // disabled by default
+			MaxAge:     28,    //days
+			Compress:   false, // disabled by default
 		}
 
 		writer = io.MultiWriter(os.Stderr, &loggerFile)
