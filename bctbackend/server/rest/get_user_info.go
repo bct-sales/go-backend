@@ -271,7 +271,7 @@ func getUserInformationAsSeller(logger logger.Logger, context *gin.Context, db *
 		ItemCount:       itemCount,
 		FrozenItemCount: frozenItemCount,
 		HiddenItemCount: hiddenItemCount,
-		TotalPrice:      models.MoneyInCents(totalPrice),
+		TotalPrice:      totalPrice,
 	}
 
 	context.JSON(http.StatusOK, response)
