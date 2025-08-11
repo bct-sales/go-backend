@@ -48,9 +48,13 @@ func GetSessionById(db DatabaseQuerier, sessionId models.SessionId) (r_result *m
 
 	row := db.QueryRow(
 		`
-			SELECT user_id, expiration_time
-			FROM sessions
-			WHERE session_id = ?
+			SELECT
+				user_id,
+				expiration_time
+			FROM
+				sessions
+			WHERE
+				session_id = ?
 		`,
 		sessionId,
 	)
@@ -85,9 +89,14 @@ func GetSessionData(db DatabaseQuerier, sessionId models.SessionId) (r_result *S
 	now := models.Now()
 	row := db.QueryRow(
 		`
-			SELECT users.user_id, role_id
-			FROM sessions INNER JOIN users ON sessions.user_id = users.user_id
-			WHERE session_id = ? AND ? < expiration_time
+			SELECT
+				users.user_id, role_id
+			FROM
+				sessions
+			INNER JOIN
+				users ON sessions.user_id = users.user_id
+			WHERE
+				session_id = ? AND ? < expiration_time
 		`,
 		sessionId,
 		now,
@@ -116,8 +125,12 @@ func GetSessions(db DatabaseQuerier) (r_result []models.Session, r_err error) {
 
 	rows, err := db.Query(
 		`
-			SELECT session_id, user_id, expiration_time
-			FROM sessions
+			SELECT
+				session_id,
+				user_id,
+				expiration_time
+			FROM
+				sessions
 		`,
 	)
 

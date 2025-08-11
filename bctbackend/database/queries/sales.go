@@ -158,12 +158,21 @@ func (q *GetSalesQuery) OrderedAntiChronologically() *GetSalesQuery {
 func (q *GetSalesQuery) Execute(db DatabaseQuerier, receiver func(*models.SaleSummary) error) (r_err error) {
 	query := fmt.Sprintf(
 		`
-			SELECT sales.sale_id, sales.cashier_id, sales.transaction_time, COUNT(sale_items.item_id) AS item_count, SUM(items.price_in_cents) AS total_price
-			FROM sales
-			INNER JOIN sale_items ON sales.sale_id = sale_items.sale_id
-			INNER JOIN items ON sale_items.item_id = items.item_id
+			SELECT
+				sales.sale_id,
+				sales.cashier_id,
+				sales.transaction_time,
+				COUNT(sale_items.item_id) AS item_count,
+				SUM(items.price_in_cents) AS total_price
+			FROM
+				sales
+			INNER JOIN
+				sale_items ON sales.sale_id = sale_items.sale_id
+			INNER JOIN
+				items ON sale_items.item_id = items.item_id
 			%s
-			GROUP BY sales.sale_id
+			GROUP BY
+				sales.sale_id
 			%s
 			%s
 		`,
@@ -248,9 +257,13 @@ func GetSaleWithId(db DatabaseQuerier, saleId models.Id) (r_result *models.Sale,
 	var transactionTime models.Timestamp
 	err := db.QueryRow(
 		`
-			SELECT cashier_id, transaction_time
-			FROM sales
-			WHERE sale_id = ?
+			SELECT
+				cashier_id,
+				transaction_time
+			FROM
+				sales
+			WHERE
+				sale_id = ?
 		`,
 		saleId,
 	).Scan(&cashierId, &transactionTime)
@@ -280,9 +293,12 @@ func SaleWithIdExists(db DatabaseQuerier, saleId models.Id) (r_result bool, r_er
 
 	err := db.QueryRow(
 		`
-			SELECT 1
-			FROM sales
-			WHERE sale_id = ?
+			SELECT
+				1
+			FROM
+				sales
+			WHERE
+				sale_id = ?
 		`,
 		saleId,
 	).Scan(&exists)
@@ -315,10 +331,22 @@ func GetSaleItems(db DatabaseQuerier, saleId models.Id) (r_result []*models.Item
 
 	rows, err := db.Query(
 		`
-			SELECT i.item_id, i.added_at, i.description, i.price_in_cents, i.item_category_id, i.seller_id, i.donation, i.charity, i.frozen
-			FROM sale_items si
-			INNER JOIN items i ON si.item_id = i.item_id
-			WHERE si.sale_id = ?
+			SELECT
+				i.item_id,
+				i.added_at,
+				i.description,
+				i.price_in_cents,
+				i.item_category_id,
+				i.seller_id,
+				i.donation,
+				i.charity,
+				i.frozen
+			FROM
+				sale_items si
+			INNER JOIN
+				items i ON si.item_id = i.item_id
+			WHERE
+				si.sale_id = ?
 		`,
 		saleId,
 	)
@@ -417,11 +445,24 @@ func GetSoldItems(db DatabaseQuerier) (r_result []*models.Item, r_err error) {
 
 	rows, err := db.Query(
 		`
-			SELECT DISTINCT i.item_id, i.added_at, i.description, i.price_in_cents, i.item_category_id, i.seller_id, i.donation, i.charity, i.frozen
-			FROM sale_items si
-			INNER JOIN items i ON si.item_id = i.item_id
-			INNER JOIN sales s ON si.sale_id = s.sale_id
-			ORDER BY s.transaction_time DESC, i.item_id ASC
+			SELECT DISTINCT
+				i.item_id,
+				i.added_at,
+				i.description,
+				i.price_in_cents,
+				i.item_category_id,
+				i.seller_id,
+				i.donation,
+				i.charity,
+				i.frozen
+			FROM
+				sale_items si
+			INNER JOIN
+				items i ON si.item_id = i.item_id
+			INNER JOIN
+				sales s ON si.sale_id = s.sale_id
+			ORDER BY
+				s.transaction_time DESC, i.item_id ASC
 		`,
 	)
 	if err != nil {
@@ -441,7 +482,18 @@ func GetSoldItems(db DatabaseQuerier) (r_result []*models.Item, r_err error) {
 		var charity bool
 		var frozen bool
 		var hidden bool
-		err := rows.Scan(&itemId, &addedAt, &description, &priceInCents, &categoryId, &sellerId, &donation, &charity, &frozen)
+
+		err := rows.Scan(
+			&itemId,
+			&addedAt,
+			&description,
+			&priceInCents,
+			&categoryId,
+			&sellerId,
+			&donation,
+			&charity,
+			&frozen,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -482,8 +534,11 @@ func CountSoldItems(db DatabaseQuerier) (r_result *struct {
 	var distinctCount int
 	err := db.QueryRow(
 		`
-			SELECT COUNT(si.item_id), COUNT(DISTINCT si.item_id)
-			FROM sale_items si
+			SELECT
+				COUNT(si.item_id),
+				COUNT(DISTINCT si.item_id)
+			FROM
+				sale_items si
 		`,
 	).Scan(&totalCount, &distinctCount)
 
@@ -509,9 +564,14 @@ func HasAnyBeenSold(db DatabaseQuerier, itemIds []models.Id) (r_result bool, r_e
 	}()
 
 	query := fmt.Sprintf(`
-		SELECT 1
-		FROM items INNER JOIN sale_items ON items.item_id = sale_items.item_id
-		WHERE items.item_id IN (%s)
+		SELECT
+			1
+		FROM
+			items
+		INNER JOIN
+			sale_items ON items.item_id = sale_items.item_id
+		WHERE
+			items.item_id IN (%s)
 	`, placeholderString(len(itemIds)))
 	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
 
@@ -546,12 +606,27 @@ func GetItemsSoldBy(db DatabaseQuerier, cashierId models.Id) (r_result []*models
 
 	rows, err := db.Query(
 		`
-			SELECT i.item_id, i.added_at, i.description, i.price_in_cents, i.item_category_id, i.seller_id, i.donation, i.charity, i.frozen, i.hidden
-			FROM sale_items si
-			INNER JOIN items i ON si.item_id = i.item_id
-			INNER JOIN sales s ON si.sale_id = s.sale_id
-			WHERE s.cashier_id = ?
-			ORDER BY s.transaction_time DESC, i.item_id ASC
+			SELECT
+				i.item_id,
+				i.added_at,
+				i.description,
+				i.price_in_cents,
+				i.item_category_id,
+				i.seller_id,
+				i.donation,
+				i.charity,
+				i.frozen,
+				i.hidden
+			FROM
+				sale_items si
+			INNER JOIN
+				items i ON si.item_id = i.item_id
+			INNER JOIN
+				sales s ON si.sale_id = s.sale_id
+			WHERE
+				s.cashier_id = ?
+			ORDER BY
+				s.transaction_time DESC, i.item_id ASC
 		`,
 		cashierId,
 	)
