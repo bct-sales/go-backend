@@ -125,10 +125,10 @@ func AddSale(
 type GetSalesQuery struct {
 	minimalId    *models.Id // If set, only sales with an ID greater than or equal to this value are returned.
 	rowSelection *struct {
-		limit  int
-		offset int
+		limit  int // Max number of sales to return
+		offset int // Determines the starting point for the query
 	}
-	order *string
+	order *string // Specifies the order in which to return the results
 }
 
 func NewGetSalesQuery() *GetSalesQuery {
@@ -273,6 +273,8 @@ func GetSaleWithId(db DatabaseQuerier, saleId models.Id) (r_result *models.Sale,
 	return &sale, nil
 }
 
+// SaleWithIdExists checks whether a sale with the given saleId exists in the database.
+// Returns true if the sale exists, false otherwise.
 func SaleWithIdExists(db DatabaseQuerier, saleId models.Id) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -368,17 +370,18 @@ func GetSaleItems(db DatabaseQuerier, saleId models.Id) (r_result []*models.Item
 	return items, nil
 }
 
+// RemoveSale removes the sale with the given saleId from the database.
+// Returns ErrNoSuchSale if no such sale exists.
+// This function should be use with care.
 func RemoveSale(transaction *TransactionalDatabaseQuerier, saleId models.Id) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
 	saleExists, err := SaleWithIdExists(transaction, saleId)
-
 	if err != nil {
 		return err
 	}
-
 	if !saleExists {
 		return fmt.Errorf("failed to remove sale %d: %w", saleId, dberr.ErrNoSuchSale)
 	}
@@ -402,7 +405,6 @@ func RemoveSale(transaction *TransactionalDatabaseQuerier, saleId models.Id) (r_
 		`,
 		saleId,
 	)
-
 	if err != nil {
 		return err
 	}
@@ -737,6 +739,9 @@ func RemoveAllSales(transaction *TransactionalDatabaseQuerier) (r_err error) {
 	return nil
 }
 
+// GetCashierSales retrieves a list of sales made by a specified cashier.
+// If cashierId does not correspond to any user, ErrNoSuchUser is returned.
+// If cashierId does not correspond to a cashier, ErrWrongRole is returned.
 func GetCashierSales(db DatabaseQuerier, cashierId models.Id, receiver func(*models.SaleSummary) error) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -842,6 +847,7 @@ type MultiplySoldItem struct {
 	Sales []models.Sale
 }
 
+// GetMultiplySoldItems retrieves all items that have been sold multiple times.
 func GetMultiplySoldItems(db DatabaseQuerier) (r_result []MultiplySoldItem, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -1012,6 +1018,8 @@ type CategorySaleTotal struct {
 	TotalInCents models.MoneyInCents
 }
 
+// GetSalesOverview retrieves the total sales for each item category.
+// Multiply sold items are counted as many times.
 func GetSalesOverview(db DatabaseQuerier) (r_result []CategorySaleTotal, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
