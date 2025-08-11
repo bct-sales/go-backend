@@ -86,7 +86,7 @@ func (c *categoryCountCommand) getCategoryCounts(database *sql.DB) (map[models.I
 
 func (c *categoryCountCommand) printCategoryCounts(
 	categoryCounts map[models.Id]int,
-	categoryNameTable map[models.Id]string
+	categoryNameTable map[models.Id]string,
 ) error {
 
 	tableData := pterm.TableData{
