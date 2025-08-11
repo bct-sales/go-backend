@@ -22,7 +22,10 @@ func CreateRestServer(db *sql.DB) *server.Server {
 		ExpiredSessionPruneInterval: 60,
 	}
 
-	server := server.NewServer(db, &configuration)
+	server, err := server.NewServer(db, &configuration)
+	if err != nil {
+		panic("failed to create server")
+	}
 
 	return server
 }

@@ -14,8 +14,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
+	"os"
 	"reflect"
 	"runtime"
 	"strings"
@@ -25,6 +27,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	sloggin "github.com/samber/slog-gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -47,7 +50,11 @@ import (
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func StartServer(database *sql.DB, configuration *configuration.Configuration) error {
-	server := NewServer(database, configuration)
+	server, err := NewServer(database, configuration)
+	if err != nil {
+		return fmt.Errorf("failed to create server: %w", err)
+	}
+	defer server.Shutdown()
 
 	if err := server.run(); err != nil {
 		return err
@@ -57,6 +64,7 @@ func StartServer(database *sql.DB, configuration *configuration.Configuration) e
 }
 
 type Server struct {
+	loggerFile    *os.File
 	logger        *slog.Logger
 	database      *sql.DB
 	configuration *configuration.Configuration
@@ -65,13 +73,21 @@ type Server struct {
 	channel       chan int
 }
 
-func NewServer(db *sql.DB, configuration *configuration.Configuration) *Server {
+func NewServer(db *sql.DB, configuration *configuration.Configuration) (*Server, error) {
+	loggerFile, err := os.OpenFile("server-log.json", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open log file: %w", err)
+	}
+
+	logger := createLogger(loggerFile)
+
 	server := Server{
-		logger:        slog.Default(),
+		loggerFile:    loggerFile,
+		logger:        logger,
 		database:      db,
 		configuration: configuration,
 		broadcaster:   websocket.NewWebsocketBroadcaster(),
-		router:        createGinRouter(configuration.GinMode),
+		router:        createGinRouter(configuration.GinMode, logger),
 		channel:       make(chan int),
 	}
 
@@ -80,7 +96,11 @@ func NewServer(db *sql.DB, configuration *configuration.Configuration) *Server {
 	server.defineStaticFilesRoutes(configuration.HTMLPath)
 	server.startPeriodicExpiredSessionPruner()
 
-	return &server
+	return &server, nil
+}
+
+func createLogger(writer io.Writer) *slog.Logger {
+	return slog.New(slog.NewJSONHandler(io.MultiWriter(os.Stderr, writer), nil))
 }
 
 func (server *Server) Shutdown() {
@@ -90,6 +110,8 @@ func (server *Server) Shutdown() {
 	if err := server.database.Close(); err != nil {
 		slog.Error("Failed to close database connection", slog.String("error", err.Error()))
 	}
+
+	server.loggerFile.Close()
 
 	slog.Info("Server shutdown complete")
 }
@@ -184,10 +206,11 @@ func (server *Server) run() error {
 	return nil
 }
 
-func createGinRouter(ginMode string) *gin.Engine {
+func createGinRouter(ginMode string, logger *slog.Logger) *gin.Engine {
 	gin.SetMode(ginMode)
 
 	router := gin.New()
+	router.Use(sloggin.New(logger))
 
 	corsConfiguration := cors.DefaultConfig()
 	corsConfiguration.AllowAllOrigins = true
