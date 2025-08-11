@@ -947,22 +947,17 @@ func RemoveItemWithId(db DatabaseQuerier, itemId models.Id) (r_err error) {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	itemExists, err := ItemWithIdExists(db, itemId)
-	if err != nil {
-		return err
-	}
-	if !itemExists {
+	if err := EnsureItemsExist(db, []models.Id{itemId}); err != nil {
 		return fmt.Errorf("failed to remove item with id %d: %w", itemId, dberr.ErrNoSuchItem)
 	}
 
-	_, err = db.Exec(
+	_, err := db.Exec(
 		`
 			DELETE FROM items
 			WHERE item_id = $1
 		`,
 		itemId,
 	)
-
 	if err != nil {
 		sold, err2 := HasAnyBeenSold(db, []models.Id{itemId})
 		if err2 != nil {
