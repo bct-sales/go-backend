@@ -22,11 +22,7 @@ func (q *addSaleQuery) execute(db *TransactionalDatabaseQuerier) (r_result model
 	}
 
 	// Check if all items exist
-	exists, err := ItemsExist(db, q.ItemIds)
-	if err != nil {
-		return 0, err
-	}
-	if !exists {
+	if err := EnsureItemsExist(db, q.ItemIds); err != nil {
 		return 0, fmt.Errorf("failed to add sale: %w", dberr.ErrNoSuchItem)
 	}
 
