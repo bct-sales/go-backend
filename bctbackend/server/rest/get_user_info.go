@@ -16,7 +16,36 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type GetUserInformationItem struct {
+// GetUserInformationByAdminSuccessResponse is the common response part for all user information requests done by admins.
+// It is embedded in other response structs specialized for sellers, cashiers and admins.
+type GetUserInformationByAdminSuccessResponse struct {
+	UserId       models.Id      `binding:"required"            json:"userId"`
+	Role         string         `binding:"required"            json:"role"`
+	Password     string         `binding:"required"            json:"password"`
+	CreatedAt    rest.DateTime  `binding:"required"            json:"createdAt"`
+	LastActivity *rest.DateTime `json:"lastActivity,omitempty"`
+}
+
+// GetSellerInformationByAdminSuccessResponse is the response struct for seller information requests done by admins.
+type GetSellerInformationByAdminSuccessResponse struct {
+	GetUserInformationByAdminSuccessResponse
+	Items *[]*GetSellerInformationItemData `binding:"required" json:"items"`
+}
+
+// GetCashierInformationByAdminSuccessResponse is the response struct for cashier information requests done by admins.
+type GetCashierInformationByAdminSuccessResponse struct {
+	GetUserInformationByAdminSuccessResponse
+	Sales *[]*GetCashierInformationByAdminSaleData `binding:"required" json:"sales"`
+}
+
+// GetAdminInformationByAdminSuccessResponse is the response struct for admin information requests done by admins.
+type GetAdminInformationByAdminSuccessResponse struct {
+	GetUserInformationByAdminSuccessResponse
+}
+
+// GetSellerInformationItemData contains data regarding items.
+// It is used when an admin requests information about a seller.
+type GetSellerInformationItemData struct {
 	ItemId       models.Id           `binding:"required" json:"itemId"`
 	AddedAt      rest.DateTime       `binding:"required" json:"addedAt"`
 	SellerId     models.Id           `binding:"required" json:"sellerId"`
@@ -29,46 +58,28 @@ type GetUserInformationItem struct {
 	SaleCount    *int                `binding:"required" json:"saleCount"`
 }
 
-type GetUserInformationSale struct {
+// GetCashierInformationByAdminSaleData contains data regarding sales.
+// It is used when an admin requests information about a cashier.
+type GetCashierInformationByAdminSaleData struct {
 	SaleId          models.Id     `binding:"required" json:"saleId"`
 	TransactionTime rest.DateTime `binding:"required" json:"transactionTime"`
 }
 
-type GetUserInformationSuccessResponse struct {
-	UserId       models.Id      `binding:"required"            json:"userId"`
-	Role         string         `binding:"required"            json:"role"`
-	Password     string         `binding:"required"            json:"password"`
-	CreatedAt    rest.DateTime  `binding:"required"            json:"createdAt"`
-	LastActivity *rest.DateTime `json:"lastActivity,omitempty"`
-}
-
-type GetSellerInformationSuccessResponse struct {
-	GetUserInformationSuccessResponse
-	Items *[]*GetUserInformationItem `binding:"required" json:"items"`
-}
-
-type GetAdminInformationSuccessResponse struct {
-	GetUserInformationSuccessResponse
-}
-
-type GetCashierInformationSuccessResponse struct {
-	GetUserInformationSuccessResponse
-	Sales *[]*GetUserInformationSale `binding:"required" json:"sales"`
-}
-
-type GetSellerSummarySuccessResponse struct {
+// GetSellerInformationBySellerSuccessResponse is the response struct for seller information requests done by sellers.
+type GetSellerInformationBySellerSuccessResponse struct {
 	ItemCount       int                 `binding:"required" json:"itemCount"`
 	FrozenItemCount int                 `binding:"required" json:"frozenItemCount"`
 	HiddenItemCount int                 `binding:"required" json:"hiddenItemCount"`
 	TotalPrice      models.MoneyInCents `binding:"required" json:"totalPrice"`
 }
 
-type GetCashierInformationAsCashierSuccessResponse struct {
-	Sales *[]*GetUserInformationSale `binding:"required" json:"sales"`
+// GetCashierInformationByCashierSuccessResponse is the response struct for cashier information requests done by cashiers.
+type GetCashierInformationByCashierSuccessResponse struct {
+	Sales *[]*GetCashierInformationByAdminSaleData `binding:"required" json:"sales"`
 }
 
-func convertItemToGetUserInformationItem(item *queries.ItemWithSaleCount) *GetUserInformationItem {
-	return &GetUserInformationItem{
+func convertItemToGetUserInformationItem(item *queries.ItemWithSaleCount) *GetSellerInformationItemData {
+	return &GetSellerInformationItemData{
 		ItemId:       item.ItemID,
 		Description:  item.Description,
 		SellerId:     item.SellerID,
@@ -82,8 +93,8 @@ func convertItemToGetUserInformationItem(item *queries.ItemWithSaleCount) *GetUs
 	}
 }
 
-func convertSaleToGetUserInformationSale(sale *models.Sale) *GetUserInformationSale {
-	return &GetUserInformationSale{
+func convertSaleToGetUserInformationSale(sale *models.Sale) *GetCashierInformationByAdminSaleData {
+	return &GetCashierInformationByAdminSaleData{
 		SaleId:          sale.SaleID,
 		TransactionTime: rest.ConvertTimestampToDateTime(sale.TransactionTime),
 	}
@@ -154,7 +165,7 @@ func getUserInformationAsAdmin(logger logger.Logger, context *gin.Context, db *s
 		return
 	}
 
-	basicInformation := GetUserInformationSuccessResponse{
+	basicInformation := GetUserInformationByAdminSuccessResponse{
 		UserId:       user.UserId,
 		Role:         user.RoleId.Name(),
 		Password:     user.Password,
@@ -163,8 +174,8 @@ func getUserInformationAsAdmin(logger logger.Logger, context *gin.Context, db *s
 	}
 
 	if user.RoleId.IsAdmin() {
-		response := GetAdminInformationSuccessResponse{
-			GetUserInformationSuccessResponse: basicInformation,
+		response := GetAdminInformationByAdminSuccessResponse{
+			GetUserInformationByAdminSuccessResponse: basicInformation,
 		}
 		context.JSON(http.StatusOK, response)
 		return
@@ -191,9 +202,9 @@ func getUserInformationAsAdmin(logger logger.Logger, context *gin.Context, db *s
 
 		convertedItems := algorithms.Map(items, convertItemToGetUserInformationItem)
 
-		response := GetSellerInformationSuccessResponse{
-			GetUserInformationSuccessResponse: basicInformation,
-			Items:                             &convertedItems,
+		response := GetSellerInformationByAdminSuccessResponse{
+			GetUserInformationByAdminSuccessResponse: basicInformation,
+			Items:                                    &convertedItems,
 		}
 
 		context.JSON(http.StatusOK, response)
@@ -219,9 +230,9 @@ func getUserInformationAsAdmin(logger logger.Logger, context *gin.Context, db *s
 
 		convertedSales := algorithms.Map(sales, convertSaleToGetUserInformationSale)
 
-		response := GetCashierInformationSuccessResponse{
-			GetUserInformationSuccessResponse: basicInformation,
-			Sales:                             &convertedSales,
+		response := GetCashierInformationByAdminSuccessResponse{
+			GetUserInformationByAdminSuccessResponse: basicInformation,
+			Sales:                                    &convertedSales,
 		}
 		context.JSON(http.StatusOK, response)
 		return
@@ -271,7 +282,7 @@ func getUserInformationAsSeller(logger logger.Logger, context *gin.Context, db *
 		return
 	}
 
-	response := GetSellerSummarySuccessResponse{
+	response := GetSellerInformationBySellerSuccessResponse{
 		ItemCount:       itemCount,
 		FrozenItemCount: frozenItemCount,
 		HiddenItemCount: hiddenItemCount,
@@ -314,7 +325,7 @@ func getUserInformationAsCashier(logger logger.Logger, context *gin.Context, db 
 
 	convertedSales := algorithms.Map(sales, convertSaleToGetUserInformationSale)
 
-	response := GetCashierInformationAsCashierSuccessResponse{
+	response := GetCashierInformationByCashierSuccessResponse{
 		Sales: &convertedSales,
 	}
 
