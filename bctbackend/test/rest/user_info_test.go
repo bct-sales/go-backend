@@ -290,7 +290,7 @@ func TestGetUserInformation(t *testing.T) {
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 			})
 
-			t.Run("Logged in as cashier", func(t *testing.T) {
+			t.Run("Cashier querying information about seller", func(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
