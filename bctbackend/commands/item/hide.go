@@ -21,8 +21,8 @@ func NewHideItemCommand() *cobra.Command {
 				Use:   "hide <item-id> ...",
 				Short: "Hides items",
 				Long: heredoc.Doc(`
-				This command hides items.
-				You can unhide them later if needed.
+					This command hides items.
+					You can unhide them later if needed.
 			   `),
 				Args: cobra.MinimumNArgs(1),
 				RunE: func(cmd *cobra.Command, args []string) error {
