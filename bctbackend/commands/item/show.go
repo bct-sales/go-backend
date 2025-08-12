@@ -78,6 +78,8 @@ func (c *showItemCommand) printItem(db *sql.DB, itemId models.Id) error {
 		{"Donation", strconv.FormatBool(item.Donation)},
 		{"Charity", strconv.FormatBool(item.Charity)},
 		{"Added At", item.AddedAt.FormattedDateTime()},
+		{"Hidden", strconv.FormatBool(item.Hidden)},
+		{"Frozen", strconv.FormatBool(item.Frozen)},
 	}
 
 	err = pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
