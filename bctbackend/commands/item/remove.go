@@ -23,12 +23,12 @@ func NewRemoveItemCommand() *cobra.Command {
 				Use:   "remove <item-id>",
 				Short: "Removes an item",
 				Long: heredoc.Doc(`
-				This command deletes an item from the database.
-				Note that this is a permanent action and cannot be undone.
-				We strongly recommend against using this command unless you are sure you want to delete the item.
-				Instead, consider using the 'hide' command to hide the item without deleting it.
+					This command deletes an item from the database.
+					Note that this is a permanent action and cannot be undone.
+					We strongly recommend against using this command unless you are sure you want to delete the item.
+					Instead, consider using the 'hide' command to hide the item without deleting it.
 
-				An item cannot be removed if it has been sold.
+					An item cannot be removed if it has been sold.
 			   `),
 				Args: cobra.ExactArgs(1), // Expect exactly one argument (the item ID)
 				RunE: func(cmd *cobra.Command, args []string) error {
