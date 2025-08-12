@@ -29,6 +29,7 @@ func NewSaleAddCommand() *cobra.Command {
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return command.execute()
 				},
+				Args: cobra.NoArgs,
 			},
 		},
 	}
