@@ -21,7 +21,7 @@ func NewUnhideItemCommand() *cobra.Command {
 				Use:   "unhide <item-id> ...",
 				Short: "Unhides a items",
 				Long: heredoc.Doc(`
-				This command unhides items.
+					This command unhides items.
 			   `),
 				Args: cobra.MinimumNArgs(1), // Expect exactly one argument (the item ID)
 				RunE: func(cmd *cobra.Command, args []string) error {
