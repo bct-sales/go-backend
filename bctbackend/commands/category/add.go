@@ -25,6 +25,7 @@ func NewCategoryAddCommand() *cobra.Command {
 				Use:   "add",
 				Short: "Add a new item category",
 				Long:  `This command adds a new item category to the database.`,
+				Args:  cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return command.execute()
 				},
