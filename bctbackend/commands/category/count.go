@@ -28,6 +28,7 @@ func NewCategoryCountCommand() *cobra.Command {
 				Use:   "count",
 				Short: "Item counts by category",
 				Long:  `This command the number of items in each category.`,
+				Args:  cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return command.execute()
 				},
