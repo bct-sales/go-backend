@@ -63,6 +63,10 @@ type GetSellerSummarySuccessResponse struct {
 	TotalPrice      models.MoneyInCents `binding:"required" json:"totalPrice"`
 }
 
+type GetCashierInformationAsCashierSuccessResponse struct {
+	Sales *[]*GetUserInformationSale `binding:"required" json:"sales"`
+}
+
 func convertItemToGetUserInformationItem(item *queries.ItemWithSaleCount) *GetUserInformationItem {
 	return &GetUserInformationItem{
 		ItemId:       item.ItemID,
@@ -284,5 +288,35 @@ func getUserInformationAsCashier(logger logger.Logger, context *gin.Context, db 
 		return
 	}
 
-	failure_response.Forbidden(context, "not_yet_implemented", "Cashiers have no information (as of yet)")
+	sales, err := queries.GetSalesWithCashier(db, queriedUserId)
+	if err != nil {
+		if errors.Is(err, dberr.ErrNoSuchUser) {
+			// This should never occur. At this point we know
+			// that userId == queriedUserId, and userId
+			// has been checked earlier.
+			logger.Bug("User not found; should have been caught earlier", "queriedUserId", queriedUserId)
+			failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
+			return
+		}
+		if errors.Is(err, dberr.ErrWrongRole) {
+			// This should never occur. We previously were
+			// able to determine that userId refers to a cashier,
+			// and we know that userId == queriedUserId.
+			logger.Bug("User has the wrong role; should have been caught earlier", "queriedUserId", queriedUserId)
+			failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
+			return
+		}
+
+		logger.InternalError("Failed to get sales with cashier", "queriedUserId", queriedUserId, "error", err)
+		failure_response.Unknown(context, err.Error())
+		return
+	}
+
+	convertedSales := algorithms.Map(sales, convertSaleToGetUserInformationSale)
+
+	response := GetCashierInformationAsCashierSuccessResponse{
+		Sales: &convertedSales,
+	}
+
+	context.JSON(http.StatusOK, response)
 }
