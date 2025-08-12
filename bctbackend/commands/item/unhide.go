@@ -23,7 +23,7 @@ func NewUnhideItemCommand() *cobra.Command {
 				Long: heredoc.Doc(`
 					This command unhides items.
 			   `),
-				Args: cobra.MinimumNArgs(1), // Expect exactly one argument (the item ID)
+				Args: cobra.MinimumNArgs(1), // Expect at least one item id
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return command.execute(args)
 				},
