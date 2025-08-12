@@ -23,6 +23,7 @@ func NewCategoryListCommand() *cobra.Command {
 				Use:   "list",
 				Short: "List all categories",
 				Long:  `This command lists all categories in the database.`,
+				Args:  cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return command.execute()
 				},
