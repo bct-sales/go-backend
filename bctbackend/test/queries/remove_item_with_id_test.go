@@ -58,5 +58,20 @@ func TestRemoveItemWithId(t *testing.T) {
 			require.NoError(t, err)
 			require.True(t, itemExists)
 		})
+
+		t.Run("Frozen item", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+			itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false), aux.WithFrozen(true)).ItemID
+
+			err := queries.RemoveItemWithId(db, itemId)
+			requireDatabaseWrappedError(t, err, dberr.ErrItemFrozen)
+
+			itemExists, err := queries.ItemWithIdExists(db, itemId)
+			require.NoError(t, err)
+			require.True(t, itemExists)
+		})
 	})
 }
