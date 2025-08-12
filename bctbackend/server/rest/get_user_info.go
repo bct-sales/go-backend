@@ -124,21 +124,8 @@ func (endpoint *GetUserInformationEndpoint) execute(arguments *HandlerFunctionAr
 	db := arguments.Database
 	logger := arguments.Logger
 
-	// Retrieve id of user whose information is being requested
-	var uriParameters struct {
-		UserId string `binding:"required" uri:"id"`
-	}
-	if err := context.ShouldBindUri(&uriParameters); err != nil {
-		logger.InvalidInput("Invalid URI parameters", "error", err)
-		failure_response.InvalidUriParameters(context, "Invalid URI parameters: "+err.Error())
-		return
-	}
-
-	// Parse user id
-	queriedUserId, err := models.ParseId(uriParameters.UserId)
+	queriedUserId, err := endpoint.retrieveQueriedUserFromUri(logger, context)
 	if err != nil {
-		logger.InvalidInput("Invalid user ID", "error", err, "userId", uriParameters.UserId)
-		failure_response.InvalidUserId(context, err.Error())
 		return
 	}
 
@@ -156,6 +143,28 @@ func (endpoint *GetUserInformationEndpoint) execute(arguments *HandlerFunctionAr
 		failure_response.Unknown(context, fmt.Sprintf("Bug: unhandled role %d", roleId))
 		return
 	}
+}
+
+func (endpoint *GetUserInformationEndpoint) retrieveQueriedUserFromUri(logger logger.Logger, context *gin.Context) (models.Id, error) {
+	// Retrieve id of user whose information is being requested
+	var uriParameters struct {
+		UserId string `binding:"required" uri:"id"`
+	}
+	if err := context.ShouldBindUri(&uriParameters); err != nil {
+		logger.InvalidInput("Invalid URI parameters", "error", err)
+		failure_response.InvalidUriParameters(context, "Invalid URI parameters: "+err.Error())
+		return 0, err
+	}
+
+	// Parse user id
+	queriedUserId, err := models.ParseId(uriParameters.UserId)
+	if err != nil {
+		logger.InvalidInput("Invalid user ID", "error", err, "userId", uriParameters.UserId)
+		failure_response.InvalidUserId(context, err.Error())
+		return 0, err
+	}
+
+	return queriedUserId, nil
 }
 
 func (endpoint *GetUserInformationEndpoint) getUserInformationAsAdmin(logger logger.Logger, context *gin.Context, db *sql.DB, queriedUserId models.Id) {
