@@ -1078,6 +1078,7 @@ func IsItemHidden(db DatabaseQuerier, itemId models.Id) (r_result bool, r_err er
 // so it should be used with caution.
 // If the item does not exist, ErrNoSuchItem is returned.
 // If the item has been sold, ErrItemSold is returned and the item remains in the database.
+// If the item is frozen, ErrItemFrozen is returned and the item remains in the database.
 func RemoveItemWithId(db DatabaseQuerier, itemId models.Id) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -1085,6 +1086,10 @@ func RemoveItemWithId(db DatabaseQuerier, itemId models.Id) (r_err error) {
 
 	if err := EnsureItemsExist(db, []models.Id{itemId}); err != nil {
 		return fmt.Errorf("failed to remove item with id %d: %w", itemId, dberr.ErrNoSuchItem)
+	}
+
+	if err := EnsureNoFrozenItems(db, []models.Id{itemId}); err != nil {
+		return fmt.Errorf("failed to remove item with id %d: %w", itemId, dberr.ErrItemFrozen)
 	}
 
 	_, err := db.Exec(
