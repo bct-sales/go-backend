@@ -180,6 +180,37 @@ func TestGetUserInformation(t *testing.T) {
 				}
 			}
 		})
+
+		t.Run("Logged in as cashier", func(t *testing.T) {
+			t.Run("Information about self", func(t *testing.T) {
+				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				defer setup.Close()
+
+				seller := setup.Seller()
+				cashier, sessionId := setup.LoggedIn(setup.Cashier())
+
+				items := setup.Items(seller.UserId, 5, aux.WithDummyData(1), aux.WithHidden(false))
+				sale1TransactionTime := models.Timestamp(1000)
+				sale2TransactionTime := models.Timestamp(4000)
+				sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID}, aux.WithTransactionTime(sale1TransactionTime))
+				sale2 := setup.Sale(cashier.UserId, []models.Id{items[2].ItemID, items[3].ItemID}, aux.WithTransactionTime(sale2TransactionTime))
+
+				url := path.User(cashier.UserId)
+				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				router.ServeHTTP(writer, request)
+				require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
+
+				response := FromJson[restapi.GetCashierInformationAsCashierSuccessResponse](t, writer.Body.String())
+
+				require.Len(t, *response.Sales, 2)
+
+				require.Equal(t, sale1.SaleID, (*response.Sales)[0].SaleId)
+				require.Equal(t, rest.ConvertTimestampToDateTime(sale1TransactionTime), (*response.Sales)[0].TransactionTime)
+
+				require.Equal(t, sale2.SaleID, (*response.Sales)[1].SaleId)
+				require.Equal(t, rest.ConvertTimestampToDateTime(sale2TransactionTime), (*response.Sales)[1].TransactionTime)
+			})
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
