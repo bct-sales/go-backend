@@ -100,6 +100,9 @@ func convertSaleToGetUserInformationSale(sale *models.Sale) *GetCashierInformati
 	}
 }
 
+// Used solely for scoping purposes.
+type GetUserInformationEndpoint struct{}
+
 // @Summary Get information about a user
 // @Description Get information about a user.
 // @Success 200 {object} GetSellerSummarySuccessResponse
@@ -110,6 +113,11 @@ func convertSaleToGetUserInformationSale(sale *models.Sale) *GetCashierInformati
 // @Failure 500 {object} failure_response.FailureResponse "Internal server error"
 // @Router /users/{id} [get]
 func GetUserInformation(arguments *HandlerFunctionArguments) {
+	endpoint := GetUserInformationEndpoint{}
+	endpoint.execute(arguments)
+}
+
+func (endpoint *GetUserInformationEndpoint) execute(arguments *HandlerFunctionArguments) {
 	context := arguments.Context
 	userId := arguments.UserId
 	roleId := arguments.RoleId
@@ -136,13 +144,13 @@ func GetUserInformation(arguments *HandlerFunctionArguments) {
 
 	if roleId.IsAdmin() {
 		// If the user is an admin, they can access any user's information
-		getUserInformationAsAdmin(logger, context, db, queriedUserId)
+		endpoint.getUserInformationAsAdmin(logger, context, db, queriedUserId)
 		return
 	} else if roleId.IsSeller() {
-		getUserInformationAsSeller(logger, context, db, userId, queriedUserId)
+		endpoint.getUserInformationAsSeller(logger, context, db, userId, queriedUserId)
 		return
 	} else if roleId.IsCashier() {
-		getUserInformationAsCashier(logger, context, db, userId, queriedUserId)
+		endpoint.getUserInformationAsCashier(logger, context, db, userId, queriedUserId)
 		return
 	} else {
 		failure_response.Unknown(context, fmt.Sprintf("Bug: unhandled role %d", roleId))
@@ -150,7 +158,7 @@ func GetUserInformation(arguments *HandlerFunctionArguments) {
 	}
 }
 
-func getUserInformationAsAdmin(logger logger.Logger, context *gin.Context, db *sql.DB, queriedUserId models.Id) {
+func (endpoint *GetUserInformationEndpoint) getUserInformationAsAdmin(logger logger.Logger, context *gin.Context, db *sql.DB, queriedUserId models.Id) {
 	// Look up user in database
 	user, err := queries.GetUserWithId(db, queriedUserId)
 	if err != nil {
@@ -243,7 +251,7 @@ func getUserInformationAsAdmin(logger logger.Logger, context *gin.Context, db *s
 	}
 }
 
-func getUserInformationAsSeller(logger logger.Logger, context *gin.Context, db *sql.DB, userId models.Id, queriedUserId models.Id) {
+func (endpoint *GetUserInformationEndpoint) getUserInformationAsSeller(logger logger.Logger, context *gin.Context, db *sql.DB, userId models.Id, queriedUserId models.Id) {
 	if userId != queriedUserId {
 		logger.InvalidRequest("Seller attempted to access another user's information", "queriedUserId", queriedUserId)
 		failure_response.WrongRole(context, "Only admins can access other users' information")
@@ -292,7 +300,7 @@ func getUserInformationAsSeller(logger logger.Logger, context *gin.Context, db *
 	context.JSON(http.StatusOK, response)
 }
 
-func getUserInformationAsCashier(logger logger.Logger, context *gin.Context, db *sql.DB, userId models.Id, queriedUserId models.Id) {
+func (endpoint *GetUserInformationEndpoint) getUserInformationAsCashier(logger logger.Logger, context *gin.Context, db *sql.DB, userId models.Id, queriedUserId models.Id) {
 	if userId != queriedUserId {
 		logger.InvalidRequest("Cashier attempted to access another user's information", "queriedUserId", queriedUserId)
 		failure_response.WrongRole(context, "Only admins can access users' information")
