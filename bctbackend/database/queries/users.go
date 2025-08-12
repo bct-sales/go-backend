@@ -131,9 +131,12 @@ func UserWithIdExists(db DatabaseQuerier, userId models.Id) (r_result bool, r_er
 
 	row := db.QueryRow(
 		`
-			SELECT 1
-			FROM users
-			WHERE user_id = $1
+			SELECT
+				1
+			FROM
+				users
+			WHERE
+				user_id = $1
 		`,
 		userId,
 	)
@@ -161,9 +164,15 @@ func GetUserWithId(db DatabaseQuerier, userId models.Id) (r_result *models.User,
 
 	row := db.QueryRow(
 		`
-			SELECT role_id, created_at, last_activity, password
-			FROM users
-			WHERE user_id = $1
+			SELECT
+				role_id,
+				created_at,
+				last_activity,
+				password
+			FROM
+				users
+			WHERE
+				user_id = $1
 		`,
 		userId,
 	)
@@ -193,8 +202,14 @@ func GetUsers(db DatabaseQuerier, receiver func(*models.User) error) (r_err erro
 
 	rows, err := db.Query(
 		`
-			SELECT user_id, role_id, created_at, last_activity, password
-			FROM users
+			SELECT
+				user_id,
+				role_id,
+				created_at,
+				last_activity,
+				password
+			FROM
+				users
 		`,
 	)
 	if err != nil {
@@ -244,10 +259,20 @@ func GetUsersWithItemCount(db DatabaseQuerier, itemSelection ItemSelection, rece
 
 	query := fmt.Sprintf(
 		`
-			SELECT users.user_id, role_id, created_at, last_activity, password, COALESCE(COUNT(i.item_id), 0) AS item_count
-			FROM users LEFT JOIN %s i ON users.user_id = i.seller_id
-			GROUP BY users.user_id
-			ORDER BY users.user_id
+			SELECT
+				users.user_id,
+				role_id,
+				created_at,
+				last_activity,
+				password,
+				COALESCE(COUNT(i.item_id), 0) AS item_count
+			FROM
+				users
+			LEFT JOIN %s i ON users.user_id = i.seller_id
+			GROUP BY
+				users.user_id
+			ORDER BY
+				users.user_id
 		`,
 		ItemsTableFor(itemSelection))
 	rows, err := db.Query(query)
@@ -463,9 +488,12 @@ func CountSellerItems(db DatabaseQuerier, sellerId models.Id, frozen GetSellerIt
 
 	query := fmt.Sprintf(
 		`
-			SELECT COUNT(items.item_id)
-			FROM items
-			WHERE %s
+			SELECT
+				COUNT(items.item_id)
+			FROM
+				items
+			WHERE
+				%s
 		`, whereCondition)
 	row := db.QueryRow(query, sellerId)
 
@@ -496,9 +524,12 @@ func GetSellerTotalValueOfAllItems(db DatabaseQuerier, sellerId models.Id, itemS
 	itemTable := ItemsTableFor(itemSelection)
 	query := fmt.Sprintf(
 		`
-			SELECT COALESCE(SUM(i.price_in_cents), 0)
-			FROM %s i
-			WHERE i.seller_id = $1
+			SELECT
+				COALESCE(SUM(i.price_in_cents), 0)
+			FROM
+				%s i
+			WHERE
+				i.seller_id = $1
 		`,
 		itemTable,
 	)
