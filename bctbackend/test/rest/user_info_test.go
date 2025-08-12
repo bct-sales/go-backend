@@ -290,6 +290,19 @@ func TestGetUserInformation(t *testing.T) {
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 			})
 
+			t.Run("Seller querying information about cashier", func(t *testing.T) {
+				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				defer setup.Close()
+
+				_, sessionId := setup.LoggedIn(setup.Seller())
+				cashier := setup.Cashier()
+
+				url := path.User(cashier.UserId)
+				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				router.ServeHTTP(writer, request)
+				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
+			})
+
 			t.Run("Cashier querying information about seller", func(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
