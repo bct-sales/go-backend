@@ -277,7 +277,7 @@ func TestGetUserInformation(t *testing.T) {
 		})
 
 		t.Run("Unauthorized access", func(t *testing.T) {
-			t.Run("Logged in as seller", func(t *testing.T) {
+			t.Run("Seller querying information about other seller", func(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
