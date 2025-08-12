@@ -899,10 +899,14 @@ func GetTotalSalesValue(db DatabaseQuerier) (r_result models.MoneyInCents, r_err
 	var totalValue models.MoneyInCents
 	err := db.QueryRow(
 		`
-			SELECT COALESCE(SUM(items.price_in_cents), 0) as total
-			FROM sales
-			INNER JOIN sale_items ON sales.sale_id = sale_items.sale_id
-			INNER JOIN items ON sale_items.item_id = items.item_id
+			SELECT
+				COALESCE(SUM(items.price_in_cents), 0) as total
+			FROM
+				sales
+			INNER JOIN
+				sale_items ON sales.sale_id = sale_items.sale_id
+			INNER JOIN
+				items ON sale_items.item_id = items.item_id
 		`,
 	).Scan(&totalValue)
 
