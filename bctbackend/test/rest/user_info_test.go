@@ -341,6 +341,19 @@ func TestGetUserInformation(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 			})
+
+			t.Run("Cashier querying information about admin", func(t *testing.T) {
+				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				defer setup.Close()
+
+				_, sessionId := setup.LoggedIn(setup.Cashier())
+				admin := setup.Admin()
+
+				url := path.User(admin.UserId)
+				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				router.ServeHTTP(writer, request)
+				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
+			})
 		})
 	})
 }
