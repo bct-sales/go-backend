@@ -46,7 +46,7 @@ func NewServerCommand() *cobra.Command {
 }
 
 func (c *ServerCommand) execute() error {
-	configuration, err := c.getConfiguration()
+	configuration, err := c.loadConfiguration()
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ func (c *ServerCommand) execute() error {
 	})
 }
 
-func (c *ServerCommand) getConfiguration() (*configuration.Configuration, error) {
+func (c *ServerCommand) loadConfiguration() (*configuration.Configuration, error) {
 	errs := []error{}
 
 	var logFilename *string
