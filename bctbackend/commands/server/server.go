@@ -37,10 +37,10 @@ func NewServerCommand() *cobra.Command {
 	}
 
 	command.CobraCommand.Flags().Int(common.CLIFlagPort, 8000, "Port to run the server on")
-	command.CobraCommand.Flags().Bool("debug", false, "Run server in debug mode")
+	command.CobraCommand.Flags().Bool(common.CLIFlagDebug, false, "Run server in debug mode")
 	command.CobraCommand.Flags().String("html", "index.html", "Path to the HTML file to serve")
 	viper.BindPFlag(common.ConfigKeyPort, command.CobraCommand.Flags().Lookup(common.CLIFlagPort))
-	viper.BindPFlag("debug", command.CobraCommand.Flags().Lookup("debug"))
+	viper.BindPFlag("debug", command.CobraCommand.Flags().Lookup(common.CLIFlagDebug))
 	viper.BindPFlag("html", command.CobraCommand.Flags().Lookup("html"))
 
 	return command.AsCobraCommand()
