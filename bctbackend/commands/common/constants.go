@@ -6,9 +6,9 @@ const (
 	CLIFlagHTML              = "html"
 	CLIFlagConfigurationPath = "config"
 
-	ConfigKeyPort               = "port"
 	ConfigKeyDebug              = "debug"
-	ConfigKeyHTML               = "html"
+	ConfigKeyPort               = "server.port"
+	ConfigKeyHTML               = "server.html"
 	ConfigKeyDatabase           = "database"
 	ConfigKeyLabelFontDirectory = "labelGeneration.font.directory"
 	ConfigKeyLabelFontFamily    = "labelGeneration.font.family"
