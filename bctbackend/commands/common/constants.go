@@ -7,6 +7,7 @@ const (
 
 	ConfigKeyPort         = "port"
 	ConfigKeyDebug        = "debug"
+	ConfigKeyHTML         = "html"
 	FlagConfigurationPath = "config"
 	FlagDatabase          = "database"
 	FlagFontDirectory     = "labelGeneration.font.directory"
