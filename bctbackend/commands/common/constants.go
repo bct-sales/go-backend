@@ -3,6 +3,7 @@ package common
 const (
 	CLIFlagPort  = "port"
 	CLIFlagDebug = "debug"
+	CLIFlagHTML  = "html"
 
 	ConfigKeyPort         = "port"
 	FlagConfigurationPath = "config"
