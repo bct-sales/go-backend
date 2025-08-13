@@ -79,17 +79,7 @@ func (c *ServerCommand) loadConfiguration() (*configuration.Configuration, error
 	}
 	logFilename = &logFileSetting
 
-	fontDirectory, err := c.GetConfigurationString(common.FlagFontDirectory)
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	fontFilename, err := c.GetConfigurationString(common.FlagFontFilename)
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	fontFamily, err := c.GetConfigurationString(common.FlagFontFamily)
+	fontConfiguration, err := c.getLabelFontConfiguration()
 	if err != nil {
 		errs = append(errs, err)
 	}
@@ -137,9 +127,7 @@ func (c *ServerCommand) loadConfiguration() (*configuration.Configuration, error
 
 	return &configuration.Configuration{
 		LogFilename:                 logFilename,
-		FontDirectory:               fontDirectory,
-		FontFilename:                fontFilename,
-		FontFamily:                  fontFamily,
+		Font:                        fontConfiguration,
 		BarcodeWidth:                barcodeWidth,
 		BarcodeHeight:               barcodeHeight,
 		Port:                        port,
@@ -149,8 +137,39 @@ func (c *ServerCommand) loadConfiguration() (*configuration.Configuration, error
 	}, nil
 }
 
+func (c *ServerCommand) getLabelFontConfiguration() (*configuration.FontConfiguration, error) {
+	errs := []error{}
+
+	fontDirectory, err := c.GetConfigurationString(common.FlagFontDirectory)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	fontFilename, err := c.GetConfigurationString(common.FlagFontFilename)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	fontFamily, err := c.GetConfigurationString(common.FlagFontFamily)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	if len(errs) > 0 {
+		return nil, fmt.Errorf("failed to get font configuration: %w", errors.Join(errs...))
+	}
+
+	fontConfiguration := configuration.FontConfiguration{
+		Directory: fontDirectory,
+		Filename:  fontFilename,
+		Family:    fontFamily,
+	}
+
+	return &fontConfiguration, nil
+}
+
 func (c *ServerCommand) ensureRequiredFilesExist(configuration *configuration.Configuration) error {
-	fontPath := path.Join(configuration.FontDirectory, configuration.FontFilename)
+	fontPath := path.Join(configuration.Font.Directory, configuration.Font.Filename)
 	if err := c.ensureFileExists(fontPath); err != nil {
 		return fmt.Errorf("failed while checking font file existence: %w", err)
 	}

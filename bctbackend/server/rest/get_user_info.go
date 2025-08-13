@@ -111,7 +111,6 @@ type GetUserInformationEndpoint struct {
 
 // @Summary Get information about a user
 // @Description Get information about a user.
-// @Success 200 {object} GetSellerSummarySuccessResponse
 // @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
 // @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
 // @Failure 403 {object} failure_response.FailureResponse "Only accessible to admins"

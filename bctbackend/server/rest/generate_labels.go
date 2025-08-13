@@ -151,9 +151,9 @@ func (endpoint *generateLabelsEndpoint) execute() {
 	}
 
 	pdfConfiguration := pdf.Configuration{
-		FontDirectory: configuration.FontDirectory,
-		FontFilename:  configuration.FontFilename,
-		FontFamily:    configuration.FontFamily,
+		FontDirectory: configuration.Font.Directory,
+		FontFilename:  configuration.Font.Filename,
+		FontFamily:    configuration.Font.Family,
 		BarcodeWidth:  configuration.BarcodeWidth,
 		BarcodeHeight: configuration.BarcodeHeight,
 	}
