@@ -17,4 +17,8 @@ const (
 	ConfigKeyLabelBarcodeWidth            = "labelGeneration.barcode.width"
 	ConfigKeyLabelBarcodeHeight           = "labelGeneration.barcode.height"
 	ConfigKeyLogFile                      = "log.file"
+	ConfigKeyLogMaxSize                   = "log.maxSizeMegabytes"
+	ConfigKeyLogMaxBackups                = "log.maxBackups"
+	ConfigKeyLogMaxAge                    = "log.maxAgeDays"
+	ConfigKeyLogCompression               = "log.compression"
 )

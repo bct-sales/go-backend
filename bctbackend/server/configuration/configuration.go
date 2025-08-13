@@ -34,5 +34,9 @@ func (configuration *Configuration) String() string {
 }
 
 type LogConfiguration struct {
-	File string `json:"file"`
+	File             string `json:"file"`
+	MaxSizeMegabytes int    `json:"maxSizeMegabytes"`
+	MaxBackups       int    `json:"maxBackups"`
+	MaxAgeDays       int    `json:"maxAgeDays"`
+	Compression      bool   `json:"compression"`
 }

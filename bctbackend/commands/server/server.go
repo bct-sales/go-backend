@@ -125,17 +125,47 @@ func (c *ServerCommand) loadConfiguration() (*configuration.Configuration, error
 }
 
 func (c *ServerCommand) getLogConfiguration() (*configuration.LogConfiguration, error) {
+	errs := []error{}
+
 	logFile, err := c.GetConfigurationString(common.ConfigKeyLogFile)
 	if err != nil {
 		if errors.Is(err, common.ErrMissingConfiguration) {
 			return nil, nil
 		} else {
-			return nil, fmt.Errorf("failed to get %s configuration: %w", common.ConfigKeyLogFile, err)
+			errs = append(errs, err)
 		}
 	}
 
+	logMaxSize, err := c.GetConfigurationInt(common.ConfigKeyLogMaxSize)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	logMaxBackups, err := c.GetConfigurationInt(common.ConfigKeyLogMaxBackups)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	logMaxAge, err := c.GetConfigurationInt(common.ConfigKeyLogMaxAge)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	logCompression, err := c.GetConfigurationBool(common.ConfigKeyLogCompression)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	if len(errs) > 0 {
+		return nil, fmt.Errorf("failed to get log configuration: %w", errors.Join(errs...))
+	}
+
 	logConfiguration := configuration.LogConfiguration{
-		File: logFile,
+		File:             logFile,
+		MaxSizeMegabytes: logMaxSize,
+		MaxBackups:       logMaxBackups,
+		MaxAgeDays:       logMaxAge,
+		Compression:      logCompression,
 	}
 	return &logConfiguration, nil
 }
