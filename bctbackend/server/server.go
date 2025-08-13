@@ -79,7 +79,7 @@ func StartServer(database *sql.DB, configuration *configuration.Configuration) e
 }
 
 func NewServer(db *sql.DB, configuration *configuration.Configuration) (*Server, error) {
-	loggerResources, err := createLogger(configuration.LogFilename)
+	loggerResources, err := createLogger(configuration.Log)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create logger: %w", err)
 	}
@@ -101,16 +101,16 @@ func NewServer(db *sql.DB, configuration *configuration.Configuration) (*Server,
 	return &server, nil
 }
 
-func createLogger(filename *string) (*LoggerResources, error) {
+func createLogger(configuration *configuration.LogConfiguration) (*LoggerResources, error) {
 	var writer io.Writer
 	var loggerFile *os.File
 
-	if filename == nil {
+	if configuration == nil {
 		writer = os.Stderr
 		loggerFile = nil
 	} else {
 		loggerFile := lumberjack.Logger{
-			Filename:   *filename,
+			Filename:   configuration.File,
 			MaxSize:    10, // megabytes
 			MaxBackups: 3,
 			MaxAge:     28,    //days

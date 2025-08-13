@@ -13,7 +13,7 @@ import (
 
 func CreateRestServer(db *sql.DB) *server.Server {
 	configuration := configuration.Configuration{
-		LogFilename: nil,
+		Log: nil,
 		LabelGeneration: &configuration.LabelGenerationConfiguration{
 			BarcodeWidth:  150,
 			BarcodeHeight: 30,

@@ -69,18 +69,12 @@ func (c *ServerCommand) execute() error {
 func (c *ServerCommand) loadConfiguration() (*configuration.Configuration, error) {
 	errs := []error{}
 
-	var logFilename *string
-	logFileSetting, err := c.GetConfigurationString(common.ConfigKeyLogFile)
+	labelGenerationConfiguration, err := c.getLabelGenerationConfiguration()
 	if err != nil {
-		if errors.Is(err, common.ErrMissingConfiguration) {
-			logFilename = nil
-		} else {
-			return nil, fmt.Errorf("failed to get %s configuration: %w", common.ConfigKeyLogFile, err)
-		}
+		errs = append(errs, err)
 	}
-	logFilename = &logFileSetting
 
-	labelGeneration, err := c.getLabelGenerationConfiguration()
+	logConfiguration, err := c.getLogConfiguration()
 	if err != nil {
 		errs = append(errs, err)
 	}
@@ -117,8 +111,8 @@ func (c *ServerCommand) loadConfiguration() (*configuration.Configuration, error
 	}
 
 	configuration := configuration.Configuration{
-		LogFilename:                 logFilename,
-		LabelGeneration:             labelGeneration,
+		Log:                         logConfiguration,
+		LabelGeneration:             labelGenerationConfiguration,
 		Port:                        port,
 		GinMode:                     ginMode,
 		HTMLPath:                    htmlPath,
@@ -128,6 +122,22 @@ func (c *ServerCommand) loadConfiguration() (*configuration.Configuration, error
 	slog.Info("Loaded configuration successfully", "configuration", configuration.String())
 
 	return &configuration, nil
+}
+
+func (c *ServerCommand) getLogConfiguration() (*configuration.LogConfiguration, error) {
+	logFile, err := c.GetConfigurationString(common.ConfigKeyLogFile)
+	if err != nil {
+		if errors.Is(err, common.ErrMissingConfiguration) {
+			return nil, nil
+		} else {
+			return nil, fmt.Errorf("failed to get %s configuration: %w", common.ConfigKeyLogFile, err)
+		}
+	}
+
+	logConfiguration := configuration.LogConfiguration{
+		File: logFile,
+	}
+	return &logConfiguration, nil
 }
 
 func (c *ServerCommand) getLabelGenerationConfiguration() (*configuration.LabelGenerationConfiguration, error) {

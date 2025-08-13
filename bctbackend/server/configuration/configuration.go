@@ -5,7 +5,7 @@ import (
 )
 
 type Configuration struct {
-	LogFilename                 *string                       `json:"logFilename"`
+	Log                         *LogConfiguration             `json:"log"`
 	LabelGeneration             *LabelGenerationConfiguration `json:"labelGeneration"`
 	HTMLPath                    string                        `json:"htmlPath"`
 	Port                        int                           `json:"port"`
@@ -31,4 +31,8 @@ func (configuration *Configuration) String() string {
 		return err.Error()
 	}
 	return string(bytes)
+}
+
+type LogConfiguration struct {
+	File string `json:"file"`
 }
