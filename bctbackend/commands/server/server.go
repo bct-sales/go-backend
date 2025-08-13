@@ -133,12 +133,12 @@ func (c *ServerCommand) loadConfiguration() (*configuration.Configuration, error
 func (c *ServerCommand) getLabelGenerationConfiguration() (*configuration.LabelGenerationConfiguration, error) {
 	errs := []error{}
 
-	barcodeWidth, err := c.GetConfigurationInt(common.FlagBarcodeWidth)
+	barcodeWidth, err := c.GetConfigurationInt(common.ConfigKeyLabelBarcodeWidth)
 	if err != nil {
 		errs = append(errs, err)
 	}
 
-	barcodeHeight, err := c.GetConfigurationInt(common.FlagBarcodeHeight)
+	barcodeHeight, err := c.GetConfigurationInt(common.ConfigKeyLabelBarcodeHeight)
 	if err != nil {
 		errs = append(errs, err)
 	}
@@ -164,17 +164,17 @@ func (c *ServerCommand) getLabelGenerationConfiguration() (*configuration.LabelG
 func (c *ServerCommand) getLabelFontConfiguration() (*configuration.FontConfiguration, error) {
 	errs := []error{}
 
-	fontDirectory, err := c.GetConfigurationString(common.FlagFontDirectory)
+	fontDirectory, err := c.GetConfigurationString(common.ConfigKeyLabelFontDirectory)
 	if err != nil {
 		errs = append(errs, err)
 	}
 
-	fontFilename, err := c.GetConfigurationString(common.FlagFontFilename)
+	fontFilename, err := c.GetConfigurationString(common.ConfigKeyLabelFontFilename)
 	if err != nil {
 		errs = append(errs, err)
 	}
 
-	fontFamily, err := c.GetConfigurationString(common.FlagFontFamily)
+	fontFamily, err := c.GetConfigurationString(common.ConfigKeyLabelFontFamily)
 	if err != nil {
 		errs = append(errs, err)
 	}

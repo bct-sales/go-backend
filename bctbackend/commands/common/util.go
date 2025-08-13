@@ -11,11 +11,11 @@ import (
 )
 
 func GetDatabasePath() (string, error) {
-	if !viper.IsSet(FlagDatabase) {
+	if !viper.IsSet(ConfigKeyDatabase) {
 		return "", fmt.Errorf("database path is not set in configuration")
 	}
 
-	return viper.GetString(FlagDatabase), nil
+	return viper.GetString(ConfigKeyDatabase), nil
 }
 
 func WithOpenedDatabase(writer io.Writer, fn func(db *sql.DB) error) (r_err error) {

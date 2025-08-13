@@ -69,8 +69,8 @@ func NewRootCommand() *cobra.Command {
 	viper.SetEnvPrefix("BCT")
 	viper.AutomaticEnv()
 
-	viper.BindPFlag(common.FlagConfigurationPath, rootCommand.PersistentFlags().Lookup("config"))
-	viper.BindPFlag(common.FlagDatabase, rootCommand.PersistentFlags().Lookup("db"))
+	viper.BindPFlag(common.CLIFlagConfigurationPath, rootCommand.PersistentFlags().Lookup("config"))
+	viper.BindPFlag(common.ConfigKeyDatabase, rootCommand.PersistentFlags().Lookup("db"))
 
 	rootCommand.AddCommand(item.NewItemCommand())
 	rootCommand.AddCommand(user.NewUserCommand())
