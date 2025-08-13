@@ -14,13 +14,15 @@ import (
 func CreateRestServer(db *sql.DB) *server.Server {
 	configuration := configuration.Configuration{
 		LogFilename: nil,
-		Font: &configuration.FontConfiguration{
-			Directory: os.Getenv("BCT_FONT_DIR"),
-			Filename:  os.Getenv("BCT_FONT_FILE"),
-			Family:    os.Getenv("BCT_FONT_FAMILY"),
+		LabelGeneration: &configuration.LabelGenerationConfiguration{
+			BarcodeWidth:  150,
+			BarcodeHeight: 30,
+			Font: &configuration.FontConfiguration{
+				Directory: os.Getenv("BCT_FONT_DIR"),
+				Filename:  os.Getenv("BCT_FONT_FILE"),
+				Family:    os.Getenv("BCT_FONT_FAMILY"),
+			},
 		},
-		BarcodeWidth:                150,
-		BarcodeHeight:               30,
 		GinMode:                     gin.TestMode,
 		ExpiredSessionPruneInterval: 60,
 	}

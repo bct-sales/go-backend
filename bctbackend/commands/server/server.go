@@ -79,17 +79,7 @@ func (c *ServerCommand) loadConfiguration() (*configuration.Configuration, error
 	}
 	logFilename = &logFileSetting
 
-	fontConfiguration, err := c.getLabelFontConfiguration()
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	barcodeWidth, err := c.GetConfigurationInt(common.FlagBarcodeWidth)
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	barcodeHeight, err := c.GetConfigurationInt(common.FlagBarcodeHeight)
+	labelGeneration, err := c.getLabelGenerationConfiguration()
 	if err != nil {
 		errs = append(errs, err)
 	}
@@ -127,14 +117,43 @@ func (c *ServerCommand) loadConfiguration() (*configuration.Configuration, error
 
 	return &configuration.Configuration{
 		LogFilename:                 logFilename,
-		Font:                        fontConfiguration,
-		BarcodeWidth:                barcodeWidth,
-		BarcodeHeight:               barcodeHeight,
+		LabelGeneration:             labelGeneration,
 		Port:                        port,
 		GinMode:                     ginMode,
 		HTMLPath:                    htmlPath,
 		ExpiredSessionPruneInterval: expiredSessionPruningInterval,
 	}, nil
+}
+
+func (c *ServerCommand) getLabelGenerationConfiguration() (*configuration.LabelGenerationConfiguration, error) {
+	errs := []error{}
+
+	barcodeWidth, err := c.GetConfigurationInt(common.FlagBarcodeWidth)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	barcodeHeight, err := c.GetConfigurationInt(common.FlagBarcodeHeight)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	font, err := c.getLabelFontConfiguration()
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	if len(errs) > 0 {
+		return nil, fmt.Errorf("failed to get label generation configuration: %w", errors.Join(errs...))
+	}
+
+	labelGeneration := configuration.LabelGenerationConfiguration{
+		BarcodeWidth:  barcodeWidth,
+		BarcodeHeight: barcodeHeight,
+		Font:          font,
+	}
+
+	return &labelGeneration, nil
 }
 
 func (c *ServerCommand) getLabelFontConfiguration() (*configuration.FontConfiguration, error) {
@@ -169,7 +188,7 @@ func (c *ServerCommand) getLabelFontConfiguration() (*configuration.FontConfigur
 }
 
 func (c *ServerCommand) ensureRequiredFilesExist(configuration *configuration.Configuration) error {
-	fontPath := path.Join(configuration.Font.Directory, configuration.Font.Filename)
+	fontPath := path.Join(configuration.LabelGeneration.Font.Directory, configuration.LabelGeneration.Font.Filename)
 	if err := c.ensureFileExists(fontPath); err != nil {
 		return fmt.Errorf("failed while checking font file existence: %w", err)
 	}

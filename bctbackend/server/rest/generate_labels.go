@@ -151,11 +151,11 @@ func (endpoint *generateLabelsEndpoint) execute() {
 	}
 
 	pdfConfiguration := pdf.Configuration{
-		FontDirectory: configuration.Font.Directory,
-		FontFilename:  configuration.Font.Filename,
-		FontFamily:    configuration.Font.Family,
-		BarcodeWidth:  configuration.BarcodeWidth,
-		BarcodeHeight: configuration.BarcodeHeight,
+		FontDirectory: configuration.LabelGeneration.Font.Directory,
+		FontFilename:  configuration.LabelGeneration.Font.Filename,
+		FontFamily:    configuration.LabelGeneration.Font.Family,
+		BarcodeWidth:  configuration.LabelGeneration.BarcodeWidth,
+		BarcodeHeight: configuration.LabelGeneration.BarcodeHeight,
 	}
 	builder, err := pdf.GeneratePdf(&pdfConfiguration, settings, labelData)
 	if err != nil {
