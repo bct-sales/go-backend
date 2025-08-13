@@ -1,6 +1,9 @@
 package common
 
 const (
+	CLIFlagPort = "port"
+
+	ConfigKeyPort         = "port"
 	FlagConfigurationPath = "config"
 	FlagDatabase          = "database"
 	FlagFontDirectory     = "labelGeneration.font.directory"
