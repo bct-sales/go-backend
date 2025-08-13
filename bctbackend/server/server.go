@@ -111,10 +111,10 @@ func createLogger(configuration *configuration.LogConfiguration) (*LoggerResourc
 	} else {
 		loggerFile := lumberjack.Logger{
 			Filename:   configuration.File,
-			MaxSize:    10, // megabytes
-			MaxBackups: 3,
-			MaxAge:     28,    //days
-			Compress:   false, // disabled by default
+			MaxSize:    configuration.MaxSizeMegabytes,
+			MaxBackups: configuration.MaxBackups,
+			MaxAge:     configuration.MaxAgeDays,
+			Compress:   configuration.Compression,
 		}
 
 		writer = io.MultiWriter(os.Stderr, &loggerFile)
