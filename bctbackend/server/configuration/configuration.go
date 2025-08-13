@@ -1,22 +1,34 @@
 package configuration
 
+import (
+	"encoding/json"
+)
+
 type Configuration struct {
-	LogFilename                 *string
-	LabelGeneration             *LabelGenerationConfiguration
-	HTMLPath                    string
-	Port                        int
-	GinMode                     string // GinMode can be "debug", "release", or "test"
-	ExpiredSessionPruneInterval int
+	LogFilename                 *string                       `json:"logFilename"`
+	LabelGeneration             *LabelGenerationConfiguration `json:"labelGeneration"`
+	HTMLPath                    string                        `json:"htmlPath"`
+	Port                        int                           `json:"port"`
+	GinMode                     string                        `json:"ginMode"` // GinMode can be "debug", "release", or "test"
+	ExpiredSessionPruneInterval int                           `json:"expiredSessionPruneInterval"`
 }
 
 type LabelGenerationConfiguration struct {
-	BarcodeWidth  int
-	BarcodeHeight int
-	Font          *FontConfiguration
+	BarcodeWidth  int                `json:"barcodeWidth"`
+	BarcodeHeight int                `json:"barcodeHeight"`
+	Font          *FontConfiguration `json:"font"`
 }
 
 type FontConfiguration struct {
-	Directory string
-	Filename  string
-	Family    string
+	Directory string `json:"directory"`
+	Filename  string `json:"filename"`
+	Family    string `json:"family"`
+}
+
+func (configuration *Configuration) String() string {
+	bytes, err := json.MarshalIndent(configuration, "", "  ")
+	if err != nil {
+		return err.Error()
+	}
+	return string(bytes)
 }

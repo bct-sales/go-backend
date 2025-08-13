@@ -3,9 +3,9 @@ package common
 const (
 	FlagConfigurationPath = "config"
 	FlagDatabase          = "database"
-	FlagFontDirectory     = "font.directory"
-	FlagFontFamily        = "font.family"
-	FlagFontFilename      = "font.filename"
-	FlagBarcodeWidth      = "barcode.width"
-	FlagBarcodeHeight     = "barcode.height"
+	FlagFontDirectory     = "labelGeneration.font.directory"
+	FlagFontFamily        = "labelGeneration.font.family"
+	FlagFontFilename      = "labelGeneration.font.filename"
+	FlagBarcodeWidth      = "labelGeneration.barcode.width"
+	FlagBarcodeHeight     = "labelGeneration.barcode.height"
 )

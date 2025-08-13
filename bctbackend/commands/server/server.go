@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"path"
 
 	"github.com/spf13/cobra"
@@ -115,14 +116,18 @@ func (c *ServerCommand) loadConfiguration() (*configuration.Configuration, error
 		ginMode = "release"
 	}
 
-	return &configuration.Configuration{
+	configuration := configuration.Configuration{
 		LogFilename:                 logFilename,
 		LabelGeneration:             labelGeneration,
 		Port:                        port,
 		GinMode:                     ginMode,
 		HTMLPath:                    htmlPath,
 		ExpiredSessionPruneInterval: expiredSessionPruningInterval,
-	}, nil
+	}
+
+	slog.Info("Loaded configuration successfully", "configuration", configuration.String())
+
+	return &configuration, nil
 }
 
 func (c *ServerCommand) getLabelGenerationConfiguration() (*configuration.LabelGenerationConfiguration, error) {
