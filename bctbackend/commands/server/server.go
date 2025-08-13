@@ -95,7 +95,7 @@ func (c *ServerCommand) loadConfiguration() (*configuration.Configuration, error
 		errs = append(errs, err)
 	}
 
-	expiredSessionPruningInterval, err := c.GetConfigurationInt("expired_session_prune_interval")
+	expiredSessionPruningInterval, err := c.GetConfigurationInt(common.ConfigKeyPruneExpiredSessionsInterval)
 	if err != nil {
 		errs = append(errs, err)
 	}
