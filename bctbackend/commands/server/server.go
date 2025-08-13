@@ -85,7 +85,7 @@ func (c *ServerCommand) loadConfiguration() (*configuration.Configuration, error
 		errs = append(errs, err)
 	}
 
-	port, err := c.GetConfigurationInt("port")
+	port, err := c.GetConfigurationInt(common.ConfigKeyPort)
 	if err != nil {
 		errs = append(errs, err)
 	}
