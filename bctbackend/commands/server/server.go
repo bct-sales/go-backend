@@ -70,12 +70,12 @@ func (c *ServerCommand) loadConfiguration() (*configuration.Configuration, error
 	errs := []error{}
 
 	var logFilename *string
-	logFileSetting, err := c.GetConfigurationString("log_file")
+	logFileSetting, err := c.GetConfigurationString(common.ConfigKeyLogFile)
 	if err != nil {
 		if errors.Is(err, common.ErrMissingConfiguration) {
 			logFilename = nil
 		} else {
-			return nil, fmt.Errorf("failed to get log_file configuration: %w", err)
+			return nil, fmt.Errorf("failed to get %s configuration: %w", common.ConfigKeyLogFile, err)
 		}
 	}
 	logFilename = &logFileSetting

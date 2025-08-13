@@ -15,4 +15,5 @@ const (
 	ConfigKeyLabelFontFilename  = "labelGeneration.font.filename"
 	ConfigKeyLabelBarcodeWidth  = "labelGeneration.barcode.width"
 	ConfigKeyLabelBarcodeHeight = "labelGeneration.barcode.height"
+	ConfigKeyLogFile            = "log.file"
 )
