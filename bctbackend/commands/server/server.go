@@ -40,7 +40,7 @@ func NewServerCommand() *cobra.Command {
 	command.CobraCommand.Flags().Bool(common.CLIFlagDebug, false, "Run server in debug mode")
 	command.CobraCommand.Flags().String(common.CLIFlagHTML, "index.html", "Path to the HTML file to serve")
 	viper.BindPFlag(common.ConfigKeyPort, command.CobraCommand.Flags().Lookup(common.CLIFlagPort))
-	viper.BindPFlag("debug", command.CobraCommand.Flags().Lookup(common.CLIFlagDebug))
+	viper.BindPFlag(common.ConfigKeyDebug, command.CobraCommand.Flags().Lookup(common.CLIFlagDebug))
 	viper.BindPFlag("html", command.CobraCommand.Flags().Lookup(common.CLIFlagHTML))
 
 	return command.AsCobraCommand()
@@ -90,7 +90,7 @@ func (c *ServerCommand) loadConfiguration() (*configuration.Configuration, error
 		errs = append(errs, err)
 	}
 
-	debugMode, err := c.GetConfigurationBool("debug")
+	debugMode, err := c.GetConfigurationBool(common.ConfigKeyDebug)
 	if err != nil {
 		errs = append(errs, err)
 	}

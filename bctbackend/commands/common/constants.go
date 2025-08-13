@@ -6,6 +6,7 @@ const (
 	CLIFlagHTML  = "html"
 
 	ConfigKeyPort         = "port"
+	ConfigKeyDebug        = "debug"
 	FlagConfigurationPath = "config"
 	FlagDatabase          = "database"
 	FlagFontDirectory     = "labelGeneration.font.directory"
