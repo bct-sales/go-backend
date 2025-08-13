@@ -14,8 +14,16 @@ func (c *ManualClock) Now() models.Timestamp {
 	return c.CurrentTime
 }
 
+func NewManualClock(initialTime models.Timestamp) *ManualClock {
+	return &ManualClock{CurrentTime: initialTime}
+}
+
 type SystemClock struct{}
 
 func (c *SystemClock) Now() models.Timestamp {
 	return models.Now()
+}
+
+func NewSystemClock() *SystemClock {
+	return &SystemClock{}
 }
