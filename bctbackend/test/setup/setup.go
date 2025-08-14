@@ -71,6 +71,10 @@ func NewRestFixture(databaseOptions ...func(*DatabaseFixture)) (RestFixture, *se
 	return fixture, fixture.Server, fixture.Writer
 }
 
+func (f *RestFixture) NewResponseRecorder() *httptest.ResponseRecorder {
+	return httptest.NewRecorder()
+}
+
 func (f *RestFixture) Close() {
 	f.Server.Shutdown()
 	f.DatabaseFixture.Close()
