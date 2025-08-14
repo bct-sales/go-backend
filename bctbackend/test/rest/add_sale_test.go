@@ -185,7 +185,7 @@ func TestAddSale(t *testing.T) {
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			// Advance time to ensure session is expired
-			setup.Clock.Advance(11)
+			setup.Clock.Advance(10)
 
 			payload := rest.AddSalePayload{
 				Items: []models.Id{item.ItemID},
