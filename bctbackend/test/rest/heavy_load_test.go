@@ -3,14 +3,12 @@
 package rest
 
 import (
-	"fmt"
 	"net/http"
+	"sync"
 	"testing"
+	"time"
 
-	"bctbackend/database/models"
-	"bctbackend/database/queries"
 	path "bctbackend/server/paths"
-	restapi "bctbackend/server/rest"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 
@@ -18,35 +16,41 @@ import (
 )
 
 func TestHeavyLoad(t *testing.T) {
-	setup, router, writer := NewRestFixture(WithDefaultCategories)
-	defer setup.Close()
+	t.Run("Updating many items at once", func(t *testing.T) {
+		setup, router, _ := NewRestFixture(WithDefaultCategories)
+		defer setup.Close()
 
-	seller, sessionId := setup.LoggedIn(setup.Seller())
-	url := path.SellerItems(seller.UserId)
+		seller, sessionId := setup.LoggedIn(setup.Seller())
+		itemCount := 2
+		items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false), aux.WithFrozen(false))
 
-	itemCount := 1000
-	for i := 0; i < itemCount; i++ {
-		price := models.MoneyInCents(100 * (i + 1))
-		description := fmt.Sprintf("Test item %d", i)
-		categoryId := aux.CategoryId_Clothing140_152
-		donation := false
-		charity := false
+		waitGroup := sync.WaitGroup{}
 
-		payload := restapi.AddSellerItemPayload{
-			Price:       &price,
-			Description: &description,
-			CategoryId:  categoryId,
-			Donation:    &donation,
-			Charity:     &charity,
+		for _, item := range items {
+			waitGroup.Add(1)
+
+			go func() {
+				defer waitGroup.Done()
+
+				time.Sleep(time.Second)
+				url := path.Item(item.ItemID)
+				payload := struct {
+					PriceInCents int  `json:"priceInCents"`
+					Donation     bool `json:"donation"`
+					Charity      bool `json:"charity"`
+				}{
+					PriceInCents: int(item.PriceInCents) * 2,
+					Donation:     !item.Donation,
+					Charity:      !item.Charity,
+				}
+
+				request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
+				writer := setup.NewResponseRecorder()
+				router.ServeHTTP(writer, request)
+				require.Equal(t, http.StatusNoContent, writer.Code, "body", writer.Body.String())
+			}()
 		}
 
-		request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
-		router.ServeHTTP(writer, request)
-		require.Equal(t, http.StatusCreated, writer.Code)
-	}
-
-	itemsInDatabase := []*models.Item{}
-	err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems, queries.AllRows())
-	require.NoError(t, err)
-	require.Equal(t, itemCount, len(itemsInDatabase))
+		waitGroup.Wait()
+	})
 }
