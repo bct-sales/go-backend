@@ -11,9 +11,7 @@ import (
 )
 
 func requireDatabaseWrappedError(t *testing.T, err error, expectedWrapped error) {
-	if err == nil {
-		t.Fatalf("Expected error, got nil")
-	}
+	require.Error(t, err)
 
 	var wrappedErr dberr.ErrDatabase
 	require.IsTypef(t, &wrappedErr, err, "expected error to be of type ErrDatabase")
