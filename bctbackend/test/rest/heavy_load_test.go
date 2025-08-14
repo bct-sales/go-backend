@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"bctbackend/database/models"
+	"bctbackend/database/queries"
 	path "bctbackend/server/paths"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
@@ -18,10 +20,12 @@ import (
 func TestHeavyLoad(t *testing.T) {
 	t.Run("Updating many items at once", func(t *testing.T) {
 		setup, router, _ := NewRestFixture(WithDefaultCategories)
-		defer setup.Close()
+		defer func() {
+			setup.Close()
+		}()
 
 		seller, sessionId := setup.LoggedIn(setup.Seller())
-		itemCount := 2
+		itemCount := 1
 		items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false), aux.WithFrozen(false))
 
 		waitGroup := sync.WaitGroup{}
@@ -52,5 +56,19 @@ func TestHeavyLoad(t *testing.T) {
 		}
 
 		waitGroup.Wait()
+
+		newItems := []*models.Item{}
+		err := queries.GetItems(setup.Db, queries.CollectTo(&newItems), queries.AllItems, queries.AllRows())
+		require.NoError(t, err)
+		require.Len(t, newItems, itemCount)
+
+		for i, item := range items {
+			newItem := newItems[i]
+
+			require.Equal(t, item.PriceInCents*2, newItem.PriceInCents)
+			require.Equal(t, !item.Donation, newItem.Donation)
+			require.Equal(t, !item.Charity, newItem.Charity)
+			require.Equal(t, item.Description, newItem.Description)
+		}
 	})
 }
