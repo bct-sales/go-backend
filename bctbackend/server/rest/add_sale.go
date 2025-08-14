@@ -60,7 +60,7 @@ func AddSale(arguments *HandlerFunctionArguments) {
 	}
 
 	// Determine current time, which will be used as the sale timestamp
-	timestamp := models.Now()
+	timestamp := arguments.Clock.Now()
 
 	// Add the sale to the database
 	saleId, err := queries.AddSale(

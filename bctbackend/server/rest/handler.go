@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"bctbackend/clock"
 	"bctbackend/database/models"
 	"bctbackend/server/configuration"
 	"bctbackend/server/logger"
@@ -10,6 +11,7 @@ import (
 )
 
 type HandlerFunctionArguments struct {
+	Clock         clock.Clock
 	Context       *gin.Context
 	Configuration *configuration.Configuration
 	Database      *sql.DB

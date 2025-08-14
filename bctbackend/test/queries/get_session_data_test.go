@@ -24,7 +24,7 @@ func TestGetSessionData(t *testing.T) {
 				defer setup.Close()
 
 				seller, sessionId := setup.LoggedIn(setup.User(roleId))
-				sessionData, err := queries.GetSessionData(db, sessionId)
+				sessionData, err := queries.GetSessionData(db, sessionId, setup.Clock.Now())
 				require.NoError(t, err)
 				require.NotNil(t, sessionData)
 				require.Equal(t, seller.UserId, sessionData.UserId)
@@ -34,11 +34,13 @@ func TestGetSessionData(t *testing.T) {
 	})
 
 	t.Run("Failure", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
-		defer setup.Close()
+		t.Run("Invalid session ID", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
 
-		invalidSessionId := models.SessionId("invalid-session-id")
-		_, err := queries.GetSessionData(db, invalidSessionId)
-		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSession)
+			invalidSessionId := models.SessionId("invalid-session-id")
+			_, err := queries.GetSessionData(db, invalidSessionId, setup.Clock.Now())
+			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSession)
+		})
 	})
 }

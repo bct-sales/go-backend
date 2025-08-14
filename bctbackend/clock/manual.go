@@ -80,3 +80,7 @@ func (c *ManualClock) findEarliestTicker() *ManualTicker {
 
 	return earliestTicker
 }
+
+func (c *ManualClock) StopAllTickers() {
+	c.tickers = nil
+}

@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"bctbackend/clock"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/server"
@@ -17,11 +18,13 @@ import (
 )
 
 type DatabaseFixture struct {
-	Db *sql.DB
+	Clock *clock.ManualClock
+	Db    *sql.DB
 }
 
 func initializeDatabaseFixture(fixture *DatabaseFixture, options ...func(*DatabaseFixture)) {
 	fixture.Db = aux.OpenInitializedDatabase()
+	fixture.Clock = clock.NewManualClock(0)
 
 	for _, option := range options {
 		option(fixture)
@@ -44,6 +47,9 @@ func (f *DatabaseFixture) Close() {
 		f.Db.Close()
 	}
 	f.Db = nil
+
+	f.Clock.StopAllTickers()
+	f.Clock = nil
 }
 
 type RestFixture struct {
@@ -54,7 +60,7 @@ type RestFixture struct {
 
 func initializeRestFixture(fixture *RestFixture, databaseOptions ...func(*DatabaseFixture)) {
 	initializeDatabaseFixture(&fixture.DatabaseFixture, databaseOptions...)
-	server := aux.CreateRestServer(fixture.DatabaseFixture.Db)
+	server := aux.CreateRestServer(fixture.DatabaseFixture.Db, fixture.Clock)
 	fixture.Server = server
 	fixture.Writer = httptest.NewRecorder()
 }
@@ -102,11 +108,11 @@ func (s DatabaseFixture) Seller(options ...func(*aux.AddUserData)) *models.User 
 }
 
 func (s DatabaseFixture) Session(userId models.Id, options ...func(*aux.AddSessionData)) models.SessionId {
-	return aux.AddSessionToDatabase(s.Db, userId)
+	return aux.AddSessionToDatabase(s.Db, userId, s.Clock.Now())
 }
 
 func (s DatabaseFixture) LoggedIn(user *models.User, options ...func(*aux.AddSessionData)) (*models.User, models.SessionId) {
-	session := aux.AddSessionToDatabase(s.Db, user.UserId, options...)
+	session := aux.AddSessionToDatabase(s.Db, user.UserId, s.Clock.Now(), options...)
 	return user, session
 }
 

@@ -5,7 +5,9 @@ import (
 	"time"
 )
 
-type SystemClock struct{}
+type SystemClock struct {
+	tickers []*SystemTicker
+}
 
 func (c *SystemClock) Now() models.Timestamp {
 	return models.Now()
@@ -45,4 +47,11 @@ func (ticker *SystemTicker) Stop() {
 		ticker.stopChannel <- 0
 		ticker.stopChannel = nil // Prevent further use
 	}
+}
+
+func (clock *SystemClock) StopAllTickers() {
+	for _, ticker := range clock.tickers {
+		ticker.Stop()
+	}
+	clock.tickers = nil // Clear the list of tickers
 }

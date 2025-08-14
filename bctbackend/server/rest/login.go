@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"bctbackend/clock"
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
@@ -39,7 +40,7 @@ type LoginSuccessResponse struct {
 // @Param username formData string true "username"
 // @Param password formData string true "password"
 // @Tags authentication
-func Login(logger logger.Logger, context *gin.Context, db *sql.DB) {
+func Login(clock clock.Clock, logger logger.Logger, context *gin.Context, db *sql.DB) {
 	var loginRequest LoginRequest
 
 	if err := context.ShouldBind(&loginRequest); err != nil {
@@ -76,7 +77,7 @@ func Login(logger logger.Logger, context *gin.Context, db *sql.DB) {
 		return
 	}
 
-	expirationTime := models.Now() + security.SessionDurationInSeconds
+	expirationTime := clock.Now() + security.SessionDurationInSeconds
 	sessionId, err := queries.AddSession(db, userId, expirationTime)
 
 	if err != nil {

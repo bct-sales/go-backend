@@ -81,12 +81,11 @@ type SessionData struct {
 	RoleId models.RoleId
 }
 
-func GetSessionData(db DatabaseQuerier, sessionId models.SessionId) (r_result *SessionData, r_err error) {
+func GetSessionData(db DatabaseQuerier, sessionId models.SessionId, currentTime models.Timestamp) (r_result *SessionData, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	now := models.Now()
 	row := db.QueryRow(
 		`
 			SELECT
@@ -99,7 +98,7 @@ func GetSessionData(db DatabaseQuerier, sessionId models.SessionId) (r_result *S
 				session_id = ? AND ? < expiration_time
 		`,
 		sessionId,
-		now,
+		currentTime,
 	)
 
 	var userId models.Id

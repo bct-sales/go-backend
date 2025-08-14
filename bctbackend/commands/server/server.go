@@ -2,6 +2,7 @@ package server
 
 import (
 	"bctbackend/algorithms"
+	"bctbackend/clock"
 	"bctbackend/commands/common"
 	"bctbackend/server"
 	"bctbackend/server/configuration"
@@ -56,8 +57,10 @@ func (c *ServerCommand) execute() error {
 		return err
 	}
 
+	clock := clock.NewSystemClock()
+
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		if err := server.StartServer(db, configuration); err != nil {
+		if err := server.StartServer(clock, db, configuration); err != nil {
 			c.PrintErrorf("Failed to start REST service\n")
 			return fmt.Errorf("failed to start REST service: %w", err)
 		}

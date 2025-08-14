@@ -1,6 +1,7 @@
 package server
 
 import (
+	"bctbackend/clock"
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
@@ -21,7 +22,6 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
-	"time"
 
 	_ "bctbackend/docs"
 
@@ -34,12 +34,13 @@ import (
 )
 
 type Server struct {
-	loggerResources *LoggerResources
-	database        *sql.DB
-	configuration   *configuration.Configuration
-	broadcaster     *websocket.WebsocketBroadcaster
-	router          *gin.Engine
-	channel         chan int
+	loggerResources      *LoggerResources
+	database             *sql.DB
+	configuration        *configuration.Configuration
+	broadcaster          *websocket.WebsocketBroadcaster
+	router               *gin.Engine
+	clock                clock.Clock
+	expiredSessionTicker clock.Ticker
 }
 
 type LoggerResources struct {
@@ -64,8 +65,8 @@ type LoggerResources struct {
 
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
-func StartServer(database *sql.DB, configuration *configuration.Configuration) error {
-	server, err := NewServer(database, configuration)
+func StartServer(clock clock.Clock, database *sql.DB, configuration *configuration.Configuration) error {
+	server, err := NewServer(clock, database, configuration)
 	if err != nil {
 		return fmt.Errorf("failed to create server: %w", err)
 	}
@@ -78,19 +79,20 @@ func StartServer(database *sql.DB, configuration *configuration.Configuration) e
 	return nil
 }
 
-func NewServer(db *sql.DB, configuration *configuration.Configuration) (*Server, error) {
+func NewServer(clock clock.Clock, db *sql.DB, configuration *configuration.Configuration) (*Server, error) {
 	loggerResources, err := createLogger(configuration.Log)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create logger: %w", err)
 	}
 
 	server := Server{
-		loggerResources: loggerResources,
-		database:        db,
-		configuration:   configuration,
-		broadcaster:     websocket.NewWebsocketBroadcaster(),
-		router:          createGinRouter(configuration.GinMode, loggerResources.logger),
-		channel:         make(chan int),
+		loggerResources:      loggerResources,
+		database:             db,
+		configuration:        configuration,
+		broadcaster:          websocket.NewWebsocketBroadcaster(),
+		router:               createGinRouter(configuration.GinMode, loggerResources.logger),
+		clock:                clock,
+		expiredSessionTicker: nil,
 	}
 
 	server.defineRESTEndpoints()
@@ -131,7 +133,8 @@ func createLogger(configuration *configuration.LogConfiguration) (*LoggerResourc
 func (server *Server) Shutdown() {
 	slog.Info("Shutting down server")
 
-	server.channel <- 0
+	server.expiredSessionTicker.Stop()
+
 	if err := server.database.Close(); err != nil {
 		slog.Error("Failed to close database connection", slog.String("error", err.Error()))
 	}
@@ -142,26 +145,21 @@ func (server *Server) Shutdown() {
 }
 
 func (server *Server) startPeriodicExpiredSessionPruner() {
-	duration := time.Duration(server.configuration.ExpiredSessionPruneInterval) * time.Second
-	ticker := time.NewTicker(duration)
+	clock := server.clock
+	pruneInterval := server.configuration.ExpiredSessionPruneInterval
 
-	go func() {
-		for {
-			select {
-			case <-ticker.C:
-				now := models.Now()
-				slog.Info("Cleaning up expired sessions", slog.String("current_time", now.String()))
-				if err := queries.DeleteExpiredSessions(server.database, now); err != nil {
-					slog.Error("Failed to clean up expired sessions", slog.String("error", err.Error()))
-				}
+	if server.expiredSessionTicker != nil {
+		slog.Error("Expired session ticker already exists, cannot create a new one")
+		panic("bug: attempt to create multiple expired session tickers")
+	}
 
-			case <-server.channel:
-				slog.Info("Stopping periodic expired session cleaner upper")
-				ticker.Stop()
-				return
-			}
+	server.expiredSessionTicker = clock.NewTicker(pruneInterval, func() {
+		now := clock.Now()
+		slog.Info("Cleaning up expired sessions", slog.String("current_time", now.String()))
+		if err := queries.DeleteExpiredSessions(server.database, now); err != nil {
+			slog.Error("Failed to clean up expired sessions", slog.String("error", err.Error()))
 		}
-	}()
+	})
 }
 
 func (server *Server) defineRESTEndpoints() {
@@ -202,11 +200,11 @@ func (server *Server) defineStaticFilesRoutes(htmlPath string) {
 	})
 }
 
-func (server *Server) RawPOST(path *paths.URL, handler func(logger logger.Logger, context *gin.Context, database *sql.DB)) {
+func (server *Server) RawPOST(path *paths.URL, handler func(clock clock.Clock, logger logger.Logger, context *gin.Context, database *sql.DB)) {
 	decoratedSlogger := server.loggerResources.logger.With(slog.String("handler", getFunctionName(handler)))
 	logger := logger.NewLoggerWrapper(decoratedSlogger)
 
-	server.router.POST(path.String(), func(context *gin.Context) { handler(logger, context, server.database) })
+	server.router.POST(path.String(), func(context *gin.Context) { handler(server.clock, logger, context, server.database) })
 }
 
 func (server *Server) GET(path *paths.URL, handler rest.HandlerFunction) {
@@ -250,6 +248,7 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 	database := server.database
 	configuration := server.configuration
 	broadcaster := server.broadcaster
+	clock := server.clock
 
 	return func(context *gin.Context) {
 		sessionIdString, err := context.Cookie(security.SessionCookieName)
@@ -259,8 +258,9 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 			return
 		}
 
+		now := clock.Now()
 		sessionId := models.SessionId(sessionIdString)
-		sessionData, err := queries.GetSessionData(database, sessionId)
+		sessionData, err := queries.GetSessionData(database, sessionId, now)
 
 		if errors.Is(err, dberr.ErrNoSuchSession) {
 			slog.Error("Session not found")
@@ -277,7 +277,6 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 		userId := sessionData.UserId
 		roleId := sessionData.RoleId
 
-		now := models.Now()
 		if err := queries.UpdateLastActivity(database, userId, now); err != nil {
 			slog.Error("Failed to update last activity", slog.String("error", err.Error()))
 			// Keep going, we don't want to block the request
@@ -290,6 +289,7 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 		)
 		logger := logger.NewLoggerWrapper(decoratedSlogger)
 		arguments := rest.HandlerFunctionArguments{
+			Clock:         clock,
 			Context:       context,
 			Configuration: configuration,
 			Database:      database,

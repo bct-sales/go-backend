@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"bctbackend/clock"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	_ "bctbackend/docs"
@@ -20,7 +21,7 @@ type LogoutPayload struct{}
 // @Description Logs out the user.
 // @Tags authentication
 // @Router /logout [post]
-func Logout(logger logger.Logger, context *gin.Context, db *sql.DB) {
+func Logout(clock clock.Clock, logger logger.Logger, context *gin.Context, db *sql.DB) {
 	sessionIdString, err := context.Cookie(security.SessionCookieName)
 	if err != nil {
 		logger.InvalidRequest("Cannot logout without session ID", slog.String("error", err.Error()))

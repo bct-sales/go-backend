@@ -88,8 +88,7 @@ func AddSellerItem(arguments *HandlerFunctionArguments) {
 		return
 	}
 
-	timestamp := models.Now()
-
+	timestamp := arguments.Clock.Now()
 	itemId, err := queries.AddItem(
 		db,
 		timestamp,
