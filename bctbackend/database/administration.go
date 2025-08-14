@@ -5,6 +5,7 @@ import (
 	dberr "bctbackend/database/errors"
 	models "bctbackend/database/models"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log/slog"
 )
@@ -171,35 +172,37 @@ func dropView(db *sql.DB, view string) error {
 }
 
 func createTables(db *sql.DB) error {
+	errs := []error{}
+
 	if err := createRoleTable(db); err != nil {
-		return fmt.Errorf("failed to create tables: %w", err)
+		errs = append(errs, err)
 	}
 
 	if err := createUserTable(db); err != nil {
-		return fmt.Errorf("failed to create tables: %w", err)
+		errs = append(errs, err)
 	}
 
 	if err := createItemCategoryTable(db); err != nil {
-		return fmt.Errorf("failed to create tables: %w", err)
+		errs = append(errs, err)
 	}
 
 	if err := createItemTable(db); err != nil {
-		return fmt.Errorf("failed to create tables: %w", err)
+		errs = append(errs, err)
 	}
 
 	if err := createSaleTable(db); err != nil {
-		return fmt.Errorf("failed to create tables: %w", err)
+		errs = append(errs, err)
 	}
 
 	if err := createSaleItemsTable(db); err != nil {
-		return fmt.Errorf("failed to create tables: %w", err)
+		errs = append(errs, err)
 	}
 
 	if err := createSessionTable(db); err != nil {
-		return fmt.Errorf("failed to create tables: %w", err)
+		errs = append(errs, err)
 	}
 
-	return nil
+	return errors.Join(errs...)
 }
 
 func createRoleTable(db *sql.DB) error {
