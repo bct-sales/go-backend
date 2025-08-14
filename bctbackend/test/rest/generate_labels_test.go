@@ -297,6 +297,30 @@ func TestGenerateLabels(t *testing.T) {
 			}
 		})
 
+		t.Run("Expired session", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller, sessionId := setup.LoggedIn(setup.Seller(), aux.WithExpiration(500))
+
+			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+
+			// Advance clock so that session expires
+			setup.Clock.Advance(501)
+
+			url := path.Labels()
+			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
+				Layout:  defaultLayout,
+				ItemIds: []models.Id{items[0].ItemID},
+			}, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
+
+			for _, item := range items {
+				setup.RequireNotFrozen(t, item.ItemID)
+			}
+		})
+
 		t.Run("Invalid layout", func(t *testing.T) {
 			layouts := []rest.Layout{
 				{
