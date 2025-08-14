@@ -176,5 +176,28 @@ func TestAddSale(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
 		})
+
+		t.Run("Expired session", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller, sessionId := setup.LoggedIn(setup.Seller(), aux.WithExpiration(10))
+			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+
+			// Advance time to ensure session is expired
+			setup.Clock.Advance(11)
+
+			payload := rest.AddSalePayload{
+				Items: []models.Id{item.ItemID},
+			}
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
+
+			sales := []*models.SaleSummary{}
+			err := queries.NewGetSalesQuery().Execute(setup.Db, queries.CollectTo(&sales))
+			require.NoError(t, err)
+			require.Empty(t, sales)
+		})
 	})
 }
