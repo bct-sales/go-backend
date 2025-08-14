@@ -16,8 +16,6 @@ import (
 
 func TestUpdateItem(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		t.Parallel()
-
 		oldAddedAt := models.Timestamp(1000)
 		oldDescription := "description"
 		oldPriceInCents := models.MoneyInCents(1000)
@@ -47,8 +45,6 @@ func TestUpdateItem(t *testing.T) {
 									updateCategory,
 								)
 								t.Run(testLabel, func(t *testing.T) {
-									t.Parallel()
-
 									setup, db := NewDatabaseFixture(WithDefaultCategories)
 									defer setup.Close()
 

@@ -23,8 +23,6 @@ func TestAddItem(t *testing.T) {
 	defaultCategoryKeys := slices.Collect(maps.Keys(defaultCategoryNameTable))
 
 	t.Run("Success", func(t *testing.T) {
-		t.Parallel()
-
 		for _, timestamp := range []models.Timestamp{0, 1000} {
 			for _, priceInCents := range []models.MoneyInCents{50, 100} {
 				for _, itemCategoryId := range defaultCategoryKeys {
@@ -38,7 +36,6 @@ func TestAddItem(t *testing.T) {
 
 											if !hidden || !frozen {
 												t.Run(test_name, func(t *testing.T) {
-													t.Parallel()
 													setup, db := NewDatabaseFixture(WithDefaultCategories)
 													defer setup.Close()
 

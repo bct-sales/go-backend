@@ -20,8 +20,6 @@ func TestGetUsersWithItemCount(t *testing.T) {
 			for _, itemCount := range itemCounts {
 				testLabel := fmt.Sprintf("ItemCount: %d", itemCount)
 				t.Run(testLabel, func(t *testing.T) {
-					t.Parallel()
-
 					setup, db := NewDatabaseFixture(WithDefaultCategories)
 					defer setup.Close()
 

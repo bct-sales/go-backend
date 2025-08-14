@@ -19,8 +19,6 @@ func TestGetSessionData(t *testing.T) {
 			testLabel := roleId.Name()
 
 			t.Run(testLabel, func(t *testing.T) {
-				t.Parallel()
-
 				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 

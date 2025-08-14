@@ -28,7 +28,6 @@ func TestParseZones(t *testing.T) {
 		for _, testcase := range testcases {
 			testLabel := "Parsing " + fmt.Sprintf("%v", testcase.input)
 			t.Run(testLabel, func(t *testing.T) {
-				t.Parallel()
 				zones, err := parseZones(testcase.input)
 				require.NoError(t, err)
 				require.Equal(t, testcase.zones, zones)
@@ -55,7 +54,6 @@ func TestParseZones(t *testing.T) {
 		for _, testcase := range testcases {
 			testLabel := "Parsing " + fmt.Sprintf("%v", testcase.input)
 			t.Run(testLabel, func(t *testing.T) {
-				t.Parallel()
 				_, err := parseZones(testcase.input)
 				require.Error(t, err)
 			})
