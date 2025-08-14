@@ -77,10 +77,14 @@ func GetSessionById(db DatabaseQuerier, sessionId models.SessionId) (r_result *m
 }
 
 type SessionData struct {
-	UserId models.Id
-	RoleId models.RoleId
+	UserId         models.Id
+	RoleId         models.RoleId
+	ExpirationTime models.Timestamp
 }
 
+// GetSessionData returns information about the given session.
+// The function only returns valid session data if the session has not expired.
+// ErrNoSuchSession is returned if no unexpired session is found with the given sessionId.
 func GetSessionData(db DatabaseQuerier, sessionId models.SessionId, currentTime models.Timestamp) (r_result *SessionData, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -89,7 +93,7 @@ func GetSessionData(db DatabaseQuerier, sessionId models.SessionId, currentTime 
 	row := db.QueryRow(
 		`
 			SELECT
-				users.user_id, role_id
+				users.user_id, role_id, expiration_time
 			FROM
 				sessions
 			INNER JOIN
@@ -103,7 +107,8 @@ func GetSessionData(db DatabaseQuerier, sessionId models.SessionId, currentTime 
 
 	var userId models.Id
 	var roleId models.RoleId
-	if err := row.Scan(&userId, &roleId.Id); err != nil {
+	var expirationTime models.Timestamp
+	if err := row.Scan(&userId, &roleId.Id, &expirationTime); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, dberr.ErrNoSuchSession
 		}
@@ -111,8 +116,9 @@ func GetSessionData(db DatabaseQuerier, sessionId models.SessionId, currentTime 
 	}
 
 	sessionData := SessionData{
-		UserId: userId,
-		RoleId: roleId,
+		UserId:         userId,
+		RoleId:         roleId,
+		ExpirationTime: expirationTime,
 	}
 	return &sessionData, nil
 }
