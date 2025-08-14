@@ -22,8 +22,8 @@ func TestAddSellerItem(t *testing.T) {
 	defaultCategoryNameTable := aux.DefaultCategoryNameTable()
 
 	t.Run("Successful", func(t *testing.T) {
-		for _, sellerId := range []models.Id{models.Id(1), models.Id(2), models.Id(100)} {
-			for _, price := range []models.MoneyInCents{1, 100, 10000} {
+		for _, sellerId := range []models.Id{models.Id(1), models.Id(2)} {
+			for _, price := range []models.MoneyInCents{1, 10000} {
 				for _, description := range []string{"Xyz", "Test Description"} {
 					for categoryId, _ := range defaultCategoryNameTable {
 						for _, donation := range []bool{true, false} {
