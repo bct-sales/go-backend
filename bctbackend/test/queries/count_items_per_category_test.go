@@ -47,28 +47,32 @@ func TestGetCategoryCounts(t *testing.T) {
 			}
 
 			for _, expectedCounts := range countTables {
-				setup, db := NewDatabaseFixture(WithDefaultCategories)
-				defer setup.Close()
+				testLabel := fmt.Sprintf("Count table: %v", expectedCounts)
 
-				seller := setup.Seller()
+				t.Run(testLabel, func(t *testing.T) {
+					setup, db := NewDatabaseFixture(WithDefaultCategories)
+					defer setup.Close()
 
-				for categoryId, count := range expectedCounts {
-					for i := 0; i < count; i++ {
-						setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithItemCategory(categoryId), aux.WithHidden(false))
+					seller := setup.Seller()
+
+					for categoryId, count := range expectedCounts {
+						for i := 0; i < count; i++ {
+							setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithItemCategory(categoryId), aux.WithHidden(false))
+						}
 					}
-				}
 
-				actualCounts, err := queries.CountItemsPerCategory(db, queries.AllItems)
-				require.NoError(t, err)
-				require.Equal(t, len(defaultCategoryNameTable), len(actualCounts))
+					actualCounts, err := queries.CountItemsPerCategory(db, queries.AllItems)
+					require.NoError(t, err)
+					require.Equal(t, len(defaultCategoryNameTable), len(actualCounts))
 
-				for categoryId, _ := range defaultCategoryNameTable {
-					actualCount, ok := actualCounts[categoryId]
-					require.True(t, ok, "Category ID %d not found in actual counts", categoryId)
-					expectedCount := expectedCounts[categoryId]
+					for categoryId, _ := range defaultCategoryNameTable {
+						actualCount, ok := actualCounts[categoryId]
+						require.True(t, ok, "Category ID %d not found in actual counts", categoryId)
+						expectedCount := expectedCounts[categoryId]
 
-					require.Equal(t, expectedCount, actualCount)
-				}
+						require.Equal(t, expectedCount, actualCount)
+					}
+				})
 			}
 		})
 
@@ -105,8 +109,6 @@ func TestGetCategoryCounts(t *testing.T) {
 				for _, expectedCounts := range countTables {
 					testLabel := fmt.Sprintf("Count table %v", expectedCounts)
 					t.Run(testLabel, func(t *testing.T) {
-						t.Parallel()
-
 						setup, db := NewDatabaseFixture(WithDefaultCategories)
 						defer setup.Close()
 
@@ -227,8 +229,6 @@ func TestGetCategoryCounts(t *testing.T) {
 				for _, expectedCounts := range countTables {
 					testLabel := fmt.Sprintf("Count table %v", expectedCounts)
 					t.Run(testLabel, func(t *testing.T) {
-						t.Parallel()
-
 						setup, db := NewDatabaseFixture(WithDefaultCategories)
 						defer setup.Close()
 

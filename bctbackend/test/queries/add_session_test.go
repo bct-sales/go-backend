@@ -7,6 +7,7 @@ import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
 	. "bctbackend/test/setup"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -15,19 +16,23 @@ import (
 func TestAddSession(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		for _, roleId := range models.ListRoles() {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
-			defer setup.Close()
+			testLabel := fmt.Sprintf("Role=%s", roleId.Name())
 
-			user := setup.User(roleId)
-			expirationTime := models.Timestamp(0)
-			sessionId, err := queries.AddSession(db, user.UserId, expirationTime)
-			require.NoError(t, err)
+			t.Run(testLabel, func(t *testing.T) {
+				setup, db := NewDatabaseFixture(WithDefaultCategories)
+				defer setup.Close()
 
-			session, err := queries.GetSessionById(db, sessionId)
-			require.NoError(t, err)
-			require.Equal(t, sessionId, session.SessionID)
-			require.Equal(t, user.UserId, session.UserID)
-			require.Equal(t, expirationTime, session.ExpirationTime)
+				user := setup.User(roleId)
+				expirationTime := models.Timestamp(0)
+				sessionId, err := queries.AddSession(db, user.UserId, expirationTime)
+				require.NoError(t, err)
+
+				session, err := queries.GetSessionById(db, sessionId)
+				require.NoError(t, err)
+				require.Equal(t, sessionId, session.SessionID)
+				require.Equal(t, user.UserId, session.UserID)
+				require.Equal(t, expirationTime, session.ExpirationTime)
+			})
 		}
 	})
 

@@ -9,6 +9,7 @@ import (
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
+	"fmt"
 
 	"testing"
 
@@ -18,40 +19,44 @@ import (
 func TestAddSale(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		for _, itemIndices := range [][]int{{0}, {1}, {2}, {3}, {0, 1}, {1, 2, 3}, {0, 1, 2, 3}, algorithms.Range(0, 10)} {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
-			defer setup.Close()
+			testLabel := fmt.Sprintf("Item indices: %v", itemIndices)
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
+			t.Run(testLabel, func(t *testing.T) {
+				setup, db := NewDatabaseFixture(WithDefaultCategories)
+				defer setup.Close()
 
-			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-			itemIds := models.CollectItemIds(items)
+				seller := setup.Seller()
+				cashier := setup.Cashier()
 
-			saleItemIds := make([]models.Id, len(itemIndices))
-			for index, itemIndex := range itemIndices {
-				saleItemIds[index] = itemIds[itemIndex]
-			}
+				items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
+				itemIds := models.CollectItemIds(items)
 
-			timestamp := models.Timestamp(0)
+				saleItemIds := make([]models.Id, len(itemIndices))
+				for index, itemIndex := range itemIndices {
+					saleItemIds[index] = itemIds[itemIndex]
+				}
 
-			var saleId models.Id
-			setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
-				var err error
-				saleId, err = queries.AddSale(transaction, cashier.UserId, timestamp, saleItemIds)
+				timestamp := models.Timestamp(0)
+
+				var saleId models.Id
+				setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
+					var err error
+					saleId, err = queries.AddSale(transaction, cashier.UserId, timestamp, saleItemIds)
+					require.NoError(t, err)
+				})
+
+				actualItems, err := queries.GetSaleItems(db, saleId)
 				require.NoError(t, err)
+				require.Len(t, actualItems, len(saleItemIds))
+
+				for index, actualItem := range actualItems {
+					require.Equal(t, saleItemIds[index], actualItem.ItemID)
+
+					expectedItem, err := queries.GetItemWithId(db, saleItemIds[index])
+					require.NoError(t, err)
+					require.Equal(t, expectedItem, actualItem)
+				}
 			})
-
-			actualItems, err := queries.GetSaleItems(db, saleId)
-			require.NoError(t, err)
-			require.Len(t, actualItems, len(saleItemIds))
-
-			for index, actualItem := range actualItems {
-				require.Equal(t, saleItemIds[index], actualItem.ItemID)
-
-				expectedItem, err := queries.GetItemWithId(db, saleItemIds[index])
-				require.NoError(t, err)
-				require.Equal(t, expectedItem, actualItem)
-			}
 		}
 	})
 
