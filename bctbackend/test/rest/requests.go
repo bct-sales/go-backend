@@ -23,8 +23,8 @@ func createRequest[T any](verb string, url *path.URL, payload *T, options ...fun
 		payloadJson := ToJson(payload)
 		reader = strings.NewReader(payloadJson)
 	}
-	request, err := http.NewRequest(verb, url.String(), reader)
 
+	request, err := http.NewRequest(verb, url.String(), reader)
 	if err != nil {
 		panic(err)
 	}
