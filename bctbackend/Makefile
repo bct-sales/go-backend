@@ -7,6 +7,9 @@ cleantest:
 test:
 	BCT_FONT_DIR=`realpath ..` BCT_FONT_FILE=arial.ttf BCT_FONT_FAMILY=Arial go test -tags=test ./...
 
+testhv:
+	go test -tags=test -run ^TestHeavyLoad ./...
+
 coverage:
 	go test -tags=test -coverprofile=coverage-data ./...
 	go tool cover -html=coverage-data
