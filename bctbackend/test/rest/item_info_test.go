@@ -181,5 +181,20 @@ func TestGetItemInformation(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
 		})
+
+		t.Run("Session expired", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller, sessionId := setup.LoggedIn(setup.Seller(), aux.WithExpiration(100))
+			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+
+			setup.Clock.Advance(200)
+
+			url := path.Item(item.ItemID)
+			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusUnauthorized, writer.Code)
+		})
 	})
 }
