@@ -20,7 +20,7 @@ func OpenDatabase() *sql.DB {
 
 	// This can also be used to prevent having multiple in-memory databases.
 	// It also prevents deadlocks, so it's better not to have them for tests.
-	db.SetMaxOpenConns(1)
+	// db.SetMaxOpenConns(1)
 
 	db.Exec("PRAGMA foreign_keys = 1")
 
