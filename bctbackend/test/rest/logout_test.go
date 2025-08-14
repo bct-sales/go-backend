@@ -13,13 +13,15 @@ import (
 )
 
 func TestLogout(t *testing.T) {
-	setup, router, writer := NewRestFixture(WithDefaultCategories)
-	defer setup.Close()
+	t.Run("Success", func(t *testing.T) {
+		setup, router, writer := NewRestFixture(WithDefaultCategories)
+		defer setup.Close()
 
-	_, sessionId := setup.LoggedIn(setup.Admin())
+		_, sessionId := setup.LoggedIn(setup.Admin())
 
-	url := path.Logout()
-	request := CreatePostRequest(url, &rest.LogoutPayload{}, WithSessionCookie(sessionId))
-	router.ServeHTTP(writer, request)
-	require.Equal(t, http.StatusOK, writer.Code)
+		url := path.Logout()
+		request := CreatePostRequest(url, &rest.LogoutPayload{}, WithSessionCookie(sessionId))
+		router.ServeHTTP(writer, request)
+		require.Equal(t, http.StatusOK, writer.Code)
+	})
 }
