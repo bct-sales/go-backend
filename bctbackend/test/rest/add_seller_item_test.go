@@ -377,5 +377,37 @@ func TestAddSellerItem(t *testing.T) {
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
+
+		t.Run("Expired session", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			price := models.MoneyInCents(50)
+			description := "Test Description"
+			categoryId := aux.CategoryId_Clothing50_56
+			donation := false
+			charity := false
+
+			seller, sessionId := setup.LoggedIn(setup.Seller(), aux.WithExpiration(100))
+
+			setup.Clock.Advance(100) // Advance time to ensure session is expired
+
+			url := path.SellerItems(seller.UserId)
+			payload := rest.AddSellerItemPayload{
+				Price:       &price,
+				Description: &description,
+				CategoryId:  categoryId,
+				Donation:    &donation,
+				Charity:     &charity,
+			}
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
+
+			itemsInDatabase := []*models.Item{}
+			err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems, queries.AllRows())
+			require.NoError(t, err)
+			require.Equal(t, 0, len(itemsInDatabase))
+		})
 	})
 }
