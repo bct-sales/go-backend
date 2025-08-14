@@ -230,5 +230,19 @@ func TestCategoryCounts(t *testing.T) {
 
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 		})
+
+		t.Run("Expired session", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			_, sessionId := setup.LoggedIn(setup.Admin(), aux.WithExpiration(100))
+			setup.Clock.Advance(500) // Advance time to ensure session is expired
+
+			url := path.CategoriesWithCounts(queries.OnlyVisibleItems)
+			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+
+			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
+		})
 	})
 }
