@@ -28,40 +28,44 @@ func TestAddSellerItem(t *testing.T) {
 					for categoryId, _ := range defaultCategoryNameTable {
 						for _, donation := range []bool{true, false} {
 							for _, charity := range []bool{true, false} {
-								t.Run(fmt.Sprintf("sellerId=%d price=%d description=%s categoryId=%d donation=%t charity=%t", sellerId, price, description, categoryId, donation, charity), func(t *testing.T) {
-									setup, router, writer := NewRestFixture(WithDefaultCategories)
-									defer setup.Close()
+								for _, delay := range []int{0, 100} {
+									t.Run(fmt.Sprintf("sellerId=%d price=%d description=%s categoryId=%d donation=%t charity=%t", sellerId, price, description, categoryId, donation, charity), func(t *testing.T) {
+										setup, router, writer := NewRestFixture(WithDefaultCategories)
+										defer setup.Close()
 
-									seller, sessionId := setup.LoggedIn(setup.Seller(aux.WithUserId(sellerId)))
+										seller, sessionId := setup.LoggedIn(setup.Seller(aux.WithUserId(sellerId)), aux.WithExpiration(200))
 
-									url := path.SellerItems(seller.UserId)
-									payload := rest.AddSellerItemPayload{
-										Price:       &price,
-										Description: &description,
-										CategoryId:  categoryId,
-										Donation:    &donation,
-										Charity:     &charity,
-									}
-									request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
-									router.ServeHTTP(writer, request)
+										setup.Clock.Advance(models.Timestamp(delay))
 
-									require.Equal(t, http.StatusCreated, writer.Code)
-									response := FromJson[rest.AddSellerItemResponse](t, writer.Body.String())
+										url := path.SellerItems(seller.UserId)
+										payload := rest.AddSellerItemPayload{
+											Price:       &price,
+											Description: &description,
+											CategoryId:  categoryId,
+											Donation:    &donation,
+											Charity:     &charity,
+										}
+										request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
+										router.ServeHTTP(writer, request)
 
-									itemsInDatabase := []*models.Item{}
-									err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems, queries.AllRows())
-									require.NoError(t, err)
-									require.Equal(t, 1, len(itemsInDatabase))
+										require.Equal(t, http.StatusCreated, writer.Code)
+										response := FromJson[rest.AddSellerItemResponse](t, writer.Body.String())
 
-									itemInDatabase := itemsInDatabase[0]
-									require.Equal(t, response.ItemId, itemInDatabase.ItemID)
-									require.Equal(t, seller.UserId, itemInDatabase.SellerID)
-									require.Equal(t, price, itemInDatabase.PriceInCents)
-									require.Equal(t, description, itemInDatabase.Description)
-									require.Equal(t, categoryId, itemInDatabase.CategoryID)
-									require.Equal(t, donation, itemInDatabase.Donation)
-									require.Equal(t, charity, itemInDatabase.Charity)
-								})
+										itemsInDatabase := []*models.Item{}
+										err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems, queries.AllRows())
+										require.NoError(t, err)
+										require.Equal(t, 1, len(itemsInDatabase))
+
+										itemInDatabase := itemsInDatabase[0]
+										require.Equal(t, response.ItemId, itemInDatabase.ItemID)
+										require.Equal(t, seller.UserId, itemInDatabase.SellerID)
+										require.Equal(t, price, itemInDatabase.PriceInCents)
+										require.Equal(t, description, itemInDatabase.Description)
+										require.Equal(t, categoryId, itemInDatabase.CategoryID)
+										require.Equal(t, donation, itemInDatabase.Donation)
+										require.Equal(t, charity, itemInDatabase.Charity)
+									})
+								}
 							}
 						}
 					}
