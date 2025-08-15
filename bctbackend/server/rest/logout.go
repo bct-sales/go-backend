@@ -2,14 +2,17 @@ package rest
 
 import (
 	"database/sql"
+	"errors"
 	"log/slog"
 	"net/http"
 
 	"bctbackend/clock"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	_ "bctbackend/docs"
 	"bctbackend/security"
+	"bctbackend/server/failure_response"
 	"bctbackend/server/logger"
 
 	"github.com/gin-gonic/gin"
@@ -33,8 +36,13 @@ func Logout(clock clock.Clock, logger logger.Logger, context *gin.Context, db *s
 	err = queries.DeleteSession(db, sessionId)
 
 	if err != nil {
+		if errors.Is(err, dberr.ErrNoSuchSession) {
+			failure_response.NoSuchSession(context, "No such session - perhaps it has expired and was pruned")
+			return
+		}
+
 		logger.InternalError("Failed to delete session", slog.String("error", err.Error()))
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to delete session"})
+		failure_response.Unknown(context, "Failed to delete session")
 		return
 	}
 
