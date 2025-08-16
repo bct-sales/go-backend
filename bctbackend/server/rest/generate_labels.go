@@ -7,6 +7,7 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/pdf"
 	"bctbackend/server/failure_response"
+	"bytes"
 	"errors"
 	"fmt"
 	"net/http"
@@ -96,7 +97,7 @@ func (ep *generateLabelsEndpoint) execute() {
 		return
 	}
 
-	settings, err := pdf.NewLayoutSettings(
+	layoutSettings, err := pdf.NewLayoutSettings(
 		pdf.WithPaperSize(
 			payload.Layout.PaperWidth,
 			payload.Layout.PaperHeight,
@@ -128,24 +129,8 @@ func (ep *generateLabelsEndpoint) execute() {
 		return
 	}
 
-	pdfConfiguration := pdf.Configuration{
-		FontDirectory: ep.Configuration.LabelGeneration.Font.Directory,
-		FontFilename:  ep.Configuration.LabelGeneration.Font.Filename,
-		FontFamily:    ep.Configuration.LabelGeneration.Font.Family,
-		BarcodeWidth:  ep.Configuration.LabelGeneration.BarcodeWidth,
-		BarcodeHeight: ep.Configuration.LabelGeneration.BarcodeHeight,
-	}
-	builder, err := pdf.GeneratePdf(&pdfConfiguration, settings, labelData)
-	if err != nil {
-		slog.Error("Failed to generate PDF", "error", err)
-		failure_response.InvalidRequest(ep.Context, "Failed to generate PDF: "+err.Error())
-		return
-	}
-
-	buffer, err := builder.WriteToBuffer()
-	if err != nil {
-		ep.Logger.InternalError("Failed to write PDF to buffer", "error", err)
-		failure_response.InvalidRequest(ep.Context, "Failed to write PDF to buffer: "+err.Error())
+	buffer := ep.generatePdf(labelData, layoutSettings)
+	if buffer == nil {
 		return
 	}
 
@@ -227,4 +212,29 @@ func (ep *generateLabelsEndpoint) createLabelDataFromItem(categoryNameTable map[
 	}
 
 	return labelData, nil
+}
+
+func (ep *generateLabelsEndpoint) generatePdf(labelData []*pdf.LabelData, layoutSettings *pdf.LayoutSettings) *bytes.Buffer {
+	pdfConfiguration := pdf.Configuration{
+		FontDirectory: ep.Configuration.LabelGeneration.Font.Directory,
+		FontFilename:  ep.Configuration.LabelGeneration.Font.Filename,
+		FontFamily:    ep.Configuration.LabelGeneration.Font.Family,
+		BarcodeWidth:  ep.Configuration.LabelGeneration.BarcodeWidth,
+		BarcodeHeight: ep.Configuration.LabelGeneration.BarcodeHeight,
+	}
+	builder, err := pdf.GeneratePdf(&pdfConfiguration, layoutSettings, labelData)
+	if err != nil {
+		slog.Error("Failed to generate PDF", "error", err)
+		failure_response.InvalidRequest(ep.Context, "Failed to generate PDF: "+err.Error())
+		return nil
+	}
+
+	buffer, err := builder.WriteToBuffer()
+	if err != nil {
+		ep.Logger.InternalError("Failed to write PDF to buffer", "error", err)
+		failure_response.InvalidRequest(ep.Context, "Failed to write PDF to buffer: "+err.Error())
+		return nil
+	}
+
+	return buffer
 }
