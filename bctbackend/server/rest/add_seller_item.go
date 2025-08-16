@@ -54,23 +54,7 @@ func (ep *addSellerItemEndpoint) execute() {
 		return
 	}
 
-	{
-		sellerExists, err := queries.UserWithIdExists(ep.Database, uriSellerId)
-		if err != nil {
-			ep.Logger.InternalError("Failed to check if seller exists", "error", err, "sellerId", uriSellerId)
-			failure_response.Unknown(ep.Context, err.Error())
-			return
-		}
-		if !sellerExists {
-			ep.Logger.InvalidRequest("Blocked attempt to add item for non-existing seller", "sellerId", uriSellerId)
-			failure_response.UnknownUser(ep.Context, "Seller does not exist")
-			return
-		}
-	}
-
-	if uriSellerId != ep.UserId {
-		ep.Logger.InvalidRequest("Blocked attempt to add item for different seller", "uriSellerId", uriSellerId)
-		failure_response.WrongSeller(ep.Context, "Logged in user does not match URI seller ID")
+	if !ep.ensureValidity(uriSellerId) {
 		return
 	}
 
@@ -163,4 +147,26 @@ func (ep *addSellerItemEndpoint) parseURI() (models.Id, bool) {
 	}
 
 	return uriSellerId, true
+}
+
+func (ep *addSellerItemEndpoint) ensureValidity(uriSellerId models.Id) bool {
+	sellerExists, err := queries.UserWithIdExists(ep.Database, uriSellerId)
+	if err != nil {
+		ep.Logger.InternalError("Failed to check if seller exists", "error", err, "sellerId", uriSellerId)
+		failure_response.Unknown(ep.Context, err.Error())
+		return false
+	}
+	if !sellerExists {
+		ep.Logger.InvalidRequest("Blocked attempt to add item for non-existing seller", "sellerId", uriSellerId)
+		failure_response.UnknownUser(ep.Context, "Seller does not exist")
+		return false
+	}
+
+	if uriSellerId != ep.UserId {
+		ep.Logger.InvalidRequest("Blocked attempt to add item for different seller", "uriSellerId", uriSellerId)
+		failure_response.WrongSeller(ep.Context, "Logged in user does not match URI seller ID")
+		return false
+	}
+
+	return true
 }
