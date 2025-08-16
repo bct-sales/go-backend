@@ -35,8 +35,10 @@ func AddSale(arguments *HandlerFunctionArguments) {
 	userId := arguments.UserId
 	roleId := arguments.RoleId
 	logger := arguments.Logger
+	database := arguments.Database
+	clock := arguments.Clock
 
-	transaction, err := queries.NewTransactionDatabaseQuerier(arguments.Database)
+	transaction, err := queries.NewTransactionDatabaseQuerier(database)
 	if err != nil {
 		logger.InternalError("Failed to start transaction for AddSale", "error", err)
 		failure_response.Unknown(context, "Failed to start transaction: "+err.Error())
@@ -60,7 +62,7 @@ func AddSale(arguments *HandlerFunctionArguments) {
 	}
 
 	// Determine current time, which will be used as the sale timestamp
-	timestamp := arguments.Clock.Now()
+	timestamp := clock.Now()
 
 	// Add the sale to the database
 	saleId, err := queries.AddSale(
