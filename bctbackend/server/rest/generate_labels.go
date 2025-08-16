@@ -49,13 +49,13 @@ func GenerateLabels(arguments *HandlerFunctionArguments) {
 	endpoint.execute()
 }
 
-func (endpoint *generateLabelsEndpoint) execute() {
-	context := endpoint.Context
-	userId := endpoint.UserId
-	roleId := endpoint.RoleId
-	db := endpoint.Database
-	configuration := endpoint.Configuration
-	logger := endpoint.Logger
+func (ep *generateLabelsEndpoint) execute() {
+	context := ep.Context
+	userId := ep.UserId
+	roleId := ep.RoleId
+	db := ep.Database
+	configuration := ep.Configuration
+	logger := ep.Logger
 
 	if !roleId.IsSeller() {
 		logger.InvalidRequest("Blocked attempt at generating labels by a user with the wrong role")
@@ -96,7 +96,7 @@ func (endpoint *generateLabelsEndpoint) execute() {
 		}
 	}
 
-	labelData, err := endpoint.collectLabelData(db, itemTable, payload.ItemIds)
+	labelData, err := ep.collectLabelData(db, itemTable, payload.ItemIds)
 	if err != nil {
 		logger.InternalError("Failed to collect label data", "error", err)
 		failure_response.Unknown(context, "Failed to collect label data: "+err.Error())
@@ -157,7 +157,7 @@ func (endpoint *generateLabelsEndpoint) execute() {
 	}
 
 	// Do this last, to ensure items are only frozen if the PDF was generated successfully
-	if err := endpoint.freezeItems(db, payload.ItemIds); err != nil {
+	if err := ep.freezeItems(db, payload.ItemIds); err != nil {
 		logger.InternalError("Failed to freeze items", "error", err)
 		failure_response.Unknown(context, "Failed to freeze items: "+err.Error())
 		return
@@ -173,7 +173,7 @@ func (endpoint *generateLabelsEndpoint) execute() {
 	)
 }
 
-func (endpoint *generateLabelsEndpoint) freezeItems(db Database, itemIds []models.Id) error {
+func (ep *generateLabelsEndpoint) freezeItems(db Database, itemIds []models.Id) error {
 	transaction, err := db.StartTransaction()
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
@@ -191,7 +191,7 @@ func (endpoint *generateLabelsEndpoint) freezeItems(db Database, itemIds []model
 	return nil
 }
 
-func (endpoint *generateLabelsEndpoint) collectLabelData(db Database, itemTable map[models.Id]*models.Item, itemIds []models.Id) ([]*pdf.LabelData, error) {
+func (ep *generateLabelsEndpoint) collectLabelData(db Database, itemTable map[models.Id]*models.Item, itemIds []models.Id) ([]*pdf.LabelData, error) {
 	createLabelData := func(itemId models.Id) (*pdf.LabelData, error) {
 		item, ok := itemTable[itemId]
 		if !ok {
@@ -203,7 +203,7 @@ func (endpoint *generateLabelsEndpoint) collectLabelData(db Database, itemTable 
 			return nil, err
 		}
 
-		return endpoint.createLabelDataFromItem(categoryNameTable, item)
+		return ep.createLabelDataFromItem(categoryNameTable, item)
 	}
 
 	labelData, err := algorithms.MapError(itemIds, createLabelData)
@@ -214,7 +214,7 @@ func (endpoint *generateLabelsEndpoint) collectLabelData(db Database, itemTable 
 	return labelData, nil
 }
 
-func (endpoint *generateLabelsEndpoint) createLabelDataFromItem(categoryNameTable map[models.Id]string, item *models.Item) (*pdf.LabelData, error) {
+func (ep *generateLabelsEndpoint) createLabelDataFromItem(categoryNameTable map[models.Id]string, item *models.Item) (*pdf.LabelData, error) {
 	barcode := fmt.Sprintf("%dx", item.ItemID)
 
 	category, ok := categoryNameTable[item.CategoryID]
