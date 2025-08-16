@@ -1,6 +1,7 @@
 package queries
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log/slog"
@@ -10,6 +11,30 @@ type DatabaseQuerier interface {
 	Exec(query string, args ...any) (sql.Result, error)
 	Query(query string, args ...any) (*sql.Rows, error)
 	QueryRow(query string, args ...any) *sql.Row
+}
+
+type ContextDatabaseQuerier struct {
+	database *sql.DB
+	context  context.Context
+}
+
+func NewContextDatabaseQuerier(database *sql.DB, ctx context.Context) *ContextDatabaseQuerier {
+	return &ContextDatabaseQuerier{
+		database: database,
+		context:  ctx,
+	}
+}
+
+func (c *ContextDatabaseQuerier) Exec(query string, args ...any) (sql.Result, error) {
+	return c.database.ExecContext(c.context, query, args...)
+}
+
+func (c *ContextDatabaseQuerier) Query(query string, args ...any) (*sql.Rows, error) {
+	return c.database.QueryContext(c.context, query, args...)
+}
+
+func (c *ContextDatabaseQuerier) QueryRow(query string, args ...any) *sql.Row {
+	return c.database.QueryRowContext(c.context, query, args...)
 }
 
 type TransactionalDatabaseQuerier struct {
