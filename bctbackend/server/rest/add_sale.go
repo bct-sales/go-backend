@@ -65,10 +65,8 @@ func (ep *addSaleEndpoint) execute() {
 	}
 
 	// Fetch sale data
-	var payload AddSalePayload
-	if err := ep.context.ShouldBindJSON(&payload); err != nil {
-		ep.logger.InvalidInput("Failed to parse AddSale payload", "error", err, "payload", payload)
-		failure_response.InvalidRequest(ep.context, "Failed to parse payload:"+err.Error())
+	payload := ep.parseSaleData()
+	if payload == nil {
 		return
 	}
 
@@ -83,32 +81,7 @@ func (ep *addSaleEndpoint) execute() {
 		payload.Items,
 	)
 	if err != nil {
-		if errors.Is(err, dberr.ErrSaleMissingItems) {
-			ep.logger.InvalidRequest("Blocked attempt to add sale with missing items")
-			failure_response.MissingItems(ep.context, err.Error())
-			return
-		}
-
-		if errors.Is(err, dberr.ErrDuplicateItemInSale) {
-			ep.logger.InvalidRequest("Blocked attempt to add sale with duplicate items")
-			failure_response.DuplicateItemInSale(ep.context, err.Error())
-			return
-		}
-
-		if errors.Is(err, dberr.ErrNoSuchItem) {
-			ep.logger.InvalidRequest("Blocked attempt to add sale with unknown item; front end should prevent this")
-			failure_response.UnknownItem(ep.context, err.Error())
-			return
-		}
-
-		if errors.Is(err, dberr.ErrSaleRequiresCashier) {
-			ep.logger.Bug("AddSale failed with ErrSaleRequiresCashier, but this should never occur as the role is checked before", "error", err)
-			failure_response.Unknown(ep.context, "Bug: should never occur as this is checked before")
-			return
-		}
-
-		ep.logger.InternalError("Failed to add sale", "error", err)
-		failure_response.Unknown(ep.context, "Failed to add sale: "+err.Error())
+		ep.interpretDatabaseError(err)
 		return
 	}
 
@@ -130,4 +103,45 @@ func (ep *addSaleEndpoint) ensureUserIsCashier() bool {
 	}
 
 	return true
+}
+
+func (ep *addSaleEndpoint) parseSaleData() *AddSalePayload {
+	var payload AddSalePayload
+
+	if err := ep.context.ShouldBindJSON(&payload); err != nil {
+		ep.logger.InvalidInput("Failed to parse AddSale payload", "error", err, "payload", payload)
+		failure_response.InvalidRequest(ep.context, "Failed to parse payload:"+err.Error())
+		return nil
+	}
+
+	return &payload
+}
+
+func (ep *addSaleEndpoint) interpretDatabaseError(err error) {
+	if errors.Is(err, dberr.ErrSaleMissingItems) {
+		ep.logger.InvalidRequest("Blocked attempt to add sale with missing items")
+		failure_response.MissingItems(ep.context, err.Error())
+		return
+	}
+
+	if errors.Is(err, dberr.ErrDuplicateItemInSale) {
+		ep.logger.InvalidRequest("Blocked attempt to add sale with duplicate items")
+		failure_response.DuplicateItemInSale(ep.context, err.Error())
+		return
+	}
+
+	if errors.Is(err, dberr.ErrNoSuchItem) {
+		ep.logger.InvalidRequest("Blocked attempt to add sale with unknown item; front end should prevent this")
+		failure_response.UnknownItem(ep.context, err.Error())
+		return
+	}
+
+	if errors.Is(err, dberr.ErrSaleRequiresCashier) {
+		ep.logger.Bug("AddSale failed with ErrSaleRequiresCashier, but this should never occur as the role is checked before", "error", err)
+		failure_response.Unknown(ep.context, "Bug: should never occur as this is checked before")
+		return
+	}
+
+	ep.logger.InternalError("Failed to add sale", "error", err)
+	failure_response.Unknown(ep.context, "Failed to add sale: "+err.Error())
 }
