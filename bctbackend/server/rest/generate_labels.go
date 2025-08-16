@@ -90,10 +90,8 @@ func (ep *generateLabelsEndpoint) execute() {
 		}
 	}
 
-	labelData, err := ep.collectLabelData(ep.Database, itemTable, payload.ItemIds)
-	if err != nil {
-		ep.Logger.InternalError("Failed to collect label data", "error", err)
-		failure_response.Unknown(ep.Context, "Failed to collect label data: "+err.Error())
+	labelData := ep.collectLabelData(ep.Database, itemTable, payload.ItemIds)
+	if labelData == nil {
 		return
 	}
 
@@ -142,7 +140,7 @@ func (ep *generateLabelsEndpoint) freezeItems(db Database, itemIds []models.Id) 
 	return nil
 }
 
-func (ep *generateLabelsEndpoint) collectLabelData(db Database, itemTable map[models.Id]*models.Item, itemIds []models.Id) ([]*pdf.LabelData, error) {
+func (ep *generateLabelsEndpoint) collectLabelData(db Database, itemTable map[models.Id]*models.Item, itemIds []models.Id) []*pdf.LabelData {
 	createLabelData := func(itemId models.Id) (*pdf.LabelData, error) {
 		item, ok := itemTable[itemId]
 		if !ok {
@@ -159,10 +157,12 @@ func (ep *generateLabelsEndpoint) collectLabelData(db Database, itemTable map[mo
 
 	labelData, err := algorithms.MapError(itemIds, createLabelData)
 	if err != nil {
-		return nil, err
+		ep.Logger.InternalError("Failed to collect label data", "error", err)
+		failure_response.Unknown(ep.Context, "Failed to collect label data: "+err.Error())
+		return nil
 	}
 
-	return labelData, nil
+	return labelData
 }
 
 func (ep *generateLabelsEndpoint) createLabelDataFromItem(categoryNameTable map[models.Id]string, item *models.Item) (*pdf.LabelData, error) {
