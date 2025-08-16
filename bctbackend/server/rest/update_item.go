@@ -94,6 +94,7 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 	if err != nil {
 		logger.InternalError("Failed to begin transaction for item update", "itemId", itemId, "error", err)
 		failure_response.Unknown(context, err.Error())
+		return
 	}
 	defer transaction.Rollback()
 
