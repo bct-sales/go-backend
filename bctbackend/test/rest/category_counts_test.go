@@ -18,31 +18,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func createSuccessResponse(countMap map[models.Id]int) rest.ListCategoriesSuccessResponse {
-	defaultCategoryNameTable := aux.DefaultCategoryNameTable()
-	countArray := []rest.CategoryData{}
-
-	for categoryId, categoryName := range defaultCategoryNameTable {
-		count, ok := countMap[categoryId]
-
-		if !ok {
-			count = 0
-		}
-
-		countArray = append(countArray, rest.CategoryData{
-			CategoryId:   categoryId,
-			CategoryName: categoryName,
-			Count:        &count,
-		})
-	}
-
-	slices.SortFunc(countArray, func(a, b rest.CategoryData) int {
-		return cmp.Compare(a.CategoryId, b.CategoryId)
-	})
-
-	return rest.ListCategoriesSuccessResponse{Categories: countArray}
-}
-
 func TestCategoryCounts(t *testing.T) {
 	defaultCategoryNameTable := aux.DefaultCategoryNameTable()
 
@@ -245,4 +220,29 @@ func TestCategoryCounts(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
 		})
 	})
+}
+
+func createSuccessResponse(countMap map[models.Id]int) rest.ListCategoriesSuccessResponse {
+	defaultCategoryNameTable := aux.DefaultCategoryNameTable()
+	countArray := []rest.CategoryData{}
+
+	for categoryId, categoryName := range defaultCategoryNameTable {
+		count, ok := countMap[categoryId]
+
+		if !ok {
+			count = 0
+		}
+
+		countArray = append(countArray, rest.CategoryData{
+			CategoryId:   categoryId,
+			CategoryName: categoryName,
+			Count:        &count,
+		})
+	}
+
+	slices.SortFunc(countArray, func(a, b rest.CategoryData) int {
+		return cmp.Compare(a.CategoryId, b.CategoryId)
+	})
+
+	return rest.ListCategoriesSuccessResponse{Categories: countArray}
 }
