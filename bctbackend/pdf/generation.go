@@ -366,14 +366,14 @@ func (builder *PdfBuilder) generateBarcode(data string) (string, error) {
 	return imageName, nil
 }
 
-func (builder *PdfBuilder) drawImage(imageName string, x float64, y float64) error {
+func (builder *PdfBuilder) drawImage(imageName string, xCoordinate float64, yCoordinate float64) error {
 	imageOptions := fpdf.ImageOptions{
 		ImageType:             "png",
 		ReadDpi:               true,
 		AllowNegativePosition: false,
 	}
 
-	builder.pdf.ImageOptions(imageName, x, y, -1, -1, false, imageOptions, 0, "")
+	builder.pdf.ImageOptions(imageName, xCoordinate, yCoordinate, -1, -1, false, imageOptions, 0, "")
 	if err := builder.pdf.Error(); err != nil {
 		return &PdfError{
 			Message: fmt.Sprintf("failed to draw image %s", imageName),

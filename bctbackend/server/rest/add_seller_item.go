@@ -49,8 +49,8 @@ func (ep *addSellerItemEndpoint) execute() {
 		return
 	}
 
-	uriSellerId, ok := ep.parseURI()
-	if !ok {
+	uriSellerId, parseOk := ep.parseURI()
+	if !parseOk {
 		return
 	}
 
@@ -63,8 +63,8 @@ func (ep *addSellerItemEndpoint) execute() {
 		return
 	}
 
-	itemId, ok := ep.addItemToDatabase(payload)
-	if !ok {
+	itemId, itemAddOk := ep.addItemToDatabase(payload)
+	if !itemAddOk {
 		return
 	}
 

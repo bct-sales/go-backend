@@ -85,28 +85,28 @@ func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSal
 	}
 	defer transaction.Rollback()
 
-	sales, ok := ep.getSales(transaction, queryParameters)
-	if !ok {
+	sales, getSalesOk := ep.getSales(transaction, queryParameters)
+	if !getSalesOk {
 		return nil, false
 	}
 
-	saleCount, ok := ep.countSales(transaction)
-	if !ok {
+	saleCount, countSalesOk := ep.countSales(transaction)
+	if !countSalesOk {
 		return nil, false
 	}
 
-	totalSaleValue, ok := ep.getTotalSalesValue(transaction)
-	if !ok {
+	totalSaleValue, getTotalSalesValueOk := ep.getTotalSalesValue(transaction)
+	if !getTotalSalesValueOk {
 		return nil, false
 	}
 
-	itemCount, ok := ep.countItems(transaction)
-	if !ok {
+	itemCount, countItemsOk := ep.countItems(transaction)
+	if !countItemsOk {
 		return nil, false
 	}
 
-	distinctSoldItemCount, totalSoldItemCount, ok := ep.countSoldItems(transaction)
-	if !ok {
+	distinctSoldItemCount, totalSoldItemCount, countSoldItemsOk := ep.countSoldItems(transaction)
+	if !countSoldItemsOk {
 		return nil, false
 	}
 
