@@ -77,7 +77,7 @@ linters:
     - nolintlint
     # - nonamedreturns
     - nosprintfhostport
-    - paralleltest
+    # - paralleltest
     - perfsprint
     - prealloc
     - predeclared
