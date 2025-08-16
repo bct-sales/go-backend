@@ -45,9 +45,7 @@ type addSellerItemEndpoint struct {
 }
 
 func (ep *addSellerItemEndpoint) execute() {
-	if !ep.RoleId.IsSeller() {
-		ep.Logger.InvalidRequest("Blocked attempt to add item with wrong role")
-		failure_response.WrongRole(ep.Context, "Must be seller to add item")
+	if !ep.ensureUserIsSeller() {
 		return
 	}
 
@@ -146,4 +144,14 @@ func (ep *addSellerItemEndpoint) execute() {
 
 	response := AddSellerItemResponse{ItemId: itemId}
 	ep.Context.JSON(http.StatusCreated, response)
+}
+
+func (ep *addSellerItemEndpoint) ensureUserIsSeller() bool {
+	if !ep.RoleId.IsSeller() {
+		ep.Logger.InvalidRequest("Blocked attempt to add item with wrong role")
+		failure_response.WrongRole(ep.Context, "Must be seller to add item")
+		return false
+	}
+
+	return true
 }
