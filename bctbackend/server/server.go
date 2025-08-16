@@ -292,7 +292,7 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 			Clock:         clock,
 			Context:       context,
 			Configuration: configuration,
-			Database:      database,
+			Database:      rest.NewDatabaseWrapper(context, database),
 			UserId:        userId,
 			RoleId:        roleId,
 			Logger:        logger,

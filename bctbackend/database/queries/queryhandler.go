@@ -14,41 +14,46 @@ type DatabaseQuerier interface {
 }
 
 type ContextDatabaseQuerier struct {
-	database *sql.DB
-	context  context.Context
+	Database *sql.DB
+	Context  context.Context
 }
 
 func NewContextDatabaseQuerier(database *sql.DB, ctx context.Context) *ContextDatabaseQuerier {
 	return &ContextDatabaseQuerier{
-		database: database,
-		context:  ctx,
+		Database: database,
+		Context:  ctx,
 	}
 }
 
 func (c *ContextDatabaseQuerier) Exec(query string, args ...any) (sql.Result, error) {
-	return c.database.ExecContext(c.context, query, args...)
+	return c.Database.ExecContext(c.Context, query, args...)
 }
 
 func (c *ContextDatabaseQuerier) Query(query string, args ...any) (*sql.Rows, error) {
-	return c.database.QueryContext(c.context, query, args...)
+	return c.Database.QueryContext(c.Context, query, args...)
 }
 
 func (c *ContextDatabaseQuerier) QueryRow(query string, args ...any) *sql.Row {
-	return c.database.QueryRowContext(c.context, query, args...)
+	return c.Database.QueryRowContext(c.Context, query, args...)
 }
 
 type TransactionalDatabaseQuerier struct {
 	transaction *sql.Tx
+	context     context.Context
 	committed   bool
 }
 
-func NewTransactionDatabaseQuerier(db *sql.DB) (*TransactionalDatabaseQuerier, error) {
-	tx, err := db.Begin()
+func NewTransactionDatabaseQuerier(context context.Context, db *sql.DB) (*TransactionalDatabaseQuerier, error) {
+	transaction, err := db.BeginTx(context, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to start new transaction: %w", err)
 	}
 
-	querier := TransactionalDatabaseQuerier{transaction: tx, committed: false}
+	querier := TransactionalDatabaseQuerier{
+		transaction: transaction,
+		context:     context,
+		committed:   false,
+	}
 	return &querier, nil
 }
 
@@ -78,7 +83,7 @@ func (t *TransactionalDatabaseQuerier) Exec(query string, args ...any) (sql.Resu
 		slog.Warn("Exec called on already committed transaction")
 	}
 
-	return t.transaction.Exec(query, args...)
+	return t.transaction.ExecContext(t.context, query, args...)
 }
 
 func (t *TransactionalDatabaseQuerier) Query(query string, args ...any) (*sql.Rows, error) {
@@ -86,7 +91,7 @@ func (t *TransactionalDatabaseQuerier) Query(query string, args ...any) (*sql.Ro
 		slog.Warn("Query called on already committed transaction")
 	}
 
-	return t.transaction.Query(query, args...)
+	return t.transaction.QueryContext(t.context, query, args...)
 }
 
 func (t *TransactionalDatabaseQuerier) QueryRow(query string, args ...any) *sql.Row {
@@ -94,11 +99,11 @@ func (t *TransactionalDatabaseQuerier) QueryRow(query string, args ...any) *sql.
 		slog.Warn("QueryRow called on already committed transaction")
 	}
 
-	return t.transaction.QueryRow(query, args...)
+	return t.transaction.QueryRowContext(t.context, query, args...)
 }
 
-func WithTransaction[T any](db *sql.DB, fn func(transaction *TransactionalDatabaseQuerier) (T, error)) (T, error) {
-	transaction, err := NewTransactionDatabaseQuerier(db)
+func WithTransaction[T any](context context.Context, db *sql.DB, fn func(transaction *TransactionalDatabaseQuerier) (T, error)) (T, error) {
+	transaction, err := NewTransactionDatabaseQuerier(context, db)
 	if err != nil {
 		var dummy T
 		return dummy, err

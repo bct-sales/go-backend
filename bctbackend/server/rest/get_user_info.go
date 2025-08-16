@@ -8,7 +8,6 @@ import (
 	"bctbackend/server/failure_response"
 	"bctbackend/server/logger"
 	rest "bctbackend/server/shared"
-	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
@@ -106,7 +105,7 @@ type GetUserInformationEndpoint struct {
 	context  *gin.Context
 	userId   models.Id
 	roleId   models.RoleId
-	database *sql.DB
+	database Database
 }
 
 // @Summary Get information about a user

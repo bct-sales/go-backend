@@ -8,7 +8,6 @@ import (
 	"bctbackend/server/failure_response"
 	"bctbackend/server/logger"
 	rest "bctbackend/server/shared"
-	"database/sql"
 	"errors"
 	"net/http"
 
@@ -35,7 +34,7 @@ type GetSaleItemData struct {
 
 type getSaleInformationEndpoint struct {
 	context *gin.Context
-	db      *sql.DB
+	db      Database
 	userId  models.Id
 	roleId  models.RoleId
 	logger  logger.Logger

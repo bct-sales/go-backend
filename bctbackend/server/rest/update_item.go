@@ -90,7 +90,7 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 		return
 	}
 
-	transaction, err := queries.NewTransactionDatabaseQuerier(db)
+	transaction, err := db.StartTransaction()
 	if err != nil {
 		logger.InternalError("Failed to begin transaction for item update", "itemId", itemId, "error", err)
 		failure_response.Unknown(context, err.Error())

@@ -6,7 +6,6 @@ import (
 	"bctbackend/server/failure_response"
 	"bctbackend/server/logger"
 	rest "bctbackend/server/shared"
-	"database/sql"
 	"net/http"
 	"strconv"
 
@@ -59,7 +58,7 @@ func GetSales(arguments *HandlerFunctionArguments) {
 	endpoint.execute(arguments.Database)
 }
 
-func (ep *getSalesEndpoint) execute(database *sql.DB) {
+func (ep *getSalesEndpoint) execute(database Database) {
 	if !ep.ensureUserIsAdmin() {
 		return
 	}
@@ -77,8 +76,8 @@ func (ep *getSalesEndpoint) execute(database *sql.DB) {
 	ep.context.IndentedJSON(http.StatusOK, response)
 }
 
-func (ep *getSalesEndpoint) fetchData(database *sql.DB, queryParameters *getSalesQueryParameters) (*ListSalesSuccessResponse, bool) {
-	transaction, err := queries.NewTransactionDatabaseQuerier(database)
+func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSalesQueryParameters) (*ListSalesSuccessResponse, bool) {
+	transaction, err := database.StartTransaction()
 	if err != nil {
 		ep.logger.InternalError("Failed to create transaction", err)
 		failure_response.Unknown(ep.context, "Failed to create transaction: "+err.Error())

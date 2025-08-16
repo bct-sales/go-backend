@@ -9,7 +9,6 @@ import (
 	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
 	"bctbackend/server/logger"
-	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
@@ -46,7 +45,7 @@ type generateLabelsEndpoint struct {
 	context       *gin.Context
 	userId        models.Id
 	roleId        models.RoleId
-	database      *sql.DB
+	database      Database
 	logger        logger.Logger
 	configuration *configuration.Configuration
 }
@@ -188,8 +187,8 @@ func (endpoint *generateLabelsEndpoint) execute() {
 	)
 }
 
-func (endpoint *generateLabelsEndpoint) freezeItems(db *sql.DB, itemIds []models.Id) error {
-	transaction, err := queries.NewTransactionDatabaseQuerier(db)
+func (endpoint *generateLabelsEndpoint) freezeItems(db Database, itemIds []models.Id) error {
+	transaction, err := db.StartTransaction()
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
@@ -206,7 +205,7 @@ func (endpoint *generateLabelsEndpoint) freezeItems(db *sql.DB, itemIds []models
 	return nil
 }
 
-func (endpoint *generateLabelsEndpoint) collectLabelData(db *sql.DB, itemTable map[models.Id]*models.Item, itemIds []models.Id) ([]*pdf.LabelData, error) {
+func (endpoint *generateLabelsEndpoint) collectLabelData(db Database, itemTable map[models.Id]*models.Item, itemIds []models.Id) ([]*pdf.LabelData, error) {
 	createLabelData := func(itemId models.Id) (*pdf.LabelData, error) {
 		item, ok := itemTable[itemId]
 		if !ok {

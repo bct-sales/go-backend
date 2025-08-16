@@ -35,7 +35,7 @@ func GetItemInformation(arguments *HandlerFunctionArguments) {
 	context := arguments.Context
 	userId := arguments.UserId
 	roleId := arguments.RoleId
-	db := arguments.Database
+	database := arguments.Database
 	logger := arguments.Logger
 
 	var uriParameters struct {
@@ -54,7 +54,7 @@ func GetItemInformation(arguments *HandlerFunctionArguments) {
 		return
 	}
 
-	item, err := queries.GetItemWithId(db, itemId)
+	item, err := queries.GetItemWithId(database, itemId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
 			logger.InvalidRequest("Attempt to access a non-existing item", "itemId", itemId)
@@ -72,7 +72,7 @@ func GetItemInformation(arguments *HandlerFunctionArguments) {
 		return
 	}
 
-	soldIn, err := queries.GetSalesWithItem(db, itemId)
+	soldIn, err := queries.GetSalesWithItem(database, itemId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
 			logger.Bug("Unknown item; should have been caught earlier", "itemId", itemId)

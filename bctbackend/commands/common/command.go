@@ -5,6 +5,7 @@ import (
 	"bctbackend/database"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -68,7 +69,7 @@ func (c *Command) WithOpenedDatabase(fn func(db *sql.DB) error) (r_err error) {
 
 func (c *Command) WithTransaction(fn func(db *queries.TransactionalDatabaseQuerier) error) error {
 	return c.WithOpenedDatabase(func(db *sql.DB) (r_err error) {
-		transaction, err := queries.NewTransactionDatabaseQuerier(db)
+		transaction, err := queries.NewTransactionDatabaseQuerier(context.Background(), db)
 		if err != nil {
 			c.PrintErrorf("Failed to start transaction: %s\n", err.Error())
 			return &ErrCommand{wrapped: err}

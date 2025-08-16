@@ -38,7 +38,7 @@ func AddSale(arguments *HandlerFunctionArguments) {
 	database := arguments.Database
 	clock := arguments.Clock
 
-	transaction, err := queries.NewTransactionDatabaseQuerier(database)
+	transaction, err := database.StartTransaction()
 	if err != nil {
 		logger.InternalError("Failed to start transaction for AddSale", "error", err)
 		failure_response.Unknown(context, "Failed to start transaction: "+err.Error())
