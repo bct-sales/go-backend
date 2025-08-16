@@ -64,15 +64,9 @@ func (ep *generateLabelsEndpoint) execute() {
 		return
 	}
 
-	itemTable, err := queries.GetItemsWithIds(ep.Database, payload.ItemIds)
-	if err != nil {
-		if errors.Is(err, dberr.ErrNoSuchItem) {
-			ep.Logger.InvalidRequest("Blocked attempt at generating labels for non-existing items", "itemIds", payload.ItemIds, "userId", ep.UserId)
-			failure_response.UnknownItem(ep.Context, err.Error())
-			return
-		}
-
-		failure_response.Unknown(ep.Context, "Failed to fetch items: "+err.Error())
+	itemTable := ep.retrieveItemsFromDatabase(payload.ItemIds)
+	if itemTable == nil {
+		return
 	}
 
 	// Verify that all items belong to the active seller
@@ -276,4 +270,20 @@ func (ep *generateLabelsEndpoint) validatePayload(payload *GenerateLabelsPayload
 	}
 
 	return true
+}
+
+func (ep *generateLabelsEndpoint) retrieveItemsFromDatabase(itemIds []models.Id) map[models.Id]*models.Item {
+	itemTable, err := queries.GetItemsWithIds(ep.Database, itemIds)
+	if err != nil {
+		if errors.Is(err, dberr.ErrNoSuchItem) {
+			ep.Logger.InvalidRequest("Blocked attempt at generating labels for non-existing items", "itemIds", itemIds, "userId", ep.UserId)
+			failure_response.UnknownItem(ep.Context, err.Error())
+			return nil
+		}
+
+		failure_response.Unknown(ep.Context, "Failed to fetch items: "+err.Error())
+		return nil
+	}
+
+	return itemTable
 }
