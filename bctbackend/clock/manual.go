@@ -8,7 +8,7 @@ type ManualClock struct {
 }
 
 func NewManualClock(initialTime models.Timestamp) *ManualClock {
-	return &ManualClock{currentTime: initialTime}
+	return &ManualClock{currentTime: initialTime, tickers: nil}
 }
 
 func (c *ManualClock) NewTicker(duration int, callback func()) Ticker {
