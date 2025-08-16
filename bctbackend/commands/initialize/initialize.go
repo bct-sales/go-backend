@@ -36,9 +36,9 @@ func NewInitializeCommand() *cobra.Command {
 }
 
 func (c *InitializeCommand) execute() error {
-	copy := c.copySettings()
+	settingsCopy := c.copySettings()
 
-	if err := copy.SafeWriteConfig(); err != nil {
+	if err := settingsCopy.SafeWriteConfig(); err != nil {
 		c.Printf("Failed to create configuration file: %v\n", err)
 		return err
 	}
