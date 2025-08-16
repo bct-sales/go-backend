@@ -106,9 +106,7 @@ func (ep *generateLabelsEndpoint) execute() {
 	}
 
 	// Do this last, to ensure items are only frozen if the PDF was generated successfully
-	if err := ep.freezeItems(ep.Database, payload.ItemIds); err != nil {
-		ep.Logger.InternalError("Failed to freeze items", "error", err)
-		failure_response.Unknown(ep.Context, "Failed to freeze items: "+err.Error())
+	if !ep.freezeItems(ep.Database, payload.ItemIds) {
 		return
 	}
 
@@ -122,22 +120,28 @@ func (ep *generateLabelsEndpoint) execute() {
 	)
 }
 
-func (ep *generateLabelsEndpoint) freezeItems(db Database, itemIds []models.Id) error {
+func (ep *generateLabelsEndpoint) freezeItems(db Database, itemIds []models.Id) bool {
 	transaction, err := db.StartTransaction()
 	if err != nil {
-		return fmt.Errorf("failed to begin transaction: %w", err)
+		ep.Logger.InternalError("Failed to start transaction", "error", err)
+		failure_response.Unknown(ep.Context, "Failed to start transaction while freezing items: "+err.Error())
+		return false
 	}
 	defer transaction.Rollback()
 
 	if err := queries.UpdateFreezeStatusOfItems(transaction, itemIds, true); err != nil {
-		return fmt.Errorf("failed to freeze items: %w", err)
+		ep.Logger.InternalError("Failed to freeze items", "error", err)
+		failure_response.Unknown(ep.Context, "Failed to freeze items: "+err.Error())
+		return false
 	}
 
 	if err := transaction.Commit(); err != nil {
-		return fmt.Errorf("failed to commit transaction: %w", err)
+		ep.Logger.InternalError("Failed to commit transaction", "error", err)
+		failure_response.Unknown(ep.Context, "Failed to commit transaction while freezing items: "+err.Error())
+		return false
 	}
 
-	return nil
+	return true
 }
 
 func (ep *generateLabelsEndpoint) collectLabelData(db Database, itemTable map[models.Id]*models.Item, itemIds []models.Id) []*pdf.LabelData {
