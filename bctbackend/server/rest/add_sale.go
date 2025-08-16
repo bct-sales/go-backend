@@ -51,82 +51,83 @@ type addSaleEndpoint struct {
 }
 
 func (ep *addSaleEndpoint) execute() {
-	context := ep.context
-	userId := ep.userId
-	roleId := ep.roleId
-	logger := ep.logger
-	database := ep.database
-	clock := ep.clock
-
-	transaction, err := database.StartTransaction()
+	transaction, err := ep.database.StartTransaction()
 	if err != nil {
-		logger.InternalError("Failed to start transaction for AddSale", "error", err)
-		failure_response.Unknown(context, "Failed to start transaction: "+err.Error())
+		ep.logger.InternalError("Failed to start transaction for AddSale", "error", err)
+		failure_response.Unknown(ep.context, "Failed to start transaction: "+err.Error())
 		return
 	}
 	defer transaction.Rollback()
 
 	// Make sure user has the right role
-	if !roleId.IsCashier() {
-		logger.InvalidRequest("Blocked attempt to add sale with wrong role")
-		failure_response.WrongRole(context, "Adding sale is only accessible to cashiers")
+	if !ep.ensureIsCashier() {
 		return
 	}
 
 	// Fetch sale data
 	var payload AddSalePayload
-	if err := context.ShouldBindJSON(&payload); err != nil {
-		logger.InvalidInput("Failed to parse AddSale payload", "error", err, "payload", payload)
-		failure_response.InvalidRequest(context, "Failed to parse payload:"+err.Error())
+	if err := ep.context.ShouldBindJSON(&payload); err != nil {
+		ep.logger.InvalidInput("Failed to parse AddSale payload", "error", err, "payload", payload)
+		failure_response.InvalidRequest(ep.context, "Failed to parse payload:"+err.Error())
 		return
 	}
 
 	// Determine current time, which will be used as the sale timestamp
-	timestamp := clock.Now()
+	timestamp := ep.clock.Now()
 
 	// Add the sale to the database
 	saleId, err := queries.AddSale(
 		transaction,
-		userId,
+		ep.userId,
 		timestamp,
 		payload.Items,
 	)
 	if err != nil {
 		if errors.Is(err, dberr.ErrSaleMissingItems) {
-			logger.InvalidRequest("Blocked attempt to add sale with missing items")
-			failure_response.MissingItems(context, err.Error())
+			ep.logger.InvalidRequest("Blocked attempt to add sale with missing items")
+			failure_response.MissingItems(ep.context, err.Error())
 			return
 		}
 
 		if errors.Is(err, dberr.ErrDuplicateItemInSale) {
-			logger.InvalidRequest("Blocked attempt to add sale with duplicate items")
-			failure_response.DuplicateItemInSale(context, err.Error())
+			ep.logger.InvalidRequest("Blocked attempt to add sale with duplicate items")
+			failure_response.DuplicateItemInSale(ep.context, err.Error())
 			return
 		}
 
 		if errors.Is(err, dberr.ErrNoSuchItem) {
-			logger.InvalidRequest("Blocked attempt to add sale with unknown item; front end should prevent this")
-			failure_response.UnknownItem(context, err.Error())
+			ep.logger.InvalidRequest("Blocked attempt to add sale with unknown item; front end should prevent this")
+			failure_response.UnknownItem(ep.context, err.Error())
 			return
 		}
 
 		if errors.Is(err, dberr.ErrSaleRequiresCashier) {
-			logger.Bug("AddSale failed with ErrSaleRequiresCashier, but this should never occur as the role is checked before", "error", err)
-			failure_response.Unknown(context, "Bug: should never occur as this is checked before")
+			ep.logger.Bug("AddSale failed with ErrSaleRequiresCashier, but this should never occur as the role is checked before", "error", err)
+			failure_response.Unknown(ep.context, "Bug: should never occur as this is checked before")
 			return
 		}
 
-		logger.InternalError("Failed to add sale", "error", err)
-		failure_response.Unknown(context, "Failed to add sale: "+err.Error())
+		ep.logger.InternalError("Failed to add sale", "error", err)
+		failure_response.Unknown(ep.context, "Failed to add sale: "+err.Error())
 		return
 	}
 
 	if err := transaction.Commit(); err != nil {
-		logger.InternalError("Failed to commit transaction for AddSale", "error", err)
-		failure_response.Unknown(context, "Failed to commit transaction: "+err.Error())
+		ep.logger.InternalError("Failed to commit transaction for AddSale", "error", err)
+		failure_response.Unknown(ep.context, "Failed to commit transaction: "+err.Error())
 		return
 	}
 
 	response := AddSaleSuccessResponse{SaleId: saleId}
-	context.JSON(http.StatusCreated, response)
+	ep.context.JSON(http.StatusCreated, response)
+}
+
+func (ep *addSaleEndpoint) ensureIsCashier() bool {
+	if !ep.roleId.IsCashier() {
+		ep.logger.InvalidRequest("Blocked attempt to add sale with wrong role")
+		failure_response.WrongRole(ep.context, "Adding sale is only accessible to cashiers")
+		return false
+	}
+
+	return true
 }
