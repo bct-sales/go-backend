@@ -46,3 +46,13 @@ func NewDatabaseWrapper(ctx context.Context, db *sql.DB) *DatabaseWrapper {
 func (w *DatabaseWrapper) StartTransaction() (*queries.TransactionalDatabaseQuerier, error) {
 	return queries.NewTransactionDatabaseQuerier(w.Context, w.Database)
 }
+
+type endpoint struct {
+	context       *gin.Context
+	userId        models.Id
+	roleId        models.RoleId
+	database      Database
+	logger        logger.Logger
+	configuration *configuration.Configuration
+	clock         clock.Clock
+}
