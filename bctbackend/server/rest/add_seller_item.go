@@ -63,22 +63,8 @@ func (ep *addSellerItemEndpoint) execute() {
 		return
 	}
 
-	timestamp := ep.Clock.Now()
-	itemId, err := queries.AddItem(
-		ep.Database,
-		timestamp,
-		*payload.Description,
-		*payload.Price,
-		payload.CategoryId,
-		ep.UserId,
-		*payload.Donation,
-		*payload.Charity,
-		false,
-		false,
-	)
-
-	if err != nil {
-		ep.interpretError(err, payload)
+	itemId, ok := ep.addItemToDatabase(payload)
+	if !ok {
 		return
 	}
 
@@ -150,7 +136,7 @@ func (ep *addSellerItemEndpoint) parsePayload() *AddSellerItemPayload {
 	return &payload
 }
 
-func (ep *addSellerItemEndpoint) interpretError(err error, payload *AddSellerItemPayload) {
+func (ep *addSellerItemEndpoint) interpretDatabaseError(err error, payload *AddSellerItemPayload) {
 	if errors.Is(err, dberr.ErrNoSuchCategory) {
 		ep.Logger.InvalidRequest("Blocked attempt to add item with unknown category", "categoryId", payload.CategoryId)
 		failure_response.UnknownCategory(ep.Context, err.Error())
@@ -183,5 +169,27 @@ func (ep *addSellerItemEndpoint) interpretError(err error, payload *AddSellerIte
 
 	ep.Logger.InternalError("Failed to add seller item", "error", err)
 	failure_response.Unknown(ep.Context, err.Error())
-	return
+}
+
+func (ep *addSellerItemEndpoint) addItemToDatabase(payload *AddSellerItemPayload) (models.Id, bool) {
+	timestamp := ep.Clock.Now()
+	itemId, err := queries.AddItem(
+		ep.Database,
+		timestamp,
+		*payload.Description,
+		*payload.Price,
+		payload.CategoryId,
+		ep.UserId,
+		*payload.Donation,
+		*payload.Charity,
+		false,
+		false,
+	)
+
+	if err != nil {
+		ep.interpretDatabaseError(err, payload)
+		return 0, false
+	}
+
+	return itemId, true
 }
