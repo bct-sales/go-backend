@@ -97,35 +97,8 @@ func (ep *generateLabelsEndpoint) execute() {
 		return
 	}
 
-	layoutSettings, err := pdf.NewLayoutSettings(
-		pdf.WithPaperSize(
-			payload.Layout.PaperWidth,
-			payload.Layout.PaperHeight,
-		),
-		pdf.WithPaperMargins(
-			payload.Layout.PaperMargins.Top,
-			payload.Layout.PaperMargins.Right,
-			payload.Layout.PaperMargins.Bottom,
-			payload.Layout.PaperMargins.Left,
-		),
-		pdf.WithGridSize(payload.Layout.Columns, payload.Layout.Rows),
-		pdf.WithLabelMargins(
-			payload.Layout.LabelMargins.Top,
-			payload.Layout.LabelMargins.Right,
-			payload.Layout.LabelMargins.Bottom,
-			payload.Layout.LabelMargins.Left,
-		),
-		pdf.WithLabelPadding(
-			payload.Layout.LabelPadding.Top,
-			payload.Layout.LabelPadding.Right,
-			payload.Layout.LabelPadding.Bottom,
-			payload.Layout.LabelPadding.Left,
-		),
-		pdf.WithFontSize(payload.Layout.FontSize),
-	)
-	if err != nil {
-		ep.Logger.InvalidRequest("Invalid layout for label generation", "error", err)
-		failure_response.InvalidLayout(ep.Context, "Invalid label layout: "+err.Error())
+	layoutSettings := ep.createLayoutSettings(payload)
+	if layoutSettings == nil {
 		return
 	}
 
@@ -237,4 +210,40 @@ func (ep *generateLabelsEndpoint) generatePdf(labelData []*pdf.LabelData, layout
 	}
 
 	return buffer
+}
+
+func (ep *generateLabelsEndpoint) createLayoutSettings(payload GenerateLabelsPayload) *pdf.LayoutSettings {
+	layoutSettings, err := pdf.NewLayoutSettings(
+		pdf.WithPaperSize(
+			payload.Layout.PaperWidth,
+			payload.Layout.PaperHeight,
+		),
+		pdf.WithPaperMargins(
+			payload.Layout.PaperMargins.Top,
+			payload.Layout.PaperMargins.Right,
+			payload.Layout.PaperMargins.Bottom,
+			payload.Layout.PaperMargins.Left,
+		),
+		pdf.WithGridSize(payload.Layout.Columns, payload.Layout.Rows),
+		pdf.WithLabelMargins(
+			payload.Layout.LabelMargins.Top,
+			payload.Layout.LabelMargins.Right,
+			payload.Layout.LabelMargins.Bottom,
+			payload.Layout.LabelMargins.Left,
+		),
+		pdf.WithLabelPadding(
+			payload.Layout.LabelPadding.Top,
+			payload.Layout.LabelPadding.Right,
+			payload.Layout.LabelPadding.Bottom,
+			payload.Layout.LabelPadding.Left,
+		),
+		pdf.WithFontSize(payload.Layout.FontSize),
+	)
+	if err != nil {
+		ep.Logger.InvalidRequest("Invalid layout for label generation", "error", err)
+		failure_response.InvalidLayout(ep.Context, "Invalid label layout: "+err.Error())
+		return nil
+	}
+
+	return layoutSettings
 }
