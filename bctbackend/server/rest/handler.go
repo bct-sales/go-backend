@@ -36,7 +36,10 @@ type DatabaseWrapper struct {
 
 func NewDatabaseWrapper(ctx context.Context, db *sql.DB) *DatabaseWrapper {
 	return &DatabaseWrapper{
-		ContextDatabaseQuerier: *queries.NewContextDatabaseQuerier(db, ctx),
+		ContextDatabaseQuerier: queries.ContextDatabaseQuerier{
+			Database: db,
+			Context:  ctx,
+		},
 	}
 }
 
