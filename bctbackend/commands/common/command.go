@@ -36,30 +36,30 @@ type Command struct {
 	CobraCommand *cobra.Command
 }
 
-func (c *Command) PrintErrorf(formatString string, args ...any) {
-	fmt.Fprintf(c.CobraCommand.ErrOrStderr(), formatString, args...)
+func (command *Command) PrintErrorf(formatString string, args ...any) {
+	fmt.Fprintf(command.CobraCommand.ErrOrStderr(), formatString, args...)
 }
 
-func (c *Command) Printf(formatString string, args ...any) {
-	fmt.Fprintf(c.CobraCommand.OutOrStdout(), formatString, args...)
+func (command *Command) Printf(formatString string, args ...any) {
+	fmt.Fprintf(command.CobraCommand.OutOrStdout(), formatString, args...)
 }
 
-func (c *Command) WithOpenedDatabase(fn func(db *sql.DB) error) (r_err error) {
+func (command *Command) WithOpenedDatabase(fn func(db *sql.DB) error) (r_err error) {
 	databasePath, err := GetDatabasePath()
 	if err != nil {
-		c.PrintErrorf("Failed to get database path: %s\n", err.Error())
+		command.PrintErrorf("Failed to get database path: %s\n", err.Error())
 		return &ErrCommand{wrapped: err}
 	}
 
 	db, err := database.OpenDatabase(databasePath)
 	if err != nil {
-		c.PrintErrorf("Failed to open database %s\n", databasePath)
+		command.PrintErrorf("Failed to open database %s\n", databasePath)
 		return &ErrCommand{wrapped: err}
 	}
 
 	defer func() {
 		if err := db.Close(); err != nil {
-			c.PrintErrorf("Failed to close database %s\n", databasePath)
+			command.PrintErrorf("Failed to close database %s\n", databasePath)
 			r_err = errors.Join(r_err, err)
 		}
 	}()
@@ -67,11 +67,11 @@ func (c *Command) WithOpenedDatabase(fn func(db *sql.DB) error) (r_err error) {
 	return fn(db)
 }
 
-func (c *Command) WithTransaction(fn func(db *queries.TransactionalDatabaseQuerier) error) error {
-	return c.WithOpenedDatabase(func(db *sql.DB) (r_err error) {
+func (command *Command) WithTransaction(fn func(db *queries.TransactionalDatabaseQuerier) error) error {
+	return command.WithOpenedDatabase(func(db *sql.DB) (r_err error) {
 		transaction, err := queries.NewTransactionDatabaseQuerier(context.Background(), db)
 		if err != nil {
-			c.PrintErrorf("Failed to start transaction: %s\n", err.Error())
+			command.PrintErrorf("Failed to start transaction: %s\n", err.Error())
 			return &ErrCommand{wrapped: err}
 		}
 		defer transaction.Rollback()
@@ -88,59 +88,59 @@ func (c *Command) WithTransaction(fn func(db *queries.TransactionalDatabaseQueri
 	})
 }
 
-func (c *Command) AsCobraCommand() *cobra.Command {
-	return c.CobraCommand
+func (command *Command) AsCobraCommand() *cobra.Command {
+	return command.CobraCommand
 }
 
-func (c *Command) ParseItemId(str string) (models.Id, error) {
-	return c.parseId(str, "item")
+func (command *Command) ParseItemId(str string) (models.Id, error) {
+	return command.parseId(str, "item")
 }
 
-func (c *Command) ParseUserId(str string) (models.Id, error) {
-	return c.parseId(str, "user")
+func (command *Command) ParseUserId(str string) (models.Id, error) {
+	return command.parseId(str, "user")
 }
 
-func (c *Command) ParseSaleId(str string) (models.Id, error) {
-	return c.parseId(str, "sale")
+func (command *Command) ParseSaleId(str string) (models.Id, error) {
+	return command.parseId(str, "sale")
 }
 
-func (c *Command) ParseItemIds(str []string) ([]models.Id, error) {
-	return algorithms.MapError(str, c.ParseItemId)
+func (command *Command) ParseItemIds(str []string) ([]models.Id, error) {
+	return algorithms.MapError(str, command.ParseItemId)
 }
 
-func (c *Command) ParseUserIds(str []string) ([]models.Id, error) {
-	return algorithms.MapError(str, c.ParseUserId)
+func (command *Command) ParseUserIds(str []string) ([]models.Id, error) {
+	return algorithms.MapError(str, command.ParseUserId)
 }
 
-func (c *Command) ParseSaleIds(str []string) ([]models.Id, error) {
-	return algorithms.MapError(str, c.ParseSaleId)
+func (command *Command) ParseSaleIds(str []string) ([]models.Id, error) {
+	return algorithms.MapError(str, command.ParseSaleId)
 }
 
-func (c *Command) parseId(str string, idType string) (models.Id, error) {
+func (command *Command) parseId(str string, idType string) (models.Id, error) {
 	id, err := models.ParseId(str)
 
 	if err != nil {
-		c.PrintErrorf("Invalid %s ID: %s\n", idType, str)
+		command.PrintErrorf("Invalid %s ID: %s\n", idType, str)
 		return 0, err
 	}
 
 	return id, nil
 }
 
-func (c *Command) GetCategoryNameTable(db queries.DatabaseQuerier) (map[models.Id]string, error) {
+func (command *Command) GetCategoryNameTable(db queries.DatabaseQuerier) (map[models.Id]string, error) {
 	categoryNameTable, err := queries.GetCategoryNameTable(db)
 
 	if err != nil {
-		c.PrintErrorf("Failed to get category name table: %v\n", err)
+		command.PrintErrorf("Failed to get category name table: %v\n", err)
 		return nil, fmt.Errorf("failed to get category name table: %w", err)
 	}
 
 	return categoryNameTable, nil
 }
 
-func (c *Command) GetConfigurationInt(key string) (int, error) {
+func (command *Command) GetConfigurationInt(key string) (int, error) {
 	if !viper.IsSet(key) {
-		c.PrintErrorf("Configuration key '%s' is not set\n", key)
+		command.PrintErrorf("Configuration key '%s' is not set\n", key)
 		return 0, fmt.Errorf("configuration key '%s' is not set", key)
 	}
 
@@ -149,11 +149,11 @@ func (c *Command) GetConfigurationInt(key string) (int, error) {
 	return value, nil
 }
 
-func (c *Command) GetConfigurationString(key string) (string, error) {
+func (command *Command) GetConfigurationString(key string) (string, error) {
 	slog.Debug("GetConfigurationString", "key", key, "isSet", viper.IsSet(key))
 
 	if !viper.IsSet(key) {
-		c.PrintErrorf("Configuration key '%s' is not set\n", key)
+		command.PrintErrorf("Configuration key '%s' is not set\n", key)
 		return "", fmt.Errorf("configuration key '%s' is not set: %w", key, ErrMissingConfiguration)
 	}
 
@@ -162,9 +162,9 @@ func (c *Command) GetConfigurationString(key string) (string, error) {
 	return viper.GetString(key), nil
 }
 
-func (c *Command) GetConfigurationBool(key string) (bool, error) {
+func (command *Command) GetConfigurationBool(key string) (bool, error) {
 	if !viper.IsSet(key) {
-		c.PrintErrorf("Configuration key '%s' is not set\n", key)
+		command.PrintErrorf("Configuration key '%s' is not set\n", key)
 		return false, fmt.Errorf("configuration key '%s' is not set: %w", key, ErrMissingConfiguration)
 	}
 
