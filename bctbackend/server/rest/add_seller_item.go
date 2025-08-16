@@ -49,19 +49,8 @@ func (ep *addSellerItemEndpoint) execute() {
 		return
 	}
 
-	var uriParameters struct {
-		SellerId string `binding:"required" uri:"id"`
-	}
-	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
-		ep.Logger.InvalidInput("Failed to parse URI parameters", "error", err, "uriParameters", uriParameters)
-		failure_response.InvalidUriParameters(ep.Context, err.Error())
-		return
-	}
-
-	uriSellerId, err := models.ParseId(uriParameters.SellerId)
-	if err != nil {
-		ep.Logger.InvalidInput("Failed to parse seller ID from URI", "error", err, "sellerId", uriParameters.SellerId)
-		failure_response.InvalidUserId(ep.Context, err.Error())
+	uriSellerId, ok := ep.parseURI()
+	if !ok {
 		return
 	}
 
@@ -154,4 +143,24 @@ func (ep *addSellerItemEndpoint) ensureUserIsSeller() bool {
 	}
 
 	return true
+}
+
+func (ep *addSellerItemEndpoint) parseURI() (models.Id, bool) {
+	var uriParameters struct {
+		SellerId string `binding:"required" uri:"id"`
+	}
+	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
+		ep.Logger.InvalidInput("Failed to parse URI parameters", "error", err, "uriParameters", uriParameters)
+		failure_response.InvalidUriParameters(ep.Context, err.Error())
+		return 0, false
+	}
+
+	uriSellerId, err := models.ParseId(uriParameters.SellerId)
+	if err != nil {
+		ep.Logger.InvalidInput("Failed to parse seller ID from URI", "error", err, "sellerId", uriParameters.SellerId)
+		failure_response.InvalidUserId(ep.Context, err.Error())
+		return 0, false
+	}
+
+	return uriSellerId, true
 }
