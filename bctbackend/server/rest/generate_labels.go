@@ -55,10 +55,8 @@ func (ep *generateLabelsEndpoint) execute() {
 		return
 	}
 
-	var payload GenerateLabelsPayload
-	if err := ep.Context.ShouldBindJSON(&payload); err != nil {
-		ep.Logger.InvalidInput("Failed to parse payload for GenerateLabels endpoint", "error", err)
-		failure_response.InvalidRequest(ep.Context, "Failed to parse payload:"+err.Error())
+	payload := ep.parsePayload()
+	if payload == nil {
 		return
 	}
 
@@ -214,7 +212,7 @@ func (ep *generateLabelsEndpoint) generatePdf(labelData []*pdf.LabelData, layout
 	return buffer
 }
 
-func (ep *generateLabelsEndpoint) createLayoutSettings(payload GenerateLabelsPayload) *pdf.LayoutSettings {
+func (ep *generateLabelsEndpoint) createLayoutSettings(payload *GenerateLabelsPayload) *pdf.LayoutSettings {
 	layoutSettings, err := pdf.NewLayoutSettings(
 		pdf.WithPaperSize(
 			payload.Layout.PaperWidth,
@@ -258,4 +256,16 @@ func (ep *generateLabelsEndpoint) ensureUserIsSeller() bool {
 	}
 
 	return true
+}
+
+func (ep *generateLabelsEndpoint) parsePayload() *GenerateLabelsPayload {
+	var payload GenerateLabelsPayload
+
+	if err := ep.Context.ShouldBindJSON(&payload); err != nil {
+		ep.Logger.InvalidInput("Failed to parse payload for GenerateLabels endpoint", "error", err)
+		failure_response.InvalidRequest(ep.Context, "Failed to parse payload:"+err.Error())
+		return nil
+	}
+
+	return &payload
 }
