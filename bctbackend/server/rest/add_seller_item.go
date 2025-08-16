@@ -58,10 +58,8 @@ func (ep *addSellerItemEndpoint) execute() {
 		return
 	}
 
-	var payload AddSellerItemPayload
-	if err := ep.Context.ShouldBindJSON(&payload); err != nil {
-		ep.Logger.InvalidInput("Failed to parse AddSellerItem payload", "error", err, "payload", payload)
-		failure_response.InvalidRequest(ep.Context, err.Error())
+	payload := ep.parsePayload()
+	if payload == nil {
 		return
 	}
 
@@ -169,4 +167,16 @@ func (ep *addSellerItemEndpoint) ensureValidity(uriSellerId models.Id) bool {
 	}
 
 	return true
+}
+
+func (ep *addSellerItemEndpoint) parsePayload() *AddSellerItemPayload {
+	var payload AddSellerItemPayload
+
+	if err := ep.Context.ShouldBindJSON(&payload); err != nil {
+		ep.Logger.InvalidInput("Failed to parse AddSellerItem payload", "error", err, "payload", payload)
+		failure_response.InvalidRequest(ep.Context, err.Error())
+		return nil
+	}
+
+	return &payload
 }
