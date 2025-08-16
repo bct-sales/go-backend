@@ -14,7 +14,7 @@ func (c *SystemClock) Now() models.Timestamp {
 }
 
 func NewSystemClock() *SystemClock {
-	return &SystemClock{}
+	return &SystemClock{tickers: nil}
 }
 
 type SystemTicker struct {
