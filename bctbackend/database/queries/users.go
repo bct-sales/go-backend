@@ -13,7 +13,7 @@ import (
 // An ErrUserIdAlreadyInUse is returned if the user ID is already in use.
 // An ErrNoSuchRole is returned if the role ID is invalid.
 func AddUserWithId(
-	db DatabaseQuerier,
+	database DatabaseQuerier,
 	userId models.Id,
 	roleId models.RoleId,
 	createdAt models.Timestamp,
@@ -28,7 +28,7 @@ func AddUserWithId(
 		return fmt.Errorf("invalid role id %d: %w", roleId.Id, dberr.ErrNoSuchRole)
 	}
 
-	_, err := db.Exec(
+	_, err := database.Exec(
 		`
 			INSERT INTO users (user_id, role_id, created_at, last_activity, password)
 			VALUES ($1, $2, $3, $4, $5)
@@ -41,7 +41,7 @@ func AddUserWithId(
 	)
 
 	if err != nil {
-		userExists, err := UserWithIdExists(db, userId)
+		userExists, err := UserWithIdExists(database, userId)
 		if err != nil {
 			return err
 		}
@@ -95,7 +95,7 @@ func AddUser(
 
 type AddUsersCallback func(addUser func(userId models.Id, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string))
 
-func AddUsers(db DatabaseQuerier, callback AddUsersCallback) (r_err error) {
+func AddUsers(database DatabaseQuerier, callback AddUsersCallback) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -117,7 +117,7 @@ func AddUsers(db DatabaseQuerier, callback AddUsersCallback) (r_err error) {
 
 	query := `INSERT INTO users (user_id, role_id, created_at, last_activity, password) VALUES ` + strings.Join(valuesString, ",")
 
-	if _, err := db.Exec(query, arguments...); err != nil {
+	if _, err := database.Exec(query, arguments...); err != nil {
 		return err
 	}
 

@@ -51,20 +51,20 @@ func (command *Command) WithOpenedDatabase(callback func(db *sql.DB) error) (r_e
 		return &ErrCommand{wrapped: err}
 	}
 
-	db, err := database.OpenDatabase(databasePath)
+	database, err := database.OpenDatabase(databasePath)
 	if err != nil {
 		command.PrintErrorf("Failed to open database %s\n", databasePath)
 		return &ErrCommand{wrapped: err}
 	}
 
 	defer func() {
-		if err := db.Close(); err != nil {
+		if err := database.Close(); err != nil {
 			command.PrintErrorf("Failed to close database %s\n", databasePath)
 			r_err = errors.Join(r_err, err)
 		}
 	}()
 
-	return callback(db)
+	return callback(database)
 }
 
 func (command *Command) WithTransaction(callback func(db *queries.TransactionalDatabaseQuerier) error) error {

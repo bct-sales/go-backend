@@ -176,7 +176,7 @@ func GetCategoryNameTable(db DatabaseQuerier) (r_result map[models.Id]string, r_
 // CountItemsPerCategory retrieves the count of items in each category.
 // Returns a map where the keys are category IDs and the values are the counts of items in that category.
 // The itemSelection parameter allows filtering items based on specific criteria.
-func CountItemsPerCategory(db DatabaseQuerier, itemSelection ItemSelection) (r_counts map[models.Id]int, r_err error) {
+func CountItemsPerCategory(database DatabaseQuerier, itemSelection ItemSelection) (r_counts map[models.Id]int, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -190,7 +190,7 @@ func CountItemsPerCategory(db DatabaseQuerier, itemSelection ItemSelection) (r_c
 		GROUP BY item_categories.item_category_id
 	`, itemsTable)
 
-	rows, err := db.Query(query)
+	rows, err := database.Query(query)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get category counts: %w", err)
 	}
@@ -199,18 +199,18 @@ func CountItemsPerCategory(db DatabaseQuerier, itemSelection ItemSelection) (r_c
 	counts := make(map[models.Id]int)
 
 	for rows.Next() {
-		var id models.Id
+		var categoryId models.Id
 		var count int
 
 		err := rows.Scan(
-			&id,
+			&categoryId,
 			&count,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read row: %w", err)
 		}
 
-		counts[id] = count
+		counts[categoryId] = count
 	}
 
 	if err := rows.Err(); err != nil {

@@ -80,47 +80,47 @@ func OpenDatabase(path string) (*sql.DB, error) {
 	}
 
 	slog.Debug("Opening database file", slog.String("path", path))
-	db, err := connectToDatabase(path)
+	database, err := connectToDatabase(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 
 	slog.Debug("Enabling foreign keys constraints", slog.String("path", path))
-	if err := enableForeignKeysConstraints(db); err != nil {
+	if err := enableForeignKeysConstraints(database); err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 
 	slog.Debug("Setting journal mode", slog.String("path", path))
-	if _, err := db.Exec("PRAGMA journal_mode=WAL"); err != nil {
+	if _, err := database.Exec("PRAGMA journal_mode=WAL"); err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 
 	slog.Debug("Connected to database", slog.String("path", path))
-	return db, nil
+	return database, nil
 }
 
-func ResetDatabase(db *sql.DB) error {
-	if err := removeAllViews(db); err != nil {
+func ResetDatabase(database *sql.DB) error {
+	if err := removeAllViews(database); err != nil {
 		return err
 	}
 
-	if err := removeAllTables(db); err != nil {
+	if err := removeAllTables(database); err != nil {
 		return err
 	}
 
-	return InitializeDatabase(db)
+	return InitializeDatabase(database)
 }
 
-func InitializeDatabase(db *sql.DB) error {
-	if err := createTables(db); err != nil {
+func InitializeDatabase(database *sql.DB) error {
+	if err := createTables(database); err != nil {
 		return fmt.Errorf("failed to create tables: %w", err)
 	}
 
-	if err := createViews(db); err != nil {
+	if err := createViews(database); err != nil {
 		return fmt.Errorf("failed to create views: %w", err)
 	}
 
-	if err := populateTables(db); err != nil {
+	if err := populateTables(database); err != nil {
 		return fmt.Errorf("failed to populate tables: %w", err)
 	}
 
@@ -171,34 +171,34 @@ func dropView(db *sql.DB, view string) error {
 	return nil
 }
 
-func createTables(db *sql.DB) error {
+func createTables(database *sql.DB) error {
 	errs := []error{}
 
-	if err := createRoleTable(db); err != nil {
+	if err := createRoleTable(database); err != nil {
 		errs = append(errs, err)
 	}
 
-	if err := createUserTable(db); err != nil {
+	if err := createUserTable(database); err != nil {
 		errs = append(errs, err)
 	}
 
-	if err := createItemCategoryTable(db); err != nil {
+	if err := createItemCategoryTable(database); err != nil {
 		errs = append(errs, err)
 	}
 
-	if err := createItemTable(db); err != nil {
+	if err := createItemTable(database); err != nil {
 		errs = append(errs, err)
 	}
 
-	if err := createSaleTable(db); err != nil {
+	if err := createSaleTable(database); err != nil {
 		errs = append(errs, err)
 	}
 
-	if err := createSaleItemsTable(db); err != nil {
+	if err := createSaleItemsTable(database); err != nil {
 		errs = append(errs, err)
 	}
 
-	if err := createSessionTable(db); err != nil {
+	if err := createSessionTable(database); err != nil {
 		errs = append(errs, err)
 	}
 

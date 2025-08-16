@@ -7,13 +7,13 @@ import (
 type Id int64
 
 func ParseId(str string) (Id, error) {
-	id, err := strconv.ParseInt(str, 10, 64)
+	identifier, err := strconv.ParseInt(str, 10, 64)
 
 	if err != nil {
 		return 0, err
 	}
 
-	return Id(id), nil
+	return Id(identifier), nil
 }
 
 func (id Id) String() string {

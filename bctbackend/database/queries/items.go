@@ -49,23 +49,23 @@ func GetItems(db DatabaseQuerier, receiver func(*models.Item) error, itemSelecti
 
 	// Iterate over rows and call receiver function for each item
 	for rows.Next() {
-		var id models.Id
+		var itemID models.Id
 		var addedAt models.Timestamp
 		var description string
 		var priceInCents models.MoneyInCents
 		var itemCategoryId models.Id
-		var sellerId models.Id
+		var sellerID models.Id
 		var donation bool
 		var charity bool
 		var frozen bool
 		var hidden bool
 		err = rows.Scan(
-			&id,
+			&itemID,
 			&addedAt,
 			&description,
 			&priceInCents,
 			&itemCategoryId,
-			&sellerId,
+			&sellerID,
 			&donation,
 			&charity,
 			&frozen,
@@ -76,12 +76,12 @@ func GetItems(db DatabaseQuerier, receiver func(*models.Item) error, itemSelecti
 		}
 
 		item := models.Item{
-			ItemID:       id,
+			ItemID:       itemID,
 			AddedAt:      addedAt,
 			Description:  description,
 			PriceInCents: priceInCents,
 			CategoryID:   itemCategoryId,
-			SellerID:     sellerId,
+			SellerID:     sellerID,
 			Donation:     donation,
 			Charity:      charity,
 			Frozen:       frozen,
@@ -297,31 +297,31 @@ func GetItemsWithSaleCounts(db DatabaseQuerier, itemSelection ItemSelection, sel
 	itemsWithSaleCount := make([]*ItemWithSaleCount, 0)
 
 	for rows.Next() {
-		var id models.Id
+		var itemID models.Id
 		var addedAt models.Timestamp
 		var description string
 		var priceInCents models.MoneyInCents
-		var itemCategoryId models.Id
-		var sellerId models.Id
+		var itemCategoryID models.Id
+		var sellerID models.Id
 		var donation bool
 		var charity bool
 		var frozen bool
 		var hidden bool
 		var saleCount int
 
-		err = rows.Scan(&id, &addedAt, &description, &priceInCents, &itemCategoryId, &sellerId, &donation, &charity, &frozen, &hidden, &saleCount)
+		err = rows.Scan(&itemID, &addedAt, &description, &priceInCents, &itemCategoryID, &sellerID, &donation, &charity, &frozen, &hidden, &saleCount)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read row: %w", err)
 		}
 
 		itemWithSaleCount := ItemWithSaleCount{
 			Item: models.Item{
-				ItemID:       id,
+				ItemID:       itemID,
 				AddedAt:      addedAt,
 				Description:  description,
 				PriceInCents: priceInCents,
-				CategoryID:   itemCategoryId,
-				SellerID:     sellerId,
+				CategoryID:   itemCategoryID,
+				SellerID:     sellerID,
 				Donation:     donation,
 				Charity:      charity,
 				Frozen:       frozen,
@@ -390,24 +390,24 @@ func GetSellerItemsWithSaleCounts(db DatabaseQuerier, sellerId models.Id) (r_ite
 	itemsWithSaleCount := make([]*ItemWithSaleCount, 0)
 
 	for rows.Next() {
-		var id models.Id
+		var itemID models.Id
 		var addedAt models.Timestamp
 		var description string
 		var priceInCents models.MoneyInCents
 		var itemCategoryId models.Id
-		var sellerId models.Id
+		var sellerID models.Id
 		var donation bool
 		var charity bool
 		var frozen bool
 		var hidden bool
 		var saleCount int
 
-		err = rows.Scan(&id,
+		err = rows.Scan(&itemID,
 			&addedAt,
 			&description,
 			&priceInCents,
 			&itemCategoryId,
-			&sellerId,
+			&sellerID,
 			&donation,
 			&charity,
 			&frozen,
@@ -420,12 +420,12 @@ func GetSellerItemsWithSaleCounts(db DatabaseQuerier, sellerId models.Id) (r_ite
 
 		itemWithSaleCount := ItemWithSaleCount{
 			Item: models.Item{
-				ItemID:       id,
+				ItemID:       itemID,
 				AddedAt:      addedAt,
 				Description:  description,
 				PriceInCents: priceInCents,
 				CategoryID:   itemCategoryId,
-				SellerID:     sellerId,
+				SellerID:     sellerID,
 				Donation:     donation,
 				Charity:      charity,
 				Frozen:       frozen,
@@ -877,7 +877,7 @@ func UpdateHiddenStatusOfItems(transaction *TransactionalDatabaseQuerier, itemId
 	return nil
 }
 
-func partitionItemsBy(db DatabaseQuerier, itemIds []models.Id, columnName string) (*algorithms.Set[models.Id], *algorithms.Set[models.Id], error) {
+func partitionItemsBy(database DatabaseQuerier, itemIds []models.Id, columnName string) (*algorithms.Set[models.Id], *algorithms.Set[models.Id], error) {
 	query := fmt.Sprintf(`
 		SELECT
 			item_id,
@@ -888,7 +888,7 @@ func partitionItemsBy(db DatabaseQuerier, itemIds []models.Id, columnName string
 			item_id IN (%s)
 	`, columnName, placeholderString(len(itemIds)))
 	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
-	rows, err := db.Query(query, convertedItemIds...)
+	rows, err := database.Query(query, convertedItemIds...)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to query items: %w", err)
 	}
@@ -942,7 +942,7 @@ func PartitionItemsByFrozenStatus(db DatabaseQuerier, itemIds []models.Id) (r_no
 // ContainsHiddenItems checks if any of the given items are hidden.
 // It returns true if at least one item is hidden, and false otherwise.
 // It is not an error when nonexistent items are passed in, they are simply ignored.
-func ContainsHiddenItems(qh DatabaseQuerier, itemIds []models.Id) (r_result bool, r_err error) {
+func ContainsHiddenItems(database DatabaseQuerier, itemIds []models.Id) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -951,7 +951,7 @@ func ContainsHiddenItems(qh DatabaseQuerier, itemIds []models.Id) (r_result bool
 		return false, nil
 	}
 
-	_, hidden, err := PartitionItemsByHiddenStatus(qh, itemIds)
+	_, hidden, err := PartitionItemsByHiddenStatus(database, itemIds)
 	if err != nil {
 		return false, err
 	}
@@ -964,7 +964,7 @@ func ContainsHiddenItems(qh DatabaseQuerier, itemIds []models.Id) (r_result bool
 // ContainsFrozenItems checks if any of the given items are frozen.
 // It returns true if at least one item is frozen, and false otherwise.
 // It is not an error when nonexistent items are passed in, they are simply ignored.
-func ContainsFrozenItems(qh DatabaseQuerier, itemIds []models.Id) (r_result bool, r_err error) {
+func ContainsFrozenItems(database DatabaseQuerier, itemIds []models.Id) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -973,7 +973,7 @@ func ContainsFrozenItems(qh DatabaseQuerier, itemIds []models.Id) (r_result bool
 		return false, nil
 	}
 
-	_, frozen, err := PartitionItemsByFrozenStatus(qh, itemIds)
+	_, frozen, err := PartitionItemsByFrozenStatus(database, itemIds)
 	if err != nil {
 		return false, err
 	}

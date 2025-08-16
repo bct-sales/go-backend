@@ -50,7 +50,7 @@ func (c *InitializeDatabaseCommand) execute() (r_err error) {
 		return err
 	}
 
-	db, err := database.CreateDatabase(databasePath)
+	database, err := database.CreateDatabase(databasePath)
 
 	if err != nil {
 		if errors.Is(err, dberr.ErrDatabaseAlreadyExists) {
@@ -68,7 +68,7 @@ func (c *InitializeDatabaseCommand) execute() (r_err error) {
 	}
 
 	defer func() {
-		if err := db.Close(); err != nil {
+		if err := database.Close(); err != nil {
 			c.PrintErrorf("Failed to close database %s\n", databasePath)
 			r_err = errors.Join(r_err, err)
 		}
