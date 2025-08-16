@@ -51,9 +51,7 @@ func GenerateLabels(arguments *HandlerFunctionArguments) {
 }
 
 func (ep *generateLabelsEndpoint) execute() {
-	if !ep.RoleId.IsSeller() {
-		ep.Logger.InvalidRequest("Blocked attempt at generating labels by a user with the wrong role")
-		failure_response.WrongRole(ep.Context, "Only sellers can generate labels")
+	if !ep.ensureUserIsSeller() {
 		return
 	}
 
@@ -250,4 +248,14 @@ func (ep *generateLabelsEndpoint) createLayoutSettings(payload GenerateLabelsPay
 	}
 
 	return layoutSettings
+}
+
+func (ep *generateLabelsEndpoint) ensureUserIsSeller() bool {
+	if !ep.RoleId.IsSeller() {
+		ep.Logger.InvalidRequest("Blocked attempt at generating labels by a user with the wrong role")
+		failure_response.WrongRole(ep.Context, "Only sellers can generate labels")
+		return false
+	}
+
+	return true
 }
