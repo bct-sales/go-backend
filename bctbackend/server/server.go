@@ -111,6 +111,7 @@ func createLogger(configuration *configuration.LogConfiguration) (*LoggerResourc
 		writer = os.Stderr
 		loggerFile = nil
 	} else {
+		//exhaustruct:ignore
 		loggerFile := lumberjack.Logger{
 			Filename:   configuration.File,
 			MaxSize:    configuration.MaxSizeMegabytes,
