@@ -38,6 +38,7 @@ func AddSellerItem(arguments *HandlerFunctionArguments) {
 	roleId := arguments.RoleId
 	db := arguments.Database
 	logger := arguments.Logger
+	clock := arguments.Clock
 
 	if !roleId.IsSeller() {
 		logger.InvalidRequest("Blocked attempt to add item with wrong role")
@@ -88,7 +89,7 @@ func AddSellerItem(arguments *HandlerFunctionArguments) {
 		return
 	}
 
-	timestamp := arguments.Clock.Now()
+	timestamp := clock.Now()
 	itemId, err := queries.AddItem(
 		db,
 		timestamp,
