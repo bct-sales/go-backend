@@ -60,9 +60,7 @@ func (ep *generateLabelsEndpoint) execute() {
 		return
 	}
 
-	if len(payload.ItemIds) == 0 {
-		ep.Logger.InvalidRequest("Blocked attempt at generating labels for zero items", "userId", ep.UserId)
-		failure_response.MissingItems(ep.Context, "No items provided")
+	if !ep.validatePayload(payload) {
 		return
 	}
 
@@ -268,4 +266,14 @@ func (ep *generateLabelsEndpoint) parsePayload() *GenerateLabelsPayload {
 	}
 
 	return &payload
+}
+
+func (ep *generateLabelsEndpoint) validatePayload(payload *GenerateLabelsPayload) bool {
+	if len(payload.ItemIds) == 0 {
+		ep.Logger.InvalidRequest("Blocked attempt at generating labels for zero items", "userId", ep.UserId)
+		failure_response.MissingItems(ep.Context, "No items provided")
+		return false
+	}
+
+	return true
 }
