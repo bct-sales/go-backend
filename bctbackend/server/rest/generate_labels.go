@@ -6,16 +6,12 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/pdf"
-	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
-	"bctbackend/server/logger"
 	"errors"
 	"fmt"
 	"net/http"
 
 	"log/slog"
-
-	"github.com/gin-gonic/gin"
 )
 
 type Insets struct {
@@ -42,34 +38,24 @@ type GenerateLabelsPayload struct {
 }
 
 type generateLabelsEndpoint struct {
-	context       *gin.Context
-	userId        models.Id
-	roleId        models.RoleId
-	database      Database
-	logger        logger.Logger
-	configuration *configuration.Configuration
+	HandlerFunctionArguments
 }
 
 func GenerateLabels(arguments *HandlerFunctionArguments) {
 	endpoint := &generateLabelsEndpoint{
-		context:       arguments.Context,
-		userId:        arguments.UserId,
-		roleId:        arguments.RoleId,
-		database:      arguments.Database,
-		logger:        arguments.Logger,
-		configuration: arguments.Configuration,
+		HandlerFunctionArguments: *arguments,
 	}
 
 	endpoint.execute()
 }
 
 func (endpoint *generateLabelsEndpoint) execute() {
-	context := endpoint.context
-	userId := endpoint.userId
-	roleId := endpoint.roleId
-	db := endpoint.database
-	configuration := endpoint.configuration
-	logger := endpoint.logger
+	context := endpoint.Context
+	userId := endpoint.UserId
+	roleId := endpoint.RoleId
+	db := endpoint.Database
+	configuration := endpoint.Configuration
+	logger := endpoint.Logger
 
 	if !roleId.IsSeller() {
 		logger.InvalidRequest("Blocked attempt at generating labels by a user with the wrong role")
