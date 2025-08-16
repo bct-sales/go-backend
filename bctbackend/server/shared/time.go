@@ -20,14 +20,14 @@ func (t DateTime) String() string {
 }
 
 func ConvertTimestampToDateTime(unixTimestamp models.Timestamp) DateTime {
-	t := time.Unix(unixTimestamp.Int64(), 0)
+	unixTime := time.Unix(unixTimestamp.Int64(), 0)
 
 	return DateTime{
-		Year:   t.Year(),
-		Month:  int(t.Month()),
-		Day:    t.Day(),
-		Hour:   t.Hour(),
-		Minute: t.Minute(),
-		Second: t.Second(),
+		Year:   unixTime.Year(),
+		Month:  int(unixTime.Month()),
+		Day:    unixTime.Day(),
+		Hour:   unixTime.Hour(),
+		Minute: unixTime.Minute(),
+		Second: unixTime.Second(),
 	}
 }
