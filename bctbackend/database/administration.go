@@ -54,22 +54,22 @@ func CreateDatabase(path string) (*sql.DB, error) {
 	}
 
 	slog.Debug("Creating database file", slog.String("path", path))
-	db, err := connectToDatabase(path)
+	database, err := connectToDatabase(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create database: %w", err)
 	}
 
 	slog.Debug("Enabling foreign keys constraints", slog.String("path", path))
-	if err := enableForeignKeysConstraints(db); err != nil {
+	if err := enableForeignKeysConstraints(database); err != nil {
 		return nil, fmt.Errorf("failed to create database: %w", err)
 	}
 
 	slog.Debug("Setting journal mode", slog.String("path", path))
-	if err := setJournalMode(db); err != nil {
+	if err := setJournalMode(database); err != nil {
 		return nil, fmt.Errorf("failed to create database: %w", err)
 	}
 
-	return db, nil
+	return database, nil
 }
 
 func OpenDatabase(path string) (*sql.DB, error) {

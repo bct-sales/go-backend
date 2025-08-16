@@ -5,7 +5,7 @@ import (
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	viperlib "github.com/spf13/viper"
 )
 
 type InitializeCommand struct {
@@ -35,31 +35,31 @@ func NewInitializeCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *InitializeCommand) execute() error {
-	settingsCopy := c.copySettings()
+func (command *InitializeCommand) execute() error {
+	settingsCopy := command.copySettings()
 
 	if err := settingsCopy.SafeWriteConfig(); err != nil {
-		c.Printf("Failed to create configuration file: %v\n", err)
+		command.Printf("Failed to create configuration file: %v\n", err)
 		return err
 	}
 
-	c.Printf("Configuration file created successfully\n")
+	command.Printf("Configuration file created successfully\n")
 	return nil
 }
 
-func (c *InitializeCommand) copySettings() *viper.Viper {
-	v := viper.New()
+func (command *InitializeCommand) copySettings() *viperlib.Viper {
+	viper := viperlib.New()
 
-	v.SetConfigName("bctconfig")
-	v.SetConfigType("yaml")
-	v.AddConfigPath(".")
+	viper.SetConfigName("bctconfig")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
 
 	for key, value := range viper.AllSettings() {
 		// Skip the "config" key, it's a bit silly to have the config file reference itself
 		if key != "config" {
-			v.Set(key, value)
+			viper.Set(key, value)
 		}
 	}
 
-	return v
+	return viper
 }

@@ -44,7 +44,7 @@ func (command *Command) Printf(formatString string, args ...any) {
 	fmt.Fprintf(command.CobraCommand.OutOrStdout(), formatString, args...)
 }
 
-func (command *Command) WithOpenedDatabase(fn func(db *sql.DB) error) (r_err error) {
+func (command *Command) WithOpenedDatabase(callback func(db *sql.DB) error) (r_err error) {
 	databasePath, err := GetDatabasePath()
 	if err != nil {
 		command.PrintErrorf("Failed to get database path: %s\n", err.Error())
@@ -64,10 +64,10 @@ func (command *Command) WithOpenedDatabase(fn func(db *sql.DB) error) (r_err err
 		}
 	}()
 
-	return fn(db)
+	return callback(db)
 }
 
-func (command *Command) WithTransaction(fn func(db *queries.TransactionalDatabaseQuerier) error) error {
+func (command *Command) WithTransaction(callback func(db *queries.TransactionalDatabaseQuerier) error) error {
 	return command.WithOpenedDatabase(func(db *sql.DB) (r_err error) {
 		transaction, err := queries.NewTransactionDatabaseQuerier(context.Background(), db)
 		if err != nil {
@@ -76,7 +76,7 @@ func (command *Command) WithTransaction(fn func(db *queries.TransactionalDatabas
 		}
 		defer transaction.Rollback()
 
-		if err := fn(transaction); err != nil {
+		if err := callback(transaction); err != nil {
 			return fmt.Errorf("transaction failed: %w", err)
 		}
 
