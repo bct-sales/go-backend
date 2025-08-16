@@ -60,7 +60,7 @@ func (ep *addSaleEndpoint) execute() {
 	defer transaction.Rollback()
 
 	// Make sure user has the right role
-	if !ep.ensureIsCashier() {
+	if !ep.ensureUserIsCashier() {
 		return
 	}
 
@@ -122,7 +122,7 @@ func (ep *addSaleEndpoint) execute() {
 	ep.context.JSON(http.StatusCreated, response)
 }
 
-func (ep *addSaleEndpoint) ensureIsCashier() bool {
+func (ep *addSaleEndpoint) ensureUserIsCashier() bool {
 	if !ep.roleId.IsCashier() {
 		ep.logger.InvalidRequest("Blocked attempt to add sale with wrong role")
 		failure_response.WrongRole(ep.context, "Adding sale is only accessible to cashiers")
