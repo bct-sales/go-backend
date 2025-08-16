@@ -31,12 +31,32 @@ type AddSaleSuccessResponse struct {
 // @Failure 500 {object} failure_response.FailureResponse "Internal server error"
 // @Router /sales [post]
 func AddSale(arguments *HandlerFunctionArguments) {
-	context := arguments.Context
-	userId := arguments.UserId
-	roleId := arguments.RoleId
-	logger := arguments.Logger
-	database := arguments.Database
-	clock := arguments.Clock
+	endpoint := addSaleEndpoint{
+		endpoint: endpoint{
+			context:       arguments.Context,
+			userId:        arguments.UserId,
+			roleId:        arguments.RoleId,
+			database:      arguments.Database,
+			logger:        arguments.Logger,
+			configuration: arguments.Configuration,
+			clock:         arguments.Clock,
+		},
+	}
+
+	endpoint.execute()
+}
+
+type addSaleEndpoint struct {
+	endpoint
+}
+
+func (ep *addSaleEndpoint) execute() {
+	context := ep.context
+	userId := ep.userId
+	roleId := ep.roleId
+	logger := ep.logger
+	database := ep.database
+	clock := ep.clock
 
 	transaction, err := database.StartTransaction()
 	if err != nil {
