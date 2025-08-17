@@ -54,11 +54,10 @@ type listAllItemsEndpoint struct {
 }
 
 func (ep *listAllItemsEndpoint) execute() {
-	roleId := ep.RoleId
 	db := ep.Database
 	logger := ep.Logger
 
-	if roleId != models.NewAdminRoleId() {
+	if ep.RoleId != models.NewAdminRoleId() {
 		logger.InvalidRequest("Unauthorized access attempt to list all items")
 		failure_response.WrongRole(ep.Context, "Only admins can list all items")
 		return
