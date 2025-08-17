@@ -18,6 +18,9 @@ func connectToDatabase(path string) (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 
+	// Set the maximum number of idle connections to 1 to avoid issues with SQLite
+	db.SetMaxOpenConns(1)
+
 	return db, nil
 }
 
