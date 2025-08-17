@@ -147,7 +147,7 @@ func (ep *listAllItemsEndpoint) sendResponse(items []*models.Item, itemSelection
 	requestedFormat := ep.Context.Query("format")
 	switch requestedFormat {
 	case "":
-		ep.sendResponseAsHTTPResponse(items, itemSelection)
+		ep.sendResponseAsJSONResponse(items, itemSelection)
 
 	case "json":
 		ep.Context.Header("Content-Type", "application/json")
@@ -188,7 +188,7 @@ func (ep *listAllItemsEndpoint) sendResponse(items []*models.Item, itemSelection
 	}
 }
 
-func (ep *listAllItemsEndpoint) sendResponseAsHTTPResponse(items []*models.Item, itemSelection queries.ItemSelection) {
+func (ep *listAllItemsEndpoint) sendResponseAsJSONResponse(items []*models.Item, itemSelection queries.ItemSelection) {
 	itemsData := algorithms.Map(items, func(item *models.Item) GetItemsItemData {
 		return GetItemsItemData{
 			ItemId:       item.ItemID,
