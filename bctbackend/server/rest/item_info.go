@@ -23,6 +23,10 @@ type GetItemInformationSuccessResponse struct {
 	SoldIn       *[]models.Id        `binding:"required" json:"soldIn"`
 }
 
+type getItemInformationEndpoint struct {
+	HandlerFunctionArguments
+}
+
 // @Summary Get information about an item
 // @Description Get information about an item.
 // @Success 200 {object} GetItemInformationSuccessResponse
@@ -32,11 +36,18 @@ type GetItemInformationSuccessResponse struct {
 // @Failure 404 {object} failure_response.FailureResponse "Item not found"
 // @Router /items/{id} [get]
 func GetItemInformation(arguments *HandlerFunctionArguments) {
-	context := arguments.Context
-	userId := arguments.UserId
-	roleId := arguments.RoleId
-	database := arguments.Database
-	logger := arguments.Logger
+	endpoint := getItemInformationEndpoint{
+		HandlerFunctionArguments: *arguments,
+	}
+	endpoint.execute()
+}
+
+func (ep *getItemInformationEndpoint) execute() {
+	context := ep.Context
+	userId := ep.UserId
+	roleId := ep.RoleId
+	database := ep.Database
+	logger := ep.Logger
 
 	var uriParameters struct {
 		ItemId string `binding:"required" uri:"id"`
