@@ -41,11 +41,23 @@ type GetSellerItemsSuccessResponse struct {
 // @Failure 500 {object} failure_response.FailureResponse "Failed to fetch items"
 // @Router /seller/{seller_id}/items [get]
 func GetSellerItems(arguments *HandlerFunctionArguments) {
-	context := arguments.Context
-	userId := arguments.UserId
-	roleId := arguments.RoleId
-	db := arguments.Database
-	logger := arguments.Logger
+	endpoint := getSellerItemsEndpoint{
+		HandlerFunctionArguments: *arguments,
+	}
+
+	endpoint.execute()
+}
+
+type getSellerItemsEndpoint struct {
+	HandlerFunctionArguments
+}
+
+func (ep *getSellerItemsEndpoint) execute() {
+	context := ep.Context
+	userId := ep.UserId
+	roleId := ep.RoleId
+	db := ep.Database
+	logger := ep.Logger
 
 	if !roleId.IsSeller() && !roleId.IsAdmin() {
 		logger.InvalidRequest("User lacks permissions to access seller items")
