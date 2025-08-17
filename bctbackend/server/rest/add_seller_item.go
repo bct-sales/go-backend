@@ -68,7 +68,7 @@ func (ep *addSellerItemEndpoint) execute() {
 		return
 	}
 
-	ep.sendResponse(itemId)
+	ep.sendSuccessResponse(itemId)
 }
 
 func (ep *addSellerItemEndpoint) ensureUserIsSeller() bool {
@@ -193,7 +193,7 @@ func (ep *addSellerItemEndpoint) addItemToDatabase(payload *AddSellerItemPayload
 	return itemId, true
 }
 
-func (ep *addSellerItemEndpoint) sendResponse(itemId models.Id) {
+func (ep *addSellerItemEndpoint) sendSuccessResponse(itemId models.Id) {
 	response := AddSellerItemResponse{ItemId: itemId}
 	ep.Context.JSON(http.StatusCreated, response)
 }

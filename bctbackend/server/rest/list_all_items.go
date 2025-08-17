@@ -73,7 +73,7 @@ func (ep *listAllItemsEndpoint) execute() {
 		return
 	}
 
-	ep.sendResponse(items, itemSelection)
+	ep.sendSuccessResponse(items, itemSelection)
 }
 
 func (ep *listAllItemsEndpoint) ensureUserHasCorrectRole() bool {
@@ -143,11 +143,11 @@ func (ep *listAllItemsEndpoint) fetchItemsFromDatabase(itemSelection queries.Ite
 	return items, true
 }
 
-func (ep *listAllItemsEndpoint) sendResponse(items []*models.Item, itemSelection queries.ItemSelection) {
+func (ep *listAllItemsEndpoint) sendSuccessResponse(items []*models.Item, itemSelection queries.ItemSelection) {
 	requestedFormat := ep.Context.Query("format")
 	switch requestedFormat {
 	case "":
-		ep.sendResponseAsJSONResponse(items, itemSelection)
+		ep.sendResponseAsJSON(items, itemSelection)
 
 	case "json":
 		ep.sendResponseAsJSONFile(items)
@@ -160,7 +160,7 @@ func (ep *listAllItemsEndpoint) sendResponse(items []*models.Item, itemSelection
 	}
 }
 
-func (ep *listAllItemsEndpoint) sendResponseAsJSONResponse(items []*models.Item, itemSelection queries.ItemSelection) {
+func (ep *listAllItemsEndpoint) sendResponseAsJSON(items []*models.Item, itemSelection queries.ItemSelection) {
 	itemsData := algorithms.Map(items, func(item *models.Item) GetItemsItemData {
 		return GetItemsItemData{
 			ItemId:       item.ItemID,
