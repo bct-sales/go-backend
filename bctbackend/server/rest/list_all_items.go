@@ -54,10 +54,8 @@ type listAllItemsEndpoint struct {
 }
 
 func (ep *listAllItemsEndpoint) execute() {
-	logger := ep.Logger
-
 	if ep.RoleId != models.NewAdminRoleId() {
-		logger.InvalidRequest("Unauthorized access attempt to list all items")
+		ep.Logger.InvalidRequest("Unauthorized access attempt to list all items")
 		failure_response.WrongRole(ep.Context, "Only admins can list all items")
 		return
 	}
@@ -78,7 +76,7 @@ func (ep *listAllItemsEndpoint) execute() {
 		parsedLimit, err := strconv.Atoi(limitString)
 
 		if err != nil {
-			logger.InvalidInput("Failed to parse limit", "error", err, "limit", limitString)
+			ep.Logger.InvalidInput("Failed to parse limit", "error", err, "limit", limitString)
 			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Failed to parse limit: "+err.Error())
 			return
 		}
@@ -94,7 +92,7 @@ func (ep *listAllItemsEndpoint) execute() {
 		parsedOffset, err := strconv.Atoi(offsetString)
 
 		if err != nil {
-			logger.InvalidInput("Failed to parse offset", "error", err, "offset", offsetString)
+			ep.Logger.InvalidInput("Failed to parse offset", "error", err, "offset", offsetString)
 			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Failed to parse offset: "+err.Error())
 			return
 		}
@@ -108,7 +106,7 @@ func (ep *listAllItemsEndpoint) execute() {
 
 	items := []*models.Item{}
 	if err := queries.GetItems(ep.Database, queries.CollectTo(&items), itemSelection, rowSelection); err != nil {
-		logger.InternalError("Failed to get items", "error", err)
+		ep.Logger.InternalError("Failed to get items", "error", err)
 		failure_response.Unknown(ep.Context, "Failed to get items: "+err.Error())
 		return
 	}
@@ -131,7 +129,7 @@ func (ep *listAllItemsEndpoint) execute() {
 		})
 		itemCount, err := queries.CountItems(ep.Database, itemSelection)
 		if err != nil {
-			logger.InternalError("Failed to count items", "error", err)
+			ep.Logger.InternalError("Failed to count items", "error", err)
 			failure_response.Unknown(ep.Context, "Failed to count items: "+err.Error())
 			return
 		}
@@ -156,7 +154,7 @@ func (ep *listAllItemsEndpoint) execute() {
 	case "csv":
 		categoryNameTable, err := queries.GetCategoryNameTable(ep.Database)
 		if err != nil {
-			logger.InternalError("Failed to get category map", "error", err)
+			ep.Logger.InternalError("Failed to get category map", "error", err)
 			failure_response.Unknown(ep.Context, "Failed to get category map: "+err.Error())
 			return
 		}
@@ -168,7 +166,7 @@ func (ep *listAllItemsEndpoint) execute() {
 
 		buffer := new(bytes.Buffer)
 		if err := csv.FormatItemsAsCSV(items, categoryNameTable, buffer); err != nil {
-			logger.InternalError("Failed to format items as CSV", "error", err)
+			ep.Logger.InternalError("Failed to format items as CSV", "error", err)
 			failure_response.Unknown(ep.Context, "Failed to format items as CSV: "+err.Error())
 			return
 		}
@@ -177,7 +175,7 @@ func (ep *listAllItemsEndpoint) execute() {
 		return
 
 	default:
-		logger.InvalidInput("Unknown format requested", "format", requestedFormat)
+		ep.Logger.InvalidInput("Unknown format requested", "format", requestedFormat)
 		failure_response.Unknown(ep.Context, "Unknown format: "+requestedFormat)
 		return
 	}
