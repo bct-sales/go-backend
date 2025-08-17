@@ -34,32 +34,42 @@ type CategoryData struct {
 // @Failure 500 {object} failure_response.FailureResponse "Failed to fetch category counts"
 // @Router /categories [get]
 func ListCategories(arguments *HandlerFunctionArguments) {
-	context := arguments.Context
+	endpoint := listCategoriesEndpoint{
+		HandlerFunctionArguments: *arguments,
+	}
 
-	switch context.Query("counts") {
+	endpoint.execute()
+}
+
+type listCategoriesEndpoint struct {
+	HandlerFunctionArguments
+}
+
+func (ep *listCategoriesEndpoint) execute() {
+	switch ep.Context.Query("counts") {
 	case "all":
-		listCategoriesWithCounts(arguments, queries.AllItems)
+		ep.listCategoriesWithCounts(queries.AllItems)
 		return
 
 	case "hidden":
-		listCategoriesWithCounts(arguments, queries.OnlyHiddenItems)
+		ep.listCategoriesWithCounts(queries.OnlyHiddenItems)
 		return
 
 	case "visible":
-		listCategoriesWithCounts(arguments, queries.OnlyVisibleItems)
+		ep.listCategoriesWithCounts(queries.OnlyVisibleItems)
 		return
 
 	default:
-		listCategoriesWithoutCounts(arguments)
+		ep.listCategoriesWithoutCounts()
 		return
 	}
 }
 
-func listCategoriesWithCounts(arguments *HandlerFunctionArguments, itemSelection queries.ItemSelection) {
-	context := arguments.Context
-	db := arguments.Database
-	roleId := arguments.RoleId
-	logger := arguments.Logger
+func (ep *listCategoriesEndpoint) listCategoriesWithCounts(itemSelection queries.ItemSelection) {
+	context := ep.Context
+	db := ep.Database
+	roleId := ep.RoleId
+	logger := ep.Logger
 
 	if !roleId.IsAdmin() {
 		logger.InvalidRequest("Unauthorized access to category counts")
@@ -109,11 +119,11 @@ func listCategoriesWithCounts(arguments *HandlerFunctionArguments, itemSelection
 	context.IndentedJSON(http.StatusOK, response)
 }
 
-func listCategoriesWithoutCounts(arguments *HandlerFunctionArguments) {
-	context := arguments.Context
-	db := arguments.Database
-	roleId := arguments.RoleId
-	logger := arguments.Logger
+func (ep *listCategoriesEndpoint) listCategoriesWithoutCounts() {
+	context := ep.Context
+	db := ep.Database
+	roleId := ep.RoleId
+	logger := ep.Logger
 
 	if !roleId.IsAdmin() && !roleId.IsSeller() {
 		logger.InvalidRequest("Unauthorized access to category counts")
