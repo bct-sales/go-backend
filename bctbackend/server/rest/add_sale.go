@@ -69,8 +69,7 @@ func (ep *addSaleEndpoint) execute() {
 		return
 	}
 
-	response := AddSaleSuccessResponse{SaleId: saleId}
-	ep.Context.JSON(http.StatusCreated, response)
+	ep.sendResponse(saleId)
 }
 
 func (ep *addSaleEndpoint) ensureUserIsCashier() bool {
@@ -161,4 +160,9 @@ func (ep *addSaleEndpoint) EndTransaction(transaction *queries.TransactionalData
 	}
 
 	return true
+}
+
+func (ep *addSaleEndpoint) sendResponse(saleId models.Id) {
+	response := AddSaleSuccessResponse{SaleId: saleId}
+	ep.Context.JSON(http.StatusCreated, response)
 }
