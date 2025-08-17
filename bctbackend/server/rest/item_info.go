@@ -43,25 +43,22 @@ func GetItemInformation(arguments *HandlerFunctionArguments) {
 }
 
 func (ep *getItemInformationEndpoint) execute() {
-	context := ep.Context
-	userId := ep.UserId
-	roleId := ep.RoleId
 	database := ep.Database
 	logger := ep.Logger
 
 	var uriParameters struct {
 		ItemId string `binding:"required" uri:"id"`
 	}
-	if err := context.ShouldBindUri(&uriParameters); err != nil {
+	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
 		logger.InvalidInput("Failed to parse URI parameters", "error", err)
-		failure_response.InvalidUriParameters(context, "Invalid URI parameters: "+err.Error())
+		failure_response.InvalidUriParameters(ep.Context, "Invalid URI parameters: "+err.Error())
 		return
 	}
 
 	itemId, err := models.ParseId(uriParameters.ItemId)
 	if err != nil {
 		logger.InvalidInput("Failed to parse item ID", "error", err, "itemId", uriParameters.ItemId)
-		failure_response.InvalidItemId(context, err.Error())
+		failure_response.InvalidItemId(ep.Context, err.Error())
 		return
 	}
 
@@ -69,17 +66,17 @@ func (ep *getItemInformationEndpoint) execute() {
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
 			logger.InvalidRequest("Attempt to access a non-existing item", "itemId", itemId)
-			failure_response.UnknownItem(context, err.Error())
+			failure_response.UnknownItem(ep.Context, err.Error())
 			return
 		}
 
-		failure_response.Unknown(context, err.Error())
+		failure_response.Unknown(ep.Context, err.Error())
 		return
 	}
 
-	if item.SellerID != userId && roleId.IsSeller() {
+	if item.SellerID != ep.UserId && ep.RoleId.IsSeller() {
 		logger.InvalidRequest("Blocked attempt to access item not owned by the seller", "itemId", item.ItemID, "itemUserId", item.SellerID)
-		failure_response.WrongSeller(context, "Only the owning seller can access this item")
+		failure_response.WrongSeller(ep.Context, "Only the owning seller can access this item")
 		return
 	}
 
@@ -87,12 +84,12 @@ func (ep *getItemInformationEndpoint) execute() {
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
 			logger.Bug("Unknown item; should have been caught earlier", "itemId", itemId)
-			failure_response.Unknown(context, "Bug: this should be caught by the previous query")
+			failure_response.Unknown(ep.Context, "Bug: this should be caught by the previous query")
 			return
 		}
 
 		logger.InternalError("Failed to get sales for item", "error", err, "itemId", itemId)
-		failure_response.Unknown(context, err.Error())
+		failure_response.Unknown(ep.Context, err.Error())
 		return
 	}
 
@@ -109,5 +106,5 @@ func (ep *getItemInformationEndpoint) execute() {
 		SoldIn:       &soldIn,
 	}
 
-	context.JSON(http.StatusOK, response)
+	ep.Context.JSON(http.StatusOK, response)
 }
