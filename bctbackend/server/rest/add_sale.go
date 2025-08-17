@@ -43,7 +43,7 @@ type addSaleEndpoint struct {
 }
 
 func (ep *addSaleEndpoint) execute() {
-	transaction := ep.StartTransaction()
+	transaction := ep.startTransaction()
 	if transaction == nil {
 		return
 	}
@@ -140,7 +140,7 @@ func (ep *addSaleEndpoint) addSaleToDatabase(transaction *queries.TransactionalD
 	return saleId, true
 }
 
-func (ep *addSaleEndpoint) StartTransaction() *queries.TransactionalDatabaseQuerier {
+func (ep *addSaleEndpoint) startTransaction() *queries.TransactionalDatabaseQuerier {
 	transaction, err := ep.Database.StartTransaction()
 
 	if err != nil {
