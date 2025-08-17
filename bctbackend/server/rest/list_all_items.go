@@ -54,7 +54,6 @@ type listAllItemsEndpoint struct {
 }
 
 func (ep *listAllItemsEndpoint) execute() {
-	db := ep.Database
 	logger := ep.Logger
 
 	if ep.RoleId != models.NewAdminRoleId() {
@@ -108,7 +107,7 @@ func (ep *listAllItemsEndpoint) execute() {
 	rowSelection := queries.RowSelection(offset, limit)
 
 	items := []*models.Item{}
-	if err := queries.GetItems(db, queries.CollectTo(&items), itemSelection, rowSelection); err != nil {
+	if err := queries.GetItems(ep.Database, queries.CollectTo(&items), itemSelection, rowSelection); err != nil {
 		logger.InternalError("Failed to get items", "error", err)
 		failure_response.Unknown(ep.Context, "Failed to get items: "+err.Error())
 		return
@@ -130,7 +129,7 @@ func (ep *listAllItemsEndpoint) execute() {
 				Frozen:       item.Frozen,
 			}
 		})
-		itemCount, err := queries.CountItems(db, itemSelection)
+		itemCount, err := queries.CountItems(ep.Database, itemSelection)
 		if err != nil {
 			logger.InternalError("Failed to count items", "error", err)
 			failure_response.Unknown(ep.Context, "Failed to count items: "+err.Error())
@@ -155,7 +154,7 @@ func (ep *listAllItemsEndpoint) execute() {
 		return
 
 	case "csv":
-		categoryNameTable, err := queries.GetCategoryNameTable(db)
+		categoryNameTable, err := queries.GetCategoryNameTable(ep.Database)
 		if err != nil {
 			logger.InternalError("Failed to get category map", "error", err)
 			failure_response.Unknown(ep.Context, "Failed to get category map: "+err.Error())
