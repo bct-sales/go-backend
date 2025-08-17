@@ -76,21 +76,7 @@ func (ep *getSellerItemsEndpoint) execute() {
 		return
 	}
 
-	successResponse := GetSellerItemsSuccessResponse{Items: algorithms.Map(items, func(item *models.Item) *GetSellerItemsItemData {
-		return &GetSellerItemsItemData{
-			ItemId:       item.ItemID,
-			AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
-			Description:  item.Description,
-			PriceInCents: item.PriceInCents,
-			CategoryId:   item.CategoryID,
-			SellerId:     item.SellerID,
-			Donation:     item.Donation,
-			Charity:      item.Charity,
-			Frozen:       item.Frozen,
-		}
-	})}
-
-	ep.Context.IndentedJSON(http.StatusOK, successResponse)
+	ep.sendResponse(items)
 }
 
 func (ep *getSellerItemsEndpoint) ensureUserHasRightRole() bool {
@@ -176,4 +162,22 @@ func (ep *getSellerItemsEndpoint) fetchSellerItemsFromDatabase(queriedSellerId m
 	}
 
 	return items, true
+}
+
+func (ep *getSellerItemsEndpoint) sendResponse(items []*models.Item) {
+	successResponse := GetSellerItemsSuccessResponse{Items: algorithms.Map(items, func(item *models.Item) *GetSellerItemsItemData {
+		return &GetSellerItemsItemData{
+			ItemId:       item.ItemID,
+			AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
+			Description:  item.Description,
+			PriceInCents: item.PriceInCents,
+			CategoryId:   item.CategoryID,
+			SellerId:     item.SellerID,
+			Donation:     item.Donation,
+			Charity:      item.Charity,
+			Frozen:       item.Frozen,
+		}
+	})}
+
+	ep.Context.IndentedJSON(http.StatusOK, successResponse)
 }
