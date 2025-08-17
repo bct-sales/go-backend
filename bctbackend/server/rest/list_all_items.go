@@ -153,27 +153,7 @@ func (ep *listAllItemsEndpoint) sendResponse(items []*models.Item, itemSelection
 		ep.sendResponseAsJSONFile(items)
 
 	case "csv":
-		categoryNameTable, err := queries.GetCategoryNameTable(ep.Database)
-		if err != nil {
-			ep.Logger.InternalError("Failed to get category map", "error", err)
-			failure_response.Unknown(ep.Context, "Failed to get category map: "+err.Error())
-			return
-		}
-
-		ep.Context.Header("Content-Type", "text/csv")
-		ep.Context.Header("Content-Disposition", "attachment; filename=\"items.csv\"")
-		ep.Context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
-		ep.Context.Header("Pragma", "no-cache")
-
-		buffer := new(bytes.Buffer)
-		if err := csv.FormatItemsAsCSV(items, categoryNameTable, buffer); err != nil {
-			ep.Logger.InternalError("Failed to format items as CSV", "error", err)
-			failure_response.Unknown(ep.Context, "Failed to format items as CSV: "+err.Error())
-			return
-		}
-		string := buffer.String()
-		ep.Context.String(http.StatusOK, string)
-		return
+		ep.sendResponseAsCSVFile(items)
 
 	default:
 		ep.Logger.InvalidInput("Unknown format requested", "format", requestedFormat)
@@ -218,4 +198,27 @@ func (ep *listAllItemsEndpoint) sendResponseAsJSONFile(items []*models.Item) {
 	ep.Context.Header("Pragma", "no-cache")
 
 	ep.Context.IndentedJSON(http.StatusOK, items)
+}
+
+func (ep *listAllItemsEndpoint) sendResponseAsCSVFile(items []*models.Item) {
+	categoryNameTable, err := queries.GetCategoryNameTable(ep.Database)
+	if err != nil {
+		ep.Logger.InternalError("Failed to get category map", "error", err)
+		failure_response.Unknown(ep.Context, "Failed to get category map: "+err.Error())
+		return
+	}
+
+	ep.Context.Header("Content-Type", "text/csv")
+	ep.Context.Header("Content-Disposition", "attachment; filename=\"items.csv\"")
+	ep.Context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	ep.Context.Header("Pragma", "no-cache")
+
+	buffer := new(bytes.Buffer)
+	if err := csv.FormatItemsAsCSV(items, categoryNameTable, buffer); err != nil {
+		ep.Logger.InternalError("Failed to format items as CSV", "error", err)
+		failure_response.Unknown(ep.Context, "Failed to format items as CSV: "+err.Error())
+		return
+	}
+	string := buffer.String()
+	ep.Context.String(http.StatusOK, string)
 }
