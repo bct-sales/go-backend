@@ -63,21 +63,9 @@ func (ep *listAllItemsEndpoint) execute() {
 	if !limitOk {
 		return
 	}
-
-	var offset *int
-	offsetString := ep.Context.Query("offset")
-	if offsetString != "" {
-		parsedOffset, err := strconv.Atoi(offsetString)
-
-		if err != nil {
-			ep.Logger.InvalidInput("Failed to parse offset", "error", err, "offset", offsetString)
-			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Failed to parse offset: "+err.Error())
-			return
-		}
-
-		offset = &parsedOffset
-	} else {
-		offset = nil
+	offset, offsetOk := ep.parseOffsetQueryParameter()
+	if !offsetOk {
+		return
 	}
 
 	rowSelection := queries.RowSelection(offset, limit)
@@ -192,6 +180,23 @@ func (ep *listAllItemsEndpoint) parseLimitQueryParameter() (*int, bool) {
 		}
 
 		return &parsedLimit, true
+	} else {
+		return nil, true
+	}
+}
+
+func (ep *listAllItemsEndpoint) parseOffsetQueryParameter() (*int, bool) {
+	offsetString := ep.Context.Query("offset")
+	if offsetString != "" {
+		parsedOffset, err := strconv.Atoi(offsetString)
+
+		if err != nil {
+			ep.Logger.InvalidInput("Failed to parse offset", "error", err, "offset", offsetString)
+			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Failed to parse offset: "+err.Error())
+			return nil, false
+		}
+
+		return &parsedOffset, true
 	} else {
 		return nil, true
 	}
