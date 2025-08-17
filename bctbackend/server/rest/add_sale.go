@@ -43,10 +43,8 @@ type addSaleEndpoint struct {
 }
 
 func (ep *addSaleEndpoint) execute() {
-	transaction, err := ep.Database.StartTransaction()
-	if err != nil {
-		ep.Logger.InternalError("Failed to start transaction for AddSale", "error", err)
-		failure_response.Unknown(ep.Context, "Failed to start transaction: "+err.Error())
+	transaction := ep.StartTransaction()
+	if transaction == nil {
 		return
 	}
 	defer transaction.Rollback()
@@ -67,9 +65,7 @@ func (ep *addSaleEndpoint) execute() {
 		return
 	}
 
-	if err := transaction.Commit(); err != nil {
-		ep.Logger.InternalError("Failed to commit transaction for AddSale", "error", err)
-		failure_response.Unknown(ep.Context, "Failed to commit transaction: "+err.Error())
+	if !ep.EndTransaction(transaction) {
 		return
 	}
 
@@ -143,4 +139,26 @@ func (ep *addSaleEndpoint) addSaleToDatabase(transaction *queries.TransactionalD
 	}
 
 	return saleId, true
+}
+
+func (ep *addSaleEndpoint) StartTransaction() *queries.TransactionalDatabaseQuerier {
+	transaction, err := ep.Database.StartTransaction()
+
+	if err != nil {
+		ep.Logger.InternalError("Failed to start transaction for AddSale", "error", err)
+		failure_response.Unknown(ep.Context, "Failed to start transaction: "+err.Error())
+		return nil
+	}
+
+	return transaction
+}
+
+func (ep *addSaleEndpoint) EndTransaction(transaction *queries.TransactionalDatabaseQuerier) bool {
+	if err := transaction.Commit(); err != nil {
+		ep.Logger.InternalError("Failed to commit transaction for AddSale", "error", err)
+		failure_response.Unknown(ep.Context, "Failed to commit transaction: "+err.Error())
+		return false
+	}
+
+	return true
 }
