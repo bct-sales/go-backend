@@ -53,7 +53,6 @@ type getSellerItemsEndpoint struct {
 }
 
 func (ep *getSellerItemsEndpoint) execute() {
-	db := ep.Database
 	logger := ep.Logger
 
 	if !ep.RoleId.IsSeller() && !ep.RoleId.IsAdmin() {
@@ -78,7 +77,7 @@ func (ep *getSellerItemsEndpoint) execute() {
 		return
 	}
 
-	if err := queries.EnsureUserExistsAndHasRole(db, uriSellerId, models.NewSellerRoleId()); err != nil {
+	if err := queries.EnsureUserExistsAndHasRole(ep.Database, uriSellerId, models.NewSellerRoleId()); err != nil {
 		if errors.Is(err, dberr.ErrNoSuchUser) {
 			logger.InvalidRequest("Seller does not exist", "error", err, "sellerId", uriSellerId)
 			failure_response.UnknownUser(ep.Context, err.Error())
@@ -112,7 +111,7 @@ func (ep *getSellerItemsEndpoint) execute() {
 		itemSelection = queries.OnlyVisibleItems
 	}
 
-	items, err := queries.GetSellerItems(db, uriSellerId, itemSelection)
+	items, err := queries.GetSellerItems(ep.Database, uriSellerId, itemSelection)
 	if err != nil {
 		logger.InternalError("Could not retrieve seller items", "error", err, "sellerId", uriSellerId)
 		failure_response.Unknown(ep.Context, "Could not retrieve seller items: "+err.Error())
