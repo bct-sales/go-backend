@@ -53,7 +53,7 @@ type getSellerItemsEndpoint struct {
 }
 
 func (ep *getSellerItemsEndpoint) execute() {
-	if !ep.EnsureUserHasPermissions() {
+	if !ep.ensureUserHasPermissions() {
 		return
 	}
 
@@ -120,7 +120,7 @@ func (ep *getSellerItemsEndpoint) execute() {
 	ep.Context.IndentedJSON(http.StatusOK, successResponse)
 }
 
-func (ep *getSellerItemsEndpoint) EnsureUserHasPermissions() bool {
+func (ep *getSellerItemsEndpoint) ensureUserHasPermissions() bool {
 	if !ep.RoleId.IsSeller() && !ep.RoleId.IsAdmin() {
 		ep.Logger.InvalidRequest("User lacks permissions to access seller items")
 		failure_response.Forbidden(ep.Context, "wrong_role", "Only accessible to sellers and admins")
