@@ -19,7 +19,7 @@ jobs:
       run: go install github.com/swaggo/swag/cmd/swag@latest
 
     - name: Swagger
-      run: cd bctbackend && swag init -g server/main.go
+      run: cd bctbackend && swag init -g server/server.go
 
     - name: Build
       run: cd bctbackend && go build -v ./...
