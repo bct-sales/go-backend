@@ -19,10 +19,10 @@ jobs:
       run: go install github.com/swaggo/swag/cmd/swag@latest
 
     - name: Swagger
-      run: cd bctbackend && swag init -g server/server.go
+      run: swag init -g server/server.go
 
     - name: Build
-      run: cd bctbackend && go build -v ./...
+      run: go build -v ./...
 
     - name: Run GoReleaser
       uses: goreleaser/goreleaser-action@v6
