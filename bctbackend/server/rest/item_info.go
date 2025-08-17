@@ -43,20 +43,18 @@ func GetItemInformation(arguments *HandlerFunctionArguments) {
 }
 
 func (ep *getItemInformationEndpoint) execute() {
-	logger := ep.Logger
-
 	var uriParameters struct {
 		ItemId string `binding:"required" uri:"id"`
 	}
 	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
-		logger.InvalidInput("Failed to parse URI parameters", "error", err)
+		ep.Logger.InvalidInput("Failed to parse URI parameters", "error", err)
 		failure_response.InvalidUriParameters(ep.Context, "Invalid URI parameters: "+err.Error())
 		return
 	}
 
 	itemId, err := models.ParseId(uriParameters.ItemId)
 	if err != nil {
-		logger.InvalidInput("Failed to parse item ID", "error", err, "itemId", uriParameters.ItemId)
+		ep.Logger.InvalidInput("Failed to parse item ID", "error", err, "itemId", uriParameters.ItemId)
 		failure_response.InvalidItemId(ep.Context, err.Error())
 		return
 	}
@@ -64,7 +62,7 @@ func (ep *getItemInformationEndpoint) execute() {
 	item, err := queries.GetItemWithId(ep.Database, itemId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
-			logger.InvalidRequest("Attempt to access a non-existing item", "itemId", itemId)
+			ep.Logger.InvalidRequest("Attempt to access a non-existing item", "itemId", itemId)
 			failure_response.UnknownItem(ep.Context, err.Error())
 			return
 		}
@@ -74,7 +72,7 @@ func (ep *getItemInformationEndpoint) execute() {
 	}
 
 	if item.SellerID != ep.UserId && ep.RoleId.IsSeller() {
-		logger.InvalidRequest("Blocked attempt to access item not owned by the seller", "itemId", item.ItemID, "itemUserId", item.SellerID)
+		ep.Logger.InvalidRequest("Blocked attempt to access item not owned by the seller", "itemId", item.ItemID, "itemUserId", item.SellerID)
 		failure_response.WrongSeller(ep.Context, "Only the owning seller can access this item")
 		return
 	}
@@ -82,12 +80,12 @@ func (ep *getItemInformationEndpoint) execute() {
 	soldIn, err := queries.GetSalesWithItem(ep.Database, itemId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
-			logger.Bug("Unknown item; should have been caught earlier", "itemId", itemId)
+			ep.Logger.Bug("Unknown item; should have been caught earlier", "itemId", itemId)
 			failure_response.Unknown(ep.Context, "Bug: this should be caught by the previous query")
 			return
 		}
 
-		logger.InternalError("Failed to get sales for item", "error", err, "itemId", itemId)
+		ep.Logger.InternalError("Failed to get sales for item", "error", err, "itemId", itemId)
 		failure_response.Unknown(ep.Context, err.Error())
 		return
 	}
