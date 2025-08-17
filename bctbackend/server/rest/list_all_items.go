@@ -156,9 +156,7 @@ func (ep *listAllItemsEndpoint) sendResponse(items []*models.Item, itemSelection
 		ep.sendResponseAsCSVFile(items)
 
 	default:
-		ep.Logger.InvalidInput("Unknown format requested", "format", requestedFormat)
-		failure_response.Unknown(ep.Context, "Unknown format: "+requestedFormat)
-		return
+		ep.handleInvalidFormat(requestedFormat)
 	}
 }
 
@@ -221,4 +219,9 @@ func (ep *listAllItemsEndpoint) sendResponseAsCSVFile(items []*models.Item) {
 	}
 	string := buffer.String()
 	ep.Context.String(http.StatusOK, string)
+}
+
+func (ep *listAllItemsEndpoint) handleInvalidFormat(requestedFormat string) {
+	ep.Logger.InvalidInput("Unknown format requested", "format", requestedFormat)
+	failure_response.Unknown(ep.Context, "Unknown format: "+requestedFormat)
 }
