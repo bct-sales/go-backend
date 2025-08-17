@@ -71,11 +71,8 @@ func (ep *getSellerItemsEndpoint) execute() {
 
 	itemSelection := ep.extractItemSelectionFromQueryParameters()
 
-	
-	items, err := queries.GetSellerItems(ep.Database, queriedSellerId, itemSelection)
-	if err != nil {
-		ep.Logger.InternalError("Could not retrieve seller items", "error", err, "sellerId", queriedSellerId)
-		failure_response.Unknown(ep.Context, "Could not retrieve seller items: "+err.Error())
+	items, itemsOk := ep.fetchSellerItemsFromDatabase(queriedSellerId, itemSelection)
+	if !itemsOk {
 		return
 	}
 
@@ -167,4 +164,16 @@ func (ep *getSellerItemsEndpoint) extractItemSelectionFromQueryParameters() quer
 	default:
 		return queries.OnlyVisibleItems
 	}
+}
+
+func (ep *getSellerItemsEndpoint) fetchSellerItemsFromDatabase(queriedSellerId models.Id, itemSelection queries.ItemSelection) ([]*models.Item, bool) {
+	items, err := queries.GetSellerItems(ep.Database, queriedSellerId, itemSelection)
+
+	if err != nil {
+		ep.Logger.InternalError("Could not retrieve seller items", "error", err, "queriedSellerId", queriedSellerId)
+		failure_response.Unknown(ep.Context, "Could not retrieve seller items: "+err.Error())
+		return nil, false
+	}
+
+	return items, true
 }
