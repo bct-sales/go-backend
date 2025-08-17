@@ -67,13 +67,10 @@ func (ep *listAllItemsEndpoint) execute() {
 	if !offsetOk {
 		return
 	}
-
 	rowSelection := queries.RowSelection(offset, limit)
 
-	items := []*models.Item{}
-	if err := queries.GetItems(ep.Database, queries.CollectTo(&items), itemSelection, rowSelection); err != nil {
-		ep.Logger.InternalError("Failed to get items", "error", err)
-		failure_response.Unknown(ep.Context, "Failed to get items: "+err.Error())
+	items, itemsOk := ep.fetchItemsFromDatabase(itemSelection, rowSelection)
+	if !itemsOk {
 		return
 	}
 
@@ -200,4 +197,16 @@ func (ep *listAllItemsEndpoint) parseOffsetQueryParameter() (*int, bool) {
 	} else {
 		return nil, true
 	}
+}
+
+func (ep *listAllItemsEndpoint) fetchItemsFromDatabase(itemSelection queries.ItemSelection, rowSelection queries.SQLOption) ([]*models.Item, bool) {
+	items := []*models.Item{}
+
+	if err := queries.GetItems(ep.Database, queries.CollectTo(&items), itemSelection, rowSelection); err != nil {
+		ep.Logger.InternalError("Failed to get items", "error", err)
+		failure_response.Unknown(ep.Context, "Failed to get items: "+err.Error())
+		return nil, false
+	}
+
+	return items, true
 }
