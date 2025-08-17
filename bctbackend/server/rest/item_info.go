@@ -57,16 +57,8 @@ func (ep *getItemInformationEndpoint) execute() {
 		return
 	}
 
-	soldIn, err := queries.GetSalesWithItem(ep.Database, itemId)
-	if err != nil {
-		if errors.Is(err, dberr.ErrNoSuchItem) {
-			ep.Logger.Bug("Unknown item; should have been caught earlier", "itemId", itemId)
-			failure_response.Unknown(ep.Context, "Bug: this should be caught by the previous query")
-			return
-		}
-
-		ep.Logger.InternalError("Failed to get sales for item", "error", err, "itemId", itemId)
-		failure_response.Unknown(ep.Context, err.Error())
+	salesIncludingItem, findSalesOk := ep.findSalesIncludingItem(itemId)
+	if !findSalesOk {
 		return
 	}
 
@@ -80,7 +72,7 @@ func (ep *getItemInformationEndpoint) execute() {
 		Charity:      &item.Charity,
 		Donation:     &item.Donation,
 		Frozen:       &item.Frozen,
-		SoldIn:       &soldIn,
+		SoldIn:       &salesIncludingItem,
 	}
 
 	ep.Context.JSON(http.StatusOK, response)
@@ -131,4 +123,21 @@ func (ep *getItemInformationEndpoint) ensureQueryAllowed(item *models.Item) bool
 	}
 
 	return true
+}
+
+func (ep *getItemInformationEndpoint) findSalesIncludingItem(itemId models.Id) ([]models.Id, bool) {
+	soldIn, err := queries.GetSalesWithItem(ep.Database, itemId)
+	if err != nil {
+		if errors.Is(err, dberr.ErrNoSuchItem) {
+			ep.Logger.Bug("Unknown item; should have been caught earlier", "itemId", itemId)
+			failure_response.Unknown(ep.Context, "Bug: this should be caught by the previous query")
+			return nil, false
+		}
+
+		ep.Logger.InternalError("Failed to get sales for item", "error", err, "itemId", itemId)
+		failure_response.Unknown(ep.Context, err.Error())
+		return nil, false
+	}
+
+	return soldIn, true
 }
