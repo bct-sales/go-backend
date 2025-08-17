@@ -43,7 +43,6 @@ func GetItemInformation(arguments *HandlerFunctionArguments) {
 }
 
 func (ep *getItemInformationEndpoint) execute() {
-	database := ep.Database
 	logger := ep.Logger
 
 	var uriParameters struct {
@@ -62,7 +61,7 @@ func (ep *getItemInformationEndpoint) execute() {
 		return
 	}
 
-	item, err := queries.GetItemWithId(database, itemId)
+	item, err := queries.GetItemWithId(ep.Database, itemId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
 			logger.InvalidRequest("Attempt to access a non-existing item", "itemId", itemId)
@@ -80,7 +79,7 @@ func (ep *getItemInformationEndpoint) execute() {
 		return
 	}
 
-	soldIn, err := queries.GetSalesWithItem(database, itemId)
+	soldIn, err := queries.GetSalesWithItem(ep.Database, itemId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
 			logger.Bug("Unknown item; should have been caught earlier", "itemId", itemId)
