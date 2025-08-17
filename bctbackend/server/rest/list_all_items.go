@@ -42,10 +42,22 @@ type GetItemsSuccessResponse struct {
 // @Failure 500 {object} failure_response.FailureResponse "Failed to fetch items"
 // @Router /items [get]
 func ListAllItems(arguments *HandlerFunctionArguments) {
-	context := arguments.Context
-	roleId := arguments.RoleId
-	db := arguments.Database
-	logger := arguments.Logger
+	endpoint := &listAllItemsEndpoint{
+		HandlerFunctionArguments: *arguments,
+	}
+
+	endpoint.execute()
+}
+
+type listAllItemsEndpoint struct {
+	HandlerFunctionArguments
+}
+
+func (ep *listAllItemsEndpoint) execute() {
+	context := ep.Context
+	roleId := ep.RoleId
+	db := ep.Database
+	logger := ep.Logger
 
 	if roleId != models.NewAdminRoleId() {
 		logger.InvalidRequest("Unauthorized access attempt to list all items")
