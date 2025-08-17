@@ -53,10 +53,8 @@ type getSellerItemsEndpoint struct {
 }
 
 func (ep *getSellerItemsEndpoint) execute() {
-	logger := ep.Logger
-
 	if !ep.RoleId.IsSeller() && !ep.RoleId.IsAdmin() {
-		logger.InvalidRequest("User lacks permissions to access seller items")
+		ep.Logger.InvalidRequest("User lacks permissions to access seller items")
 		failure_response.Forbidden(ep.Context, "wrong_role", "Only accessible to sellers and admins")
 		return
 	}
@@ -65,38 +63,38 @@ func (ep *getSellerItemsEndpoint) execute() {
 		SellerId string `binding:"required" uri:"id"`
 	}
 	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
-		logger.InvalidInput("Failed to bind URI parameters for GetSellerItems", "error", err)
+		ep.Logger.InvalidInput("Failed to bind URI parameters for GetSellerItems", "error", err)
 		failure_response.InvalidUriParameters(ep.Context, err.Error())
 		return
 	}
 
 	uriSellerId, err := models.ParseId(uriParameters.SellerId)
 	if err != nil {
-		logger.InvalidInput("Failed to parse seller ID from URI", "error", err, "sellerId", uriParameters.SellerId)
+		ep.Logger.InvalidInput("Failed to parse seller ID from URI", "error", err, "sellerId", uriParameters.SellerId)
 		failure_response.InvalidUserId(ep.Context, err.Error())
 		return
 	}
 
 	if err := queries.EnsureUserExistsAndHasRole(ep.Database, uriSellerId, models.NewSellerRoleId()); err != nil {
 		if errors.Is(err, dberr.ErrNoSuchUser) {
-			logger.InvalidRequest("Seller does not exist", "error", err, "sellerId", uriSellerId)
+			ep.Logger.InvalidRequest("Seller does not exist", "error", err, "sellerId", uriSellerId)
 			failure_response.UnknownUser(ep.Context, err.Error())
 			return
 		}
 
 		if errors.Is(err, dberr.ErrWrongRole) {
-			logger.InvalidRequest("Can only list items of sellers", "nonSellerId", uriSellerId)
+			ep.Logger.InvalidRequest("Can only list items of sellers", "nonSellerId", uriSellerId)
 			failure_response.WrongUser(ep.Context, "Can only list items of sellers")
 			return
 		}
 
-		logger.InternalError("Could not check user role", "error", err)
+		ep.Logger.InternalError("Could not check user role", "error", err)
 		failure_response.Unknown(ep.Context, "Could not check user role: "+err.Error())
 		return
 	}
 
 	if ep.UserId != uriSellerId && !ep.RoleId.IsAdmin() {
-		logger.InvalidRequest("Logged in user does not match URI seller ID", "uriSellerId", uriSellerId)
+		ep.Logger.InvalidRequest("Logged in user does not match URI seller ID", "uriSellerId", uriSellerId)
 		failure_response.WrongSeller(ep.Context, "Logged in user does not match URI seller ID")
 		return
 	}
@@ -113,7 +111,7 @@ func (ep *getSellerItemsEndpoint) execute() {
 
 	items, err := queries.GetSellerItems(ep.Database, uriSellerId, itemSelection)
 	if err != nil {
-		logger.InternalError("Could not retrieve seller items", "error", err, "sellerId", uriSellerId)
+		ep.Logger.InternalError("Could not retrieve seller items", "error", err, "sellerId", uriSellerId)
 		failure_response.Unknown(ep.Context, "Could not retrieve seller items: "+err.Error())
 		return
 	}
