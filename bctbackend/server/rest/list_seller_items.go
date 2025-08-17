@@ -76,7 +76,7 @@ func (ep *getSellerItemsEndpoint) execute() {
 		return
 	}
 
-	ep.sendResponse(items)
+	ep.sendSuccessResponse(items)
 }
 
 func (ep *getSellerItemsEndpoint) ensureUserHasRightRole() bool {
@@ -164,7 +164,7 @@ func (ep *getSellerItemsEndpoint) fetchSellerItemsFromDatabase(queriedSellerId m
 	return items, true
 }
 
-func (ep *getSellerItemsEndpoint) sendResponse(items []*models.Item) {
+func (ep *getSellerItemsEndpoint) sendSuccessResponse(items []*models.Item) {
 	successResponse := GetSellerItemsSuccessResponse{Items: algorithms.Map(items, func(item *models.Item) *GetSellerItemsItemData {
 		return &GetSellerItemsItemData{
 			ItemId:       item.ItemID,
