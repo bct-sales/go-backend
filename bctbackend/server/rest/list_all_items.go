@@ -54,21 +54,11 @@ type listAllItemsEndpoint struct {
 }
 
 func (ep *listAllItemsEndpoint) execute() {
-	if ep.RoleId != models.NewAdminRoleId() {
-		ep.Logger.InvalidRequest("Unauthorized access attempt to list all items")
-		failure_response.WrongRole(ep.Context, "Only admins can list all items")
+	if !ep.ensureUserHasCorrectRole() {
 		return
 	}
 
-	var itemSelection queries.ItemSelection
-	switch ep.Context.Query("items") {
-	case "all":
-		itemSelection = queries.AllItems
-	case "hidden":
-		itemSelection = queries.OnlyHiddenItems
-	default:
-		itemSelection = queries.OnlyVisibleItems
-	}
+	itemSelection := ep.parseItemSelectionQueryParameter()
 
 	var limit *int
 	limitString := ep.Context.Query("limit")
@@ -178,5 +168,26 @@ func (ep *listAllItemsEndpoint) execute() {
 		ep.Logger.InvalidInput("Unknown format requested", "format", requestedFormat)
 		failure_response.Unknown(ep.Context, "Unknown format: "+requestedFormat)
 		return
+	}
+}
+
+func (ep *listAllItemsEndpoint) ensureUserHasCorrectRole() bool {
+	if ep.RoleId != models.NewAdminRoleId() {
+		ep.Logger.InvalidRequest("Unauthorized access attempt to list all items")
+		failure_response.WrongRole(ep.Context, "Only admins can list all items")
+		return false
+	}
+
+	return true
+}
+
+func (ep *listAllItemsEndpoint) parseItemSelectionQueryParameter() queries.ItemSelection {
+	switch ep.Context.Query("items") {
+	case "all":
+		return queries.AllItems
+	case "hidden":
+		return queries.OnlyHiddenItems
+	default:
+		return queries.OnlyVisibleItems
 	}
 }
