@@ -43,19 +43,8 @@ func GetItemInformation(arguments *HandlerFunctionArguments) {
 }
 
 func (ep *getItemInformationEndpoint) execute() {
-	var uriParameters struct {
-		ItemId string `binding:"required" uri:"id"`
-	}
-	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
-		ep.Logger.InvalidInput("Failed to parse URI parameters", "error", err)
-		failure_response.InvalidUriParameters(ep.Context, "Invalid URI parameters: "+err.Error())
-		return
-	}
-
-	itemId, err := models.ParseId(uriParameters.ItemId)
-	if err != nil {
-		ep.Logger.InvalidInput("Failed to parse item ID", "error", err, "itemId", uriParameters.ItemId)
-		failure_response.InvalidItemId(ep.Context, err.Error())
+	itemId, foundItemId := ep.retrieveItemIdFromUri()
+	if !foundItemId {
 		return
 	}
 
@@ -104,4 +93,25 @@ func (ep *getItemInformationEndpoint) execute() {
 	}
 
 	ep.Context.JSON(http.StatusOK, response)
+}
+
+func (ep *getItemInformationEndpoint) retrieveItemIdFromUri() (models.Id, bool) {
+	var uriParameters struct {
+		ItemId string `binding:"required" uri:"id"`
+	}
+
+	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
+		ep.Logger.InvalidInput("Failed to parse URI parameters", "error", err)
+		failure_response.InvalidUriParameters(ep.Context, "Invalid URI parameters: "+err.Error())
+		return 0, false
+	}
+
+	itemId, err := models.ParseId(uriParameters.ItemId)
+	if err != nil {
+		ep.Logger.InvalidInput("Failed to parse item ID", "error", err, "itemId", uriParameters.ItemId)
+		failure_response.InvalidItemId(ep.Context, err.Error())
+		return 0, false
+	}
+
+	return itemId, true
 }
