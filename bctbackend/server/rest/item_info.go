@@ -53,9 +53,7 @@ func (ep *getItemInformationEndpoint) execute() {
 		return
 	}
 
-	if item.SellerID != ep.UserId && ep.RoleId.IsSeller() {
-		ep.Logger.InvalidRequest("Blocked attempt to access item not owned by the seller", "itemId", item.ItemID, "itemUserId", item.SellerID)
-		failure_response.WrongSeller(ep.Context, "Only the owning seller can access this item")
+	if !ep.ensureQueryAllowed(item) {
 		return
 	}
 
@@ -123,4 +121,14 @@ func (ep *getItemInformationEndpoint) retrieveItemFromDatabase(itemId models.Id)
 	}
 
 	return item
+}
+
+func (ep *getItemInformationEndpoint) ensureQueryAllowed(item *models.Item) bool {
+	if item.SellerID != ep.UserId && ep.RoleId.IsSeller() {
+		ep.Logger.InvalidRequest("Blocked attempt to access item not owned by the seller", "itemId", item.ItemID, "itemUserId", item.SellerID)
+		failure_response.WrongSeller(ep.Context, "Only the owning seller can access this item")
+		return false
+	}
+
+	return true
 }
