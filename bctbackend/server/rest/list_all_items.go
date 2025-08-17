@@ -147,33 +147,7 @@ func (ep *listAllItemsEndpoint) sendResponse(items []*models.Item, itemSelection
 	requestedFormat := ep.Context.Query("format")
 	switch requestedFormat {
 	case "":
-		items := algorithms.Map(items, func(item *models.Item) GetItemsItemData {
-			return GetItemsItemData{
-				ItemId:       item.ItemID,
-				AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
-				Description:  item.Description,
-				PriceInCents: item.PriceInCents,
-				CategoryId:   item.CategoryID,
-				SellerId:     item.SellerID,
-				Donation:     item.Donation,
-				Charity:      item.Charity,
-				Frozen:       item.Frozen,
-			}
-		})
-		itemCount, err := queries.CountItems(ep.Database, itemSelection)
-		if err != nil {
-			ep.Logger.InternalError("Failed to count items", "error", err)
-			failure_response.Unknown(ep.Context, "Failed to count items: "+err.Error())
-			return
-		}
-
-		response := GetItemsSuccessResponse{
-			Items:          items,
-			TotalItemCount: itemCount,
-		}
-
-		ep.Context.IndentedJSON(http.StatusOK, response)
-		return
+		ep.sendResponseAsHTTPResponse(items, itemSelection)
 
 	case "json":
 		ep.Context.Header("Content-Type", "application/json")
@@ -212,4 +186,33 @@ func (ep *listAllItemsEndpoint) sendResponse(items []*models.Item, itemSelection
 		failure_response.Unknown(ep.Context, "Unknown format: "+requestedFormat)
 		return
 	}
+}
+
+func (ep *listAllItemsEndpoint) sendResponseAsHTTPResponse(items []*models.Item, itemSelection queries.ItemSelection) {
+	itemsData := algorithms.Map(items, func(item *models.Item) GetItemsItemData {
+		return GetItemsItemData{
+			ItemId:       item.ItemID,
+			AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
+			Description:  item.Description,
+			PriceInCents: item.PriceInCents,
+			CategoryId:   item.CategoryID,
+			SellerId:     item.SellerID,
+			Donation:     item.Donation,
+			Charity:      item.Charity,
+			Frozen:       item.Frozen,
+		}
+	})
+	itemCount, err := queries.CountItems(ep.Database, itemSelection)
+	if err != nil {
+		ep.Logger.InternalError("Failed to count items", "error", err)
+		failure_response.Unknown(ep.Context, "Failed to count items: "+err.Error())
+		return
+	}
+
+	response := GetItemsSuccessResponse{
+		Items:          itemsData,
+		TotalItemCount: itemCount,
+	}
+
+	ep.Context.IndentedJSON(http.StatusOK, response)
 }
