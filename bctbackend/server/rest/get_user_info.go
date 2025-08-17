@@ -6,13 +6,10 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/server/failure_response"
-	"bctbackend/server/logger"
 	rest "bctbackend/server/shared"
 	"errors"
 	"fmt"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
 // GetUserInformationByAdminSuccessResponse is the common response part for all user information requests done by admins.
@@ -101,11 +98,7 @@ func convertSaleToGetUserInformationSale(sale *models.Sale) *GetCashierInformati
 
 // Used solely for scoping purposes.
 type GetUserInformationEndpoint struct {
-	logger   logger.Logger
-	context  *gin.Context
-	userId   models.Id
-	roleId   models.RoleId
-	database Database
+	HandlerFunctionArguments
 }
 
 // @Summary Get information about a user
@@ -118,33 +111,29 @@ type GetUserInformationEndpoint struct {
 // @Router /users/{id} [get]
 func GetUserInformation(arguments *HandlerFunctionArguments) {
 	endpoint := GetUserInformationEndpoint{
-		logger:   arguments.Logger,
-		context:  arguments.Context,
-		userId:   arguments.UserId,
-		roleId:   arguments.RoleId,
-		database: arguments.Database,
+		HandlerFunctionArguments: *arguments,
 	}
 	endpoint.execute()
 }
 
-func (endpoint *GetUserInformationEndpoint) execute() {
-	context := endpoint.context
-	roleId := endpoint.roleId
+func (ep *GetUserInformationEndpoint) execute() {
+	context := ep.Context
+	roleId := ep.RoleId
 
-	queriedUserId, err := endpoint.retrieveQueriedUserFromUri()
+	queriedUserId, err := ep.retrieveQueriedUserFromUri()
 	if err != nil {
 		return
 	}
 
 	if roleId.IsAdmin() {
 		// If the user is an admin, they can access any user's information
-		endpoint.getUserInformationAsAdmin(queriedUserId)
+		ep.getUserInformationAsAdmin(queriedUserId)
 		return
 	} else if roleId.IsSeller() {
-		endpoint.getUserInformationAsSeller(queriedUserId)
+		ep.getUserInformationAsSeller(queriedUserId)
 		return
 	} else if roleId.IsCashier() {
-		endpoint.getUserInformationAsCashier(queriedUserId)
+		ep.getUserInformationAsCashier(queriedUserId)
 		return
 	} else {
 		failure_response.Unknown(context, fmt.Sprintf("Bug: unhandled role %d", roleId))
@@ -152,32 +141,32 @@ func (endpoint *GetUserInformationEndpoint) execute() {
 	}
 }
 
-func (endpoint *GetUserInformationEndpoint) retrieveQueriedUserFromUri() (models.Id, error) {
+func (ep *GetUserInformationEndpoint) retrieveQueriedUserFromUri() (models.Id, error) {
 	// Retrieve id of user whose information is being requested
 	var uriParameters struct {
 		UserId string `binding:"required" uri:"id"`
 	}
-	if err := endpoint.context.ShouldBindUri(&uriParameters); err != nil {
-		endpoint.logger.InvalidInput("Invalid URI parameters", "error", err)
-		failure_response.InvalidUriParameters(endpoint.context, "Invalid URI parameters: "+err.Error())
+	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
+		ep.Logger.InvalidInput("Invalid URI parameters", "error", err)
+		failure_response.InvalidUriParameters(ep.Context, "Invalid URI parameters: "+err.Error())
 		return 0, err
 	}
 
 	// Parse user id
 	queriedUserId, err := models.ParseId(uriParameters.UserId)
 	if err != nil {
-		endpoint.logger.InvalidInput("Invalid user ID", "error", err, "userId", uriParameters.UserId)
-		failure_response.InvalidUserId(endpoint.context, err.Error())
+		ep.Logger.InvalidInput("Invalid user ID", "error", err, "userId", uriParameters.UserId)
+		failure_response.InvalidUserId(ep.Context, err.Error())
 		return 0, err
 	}
 
 	return queriedUserId, nil
 }
 
-func (endpoint *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserId models.Id) {
-	logger := endpoint.logger
-	context := endpoint.context
-	db := endpoint.database
+func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserId models.Id) {
+	logger := ep.Logger
+	context := ep.Context
+	db := ep.Database
 
 	// Look up user in database
 	user, err := queries.GetUserWithId(db, queriedUserId)
@@ -271,11 +260,11 @@ func (endpoint *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUse
 	}
 }
 
-func (endpoint *GetUserInformationEndpoint) getUserInformationAsSeller(queriedUserId models.Id) {
-	logger := endpoint.logger
-	context := endpoint.context
-	db := endpoint.database
-	userId := endpoint.userId
+func (ep *GetUserInformationEndpoint) getUserInformationAsSeller(queriedUserId models.Id) {
+	logger := ep.Logger
+	context := ep.Context
+	db := ep.Database
+	userId := ep.UserId
 
 	if userId != queriedUserId {
 		logger.InvalidRequest("Seller attempted to access another user's information", "queriedUserId", queriedUserId)
@@ -325,11 +314,11 @@ func (endpoint *GetUserInformationEndpoint) getUserInformationAsSeller(queriedUs
 	context.JSON(http.StatusOK, response)
 }
 
-func (endpoint *GetUserInformationEndpoint) getUserInformationAsCashier(queriedUserId models.Id) {
-	logger := endpoint.logger
-	context := endpoint.context
-	db := endpoint.database
-	userId := endpoint.userId
+func (ep *GetUserInformationEndpoint) getUserInformationAsCashier(queriedUserId models.Id) {
+	logger := ep.Logger
+	context := ep.Context
+	db := ep.Database
+	userId := ep.UserId
 
 	if userId != queriedUserId {
 		logger.InvalidRequest("Cashier attempted to access another user's information", "queriedUserId", queriedUserId)
