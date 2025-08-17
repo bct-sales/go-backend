@@ -68,12 +68,82 @@ func (ep *listAllItemsEndpoint) execute() {
 		return
 	}
 	rowSelection := queries.RowSelection(offset, limit)
-
 	items, itemsOk := ep.fetchItemsFromDatabase(itemSelection, rowSelection)
 	if !itemsOk {
 		return
 	}
 
+	ep.sendResponse(items, itemSelection)
+}
+
+func (ep *listAllItemsEndpoint) ensureUserHasCorrectRole() bool {
+	if ep.RoleId != models.NewAdminRoleId() {
+		ep.Logger.InvalidRequest("Unauthorized access attempt to list all items")
+		failure_response.WrongRole(ep.Context, "Only admins can list all items")
+		return false
+	}
+
+	return true
+}
+
+func (ep *listAllItemsEndpoint) parseItemSelectionQueryParameter() queries.ItemSelection {
+	switch ep.Context.Query("items") {
+	case "all":
+		return queries.AllItems
+	case "hidden":
+		return queries.OnlyHiddenItems
+	default:
+		return queries.OnlyVisibleItems
+	}
+}
+
+func (ep *listAllItemsEndpoint) parseLimitQueryParameter() (*int, bool) {
+	limitString := ep.Context.Query("limit")
+	if limitString != "" {
+		parsedLimit, err := strconv.Atoi(limitString)
+
+		if err != nil {
+			ep.Logger.InvalidInput("Failed to parse limit", "error", err, "limit", limitString)
+			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Failed to parse limit: "+err.Error())
+			return nil, false
+		}
+
+		return &parsedLimit, true
+	} else {
+		return nil, true
+	}
+}
+
+func (ep *listAllItemsEndpoint) parseOffsetQueryParameter() (*int, bool) {
+	offsetString := ep.Context.Query("offset")
+	if offsetString != "" {
+		parsedOffset, err := strconv.Atoi(offsetString)
+
+		if err != nil {
+			ep.Logger.InvalidInput("Failed to parse offset", "error", err, "offset", offsetString)
+			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Failed to parse offset: "+err.Error())
+			return nil, false
+		}
+
+		return &parsedOffset, true
+	} else {
+		return nil, true
+	}
+}
+
+func (ep *listAllItemsEndpoint) fetchItemsFromDatabase(itemSelection queries.ItemSelection, rowSelection queries.SQLOption) ([]*models.Item, bool) {
+	items := []*models.Item{}
+
+	if err := queries.GetItems(ep.Database, queries.CollectTo(&items), itemSelection, rowSelection); err != nil {
+		ep.Logger.InternalError("Failed to get items", "error", err)
+		failure_response.Unknown(ep.Context, "Failed to get items: "+err.Error())
+		return nil, false
+	}
+
+	return items, true
+}
+
+func (ep *listAllItemsEndpoint) sendResponse(items []*models.Item, itemSelection queries.ItemSelection) {
 	requestedFormat := ep.Context.Query("format")
 	switch requestedFormat {
 	case "":
@@ -142,71 +212,4 @@ func (ep *listAllItemsEndpoint) execute() {
 		failure_response.Unknown(ep.Context, "Unknown format: "+requestedFormat)
 		return
 	}
-}
-
-func (ep *listAllItemsEndpoint) ensureUserHasCorrectRole() bool {
-	if ep.RoleId != models.NewAdminRoleId() {
-		ep.Logger.InvalidRequest("Unauthorized access attempt to list all items")
-		failure_response.WrongRole(ep.Context, "Only admins can list all items")
-		return false
-	}
-
-	return true
-}
-
-func (ep *listAllItemsEndpoint) parseItemSelectionQueryParameter() queries.ItemSelection {
-	switch ep.Context.Query("items") {
-	case "all":
-		return queries.AllItems
-	case "hidden":
-		return queries.OnlyHiddenItems
-	default:
-		return queries.OnlyVisibleItems
-	}
-}
-
-func (ep *listAllItemsEndpoint) parseLimitQueryParameter() (*int, bool) {
-	limitString := ep.Context.Query("limit")
-	if limitString != "" {
-		parsedLimit, err := strconv.Atoi(limitString)
-
-		if err != nil {
-			ep.Logger.InvalidInput("Failed to parse limit", "error", err, "limit", limitString)
-			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Failed to parse limit: "+err.Error())
-			return nil, false
-		}
-
-		return &parsedLimit, true
-	} else {
-		return nil, true
-	}
-}
-
-func (ep *listAllItemsEndpoint) parseOffsetQueryParameter() (*int, bool) {
-	offsetString := ep.Context.Query("offset")
-	if offsetString != "" {
-		parsedOffset, err := strconv.Atoi(offsetString)
-
-		if err != nil {
-			ep.Logger.InvalidInput("Failed to parse offset", "error", err, "offset", offsetString)
-			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Failed to parse offset: "+err.Error())
-			return nil, false
-		}
-
-		return &parsedOffset, true
-	} else {
-		return nil, true
-	}
-}
-
-func (ep *listAllItemsEndpoint) fetchItemsFromDatabase(itemSelection queries.ItemSelection, rowSelection queries.SQLOption) ([]*models.Item, bool) {
-	items := []*models.Item{}
-
-	if err := queries.GetItems(ep.Database, queries.CollectTo(&items), itemSelection, rowSelection); err != nil {
-		ep.Logger.InternalError("Failed to get items", "error", err)
-		failure_response.Unknown(ep.Context, "Failed to get items: "+err.Error())
-		return nil, false
-	}
-
-	return items, true
 }
