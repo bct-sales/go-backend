@@ -48,15 +48,8 @@ func (ep *getItemInformationEndpoint) execute() {
 		return
 	}
 
-	item, err := queries.GetItemWithId(ep.Database, itemId)
-	if err != nil {
-		if errors.Is(err, dberr.ErrNoSuchItem) {
-			ep.Logger.InvalidRequest("Attempt to access a non-existing item", "itemId", itemId)
-			failure_response.UnknownItem(ep.Context, err.Error())
-			return
-		}
-
-		failure_response.Unknown(ep.Context, err.Error())
+	item := ep.retrieveItemFromDatabase(itemId)
+	if item == nil {
 		return
 	}
 
@@ -114,4 +107,20 @@ func (ep *getItemInformationEndpoint) retrieveItemIdFromUri() (models.Id, bool) 
 	}
 
 	return itemId, true
+}
+
+func (ep *getItemInformationEndpoint) retrieveItemFromDatabase(itemId models.Id) *models.Item {
+	item, err := queries.GetItemWithId(ep.Database, itemId)
+	if err != nil {
+		if errors.Is(err, dberr.ErrNoSuchItem) {
+			ep.Logger.InvalidRequest("Attempt to access a non-existing item", "itemId", itemId)
+			failure_response.UnknownItem(ep.Context, err.Error())
+			return nil
+		}
+
+		failure_response.Unknown(ep.Context, err.Error())
+		return nil
+	}
+
+	return item
 }
