@@ -65,24 +65,13 @@ func (ep *getSellerItemsEndpoint) execute() {
 	if !ep.ensureQueriedUserIsSeller(queriedSellerId) {
 		return
 	}
-
-	if !ep.ensure
-	if ep.UserId != queriedSellerId && !ep.RoleId.IsAdmin() {
-		ep.Logger.InvalidRequest("Logged in user does not match URI seller ID", "uriSellerId", queriedSellerId)
-		failure_response.WrongSeller(ep.Context, "Logged in user does not match URI seller ID")
+	if !ep.ensureUserHasPermissions(queriedSellerId) {
 		return
 	}
 
-	var itemSelection queries.ItemSelection
-	switch ep.Context.Query("items") {
-	case "all":
-		itemSelection = queries.AllItems
-	case "hidden":
-		itemSelection = queries.OnlyHiddenItems
-	default:
-		itemSelection = queries.OnlyVisibleItems
-	}
+	itemSelection := ep.extractItemSelectionFromQueryParameters()
 
+	
 	items, err := queries.GetSellerItems(ep.Database, queriedSellerId, itemSelection)
 	if err != nil {
 		ep.Logger.InternalError("Could not retrieve seller items", "error", err, "sellerId", queriedSellerId)
@@ -157,4 +146,25 @@ func (ep *getSellerItemsEndpoint) ensureQueriedUserIsSeller(queriedSellerId mode
 	}
 
 	return true
+}
+
+func (ep *getSellerItemsEndpoint) ensureUserHasPermissions(queriedSellerId models.Id) bool {
+	if ep.UserId != queriedSellerId && !ep.RoleId.IsAdmin() {
+		ep.Logger.InvalidRequest("Logged in user does not match URI seller ID", "uriSellerId", queriedSellerId)
+		failure_response.WrongSeller(ep.Context, "Logged in user does not match URI seller ID")
+		return false
+	}
+
+	return true
+}
+
+func (ep *getSellerItemsEndpoint) extractItemSelectionFromQueryParameters() queries.ItemSelection {
+	switch ep.Context.Query("items") {
+	case "all":
+		return queries.AllItems
+	case "hidden":
+		return queries.OnlyHiddenItems
+	default:
+		return queries.OnlyVisibleItems
+	}
 }
