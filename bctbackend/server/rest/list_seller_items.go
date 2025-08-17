@@ -53,7 +53,6 @@ type getSellerItemsEndpoint struct {
 }
 
 func (ep *getSellerItemsEndpoint) execute() {
-	userId := ep.UserId
 	roleId := ep.RoleId
 	db := ep.Database
 	logger := ep.Logger
@@ -98,7 +97,7 @@ func (ep *getSellerItemsEndpoint) execute() {
 		return
 	}
 
-	if userId != uriSellerId && !roleId.IsAdmin() {
+	if ep.UserId != uriSellerId && !roleId.IsAdmin() {
 		logger.InvalidRequest("Logged in user does not match URI seller ID", "uriSellerId", uriSellerId)
 		failure_response.WrongSeller(ep.Context, "Logged in user does not match URI seller ID")
 		return
