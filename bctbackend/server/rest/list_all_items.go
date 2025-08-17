@@ -59,21 +59,9 @@ func (ep *listAllItemsEndpoint) execute() {
 	}
 
 	itemSelection := ep.parseItemSelectionQueryParameter()
-
-	var limit *int
-	limitString := ep.Context.Query("limit")
-	if limitString != "" {
-		parsedLimit, err := strconv.Atoi(limitString)
-
-		if err != nil {
-			ep.Logger.InvalidInput("Failed to parse limit", "error", err, "limit", limitString)
-			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Failed to parse limit: "+err.Error())
-			return
-		}
-
-		limit = &parsedLimit
-	} else {
-		limit = nil
+	limit, limitOk := ep.parseLimitQueryParameter()
+	if !limitOk {
+		return
 	}
 
 	var offset *int
@@ -189,5 +177,22 @@ func (ep *listAllItemsEndpoint) parseItemSelectionQueryParameter() queries.ItemS
 		return queries.OnlyHiddenItems
 	default:
 		return queries.OnlyVisibleItems
+	}
+}
+
+func (ep *listAllItemsEndpoint) parseLimitQueryParameter() (*int, bool) {
+	limitString := ep.Context.Query("limit")
+	if limitString != "" {
+		parsedLimit, err := strconv.Atoi(limitString)
+
+		if err != nil {
+			ep.Logger.InvalidInput("Failed to parse limit", "error", err, "limit", limitString)
+			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Failed to parse limit: "+err.Error())
+			return nil, false
+		}
+
+		return &parsedLimit, true
+	} else {
+		return nil, true
 	}
 }
