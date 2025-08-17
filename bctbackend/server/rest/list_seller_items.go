@@ -53,7 +53,7 @@ type getSellerItemsEndpoint struct {
 }
 
 func (ep *getSellerItemsEndpoint) execute() {
-	if !ep.ensureUserHasPermissions() {
+	if !ep.ensureUserHasRightRole() {
 		return
 	}
 
@@ -66,6 +66,7 @@ func (ep *getSellerItemsEndpoint) execute() {
 		return
 	}
 
+	if !ep.ensure
 	if ep.UserId != queriedSellerId && !ep.RoleId.IsAdmin() {
 		ep.Logger.InvalidRequest("Logged in user does not match URI seller ID", "uriSellerId", queriedSellerId)
 		failure_response.WrongSeller(ep.Context, "Logged in user does not match URI seller ID")
@@ -106,7 +107,7 @@ func (ep *getSellerItemsEndpoint) execute() {
 	ep.Context.IndentedJSON(http.StatusOK, successResponse)
 }
 
-func (ep *getSellerItemsEndpoint) ensureUserHasPermissions() bool {
+func (ep *getSellerItemsEndpoint) ensureUserHasRightRole() bool {
 	if !ep.RoleId.IsSeller() && !ep.RoleId.IsAdmin() {
 		ep.Logger.InvalidRequest("User lacks permissions to access seller items")
 		failure_response.Forbidden(ep.Context, "wrong_role", "Only accessible to sellers and admins")
