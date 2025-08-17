@@ -65,15 +65,8 @@ func (ep *addSaleEndpoint) execute() {
 	// Determine current time, which will be used as the sale timestamp
 	timestamp := ep.Clock.Now()
 
-	// Add the sale to the database
-	saleId, err := queries.AddSale(
-		transaction,
-		ep.UserId,
-		timestamp,
-		payload.Items,
-	)
-	if err != nil {
-		ep.interpretDatabaseError(err)
+	saleId, saleIdOk := ep.addSaleToDatabase(transaction, payload.Items, timestamp)
+	if !saleIdOk {
 		return
 	}
 
@@ -136,4 +129,19 @@ func (ep *addSaleEndpoint) interpretDatabaseError(err error) {
 
 	ep.Logger.InternalError("Failed to add sale", "error", err)
 	failure_response.Unknown(ep.Context, "Failed to add sale: "+err.Error())
+}
+
+func (ep *addSaleEndpoint) addSaleToDatabase(transaction *queries.TransactionalDatabaseQuerier, itemIDs []models.Id, timestamp models.Timestamp) (models.Id, bool) {
+	saleId, err := queries.AddSale(
+		transaction,
+		ep.UserId,
+		timestamp,
+		itemIDs,
+	)
+	if err != nil {
+		ep.interpretDatabaseError(err)
+		return 0, false
+	}
+
+	return saleId, true
 }
