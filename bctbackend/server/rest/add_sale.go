@@ -65,7 +65,7 @@ func (ep *addSaleEndpoint) execute() {
 		return
 	}
 
-	if !ep.EndTransaction(transaction) {
+	if !ep.endTransaction(transaction) {
 		return
 	}
 
@@ -152,7 +152,7 @@ func (ep *addSaleEndpoint) startTransaction() *queries.TransactionalDatabaseQuer
 	return transaction
 }
 
-func (ep *addSaleEndpoint) EndTransaction(transaction *queries.TransactionalDatabaseQuerier) bool {
+func (ep *addSaleEndpoint) endTransaction(transaction *queries.TransactionalDatabaseQuerier) bool {
 	if err := transaction.Commit(); err != nil {
 		ep.Logger.InternalError("Failed to commit transaction for AddSale", "error", err)
 		failure_response.Unknown(ep.Context, "Failed to commit transaction: "+err.Error())
