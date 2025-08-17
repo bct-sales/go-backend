@@ -150,13 +150,7 @@ func (ep *listAllItemsEndpoint) sendResponse(items []*models.Item, itemSelection
 		ep.sendResponseAsJSONResponse(items, itemSelection)
 
 	case "json":
-		ep.Context.Header("Content-Type", "application/json")
-		ep.Context.Header("Content-Disposition", "attachment; filename=\"items.json\"")
-		ep.Context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
-		ep.Context.Header("Pragma", "no-cache")
-
-		ep.Context.IndentedJSON(http.StatusOK, items)
-		return
+		ep.sendResponseAsJSONFile(items)
 
 	case "csv":
 		categoryNameTable, err := queries.GetCategoryNameTable(ep.Database)
@@ -215,4 +209,13 @@ func (ep *listAllItemsEndpoint) sendResponseAsJSONResponse(items []*models.Item,
 	}
 
 	ep.Context.IndentedJSON(http.StatusOK, response)
+}
+
+func (ep *listAllItemsEndpoint) sendResponseAsJSONFile(items []*models.Item) {
+	ep.Context.Header("Content-Type", "application/json")
+	ep.Context.Header("Content-Disposition", "attachment; filename=\"items.json\"")
+	ep.Context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	ep.Context.Header("Pragma", "no-cache")
+
+	ep.Context.IndentedJSON(http.StatusOK, items)
 }
