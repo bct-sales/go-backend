@@ -62,21 +62,7 @@ func (ep *getSellerItemsEndpoint) execute() {
 		return
 	}
 
-	if err := queries.EnsureUserExistsAndHasRole(ep.Database, queriedSellerId, models.NewSellerRoleId()); err != nil {
-		if errors.Is(err, dberr.ErrNoSuchUser) {
-			ep.Logger.InvalidRequest("Seller does not exist", "error", err, "sellerId", queriedSellerId)
-			failure_response.UnknownUser(ep.Context, err.Error())
-			return
-		}
-
-		if errors.Is(err, dberr.ErrWrongRole) {
-			ep.Logger.InvalidRequest("Can only list items of sellers", "nonSellerId", queriedSellerId)
-			failure_response.WrongUser(ep.Context, "Can only list items of sellers")
-			return
-		}
-
-		ep.Logger.InternalError("Could not check user role", "error", err)
-		failure_response.Unknown(ep.Context, "Could not check user role: "+err.Error())
+	if !ep.ensureQueriedUserIsSeller(queriedSellerId) {
 		return
 	}
 
@@ -148,4 +134,26 @@ func (ep *getSellerItemsEndpoint) extractSellerIdFromURI() (models.Id, bool) {
 	}
 
 	return uriSellerId, true
+}
+
+func (ep *getSellerItemsEndpoint) ensureQueriedUserIsSeller(queriedSellerId models.Id) bool {
+	if err := queries.EnsureUserExistsAndHasRole(ep.Database, queriedSellerId, models.NewSellerRoleId()); err != nil {
+		if errors.Is(err, dberr.ErrNoSuchUser) {
+			ep.Logger.InvalidRequest("Seller does not exist", "error", err, "sellerId", queriedSellerId)
+			failure_response.UnknownUser(ep.Context, err.Error())
+			return false
+		}
+
+		if errors.Is(err, dberr.ErrWrongRole) {
+			ep.Logger.InvalidRequest("Can only list items of sellers", "nonSellerId", queriedSellerId)
+			failure_response.WrongUser(ep.Context, "Can only list items of sellers")
+			return false
+		}
+
+		ep.Logger.InternalError("Could not check user role", "error", err)
+		failure_response.Unknown(ep.Context, "Could not check user role: "+err.Error())
+		return false
+	}
+
+	return true
 }
