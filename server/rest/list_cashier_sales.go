@@ -45,7 +45,7 @@ func (endpoint *listCashierSalesEndpoint) execute() {
 	}
 
 	var saleSummaries []*models.SaleSummary
-	if err := queries.GetCashierSales(endpoint.Database, uriCashierId, queries.CollectTo(&saleSummaries)); err != nil {
+	if err := queries.GetCashierSales(endpoint.Database, uriCashierId, queries.CollectTo(&saleSummaries), queries.AllRows()); err != nil {
 		endpoint.Logger.InternalError("Failed to retrieve cashier sales for user %d: %v", uriCashierId, err)
 		failure_response.Unknown(endpoint.Context, "Could not retrieve cashier sales: "+err.Error())
 		return
