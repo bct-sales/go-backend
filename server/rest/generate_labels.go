@@ -39,12 +39,14 @@ type GenerateLabelsPayload struct {
 }
 
 type generateLabelsEndpoint struct {
-	HandlerFunctionArguments
+	Endpoint
 }
 
 func GenerateLabels(arguments *HandlerFunctionArguments) {
 	endpoint := &generateLabelsEndpoint{
-		HandlerFunctionArguments: *arguments,
+		Endpoint: Endpoint{
+			HandlerFunctionArguments: *arguments,
+		},
 	}
 
 	endpoint.execute()
