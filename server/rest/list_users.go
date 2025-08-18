@@ -53,12 +53,8 @@ func (ep *listUsersEndpoint) execute() {
 		return
 	}
 
-	
-
-	users := []*queries.UserWithItemCount{}
-	if err := queries.GetUsersWithItemCount(ep.Database, queries.OnlyVisibleItems, queries.CollectTo(&users)); err != nil {
-		ep.Logger.InternalError("Failed to fetch users", slog.String("error", err.Error()))
-		failure_response.Unknown(ep.Context, err.Error())
+	users, usersOk := ep.fetchUsersWithItemCountFromDatabase()
+	if !usersOk {
 		return
 	}
 
@@ -104,4 +100,16 @@ func (ep *listUsersEndpoint) ensureUserIsAdmin() bool {
 	}
 
 	return true
+}
+
+func (ep *listUsersEndpoint) fetchUsersWithItemCountFromDatabase() ([]*queries.UserWithItemCount, bool) {
+	users := []*queries.UserWithItemCount{}
+
+	if err := queries.GetUsersWithItemCount(ep.Database, queries.OnlyVisibleItems, queries.CollectTo(&users)); err != nil {
+		ep.Logger.InternalError("Failed to fetch users", slog.String("error", err.Error()))
+		failure_response.Unknown(ep.Context, err.Error())
+		return nil, false
+	}
+
+	return users, true
 }
