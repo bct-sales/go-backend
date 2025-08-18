@@ -35,14 +35,16 @@ type CategoryData struct {
 // @Router /categories [get]
 func ListCategories(arguments *HandlerFunctionArguments) {
 	endpoint := listCategoriesEndpoint{
-		HandlerFunctionArguments: *arguments,
+		Endpoint: Endpoint{
+			HandlerFunctionArguments: *arguments,
+		},
 	}
 
 	endpoint.execute()
 }
 
 type listCategoriesEndpoint struct {
-	HandlerFunctionArguments
+	Endpoint
 }
 
 func (ep *listCategoriesEndpoint) execute() {
