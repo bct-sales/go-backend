@@ -457,7 +457,7 @@ func (c *dummyDatabaseCommand) generateRandomToys() (string, models.Id) {
 func (c *dummyDatabaseCommand) addSales(db *sql.DB, cashierIds []models.Id, itemIds []models.Id) (r_err error) {
 	c.Printf("Adding sales\n")
 
-	transaction, err := queries.NewTransactionDatabaseQuerier(context.Background(), db)
+	transaction, err := queries.NewTransactionalDatabaseQuerier(context.Background(), db)
 	if err != nil {
 		return fmt.Errorf("failed to start transaction: %w", err)
 	}

@@ -43,7 +43,7 @@ type TransactionalDatabaseQuerier struct {
 	committed   bool
 }
 
-func NewTransactionDatabaseQuerier(context context.Context, db *sql.DB) (*TransactionalDatabaseQuerier, error) {
+func NewTransactionalDatabaseQuerier(context context.Context, db *sql.DB) (*TransactionalDatabaseQuerier, error) {
 	transaction, err := db.BeginTx(context, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to start new transaction: %w", err)
@@ -103,7 +103,7 @@ func (t *TransactionalDatabaseQuerier) QueryRow(query string, args ...any) *sql.
 }
 
 func WithTransaction[T any](context context.Context, db *sql.DB, fn func(transaction *TransactionalDatabaseQuerier) (T, error)) (T, error) {
-	transaction, err := NewTransactionDatabaseQuerier(context, db)
+	transaction, err := NewTransactionalDatabaseQuerier(context, db)
 	if err != nil {
 		var dummy T
 		return dummy, err

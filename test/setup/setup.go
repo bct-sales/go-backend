@@ -138,7 +138,7 @@ func (s DatabaseFixture) Items(seller models.Id, count int, options ...func(*aux
 }
 
 func (s DatabaseFixture) Sale(cashier models.Id, itemIds []models.Id, options ...func(*aux.AddSaleData)) *models.Sale {
-	transaction, err := queries.NewTransactionDatabaseQuerier(context.Background(), s.Db)
+	transaction, err := queries.NewTransactionalDatabaseQuerier(context.Background(), s.Db)
 	if err != nil {
 		panic(err)
 	}
@@ -193,7 +193,7 @@ func (s DatabaseFixture) RequireNotFrozen(t *testing.T, saleId ...models.Id) {
 }
 
 func (s DatabaseFixture) WithTransaction(t *testing.T, f func(transaction *queries.TransactionalDatabaseQuerier)) {
-	transaction, err := queries.NewTransactionDatabaseQuerier(context.Background(), s.Db)
+	transaction, err := queries.NewTransactionalDatabaseQuerier(context.Background(), s.Db)
 	require.NoError(t, err)
 
 	f(transaction)

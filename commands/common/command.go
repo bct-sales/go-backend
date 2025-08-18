@@ -69,7 +69,7 @@ func (command *Command) WithOpenedDatabase(callback func(db *sql.DB) error) (r_e
 
 func (command *Command) WithTransaction(callback func(db *queries.TransactionalDatabaseQuerier) error) error {
 	return command.WithOpenedDatabase(func(db *sql.DB) (r_err error) {
-		transaction, err := queries.NewTransactionDatabaseQuerier(context.Background(), db)
+		transaction, err := queries.NewTransactionalDatabaseQuerier(context.Background(), db)
 		if err != nil {
 			command.PrintErrorf("Failed to start transaction: %s\n", err.Error())
 			return &ErrCommand{wrapped: err}
