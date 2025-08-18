@@ -36,6 +36,32 @@ func TestGetCashierSales(t *testing.T) {
 			require.Equal(t, sale1.SaleID, actual[0].SaleID)
 			require.Equal(t, sale2.SaleID, actual[1].SaleID)
 		})
+
+		t.Run("Using row selection", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+			cashier := setup.Cashier()
+			items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
+
+			saleIds := []models.Id{}
+			for _, item := range items {
+				sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+				saleIds = append(saleIds, sale.SaleID)
+			}
+
+			actual := []*models.SaleSummary{}
+			err := queries.GetCashierSales(db, cashier.UserId, queries.CollectTo(&actual), queries.NewRowSelection(2, 5))
+
+			require.NoError(t, err)
+			require.Len(t, actual, 5)
+			require.Equal(t, saleIds[2], actual[0].SaleID)
+			require.Equal(t, saleIds[3], actual[1].SaleID)
+			require.Equal(t, saleIds[4], actual[2].SaleID)
+			require.Equal(t, saleIds[5], actual[3].SaleID)
+			require.Equal(t, saleIds[6], actual[4].SaleID)
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
