@@ -6,7 +6,7 @@ const (
 	CLIFlagHTML              = "html"
 	CLIFlagConfigurationPath = "config"
 
-	ConfigKeyDebug                        = "debug"
+	ConfigKeyDebug                        = "server.debug"
 	ConfigKeyPort                         = "server.port"
 	ConfigKeyHTML                         = "server.html"
 	ConfigKeyPruneExpiredSessionsInterval = "server.pruneExpiredSessionsInterval"
