@@ -245,7 +245,7 @@ func (ep *getSalesEndpoint) parseQueryParameters() (*getSalesQueryParameters, bo
 		return nil, false
 	}
 
-	order, ok := ep.parseOrder()
+	order, ok := ep.parseOrderQueryParameter()
 	if !ok {
 		return nil, false
 	}

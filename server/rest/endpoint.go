@@ -121,7 +121,7 @@ func (ep *Endpoint) parseRowSelectionQueryParameters() *queries.RowSelection {
 	return &rowSelection
 }
 
-func (ep *Endpoint) parseOrder() (bool, bool) {
+func (ep *Endpoint) parseOrderQueryParameter() (bool, bool) {
 	if order, exists := ep.Context.GetQuery("order"); exists {
 		if order != "antichronological" {
 			ep.Logger.InvalidInput("Invalid order parameter", "order", order)
