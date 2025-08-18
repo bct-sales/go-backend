@@ -58,33 +58,8 @@ func (ep *listUsersEndpoint) execute() {
 		return
 	}
 
-	var userData = []GetUsersUserData{}
-	for _, user := range users {
-		createdAt := rest.ConvertTimestampToDateTime(user.CreatedAt)
-
-		var lastActivity *rest.DateTime
-		if user.LastActivity == nil {
-			lastActivity = nil
-		} else {
-			date := rest.ConvertTimestampToDateTime(*user.LastActivity)
-			lastActivity = &date
-		}
-
-		userDatum := GetUsersUserData{
-			Id:           user.UserId.Int64(),
-			Password:     user.Password,
-			Role:         user.RoleId.Name(),
-			CreatedAt:    createdAt,
-			LastActivity: lastActivity,
-			ItemCount:    user.ItemCount,
-		}
-
-		userData = append(userData, userDatum)
-	}
-
-	response := GetUsersSuccessResponse{Users: userData}
-
-	ep.Context.IndentedJSON(http.StatusOK, response)
+	userData := ep.convertToUserData(users)
+	ep.sendSuccessResponse(userData)
 }
 
 func (ep *listUsersEndpoint) ensureUserIsAdmin() bool {
@@ -112,4 +87,38 @@ func (ep *listUsersEndpoint) fetchUsersWithItemCountFromDatabase() ([]*queries.U
 	}
 
 	return users, true
+}
+
+func (ep *listUsersEndpoint) convertToUserData(users []*queries.UserWithItemCount) []GetUsersUserData {
+	var userData = []GetUsersUserData{}
+
+	for _, user := range users {
+		createdAt := rest.ConvertTimestampToDateTime(user.CreatedAt)
+
+		var lastActivity *rest.DateTime
+		if user.LastActivity == nil {
+			lastActivity = nil
+		} else {
+			date := rest.ConvertTimestampToDateTime(*user.LastActivity)
+			lastActivity = &date
+		}
+
+		userDatum := GetUsersUserData{
+			Id:           user.UserId.Int64(),
+			Password:     user.Password,
+			Role:         user.RoleId.Name(),
+			CreatedAt:    createdAt,
+			LastActivity: lastActivity,
+			ItemCount:    user.ItemCount,
+		}
+
+		userData = append(userData, userDatum)
+	}
+
+	return userData
+}
+
+func (ep *listUsersEndpoint) sendSuccessResponse(userData []GetUsersUserData) {
+	response := GetUsersSuccessResponse{Users: userData}
+	ep.Context.IndentedJSON(http.StatusOK, response)
 }
