@@ -40,10 +40,10 @@ func (p *RowSelection) SQL() string {
 	return clause
 }
 
-func AllRows() SQLOption {
+func AllRows() *RowSelection {
 	return &RowSelection{Limit: nil, Offset: nil}
 }
 
-func NewRowSelection(offset *int, limit *int) SQLOption {
+func NewRowSelection(offset *int, limit *int) *RowSelection {
 	return &RowSelection{Limit: limit, Offset: offset}
 }
