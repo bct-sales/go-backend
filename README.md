@@ -9,15 +9,8 @@ $ wget https://github.com/bct-sales/go-backend/releases/latest/download/bctbacke
 # Make it executable
 $ chmod 766 ./bctbackend
 
-# Create config file
+# Initialize
 $ ./bctbackend init
-
-# Download HTML
-$ ./bctbackend download
-
-# Download font
-$ wget https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSans/NotoSans-Regular.ttf -O noto.ttf
-
 ```
 
 ## Command Line Options
