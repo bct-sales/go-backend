@@ -68,7 +68,7 @@ func (ep *listAllItemsEndpoint) execute() {
 	if !offsetOk {
 		return
 	}
-	rowSelection := queries.RowSelection(offset, limit)
+	rowSelection := queries.NewRowSelection(offset, limit)
 	items, itemsOk := ep.fetchItemsFromDatabase(itemSelection, rowSelection)
 	if !itemsOk {
 		return

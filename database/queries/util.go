@@ -19,12 +19,12 @@ type SQLOption interface {
 	SQL() string
 }
 
-type rowSelection struct {
+type RowSelection struct {
 	Limit  *int
 	Offset *int
 }
 
-func (p *rowSelection) SQL() string {
+func (p *RowSelection) SQL() string {
 	clause := "LIMIT "
 
 	if p.Limit != nil {
@@ -41,9 +41,9 @@ func (p *rowSelection) SQL() string {
 }
 
 func AllRows() SQLOption {
-	return &rowSelection{Limit: nil, Offset: nil}
+	return &RowSelection{Limit: nil, Offset: nil}
 }
 
-func RowSelection(offset *int, limit *int) SQLOption {
-	return &rowSelection{Limit: limit, Offset: offset}
+func NewRowSelection(offset *int, limit *int) SQLOption {
+	return &RowSelection{Limit: limit, Offset: offset}
 }
