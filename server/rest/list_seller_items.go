@@ -42,14 +42,16 @@ type GetSellerItemsSuccessResponse struct {
 // @Router /seller/{seller_id}/items [get]
 func GetSellerItems(arguments *HandlerFunctionArguments) {
 	endpoint := getSellerItemsEndpoint{
-		HandlerFunctionArguments: *arguments,
+		Endpoint: Endpoint{
+			HandlerFunctionArguments: *arguments,
+		},
 	}
 
 	endpoint.execute()
 }
 
 type getSellerItemsEndpoint struct {
-	HandlerFunctionArguments
+	Endpoint
 }
 
 func (ep *getSellerItemsEndpoint) execute() {
