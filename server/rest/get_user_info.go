@@ -96,11 +96,6 @@ func convertSaleToGetUserInformationSale(sale *models.Sale) *GetCashierInformati
 	}
 }
 
-// Used solely for scoping purposes.
-type GetUserInformationEndpoint struct {
-	HandlerFunctionArguments
-}
-
 // @Summary Get information about a user
 // @Description Get information about a user.
 // @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
@@ -111,9 +106,16 @@ type GetUserInformationEndpoint struct {
 // @Router /users/{id} [get]
 func GetUserInformation(arguments *HandlerFunctionArguments) {
 	endpoint := GetUserInformationEndpoint{
-		HandlerFunctionArguments: *arguments,
+		Endpoint: Endpoint{
+			HandlerFunctionArguments: *arguments,
+		},
 	}
+	
 	endpoint.execute()
+}
+
+type GetUserInformationEndpoint struct {
+	Endpoint
 }
 
 func (ep *GetUserInformationEndpoint) execute() {
