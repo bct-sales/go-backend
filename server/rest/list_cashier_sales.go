@@ -49,13 +49,7 @@ func (ep *listCashierSalesEndpoint) execute() {
 		return
 	}
 
-	successResponse := ListCashierSalesSuccessResponse{
-		Sales: algorithms.Map(saleSummaries, func(saleSummary *models.SaleSummary) *ListCashierSaleData {
-			return ep.convertSaleSummaryToData(saleSummary)
-		}),
-	}
-
-	ep.Context.IndentedJSON(http.StatusOK, successResponse)
+	ep.sendSuccessResponse(saleSummaries)
 }
 
 func (ep *listCashierSalesEndpoint) convertSaleSummaryToData(saleSummary *models.SaleSummary) *ListCashierSaleData {
@@ -138,4 +132,13 @@ func (ep *listCashierSalesEndpoint) getSaleSummariesFromDatabase(uriCashierId mo
 	}
 
 	return saleSummaries, true
+}
+
+func (ep *listCashierSalesEndpoint) sendSuccessResponse(saleSummaries []*models.SaleSummary) {
+	successResponse := ListCashierSalesSuccessResponse{
+		Sales: algorithms.Map(saleSummaries, func(saleSummary *models.SaleSummary) *ListCashierSaleData {
+			return ep.convertSaleSummaryToData(saleSummary)
+		}),
+	}
+	ep.Context.IndentedJSON(http.StatusOK, successResponse)
 }
