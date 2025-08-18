@@ -3,6 +3,10 @@ package initialize
 import (
 	"bctbackend/algorithms"
 	"bctbackend/commands/common"
+	"errors"
+	"fmt"
+	"io"
+	"net/http"
 	"os"
 
 	"github.com/MakeNowJust/heredoc"
@@ -40,6 +44,11 @@ func (c *InitializeCommand) execute() error {
 	if err := c.generateConfigurationFile(); err != nil {
 		return err
 	}
+
+	if err := c.downloadHTMLFile(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -83,5 +92,55 @@ func (c *InitializeCommand) generateConfigurationFile() error {
 	}
 
 	c.Printf("Configuration file created successfully\n")
+	return nil
+}
+
+func (c *InitializeCommand) downloadHTMLFile() (r_err error) {
+	filename := "index.html"
+
+	fileExists, err := algorithms.FileExists(filename)
+	if err != nil {
+		c.PrintErrorf("Failed to check if %s exists: %v\n", filename, err)
+		return err
+	}
+	if fileExists {
+		c.Printf("File %s already exists; I will not overwrite it\n", filename)
+		return nil
+	}
+
+	out, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := out.Close(); err != nil {
+			c.PrintErrorf("Failed to close file %s\n", filename)
+			r_err = errors.Join(r_err, err)
+		}
+	}()
+
+	url := "https://github.com/bct-sales/go-frontend/releases/latest/download/index.html"
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			c.PrintErrorf("Failed to close response body\n")
+			r_err = errors.Join(r_err, err)
+		}
+	}()
+
+	if resp.StatusCode != http.StatusOK {
+		c.PrintErrorf("Failed to download file from %s: %s\n", url, resp.Status)
+		return fmt.Errorf("bad status: %s", resp.Status)
+	}
+
+	if _, err := io.Copy(out, resp.Body); err != nil {
+		return err
+	}
+
+	c.Printf("HTML file downloaded successfully to index.html\n")
+
 	return nil
 }
