@@ -41,6 +41,27 @@ func TestListCashierSales(t *testing.T) {
 				require.NotNil(t, actual)
 				require.Equal(t, len(sales), len(actual.Sales))
 			})
+
+			t.Run("With offset", func(t *testing.T) {
+				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				defer setup.Close()
+
+				seller := setup.Seller()
+				cashier, sessionId := setup.LoggedIn(setup.Cashier())
+
+				items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
+				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserId, []models.Id{item.ItemID}) })
+
+				url := path.CashierSales(cashier.UserId).Offset(1)
+				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				router.ServeHTTP(writer, request)
+				require.Equal(t, http.StatusOK, writer.Code)
+
+				actual := FromJson[rest.ListCashierSalesSuccessResponse](t, writer.Body.String())
+				require.NotNil(t, actual)
+				require.Equal(t, len(sales)-1, len(actual.Sales))
+				require.Equal(t, sales[1].SaleID, actual.Sales[0].SaleId)
+			})
 		})
 
 		t.Run("Admin views sales", func(t *testing.T) {
