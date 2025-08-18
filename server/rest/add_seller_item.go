@@ -34,14 +34,16 @@ type AddSellerItemResponse struct {
 // @Router /seller/{seller_id}/items [put]
 func AddSellerItem(arguments *HandlerFunctionArguments) {
 	endpoint := addSellerItemEndpoint{
-		HandlerFunctionArguments: *arguments,
+		Endpoint: Endpoint{
+			HandlerFunctionArguments: *arguments,
+		},
 	}
 
 	endpoint.execute()
 }
 
 type addSellerItemEndpoint struct {
-	HandlerFunctionArguments
+	Endpoint
 }
 
 func (ep *addSellerItemEndpoint) execute() {
