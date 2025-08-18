@@ -98,7 +98,7 @@ func (ep *listAllItemsEndpoint) parseItemSelectionQueryParameter() queries.ItemS
 	}
 }
 
-func (ep *listAllItemsEndpoint) fetchItemsFromDatabase(itemSelection queries.ItemSelection, rowSelection queries.SQLOption) ([]*models.Item, bool) {
+func (ep *listAllItemsEndpoint) fetchItemsFromDatabase(itemSelection queries.ItemSelection, rowSelection *queries.RowSelection) ([]*models.Item, bool) {
 	items := []*models.Item{}
 
 	if err := queries.GetItems(ep.Database, queries.CollectTo(&items), itemSelection, rowSelection); err != nil {
