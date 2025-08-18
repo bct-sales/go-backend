@@ -24,16 +24,18 @@ type ListCashierSalesSuccessResponse struct {
 	Sales []*ListCashierSaleData `json:"sales"`
 }
 
-type listCashierSalesEndpoint struct {
-	HandlerFunctionArguments
-}
-
 func ListCashierSales(arguments *HandlerFunctionArguments) {
 	endpoint := &listCashierSalesEndpoint{
-		HandlerFunctionArguments: *arguments,
+		Endpoint: Endpoint{
+			HandlerFunctionArguments: *arguments,
+		},
 	}
 
 	endpoint.execute()
+}
+
+type listCashierSalesEndpoint struct {
+	Endpoint
 }
 
 func (endpoint *listCashierSalesEndpoint) execute() {
