@@ -942,26 +942,35 @@ func GetMultiplySoldItems(db DatabaseQuerier) (r_result []MultiplySoldItem, r_er
 
 	rows, err := db.Query(
 		`
-			SELECT item.item_id,
-				   item.added_at,
-			       item.description,
-				   item.price_in_cents,
-				   item.item_category_id,
-				   item.seller_id,
-				   item.donation,
-				   item.charity,
-				   item.frozen,
-				   sale.sale_id,
-				   sale.cashier_id,
-				   sale.transaction_time
-			FROM items item
-			INNER JOIN item_categories category ON item.item_category_id = category.item_category_id
-			INNER JOIN sale_items sale_item ON item.item_id = sale_item.item_id
-			INNER JOIN sales sale ON sale_item.sale_id = sale.sale_id
-			WHERE (SELECT COUNT(*)
-			       FROM sale_items si
-				   WHERE si.item_id = item.item_id) > 1
-			ORDER BY item.item_id, sale.sale_id
+			SELECT
+				item.item_id,
+				item.added_at,
+			    item.description,
+				item.price_in_cents,
+				item.item_category_id,
+				item.seller_id,
+				item.donation,
+				item.charity,
+				item.frozen,
+				sale.sale_id,
+				sale.cashier_id,
+				sale.transaction_time
+			FROM
+				items item
+			INNER JOIN
+				item_categories category ON item.item_category_id = category.item_category_id
+			INNER JOIN
+				sale_items sale_item ON item.item_id = sale_item.item_id
+			INNER JOIN
+				sales sale ON sale_item.sale_id = sale.sale_id
+			WHERE
+				(
+					SELECT COUNT(*)
+					FROM sale_items si
+					WHERE si.item_id = item.item_id
+				) > 1
+			ORDER BY
+				item.item_id, sale.sale_id
 		`,
 	)
 	if err != nil {
