@@ -68,6 +68,12 @@ func (ep *Endpoint) parseOffsetQueryParameter() (*int, bool) {
 			return nil, false
 		}
 
+		if parsedOffset < 0 {
+			ep.Logger.InvalidRequest("Invalid offset parameter", "offset", offsetString)
+			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Offset must be 0 or greater")
+			return nil, false
+		}
+
 		return &parsedOffset, true
 	} else {
 		return nil, true
@@ -82,6 +88,12 @@ func (ep *Endpoint) parseLimitQueryParameter() (*int, bool) {
 		if err != nil {
 			ep.Logger.InvalidInput("Failed to parse limit", "error", err, "limit", limitString)
 			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Failed to parse limit: "+err.Error())
+			return nil, false
+		}
+
+		if parsedLimit < 1 {
+			ep.Logger.InvalidRequest("Invalid limit parameter", "limit", limitString)
+			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Limit must be greater than 0")
 			return nil, false
 		}
 
