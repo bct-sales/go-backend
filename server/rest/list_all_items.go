@@ -60,16 +60,13 @@ func (ep *listAllItemsEndpoint) execute() {
 	}
 
 	itemSelection := ep.parseItemSelectionQueryParameter()
-	limit, limitOk := ep.parseLimitQueryParameter()
-	if !limitOk {
+
+	rowSelection, selectionOk := ep.parseRowSelectionQueryParameters()
+	if !selectionOk {
 		return
 	}
-	offset, offsetOk := ep.parseOffsetQueryParameter()
-	if !offsetOk {
-		return
-	}
-	rowSelection := queries.RowSelection{Offset: offset, Limit: limit}
-	items, itemsOk := ep.fetchItemsFromDatabase(itemSelection, &rowSelection)
+
+	items, itemsOk := ep.fetchItemsFromDatabase(itemSelection, rowSelection)
 	if !itemsOk {
 		return
 	}
