@@ -906,6 +906,10 @@ func CountCashierSales(db DatabaseQuerier, cashierId models.Id) (r_result int, r
 		r_err = dberr.WrapError(r_err)
 	}()
 
+	if err := EnsureUserExistsAndHasRole(db, cashierId, models.NewCashierRoleId()); err != nil {
+		return 0, err
+	}
+
 	var count int
 	err := db.QueryRow(
 		`
