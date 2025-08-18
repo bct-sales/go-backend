@@ -44,10 +44,10 @@ func ListCashierSales(arguments *HandlerFunctionArguments) {
 		logger:  arguments.Logger,
 	}
 
-	endpoint.Execute()
+	endpoint.execute()
 }
 
-func (endpoint *listCashierSalesEndpoint) Execute() {
+func (endpoint *listCashierSalesEndpoint) execute() {
 	uriCashierId, ok := endpoint.extractCashierIdFromUri()
 	if !ok {
 		return
