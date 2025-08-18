@@ -3,6 +3,7 @@
 package queries
 
 import (
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
@@ -47,6 +48,19 @@ func TestCountCashierSales(t *testing.T) {
 			count, err := queries.CountCashierSales(db, cashier.UserId)
 			require.NoError(t, err)
 			require.Equal(t, 2, count)
+		})
+	})
+
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("Nonexistent cashier", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			nonexistentCashierId := models.Id(999)
+			setup.RequireNoSuchUsers(t, nonexistentCashierId)
+
+			_, err := queries.CountCashierSales(db, 999)
+			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 	})
 }
