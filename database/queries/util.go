@@ -43,3 +43,10 @@ func AllRows() *RowSelection {
 func NewRowSelection(offset int, limit int) *RowSelection {
 	return &RowSelection{Limit: &limit, Offset: &offset}
 }
+
+type Order int
+
+const (
+	OrderChronologically Order = iota
+	OrderAntiChronologically
+)

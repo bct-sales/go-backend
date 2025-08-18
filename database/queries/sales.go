@@ -813,13 +813,21 @@ func RemoveAllSales(transaction *TransactionalDatabaseQuerier) (r_err error) {
 // GetCashierSales retrieves a list of sales made by a specified cashier.
 // If cashierId does not correspond to any user, ErrNoSuchUser is returned.
 // If cashierId does not correspond to a cashier, ErrWrongRole is returned.
-func GetCashierSales(db DatabaseQuerier, cashierId models.Id, receiver func(*models.SaleSummary) error, rowSelection *RowSelection) (r_err error) {
+func GetCashierSales(db DatabaseQuerier, cashierId models.Id, receiver func(*models.SaleSummary) error, order Order, rowSelection *RowSelection) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
 	if err := EnsureUserExistsAndHasRole(db, cashierId, models.NewCashierRoleId()); err != nil {
 		return err
+	}
+
+	orderClause := ""
+	switch order {
+	case OrderChronologically:
+		orderClause = "ORDER BY sales.transaction_time ASC, sales.sale_id ASC"
+	case OrderAntiChronologically:
+		orderClause = "ORDER BY sales.transaction_time DESC, sales.sale_id DESC"
 	}
 
 	query := fmt.Sprintf(
@@ -831,7 +839,9 @@ func GetCashierSales(db DatabaseQuerier, cashierId models.Id, receiver func(*mod
 			WHERE sales.cashier_id = ?
 			GROUP BY sales.sale_id
 			%s
+			%s
 		`,
+		orderClause,
 		rowSelection.SQL(),
 	)
 	rows, err := db.Query(query, cashierId)
