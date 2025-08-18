@@ -201,11 +201,13 @@ func (server *Server) defineStaticFilesRoutes(htmlPath string) {
 	})
 }
 
-func (server *Server) RawPOST(path *paths.URL, handler func(clock clock.Clock, logger logger.Logger, context *gin.Context, database *sql.DB)) {
+func (server *Server) RawPOST(path *paths.URL, handler func(clock clock.Clock, logger logger.Logger, context *gin.Context, database *sql.DB, configuration *configuration.ServerConfiguration)) {
 	decoratedSlogger := server.loggerResources.logger.With(slog.String("handler", getFunctionName(handler)))
 	logger := logger.NewLoggerWrapper(decoratedSlogger)
 
-	server.router.POST(path.String(), func(context *gin.Context) { handler(server.clock, logger, context, server.database) })
+	server.router.POST(path.String(), func(context *gin.Context) {
+		handler(server.clock, logger, context, server.database, server.configuration.Server)
+	})
 }
 
 func (server *Server) GET(path *paths.URL, handler rest.HandlerFunction) {

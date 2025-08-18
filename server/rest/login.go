@@ -6,6 +6,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/security"
+	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
 	"bctbackend/server/logger"
 	"database/sql"
@@ -40,7 +41,7 @@ type LoginSuccessResponse struct {
 // @Param username formData string true "username"
 // @Param password formData string true "password"
 // @Tags authentication
-func Login(clock clock.Clock, logger logger.Logger, context *gin.Context, db *sql.DB) {
+func Login(clock clock.Clock, logger logger.Logger, context *gin.Context, db *sql.DB, configuration *configuration.ServerConfiguration) {
 	var loginRequest LoginRequest
 
 	if err := context.ShouldBind(&loginRequest); err != nil {
@@ -87,7 +88,7 @@ func Login(clock clock.Clock, logger logger.Logger, context *gin.Context, db *sq
 	}
 
 	ensureSecure := false // TODO: set to true when using HTTPS
-	context.SetCookie(security.SessionCookieName, string(sessionId), security.SessionDurationInSeconds, "/", "localhost", ensureSecure, true)
+	context.SetCookie(security.SessionCookieName, string(sessionId), security.SessionDurationInSeconds, "/", configuration.CookieDomain, ensureSecure, true)
 	roleName := roleId.Name()
 
 	response := LoginSuccessResponse{Role: roleName}
