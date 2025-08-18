@@ -62,6 +62,30 @@ func TestGetCashierSales(t *testing.T) {
 			require.Equal(t, saleIds[5], actual[3].SaleID)
 			require.Equal(t, saleIds[6], actual[4].SaleID)
 		})
+
+		t.Run("Anti chronologically", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+			cashier := setup.Cashier()
+			items := setup.Items(seller.UserId, 3, aux.WithHidden(false))
+
+			saleIds := []models.Id{}
+			for _, item := range items {
+				sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+				saleIds = append(saleIds, sale.SaleID)
+			}
+
+			actual := []*models.SaleSummary{}
+			err := queries.GetCashierSales(db, cashier.UserId, queries.CollectTo(&actual), queries.OrderAntiChronologically, queries.AllRows())
+
+			require.NoError(t, err)
+			require.Len(t, actual, 3)
+			require.Equal(t, saleIds[2], actual[0].SaleID)
+			require.Equal(t, saleIds[1], actual[1].SaleID)
+			require.Equal(t, saleIds[0], actual[2].SaleID)
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
