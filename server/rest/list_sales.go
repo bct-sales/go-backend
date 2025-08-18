@@ -249,11 +249,12 @@ func (ep *getSalesEndpoint) parseQueryParameters() (*getSalesQueryParameters, bo
 	if !ok {
 		return nil, false
 	}
+	antiChronologicalOrder := order == queries.OrderAntiChronologically
 
 	queryParameters := getSalesQueryParameters{
 		startId:                    startId,
 		rowSelection:               rowSelection,
-		orderedAntiChronologically: order,
+		orderedAntiChronologically: antiChronologicalOrder,
 	}
 
 	return &queryParameters, true

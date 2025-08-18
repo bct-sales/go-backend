@@ -121,15 +121,15 @@ func (ep *Endpoint) parseRowSelectionQueryParameters() *queries.RowSelection {
 	return &rowSelection
 }
 
-func (ep *Endpoint) parseOrderQueryParameter() (bool, bool) {
+func (ep *Endpoint) parseOrderQueryParameter() (queries.Order, bool) {
 	if order, exists := ep.Context.GetQuery("order"); exists {
 		if order != "antichronological" {
 			ep.Logger.InvalidInput("Invalid order parameter", "order", order)
 			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Order must be 'antichronological'")
-			return false, false
+			return 0, false
 		}
-		return true, true
+		return queries.OrderAntiChronologically, true
 	}
 
-	return false, true
+	return queries.OrderChronologically, true
 }
