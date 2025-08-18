@@ -50,7 +50,7 @@ type listUsersEndpoint struct {
 
 func (ep *listUsersEndpoint) execute() {
 	if !ep.RoleId.IsAdmin() {
-		xxx.InvalidRequest(
+		ep.Logger.InvalidRequest(
 			"Non-admin attempted to list all items",
 			slog.Int64("user_id", ep.UserId.Int64()),
 			slog.Int64("role_id", ep.RoleId.Int64()))
@@ -61,7 +61,7 @@ func (ep *listUsersEndpoint) execute() {
 
 	users := []*queries.UserWithItemCount{}
 	if err := queries.GetUsersWithItemCount(ep.Database, queries.OnlyVisibleItems, queries.CollectTo(&users)); err != nil {
-		xxx.InternalError("Failed to fetch users", slog.String("error", err.Error()))
+		ep.Logger.InternalError("Failed to fetch users", slog.String("error", err.Error()))
 		failure_response.Unknown(ep.Context, err.Error())
 		return
 	}
