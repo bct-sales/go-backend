@@ -55,6 +55,10 @@ func (c *InitializeCommand) execute() error {
 		return err
 	}
 
+	if err := c.createDatabaseFile(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
