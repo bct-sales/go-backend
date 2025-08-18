@@ -35,11 +35,24 @@ type GetUsersSuccessResponse struct {
 // @Failure 500 {object} failure_response.FailureResponse "Internal error"
 // @Router /users [get]
 func ListUsers(arguments *HandlerFunctionArguments) {
-	context := arguments.Context
-	userId := arguments.UserId
-	roleId := arguments.RoleId
-	db := arguments.Database
-	logger := arguments.Logger
+	endpoint := listUsersEndpoint{
+		Endpoint: Endpoint{
+			HandlerFunctionArguments: *arguments,
+		},
+	}
+
+	endpoint.execute()
+}
+
+type listUsersEndpoint struct {
+	Endpoint
+}
+
+func (ep *listUsersEndpoint) execute() {
+	userId := ep.UserId
+	roleId := ep.RoleId
+	db := ep.Database
+	logger := ep.Logger
 
 	if !roleId.IsAdmin() {
 		logger.InvalidRequest(
@@ -47,14 +60,14 @@ func ListUsers(arguments *HandlerFunctionArguments) {
 			slog.Int64("user_id", userId.Int64()),
 			slog.Int64("role_id", roleId.Int64()))
 
-		failure_response.WrongRole(context, "Only accessible to admins")
+		failure_response.WrongRole(ep.Context, "Only accessible to admins")
 		return
 	}
 
 	users := []*queries.UserWithItemCount{}
 	if err := queries.GetUsersWithItemCount(db, queries.OnlyVisibleItems, queries.CollectTo(&users)); err != nil {
 		logger.InternalError("Failed to fetch users", slog.String("error", err.Error()))
-		failure_response.Unknown(context, err.Error())
+		failure_response.Unknown(ep.Context, err.Error())
 		return
 	}
 
@@ -84,5 +97,5 @@ func ListUsers(arguments *HandlerFunctionArguments) {
 
 	response := GetUsersSuccessResponse{Users: userData}
 
-	context.IndentedJSON(http.StatusOK, response)
+	ep.Context.IndentedJSON(http.StatusOK, response)
 }
