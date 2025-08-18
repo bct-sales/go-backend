@@ -49,7 +49,12 @@ func (ep *listCashierSalesEndpoint) execute() {
 		return
 	}
 
-	saleSummaries, saleSummariesOk := ep.getSaleSummariesFromDatabase(uriCashierId, rowSelection)
+	order, orderOk := ep.parseOrderQueryParameter()
+	if !orderOk {
+		return
+	}
+
+	saleSummaries, saleSummariesOk := ep.getSaleSummariesFromDatabase(uriCashierId, order, rowSelection)
 	if !saleSummariesOk {
 		return
 	}
@@ -128,9 +133,9 @@ func (ep *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.I
 	return false
 }
 
-func (ep *listCashierSalesEndpoint) getSaleSummariesFromDatabase(uriCashierId models.Id, rowSelection *queries.RowSelection) ([]*models.SaleSummary, bool) {
+func (ep *listCashierSalesEndpoint) getSaleSummariesFromDatabase(uriCashierId models.Id, order queries.Order, rowSelection *queries.RowSelection) ([]*models.SaleSummary, bool) {
 	var saleSummaries []*models.SaleSummary
-	if err := queries.GetCashierSales(ep.Database, uriCashierId, queries.CollectTo(&saleSummaries), queries.OrderChronological, rowSelection); err != nil {
+	if err := queries.GetCashierSales(ep.Database, uriCashierId, queries.CollectTo(&saleSummaries), order, rowSelection); err != nil {
 		ep.Logger.InternalError("Failed to retrieve cashier sales for user %d: %v", uriCashierId, err)
 		failure_response.Unknown(ep.Context, "Could not retrieve cashier sales: "+err.Error())
 		return nil, false
