@@ -9,3 +9,9 @@ builds:
       - amd64
     goamd64:
       - v1
+
+archives:
+  - id: archive
+    builds: [ bctbackend ]
+    format: binary
+    name_template: "bctbackend"
