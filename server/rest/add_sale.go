@@ -32,14 +32,16 @@ type AddSaleSuccessResponse struct {
 // @Router /sales [post]
 func AddSale(arguments *HandlerFunctionArguments) {
 	endpoint := addSaleEndpoint{
-		HandlerFunctionArguments: *arguments,
+		Endpoint: Endpoint{
+			HandlerFunctionArguments: *arguments,
+		},
 	}
 
 	endpoint.execute()
 }
 
 type addSaleEndpoint struct {
-	HandlerFunctionArguments
+	Endpoint
 }
 
 func (ep *addSaleEndpoint) execute() {
