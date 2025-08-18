@@ -17,6 +17,6 @@
 
     },
     "files.exclude": {
-        "bctbackend/vendor": true
+        "vendor": true
     }
 }
