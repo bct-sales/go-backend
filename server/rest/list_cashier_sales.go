@@ -44,10 +44,8 @@ func (endpoint *listCashierSalesEndpoint) execute() {
 		return
 	}
 
-	var saleSummaries []*models.SaleSummary
-	if err := queries.GetCashierSales(endpoint.Database, uriCashierId, queries.CollectTo(&saleSummaries), queries.AllRows()); err != nil {
-		endpoint.Logger.InternalError("Failed to retrieve cashier sales for user %d: %v", uriCashierId, err)
-		failure_response.Unknown(endpoint.Context, "Could not retrieve cashier sales: "+err.Error())
+	saleSummaries, saleSummariesOk := endpoint.getSaleSummariesFromDatabase(uriCashierId)
+	if !saleSummariesOk {
 		return
 	}
 
@@ -129,4 +127,15 @@ func (endpoint *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser mo
 	endpoint.Logger.InvalidRequest("User tried to access sales of cashier %d, but is not a cashier or admin", queriedUser)
 	failure_response.Forbidden(endpoint.Context, "wrong_role", "Only accessible to owning cashiers or admins")
 	return false
+}
+
+func (endpoint *listCashierSalesEndpoint) getSaleSummariesFromDatabase(uriCashierId models.Id) ([]*models.SaleSummary, bool) {
+	var saleSummaries []*models.SaleSummary
+	if err := queries.GetCashierSales(endpoint.Database, uriCashierId, queries.CollectTo(&saleSummaries), queries.AllRows()); err != nil {
+		endpoint.Logger.InternalError("Failed to retrieve cashier sales for user %d: %v", uriCashierId, err)
+		failure_response.Unknown(endpoint.Context, "Could not retrieve cashier sales: "+err.Error())
+		return nil, false
+	}
+
+	return saleSummaries, true
 }
