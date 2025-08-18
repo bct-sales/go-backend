@@ -106,8 +106,8 @@ func TestGetItems(t *testing.T) {
 			items := setup.Items(seller.UserId, 20, aux.WithHidden(false))
 
 			actualItems := []*models.Item{}
-			rowSelection := queries.NewRowSelection(&offset, &limit)
-			err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.AllItems, rowSelection)
+			rowSelection := queries.RowSelection{Offset: &offset, Limit: &limit}
+			err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.AllItems, &rowSelection)
 			require.NoError(t, err)
 			require.Equal(t, limit, len(actualItems))
 
