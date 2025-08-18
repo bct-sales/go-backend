@@ -40,6 +40,7 @@ func TestListCashierSales(t *testing.T) {
 				actual := FromJson[rest.ListCashierSalesSuccessResponse](t, writer.Body.String())
 				require.NotNil(t, actual)
 				require.Equal(t, len(sales), len(actual.Sales))
+				require.Equal(t, len(sales), actual.SaleCount)
 			})
 
 			t.Run("With offset", func(t *testing.T) {
@@ -61,6 +62,7 @@ func TestListCashierSales(t *testing.T) {
 				require.NotNil(t, actual)
 				require.Equal(t, len(sales)-1, len(actual.Sales))
 				require.Equal(t, sales[1].SaleID, actual.Sales[0].SaleId)
+				require.Equal(t, len(sales), actual.SaleCount)
 			})
 
 			t.Run("With limit", func(t *testing.T) {
@@ -82,6 +84,7 @@ func TestListCashierSales(t *testing.T) {
 				require.NotNil(t, actual)
 				require.Equal(t, 1, len(actual.Sales))
 				require.Equal(t, sales[0].SaleID, actual.Sales[0].SaleId)
+				require.Equal(t, len(sales), actual.SaleCount)
 			})
 
 			t.Run("With limit and offset", func(t *testing.T) {
@@ -103,6 +106,7 @@ func TestListCashierSales(t *testing.T) {
 				require.NotNil(t, actual)
 				require.Equal(t, 3, len(actual.Sales))
 				require.Equal(t, sales[2].SaleID, actual.Sales[0].SaleId)
+				require.Equal(t, len(sales), actual.SaleCount)
 			})
 
 			t.Run("Anti chronologically", func(t *testing.T) {
@@ -126,6 +130,7 @@ func TestListCashierSales(t *testing.T) {
 				require.Equal(t, sales[2].SaleID, actual.Sales[0].SaleId)
 				require.Equal(t, sales[1].SaleID, actual.Sales[1].SaleId)
 				require.Equal(t, sales[0].SaleID, actual.Sales[2].SaleId)
+				require.Equal(t, len(sales), actual.SaleCount)
 			})
 		})
 
