@@ -62,5 +62,15 @@ func TestCountCashierSales(t *testing.T) {
 			_, err := queries.CountCashierSales(db, nonexistentCashierId)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
+
+		t.Run("Not a cashier", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			noncashier := setup.Seller()
+
+			_, err := queries.CountCashierSales(db, noncashier.UserId)
+			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
+		})
 	})
 }
