@@ -12,6 +12,6 @@ builds:
 
 archives:
   - id: archive
-    builds: [ bctbackend ]
-    format: binary
+    ids: [ bctbackend ]
+    formats: [ binary ]
     name_template: "bctbackend"
