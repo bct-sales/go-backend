@@ -14,9 +14,10 @@ const (
 	CategoryId_Clothing122_128    models.Id = 7
 	CategoryId_Clothing128_140    models.Id = 8
 	CategoryId_Clothing140_152    models.Id = 9
-	CategoryId_Shoes              models.Id = 10
+	CategoryId_Books              models.Id = 10
 	CategoryId_Toys               models.Id = 11
 	CategoryId_BabyChildEquipment models.Id = 12
+	CategoryId_Maternity          models.Id = 13
 
 	CategoryName_Clothing50_56      string = "Clothing 0-3 mos (50-56)"
 	CategoryName_Clothing56_62      string = "Clothing 3-6 mos (56-62)"
@@ -27,9 +28,10 @@ const (
 	CategoryName_Clothing122_128    string = "Clothing 7-8 yrs (122-128)"
 	CategoryName_Clothing128_140    string = "Clothing 9-10 yrs (128-140)"
 	CategoryName_Clothing140_152    string = "Clothing 11-12 yrs (140-152)"
-	CategoryName_Shoes              string = "Shoes (infant to 12 yrs)"
+	CategoryName_Books              string = "Books"
 	CategoryName_Toys               string = "Toys"
 	CategoryName_BabyChildEquipment string = "Baby/Child Equipment"
+	CategoryName_Maternity          string = "Maternity"
 )
 
 func ListCategoryIds() []models.Id {
