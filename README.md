@@ -7,7 +7,7 @@
 $ wget https://github.com/bct-sales/go-backend/releases/latest/download/bctbackend
 
 # Make it executable
-$ chmod 766 ./bctbackend
+$ chmod u+x ./bctbackend
 
 # Initialize
 $ ./bctbackend init
