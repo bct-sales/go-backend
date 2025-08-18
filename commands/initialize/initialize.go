@@ -2,10 +2,10 @@ package initialize
 
 import (
 	"bctbackend/commands/common"
+	"os"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
-	viperlib "github.com/spf13/viper"
 )
 
 type InitializeCommand struct {
@@ -36,30 +36,35 @@ func NewInitializeCommand() *cobra.Command {
 }
 
 func (command *InitializeCommand) execute() error {
-	settingsCopy := command.copySettings()
+	contents := heredoc.Doc(`
+		database: "bct.db"
+		labelGeneration:
+		  barcode:
+		    width: 150
+		    height: 25
+		  font:
+		    directory: "."
+		    filename: "noto.ttf"
+		    family: "Noto"
+		server:
+		  port: 80
+		  html: index.html
+		  pruneExpiredSessionsInterval: 3600
+		debug: true
+		log:
+		  file: "bct.log"
+		  maxSizeMegabytes: 10
+		  maxBackups: 3
+		  maxAgeDays: 28
+		  compression: false
+	`)
 
-	if err := settingsCopy.SafeWriteConfig(); err != nil {
-		command.Printf("Failed to create configuration file: %v\n", err)
+	err := os.WriteFile("bctconfig.yaml", []byte(contents), 0644)
+	if err != nil {
+		command.PrintErrorf("Failed to create configuration file: %v\n", err)
 		return err
 	}
 
 	command.Printf("Configuration file created successfully\n")
 	return nil
-}
-
-func (command *InitializeCommand) copySettings() *viperlib.Viper {
-	viper := viperlib.New()
-
-	viper.SetConfigName("bctconfig")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
-
-	for key, value := range viper.AllSettings() {
-		// Skip the "config" key, it's a bit silly to have the config file reference itself
-		if key != "config" {
-			viper.Set(key, value)
-		}
-	}
-
-	return viper
 }
