@@ -318,16 +318,3 @@ func (ep *getSalesEndpoint) parseRowSelection() (*struct {
 
 	return &rowSelection, true
 }
-
-func (ep *getSalesEndpoint) parseOrder() (bool, bool) {
-	if order, exists := ep.Context.GetQuery("order"); exists {
-		if order != "antichronological" {
-			ep.Logger.InvalidInput("Invalid order parameter", "order", order)
-			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Order must be 'antichronological'")
-			return false, false
-		}
-		return true, true
-	}
-
-	return false, true
-}
