@@ -1,5 +1,15 @@
 # Overview
 
+## Installation
+
+```bash
+# Download file
+$ wget https://github.com/bct-sales/go-backend/releases/latest/download/go-backend_1.3.0_linux_amd64.tar.gz
+
+# Unpack file
+$ tar xzvf go-backend_1.3.0_linux_amd64.tar.gz
+```
+
 ## Command Line Options
 
 ```bash
