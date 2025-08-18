@@ -1,6 +1,7 @@
 package initialize
 
 import (
+	"bctbackend/algorithms"
 	"bctbackend/commands/common"
 	"os"
 
@@ -43,6 +44,16 @@ func (c *InitializeCommand) execute() error {
 }
 
 func (c *InitializeCommand) generateConfigurationFile() error {
+	fileExists, err := algorithms.FileExists("bctconfig.yaml")
+	if err != nil {
+		c.PrintErrorf("Failed to check if configuration file exists: %v\n", err)
+		return err
+	}
+	if fileExists {
+		c.Printf("Configuration file already exists; I will not overwrite it\n")
+		return nil
+	}
+
 	contents := heredoc.Doc(`
 		database: "bct.db"
 		labelGeneration:
@@ -66,8 +77,7 @@ func (c *InitializeCommand) generateConfigurationFile() error {
 		  compression: false
 	`)
 
-	err := os.WriteFile("bctconfig.yaml", []byte(contents), 0644)
-	if err != nil {
+	if err := os.WriteFile("bctconfig.yaml", []byte(contents), 0644); err != nil {
 		c.PrintErrorf("Failed to create configuration file: %v\n", err)
 		return err
 	}
