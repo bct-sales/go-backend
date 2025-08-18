@@ -49,16 +49,14 @@ type listUsersEndpoint struct {
 }
 
 func (ep *listUsersEndpoint) execute() {
-	userId := ep.UserId
-	roleId := ep.RoleId
 	db := ep.Database
 	logger := ep.Logger
 
-	if !roleId.IsAdmin() {
+	if !xxx.IsAdmin() {
 		logger.InvalidRequest(
 			"Non-admin attempted to list all items",
-			slog.Int64("user_id", userId.Int64()),
-			slog.Int64("role_id", roleId.Int64()))
+			slog.Int64("user_id", ep.UserId.Int64()),
+			slog.Int64("role_id", xxx.Int64()))
 
 		failure_response.WrongRole(ep.Context, "Only accessible to admins")
 		return
