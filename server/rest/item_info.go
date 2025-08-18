@@ -24,7 +24,7 @@ type GetItemInformationSuccessResponse struct {
 }
 
 type getItemInformationEndpoint struct {
-	HandlerFunctionArguments
+	Endpoint
 }
 
 // @Summary Get information about an item
@@ -37,8 +37,11 @@ type getItemInformationEndpoint struct {
 // @Router /items/{id} [get]
 func GetItemInformation(arguments *HandlerFunctionArguments) {
 	endpoint := getItemInformationEndpoint{
-		HandlerFunctionArguments: *arguments,
+		Endpoint: Endpoint{
+			HandlerFunctionArguments: *arguments,
+		},
 	}
+
 	endpoint.execute()
 }
 
