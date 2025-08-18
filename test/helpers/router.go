@@ -24,8 +24,10 @@ func CreateRestServer(db *sql.DB, clock *clock.ManualClock) *server.Server {
 				Family:    os.Getenv("BCT_FONT_FAMILY"),
 			},
 		},
-		GinMode:                     gin.TestMode,
-		ExpiredSessionPruneInterval: 60,
+		Server: &configuration.ServerConfiguration{
+			GinMode:                     gin.TestMode,
+			ExpiredSessionPruneInterval: 60,
+		},
 	}
 
 	server, err := server.NewServer(clock, db, &configuration)
