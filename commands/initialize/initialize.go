@@ -3,6 +3,8 @@ package initialize
 import (
 	"bctbackend/algorithms"
 	"bctbackend/commands/common"
+	"bctbackend/database"
+	dberr "bctbackend/database/errors"
 	"errors"
 	"fmt"
 	"io"
@@ -158,7 +160,7 @@ func (c *InitializeCommand) downloadFontFile() (r_err error) {
 		return err
 	}
 	if fileExists {
-		c.Printf("File %s already exists; I will not overwrite it\n", filename)
+		c.Printf("File %s already exists; I will not overwrite it.\n", filename)
 		return nil
 	}
 
@@ -195,6 +197,40 @@ func (c *InitializeCommand) downloadFontFile() (r_err error) {
 	}
 
 	c.Printf("Font file downloaded successfully to %s\n", filename)
+
+	return nil
+}
+
+func (c *InitializeCommand) createDatabaseFile() (r_err error) {
+	databasePath := "bct.db"
+	db, err := database.CreateDatabase(databasePath)
+
+	if err != nil {
+		if errors.Is(err, dberr.ErrDatabaseAlreadyExists) {
+			c.Printf("Database file %s already exists; I will not overwrite it.\n", databasePath)
+
+			return err
+		}
+
+		c.PrintErrorf("Failed to create database file: %v\n", err)
+		return err
+	}
+
+	defer func() {
+		if err := db.Close(); err != nil {
+			c.PrintErrorf("Failed to close database %s\n", databasePath)
+			r_err = errors.Join(r_err, err)
+		}
+	}()
+
+	c.Printf("Database file successfully created at %s\n", databasePath)
+
+	if err := database.InitializeDatabase(db); err != nil {
+		c.PrintErrorf("Failed to initialize database: %v\n", err)
+		return err
+	}
+
+	c.Printf("Database initialized successfully\n")
 
 	return nil
 }
