@@ -73,3 +73,20 @@ func (ep *Endpoint) parseOffsetQueryParameter() (*int, bool) {
 		return nil, true
 	}
 }
+
+func (ep *Endpoint) parseLimitQueryParameter() (*int, bool) {
+	limitString := ep.Context.Query("limit")
+	if limitString != "" {
+		parsedLimit, err := strconv.Atoi(limitString)
+
+		if err != nil {
+			ep.Logger.InvalidInput("Failed to parse limit", "error", err, "limit", limitString)
+			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Failed to parse limit: "+err.Error())
+			return nil, false
+		}
+
+		return &parsedLimit, true
+	} else {
+		return nil, true
+	}
+}
