@@ -39,3 +39,7 @@ func (p *RowSelection) SQL() string {
 func AllRows() *RowSelection {
 	return &RowSelection{Limit: nil, Offset: nil}
 }
+
+func NewRowSelection(offset int, limit int) *RowSelection {
+	return &RowSelection{Limit: &limit, Offset: &offset}
+}
