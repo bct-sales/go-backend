@@ -103,22 +103,22 @@ func (ep *Endpoint) parseLimitQueryParameter() (*int, bool) {
 	}
 }
 
-func (ep *Endpoint) parseRowSelectionQueryParameters() (*queries.RowSelection, bool) {
+func (ep *Endpoint) parseRowSelectionQueryParameters() *queries.RowSelection {
 	limit, limitOk := ep.parseLimitQueryParameter()
 	if !limitOk {
-		return nil, false
+		return nil
 	}
 
 	offset, offsetOk := ep.parseOffsetQueryParameter()
 	if !offsetOk {
-		return nil, false
+		return nil
 	}
 
 	rowSelection := queries.RowSelection{
 		Limit:  limit,
 		Offset: offset,
 	}
-	return &rowSelection, true
+	return &rowSelection
 }
 
 func (ep *Endpoint) parseOrder() (bool, bool) {

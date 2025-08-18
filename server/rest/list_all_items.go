@@ -61,8 +61,8 @@ func (ep *listAllItemsEndpoint) execute() {
 
 	itemSelection := ep.parseItemSelectionQueryParameter()
 
-	rowSelection, selectionOk := ep.parseRowSelectionQueryParameters()
-	if !selectionOk {
+	rowSelection := ep.parseRowSelectionQueryParameters()
+	if rowSelection == nil {
 		return
 	}
 

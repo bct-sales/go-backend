@@ -44,8 +44,8 @@ func (ep *listCashierSalesEndpoint) execute() {
 		return
 	}
 
-	rowSelection, rowSelectionOk := ep.parseRowSelectionQueryParameters()
-	if !rowSelectionOk {
+	rowSelection := ep.parseRowSelectionQueryParameters()
+	if rowSelection == nil {
 		return
 	}
 
