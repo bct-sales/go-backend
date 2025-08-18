@@ -900,6 +900,29 @@ func CountSales(db DatabaseQuerier) (r_result int, r_err error) {
 	return count, nil
 }
 
+// CountCashierSales returns the total number of sales made by the specified cashier.
+func CountCashierSales(db DatabaseQuerier, cashierId models.Id) (r_result int, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
+	var count int
+	err := db.QueryRow(
+		`
+			SELECT COUNT(*)
+			FROM sales
+			WHERE cashier_id = ?
+		`,
+		cashierId,
+	).Scan(&count)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 // GetTotalSalesValue returns the total value of all sales in the database.
 // The value is calculated as the sum of the prices of all items sold.
 // If an item was sold multiple times, its price is counted each time.
