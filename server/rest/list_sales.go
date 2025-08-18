@@ -33,11 +33,8 @@ type getSalesEndpoint struct {
 }
 
 type getSalesQueryParameters struct {
-	startId      *models.Id
-	rowSelection *struct {
-		limit  int
-		offset int
-	}
+	startId                    *models.Id
+	rowSelection               *queries.RowSelection
 	orderedAntiChronologically bool
 }
 
@@ -213,7 +210,7 @@ func (ep *getSalesEndpoint) buildQuery(queryParameters *getSalesQueryParameters)
 	}
 
 	if queryParameters.rowSelection != nil {
-		query.WithRowSelection(queryParameters.rowSelection.limit, queryParameters.rowSelection.offset)
+		query.WithRowSelection(*queryParameters.rowSelection.Limit, *queryParameters.rowSelection.Offset)
 	}
 
 	if queryParameters.orderedAntiChronologically {
@@ -262,11 +259,7 @@ func (ep *getSalesEndpoint) parseStartId() (*models.Id, bool) {
 	return nil, true
 }
 
-func (ep *getSalesEndpoint) parseRowSelection() (*struct {
-	limit  int
-	offset int
-}, bool) {
-
+func (ep *getSalesEndpoint) parseRowSelection() (*queries.RowSelection, bool) {
 	limitString, limitExists := ep.Context.GetQuery("limit")
 	offsetString, offsetExists := ep.Context.GetQuery("offset")
 
@@ -308,12 +301,9 @@ func (ep *getSalesEndpoint) parseRowSelection() (*struct {
 		return nil, false
 	}
 
-	rowSelection := struct {
-		limit  int
-		offset int
-	}{
-		limit:  limit,
-		offset: offset,
+	rowSelection := queries.RowSelection{
+		Limit:  &limit,
+		Offset: &offset,
 	}
 
 	return &rowSelection, true
