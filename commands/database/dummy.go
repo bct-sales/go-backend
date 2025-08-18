@@ -59,71 +59,26 @@ var clothingCategories = [...]models.Id{
 	CategoryId_Clothing140_152,
 }
 
-var shoeTypes = [...]string{
-	"Nike Air Max 90 sneakers",
-	"Nike Air Max 95 sneakers",
-	"Nike Air Max 97 sneakers",
-	"Nike TN sneakers",
-	"Nike P-6000 sneakers",
-	"Nike Vomero sneakers",
-	"Nike Pegasus sneakers",
-	"Nike Air Force sneakers",
-	"Adidas Superstar sneakers",
-	"Adidas Gazelle sneakers",
-	"Adidas Stan Smith sneakers",
-	"Adidas Samba sneakers",
-	"Adidas Ultraboost sneakers",
-	"Adidas NMD sneakers",
-	"Adidas Yeezy sneakers",
-	"Adidas Ozweego sneakers",
-	"Puma Suede sneakers",
-	"Puma Speedcat sneakers",
-	"Fila Disruptor sneakers",
-	"Fila Bubbles sneakers",
-	"Reebok Instapump Fury sneakers",
-	"Reebok Kamikaze sneakers",
-	"Converse All-Star sneakers",
-	"Vans slip-ons",
-	"Vans Old Skool",
-	"Vans Sk8-Hi",
-	"New Balance 530 sneakers",
-	"New Balance 9060 sneakers",
-	"Asics Kayano 14 sneakers",
-	"Hoka sneakers",
-	"Saucony sneakers",
-	"Brooks sneakers",
-	"Mizuno sneakers",
-	"On Cloudmonster sneakers",
-	"On Cloudsurfer sneakers",
-	"Jordan sneakers",
-	"Under Armour sneakers",
-	"Crocs Classic clogs",
-	"Crocs Echo clogs",
-	"Crocs Crush clogs",
-}
-
-var bootBrands = [...]string{
-	"Sendra",
-	"Timberland",
-	"Dr. Martens",
-	"Solovair",
-	"New Rock",
-	"Red Wing",
-	"Frye",
-	"Ariat",
-	"Justin",
-	"Lucchese",
-	"Carmina",
-	"Tony Mora",
-}
-
-var bootTypes = [...]string{
-	"combat boots",
-	"cowboy boots",
-	"harness boots",
-	"engineer boots",
-	"Jodhpur boots",
-	"Chelsea boots",
+var books = [...]string{
+	"War and Peace",
+	"Price and Prejudice",
+	"Crime and Punishment",
+	"Little Women",
+	"It",
+	"House of Leaves",
+	"Ulysses",
+	"Finnegan's Wake",
+	"Brave New World",
+	"Animal Farm",
+	"1984",
+	"Space, Time and Nathaniel",
+	"The Road",
+	"No Country for Old Men",
+	"The Catcher in the Rye",
+	"A Column of Fire",
+	"Pillars of the Earth",
+	"Frankenstein",
+	"Dracula",
 }
 
 var toys = [...]string{
@@ -402,7 +357,7 @@ func (c *dummyDatabaseCommand) generateRandomItemDescriptionAndCategory() (strin
 	case 0:
 		return c.generateRandomClothing()
 	case 1:
-		return c.generateRandomShoes()
+		return c.generateRandomBooks()
 	default:
 		return c.generateRandomToys()
 	}
@@ -432,19 +387,11 @@ func pickRandom[T any](rng *rand.Rand, items []T) T {
 	return items[rng.IntN(len(items))]
 }
 
-func (c *dummyDatabaseCommand) generateRandomShoes() (string, models.Id) {
-	switch c.rng.IntN(2) {
-	case 0:
-		color := c.generateRandomColor()
-		shoeType := pickRandom(c.rng, shoeTypes[:])
-		description := fmt.Sprintf("%s %s", color, shoeType)
-		return description, CategoryId_Shoes
-	default:
-		brand := pickRandom(c.rng, bootBrands[:])
-		bootType := pickRandom(c.rng, bootTypes[:])
-		description := fmt.Sprintf("%s %s", brand, bootType)
-		return description, CategoryId_Shoes
-	}
+func (c *dummyDatabaseCommand) generateRandomBooks() (string, models.Id) {
+	description := pickRandom(c.rng, books[:])
+	categoryId := CategoryId_Books
+
+	return description, categoryId
 }
 
 func (c *dummyDatabaseCommand) generateRandomToys() (string, models.Id) {

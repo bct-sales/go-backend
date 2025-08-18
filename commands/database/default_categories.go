@@ -45,9 +45,10 @@ func ListCategoryIds() []models.Id {
 		CategoryId_Clothing122_128,
 		CategoryId_Clothing128_140,
 		CategoryId_Clothing140_152,
-		CategoryId_Shoes,
+		CategoryId_Books,
 		CategoryId_Toys,
 		CategoryId_BabyChildEquipment,
+		CategoryId_Maternity,
 	}
 }
 
@@ -79,13 +80,16 @@ func GenerateDefaultCategories(callback func(id models.Id, name string) error) e
 	if err := callback(CategoryId_Clothing140_152, CategoryName_Clothing140_152); err != nil {
 		return err
 	}
-	if err := callback(CategoryId_Shoes, CategoryName_Shoes); err != nil {
+	if err := callback(CategoryId_Books, CategoryName_Books); err != nil {
 		return err
 	}
 	if err := callback(CategoryId_Toys, CategoryName_Toys); err != nil {
 		return err
 	}
 	if err := callback(CategoryId_BabyChildEquipment, CategoryName_BabyChildEquipment); err != nil {
+		return err
+	}
+	if err := callback(CategoryId_Maternity, CategoryName_Maternity); err != nil {
 		return err
 	}
 
