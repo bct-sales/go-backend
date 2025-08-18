@@ -116,23 +116,6 @@ func (ep *listAllItemsEndpoint) parseLimitQueryParameter() (*int, bool) {
 	}
 }
 
-func (ep *listAllItemsEndpoint) parseOffsetQueryParameter() (*int, bool) {
-	offsetString := ep.Context.Query("offset")
-	if offsetString != "" {
-		parsedOffset, err := strconv.Atoi(offsetString)
-
-		if err != nil {
-			ep.Logger.InvalidInput("Failed to parse offset", "error", err, "offset", offsetString)
-			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Failed to parse offset: "+err.Error())
-			return nil, false
-		}
-
-		return &parsedOffset, true
-	} else {
-		return nil, true
-	}
-}
-
 func (ep *listAllItemsEndpoint) fetchItemsFromDatabase(itemSelection queries.ItemSelection, rowSelection queries.SQLOption) ([]*models.Item, bool) {
 	items := []*models.Item{}
 

@@ -5,9 +5,11 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/server/configuration"
+	"bctbackend/server/failure_response"
 	"bctbackend/server/logger"
 	"context"
 	"database/sql"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -49,4 +51,21 @@ func (w *DatabaseWrapper) StartTransaction() (*queries.TransactionalDatabaseQuer
 
 type Endpoint struct {
 	HandlerFunctionArguments
+}
+
+func (ep *Endpoint) parseOffsetQueryParameter() (*int, bool) {
+	offsetString := ep.Context.Query("offset")
+	if offsetString != "" {
+		parsedOffset, err := strconv.Atoi(offsetString)
+
+		if err != nil {
+			ep.Logger.InvalidInput("Failed to parse offset", "error", err, "offset", offsetString)
+			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Failed to parse offset: "+err.Error())
+			return nil, false
+		}
+
+		return &parsedOffset, true
+	} else {
+		return nil, true
+	}
 }
