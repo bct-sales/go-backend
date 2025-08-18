@@ -49,15 +49,11 @@ type listUsersEndpoint struct {
 }
 
 func (ep *listUsersEndpoint) execute() {
-	if !ep.RoleId.IsAdmin() {
-		ep.Logger.InvalidRequest(
-			"Non-admin attempted to list all items",
-			slog.Int64("user_id", ep.UserId.Int64()),
-			slog.Int64("role_id", ep.RoleId.Int64()))
-
-		failure_response.WrongRole(ep.Context, "Only accessible to admins")
+	if !ep.ensureUserIsAdmin() {
 		return
 	}
+
+	
 
 	users := []*queries.UserWithItemCount{}
 	if err := queries.GetUsersWithItemCount(ep.Database, queries.OnlyVisibleItems, queries.CollectTo(&users)); err != nil {
@@ -93,4 +89,19 @@ func (ep *listUsersEndpoint) execute() {
 	response := GetUsersSuccessResponse{Users: userData}
 
 	ep.Context.IndentedJSON(http.StatusOK, response)
+}
+
+func (ep *listUsersEndpoint) ensureUserIsAdmin() bool {
+	if !ep.RoleId.IsAdmin() {
+		ep.Logger.InvalidRequest(
+			"Non-admin attempted to list all items",
+			slog.Int64("user_id", ep.UserId.Int64()),
+			slog.Int64("role_id", ep.RoleId.Int64()))
+
+		failure_response.WrongRole(ep.Context, "Only accessible to admins")
+
+		return false
+	}
+
+	return true
 }
