@@ -6,14 +6,11 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/server/failure_response"
-	"bctbackend/server/logger"
 	rest "bctbackend/server/shared"
 	"errors"
 	"net/http"
 
 	_ "bctbackend/docs"
-
-	"github.com/gin-gonic/gin"
 )
 
 type ListCashierSaleData struct {
@@ -28,20 +25,12 @@ type ListCashierSalesSuccessResponse struct {
 }
 
 type listCashierSalesEndpoint struct {
-	context *gin.Context
-	db      Database
-	userId  models.Id
-	roleId  models.RoleId
-	logger  logger.Logger
+	HandlerFunctionArguments
 }
 
 func ListCashierSales(arguments *HandlerFunctionArguments) {
 	endpoint := &listCashierSalesEndpoint{
-		context: arguments.Context,
-		db:      arguments.Database,
-		userId:  arguments.UserId,
-		roleId:  arguments.RoleId,
-		logger:  arguments.Logger,
+		HandlerFunctionArguments: *arguments,
 	}
 
 	endpoint.execute()
@@ -54,9 +43,9 @@ func (endpoint *listCashierSalesEndpoint) execute() {
 	}
 
 	var saleSummaries []*models.SaleSummary
-	if err := queries.GetCashierSales(endpoint.db, uriCashierId, queries.CollectTo(&saleSummaries)); err != nil {
-		endpoint.logger.InternalError("Failed to retrieve cashier sales for user %d: %v", uriCashierId, err)
-		failure_response.Unknown(endpoint.context, "Could not retrieve cashier sales: "+err.Error())
+	if err := queries.GetCashierSales(endpoint.Database, uriCashierId, queries.CollectTo(&saleSummaries)); err != nil {
+		endpoint.Logger.InternalError("Failed to retrieve cashier sales for user %d: %v", uriCashierId, err)
+		failure_response.Unknown(endpoint.Context, "Could not retrieve cashier sales: "+err.Error())
 		return
 	}
 
@@ -66,7 +55,7 @@ func (endpoint *listCashierSalesEndpoint) execute() {
 		}),
 	}
 
-	endpoint.context.IndentedJSON(http.StatusOK, successResponse)
+	endpoint.Context.IndentedJSON(http.StatusOK, successResponse)
 }
 
 func (endpoint *listCashierSalesEndpoint) convertSaleSummaryToData(saleSummary *models.SaleSummary) *ListCashierSaleData {
@@ -86,16 +75,16 @@ func (endpoint *listCashierSalesEndpoint) extractCashierIdFromUri() (models.Id, 
 	var uriParameters struct {
 		CashierId string `binding:"required" uri:"id"`
 	}
-	if err := endpoint.context.ShouldBindUri(&uriParameters); err != nil {
-		endpoint.logger.InvalidInput("Failed to bind URI parameters: %v", err)
-		failure_response.InvalidUriParameters(endpoint.context, err.Error())
+	if err := endpoint.Context.ShouldBindUri(&uriParameters); err != nil {
+		endpoint.Logger.InvalidInput("Failed to bind URI parameters: %v", err)
+		failure_response.InvalidUriParameters(endpoint.Context, err.Error())
 		return 0, false
 	}
 
 	uriUserId, err := models.ParseId(uriParameters.CashierId)
 	if err != nil {
-		endpoint.logger.InvalidInput("Failed to parse cashier ID \"%s\" from URI: %v", uriParameters.CashierId, err)
-		failure_response.InvalidUserId(endpoint.context, err.Error())
+		endpoint.Logger.InvalidInput("Failed to parse cashier ID \"%s\" from URI: %v", uriParameters.CashierId, err)
+		failure_response.InvalidUserId(endpoint.Context, err.Error())
 		return 0, false
 	}
 
@@ -107,15 +96,15 @@ func (endpoint *listCashierSalesEndpoint) extractCashierIdFromUri() (models.Id, 
 }
 
 func (endpoint *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.Id) bool {
-	user, err := queries.GetUserWithId(endpoint.db, endpoint.userId)
+	user, err := queries.GetUserWithId(endpoint.Database, endpoint.UserId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchUser) {
 			// This should not happen, as the userId is from the logged-in user
-			endpoint.logger.Bug("Logged in user does not exist")
-			failure_response.Unknown(endpoint.context, "Bug: logged in user does not exist")
+			endpoint.Logger.Bug("Logged in user does not exist")
+			failure_response.Unknown(endpoint.Context, "Bug: logged in user does not exist")
 			return false
 		}
-		failure_response.Unknown(endpoint.context, "Could not retrieve logged in user: "+err.Error())
+		failure_response.Unknown(endpoint.Context, "Could not retrieve logged in user: "+err.Error())
 		return false
 	}
 
@@ -124,18 +113,18 @@ func (endpoint *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser mo
 	}
 
 	if user.RoleId.IsCashier() {
-		loggedInUser := endpoint.userId
+		loggedInUser := endpoint.UserId
 
 		if loggedInUser != queriedUser {
-			endpoint.logger.InvalidRequest("User tried to access sales of cashier %d, but is not the owning cashier", queriedUser)
-			failure_response.Forbidden(endpoint.context, "wrong_role", "Only accessible to owning cashiers or admins")
+			endpoint.Logger.InvalidRequest("User tried to access sales of cashier %d, but is not the owning cashier", queriedUser)
+			failure_response.Forbidden(endpoint.Context, "wrong_role", "Only accessible to owning cashiers or admins")
 			return false
 		}
 
 		return true
 	}
 
-	endpoint.logger.InvalidRequest("User tried to access sales of cashier %d, but is not a cashier or admin", queriedUser)
-	failure_response.Forbidden(endpoint.context, "wrong_role", "Only accessible to owning cashiers or admins")
+	endpoint.Logger.InvalidRequest("User tried to access sales of cashier %d, but is not a cashier or admin", queriedUser)
+	failure_response.Forbidden(endpoint.Context, "wrong_role", "Only accessible to owning cashiers or admins")
 	return false
 }
