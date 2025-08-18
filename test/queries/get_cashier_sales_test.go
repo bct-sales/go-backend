@@ -15,25 +15,27 @@ import (
 
 func TestGetCashierSales(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
-		defer setup.Close()
+		t.Run("All sales", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
 
-		seller := setup.Seller()
-		cashier := setup.Cashier()
-		otherCashier := setup.Cashier()
-		items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
+			seller := setup.Seller()
+			cashier := setup.Cashier()
+			otherCashier := setup.Cashier()
+			items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
 
-		sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID})
-		sale2 := setup.Sale(cashier.UserId, []models.Id{items[1].ItemID})
-		setup.Sale(otherCashier.UserId, []models.Id{items[2].ItemID})
+			sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID})
+			sale2 := setup.Sale(cashier.UserId, []models.Id{items[1].ItemID})
+			setup.Sale(otherCashier.UserId, []models.Id{items[2].ItemID})
 
-		actual := []*models.SaleSummary{}
-		err := queries.GetCashierSales(db, cashier.UserId, queries.CollectTo(&actual), queries.AllRows())
+			actual := []*models.SaleSummary{}
+			err := queries.GetCashierSales(db, cashier.UserId, queries.CollectTo(&actual), queries.AllRows())
 
-		require.NoError(t, err)
-		require.Len(t, actual, 2)
-		require.Equal(t, sale1.SaleID, actual[0].SaleID)
-		require.Equal(t, sale2.SaleID, actual[1].SaleID)
+			require.NoError(t, err)
+			require.Len(t, actual, 2)
+			require.Equal(t, sale1.SaleID, actual[0].SaleID)
+			require.Equal(t, sale2.SaleID, actual[1].SaleID)
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
