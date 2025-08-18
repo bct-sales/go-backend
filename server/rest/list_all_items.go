@@ -43,14 +43,16 @@ type GetItemsSuccessResponse struct {
 // @Router /items [get]
 func ListAllItems(arguments *HandlerFunctionArguments) {
 	endpoint := &listAllItemsEndpoint{
-		HandlerFunctionArguments: *arguments,
+		Endpoint: Endpoint{
+			HandlerFunctionArguments: *arguments,
+		},
 	}
 
 	endpoint.execute()
 }
 
 type listAllItemsEndpoint struct {
-	HandlerFunctionArguments
+	Endpoint
 }
 
 func (ep *listAllItemsEndpoint) execute() {
