@@ -104,6 +104,29 @@ func TestListCashierSales(t *testing.T) {
 				require.Equal(t, 3, len(actual.Sales))
 				require.Equal(t, sales[2].SaleID, actual.Sales[0].SaleId)
 			})
+
+			t.Run("Anti chronologically", func(t *testing.T) {
+				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				defer setup.Close()
+
+				seller := setup.Seller()
+				cashier, sessionId := setup.LoggedIn(setup.Cashier())
+
+				items := setup.Items(seller.UserId, 3, aux.WithHidden(false))
+				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserId, []models.Id{item.ItemID}) })
+
+				url := path.CashierSales(cashier.UserId).AntiChronologically()
+				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				router.ServeHTTP(writer, request)
+				require.Equal(t, http.StatusOK, writer.Code)
+
+				actual := FromJson[rest.ListCashierSalesSuccessResponse](t, writer.Body.String())
+				require.NotNil(t, actual)
+				require.Equal(t, 3, len(actual.Sales))
+				require.Equal(t, sales[2].SaleID, actual.Sales[0].SaleId)
+				require.Equal(t, sales[1].SaleID, actual.Sales[1].SaleId)
+				require.Equal(t, sales[0].SaleID, actual.Sales[2].SaleId)
+			})
 		})
 
 		t.Run("Admin views sales", func(t *testing.T) {
