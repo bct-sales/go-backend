@@ -6,12 +6,9 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/server/failure_response"
-	"bctbackend/server/logger"
 	rest "bctbackend/server/shared"
 	"errors"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
 type GetSaleInformationSuccessResponse struct {
@@ -33,27 +30,21 @@ type GetSaleItemData struct {
 }
 
 type getSaleInformationEndpoint struct {
-	context *gin.Context
-	db      Database
-	userId  models.Id
-	roleId  models.RoleId
-	logger  logger.Logger
+	Endpoint
 }
 
 func GetSaleInformation(arguments *HandlerFunctionArguments) {
 	endpoint := &getSaleInformationEndpoint{
-		context: arguments.Context,
-		db:      arguments.Database,
-		userId:  arguments.UserId,
-		roleId:  arguments.RoleId,
-		logger:  arguments.Logger,
+		Endpoint: Endpoint{
+			HandlerFunctionArguments: *arguments,
+		},
 	}
 
 	endpoint.execute()
 }
 
 func (endpoint *getSaleInformationEndpoint) execute() {
-	logger := endpoint.logger
+	logger := endpoint.Logger
 
 	if !endpoint.ensureUserHasRightRole() {
 		return
@@ -64,35 +55,35 @@ func (endpoint *getSaleInformationEndpoint) execute() {
 		return
 	}
 
-	sale, err := queries.GetSaleWithId(endpoint.db, saleId)
+	sale, err := queries.GetSaleWithId(endpoint.Database, saleId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchSale) {
 			logger.InvalidRequest("No such sale found", "saleId", saleId)
-			failure_response.UnknownSale(endpoint.context, err.Error())
+			failure_response.UnknownSale(endpoint.Context, err.Error())
 			return
 		}
 
 		logger.InternalError("Could not retrieve sale information", "saleId", saleId, "error", err)
-		failure_response.Unknown(endpoint.context, "Could not retrieve sale information: "+err.Error())
+		failure_response.Unknown(endpoint.Context, "Could not retrieve sale information: "+err.Error())
 		return
 	}
 
-	if endpoint.roleId.IsCashier() && sale.CashierID != endpoint.userId {
+	if endpoint.RoleId.IsCashier() && sale.CashierID != endpoint.UserId {
 		logger.InvalidRequest("Sale is not owned by the cashier", "saleId", saleId, "saleOwnerId", sale.CashierID)
-		failure_response.Forbidden(endpoint.context, "wrong_sale", "Only accessible to cashiers and owning cashiers")
+		failure_response.Forbidden(endpoint.Context, "wrong_sale", "Only accessible to cashiers and owning cashiers")
 		return
 	}
 
-	saleItems, err := queries.GetSaleItems(endpoint.db, saleId)
+	saleItems, err := queries.GetSaleItems(endpoint.Database, saleId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchSale) {
 			logger.Bug("No such sale found; should have been caught earlier", "saleId", saleId)
-			failure_response.UnknownSale(endpoint.context, err.Error())
+			failure_response.UnknownSale(endpoint.Context, err.Error())
 			return
 		}
 
 		logger.InternalError("Could not retrieve sale items", "saleId", saleId, "error", err)
-		failure_response.Unknown(endpoint.context, "Could not retrieve sale information: "+err.Error())
+		failure_response.Unknown(endpoint.Context, "Could not retrieve sale information: "+err.Error())
 		return
 	}
 
@@ -103,7 +94,7 @@ func (endpoint *getSaleInformationEndpoint) execute() {
 		Items:           algorithms.Map(saleItems, endpoint.convertSaleItemToData),
 	}
 
-	endpoint.context.JSON(http.StatusOK, response)
+	endpoint.Context.JSON(http.StatusOK, response)
 }
 
 func (endpoint *getSaleInformationEndpoint) convertSaleItemToData(saleItem *models.Item) *GetSaleItemData {
@@ -120,9 +111,9 @@ func (endpoint *getSaleInformationEndpoint) convertSaleItemToData(saleItem *mode
 }
 
 func (endpoint *getSaleInformationEndpoint) ensureUserHasRightRole() bool {
-	if !endpoint.roleId.IsAdmin() && !endpoint.roleId.IsCashier() {
-		endpoint.logger.InvalidRequest("User does not have the right role to access sale information")
-		failure_response.Forbidden(endpoint.context, "wrong_role", "Only accessible to cashiers and owning cashiers")
+	if !endpoint.RoleId.IsAdmin() && !endpoint.RoleId.IsCashier() {
+		endpoint.Logger.InvalidRequest("User does not have the right role to access sale information")
+		failure_response.Forbidden(endpoint.Context, "wrong_role", "Only accessible to cashiers and owning cashiers")
 		return false
 	}
 
@@ -133,16 +124,16 @@ func (endpoint *getSaleInformationEndpoint) extractSaleIdFromUri() (models.Id, b
 	var uriParameters struct {
 		SaleId string `binding:"required" uri:"id"`
 	}
-	if err := endpoint.context.ShouldBindUri(&uriParameters); err != nil {
-		endpoint.logger.InvalidInput("Invalid URI parameters", "error", err)
-		failure_response.InvalidUriParameters(endpoint.context, "Invalid URI parameters: "+err.Error())
+	if err := endpoint.Context.ShouldBindUri(&uriParameters); err != nil {
+		endpoint.Logger.InvalidInput("Invalid URI parameters", "error", err)
+		failure_response.InvalidUriParameters(endpoint.Context, "Invalid URI parameters: "+err.Error())
 		return 0, false
 	}
 
 	saleId, err := models.ParseId(uriParameters.SaleId)
 	if err != nil {
-		endpoint.logger.InvalidInput("Invalid sale ID", "saleId", uriParameters.SaleId, "error", err)
-		failure_response.InvalidSaleId(endpoint.context, err.Error())
+		endpoint.Logger.InvalidInput("Invalid sale ID", "saleId", uriParameters.SaleId, "error", err)
+		failure_response.InvalidSaleId(endpoint.Context, err.Error())
 		return 0, false
 	}
 
