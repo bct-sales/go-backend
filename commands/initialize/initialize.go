@@ -49,6 +49,10 @@ func (c *InitializeCommand) execute() error {
 		return err
 	}
 
+	if err := c.downloadFontFile(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -140,7 +144,57 @@ func (c *InitializeCommand) downloadHTMLFile() (r_err error) {
 		return err
 	}
 
-	c.Printf("HTML file downloaded successfully to index.html\n")
+	c.Printf("HTML file downloaded successfully to %s\n", filename)
+
+	return nil
+}
+
+func (c *InitializeCommand) downloadFontFile() (r_err error) {
+	filename := "noto.ttf"
+
+	fileExists, err := algorithms.FileExists(filename)
+	if err != nil {
+		c.PrintErrorf("Failed to check if %s exists: %v\n", filename, err)
+		return err
+	}
+	if fileExists {
+		c.Printf("File %s already exists; I will not overwrite it\n", filename)
+		return nil
+	}
+
+	out, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := out.Close(); err != nil {
+			c.PrintErrorf("Failed to close file %s\n", filename)
+			r_err = errors.Join(r_err, err)
+		}
+	}()
+
+	url := "https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSans/NotoSans-Regular.ttf"
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			c.PrintErrorf("Failed to close response body\n")
+			r_err = errors.Join(r_err, err)
+		}
+	}()
+
+	if resp.StatusCode != http.StatusOK {
+		c.PrintErrorf("Failed to download file from %s: %s\n", url, resp.Status)
+		return fmt.Errorf("bad status: %s", resp.Status)
+	}
+
+	if _, err := io.Copy(out, resp.Body); err != nil {
+		return err
+	}
+
+	c.Printf("Font file downloaded successfully to %s\n", filename)
 
 	return nil
 }
