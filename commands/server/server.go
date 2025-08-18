@@ -82,44 +82,15 @@ func (c *ServerCommand) loadConfiguration() (*configuration.Configuration, error
 		errs = append(errs, err)
 	}
 
-	port, err := c.GetConfigurationInt(common.ConfigKeyPort)
+	serverConfiguration, err := c.getServerConfiguration()
 	if err != nil {
 		errs = append(errs, err)
-	}
-
-	debugMode, err := c.GetConfigurationBool(common.ConfigKeyDebug)
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	expiredSessionPruningInterval, err := c.GetConfigurationInt(common.ConfigKeyPruneExpiredSessionsInterval)
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	htmlPath, err := c.GetConfigurationString(common.ConfigKeyHTML)
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	if len(errs) > 0 {
-		return nil, fmt.Errorf("failed to get configuration: %w", errors.Join(errs...))
-	}
-
-	var ginMode string
-	if debugMode {
-		ginMode = "debug"
-	} else {
-		ginMode = "release"
 	}
 
 	configuration := configuration.Configuration{
-		Log:                         logConfiguration,
-		LabelGeneration:             labelGenerationConfiguration,
-		Port:                        port,
-		GinMode:                     ginMode,
-		HTMLPath:                    htmlPath,
-		ExpiredSessionPruneInterval: expiredSessionPruningInterval,
+		Log:             logConfiguration,
+		LabelGeneration: labelGenerationConfiguration,
+		Server:          serverConfiguration,
 	}
 
 	slog.Info("Loaded configuration successfully", "configuration", configuration.String())
@@ -171,6 +142,60 @@ func (c *ServerCommand) getLogConfiguration() (*configuration.LogConfiguration, 
 		Compression:      logCompression,
 	}
 	return &logConfiguration, nil
+}
+
+func (c *ServerCommand) getServerConfiguration() (*configuration.ServerConfiguration, error) {
+	errs := []error{}
+
+	expiredSessionPruningInterval, err := c.GetConfigurationInt(common.ConfigKeyPruneExpiredSessionsInterval)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	htmlPath, err := c.GetConfigurationString(common.ConfigKeyHTML)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	port, err := c.GetConfigurationInt(common.ConfigKeyPort)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	debugMode, err := c.GetConfigurationBool(common.ConfigKeyDebug)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	cookieDomain, err := c.GetConfigurationString(common.ConfigKeyCookieDomain)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	if len(errs) > 0 {
+		return nil, fmt.Errorf("failed to get configuration: %w", errors.Join(errs...))
+	}
+
+	var ginMode string
+	if debugMode {
+		ginMode = "debug"
+	} else {
+		ginMode = "release"
+	}
+
+	serverConfiguration := configuration.ServerConfiguration{
+		Port:                        port,
+		GinMode:                     ginMode,
+		HTMLPath:                    htmlPath,
+		ExpiredSessionPruneInterval: expiredSessionPruningInterval,
+		CookieDomain:                cookieDomain,
+	}
+
+	if len(errs) > 0 {
+		return nil, fmt.Errorf("failed to get server configuration: %w", errors.Join(errs...))
+	}
+
+	return &serverConfiguration, nil
 }
 
 func (c *ServerCommand) getLabelGenerationConfiguration() (*configuration.LabelGenerationConfiguration, error) {
@@ -241,7 +266,7 @@ func (c *ServerCommand) ensureRequiredFilesExist(configuration *configuration.Co
 		return fmt.Errorf("failed while checking font file existence: %w", err)
 	}
 
-	if err := c.ensureFileExists(configuration.HTMLPath); err != nil {
+	if err := c.ensureFileExists(configuration.Server.HTMLPath); err != nil {
 		return fmt.Errorf("failed while checking for html file existence: %w", err)
 	}
 

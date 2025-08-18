@@ -90,14 +90,14 @@ func NewServer(clock clock.Clock, db *sql.DB, configuration *configuration.Confi
 		database:             db,
 		configuration:        configuration,
 		broadcaster:          websocket.NewWebsocketBroadcaster(),
-		router:               createGinRouter(configuration.GinMode, loggerResources.logger),
+		router:               createGinRouter(configuration.Server.GinMode, loggerResources.logger),
 		clock:                clock,
 		expiredSessionTicker: nil,
 	}
 
 	server.defineRESTEndpoints()
 	server.defineWebsocketEndpoint()
-	server.defineStaticFilesRoutes(configuration.HTMLPath)
+	server.defineStaticFilesRoutes(configuration.Server.HTMLPath)
 	server.startPeriodicExpiredSessionPruner()
 
 	return &server, nil
@@ -147,7 +147,7 @@ func (server *Server) Shutdown() {
 
 func (server *Server) startPeriodicExpiredSessionPruner() {
 	clock := server.clock
-	pruneInterval := server.configuration.ExpiredSessionPruneInterval
+	pruneInterval := server.configuration.Server.ExpiredSessionPruneInterval
 
 	if server.expiredSessionTicker != nil {
 		slog.Error("Expired session ticker already exists, cannot create a new one")
@@ -221,7 +221,7 @@ func (server *Server) PUT(path *paths.URL, handler rest.HandlerFunction) {
 }
 
 func (server *Server) run() error {
-	address := fmt.Sprintf("localhost:%d", server.configuration.Port)
+	address := fmt.Sprintf("localhost:%d", server.configuration.Server.Port)
 
 	if err := server.router.Run(address); err != nil {
 		return err

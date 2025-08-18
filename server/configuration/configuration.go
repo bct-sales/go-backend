@@ -5,12 +5,9 @@ import (
 )
 
 type Configuration struct {
-	Log                         *LogConfiguration             `json:"log"`
-	LabelGeneration             *LabelGenerationConfiguration `json:"labelGeneration"`
-	HTMLPath                    string                        `json:"htmlPath"`
-	Port                        int                           `json:"port"`
-	GinMode                     string                        `json:"ginMode"` // GinMode can be "debug", "release", or "test"
-	ExpiredSessionPruneInterval int                           `json:"expiredSessionPruneInterval"`
+	Log             *LogConfiguration             `json:"log"`
+	LabelGeneration *LabelGenerationConfiguration `json:"labelGeneration"`
+	Server          *ServerConfiguration          `json:"server"`
 }
 
 type LabelGenerationConfiguration struct {
@@ -39,4 +36,12 @@ type LogConfiguration struct {
 	MaxBackups       int    `json:"maxBackups"`
 	MaxAgeDays       int    `json:"maxAgeDays"`
 	Compression      bool   `json:"compression"`
+}
+
+type ServerConfiguration struct {
+	Port                        int    `json:"port"`
+	GinMode                     string `json:"ginMode"` // GinMode can be "debug", "release", or "test"
+	ExpiredSessionPruneInterval int    `json:"expiredSessionPruneInterval"`
+	CookieDomain                string `json:"cookieDomain"`
+	HTMLPath                    string `json:"htmlPath"`
 }
