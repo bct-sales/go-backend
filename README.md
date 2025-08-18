@@ -4,10 +4,20 @@
 
 ```bash
 # Download file
-$ wget https://github.com/bct-sales/go-backend/releases/latest/download/go-backend_1.3.0_linux_amd64.tar.gz
+$ wget https://github.com/bct-sales/go-backend/releases/latest/download/bctbackend
 
-# Unpack file
-$ tar xzvf go-backend_1.3.0_linux_amd64.tar.gz
+# Make it executable
+$ chmod 766 ./bctbackend
+
+# Create config file
+$ ./bctbackend init
+
+# Download HTML
+$ ./bctbackend download
+
+# Download font
+$ wget https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSans/NotoSans-Regular.ttf -O noto.ttf
+
 ```
 
 ## Command Line Options
