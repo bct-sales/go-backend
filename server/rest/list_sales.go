@@ -6,7 +6,6 @@ import (
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
 	"net/http"
-	"strconv"
 
 	_ "bctbackend/docs"
 )
@@ -210,7 +209,22 @@ func (ep *getSalesEndpoint) buildQuery(queryParameters *getSalesQueryParameters)
 	}
 
 	if queryParameters.rowSelection != nil {
-		query.WithRowSelection(*queryParameters.rowSelection.Limit, *queryParameters.rowSelection.Offset)
+		var limit int
+		var offset int
+
+		if queryParameters.rowSelection.Limit != nil {
+			limit = *queryParameters.rowSelection.Limit
+		} else {
+			limit = 10000
+		}
+
+		if queryParameters.rowSelection.Offset != nil {
+			offset = *queryParameters.rowSelection.Offset
+		} else {
+			offset = 0
+		}
+
+		query.WithRowSelection(limit, offset)
 	}
 
 	if queryParameters.orderedAntiChronologically {
@@ -226,8 +240,8 @@ func (ep *getSalesEndpoint) parseQueryParameters() (*getSalesQueryParameters, bo
 		return nil, false
 	}
 
-	rowSelection, ok := ep.parseRowSelection()
-	if !ok {
+	rowSelection := ep.parseRowSelectionQueryParameters()
+	if rowSelection == nil {
 		return nil, false
 	}
 
@@ -257,54 +271,4 @@ func (ep *getSalesEndpoint) parseStartId() (*models.Id, bool) {
 	}
 
 	return nil, true
-}
-
-func (ep *getSalesEndpoint) parseRowSelection() (*queries.RowSelection, bool) {
-	limitString, limitExists := ep.Context.GetQuery("limit")
-	offsetString, offsetExists := ep.Context.GetQuery("offset")
-
-	if !limitExists && !offsetExists {
-		return nil, true
-	}
-
-	if limitExists && !offsetExists {
-		offsetString = "0" // Default offset to 0 if limit is provided without offset
-	}
-
-	if !limitExists && offsetExists {
-		ep.Logger.InvalidInput("Missing limit parameter")
-		failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "offset parameter provided without limit")
-		return nil, false
-	}
-
-	limit, err := strconv.Atoi(limitString)
-	if err != nil {
-		ep.Logger.InvalidInput("Failed to parse limit parameter", "limit", limitString, "error", err)
-		failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Invalid limit parameter: "+err.Error())
-		return nil, false
-	}
-	if limit < 1 {
-		ep.Logger.InvalidRequest("Invalid limit parameter", "limit", limit)
-		failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Limit must be greater than 0")
-		return nil, false
-	}
-
-	offset, err := strconv.Atoi(offsetString)
-	if err != nil {
-		ep.Logger.InvalidInput("Failed to parse offset parameter", "offset", offsetString, "error", err)
-		failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Invalid offset parameter: "+err.Error())
-		return nil, false
-	}
-	if offset < 0 {
-		ep.Logger.InvalidRequest("Invalid offset parameter", "offset", offset)
-		failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Offset must be 0 or greater")
-		return nil, false
-	}
-
-	rowSelection := queries.RowSelection{
-		Limit:  &limit,
-		Offset: &offset,
-	}
-
-	return &rowSelection, true
 }
