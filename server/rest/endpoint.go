@@ -128,8 +128,8 @@ func (ep *Endpoint) parseOrderQueryParameter() (queries.Order, bool) {
 			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Order must be 'antichronological'")
 			return 0, false
 		}
-		return queries.OrderAntiChronologically, true
+		return queries.OrderAntiChronological, true
 	}
 
-	return queries.OrderChronologically, true
+	return queries.OrderChronological, true
 }

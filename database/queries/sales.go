@@ -824,9 +824,9 @@ func GetCashierSales(db DatabaseQuerier, cashierId models.Id, receiver func(*mod
 
 	orderClause := ""
 	switch order {
-	case OrderChronologically:
+	case OrderChronological:
 		orderClause = "ORDER BY sales.transaction_time ASC, sales.sale_id ASC"
-	case OrderAntiChronologically:
+	case OrderAntiChronological:
 		orderClause = "ORDER BY sales.transaction_time DESC, sales.sale_id DESC"
 	}
 

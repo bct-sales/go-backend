@@ -47,6 +47,6 @@ func NewRowSelection(offset int, limit int) *RowSelection {
 type Order int
 
 const (
-	OrderChronologically Order = iota
-	OrderAntiChronologically
+	OrderChronological Order = iota
+	OrderAntiChronological
 )

@@ -29,7 +29,7 @@ func TestGetCashierSales(t *testing.T) {
 			setup.Sale(otherCashier.UserId, []models.Id{items[2].ItemID})
 
 			actual := []*models.SaleSummary{}
-			err := queries.GetCashierSales(db, cashier.UserId, queries.CollectTo(&actual), queries.OrderChronologically, queries.AllRows())
+			err := queries.GetCashierSales(db, cashier.UserId, queries.CollectTo(&actual), queries.OrderChronological, queries.AllRows())
 
 			require.NoError(t, err)
 			require.Len(t, actual, 2)
@@ -52,7 +52,7 @@ func TestGetCashierSales(t *testing.T) {
 			}
 
 			actual := []*models.SaleSummary{}
-			err := queries.GetCashierSales(db, cashier.UserId, queries.CollectTo(&actual), queries.OrderChronologically, queries.NewRowSelection(2, 5))
+			err := queries.GetCashierSales(db, cashier.UserId, queries.CollectTo(&actual), queries.OrderChronological, queries.NewRowSelection(2, 5))
 
 			require.NoError(t, err)
 			require.Len(t, actual, 5)
@@ -78,7 +78,7 @@ func TestGetCashierSales(t *testing.T) {
 			}
 
 			actual := []*models.SaleSummary{}
-			err := queries.GetCashierSales(db, cashier.UserId, queries.CollectTo(&actual), queries.OrderAntiChronologically, queries.AllRows())
+			err := queries.GetCashierSales(db, cashier.UserId, queries.CollectTo(&actual), queries.OrderAntiChronological, queries.AllRows())
 
 			require.NoError(t, err)
 			require.Len(t, actual, 3)
@@ -103,7 +103,7 @@ func TestGetCashierSales(t *testing.T) {
 			setup.RequireNoSuchUsers(t, cashierId)
 
 			callback := func(sales *models.SaleSummary) error { return nil }
-			err := queries.GetCashierSales(db, cashierId, callback, queries.OrderChronologically, queries.AllRows())
+			err := queries.GetCashierSales(db, cashierId, callback, queries.OrderChronological, queries.AllRows())
 
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
@@ -120,7 +120,7 @@ func TestGetCashierSales(t *testing.T) {
 			setup.Sale(cashier.UserId, []models.Id{items[1].ItemID})
 
 			callback := func(sales *models.SaleSummary) error { return nil }
-			err := queries.GetCashierSales(db, admin.UserId, callback, queries.OrderChronologically, queries.AllRows())
+			err := queries.GetCashierSales(db, admin.UserId, callback, queries.OrderChronological, queries.AllRows())
 
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
@@ -136,7 +136,7 @@ func TestGetCashierSales(t *testing.T) {
 			setup.Sale(cashier.UserId, []models.Id{items[1].ItemID})
 
 			callback := func(sales *models.SaleSummary) error { return nil }
-			err := queries.GetCashierSales(db, seller.UserId, callback, queries.OrderChronologically, queries.AllRows())
+			err := queries.GetCashierSales(db, seller.UserId, callback, queries.OrderChronological, queries.AllRows())
 
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
