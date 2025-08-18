@@ -90,3 +90,21 @@ func (ep *Endpoint) parseLimitQueryParameter() (*int, bool) {
 		return nil, true
 	}
 }
+
+func (ep *Endpoint) parseRowSelectionQueryParameters() (*queries.RowSelection, bool) {
+	limit, limitOk := ep.parseLimitQueryParameter()
+	if !limitOk {
+		return nil, false
+	}
+
+	offset, offsetOk := ep.parseOffsetQueryParameter()
+	if !offsetOk {
+		return nil, false
+	}
+
+	rowSelection := queries.RowSelection{
+		Limit:  limit,
+		Offset: offset,
+	}
+	return &rowSelection, true
+}
