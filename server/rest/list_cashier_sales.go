@@ -21,7 +21,8 @@ type ListCashierSaleData struct {
 }
 
 type ListCashierSalesSuccessResponse struct {
-	Sales []*ListCashierSaleData `json:"sales"`
+	Sales     []*ListCashierSaleData `json:"sales"`
+	SaleCount int                    `json:"saleCount"`
 }
 
 func ListCashierSales(arguments *HandlerFunctionArguments) {
@@ -59,7 +60,12 @@ func (ep *listCashierSalesEndpoint) execute() {
 		return
 	}
 
-	ep.sendSuccessResponse(saleSummaries)
+	saleCount, saleCountOk := ep.getCashierSaleCount(uriCashierId)
+	if !saleCountOk {
+		return
+	}
+
+	ep.sendSuccessResponse(saleCount, saleSummaries)
 }
 
 func (ep *listCashierSalesEndpoint) convertSaleSummaryToData(saleSummary *models.SaleSummary) *ListCashierSaleData {
@@ -144,11 +150,23 @@ func (ep *listCashierSalesEndpoint) getSaleSummariesFromDatabase(uriCashierId mo
 	return saleSummaries, true
 }
 
-func (ep *listCashierSalesEndpoint) sendSuccessResponse(saleSummaries []*models.SaleSummary) {
+func (ep *listCashierSalesEndpoint) sendSuccessResponse(saleCount int, saleSummaries []*models.SaleSummary) {
 	successResponse := ListCashierSalesSuccessResponse{
 		Sales: algorithms.Map(saleSummaries, func(saleSummary *models.SaleSummary) *ListCashierSaleData {
 			return ep.convertSaleSummaryToData(saleSummary)
 		}),
+		SaleCount: saleCount,
 	}
 	ep.Context.IndentedJSON(http.StatusOK, successResponse)
+}
+
+func (ep *listCashierSalesEndpoint) getCashierSaleCount(uriCashierId models.Id) (int, bool) {
+	count, err := queries.CountCashierSales(ep.Database, uriCashierId)
+	if err != nil {
+		ep.Logger.InternalError("Failed to count cashier sales for user %d: %v", uriCashierId, err)
+		failure_response.Unknown(ep.Context, "Could not count cashier sales: "+err.Error())
+		return 0, false
+	}
+
+	return count, true
 }
