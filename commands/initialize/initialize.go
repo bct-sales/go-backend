@@ -84,7 +84,7 @@ func (c *InitializeCommand) generateConfigurationFile() error {
 		    filename: "noto.ttf"
 		    family: "Noto"
 		server:
-		  port: 80
+		  port: 8000
 		  html: index.html
 		  pruneExpiredSessionsInterval: 3600
 		debug: true
