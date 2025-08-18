@@ -140,7 +140,7 @@ func (q *GetSalesQuery) WithIdGreaterThanOrEqualTo(minimalId models.Id) *GetSale
 	return q
 }
 
-func (q *GetSalesQuery) WithRowSelection(limit, offset int) *GetSalesQuery {
+func (q *GetSalesQuery) WithRowSelection(limit int, offset int) *GetSalesQuery {
 	q.rowSelection = &struct {
 		limit  int
 		offset int
