@@ -53,6 +53,10 @@ type Endpoint struct {
 	HandlerFunctionArguments
 }
 
+// parseOffsetQueryParameter looks for a query parameter named offset.
+// If it is missing, nil, true is returned.
+// If it is present and its value is a valid integer, the parsed integer and true are returned.
+// If it is present and its value is invalid, nil, false is returned.
 func (ep *Endpoint) parseOffsetQueryParameter() (*int, bool) {
 	offsetString := ep.Context.Query("offset")
 	if offsetString != "" {
