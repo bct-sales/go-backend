@@ -59,7 +59,7 @@ func TestCountCashierSales(t *testing.T) {
 			nonexistentCashierId := models.Id(999)
 			setup.RequireNoSuchUsers(t, nonexistentCashierId)
 
-			_, err := queries.CountCashierSales(db, 999)
+			_, err := queries.CountCashierSales(db, nonexistentCashierId)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 	})
