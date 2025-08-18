@@ -15,10 +15,6 @@ func placeholderString(placeholderCount int) string {
 	return strings.Join(placeholders, ", ")
 }
 
-type SQLOption interface {
-	SQL() string
-}
-
 type RowSelection struct {
 	Limit  *int
 	Offset *int
