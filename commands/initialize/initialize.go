@@ -35,7 +35,14 @@ func NewInitializeCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (command *InitializeCommand) execute() error {
+func (c *InitializeCommand) execute() error {
+	if err := c.generateConfigurationFile(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *InitializeCommand) generateConfigurationFile() error {
 	contents := heredoc.Doc(`
 		database: "bct.db"
 		labelGeneration:
@@ -61,10 +68,10 @@ func (command *InitializeCommand) execute() error {
 
 	err := os.WriteFile("bctconfig.yaml", []byte(contents), 0644)
 	if err != nil {
-		command.PrintErrorf("Failed to create configuration file: %v\n", err)
+		c.PrintErrorf("Failed to create configuration file: %v\n", err)
 		return err
 	}
 
-	command.Printf("Configuration file created successfully\n")
+	c.Printf("Configuration file created successfully\n")
 	return nil
 }
