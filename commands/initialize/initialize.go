@@ -87,8 +87,9 @@ func (c *InitializeCommand) generateConfigurationFile() error {
 		  port: 8000
 		  html: index.html
 		  pruneExpiredSessionsInterval: 3600
-		  cookieDomain: localhost
-		  debug: true
+		  cookieDomain: "bct-sales.duckdns.org"
+		  debug: false
+		  swagger: false
 		log:
 		  file: "bct.log"
 		  maxSizeMegabytes: 10
