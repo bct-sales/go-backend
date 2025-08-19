@@ -49,7 +49,7 @@ func (ep *addSaleEndpoint) execute() {
 	if transaction == nil {
 		return
 	}
-	defer transaction.Rollback()
+	defer transaction.RollbackIfNotCommitted()
 
 	// Make sure user has the right role
 	if !ep.ensureUserIsCashier() {

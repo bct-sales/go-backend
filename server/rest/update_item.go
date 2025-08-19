@@ -96,7 +96,7 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 		failure_response.Unknown(context, err.Error())
 		return
 	}
-	defer transaction.Rollback()
+	defer transaction.RollbackIfNotCommitted()
 
 	itemUpdate := queries.ItemUpdate{
 		AddedAt:      nil,

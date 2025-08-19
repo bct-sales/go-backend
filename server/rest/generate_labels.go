@@ -112,7 +112,7 @@ func (ep *generateLabelsEndpoint) freezeItems(db Database, itemIds []models.Id) 
 		failure_response.Unknown(ep.Context, "Failed to start transaction while freezing items: "+err.Error())
 		return false
 	}
-	defer transaction.Rollback()
+	defer transaction.RollbackIfNotCommitted()
 
 	if err := queries.UpdateFreezeStatusOfItems(transaction, itemIds, true); err != nil {
 		ep.Logger.InternalError("Failed to freeze items", "error", err)

@@ -69,7 +69,7 @@ func (t *TransactionalDatabaseQuerier) Commit() error {
 	return nil
 }
 
-func (t *TransactionalDatabaseQuerier) Rollback() {
+func (t *TransactionalDatabaseQuerier) RollbackIfNotCommitted() {
 	if !t.committed {
 		err := t.transaction.Rollback()
 		if err != nil {
@@ -108,7 +108,7 @@ func WithTransaction[T any](context context.Context, db *sql.DB, fn func(transac
 		var dummy T
 		return dummy, err
 	}
-	defer transaction.Rollback()
+	defer transaction.RollbackIfNotCommitted()
 
 	result, err := fn(transaction)
 	if err != nil {

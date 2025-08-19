@@ -74,7 +74,7 @@ func (command *Command) WithTransaction(callback func(db *queries.TransactionalD
 			command.PrintErrorf("Failed to start transaction: %s\n", err.Error())
 			return &ErrCommand{wrapped: err}
 		}
-		defer transaction.Rollback()
+		defer transaction.RollbackIfNotCommitted()
 
 		if err := callback(transaction); err != nil {
 			return fmt.Errorf("transaction failed: %w", err)

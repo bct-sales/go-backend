@@ -72,7 +72,7 @@ func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSal
 		failure_response.Unknown(ep.Context, "Failed to create transaction: "+err.Error())
 		return nil, false
 	}
-	defer transaction.Rollback()
+	defer transaction.RollbackIfNotCommitted()
 
 	sales, getSalesOk := ep.getSales(transaction, queryParameters)
 	if !getSalesOk {

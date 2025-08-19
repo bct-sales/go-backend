@@ -408,7 +408,7 @@ func (c *dummyDatabaseCommand) addSales(db *sql.DB, cashierIds []models.Id, item
 	if err != nil {
 		return fmt.Errorf("failed to start transaction: %w", err)
 	}
-	defer transaction.Rollback()
+	defer transaction.RollbackIfNotCommitted()
 
 	// Make copy because we need to shuffle it repeatedly
 	itemIds = slices.Clone(itemIds)
