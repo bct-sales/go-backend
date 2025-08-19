@@ -44,4 +44,5 @@ type ServerConfiguration struct {
 	ExpiredSessionPruneInterval int    `json:"expiredSessionPruneInterval"`
 	CookieDomain                string `json:"cookieDomain"`
 	HTMLPath                    string `json:"htmlPath"`
+	Swagger                     bool   `json:"swagger"`
 }

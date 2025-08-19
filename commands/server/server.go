@@ -172,6 +172,11 @@ func (c *ServerCommand) getServerConfiguration() (*configuration.ServerConfigura
 		errs = append(errs, err)
 	}
 
+	swagger, err := c.GetConfigurationBool(common.ConfigKeySwagger)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
 	if len(errs) > 0 {
 		return nil, fmt.Errorf("failed to get configuration: %w", errors.Join(errs...))
 	}
@@ -189,6 +194,7 @@ func (c *ServerCommand) getServerConfiguration() (*configuration.ServerConfigura
 		HTMLPath:                    htmlPath,
 		ExpiredSessionPruneInterval: expiredSessionPruningInterval,
 		CookieDomain:                cookieDomain,
+		Swagger:                     swagger,
 	}
 
 	if len(errs) > 0 {

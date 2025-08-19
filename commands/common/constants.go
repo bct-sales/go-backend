@@ -11,6 +11,7 @@ const (
 	ConfigKeyHTML                         = "server.html"
 	ConfigKeyPruneExpiredSessionsInterval = "server.pruneExpiredSessionsInterval"
 	ConfigKeyCookieDomain                 = "server.cookieDomain"
+	ConfigKeySwagger                      = "server.swagger"
 	ConfigKeyDatabase                     = "database"
 	ConfigKeyLabelFontDirectory           = "labelGeneration.font.directory"
 	ConfigKeyLabelFontFamily              = "labelGeneration.font.family"

@@ -166,7 +166,10 @@ func (server *Server) startPeriodicExpiredSessionPruner() {
 func (server *Server) defineRESTEndpoints() {
 	router := server.router
 
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	if server.configuration.Server.Swagger {
+		slog.Info("Enabling Swagger documentation")
+		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
 
 	server.RawPOST(paths.Login(), rest.Login)
 	server.RawPOST(paths.Logout(), rest.Logout)
