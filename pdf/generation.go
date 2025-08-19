@@ -234,22 +234,6 @@ func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *Label
 }
 
 func (builder *PdfBuilder) drawCharityImage(rectangle *Rectangle) error {
-	imageWidth, _, err := builder.determineImageSize(charityImageName)
-	if err != nil {
-		return &PdfError{Message: "failed to determine charity image size", Wrapped: err}
-	}
-
-	x := rectangle.Right() - imageWidth
-	y := rectangle.Top
-
-	if err := builder.drawImage(charityImageName, x, y); err != nil {
-		return &PdfError{Message: "failed to draw charity image", Wrapped: err}
-	}
-
-	return nil
-}
-
-func (builder *PdfBuilder) drawDonationImage(rectangle *Rectangle) error {
 	charityImageWidth, _, err := builder.determineImageSize(charityImageName)
 	if err != nil {
 		return &PdfError{Message: "failed to determine charity image size", Wrapped: err}
@@ -260,7 +244,23 @@ func (builder *PdfBuilder) drawDonationImage(rectangle *Rectangle) error {
 		return &PdfError{Message: "failed to determine donation image size", Wrapped: err}
 	}
 
-	x := rectangle.Right() - charityImageWidth - donationImageWidth - 2
+	x := rectangle.Right() - charityImageWidth - donationImageWidth - 4
+	y := rectangle.Top
+
+	if err := builder.drawImage(charityImageName, x, y); err != nil {
+		return &PdfError{Message: "failed to draw charity image", Wrapped: err}
+	}
+
+	return nil
+}
+
+func (builder *PdfBuilder) drawDonationImage(rectangle *Rectangle) error {
+	donationImageWidth, _, err := builder.determineImageSize(donationImageName)
+	if err != nil {
+		return &PdfError{Message: "failed to determine donation image size", Wrapped: err}
+	}
+
+	x := rectangle.Right() - donationImageWidth - 2
 	y := rectangle.Top
 
 	if err := builder.drawImage(donationImageName, x, y); err != nil {
