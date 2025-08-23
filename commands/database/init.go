@@ -2,8 +2,10 @@ package database
 
 import (
 	"bctbackend/commands/common"
-	"bctbackend/database"
+	db "bctbackend/database"
 	dberr "bctbackend/database/errors"
+	"bctbackend/database/models"
+	"bctbackend/database/queries"
 	"errors"
 
 	"github.com/MakeNowJust/heredoc"
@@ -50,7 +52,7 @@ func (c *InitializeDatabaseCommand) execute() (r_err error) {
 		return err
 	}
 
-	database, err := database.CreateDatabase(databasePath)
+	database, err := db.CreateDatabase(databasePath)
 
 	if err != nil {
 		if errors.Is(err, dberr.ErrDatabaseAlreadyExists) {
@@ -73,6 +75,17 @@ func (c *InitializeDatabaseCommand) execute() (r_err error) {
 			r_err = errors.Join(r_err, err)
 		}
 	}()
+
+	if err := db.InitializeDatabase(database); err != nil {
+		c.PrintErrorf("Failed to initialize database: %v\n", err)
+		return err
+	}
+
+	if !c.noCategories {
+		GenerateDefaultCategories(func(id models.Id, name string) error {
+			return queries.AddCategoryWithId(database, id, name)
+		})
+	}
 
 	c.Printf("Database file successfully created at %s\n", databasePath)
 	return nil
