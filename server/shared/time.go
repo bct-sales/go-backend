@@ -7,12 +7,13 @@ import (
 )
 
 type DateTime struct {
-	Year   int `json:"year"`
-	Month  int `json:"month"`
-	Day    int `json:"day"`
-	Hour   int `json:"hour"`
-	Minute int `json:"minute"`
-	Second int `json:"second"`
+	Year      int              `json:"year"`
+	Month     int              `json:"month"`
+	Day       int              `json:"day"`
+	Hour      int              `json:"hour"`
+	Minute    int              `json:"minute"`
+	Second    int              `json:"second"`
+	Timestamp models.Timestamp `json:"timestamp"`
 }
 
 func (t DateTime) String() string {
@@ -23,11 +24,12 @@ func ConvertTimestampToDateTime(unixTimestamp models.Timestamp) DateTime {
 	unixTime := time.Unix(unixTimestamp.Int64(), 0)
 
 	return DateTime{
-		Year:   unixTime.Year(),
-		Month:  int(unixTime.Month()),
-		Day:    unixTime.Day(),
-		Hour:   unixTime.Hour(),
-		Minute: unixTime.Minute(),
-		Second: unixTime.Second(),
+		Year:      unixTime.Year(),
+		Month:     int(unixTime.Month()),
+		Day:       unixTime.Day(),
+		Hour:      unixTime.Hour(),
+		Minute:    unixTime.Minute(),
+		Second:    unixTime.Second(),
+		Timestamp: unixTimestamp,
 	}
 }
