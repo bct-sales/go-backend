@@ -4,7 +4,7 @@
 
 ```bash
 # Download file
-$ wget https://github.com/bct-sales/go-backend/releases/latest/download/bctbackend
+$ wget -O bctbackend https://github.com/bct-sales/go-backend/releases/latest/download/bctbackend
 
 # Make it executable
 $ chmod u+x ./bctbackend
