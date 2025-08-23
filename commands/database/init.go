@@ -82,9 +82,14 @@ func (c *InitializeDatabaseCommand) execute() (r_err error) {
 	}
 
 	if !c.noCategories {
-		common.GenerateDefaultCategories(func(id models.Id, name string) error {
+		err := common.GenerateDefaultCategories(func(id models.Id, name string) error {
 			return queries.AddCategoryWithId(database, id, name)
 		})
+
+		if err != nil {
+			c.PrintErrorf("Failed to add default categories: %v\n", err)
+			return err
+		}
 	}
 
 	c.Printf("Database file successfully created at %s\n", databasePath)
