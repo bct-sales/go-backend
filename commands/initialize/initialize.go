@@ -5,6 +5,8 @@ import (
 	"bctbackend/commands/common"
 	"bctbackend/database"
 	dberr "bctbackend/database/errors"
+	"bctbackend/database/models"
+	"bctbackend/database/queries"
 	"errors"
 	"fmt"
 	"io"
@@ -234,6 +236,17 @@ func (c *InitializeCommand) createDatabaseFile() (r_err error) {
 	if err := database.InitializeDatabase(db); err != nil {
 		c.PrintErrorf("Failed to initialize database: %v\n", err)
 		return err
+	}
+
+	{
+		err := common.GenerateDefaultCategories(func(id models.Id, name string) error {
+			return queries.AddCategoryWithId(db, id, name)
+		})
+
+		if err != nil {
+			c.PrintErrorf("Failed to add default categories: %v\n", err)
+			return err
+		}
 	}
 
 	c.Printf("Database initialized successfully\n")
