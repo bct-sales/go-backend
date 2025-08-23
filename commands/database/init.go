@@ -82,7 +82,7 @@ func (c *InitializeDatabaseCommand) execute() (r_err error) {
 	}
 
 	if !c.noCategories {
-		GenerateDefaultCategories(func(id models.Id, name string) error {
+		common.GenerateDefaultCategories(func(id models.Id, name string) error {
 			return queries.AddCategoryWithId(database, id, name)
 		})
 	}

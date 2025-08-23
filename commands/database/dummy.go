@@ -48,15 +48,15 @@ var clothing = [...]string{
 }
 
 var clothingCategories = [...]models.Id{
-	CategoryId_Clothing50_56,
-	CategoryId_Clothing56_62,
-	CategoryId_Clothing68_80,
-	CategoryId_Clothing86_92,
-	CategoryId_Clothing92_98,
-	CategoryId_Clothing104_116,
-	CategoryId_Clothing122_128,
-	CategoryId_Clothing128_140,
-	CategoryId_Clothing140_152,
+	common.CategoryId_Clothing50_56,
+	common.CategoryId_Clothing56_62,
+	common.CategoryId_Clothing68_80,
+	common.CategoryId_Clothing86_92,
+	common.CategoryId_Clothing92_98,
+	common.CategoryId_Clothing104_116,
+	common.CategoryId_Clothing122_128,
+	common.CategoryId_Clothing128_140,
+	common.CategoryId_Clothing140_152,
 }
 
 var books = [...]string{
@@ -217,7 +217,7 @@ func (c *dummyDatabaseCommand) addCategories(db *sql.DB) error {
 		return queries.AddCategoryWithId(db, id, name)
 	}
 
-	if err := GenerateDefaultCategories(addCategory); err != nil {
+	if err := common.GenerateDefaultCategories(addCategory); err != nil {
 		return fmt.Errorf("failed to add categories: %w", err)
 	}
 	return nil
@@ -389,14 +389,14 @@ func pickRandom[T any](rng *rand.Rand, items []T) T {
 
 func (c *dummyDatabaseCommand) generateRandomBooks() (string, models.Id) {
 	description := pickRandom(c.rng, books[:])
-	categoryId := CategoryId_Books
+	categoryId := common.CategoryId_Books
 
 	return description, categoryId
 }
 
 func (c *dummyDatabaseCommand) generateRandomToys() (string, models.Id) {
 	description := pickRandom(c.rng, toys[:])
-	categoryId := CategoryId_Toys
+	categoryId := common.CategoryId_Toys
 
 	return description, categoryId
 }
