@@ -216,8 +216,7 @@ func (c *InitializeCommand) createDatabaseFile() (r_err error) {
 	if err != nil {
 		if errors.Is(err, dberr.ErrDatabaseAlreadyExists) {
 			c.Printf("Database file %s already exists; I will not overwrite it.\n", databasePath)
-
-			return err
+			return nil
 		}
 
 		c.PrintErrorf("Failed to create database file: %v\n", err)
