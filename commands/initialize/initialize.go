@@ -19,6 +19,7 @@ import (
 
 type InitializeCommand struct {
 	common.Command
+	updateHTMLOnly bool
 }
 
 func NewInitializeCommand() *cobra.Command {
@@ -41,15 +42,25 @@ func NewInitializeCommand() *cobra.Command {
 		},
 	}
 
+	command.CobraCommand.Flags().BoolVar(&command.updateHTMLOnly, "html-only", false, "Only download HTML file and overwrite if it exists")
+
 	return command.AsCobraCommand()
 }
 
 func (c *InitializeCommand) execute() error {
+	if c.updateHTMLOnly {
+		if err := c.downloadHTMLFile(true); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
 	if err := c.generateConfigurationFile(); err != nil {
 		return err
 	}
 
-	if err := c.downloadHTMLFile(); err != nil {
+	if err := c.downloadHTMLFile(false); err != nil {
 		return err
 	}
 
@@ -109,17 +120,19 @@ func (c *InitializeCommand) generateConfigurationFile() error {
 	return nil
 }
 
-func (c *InitializeCommand) downloadHTMLFile() (r_err error) {
+func (c *InitializeCommand) downloadHTMLFile(overwrite bool) (r_err error) {
 	filename := "index.html"
 
-	fileExists, err := algorithms.FileExists(filename)
-	if err != nil {
-		c.PrintErrorf("Failed to check if %s exists: %v\n", filename, err)
-		return err
-	}
-	if fileExists {
-		c.Printf("File %s already exists; I will not overwrite it\n", filename)
-		return nil
+	if !overwrite {
+		fileExists, err := algorithms.FileExists(filename)
+		if err != nil {
+			c.PrintErrorf("Failed to check if %s exists: %v\n", filename, err)
+			return err
+		}
+		if fileExists {
+			c.Printf("File %s already exists; I will not overwrite it\n", filename)
+			return nil
+		}
 	}
 
 	out, err := os.Create(filename)
