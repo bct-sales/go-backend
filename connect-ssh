@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+ssh -i ~/.ssh/aws.pem ubuntu@18.199.89.248
