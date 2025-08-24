@@ -35,6 +35,14 @@ server {
 }
 ```
 
+## DNS
+
+Needs to happen monthly.
+
+```bash
+$ curl -d key=KEY -d ip=IP https://myaddr.tools/update
+```
+
 ## Command Line Options
 
 ```bash
