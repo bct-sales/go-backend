@@ -18,6 +18,7 @@ const (
 	CategoryId_Toys               models.Id = 11
 	CategoryId_BabyChildEquipment models.Id = 12
 	CategoryId_Maternity          models.Id = 13
+	CategoryId_Large              models.Id = 14
 
 	CategoryName_Clothing50_56      string = "Clothing 0-3 mos (50-56)"
 	CategoryName_Clothing56_62      string = "Clothing 3-6 mos (56-62)"
@@ -32,6 +33,7 @@ const (
 	CategoryName_Toys               string = "Toys"
 	CategoryName_BabyChildEquipment string = "Baby/Child Equipment"
 	CategoryName_Maternity          string = "Maternity"
+	CategoryName_Large              string = "Large Item"
 )
 
 func ListCategoryIds() []models.Id {
@@ -49,6 +51,7 @@ func ListCategoryIds() []models.Id {
 		CategoryId_Toys,
 		CategoryId_BabyChildEquipment,
 		CategoryId_Maternity,
+		CategoryId_Large,
 	}
 }
 
@@ -90,6 +93,9 @@ func GenerateDefaultCategories(callback func(id models.Id, name string) error) e
 		return err
 	}
 	if err := callback(CategoryId_Maternity, CategoryName_Maternity); err != nil {
+		return err
+	}
+	if err := callback(CategoryId_Large, CategoryName_Large); err != nil {
 		return err
 	}
 
