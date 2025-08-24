@@ -6,3 +6,12 @@ type Insets struct {
 	Bottom float64
 	Left   float64
 }
+
+func NewUniformInsets(value float64) *Insets {
+	return &Insets{
+		Top:    value,
+		Right:  value,
+		Bottom: value,
+		Left:   value,
+	}
+}
