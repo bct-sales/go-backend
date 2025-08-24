@@ -208,9 +208,8 @@ func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *Label
 		return &PdfError{Message: "failed to draw category", Wrapped: err}
 	}
 
-	itemIdentifierString := fmt.Sprintf("%d", labelData.ItemIdentifier)
-	if err := builder.drawTextInLowerLeftCorner(itemIdentifierString, rectangle); err != nil {
-		return &PdfError{Message: "failed to draw item identifier", Wrapped: err}
+	if err := builder.drawItemIdentifier(rectangle, labelData); err != nil {
+		return err
 	}
 
 	priceAndSellerString := formatPriceAndSeller(labelData.PriceInCents, labelData.SellerIdentifier)
@@ -228,6 +227,19 @@ func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *Label
 		if err := builder.drawDonationImage(rectangle); err != nil {
 			return &PdfError{Message: "failed to draw donation image", Wrapped: err}
 		}
+	}
+
+	return nil
+}
+
+func (builder *PdfBuilder) drawItemIdentifier(rectangle *Rectangle, labelData *LabelData) error {
+	insets := Insets{Left: 4, Top: 0, Right: 0, Bottom: 2}
+	shrunkRectangle := rectangle.Shrink(insets)
+
+	itemIdentifierString := fmt.Sprintf("%d", labelData.ItemIdentifier)
+
+	if err := builder.drawTextInLowerLeftCorner(itemIdentifierString, shrunkRectangle); err != nil {
+		return &PdfError{Message: "failed to draw item identifier", Wrapped: err}
 	}
 
 	return nil
