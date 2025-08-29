@@ -27,7 +27,8 @@ func TestAddItems(t *testing.T) {
 
 			count, err := queries.CountItems(db, queries.AllItems)
 			require.NoError(t, err)
-			require.Equal(t, 0, count)
+			require.Equal(t, 0, count.ItemCount)
+			require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
 		})
 
 		t.Run("Add single item", func(t *testing.T) {
@@ -54,7 +55,8 @@ func TestAddItems(t *testing.T) {
 
 			count, err := queries.CountItems(db, queries.AllItems)
 			require.NoError(t, err)
-			require.Equal(t, 1, count)
+			require.Equal(t, 1, count.ItemCount)
+			require.Equal(t, priceInCents, count.TotalValueInCents)
 
 			itemIds, err := queries.GetItemIds(db)
 			require.NoError(t, err)
@@ -82,6 +84,7 @@ func TestAddItems(t *testing.T) {
 			seller := setup.Seller()
 
 			itemCount := 15
+			totalPrice := models.MoneyInCents(0)
 			callback := func(addItem queries.AddItemFunction) {
 				for i := range itemCount {
 					addedAt := models.Timestamp(100)
@@ -93,7 +96,9 @@ func TestAddItems(t *testing.T) {
 					charity := i%3 == 0
 					frozen := false
 					hidden := false
+
 					addItem(addedAt, description, priceInCents, categoryID, sellerID, donation, charity, frozen, hidden)
+					totalPrice += priceInCents
 				}
 			}
 
@@ -102,7 +107,8 @@ func TestAddItems(t *testing.T) {
 
 			count, err := queries.CountItems(db, queries.AllItems)
 			require.NoError(t, err)
-			require.Equal(t, itemCount, count)
+			require.Equal(t, itemCount, count.ItemCount)
+			require.Equal(t, totalPrice, count.TotalValueInCents)
 		})
 	})
 }

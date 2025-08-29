@@ -21,6 +21,7 @@ type ListSalesSaleData struct {
 type ListSalesSuccessResponse struct {
 	Sales                 []*ListSalesSaleData `json:"sales"`
 	ItemCount             int                  `json:"itemCount"`
+	TotalItemValue        models.MoneyInCents  `json:"totalItemValue"`
 	DistinctSoldItemCount int                  `json:"distinctSoldItemCount"`
 	TotalSoldItemCount    int                  `json:"totalSoldItemCount"`
 	SaleCount             int                  `json:"saleCount"`
@@ -89,8 +90,8 @@ func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSal
 		return nil, false
 	}
 
-	itemCount, countItemsOk := ep.countItems(transaction)
-	if !countItemsOk {
+	itemCount := ep.countItems(transaction)
+	if itemCount == nil {
 		return nil, false
 	}
 
@@ -101,7 +102,8 @@ func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSal
 
 	response := ListSalesSuccessResponse{
 		Sales:                 sales,
-		ItemCount:             itemCount,
+		ItemCount:             itemCount.ItemCount,
+		TotalItemValue:        itemCount.TotalValueInCents,
 		DistinctSoldItemCount: distinctSoldItemCount,
 		TotalSoldItemCount:    totalSoldItemCount,
 		SaleCount:             saleCount,
@@ -118,14 +120,16 @@ func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSal
 	return &response, true
 }
 
-func (ep *getSalesEndpoint) countItems(transaction *queries.TransactionalDatabaseQuerier) (int, bool) {
-	soldItemCount, err := queries.CountItems(transaction, queries.OnlyVisibleItems)
+func (ep *getSalesEndpoint) countItems(transaction *queries.TransactionalDatabaseQuerier) *queries.ItemCountResult {
+	itemCountResult, err := queries.CountItems(transaction, queries.OnlyVisibleItems)
+
 	if err != nil {
-		ep.Logger.InternalError("Failed to get sold item count", "error", err)
-		failure_response.Unknown(ep.Context, "Failed to get sold item count: "+err.Error())
-		return 0, false
+		ep.Logger.InternalError("Failed to get item count", "error", err)
+		failure_response.Unknown(ep.Context, "Failed to get item count: "+err.Error())
+		return nil
 	}
-	return soldItemCount, true
+
+	return itemCountResult
 }
 
 func (ep *getSalesEndpoint) countSoldItems(transaction *queries.TransactionalDatabaseQuerier) (int, int, bool) {

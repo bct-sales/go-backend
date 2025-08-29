@@ -26,8 +26,9 @@ type GetItemsItemData struct {
 }
 
 type GetItemsSuccessResponse struct {
-	Items          []GetItemsItemData `json:"items"`
-	TotalItemCount int                `json:"totalItemCount"`
+	Items          []GetItemsItemData  `json:"items"`
+	TotalItemCount int                 `json:"totalItemCount"`
+	TotalItemValue models.MoneyInCents `json:"totalItemValue`
 }
 
 // @Summary List all items of all sellers.
@@ -139,7 +140,8 @@ func (ep *listAllItemsEndpoint) sendResponseAsJSON(items []*models.Item, itemSel
 
 	response := GetItemsSuccessResponse{
 		Items:          itemsData,
-		TotalItemCount: itemCount,
+		TotalItemCount: itemCount.ItemCount,
+		TotalItemValue: itemCount.TotalValueInCents,
 	}
 
 	ep.Context.IndentedJSON(http.StatusOK, response)

@@ -50,6 +50,7 @@ func TestListAllSales(t *testing.T) {
 				},
 				SaleCount:             1,
 				TotalSaleValue:        items[0].PriceInCents + items[1].PriceInCents,
+				TotalItemValue:        aux.ItemsTotalWorth(items),
 				ItemCount:             5,
 				DistinctSoldItemCount: 2,
 				TotalSoldItemCount:    2,
@@ -95,6 +96,7 @@ func TestListAllSales(t *testing.T) {
 				SaleCount:             2,
 				TotalSaleValue:        items[0].PriceInCents + items[1].PriceInCents + items[2].PriceInCents + items[3].PriceInCents + items[4].PriceInCents,
 				ItemCount:             5,
+				TotalItemValue:        aux.ItemsTotalWorth(items),
 				DistinctSoldItemCount: 5,
 				TotalSoldItemCount:    5,
 			}
@@ -139,6 +141,7 @@ func TestListAllSales(t *testing.T) {
 				SaleCount:             2,
 				TotalSaleValue:        2*items[0].PriceInCents + items[1].PriceInCents + items[2].PriceInCents,
 				ItemCount:             5,
+				TotalItemValue:        aux.ItemsTotalWorth(items),
 				DistinctSoldItemCount: 3,
 				TotalSoldItemCount:    4,
 			}
@@ -172,6 +175,7 @@ func TestListAllSales(t *testing.T) {
 					require.Equal(t, 100, response.ItemCount)
 					require.Equal(t, 100, response.SaleCount)
 					require.Equal(t, 100, response.DistinctSoldItemCount)
+					require.Equal(t, aux.ItemsTotalWorth(items), response.TotalItemValue)
 				})
 			}
 		})
@@ -205,6 +209,7 @@ func TestListAllSales(t *testing.T) {
 						require.Equal(t, 100, response.ItemCount)
 						require.Equal(t, 100, response.SaleCount)
 						require.Equal(t, 100, response.DistinctSoldItemCount)
+						require.Equal(t, aux.ItemsTotalWorth(items), response.TotalItemValue)
 					})
 				}
 			}
@@ -241,6 +246,7 @@ func TestListAllSales(t *testing.T) {
 						require.Equal(t, 100, response.ItemCount)
 						require.Equal(t, 100, response.SaleCount)
 						require.Equal(t, 100, response.DistinctSoldItemCount)
+						require.Equal(t, aux.ItemsTotalWorth(items), response.TotalItemValue)
 					})
 				}
 			}

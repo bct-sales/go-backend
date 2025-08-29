@@ -54,6 +54,7 @@ func TestListAllItems(t *testing.T) {
 			expected := rest.GetItemsSuccessResponse{
 				Items:          []rest.GetItemsItemData{},
 				TotalItemCount: 0,
+				TotalItemValue: models.MoneyInCents(0),
 			}
 			actual := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expected, *actual)
@@ -76,6 +77,7 @@ func TestListAllItems(t *testing.T) {
 			expected := rest.GetItemsSuccessResponse{
 				Items:          []rest.GetItemsItemData{*FromModel(item)},
 				TotalItemCount: 1,
+				TotalItemValue: item.PriceInCents,
 			}
 			actual := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expected, *actual)
@@ -99,6 +101,7 @@ func TestListAllItems(t *testing.T) {
 			expected := rest.GetItemsSuccessResponse{
 				Items:          []rest.GetItemsItemData{*FromModel(item1), *FromModel(item2)},
 				TotalItemCount: 2,
+				TotalItemValue: item1.PriceInCents + item2.PriceInCents,
 			}
 			actual := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expected, *actual)
@@ -127,6 +130,7 @@ func TestListAllItems(t *testing.T) {
 				actualItems := response.Items
 				require.Len(t, actualItems, limit)
 				require.Equal(t, itemCount, response.TotalItemCount)
+				require.Equal(t, aux.ItemsTotalWorth(items), response.TotalItemValue)
 
 				for i := range limit {
 					require.Equal(t, expectedItems[i].ItemID, actualItems[i].ItemId)
@@ -157,6 +161,7 @@ func TestListAllItems(t *testing.T) {
 				actualItems := response.Items
 				require.Len(t, actualItems, len(expectedItems))
 				require.Equal(t, itemCount, response.TotalItemCount)
+				require.Equal(t, aux.ItemsTotalWorth(items), response.TotalItemValue)
 
 				for i := range len(expectedItems) - offset {
 					require.Equal(t, expectedItems[i].ItemID, actualItems[i].ItemId)
@@ -188,6 +193,7 @@ func TestListAllItems(t *testing.T) {
 					actualItems := response.Items
 					require.Len(t, actualItems, len(expectedItems))
 					require.Equal(t, itemCount, response.TotalItemCount)
+					require.Equal(t, aux.ItemsTotalWorth(items), response.TotalItemValue)
 
 					for i := range len(expectedItems) - offset {
 						require.Equal(t, expectedItems[i].ItemID, actualItems[i].ItemId)

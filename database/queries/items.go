@@ -608,27 +608,37 @@ func GetItemsWithIds(db DatabaseQuerier, itemIds []models.Id) (r_result map[mode
 	return items, nil
 }
 
-// CountItems returns the number of items in the database.
+type ItemCountResult struct {
+	ItemCount         int
+	TotalValueInCents models.MoneyInCents
+}
+
+// CountItems returns the number of items in the database and their total worth.
 // The itemSelection parameter allows specifying which items to count: only hidden, only visible or both.
-func CountItems(db DatabaseQuerier, itemSelection ItemSelection) (r_result int, r_err error) {
+func CountItems(db DatabaseQuerier, itemSelection ItemSelection) (r_result *ItemCountResult, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
 	query := fmt.Sprintf(`
 		SELECT
-			COUNT(item_id)
+			COUNT(item_id), COALESCE(SUM(price_in_cents), 0)
 		FROM
 			%s
 	`, ItemsTableFor(itemSelection))
 	row := db.QueryRow(query)
 
-	var count int
-	if err := row.Scan(&count); err != nil {
-		return 0, fmt.Errorf("failed to read row: %w", err)
+	var itemCount int
+	var totalValueInCents models.MoneyInCents
+	if err := row.Scan(&itemCount, &totalValueInCents); err != nil {
+		return nil, fmt.Errorf("failed to read row: %w", err)
 	}
 
-	return count, nil
+	result := ItemCountResult{
+		ItemCount:         itemCount,
+		TotalValueInCents: totalValueInCents,
+	}
+	return &result, nil
 }
 
 // AddItem adds an item to the database.

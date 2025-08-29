@@ -101,7 +101,8 @@ func TestAddItem(t *testing.T) {
 
 			count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 			require.NoError(t, err)
-			require.Equal(t, 0, count)
+			require.Equal(t, 0, count.ItemCount)
+			require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
 		})
 
 		t.Run("Nonexistent category", func(t *testing.T) {
@@ -134,7 +135,8 @@ func TestAddItem(t *testing.T) {
 			{
 				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
-				require.Equal(t, 0, count)
+				require.Equal(t, 0, count.ItemCount)
+				require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
 			}
 		})
 
@@ -160,7 +162,8 @@ func TestAddItem(t *testing.T) {
 			{
 				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
-				require.Equal(t, 0, count)
+				require.Equal(t, 0, count.ItemCount)
+				require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
 			}
 		})
 
@@ -183,7 +186,8 @@ func TestAddItem(t *testing.T) {
 
 			count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 			require.NoError(t, err)
-			require.Equal(t, 0, count)
+			require.Equal(t, 0, count.ItemCount)
+			require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
 		})
 
 		t.Run("Cashier owner", func(t *testing.T) {
@@ -206,7 +210,8 @@ func TestAddItem(t *testing.T) {
 			{
 				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
-				require.Equal(t, 0, count)
+				require.Equal(t, 0, count.ItemCount)
+				require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
 			}
 		})
 
@@ -232,7 +237,8 @@ func TestAddItem(t *testing.T) {
 			{
 				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
-				require.Equal(t, 0, count)
+				require.Equal(t, 0, count.ItemCount)
+				require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
 			}
 		})
 
@@ -258,7 +264,8 @@ func TestAddItem(t *testing.T) {
 			{
 				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
-				require.Equal(t, 0, count)
+				require.Equal(t, 0, count.ItemCount)
+				require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
 			}
 		})
 	})
