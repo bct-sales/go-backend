@@ -28,7 +28,7 @@ type GetItemsItemData struct {
 type GetItemsSuccessResponse struct {
 	Items          []GetItemsItemData  `json:"items"`
 	TotalItemCount int                 `json:"totalItemCount"`
-	TotalItemValue models.MoneyInCents `json:"totalItemValue`
+	TotalItemValue models.MoneyInCents `json:"totalItemValue"`
 }
 
 // @Summary List all items of all sellers.
