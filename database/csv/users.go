@@ -16,7 +16,7 @@ func OutputUsers(db *sql.DB, writer io.Writer) error {
 	headers := []string{"user_id", "role_id", "last_activity", "password"}
 	err := csvWriter.Write(headers)
 	if err != nil {
-		return fmt.Errorf("fail;ed to write csv headers: %w", err)
+		return fmt.Errorf("failed to write csv headers: %w", err)
 	}
 
 	writeRow := func(user *models.User) error {
