@@ -131,7 +131,7 @@ func (ep *listAllItemsEndpoint) sendResponseAsJSON(items []*models.Item, itemSel
 			Frozen:       item.Frozen,
 		}
 	})
-	itemCount, err := queries.GetItemStatistics(ep.Database, itemSelection)
+	itemStatistics, err := queries.GetItemStatistics(ep.Database, itemSelection)
 	if err != nil {
 		ep.Logger.InternalError("Failed to count items", "error", err)
 		failure_response.Unknown(ep.Context, "Failed to count items: "+err.Error())
@@ -140,8 +140,8 @@ func (ep *listAllItemsEndpoint) sendResponseAsJSON(items []*models.Item, itemSel
 
 	response := GetItemsSuccessResponse{
 		Items:          itemsData,
-		TotalItemCount: itemCount.ItemCount,
-		TotalItemValue: itemCount.TotalValueInCents,
+		TotalItemCount: itemStatistics.ItemCount,
+		TotalItemValue: itemStatistics.TotalValueInCents,
 	}
 
 	ep.Context.IndentedJSON(http.StatusOK, response)

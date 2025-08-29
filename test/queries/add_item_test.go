@@ -99,10 +99,10 @@ func TestAddItem(t *testing.T) {
 			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 
-			count, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
+			itemStatistics, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
 			require.NoError(t, err)
-			require.Equal(t, 0, count.ItemCount)
-			require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
+			require.Equal(t, 0, itemStatistics.ItemCount)
+			require.Equal(t, models.MoneyInCents(0), itemStatistics.TotalValueInCents)
 		})
 
 		t.Run("Nonexistent category", func(t *testing.T) {
@@ -133,10 +133,10 @@ func TestAddItem(t *testing.T) {
 			}
 
 			{
-				count, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
+				itemStatistics, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
-				require.Equal(t, 0, count.ItemCount)
-				require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
+				require.Equal(t, 0, itemStatistics.ItemCount)
+				require.Equal(t, models.MoneyInCents(0), itemStatistics.TotalValueInCents)
 			}
 		})
 
@@ -160,10 +160,10 @@ func TestAddItem(t *testing.T) {
 			}
 
 			{
-				count, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
+				itemStatistics, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
-				require.Equal(t, 0, count.ItemCount)
-				require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
+				require.Equal(t, 0, itemStatistics.ItemCount)
+				require.Equal(t, models.MoneyInCents(0), itemStatistics.TotalValueInCents)
 			}
 		})
 
@@ -184,10 +184,10 @@ func TestAddItem(t *testing.T) {
 			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
 			requireDatabaseWrappedError(t, err, dberr.ErrInvalidPrice)
 
-			count, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
+			itemStatistics, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
 			require.NoError(t, err)
-			require.Equal(t, 0, count.ItemCount)
-			require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
+			require.Equal(t, 0, itemStatistics.ItemCount)
+			require.Equal(t, models.MoneyInCents(0), itemStatistics.TotalValueInCents)
 		})
 
 		t.Run("Cashier owner", func(t *testing.T) {
@@ -208,10 +208,10 @@ func TestAddItem(t *testing.T) {
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 
 			{
-				count, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
+				itemStatistics, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
-				require.Equal(t, 0, count.ItemCount)
-				require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
+				require.Equal(t, 0, itemStatistics.ItemCount)
+				require.Equal(t, models.MoneyInCents(0), itemStatistics.TotalValueInCents)
 			}
 		})
 
@@ -235,10 +235,10 @@ func TestAddItem(t *testing.T) {
 			}
 
 			{
-				count, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
+				itemStatistics, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
-				require.Equal(t, 0, count.ItemCount)
-				require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
+				require.Equal(t, 0, itemStatistics.ItemCount)
+				require.Equal(t, models.MoneyInCents(0), itemStatistics.TotalValueInCents)
 			}
 		})
 
@@ -262,10 +262,10 @@ func TestAddItem(t *testing.T) {
 			}
 
 			{
-				count, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
+				itemStatistics, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
-				require.Equal(t, 0, count.ItemCount)
-				require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
+				require.Equal(t, 0, itemStatistics.ItemCount)
+				require.Equal(t, models.MoneyInCents(0), itemStatistics.TotalValueInCents)
 			}
 		})
 	})
