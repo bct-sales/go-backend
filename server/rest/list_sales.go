@@ -90,8 +90,8 @@ func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSal
 		return nil, false
 	}
 
-	itemCount := ep.countItems(transaction)
-	if itemCount == nil {
+	itemStatistics := ep.getItemStatistics(transaction)
+	if itemStatistics == nil {
 		return nil, false
 	}
 
@@ -102,8 +102,8 @@ func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSal
 
 	response := ListSalesSuccessResponse{
 		Sales:                 sales,
-		ItemCount:             itemCount.ItemCount,
-		TotalItemValue:        itemCount.TotalValueInCents,
+		ItemCount:             itemStatistics.ItemCount,
+		TotalItemValue:        itemStatistics.TotalValueInCents,
 		DistinctSoldItemCount: distinctSoldItemCount,
 		TotalSoldItemCount:    totalSoldItemCount,
 		SaleCount:             saleCount,
@@ -120,7 +120,7 @@ func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSal
 	return &response, true
 }
 
-func (ep *getSalesEndpoint) countItems(transaction *queries.TransactionalDatabaseQuerier) *queries.ItemStatisticsResult {
+func (ep *getSalesEndpoint) getItemStatistics(transaction *queries.TransactionalDatabaseQuerier) *queries.ItemStatisticsResult {
 	itemCountResult, err := queries.GetItemStatistics(transaction, queries.OnlyVisibleItems)
 
 	if err != nil {
