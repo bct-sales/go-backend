@@ -120,8 +120,8 @@ func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSal
 	return &response, true
 }
 
-func (ep *getSalesEndpoint) countItems(transaction *queries.TransactionalDatabaseQuerier) *queries.ItemCountResult {
-	itemCountResult, err := queries.CountItems(transaction, queries.OnlyVisibleItems)
+func (ep *getSalesEndpoint) countItems(transaction *queries.TransactionalDatabaseQuerier) *queries.ItemStatisticsResult {
+	itemCountResult, err := queries.GetItemStatistics(transaction, queries.OnlyVisibleItems)
 
 	if err != nil {
 		ep.Logger.InternalError("Failed to get item count", "error", err)

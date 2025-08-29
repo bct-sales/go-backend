@@ -608,14 +608,14 @@ func GetItemsWithIds(db DatabaseQuerier, itemIds []models.Id) (r_result map[mode
 	return items, nil
 }
 
-type ItemCountResult struct {
+type ItemStatisticsResult struct {
 	ItemCount         int
 	TotalValueInCents models.MoneyInCents
 }
 
-// CountItems returns the number of items in the database and their total worth.
+// GetItemStatistics returns the number of items in the database and their total worth.
 // The itemSelection parameter allows specifying which items to count: only hidden, only visible or both.
-func CountItems(db DatabaseQuerier, itemSelection ItemSelection) (r_result *ItemCountResult, r_err error) {
+func GetItemStatistics(db DatabaseQuerier, itemSelection ItemSelection) (r_result *ItemStatisticsResult, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -634,7 +634,7 @@ func CountItems(db DatabaseQuerier, itemSelection ItemSelection) (r_result *Item
 		return nil, fmt.Errorf("failed to read row: %w", err)
 	}
 
-	result := ItemCountResult{
+	result := ItemStatisticsResult{
 		ItemCount:         itemCount,
 		TotalValueInCents: totalValueInCents,
 	}

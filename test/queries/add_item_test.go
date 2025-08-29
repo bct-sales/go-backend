@@ -99,7 +99,7 @@ func TestAddItem(t *testing.T) {
 			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 
-			count, err := queries.CountItems(db, queries.OnlyVisibleItems)
+			count, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
 			require.NoError(t, err)
 			require.Equal(t, 0, count.ItemCount)
 			require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
@@ -133,7 +133,7 @@ func TestAddItem(t *testing.T) {
 			}
 
 			{
-				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
+				count, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
 				require.Equal(t, 0, count.ItemCount)
 				require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
@@ -160,7 +160,7 @@ func TestAddItem(t *testing.T) {
 			}
 
 			{
-				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
+				count, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
 				require.Equal(t, 0, count.ItemCount)
 				require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
@@ -184,7 +184,7 @@ func TestAddItem(t *testing.T) {
 			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
 			requireDatabaseWrappedError(t, err, dberr.ErrInvalidPrice)
 
-			count, err := queries.CountItems(db, queries.OnlyVisibleItems)
+			count, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
 			require.NoError(t, err)
 			require.Equal(t, 0, count.ItemCount)
 			require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
@@ -208,7 +208,7 @@ func TestAddItem(t *testing.T) {
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 
 			{
-				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
+				count, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
 				require.Equal(t, 0, count.ItemCount)
 				require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
@@ -235,7 +235,7 @@ func TestAddItem(t *testing.T) {
 			}
 
 			{
-				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
+				count, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
 				require.Equal(t, 0, count.ItemCount)
 				require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)
@@ -262,7 +262,7 @@ func TestAddItem(t *testing.T) {
 			}
 
 			{
-				count, err := queries.CountItems(db, queries.OnlyVisibleItems)
+				count, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
 				require.Equal(t, 0, count.ItemCount)
 				require.Equal(t, models.MoneyInCents(0), count.TotalValueInCents)

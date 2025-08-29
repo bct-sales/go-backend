@@ -26,7 +26,7 @@ func TestCountItems(t *testing.T) {
 						seller := setup.Seller()
 						items := setup.Items(seller.UserId, count, aux.WithHidden(false))
 
-						actual, err := queries.CountItems(db, queries.OnlyVisibleItems)
+						actual, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
 						require.NoError(t, err)
 						require.Equal(t, count, actual.ItemCount)
 						require.Equal(t, aux.ItemsTotalWorth(items), actual.TotalValueInCents)
@@ -41,7 +41,7 @@ func TestCountItems(t *testing.T) {
 				seller := setup.Seller()
 				setup.Item(seller.UserId, aux.WithHidden(true))
 
-				actual, err := queries.CountItems(db, queries.OnlyVisibleItems)
+				actual, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
 				require.NoError(t, err)
 				require.Equal(t, 0, actual.ItemCount)
 				require.Equal(t, models.MoneyInCents(0), actual.TotalValueInCents)
@@ -59,7 +59,7 @@ func TestCountItems(t *testing.T) {
 						seller := setup.Seller()
 						items := setup.Items(seller.UserId, count, aux.WithHidden(false))
 
-						actual, err := queries.CountItems(db, queries.AllItems)
+						actual, err := queries.GetItemStatistics(db, queries.AllItems)
 						require.NoError(t, err)
 						require.Equal(t, count, actual.ItemCount)
 						require.Equal(t, aux.ItemsTotalWorth(items), actual.TotalValueInCents)
@@ -74,7 +74,7 @@ func TestCountItems(t *testing.T) {
 				seller := setup.Seller()
 				item := setup.Item(seller.UserId, aux.WithFrozen(false), aux.WithHidden(true))
 
-				actual, err := queries.CountItems(db, queries.AllItems)
+				actual, err := queries.GetItemStatistics(db, queries.AllItems)
 				require.NoError(t, err)
 				require.Equal(t, 1, actual.ItemCount)
 				require.Equal(t, aux.ItemsTotalWorth([]*models.Item{item}), actual.TotalValueInCents)
@@ -89,7 +89,7 @@ func TestCountItems(t *testing.T) {
 			setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
 			hiddenItems := setup.Items(seller.UserId, 12, aux.WithFrozen(false), aux.WithHidden(true))
 
-			actual, err := queries.CountItems(db, queries.OnlyHiddenItems)
+			actual, err := queries.GetItemStatistics(db, queries.OnlyHiddenItems)
 			require.NoError(t, err)
 			require.Equal(t, len(hiddenItems), actual.ItemCount)
 			require.Equal(t, aux.ItemsTotalWorth(hiddenItems), actual.TotalValueInCents)
