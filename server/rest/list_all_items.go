@@ -108,20 +108,12 @@ func (ep *listAllItemsEndpoint) fetchItemsFromDatabase(itemSelection queries.Ite
 }
 
 func (ep *listAllItemsEndpoint) sendSuccessResponse(items []*models.Item, itemSelection queries.ItemSelection) {
-	requestedFormat := ep.Context.Query("format")
-	switch requestedFormat {
-	case "":
-		ep.sendResponseAsJSON(items, itemSelection)
-
-	case "json":
-		ep.sendResponseAsJSONFile(items)
-
-	case "csv":
-		ep.sendResponseAsCSVFile(items)
-
-	default:
-		ep.handleInvalidFormat(requestedFormat)
+	formatHandler := formatHandlerAdapter{
+		handleDefaultFormatFunc: func() { ep.sendResponseAsJSON(items, itemSelection) },
+		handleJSONFormatFunc:    func() { ep.sendResponseAsJSONFile(items) },
+		handleCSVFormatFunc:     func() { ep.sendResponseAsCSVFile(items) },
 	}
+	ep.parseFormatQueryParameter(&formatHandler)
 }
 
 func (ep *listAllItemsEndpoint) sendResponseAsJSON(items []*models.Item, itemSelection queries.ItemSelection) {
