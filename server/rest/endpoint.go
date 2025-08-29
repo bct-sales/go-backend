@@ -133,3 +133,50 @@ func (ep *Endpoint) parseOrderQueryParameter() (queries.Order, bool) {
 
 	return queries.OrderChronological, true
 }
+
+type formatHandler interface {
+	handleDefaultFormat()
+	handleCSVFormat()
+	handleJSONFormat()
+}
+
+func (ep *Endpoint) parseFormatQueryParameter(formatHandler formatHandler) {
+	requestedFormat := ep.Context.Query("format")
+
+	switch requestedFormat {
+	case "":
+		formatHandler.handleDefaultFormat()
+		return
+
+	case "json":
+		formatHandler.handleJSONFormat()
+		return
+
+	case "csv":
+		formatHandler.handleCSVFormat()
+		return
+
+	default:
+		ep.Logger.InvalidInput("Unknown format requested", "format", requestedFormat)
+		failure_response.Unknown(ep.Context, "Unknown format: "+requestedFormat)
+		return
+	}
+}
+
+type formatHandlerAdapter struct {
+	handleDefaultFormatFunc func()
+	handleCSVFormatFunc     func()
+	handleJSONFormatFunc    func()
+}
+
+func (fha *formatHandlerAdapter) handleDefaultFormat() {
+	fha.handleDefaultFormatFunc()
+}
+
+func (fha *formatHandlerAdapter) handleCSVFormat() {
+	fha.handleCSVFormatFunc()
+}
+
+func (fha *formatHandlerAdapter) handleJSONFormat() {
+	fha.handleJSONFormatFunc()
+}
