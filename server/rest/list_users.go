@@ -4,8 +4,11 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
+	"bytes"
+	"encoding/csv"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	_ "bctbackend/docs"
 )
@@ -59,7 +62,8 @@ func (ep *listUsersEndpoint) execute() {
 	}
 
 	userData := ep.convertToUserData(users)
-	ep.sendSuccessResponse(userData)
+
+	ep.sendSuccessResponseInAppropriateFormat(userData)
 }
 
 func (ep *listUsersEndpoint) ensureUserIsAdmin() bool {
@@ -118,7 +122,86 @@ func (ep *listUsersEndpoint) convertToUserData(users []*queries.UserWithItemCoun
 	return userData
 }
 
-func (ep *listUsersEndpoint) sendSuccessResponse(userData []GetUsersUserData) {
+func (ep *listUsersEndpoint) sendSuccessResponseInAppropriateFormat(userData []GetUsersUserData) {
+	formatHandler := formatHandlerAdapter{
+		handleDefaultFormatFunc: func() { ep.sendSuccessResponseAsJSON(userData) },
+		handleCSVFormatFunc:     func() { ep.sendSuccessResponseAsCSVFile(userData) },
+		handleJSONFormatFunc:    func() { ep.sendSuccessResponseAsJSONFile(userData) },
+	}
+
+	ep.parseFormatQueryParameter(&formatHandler)
+}
+
+func (ep *listUsersEndpoint) sendSuccessResponseAsJSON(userData []GetUsersUserData) {
 	response := GetUsersSuccessResponse{Users: userData}
 	ep.Context.IndentedJSON(http.StatusOK, response)
+}
+
+func (ep *listUsersEndpoint) sendSuccessResponseAsJSONFile(userData []GetUsersUserData) {
+	ep.Context.Header("Content-Type", "application/json")
+	ep.Context.Header("Content-Disposition", "attachment; filename=\"users.json\"")
+	ep.Context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	ep.Context.Header("Pragma", "no-cache")
+
+	ep.Context.IndentedJSON(http.StatusOK, userData)
+}
+
+func (ep *listUsersEndpoint) sendSuccessResponseAsCSVFile(userData []GetUsersUserData) {
+	ep.Context.Header("Content-Type", "text/csv")
+	ep.Context.Header("Content-Disposition", "attachment; filename=\"users.csv\"")
+	ep.Context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	ep.Context.Header("Pragma", "no-cache")
+
+	string := ep.formatAsCSV(userData)
+	if string == nil {
+		return
+	}
+
+	ep.Context.String(http.StatusOK, *string)
+}
+
+func (ep *listUsersEndpoint) formatAsCSV(userData []GetUsersUserData) *string {
+	buffer := new(bytes.Buffer)
+	csvWriter := csv.NewWriter(buffer)
+	defer csvWriter.Flush()
+
+	// Write headers
+	headers := []string{"user_id", "role_id", "last_activity", "password", "item_count"}
+	err := csvWriter.Write(headers)
+	if err != nil {
+		ep.Logger.InternalError("Failed to write headers to CSV file", "error", err)
+		failure_response.Unknown(ep.Context, "Failed to write headers to CSV file: "+err.Error())
+		return nil
+	}
+
+	// Write rows, one per user
+	for _, user := range userData {
+		idString := strconv.FormatInt(user.Id, 10)
+		roleString := user.Role
+
+		var lastActivityString string
+		if user.LastActivity != nil {
+			lastActivityString = user.LastActivity.Timestamp.FormattedDateTime()
+		} else {
+			lastActivityString = "N/A"
+		}
+
+		itemCountString := strconv.FormatInt(int64(user.ItemCount), 10)
+
+		err = csvWriter.Write([]string{
+			idString,
+			roleString,
+			lastActivityString,
+			user.Password,
+			itemCountString,
+		})
+		if err != nil {
+			ep.Logger.InternalError("Failed to write row to CSV file", "error", err)
+			failure_response.Unknown(ep.Context, "Failed to write row to CSV file: "+err.Error())
+			return nil
+		}
+	}
+
+	result := buffer.String()
+	return &result
 }
