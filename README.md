@@ -12,17 +12,27 @@ $ chmod u+x ./bctbackend
 # Initialize
 $ ./bctbackend init
 
-sudo nginx -t
-sudo systemctl reload nginx
+# Check configuration files
+$ sudo nginx -t
+
+# Restart nginx
+$ sudo systemctl reload nginx
 ```
 
 ## Nginx Configuration
 
-```
+File `/etc/nginx/sites-available`
+
+```text
 server {
     listen 80;
     listen [::]:80;
-    server_name bct-sales.duckdns.org 18.199.89.248;
+    server_name bct-sales.myaddr.io 18.199.89.248;
+
+    location /files/ {
+        alias /var/www/html/;
+    }
+
 
     location / {
         proxy_pass         http://127.0.0.1:8000;
