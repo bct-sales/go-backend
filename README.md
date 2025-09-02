@@ -1,5 +1,7 @@
 # Overview
 
+* [Installation](./documentation/installation.md)
+
 ## Installation
 
 ```bash
