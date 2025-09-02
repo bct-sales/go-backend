@@ -44,7 +44,7 @@ func (c *backupDatabaseCommand) execute(args []string) error {
 			return fmt.Errorf("failed to backup database %s: %w", targetPath, err)
 		}
 
-		c.Printf("Database backup completed successfully")
+		c.Printf("Database backup completed successfully\n")
 		return nil
 	})
 }
