@@ -52,7 +52,7 @@ $ ./bctbackend category count
 ### Adding New Category
 
 ```bash
-$ ./bctbackend --id ID --name NAME
+$ ./bctbackend --id <id> --name <name>
 
 # Example
 
@@ -73,10 +73,16 @@ $ ./bctbackend item list
 $ ./bctbackend item list --format csv
 ```
 
+### Viewing an Item
+
+```bash
+$ ./bctbackend [--no-color] item show <id>
+```
+
 ### Adding Item
 
 ```bash
-$ ./bctbackend item add --category CATEGORY_ID -description DESCRIPTION --price PRICE --seller SELLER_ID [--charity] [--donation]
+$ ./bctbackend item add --category <id> -description <description> --price <price> --seller <seller_id> [--charity] [--donation]
 ```
 
 A newly added item is always unfrozen and visible.
@@ -84,15 +90,23 @@ A newly added item is always unfrozen and visible.
 ### Copying an Item
 
 ```bash
-$ ./bctbackend item copy ITEM_ID
+$ ./bctbackend item copy <id>
 ```
 
 A copy of an item is always unfrozen and visible.
 
+### Updating an Item
+
+```bash
+$ ./bctbackend item update --id <item_id> [--category <category_id>] [--charity] [--no-charity] [--donation] [--no-donation] [--price <price>] [--description <description>]
+```
+
+Cannot update a frozen item.
+
 ### Hiding/Unhiding
 
 ```bash
-$ ./bctbackend item [hide|show] ITEM_ID
+$ ./bctbackend item [hide|unhide] <id> ...
 ```
 
 * A frozen item cannot be hidden.
@@ -101,7 +115,7 @@ $ ./bctbackend item [hide|show] ITEM_ID
 ### Freezing/Unfreezing
 
 ```bash
-$ ./bctbackend item [freeze|unfreeze] ITEM_ID
+$ ./bctbackend item [freeze|unfreeze] <id> ...
 ```
 
 * A hidden item cannot be frozen.
@@ -109,3 +123,12 @@ $ ./bctbackend item [freeze|unfreeze] ITEM_ID
 
 Unfreeze with caution!
 Unfreezing allows editing the item, which may cause discrepancies with printed labels.
+
+### Removing an Item
+
+```bash
+$ ./bctbackend item remove <id>
+```
+
+Only use this command when *really* necessary.
+Hiding item is much safer.
