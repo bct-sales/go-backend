@@ -77,3 +77,11 @@ $ nohup ./bctbackend server &
 ```
 
 (Should be improved)
+
+## Renewing DNS (!= HTTPS Certificate)
+
+Needs to happen monthly.
+
+```bash
+$ curl -d key=KEY -d ip=self https://myaddr.tools/update
+```
