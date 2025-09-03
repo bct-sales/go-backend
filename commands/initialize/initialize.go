@@ -100,7 +100,7 @@ func (c *InitializeCommand) generateConfigurationFile() error {
 		  port: 8000
 		  html: index.html
 		  pruneExpiredSessionsInterval: 3600
-		  cookieDomain: "bct-sales.duckdns.org"
+		  cookieDomain: "bct-sales.myaddr.io"
 		  debug: false
 		  swagger: false
 		log:
