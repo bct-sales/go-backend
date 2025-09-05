@@ -46,6 +46,11 @@ func (c *ListSessionsCommand) execute() error {
 			return fmt.Errorf("failed to fetch sessions from database: %w", err)
 		}
 
+		if len(sessions) == 0 {
+			c.Printf("no sessions found")
+			return nil
+		}
+
 		tableData := pterm.TableData{
 			{"Session ID", "User ID", "Expires At"},
 		}
