@@ -202,7 +202,7 @@ func DeleteSessionWithUser(db DatabaseQuerier, userId models.Id) (r_err error) {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	result, err := db.Exec(
+	_, err := db.Exec(
 		`
 			DELETE FROM sessions
 			WHERE user_id = ?
@@ -211,14 +211,6 @@ func DeleteSessionWithUser(db DatabaseQuerier, userId models.Id) (r_err error) {
 	)
 	if err != nil {
 		return fmt.Errorf("failed to delete session: %w", err)
-	}
-
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("failed to delete session: %w", err)
-	}
-	if rowsAffected == 0 {
-		return dberr.ErrNoSuchSession
 	}
 
 	return nil
