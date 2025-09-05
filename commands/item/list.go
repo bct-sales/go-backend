@@ -58,11 +58,12 @@ func (c *listItemsCommand) execute() error {
 
 func (c *listItemsCommand) listItemsInTableFormat() error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		items := []*models.Item{}
 		query := queries.NewGetItemsQuery()
 		if !c.showHidden {
 			query.WithHidden(false)
 		}
+
+		items := []*models.Item{}
 		if err := query.Execute(db, queries.CollectTo(&items)); err != nil {
 			c.PrintErrorf("Error while getting items: %v\n", err)
 			return err
