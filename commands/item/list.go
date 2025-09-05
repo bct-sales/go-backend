@@ -58,15 +58,12 @@ func (c *listItemsCommand) execute() error {
 
 func (c *listItemsCommand) listItemsInTableFormat() error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		var itemSelection queries.ItemSelection
-		if c.showHidden {
-			itemSelection = queries.AllItems
-		} else {
-			itemSelection = queries.OnlyVisibleItems
-		}
-
 		items := []*models.Item{}
-		if err := queries.GetItems(db, queries.CollectTo(&items), itemSelection, queries.AllRows()); err != nil {
+		query := queries.NewGetItemsQuery()
+		if !c.showHidden {
+			query.WithHidden(false)
+		}
+		if err := query.Execute(db, queries.CollectTo(&items)); err != nil {
 			c.PrintErrorf("Error while getting items: %v\n", err)
 			return err
 		}
