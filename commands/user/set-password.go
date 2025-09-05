@@ -36,21 +36,27 @@ func NewUserSetPasswordCommand() *cobra.Command {
 
 func (c *SetUserPasswordCommand) execute(args []string) error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		// Parse the user ID from the first argument
-		userId, err := models.ParseId(args[0])
+		userId, err := c.ParseUserId(args[0])
 		if err != nil {
-			c.PrintErrorf("Invalid user ID: %s\n", args[0])
 			return err
 		}
 		newPassword := args[1]
 
-		err = queries.UpdateUserPassword(db, userId, newPassword)
-		if err != nil {
-			c.PrintErrorf("Failed to update user password\n")
-			return fmt.Errorf("failed to update database: %w", err)
+		if err := c.updatePassword(db, userId, newPassword); err != nil {
+			return err
 		}
 
-		c.Printf("Password updated successfully\n")
 		return nil
 	})
+}
+
+func (c *SetUserPasswordCommand) updatePassword(db *sql.DB, userId models.Id, newPassword string) error {
+	err := queries.UpdateUserPassword(db, userId, newPassword)
+	if err != nil {
+		c.PrintErrorf("Failed to update user password\n")
+		return fmt.Errorf("failed to update database: %w", err)
+	}
+
+	c.Printf("Password updated successfully\n")
+	return nil
 }
