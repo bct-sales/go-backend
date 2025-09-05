@@ -8,6 +8,7 @@ import (
 	"bctbackend/commands/item"
 	"bctbackend/commands/sale"
 	"bctbackend/commands/server"
+	"bctbackend/commands/session"
 	"bctbackend/commands/user"
 	"fmt"
 	"log/slog"
@@ -78,6 +79,7 @@ func NewRootCommand() *cobra.Command {
 	rootCommand.AddCommand(server.NewServerCommand())
 	rootCommand.AddCommand(category.NewCategoryCommand())
 	rootCommand.AddCommand(initialize.NewInitializeCommand())
+	rootCommand.AddCommand(session.NewSessionCommand())
 
 	return &rootCommand
 }
