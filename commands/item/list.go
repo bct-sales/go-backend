@@ -116,10 +116,13 @@ func (c *listItemsCommand) listItemsInTableFormat() error {
 
 func (c *listItemsCommand) listItemsInCSVFormat() error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		itemSelection := queries.ItemSelectionFromBool(c.showHidden)
+		query := queries.NewGetItemsQuery()
+		if !c.showHidden {
+			query.WithHidden(false)
+		}
 
 		items := []*models.Item{}
-		if err := queries.GetItems(db, queries.CollectTo(&items), itemSelection, queries.AllRows()); err != nil {
+		if err := query.Execute(db, queries.CollectTo(&items)); err != nil {
 			return fmt.Errorf("failed to get items: %w", err)
 		}
 
