@@ -8,6 +8,7 @@
 
 * Programming Language: Go
 * Database: [SQLite](https://modernc.org/sqlite)
+* SQL Query builder: [Squirrel](https://github.com/Masterminds/squirrel)
 * HTTP Framework: Gin
 * Websocket: [Gorilla](https://github.com/gorilla/websocket)
 * PDF generation: [fpdf](https://github.com/go-pdf/fpdf)
