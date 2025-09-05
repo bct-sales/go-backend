@@ -234,6 +234,23 @@ func DeleteExpiredSessions(db DatabaseQuerier, cutOff models.Timestamp) (r_err e
 	return nil
 }
 
+func DeleteAllSessions(db DatabaseQuerier) (r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
+	query := `
+		DELETE FROM sessions
+	`
+	_, err := db.Exec(query)
+
+	if err != nil {
+		return fmt.Errorf("failed to delete sessions: %w", err)
+	}
+
+	return nil
+}
+
 func GetTables(db DatabaseQuerier) (r_result []string, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
