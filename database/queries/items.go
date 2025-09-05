@@ -8,6 +8,8 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+
+	sq "github.com/Masterminds/squirrel"
 )
 
 // GetItems can be used to fetch items from the database.
@@ -21,29 +23,28 @@ func GetItems(db DatabaseQuerier, receiver func(*models.Item) error, itemSelecti
 	}()
 
 	// Build SQL query
-	query := fmt.Sprintf(`
-		SELECT
-			item_id,
-			added_at,
-			description,
-			price_in_cents,
-			item_category_id,
-			seller_id,
-			donation,
-			charity,
-			frozen,
-			hidden
-		FROM
-			%s
-		ORDER BY
-			item_id ASC
-		%s
-	`, ItemsTableFor(itemSelection), rowSelection.SQL())
+	query := sq.Select("item_id", "added_at", "description", "price_in_cents", "item_category_id", "seller_id", "donation", "charity", "frozen", "hidden").From(ItemsTableFor(itemSelection)).OrderBy("item_id ASC")
+	if rowSelection != nil {
+		if rowSelection.Limit != nil {
+			query = query.Limit(uint64(*rowSelection.Limit))
+		} else {
+			query = query.Limit(100000)
+		}
+
+		if rowSelection.Offset != nil {
+			query = query.Offset(uint64(*rowSelection.Offset))
+		}
+	}
+
+	queryString, queryArguments, err := query.ToSql()
+	if err != nil {
+		return fmt.Errorf("failed to build SQL query: %w", err)
+	}
 
 	// Perform query
-	rows, err := db.Query(query)
+	rows, err := db.Query(queryString, queryArguments...)
 	if err != nil {
-		return fmt.Errorf("failed to execute query to look up items in database: %w", err)
+		return fmt.Errorf("failed to execute query %s to look up items in database: %w", queryString, err)
 	}
 	defer func() { err = errors.Join(err, rows.Close()) }()
 
