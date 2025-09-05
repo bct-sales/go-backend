@@ -12,6 +12,7 @@ func NewSessionCommand() *cobra.Command {
 	}
 
 	command.AddCommand(NewPruneSessionsCommand())
+	command.AddCommand(NewListSessionsCommand())
 
 	return &command
 }
