@@ -58,6 +58,11 @@ func (c *ListSessionsCommand) execute() error {
 			})
 		}
 
+		if err := pterm.DefaultTable.WithHasHeader().WithData(tableData).Render(); err != nil {
+			c.PrintErrorf("Failed to render table: %v\n", err)
+			return fmt.Errorf("error while rendering table: %w", err)
+		}
+
 		return nil
 	})
 }
