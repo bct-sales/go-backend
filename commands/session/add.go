@@ -12,16 +12,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type AddSessionsCommand struct {
+type AddSessionCommand struct {
 	common.Command
 	userId     uint64
 	expiration string
 }
 
 func NewAddSessionCommand() *cobra.Command {
-	var command *AddSessionsCommand
+	var command *AddSessionCommand
 
-	command = &AddSessionsCommand{
+	command = &AddSessionCommand{
 		Command: common.Command{
 			CobraCommand: &cobra.Command{
 				Use:   "add",
@@ -54,7 +54,7 @@ func NewAddSessionCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *AddSessionsCommand) execute() error {
+func (c *AddSessionCommand) execute() error {
 	expiration, err := c.parseExpiration()
 	if err != nil {
 		return err
@@ -72,7 +72,7 @@ func (c *AddSessionsCommand) execute() error {
 	})
 }
 
-func (c *AddSessionsCommand) parseExpiration() (models.Timestamp, error) {
+func (c *AddSessionCommand) parseExpiration() (models.Timestamp, error) {
 	expiration := c.expiration
 
 	numberString := expiration[0 : len(expiration)-1]
@@ -92,7 +92,7 @@ func (c *AddSessionsCommand) parseExpiration() (models.Timestamp, error) {
 	return result, nil
 }
 
-func (c *AddSessionsCommand) parseTimeUnit(unit byte) (uint64, error) {
+func (c *AddSessionCommand) parseTimeUnit(unit byte) (uint64, error) {
 	switch unit {
 	case 's':
 		return 1, nil
