@@ -50,7 +50,7 @@ func (c *SetUserPasswordCommand) execute(args []string) error {
 			return fmt.Errorf("failed to update database: %w", err)
 		}
 
-		c.Printf("Password updated successfully")
+		c.Printf("Password updated successfully\n")
 		return nil
 	})
 }
