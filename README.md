@@ -13,4 +13,5 @@
 * PDF generation: [fpdf](https://github.com/go-pdf/fpdf)
 * Barcode generation: [github.com/boombuler/barcode](https://github.com/boombuler/barcode)
 * CLI Library: [Cobra](https://github.com/spf13/cobra) and [Viper](https://github.com/spf13/viper)
-* Logging Rotation Library: [Lumberjack](gopkg.in/natefinch/lumberjack.v2)
+* Logging Rotation Library: [Lumberjack](https://gopkg.in/natefinch/lumberjack.v2)
+* Testing Assertion Library: [Testify](https://github.com/stretchr/testify)
