@@ -12,34 +12,41 @@ import (
 	sq "github.com/Masterminds/squirrel"
 )
 
-// GetItems can be used to fetch items from the database.
-// For each item found, the given receiver function is called.
-// If an error occurs while processing an item, the error is returned.
-// The itemSelection parameter specifies which items to retrieve: only hidden, only visible or both.
-// The rowSelection parameter specifies which rows to retrieve.
-func GetItems(db DatabaseQuerier, receiver func(*models.Item) error, itemSelection ItemSelection, rowSelection *RowSelection) (r_err error) {
+type GetItemsQuery struct {
+	frozen *bool
+	hidden *bool
+	limit  *uint64
+	offset *uint64
+}
+
+func NewGetItemsQuery() *GetItemsQuery {
+	return &GetItemsQuery{
+		frozen: nil,
+		hidden: nil,
+		limit:  nil,
+		offset: nil,
+	}
+}
+
+func (q *GetItemsQuery) WithFrozen(value bool) {
+	q.frozen = &value
+}
+
+func (q *GetItemsQuery) WithHidden(value bool) {
+	q.hidden = &value
+}
+
+func (q *GetItemsQuery) WithLimitAndOffset(limit uint64, offset uint64) {
+	q.limit = &limit
+	q.offset = &offset
+}
+
+func (q *GetItemsQuery) Execute(db DatabaseQuerier, receiver func(*models.Item) error) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	// Build SQL query
-	query := sq.Select("item_id", "added_at", "description", "price_in_cents", "item_category_id", "seller_id", "donation", "charity", "frozen", "hidden").From(ItemsTableFor(itemSelection)).OrderBy("item_id ASC")
-	if rowSelection != nil {
-		if rowSelection.Limit != nil {
-			query = query.Limit(uint64(*rowSelection.Limit))
-		} else {
-			query = query.Limit(100000)
-		}
-
-		if rowSelection.Offset != nil {
-			query = query.Offset(uint64(*rowSelection.Offset))
-		}
-	}
-
-	queryString, queryArguments, err := query.ToSql()
-	if err != nil {
-		return fmt.Errorf("failed to build SQL query: %w", err)
-	}
+	queryString, queryArguments, err := q.buildSqlQuery()
 
 	// Perform query
 	rows, err := db.Query(queryString, queryArguments...)
@@ -100,6 +107,77 @@ func GetItems(db DatabaseQuerier, receiver func(*models.Item) error, itemSelecti
 	}
 
 	return nil
+}
+
+func (q *GetItemsQuery) buildSqlQuery() (string, []any, error) {
+	query := sq.Select("item_id", "added_at", "description", "price_in_cents", "item_category_id", "seller_id", "donation", "charity", "frozen", "hidden")
+	query = query.From("items")
+	query = query.OrderBy("item_id ASC")
+
+	if q.frozen != nil {
+		query = query.Where(sq.Eq{"frozen": *q.frozen})
+	}
+
+	if q.hidden != nil {
+		query = query.Where(sq.Eq{"hidden": *q.hidden})
+	}
+
+	if q.limit != nil {
+		query = query.Limit(*q.limit)
+	}
+
+	if q.offset != nil {
+		// Offset without limit is not allowed
+		if q.limit == nil {
+			query = query.Limit(100000)
+		}
+
+		query = query.Offset(*q.offset)
+	}
+
+	queryString, queryArguments, err := query.ToSql()
+	if err != nil {
+		return "", nil, fmt.Errorf("failed to build SQL query: %w", err)
+	}
+
+	return queryString, queryArguments, nil
+}
+
+// GetItems can be used to fetch items from the database.
+// For each item found, the given receiver function is called.
+// If an error occurs while processing an item, the error is returned.
+// The itemSelection parameter specifies which items to retrieve: only hidden, only visible or both.
+// The rowSelection parameter specifies which rows to retrieve.
+func GetItems(db DatabaseQuerier, receiver func(*models.Item) error, itemSelection ItemSelection, rowSelection *RowSelection) error {
+	query := NewGetItemsQuery()
+
+	switch itemSelection {
+	case AllItems:
+		// NOP
+	case OnlyVisibleItems:
+		query.WithHidden(false)
+	case OnlyHiddenItems:
+		query.WithHidden(true)
+	default:
+		panic(fmt.Sprintf("Invalid hidden strategy: %d", itemSelection))
+	}
+
+	if rowSelection != nil && (rowSelection.Offset != nil || rowSelection.Limit != nil) {
+		limit := uint64(100000)
+		offset := uint64(0)
+
+		if rowSelection.Limit != nil {
+			limit = uint64(*rowSelection.Limit)
+		}
+
+		if rowSelection.Offset != nil {
+			offset = uint64(*rowSelection.Offset)
+		}
+
+		query.WithLimitAndOffset(limit, offset)
+	}
+
+	return query.Execute(db, receiver)
 }
 
 // GetItemIds retrieves the IDs of all items in the database.
