@@ -197,6 +197,33 @@ func DeleteSession(db DatabaseQuerier, sessionId models.SessionId) (r_err error)
 	return nil
 }
 
+func DeleteSessionWithUser(db DatabaseQuerier, userId models.Id) (r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
+	result, err := db.Exec(
+		`
+			DELETE FROM sessions
+			WHERE user_id = ?
+		`,
+		userId,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to delete session: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to delete session: %w", err)
+	}
+	if rowsAffected == 0 {
+		return dberr.ErrNoSuchSession
+	}
+
+	return nil
+}
+
 func DeleteExpiredSessions(db DatabaseQuerier, cutOff models.Timestamp) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
