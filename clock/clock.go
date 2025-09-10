@@ -9,7 +9,7 @@ type Clock interface {
 
 	// NewTicker creates a new ticker.
 	// It will cause the given callback to be called at regular intervals.
-	NewTicker(durationInSeconds int, callback func()) Ticker
+	NewTicker(duration int, callback func()) Ticker
 
 	// StopAllTickers stops all tickers created by this clock.
 	StopAllTickers()

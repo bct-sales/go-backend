@@ -15,10 +15,10 @@ func NewManualClock(initialTime models.Timestamp) *ManualClock {
 }
 
 // NewTicker creates a new ticker associated with the clock.
-func (c *ManualClock) NewTicker(durationInSeconds int, callback func()) Ticker {
+func (c *ManualClock) NewTicker(duration int, callback func()) Ticker {
 	ticker := &ManualTicker{
-		nextTick: c.currentTime + models.Timestamp(durationInSeconds),
-		interval: models.Timestamp(durationInSeconds),
+		nextTick: c.currentTime + models.Timestamp(duration),
+		interval: models.Timestamp(duration),
 		active:   true,
 		callback: callback,
 	}
