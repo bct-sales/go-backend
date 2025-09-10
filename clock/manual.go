@@ -46,10 +46,10 @@ func (t *ManualTicker) Stop() {
 
 // Advance advances the manual clock's time.
 // Tickers will call their associated callbacks as needed, in order.
-func (c *ManualClock) Advance(durationInSeconds models.Timestamp) {
+func (c *ManualClock) Advance(duration models.Timestamp) {
 	c.PruneInactiveTickers()
 
-	target := c.currentTime + durationInSeconds
+	target := c.currentTime + duration
 
 	for {
 		ticker := c.findEarliestTicker()
