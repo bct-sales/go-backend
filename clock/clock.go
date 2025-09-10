@@ -4,7 +4,7 @@ import "bctbackend/database/models"
 
 // Clock allows to query the current time and to create tickers.
 type Clock interface {
-	// Now returns the current system time
+	// Now returns the current time
 	Now() models.Timestamp
 
 	// NewTicker creates a new ticker.
