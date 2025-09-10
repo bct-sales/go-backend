@@ -21,8 +21,8 @@ type SystemTicker struct {
 	stopChannel chan int // Channel to signal the ticker to stop
 }
 
-func (clock *SystemClock) NewTicker(duration int, callback func()) Ticker {
-	ticker := time.NewTicker(time.Duration(duration) * time.Second)
+func (clock *SystemClock) NewTicker(durationInSeconds int, callback func()) Ticker {
+	ticker := time.NewTicker(time.Duration(durationInSeconds) * time.Second)
 	stopChannel := make(chan int)
 
 	go func() {

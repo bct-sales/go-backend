@@ -4,7 +4,7 @@ import "bctbackend/database/models"
 
 type Clock interface {
 	Now() models.Timestamp
-	NewTicker(duration int, callback func()) Ticker
+	NewTicker(durationInSeconds int, callback func()) Ticker
 	StopAllTickers()
 }
 
