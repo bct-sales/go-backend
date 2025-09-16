@@ -1,0 +1,28 @@
+//go:build test
+
+package queries
+
+import (
+	"bctbackend/database/queries"
+	aux "bctbackend/test/helpers"
+	. "bctbackend/test/setup"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestDoesSellerHaveFrozenItems(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		t.Run("No frozen items", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+			setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+
+			result, err := queries.DoesSellerHaveFrozenItems(db, seller.UserId)
+			require.NoError(t, err)
+			require.False(t, result)
+		})
+	})
+}
