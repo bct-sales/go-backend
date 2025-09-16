@@ -58,5 +58,19 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 			})
 		})
+
+		t.Run("Nonexistent new seller", func(t *testing.T) {
+			setup, _ := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			oldSeller := setup.Seller()
+			invalidSellerId := models.Id(999)
+			setup.RequireNoSuchUsers(t, invalidSellerId)
+
+			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
+				err := queries.MoveItemsToNewSeller(db, oldSeller.UserId, invalidSellerId)
+				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
+			})
+		})
 	})
 }
