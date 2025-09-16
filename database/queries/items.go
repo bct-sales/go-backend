@@ -1364,4 +1364,34 @@ func DoesSellerHaveFrozenItems(db *TransactionalDatabaseQuerier, sellerId models
 
 	return true, nil
 }
+
+// MoveItemsToNewSeller moves all items belonging to oldSellerId to newSellerId.
+// Does not check for frozen or hidden items!
+// Returns ErrNoSuchUser if oldSellerId or newSellerId do not exist.
+// Returns ErrWrongRole if oldSellerId or newSellerId do not refer to sellers.
+func MoveItemsToNewSeller(db *TransactionalDatabaseQuerier, oldSellerId models.Id, newSellerId models.Id) (r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
+	// oldSellerId must refer to seller
+	if err := EnsureUserExistsAndHasRole(db, oldSellerId, models.NewSellerRoleId()); err != nil {
+		return err
+	}
+
+	// newSellerId must refer to seller
+	if err := EnsureUserExistsAndHasRole(db, newSellerId, models.NewSellerRoleId()); err != nil {
+		return err
+	}
+
+	query := `
+		UPDATE items
+		SET seller_id = ?
+		WHERE seller_id = ?
+	`
+	if _, err := db.Exec(query, oldSellerId, newSellerId); err != nil {
+		return err
+	}
+
+	return nil
 }
