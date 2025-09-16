@@ -3,6 +3,8 @@
 package queries
 
 import (
+	dberr "bctbackend/database/errors"
+	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
@@ -62,6 +64,19 @@ func TestDoesSellerHaveFrozenItems(t *testing.T) {
 			result, err := queries.DoesSellerHaveFrozenItems(db, seller.UserId)
 			require.NoError(t, err)
 			require.False(t, result)
+		})
+	})
+
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("Nonexistent seller", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			invalidSellerId := models.Id(1)
+			setup.RequireNoSuchUsers(t, invalidSellerId)
+
+			_, err := queries.DoesSellerHaveFrozenItems(db, invalidSellerId)
+			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 	})
 }
