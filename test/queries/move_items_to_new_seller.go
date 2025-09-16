@@ -98,6 +98,53 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 				require.Equal(t, item.PriceInCents, newItem.PriceInCents)
 			}
 		})
+
+		t.Run("Only seller's items will get moved", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			otherSeller1 := setup.Seller()
+			oldSeller := setup.Seller()
+			otherSeller2 := setup.Seller()
+			newSeller := setup.Seller()
+			otherSeller3 := setup.Seller()
+
+			setup.Items(otherSeller1.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			setup.Items(oldSeller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			setup.Items(otherSeller2.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			setup.Items(newSeller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			setup.Items(otherSeller3.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+
+			var itemsBefore []*models.Item
+			require.NoError(t, queries.GetItems(db, queries.CollectTo(&itemsBefore), queries.AllItems, queries.AllRows()))
+
+			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
+				err := queries.MoveItemsToNewSeller(db, oldSeller.UserId, newSeller.UserId)
+				require.NoError(t, err)
+			})
+
+			for _, itemBefore := range itemsBefore {
+				itemAfter, err := queries.GetItemWithId(db, itemBefore.ItemID)
+				require.NoError(t, err)
+
+				require.Equal(t, itemBefore.CategoryID, itemAfter.CategoryID)
+				require.Equal(t, itemBefore.Charity, itemAfter.Charity)
+				require.Equal(t, itemBefore.Description, itemAfter.Description)
+				require.Equal(t, itemBefore.Donation, itemAfter.Donation)
+				require.Equal(t, itemBefore.Frozen, itemAfter.Frozen)
+				require.Equal(t, itemBefore.Hidden, itemAfter.Hidden)
+				require.Equal(t, itemBefore.PriceInCents, itemAfter.PriceInCents)
+
+				var expectedSeller models.Id
+				if itemBefore.SellerID == oldSeller.UserId {
+					expectedSeller = newSeller.UserId
+				} else {
+					expectedSeller = itemBefore.SellerID
+				}
+
+				require.Equal(t, expectedSeller, itemAfter.SellerID)
+			}
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
