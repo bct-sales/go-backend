@@ -1330,6 +1330,8 @@ func AddItems(db DatabaseQuerier, callback AddItemsCallback) (r_err error) {
 	return nil
 }
 
+// DoesSellerHaveFrozenItems checks if any item owned by the given seller is frozen.
+// Returns ErrNoSuchUser is sellerId does not exist.
 func DoesSellerHaveFrozenItems(db DatabaseQuerier, sellerId models.Id) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -1337,23 +1339,23 @@ func DoesSellerHaveFrozenItems(db DatabaseQuerier, sellerId models.Id) (r_result
 
 	query := `
 		SELECT
-			1
+			COUNT(items.item_id)
 		FROM
-			items
-		WHERE
-			seller_id = ? AND frozen
+			users LEFT OUTER JOIN items ON users.user_id = ? AND items.seller_id = ? AND items.frozen
+		GROUP BY
+			users.user_id
 	`
 
-	row := db.QueryRow(query, sellerId)
+	row := db.QueryRow(query, sellerId, sellerId)
 
-	var dummy uint64
-	if err := row.Scan(&dummy); err != nil {
+	var frozenItemCount uint64
+	if err := row.Scan(&frozenItemCount); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return false, nil
+			return false, dberr.ErrNoSuchUser
 		}
 
 		return false, err
 	}
 
-	return true, nil
+	return frozenItemCount > 0, nil
 }
