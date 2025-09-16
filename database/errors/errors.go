@@ -43,6 +43,8 @@ func (e *ErrDatabase) Unwrap() error {
 	return e.wrapped
 }
 
+// WrapError wraps the given error in an ErrDatabase struct.
+// If err is already an ErrDatabase, it is not wrapped a second time.
 func WrapError(err error) error {
 	if err == nil {
 		return nil
