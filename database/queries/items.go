@@ -1329,3 +1329,31 @@ func AddItems(db DatabaseQuerier, callback AddItemsCallback) (r_err error) {
 
 	return nil
 }
+
+func DoesSellerHaveFrozenItems(db DatabaseQuerier, sellerId models.Id) (r_result bool, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
+	query := `
+		SELECT
+			1
+		FROM
+			items
+		WHERE
+			seller_id = ? AND frozen
+	`
+
+	row := db.QueryRow(query, sellerId)
+
+	var dummy uint64
+	if err := row.Scan(&dummy); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	return true, nil
+}
