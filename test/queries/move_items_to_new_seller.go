@@ -49,9 +49,9 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			setup, _ := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			invalidSellerId := models.Id(1)
-			setup.RequireNoSuchUsers(t, invalidSellerId)
 			newSeller := setup.Seller()
+			invalidSellerId := models.Id(999)
+			setup.RequireNoSuchUsers(t, invalidSellerId)
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
 				err := queries.MoveItemsToNewSeller(db, invalidSellerId, newSeller.UserId)
