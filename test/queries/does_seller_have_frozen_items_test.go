@@ -24,5 +24,18 @@ func TestDoesSellerHaveFrozenItems(t *testing.T) {
 			require.NoError(t, err)
 			require.False(t, result)
 		})
+
+		t.Run("Seller has one frozen item", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+			setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			setup.Items(seller.UserId, 1, aux.WithFrozen(true), aux.WithHidden(false))
+
+			result, err := queries.DoesSellerHaveFrozenItems(db, seller.UserId)
+			require.NoError(t, err)
+			require.True(t, result)
+		})
 	})
 }
