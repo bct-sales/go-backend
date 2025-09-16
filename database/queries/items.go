@@ -1332,30 +1332,36 @@ func AddItems(db DatabaseQuerier, callback AddItemsCallback) (r_err error) {
 
 // DoesSellerHaveFrozenItems checks if any item owned by the given seller is frozen.
 // Returns ErrNoSuchUser is sellerId does not exist.
-func DoesSellerHaveFrozenItems(db DatabaseQuerier, sellerId models.Id) (r_result bool, r_err error) {
+// Returns ErrWrongRole if sellerId does not refer to a seller.
+func DoesSellerHaveFrozenItems(db *TransactionalDatabaseQuerier, sellerId models.Id) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
+	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleId()); err != nil {
+		return false, err
+	}
+
 	query := `
 		SELECT
-			COUNT(items.item_id)
+			1
 		FROM
-			users LEFT OUTER JOIN items ON users.user_id = ? AND items.seller_id = ? AND items.frozen
-		GROUP BY
-			users.user_id
+			items
+		WHERE
+			seller_id = ? AND items.frozen
 	`
 
-	row := db.QueryRow(query, sellerId, sellerId)
+	row := db.QueryRow(query, sellerId)
 
-	var frozenItemCount uint64
-	if err := row.Scan(&frozenItemCount); err != nil {
+	var dummy uint64
+	if err := row.Scan(&dummy); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return false, dberr.ErrNoSuchUser
+			return false, nil
 		}
 
 		return false, err
 	}
 
-	return frozenItemCount > 0, nil
+	return true, nil
+}
 }
