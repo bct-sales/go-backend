@@ -72,5 +72,18 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 			})
 		})
+
+		t.Run("Admin old seller", func(t *testing.T) {
+			setup, _ := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			oldSeller := setup.Admin()
+			newSeller := setup.Seller()
+
+			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
+				err := queries.MoveItemsToNewSeller(db, oldSeller.UserId, newSeller.UserId)
+				requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
+			})
+		})
 	})
 }
