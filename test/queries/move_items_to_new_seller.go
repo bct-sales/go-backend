@@ -111,5 +111,18 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 				requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 			})
 		})
+
+		t.Run("Cashier new seller", func(t *testing.T) {
+			setup, _ := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			oldSeller := setup.Seller()
+			newSeller := setup.Cashier()
+
+			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
+				err := queries.MoveItemsToNewSeller(db, oldSeller.UserId, newSeller.UserId)
+				requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
+			})
+		})
 	})
 }
