@@ -82,7 +82,7 @@ func (c *moveItemsCommand) execute() error {
 				return err
 			}
 
-			c.PrintErrorf("An error occurred while checking the validity of the new seller: %v\n", newSeller.String(), err)
+			c.PrintErrorf("An error occurred while checking the validity of the new seller %s: %v\n", newSeller.String(), err)
 			return err
 		}
 
