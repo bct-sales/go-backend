@@ -4,22 +4,7 @@
 * [Initialization](./cli-init.md)
 * [Items](./cli-items.md)
 * [Categories](./cli-categories.md)
-
-## Database
-
-### Backup
-
-```bash
-$ ./bctbackend db backup <backup_filename>
-```
-
-### Dummy Data
-
-```bash
-$ ./bctbackend db dummy [--seed <uint>]
-```
-
-Use with extreme caution: overwrites all data in the database.
+* [Database](./cli-db.md)
 
 ## Users
 
