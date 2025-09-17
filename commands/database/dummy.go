@@ -140,8 +140,9 @@ var toys = [...]string{
 
 type dummyDatabaseCommand struct {
 	common.Command
-	seed uint64     `exhaustruct:"optional"`
-	rng  *rand.Rand `exhaustruct:"optional"`
+	seed  uint64     `exhaustruct:"optional"`
+	force bool       `exhaustruct:"optional"`
+	rng   *rand.Rand `exhaustruct:"optional"`
 }
 
 func NewDatabaseDummyCommand() *cobra.Command {
@@ -165,12 +166,18 @@ func NewDatabaseDummyCommand() *cobra.Command {
 	}
 
 	command.CobraCommand.Flags().Uint64Var(&command.seed, "seed", 0, "Seed for random number generation")
+	command.CobraCommand.Flags().BoolVar(&command.force, "overwrite", false, "Necessary to indicate that you're aware all data will be overwritten")
 
 	return command.AsCobraCommand()
 }
 
 func (c *dummyDatabaseCommand) execute() error {
 	c.rng = rand.New(rand.NewPCG(0, c.seed))
+
+	if !c.force {
+		c.PrintErrorf("Missing --overwrite; database left untouched\n")
+		return nil
+	}
 
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		c.Printf("Resetting database\n")
