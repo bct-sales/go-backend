@@ -1389,7 +1389,7 @@ func MoveItemsToNewSeller(db *TransactionalDatabaseQuerier, oldSellerId models.I
 		SET seller_id = ?
 		WHERE seller_id = ?
 	`
-	if _, err := db.Exec(query, oldSellerId, newSellerId); err != nil {
+	if _, err := db.Exec(query, newSellerId, oldSellerId); err != nil {
 		return err
 	}
 
