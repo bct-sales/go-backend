@@ -55,7 +55,7 @@ func (c *moveItemsCommand) execute() error {
 		newSeller := models.Id(c.newSeller)
 
 		if oldSeller == newSeller {
-			c.Printf("Warning: not doing anything since from and to are equal\n")
+			c.Printf("Warning: this is a no-op because from and to are equal\n")
 			return nil
 		}
 
@@ -100,6 +100,17 @@ func (c *moveItemsCommand) execute() error {
 		if hasFrozen && !c.forceFrozen {
 			c.PrintErrorf("Seller %s has frozen items\nChanging the items' owner would invalidate labels\nUse --force-frozen to move items anyway\n", oldSeller.String())
 			return dberr.ErrItemFrozen
+		}
+
+		// Check if the donating seller has items
+		oldSellerItemCount, oldSellerItemCountError := queries.CountSellerItems(transaction, oldSeller, queries.IncludeAll, queries.IncludeAll)
+		if oldSellerItemCountError != nil {
+			c.PrintErrorf("An error occurred while counting the donating seller's items: %v", oldSellerItemCountError)
+			return oldSellerItemCountError
+		}
+		if oldSellerItemCount > 0 && !c.forceReceive {
+			c.Printf("Warning: this is a no-op because seller %s has no items to donate", oldSeller.String())
+			return nil
 		}
 
 		// Check if the receiving seller already has items
