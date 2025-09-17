@@ -17,6 +17,7 @@ func NewUserCommand() *cobra.Command {
 	command.AddCommand(NewUserSetPasswordCommand())
 	command.AddCommand(NewUserRemoveCommand())
 	command.AddCommand(NewUserAddSellersCommand())
+	command.AddCommand(NewMoveItemsCommand())
 
 	return &command
 }
