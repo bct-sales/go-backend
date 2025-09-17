@@ -22,16 +22,6 @@ ID | Name
 
 Lists categories.
 
-Note: `[--no-color]` means that `--no-color` is optional:
-
-```bash
-$ ./bctbackend category list
-
-# or
-
-$ ./bctbackend --no-color category list
-```
-
 ## Item Counts by Category
 
 ```bash

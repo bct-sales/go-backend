@@ -47,3 +47,14 @@ $ ./bctbackend user remove <id>
 ```
 
 Should never be used.
+
+## Moving Items
+
+```bash
+$ ./bctbackend user move-items --from <id1> --to <id2> [--force-frozen] [--force-merge]
+```
+
+All items belonging to seller `id1` are reassigned to seller `id2`.
+
+* If one or more of seller `id1`'s items is frozen, the operation fails, unless `--force-frozen` is specified.
+* If seller `id2` already owns items, the operation fails, unless `--force-merge` is specified.
