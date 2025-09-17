@@ -54,6 +54,11 @@ func (c *moveItemsCommand) execute() error {
 		oldSeller := models.Id(c.oldSeller)
 		newSeller := models.Id(c.newSeller)
 
+		if oldSeller == newSeller {
+			c.Printf("Warning: not doing anything since from and to are equal\n")
+			return nil
+		}
+
 		// Check if donating seller exists and is indeed a seller
 		if err := queries.EnsureUserExistsAndHasRole(transaction, oldSeller, models.NewSellerRoleId()); err != nil {
 			if errors.Is(err, dberr.ErrNoSuchUser) {
