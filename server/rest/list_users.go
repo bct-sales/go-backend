@@ -163,7 +163,6 @@ func (ep *listUsersEndpoint) sendSuccessResponseAsCSVFile(userData []GetUsersUse
 func (ep *listUsersEndpoint) formatAsCSV(userData []GetUsersUserData) *string {
 	buffer := new(bytes.Buffer)
 	csvWriter := csv.NewWriter(buffer)
-	defer csvWriter.Flush()
 
 	// Write headers
 	headers := []string{"user_id", "role_id", "last_activity", "password", "item_count"}
@@ -202,6 +201,7 @@ func (ep *listUsersEndpoint) formatAsCSV(userData []GetUsersUserData) *string {
 		}
 	}
 
+	csvWriter.Flush()
 	result := buffer.String()
 	return &result
 }
