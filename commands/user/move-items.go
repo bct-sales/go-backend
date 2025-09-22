@@ -105,18 +105,18 @@ func (c *moveItemsCommand) execute() error {
 		// Check if the donating seller has items
 		oldSellerItemCount, oldSellerItemCountError := queries.CountSellerItems(transaction, oldSeller, queries.IncludeAll, queries.IncludeAll)
 		if oldSellerItemCountError != nil {
-			c.PrintErrorf("An error occurred while counting the donating seller's items: %v", oldSellerItemCountError)
+			c.PrintErrorf("An error occurred while counting the donating seller's items: %v\n", oldSellerItemCountError)
 			return oldSellerItemCountError
 		}
 		if oldSellerItemCount > 0 && !c.forceReceive {
-			c.Printf("Warning: this is a no-op because seller %s has no items to donate", oldSeller.String())
+			c.Printf("Warning: this is a no-op because seller %s has no items to donate\n", oldSeller.String())
 			return nil
 		}
 
 		// Check if the receiving seller already has items
 		newSellerItemCount, newSellerItemCountError := queries.CountSellerItems(transaction, newSeller, queries.IncludeAll, queries.IncludeAll)
 		if newSellerItemCountError != nil {
-			c.PrintErrorf("An error occurred while counting the receiving seller's items: %v", newSellerItemCountError)
+			c.PrintErrorf("An error occurred while counting the receiving seller's items: %v\n", newSellerItemCountError)
 			return newSellerItemCountError
 		}
 		if newSellerItemCount > 0 && !c.forceReceive {
