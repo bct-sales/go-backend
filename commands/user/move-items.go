@@ -94,7 +94,7 @@ func (c *moveItemsCommand) execute() error {
 		// Check if any of the items is frozen
 		hasFrozen, hasFrozenError := queries.DoesSellerHaveFrozenItems(transaction, oldSeller)
 		if hasFrozenError != nil {
-			c.PrintErrorf("An error occured while checking for frozen items: %v\n", hasFrozenError)
+			c.PrintErrorf("An error occurred while checking for frozen items: %v\n", hasFrozenError)
 			return hasFrozenError
 		}
 		if hasFrozen && !c.forceFrozen {
