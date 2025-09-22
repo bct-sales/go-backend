@@ -108,7 +108,7 @@ func (c *moveItemsCommand) execute() error {
 			c.PrintErrorf("An error occurred while counting the donating seller's items: %v\n", oldSellerItemCountError)
 			return oldSellerItemCountError
 		}
-		if oldSellerItemCount > 0 && !c.forceReceive {
+		if oldSellerItemCount == 0 {
 			c.Printf("Warning: this is a no-op because seller %s has no items to donate\n", oldSeller.String())
 			return nil
 		}
