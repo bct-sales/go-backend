@@ -130,7 +130,7 @@ func (c *moveItemsCommand) execute() error {
 			return err
 		}
 
-		c.Printf("Successfully moved items")
+		c.Printf("Successfully moved items\n")
 
 		return nil
 	})
