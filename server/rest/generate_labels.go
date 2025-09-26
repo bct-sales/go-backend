@@ -133,11 +133,13 @@ func (ep *generateLabelsEndpoint) collectLabelData(db Database, itemTable map[mo
 	createLabelData := func(itemId models.Id) (*pdf.LabelData, error) {
 		item, ok := itemTable[itemId]
 		if !ok {
+			ep.Logger.Bug("Bug: did not find item with id %s", itemId.String())
 			return nil, fmt.Errorf("bug: item with id %d not found; should never occur: this error should have be caught earlier", itemId)
 		}
 
 		categoryNameTable, err := queries.GetCategoryNameTable(db)
 		if err != nil {
+			ep.Logger.InternalError("Unable to build category table", itemId.String())
 			return nil, err
 		}
 
@@ -159,6 +161,7 @@ func (ep *generateLabelsEndpoint) createLabelDataFromItem(categoryNameTable map[
 
 	category, ok := categoryNameTable[item.CategoryID]
 	if !ok {
+		ep.Logger.Bug("Unknown category %s", item.CategoryID)
 		return nil, fmt.Errorf("unknown category id: %v", item.CategoryID)
 	}
 
@@ -278,6 +281,7 @@ func (ep *generateLabelsEndpoint) retrieveItemsFromDatabase(itemIds []models.Id)
 			return nil
 		}
 
+		ep.Logger.InternalError("Failed to fetch items: %s", err.Error())
 		failure_response.Unknown(ep.Context, "Failed to fetch items: "+err.Error())
 		return nil
 	}
