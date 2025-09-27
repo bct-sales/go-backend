@@ -19,60 +19,21 @@ import (
 
 type InitializeCommand struct {
 	common.Command
-	updateHTMLOnly bool
 }
 
 func NewInitializeCommand() *cobra.Command {
-	var command *InitializeCommand
-
-	command = &InitializeCommand{
-		Command: common.Command{
-			CobraCommand: &cobra.Command{
-				Use:   "init",
-				Short: "Creates configuration file",
-				Long: heredoc.Doc(`
-							This command creates a configuration file for the BCT application.
-							It will create a file named 'bctconfig.yaml' in the current directory.
+	command := cobra.Command{
+		Use:   "init",
+		Short: "Initialize backend components",
+		Long: heredoc.Doc(`
+							Commands to initialize different parts of the back-end.
 					   `),
-				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
-				},
-				Args: cobra.NoArgs,
-			},
-		},
 	}
 
-	command.CobraCommand.Flags().BoolVar(&command.updateHTMLOnly, "html-only", false, "Only download HTML file and overwrite if it exists")
+	command.AddCommand(NewInitializeHtmlCommand())
+	command.AddCommand(NewInitializeAllCommand())
 
-	return command.AsCobraCommand()
-}
-
-func (c *InitializeCommand) execute() error {
-	if c.updateHTMLOnly {
-		if err := c.downloadHTMLFile(true); err != nil {
-			return err
-		}
-
-		return nil
-	}
-
-	if err := c.generateConfigurationFile(); err != nil {
-		return err
-	}
-
-	if err := c.downloadHTMLFile(false); err != nil {
-		return err
-	}
-
-	if err := c.downloadFontFile(); err != nil {
-		return err
-	}
-
-	if err := c.createDatabaseFile(); err != nil {
-		return err
-	}
-
-	return nil
+	return &command
 }
 
 func (c *InitializeCommand) generateConfigurationFile() error {
