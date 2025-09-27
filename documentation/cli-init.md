@@ -3,7 +3,7 @@
 ## Full Initialize
 
 ```bash
-$ ./bctbackend init
+$ ./bctbackend init all
 ```
 
 Performs the following tasks:
@@ -19,7 +19,7 @@ Arial is a better choice.
 ## HTML Only
 
 ```bash
-$ ./bctbackend init --html-only
+$ ./bctbackend init html
 ```
 
 Downloads the latest HTML file.
