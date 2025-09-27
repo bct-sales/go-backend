@@ -23,4 +23,7 @@ const (
 	ConfigKeyLogMaxBackups                = "log.maxBackups"
 	ConfigKeyLogMaxAge                    = "log.maxAgeDays"
 	ConfigKeyLogCompression               = "log.compression"
+	ConfigKeyEmailSenderToken             = "email.sender.token"
+	ConfigKeyEmailSenderAddress           = "email.sender.address"
+	ConfigKeyEmailReceiverAddress         = "email.receiver.address"
 )
