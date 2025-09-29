@@ -3,8 +3,11 @@
 ## Backup
 
 ```bash
-$ ./bctbackend db backup <backup_filename>
+$ ./bctbackend db backup [backup_filename]
 ```
+
+The `backup_filename` is optional.
+If omitted, `backup-YYYY-mm-dd-hh-mm-ss.db` will be used.
 
 ## Dummy Data
 
