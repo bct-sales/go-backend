@@ -51,8 +51,11 @@ func TestRemoveSale(t *testing.T) {
 			setup, _ := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
+			nonexistentSaleId := models.Id(999)
+			setup.RequireNoSuchSales(t, nonexistentSaleId)
+
 			setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
-				err := queries.RemoveSale(transaction, 0)
+				err := queries.RemoveSale(transaction, nonexistentSaleId)
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSale)
 			})
 		})
