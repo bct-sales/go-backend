@@ -11,6 +11,7 @@ import (
 
 type removeAllSalesCommand struct {
 	common.Command
+	force bool
 }
 
 func NewRemoveAllSalesCommand() *cobra.Command {
@@ -33,10 +34,19 @@ func NewRemoveAllSalesCommand() *cobra.Command {
 		},
 	}
 
+	command.CobraCommand.Flags().BoolVar(&command.force, "force", false, "Required")
+
 	return command.AsCobraCommand()
 }
 
 func (c *removeAllSalesCommand) execute() error {
+	if !c.force {
+		c.Printf(heredoc.Doc(`
+								This action is irreversible and will delete all sales from the database!
+								Please use --force to indicate you are aware of the consequences")
+							`))
+		return nil
+	}
 	return c.WithTransaction(func(transaction *queries.TransactionalDatabaseQuerier) error {
 		err := queries.RemoveAllSales(transaction)
 		if err != nil {
