@@ -193,11 +193,12 @@ func (s DatabaseFixture) RequireNotFrozen(t *testing.T, saleId ...models.Id) {
 }
 
 func (s DatabaseFixture) WithTransaction(t *testing.T, f func(transaction *queries.TransactionalDatabaseQuerier)) {
-	transaction, err := queries.NewTransactionalDatabaseQuerier(context.Background(), s.Db)
-	require.NoError(t, err)
+	transaction, transactionErr := queries.NewTransactionalDatabaseQuerier(context.Background(), s.Db)
+	require.NoError(t, transactionErr)
 
 	f(transaction)
 
-	err = transaction.Commit()
-	require.NoError(t, err)
+	commitErr := transaction.Commit()
+	require.NoError(t, commitErr)
+}
 }
