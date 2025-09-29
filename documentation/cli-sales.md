@@ -15,15 +15,24 @@ $ ./bctbackend [--no-color] sale show <id>
 ## Add Sale
 
 ```bash
-$ ./bctbackend [--no-color] sale add --cashier <id> --items <id>,<id>,...
+$ ./bctbackend sale add --cashier <id> --items <id>,<id>,...
 ```
 
 The same item cannot appear multiple times in the same sale, but can appear in multiple different sales.
 
+## Remove Specific Sales
+
+```bash
+$ ./bctbackend sale remove <id1> <id2> ...
+```
+
+Removes sales with specified ids.
+If removing one sale fails, then none of them are removed.
+
 ## Remove All Sales
 
 ```bash
-$ ./bctbackend [--no-color] sale remove-all
+$ ./bctbackend sale remove-all
 ```
 
 Should never be used.
