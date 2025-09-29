@@ -201,4 +201,18 @@ func (s DatabaseFixture) WithTransaction(t *testing.T, f func(transaction *queri
 	commitErr := transaction.Commit()
 	require.NoError(t, commitErr)
 }
+
+func (s DatabaseFixture) WithTransactionErr(t *testing.T, f func(transaction *queries.TransactionalDatabaseQuerier) error) error {
+	transaction, transactionErr := queries.NewTransactionalDatabaseQuerier(context.Background(), s.Db)
+	require.NoError(t, transactionErr)
+	defer transaction.RollbackIfNotCommitted()
+
+	if err := f(transaction); err != nil {
+		return err
+	}
+
+	commitErr := transaction.Commit()
+	require.NoError(t, commitErr)
+
+	return nil
 }
