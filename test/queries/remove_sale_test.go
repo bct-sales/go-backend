@@ -59,5 +59,31 @@ func TestRemoveSale(t *testing.T) {
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSale)
 			})
 		})
+
+		t.Run("Nonexistent sale in transaction", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+			cashier := setup.Cashier()
+			item := setup.Item(seller.UserId, aux.WithHidden(false), aux.WithFrozen(false))
+			sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+
+			nonexistentSaleId := models.Id(999)
+			setup.RequireNoSuchSales(t, nonexistentSaleId)
+
+			transactionErr := setup.WithTransactionErr(t, func(transaction *queries.TransactionalDatabaseQuerier) error {
+				err := queries.RemoveSale(transaction, sale.SaleID)
+				require.NoError(t, err)
+
+				return queries.RemoveSale(transaction, nonexistentSaleId)
+			})
+
+			requireDatabaseWrappedError(t, transactionErr, dberr.ErrNoSuchSale)
+
+			saleExists, saleExistsErr := queries.SaleWithIdExists(db, sale.SaleID)
+			require.NoError(t, saleExistsErr)
+			require.True(t, saleExists)
+		})
 	})
 }
