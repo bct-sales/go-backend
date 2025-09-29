@@ -8,6 +8,7 @@ $ ./bctbackend db backup [backup_filename]
 
 The `backup_filename` is optional.
 If omitted, `backup-YYYY-mm-dd-hh-mm-ss.db` will be used.
+Fails if a file with the backup's filename already exists.
 
 ## Dummy Data
 
