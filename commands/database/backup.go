@@ -4,6 +4,7 @@ import (
 	"bctbackend/commands/common"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
@@ -21,7 +22,7 @@ func NewDatabaseBackupCommand() *cobra.Command {
 			CobraCommand: &cobra.Command{
 				Use:   "backup <filename>",
 				Short: "Backup the database",
-				Args:  cobra.ExactArgs(1),
+				Args:  cobra.MaximumNArgs(1),
 				Long: heredoc.Doc(`
 					This command makes a copy of the current database.
 				`),
@@ -36,7 +37,7 @@ func NewDatabaseBackupCommand() *cobra.Command {
 }
 
 func (c *backupDatabaseCommand) execute(args []string) error {
-	targetPath := args[0]
+	targetPath := c.determineDatabaseName(args)
 
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		if _, err := db.Exec("VACUUM INTO ?", targetPath); err != nil {
@@ -44,7 +45,16 @@ func (c *backupDatabaseCommand) execute(args []string) error {
 			return fmt.Errorf("failed to backup database %s: %w", targetPath, err)
 		}
 
-		c.Printf("Database backup completed successfully\n")
+		c.Printf("Database backup completed successfully to %s\n", targetPath)
 		return nil
 	})
+}
+
+func (c *backupDatabaseCommand) determineDatabaseName(args []string) string {
+	if len(args) == 1 {
+		return args[0]
+	} else {
+		now := time.Now()
+		return now.Format("2006-01-02-03-04-05")
+	}
 }
