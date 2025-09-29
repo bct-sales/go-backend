@@ -55,6 +55,7 @@ func (c *backupDatabaseCommand) determineDatabaseName(args []string) string {
 		return args[0]
 	} else {
 		now := time.Now()
-		return now.Format("2006-01-02-03-04-05")
+		formattedDate := now.Format("2006-01-02-03-04-05")
+		return fmt.Sprintf("backup-%s.db", formattedDate))
 	}
 }
