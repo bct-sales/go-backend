@@ -62,7 +62,7 @@ $ sudo certbot --nginx
 ```
 
 This will cause `http://bct-sales.myaddr.io` to be redirected to `https://bct-sales.myaddr.io` and `https://bct-sales.myadd.io` to be server by the backend.
-Note that the certificate needs to be renewed very 90 days, but certbot should register a systemd timer that takes care of the renewal.
+Note that the certificate needs to be renewed every 90 days, but certbot should register a systemd timer that takes care of the renewal.
 
 ```bash
 $ systemctl list-timers | grep certbot
