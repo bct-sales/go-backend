@@ -4,7 +4,6 @@ import (
 	"bctbackend/commands/common"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"database/sql"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
@@ -20,17 +19,17 @@ func NewRemoveItemCommand() *cobra.Command {
 	command = &RemoveItemCommand{
 		Command: common.Command{
 			CobraCommand: &cobra.Command{
-				Use:   "remove <item-id>",
-				Short: "Removes an item",
+				Use:   "remove <item-id> ...",
+				Short: "Remove items",
 				Long: heredoc.Doc(`
-					This command deletes an item from the database.
+					This command deletes one or more items from the database.
 					Note that this is a permanent action and cannot be undone.
 					We strongly recommend against using this command unless you are sure you want to delete the item.
 					Instead, consider using the 'hide' command to hide the item without deleting it.
 
 					An item cannot be removed if it has been sold.
 			   `),
-				Args: cobra.ExactArgs(1), // Expect exactly one argument (the item ID)
+				Args: cobra.MinimumNArgs(1),
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return command.execute(args)
 				},
@@ -42,20 +41,30 @@ func NewRemoveItemCommand() *cobra.Command {
 }
 
 func (c *RemoveItemCommand) execute(args []string) error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		// Parse the item ID from the first argument
-		itemId, err := models.ParseId(args[0])
-		if err != nil {
-			c.PrintErrorf("Invalid item ID: %s\n", args[0])
-			return err
+	err := c.WithTransaction(func(db *queries.TransactionalDatabaseQuerier) error {
+		for _, arg := range args {
+			itemId, err := models.ParseId(arg)
+			if err != nil {
+				c.PrintErrorf("Invalid item ID: %s\n", args[0])
+				return err
+			}
+
+			if err := queries.RemoveItemWithId(db, itemId); err != nil {
+				c.PrintErrorf("Failed to remove item: %v\n", err)
+				return err
+			}
+
+			c.Printf("Removed item %d\n", itemId.Int64())
 		}
 
-		if err := queries.RemoveItemWithId(db, itemId); err != nil {
-			c.PrintErrorf("Failed to remove item: %v\n", err)
-			return err
-		}
-
-		c.Printf("Item removed successfully\n")
 		return nil
 	})
+
+	if err != nil {
+		c.PrintErrorf("An error occurred while removing the items\nNo items have been removed from the database!\n")
+		return err
+	}
+
+	c.Printf("All specified items have been successfully removed from the database")
+	return nil
 }
