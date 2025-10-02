@@ -237,22 +237,16 @@ func TestListAllItems(t *testing.T) {
 	})
 
 	t.Run("Failure", func(t *testing.T) {
-		t.Run("Wrong role", func(t *testing.T) {
-			for _, roleId := range []models.RoleId{models.NewSellerRoleId()} {
-				roleString := roleId.Name()
+		t.Run("As seller", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			defer setup.Close()
 
-				t.Run("As "+roleString, func(t *testing.T) {
-					setup, router, writer := NewRestFixture(WithDefaultCategories)
-					defer setup.Close()
+			_, sessionId := setup.LoggedIn(setup.Seller())
 
-					_, sessionId := setup.LoggedIn(setup.User(roleId))
+			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
 
-					request := CreateGetRequest(url, WithSessionCookie(sessionId))
-					router.ServeHTTP(writer, request)
-
-					RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
-				})
-			}
+			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 		})
 
 		t.Run("No cookie", func(t *testing.T) {
