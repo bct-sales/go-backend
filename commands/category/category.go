@@ -14,6 +14,7 @@ func NewCategoryCommand() *cobra.Command {
 	command.AddCommand(NewCategoryListCommand())
 	command.AddCommand(NewCategoryCountCommand())
 	command.AddCommand(NewAddCategoryCommand())
+	command.AddCommand(NewRenameCategoryCommand())
 
 	return &command
 }
