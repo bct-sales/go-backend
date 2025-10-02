@@ -246,3 +246,41 @@ func CategoryWithNameExists(db DatabaseQuerier, categoryName string) (r_result b
 
 	return true, nil
 }
+
+// RenameCategory updates a category's name.
+// If the new name is invalid, an ErrInvalidCategoryName is returned.
+// If the id is invalid, an ErrNoSuchCategory is returned.
+// If the new name is in use by another category, an ErrDuplicateCategoryName is returned.
+func RenameCategory(db DatabaseQuerier, categoryId models.Id, newCategoryName string) (r_err error) {
+	if !models.IsValidCategoryName(newCategoryName) {
+		return dberr.ErrInvalidCategoryName
+	}
+
+	idExists, idExistsErr := CategoryWithIdExists(db, categoryId)
+	if idExistsErr != nil {
+		return idExistsErr
+	}
+	if !idExists {
+		return dberr.ErrNoSuchCategory
+	}
+
+	nameExists, nameExistsErr := CategoryWithNameExists(db, newCategoryName)
+	if nameExistsErr != nil {
+		return nameExistsErr
+	}
+	if nameExists {
+		return dberr.ErrDuplicateCategoryName
+	}
+
+	query := `
+		UPDATE item_categories
+		SET name = ?
+		WHERE item_category_id = ?
+	`
+
+	if _, err := db.Exec(query, newCategoryName, categoryId); err != nil {
+		return fmt.Errorf("failed to update category name: %w", err)
+	}
+
+	return nil
+}
