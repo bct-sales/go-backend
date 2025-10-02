@@ -66,7 +66,7 @@ func (c *addConsumableCommand) execute() error {
 
 		for i := range 5 {
 			quantity := i + 1
-			description := fmt.Sprintf("*%s (%d)", c.description, quantity)
+			description := fmt.Sprintf("%s (%d)", c.description, quantity)
 			donation := true
 			charity := false
 			frozen := false
