@@ -52,10 +52,10 @@ func TestRenameCategory(t *testing.T) {
 			require.Len(t, actualCategories, 4)
 
 			expectedCategories := []*models.ItemCategory{
-				&models.ItemCategory{CategoryID: 1, Name: "foo"},
-				&models.ItemCategory{CategoryID: 2, Name: "bar"},
-				&models.ItemCategory{CategoryID: 3, Name: "bazzie"},
-				&models.ItemCategory{CategoryID: 4, Name: "qux"},
+				{CategoryID: 1, Name: "foo"},
+				{CategoryID: 2, Name: "bar"},
+				{CategoryID: 3, Name: "bazzie"},
+				{CategoryID: 4, Name: "qux"},
 			}
 			require.ElementsMatch(t, expectedCategories, actualCategories)
 		})
@@ -77,7 +77,7 @@ func TestRenameCategory(t *testing.T) {
 			defer setup.Close()
 
 			setup.Category(1, "foo")
-			setup.Category(1, "bar")
+			setup.Category(2, "bar")
 
 			err := queries.RenameCategory(db, 2, "foo")
 			requireDatabaseWrappedError(t, err, dberr.ErrDuplicateCategoryName)
