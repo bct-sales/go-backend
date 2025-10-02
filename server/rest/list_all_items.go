@@ -60,19 +60,72 @@ func (ep *listAllItemsEndpoint) execute() {
 		return
 	}
 
-	itemSelection := ep.parseItemSelectionQueryParameter()
-
-	rowSelection := ep.parseRowSelectionQueryParameters()
-	if rowSelection == nil {
-		return
-	}
-
-	items, itemsOk := ep.fetchItemsFromDatabase(itemSelection, rowSelection)
+	items, itemsOk := ep.fetchItemsFromDatabase()
 	if !itemsOk {
 		return
 	}
 
+	// TODO Do not reparse the same parameters
+	itemSelection := ep.parseItemSelectionQueryParameter()
 	ep.sendSuccessResponse(items, itemSelection)
+}
+
+func (ep *listAllItemsEndpoint) buildSqlQuery() *queries.GetItemsQuery {
+	query := queries.NewGetItemsQuery()
+
+	if !ep.processItemSelectionQueryParameter(query) {
+		return nil
+	}
+
+	if !ep.processRangeQueryParameters(query) {
+		return nil
+	}
+
+	return query
+}
+
+func (ep *listAllItemsEndpoint) processItemSelectionQueryParameter(sqlQuery *queries.GetItemsQuery) bool {
+	switch ep.Context.Query("items") {
+	case "all":
+		// NOP
+	case "hidden":
+		sqlQuery.WithHidden(true)
+	default:
+		sqlQuery.WithHidden(false)
+	}
+
+	return true
+}
+
+func (ep *listAllItemsEndpoint) processRangeQueryParameters(query *queries.GetItemsQuery) bool {
+	optionalLimit, limitOk := ep.parseLimitQueryParameter()
+	if !limitOk {
+		return false
+	}
+
+	optionalOffset, offsetOk := ep.parseOffsetQueryParameter()
+	if !offsetOk {
+		return false
+	}
+
+	var limit uint64
+	var offset uint64
+
+	if optionalLimit == nil {
+		limit = 1000000
+	} else {
+		limit = uint64(*optionalLimit)
+	}
+
+	if optionalOffset == nil {
+		offset = 0
+	} else {
+		offset = uint64(*optionalOffset)
+	}
+
+	query.WithLimitAndOffset(limit, offset)
+
+	return true
 }
 
 func (ep *listAllItemsEndpoint) ensureUserHasCorrectRole() bool {
@@ -96,10 +149,11 @@ func (ep *listAllItemsEndpoint) parseItemSelectionQueryParameter() queries.ItemS
 	}
 }
 
-func (ep *listAllItemsEndpoint) fetchItemsFromDatabase(itemSelection queries.ItemSelection, rowSelection *queries.RowSelection) ([]*models.Item, bool) {
-	items := []*models.Item{}
+func (ep *listAllItemsEndpoint) fetchItemsFromDatabase() ([]*models.Item, bool) {
+	var items []*models.Item
 
-	if err := queries.GetItems(ep.Database, queries.CollectTo(&items), itemSelection, rowSelection); err != nil {
+	query := ep.buildSqlQuery()
+	if err := query.Execute(ep.Database, queries.CollectTo(&items)); err != nil {
 		ep.Logger.InternalError("Failed to get items", "error", err)
 		failure_response.Unknown(ep.Context, "Failed to get items: "+err.Error())
 		return nil, false
