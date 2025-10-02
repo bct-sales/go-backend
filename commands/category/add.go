@@ -16,7 +16,7 @@ type addCategoryCommand struct {
 	id   uint64 `exhaustruct:"optional"`
 }
 
-func NewCategoryAddCommand() *cobra.Command {
+func NewAddCategoryCommand() *cobra.Command {
 	var command *addCategoryCommand
 
 	command = &addCategoryCommand{

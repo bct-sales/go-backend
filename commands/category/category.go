@@ -13,7 +13,7 @@ func NewCategoryCommand() *cobra.Command {
 
 	command.AddCommand(NewCategoryListCommand())
 	command.AddCommand(NewCategoryCountCommand())
-	command.AddCommand(NewCategoryAddCommand())
+	command.AddCommand(NewAddCategoryCommand())
 
 	return &command
 }
