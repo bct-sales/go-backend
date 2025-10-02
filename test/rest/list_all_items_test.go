@@ -201,6 +201,34 @@ func TestListAllItems(t *testing.T) {
 				})
 			}
 		}
+
+		t.Run("Filter on category", func(t *testing.T) {
+			setup, router, writer := NewRestFixture()
+			defer setup.Close()
+
+			setup.Category(1, "a")
+			setup.Category(2, "b")
+			setup.Category(3, "c")
+
+			_, sessionId := setup.LoggedIn(setup.Admin())
+			seller := setup.Seller()
+			setup.Items(seller.UserId, 1, aux.WithHidden(false), aux.WithItemCategory(1))
+			setup.Items(seller.UserId, 2, aux.WithHidden(false), aux.WithItemCategory(2))
+			setup.Items(seller.UserId, 3, aux.WithHidden(false), aux.WithItemCategory(3))
+
+			url := path.Items().CategoryFilter(2)
+			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+
+			require.Equal(t, http.StatusOK, writer.Code)
+			response := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
+			actualItems := response.Items
+
+			require.Len(t, actualItems, 2)
+			for _, actualItem := range actualItems {
+				require.Equal(t, models.Id(2), actualItem.CategoryId)
+			}
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {

@@ -9,6 +9,7 @@ import (
 	rest "bctbackend/server/shared"
 	"bytes"
 	"net/http"
+	"strconv"
 
 	_ "bctbackend/docs"
 )
@@ -81,7 +82,29 @@ func (ep *listAllItemsEndpoint) buildSqlQuery() *queries.GetItemsQuery {
 		return nil
 	}
 
+	if !ep.processCategoryQueryParameter(query) {
+		return nil
+	}
+
 	return query
+}
+
+func (ep *listAllItemsEndpoint) processCategoryQueryParameter(sqlQuery *queries.GetItemsQuery) bool {
+	parameterValue := ep.Context.Query("category")
+
+	if parameterValue != "" {
+		categoryId, err := strconv.ParseUint(parameterValue, 10, 64)
+
+		if err != nil {
+			ep.Logger.InvalidInput("Invalid category parameter", "category", parameterValue)
+			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Order must be 'antichronological'")
+			return false
+		}
+
+		sqlQuery.WithCategory(models.Id(categoryId))
+	}
+
+	return true
 }
 
 func (ep *listAllItemsEndpoint) processItemSelectionQueryParameter(sqlQuery *queries.GetItemsQuery) bool {
