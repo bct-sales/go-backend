@@ -124,6 +124,49 @@ func TestGetItemsQuery(t *testing.T) {
 				require.Equal(t, items[index+offset], actualItem)
 			}
 		})
+
+		t.Run("Get items of specific category", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			seller := setup.Seller()
+			setup.Category(1, "a")
+			setup.Category(2, "b")
+			setup.Category(3, "c")
+			items1 := setup.Items(seller.UserId, 1, aux.WithHidden(false), aux.WithItemCategory(1))
+			items2 := setup.Items(seller.UserId, 2, aux.WithHidden(false), aux.WithItemCategory(2))
+			items3 := setup.Items(seller.UserId, 3, aux.WithHidden(false), aux.WithItemCategory(3))
+
+			{
+				actualItems := []*models.Item{}
+				query := queries.NewGetItemsQuery()
+				query.WithCategory(1)
+				err := query.Execute(db, queries.CollectTo(&actualItems))
+				require.NoError(t, err)
+				require.Len(t, actualItems, 1)
+				require.ElementsMatch(t, items1, actualItems)
+			}
+
+			{
+				actualItems := []*models.Item{}
+				query := queries.NewGetItemsQuery()
+				query.WithCategory(2)
+				err := query.Execute(db, queries.CollectTo(&actualItems))
+				require.NoError(t, err)
+				require.Len(t, actualItems, 2)
+				require.ElementsMatch(t, items2, actualItems)
+			}
+
+			{
+				actualItems := []*models.Item{}
+				query := queries.NewGetItemsQuery()
+				query.WithCategory(3)
+				err := query.Execute(db, queries.CollectTo(&actualItems))
+				require.NoError(t, err)
+				require.Len(t, actualItems, 3)
+				require.ElementsMatch(t, items3, actualItems)
+			}
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
