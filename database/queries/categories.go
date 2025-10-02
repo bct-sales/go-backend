@@ -252,6 +252,10 @@ func CategoryWithNameExists(db DatabaseQuerier, categoryName string) (r_result b
 // If the id is invalid, an ErrNoSuchCategory is returned.
 // If the new name is in use by another category, an ErrDuplicateCategoryName is returned.
 func RenameCategory(db DatabaseQuerier, categoryId models.Id, newCategoryName string) (r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
 	if !models.IsValidCategoryName(newCategoryName) {
 		return dberr.ErrInvalidCategoryName
 	}
