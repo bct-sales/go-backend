@@ -71,12 +71,13 @@ func (c *addConsumableCommand) execute() error {
 			charity := false
 			frozen := false
 			hidden := false
+			priceInCents := c.priceInCents * quantity
 
 			addedItemId, err := queries.AddItem(
 				db,
 				timestamp,
 				description,
-				models.MoneyInCents(c.priceInCents),
+				models.MoneyInCents(priceInCents),
 				models.Id(c.categoryId),
 				models.Id(c.sellerId),
 				donation,
