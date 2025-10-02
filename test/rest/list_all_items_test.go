@@ -171,7 +171,7 @@ func TestListAllItems(t *testing.T) {
 
 		for _, limit := range []int{1, 2, 10, 25} {
 			for _, offset := range []int{0, 1, 2, 10, 25} {
-				testLabel := fmt.Sprintf("Offset %d", offset)
+				testLabel := fmt.Sprintf("Offset %d, limit %d", offset, limit)
 				t.Run(testLabel, func(t *testing.T) {
 					setup, router, writer := NewRestFixture(WithDefaultCategories)
 					defer setup.Close()
