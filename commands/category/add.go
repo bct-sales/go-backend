@@ -47,7 +47,7 @@ func (c *addCategoryCommand) execute() error {
 			return fmt.Errorf("failed to add category to database: %w", err)
 		}
 
-		c.Printf("Category added successfully\n")
+		c.Printf("Category successfully added\n")
 
 		return nil
 	})
