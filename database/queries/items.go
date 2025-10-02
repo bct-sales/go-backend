@@ -13,18 +13,20 @@ import (
 )
 
 type GetItemsQuery struct {
-	frozen *bool
-	hidden *bool
-	limit  *uint64
-	offset *uint64
+	frozen     *bool
+	hidden     *bool
+	limit      *uint64
+	offset     *uint64
+	categoryID *models.Id
 }
 
 func NewGetItemsQuery() *GetItemsQuery {
 	return &GetItemsQuery{
-		frozen: nil,
-		hidden: nil,
-		limit:  nil,
-		offset: nil,
+		frozen:     nil,
+		hidden:     nil,
+		limit:      nil,
+		offset:     nil,
+		categoryID: nil,
 	}
 }
 
@@ -41,12 +43,19 @@ func (q *GetItemsQuery) WithLimitAndOffset(limit uint64, offset uint64) {
 	q.offset = &offset
 }
 
+func (q *GetItemsQuery) WithCategory(categoryID models.Id) {
+	q.categoryID = &categoryID
+}
+
 func (q *GetItemsQuery) Execute(db DatabaseQuerier, receiver func(*models.Item) error) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
 	queryString, queryArguments, err := q.buildSqlQuery()
+	if err != nil {
+		return err
+	}
 
 	// Perform query
 	rows, err := db.Query(queryString, queryArguments...)
@@ -133,6 +142,10 @@ func (q *GetItemsQuery) buildSqlQuery() (string, []any, error) {
 		}
 
 		query = query.Offset(*q.offset)
+	}
+
+	if q.categoryID != nil {
+		query = query.Where(sq.Eq{"item_category_id": (*q.categoryID).Int64()})
 	}
 
 	queryString, queryArguments, err := query.ToSql()
