@@ -124,14 +124,7 @@ func (ep *listCategoriesEndpoint) listCategoriesWithCounts(itemSelection queries
 func (ep *listCategoriesEndpoint) listCategoriesWithoutCounts() {
 	context := ep.Context
 	db := ep.Database
-	roleId := ep.RoleId
 	logger := ep.Logger
-
-	if !roleId.IsAdmin() && !roleId.IsSeller() {
-		logger.InvalidRequest("Unauthorized access to category counts")
-		failure_response.WrongRole(context, "Only admins and sellers can access category names")
-		return
-	}
 
 	categories, err := queries.GetCategories(db)
 	if err != nil {

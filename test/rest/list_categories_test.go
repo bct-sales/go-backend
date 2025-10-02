@@ -109,7 +109,13 @@ func TestListCategories(t *testing.T) {
 				url := path.Categories()
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
-				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
+				require.Equal(t, http.StatusOK, writer.Code)
+
+				actual := FromJson[GetCategoriesSuccessResponse](t, writer.Body.String())
+
+				for _, category := range actual.Categories {
+					require.Nil(t, category.Count)
+				}
 			})
 
 			t.Run("With counts", func(t *testing.T) {
