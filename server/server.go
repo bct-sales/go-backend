@@ -44,23 +44,6 @@ type LoggerResources struct {
 	logger     *slog.Logger
 }
 
-// @title           BCT Sales
-// @version         1.0
-// @description     BCT Sales REST API
-
-// @contact.name   Frederic Vogels
-// @contact.email  frederic.vogels@gmail.com
-
-// @license.name  Apache 2.0
-// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
-
-// @host      localhost:8000
-// @BasePath  /api/v1
-
-// @securityDefinitions.basic  BasicAuth
-
-// @externalDocs.description  OpenAPI
-// @externalDocs.url          https://swagger.io/resources/open-api/
 func StartServer(clock clock.Clock, database *sql.DB, configuration *configuration.Configuration) error {
 	server, err := NewServer(clock, database, configuration)
 	if err != nil {
