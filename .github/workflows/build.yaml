@@ -15,12 +15,6 @@ jobs:
       with:
         go-version: 1.23.1
 
-    - name: Install swag
-      run: go install github.com/swaggo/swag/cmd/swag@latest
-
-    - name: Swagger
-      run: swag init -g server/server.go
-
     - name: Build
       run: go build -v ./...
 

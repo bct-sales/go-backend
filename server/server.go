@@ -23,13 +23,9 @@ import (
 	"runtime"
 	"strings"
 
-	_ "bctbackend/docs"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	sloggin "github.com/samber/slog-gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 )
 
@@ -168,7 +164,9 @@ func (server *Server) defineRESTEndpoints() {
 
 	if server.configuration.Server.Swagger {
 		slog.Info("Enabling Swagger documentation")
-		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+		router.StaticFile("/swagger/swagger.json", "./swagger/swagger.json")
+		router.StaticFile("/swagger/swagger.yaml", "./swagger/swagger.yaml")
+		router.Static("/swagger/ui", "./swagger/ui")
 	}
 
 	server.RawPOST(paths.Login(), rest.Login)

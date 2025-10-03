@@ -16,10 +16,7 @@ coverage:
 	go test -tags=test -coverprofile=coverage-data ./...
 	go tool cover -html=coverage-data
 
-swagger:
-	swag init -g server/server.go
-
-rest: swagger build
+rest: build
 	go run . -v server --debug
 
 build:
