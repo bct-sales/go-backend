@@ -6,8 +6,6 @@ import (
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
 	"net/http"
-
-	_ "bctbackend/docs"
 )
 
 type ListSalesSaleData struct {

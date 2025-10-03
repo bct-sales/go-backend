@@ -8,8 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-
-	_ "bctbackend/docs"
 )
 
 type UpdateItemData struct {

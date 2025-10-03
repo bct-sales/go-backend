@@ -9,8 +9,6 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
-
-	_ "bctbackend/docs"
 )
 
 type GetUsersUserData struct {

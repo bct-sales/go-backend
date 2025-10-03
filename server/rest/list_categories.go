@@ -8,8 +8,6 @@ import (
 	"maps"
 	"net/http"
 	"slices"
-
-	_ "bctbackend/docs"
 )
 
 type ListCategoriesSuccessResponse struct {

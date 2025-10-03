@@ -10,8 +10,6 @@ import (
 	"bytes"
 	"net/http"
 	"strconv"
-
-	_ "bctbackend/docs"
 )
 
 type GetItemsItemData struct {
