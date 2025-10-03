@@ -16,6 +16,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"log/slog"
 	"net/http"
 	"os"
@@ -23,11 +24,16 @@ import (
 	"runtime"
 	"strings"
 
+	"embed"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	sloggin "github.com/samber/slog-gin"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 )
+
+//go:embed swagger/ui/*
+var swaggerUi embed.FS
 
 type Server struct {
 	loggerResources      *LoggerResources
@@ -147,9 +153,10 @@ func (server *Server) defineRESTEndpoints() {
 
 	if server.configuration.Server.Swagger {
 		slog.Info("Enabling Swagger documentation")
-		router.StaticFile("/swagger/swagger.json", "./swagger/swagger.json")
-		router.StaticFile("/swagger/swagger.yaml", "./swagger/swagger.yaml")
-		router.Static("/swagger/ui", "./swagger/ui")
+		router.StaticFile("/swagger/swagger.yaml", "./server/swagger/swagger.yaml")
+
+		content, _ := fs.Sub(swaggerUi, "swagger/ui")
+		router.StaticFS("/swagger/ui", http.FS(content))
 	}
 
 	server.RawPOST(paths.Login(), rest.Login)
