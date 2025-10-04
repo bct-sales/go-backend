@@ -1216,9 +1216,108 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FailureResponse'
-  #/api/v1/labels
+  /api/v1/labels:
+    get:
+      tags:
+        - seller
+      summary: Generate labels for a seller's items
+      description: >
+        Generates a PDF with labels for the current seller's items.
+      operationId: ListCashierSales
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - itemIds
+                - layout
+              properties:
+                itemIds:
+                  type: array
+                  items:
+                    type: integer
+                    format: uint64
+                  example: [15, 16, 17, 18, 19]
+                layout:
+                  type: object
+                  required:
+                    - paperWidth
+                    - paperHeight
+                    - paperMargins
+                    - columns
+                    - rows
+                    - labelMargins
+                    - labelPadding
+                    - fontSize
+                  properties:
+                    paperWidth:
+                      type: number
+                      example: 210
+                    paperHeight:
+                      type: number
+                      example: 297
+                    paperMargins:
+                      $ref: '#/components/schemas/Insets'
+                    columns:
+                      type: integer
+                      minimum: 1
+                    rows:
+                      type: integer
+                      minimum: 1
+                    labelMargins:
+                      $ref: '#/components/schemas/Insets'
+                    labelPadding:
+                      $ref: '#/components/schemas/Insets'
+                    fontSize:
+                      type: number
+                      minimum: 1
+      responses:
+        '200':
+          description: Success
+          headers:
+            content-disposition:
+              schema:
+                type: string
+              example: attachment; filename=labels.pdf
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Only admins and owning cashiers are allowed to perform this operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
 components:
   schemas:
+    Insets:
+      properties:
+        top:
+          type: number
+          example: 5
+        bottom:
+          type: number
+          example: 5
+        left:
+          type: number
+          example: 5
+        right:
+          type: number
+          example: 5
     DateTime:
       properties:
         year:
