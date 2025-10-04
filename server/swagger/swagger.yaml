@@ -362,6 +362,7 @@ paths:
       description: >
         Returns a list of all users.
         This operation is reserved for admins.
+      operationId: ListSales
       parameters:
         - in: query
           name: startId
@@ -392,7 +393,6 @@ paths:
             enum:
               - antichronological
           required: false
-      operationId: ListSales
       responses:
         '200':
           description: Success
@@ -864,7 +864,7 @@ paths:
       description: >
         Returns a list of items.
         This operation is reserved for admins and cashiers.
-      operationId: ListUsers
+      operationId: ListAllItems
       parameters:
         - in: query
           name: items
@@ -1002,6 +1002,7 @@ paths:
       summary: Get item information
       description: >
         Fetches information about the item and in which sales in occurs.
+      operationId: GetItemInformation
       responses:
         '200':
           description: Success
@@ -1314,7 +1315,7 @@ paths:
       summary: Generate labels for a seller's items
       description: >
         Generates a PDF with labels for the current seller's items.
-      operationId: ListCashierSales
+      operationId: GenerateLabels
       requestBody:
         content:
           application/json:
