@@ -1143,8 +1143,80 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FailureResponse'
+  /api/v1/cashiers/{cashierId}/sales:
+    get:
+      tags:
+        - sale
+        - admin
+        - cashier
+      summary: List sales by cashier
+      description: >
+        Retrieves information regarding a all sales made by a specified cashier.
+      operationId: ListCashierSales
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - sales
+                  - saleCount
+                properties:
+                  sales:
+                    type: object
+                    required:
+                      - saleId
+                      - transactionTime
+                      - itemCount
+                      - totalPriceInCents
+                    properties:
+                      saleId:
+                        type: integer
+                        format: uint64
+                        example: 194
+                      transactionTime:
+                        $ref: '#/components/schemas/DateTime'
+                      itemCount:
+                        type: integer
+                        example: 8
+                      totalPriceInCents:
+                        type: integer
+                        example: 4850
+                  saleCount:
+                    type: integer
+                    example: 15
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Only admins and owning cashiers are allowed to perform this operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '404':
+          description: >
+            The provided list of item ids contains an invalid item id.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
   #/api/v1/labels
-  #/api/v1/cashiers/{cashierId}/sales
 components:
   schemas:
     DateTime:
