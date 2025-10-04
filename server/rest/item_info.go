@@ -27,14 +27,6 @@ type getItemInformationEndpoint struct {
 	Endpoint
 }
 
-// @Summary Get information about an item
-// @Description Get information about an item.
-// @Success 200 {object} GetItemInformationSuccessResponse
-// @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
-// @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
-// @Failure 403 {object} failure_response.FailureResponse "Only accessible to cashiers, admins and owner sellers"
-// @Failure 404 {object} failure_response.FailureResponse "Item not found"
-// @Router /items/{id} [get]
 func GetItemInformation(arguments *HandlerFunctionArguments) {
 	endpoint := getItemInformationEndpoint{
 		Endpoint: Endpoint{
