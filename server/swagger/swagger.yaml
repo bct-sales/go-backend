@@ -91,7 +91,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FailureResponse'
-  # /api/v1/logout:
+  /api/v1/logout:
+    post:
+      tags:
+        - authentication
+      summary: Log in
+      description: Authenticates a user
+      operationId: Logout
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - role
+                properties:
+                  role:
+                    type: string
+                    enum:
+                      - admin
+                      - seller
+                      - cashier
+                    description: Role of the authenticated user
+                    example: seller
+        '400':
+          description: Failed to parse request body
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
   /api/v1/users:
     get:
       tags:
