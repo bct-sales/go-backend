@@ -94,7 +94,8 @@ paths:
   /api/v1/sales:
     post:
       tags:
-        - authentication
+        - sale
+        - cashier
       summary: Registers a sale
       description: >
         Registers a sale.
