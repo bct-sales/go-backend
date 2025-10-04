@@ -149,7 +149,7 @@ paths:
                       properties:
                         id:
                           type: integer
-                          format: int64
+                          format: uint64
                           example: 10
                         password:
                           type: string
@@ -510,7 +510,7 @@ paths:
                   type: array
                   items:
                     type: integer
-                    format: int64
+                    format: uint64
                     description: item identifier
                   example:
                     [1, 4, 100]
@@ -705,7 +705,7 @@ paths:
                       properties:
                         itemId:
                           type: integer
-                          format: int64
+                          format: uint64
                           example: 10
                         addedAt:
                           $ref: '#/components/schemas/DateTime'
@@ -950,7 +950,7 @@ paths:
                       properties:
                         itemId:
                           type: integer
-                          format: int64
+                          format: uint64
                           example: 10
                         addedAt:
                           $ref: '#/components/schemas/DateTime'
@@ -1431,7 +1431,7 @@ components:
           example: 33
         timestamp:
           type: integer
-          format: int64
+          format: uint64
           example: 515468
     FailureResponse:
       properties:
