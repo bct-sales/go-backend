@@ -100,6 +100,36 @@ paths:
       description: >
         Returns a list of all users.
         This operation is reserved for admins.
+      parameters:
+        - in: query
+          name: startId
+          description: Id of first sale to list
+          example: 15
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            example: 20
+          description: Maximum number of sales to return
+          required: false
+        - in: query
+          name: offset
+          description: >
+            Index of sale to start listing at.
+          schema:
+            type: integer
+            minimum: 0
+            example: 140
+          required: false
+        - in: query
+          name: order
+          description: Order in which to return sales
+          schema:
+            type: string
+            enum:
+              - antichronological
+          required: false
       operationId: ListSales
       responses:
         '200':
