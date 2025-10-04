@@ -28,6 +28,69 @@ tags:
   - name: authentication
     description: Authentication related functionality
 paths:
+  /api/v1/login:
+    post:
+      tags:
+        - authentication
+      summary: Log in
+      description: >
+        Authenticates a user
+      operationId: Login
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  description: Id of the user to log in
+                  example: 5
+                password:
+                  type: string
+                  description: Password used to authenticate user
+                  example: azer1234
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - role
+                properties:
+                  role:
+                    type: string
+                    enum:
+                      - admin
+                      - seller
+                      - cashier
+                    description: Role of the authenticated user
+                    example: seller
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Failed to authenticate user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '404':
+          description: Unknown user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
   /api/v1/users:
     get:
       tags:
@@ -615,31 +678,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FailureResponse'
-  /api/v1/login:
-    post:
+  /api/v1/categories:
+    get:
       tags:
-        - authentication
-      summary: Log in
+        - category
+        - admin
+        - seller
+        - cashier
+      summary: >
+        List all categories.
       description: >
-        Authenticates a user
-      operationId: Login
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              required:
-                - username
-                - password
-              properties:
-                username:
-                  type: string
-                  description: Id of the user to log in
-                  example: 5
-                password:
-                  type: string
-                  description: Password used to authenticate user
-                  example: azer1234
+        Returns a list of all categories.
+        If requested, the number of items per category can be included in the response (only for admins).
+      operationId: ListCategories
+      parameters:
+        - in: query
+          name: counts
+          description: If present, causes item counts to be included.
+          schema:
+            type: string
+            enum:
+              - all
+              - hidden
+              - visible
       responses:
         '200':
           description: Success
@@ -648,26 +709,38 @@ paths:
               schema:
                 type: object
                 required:
-                  - role
+                  - categories
                 properties:
-                  role:
-                    type: string
-                    enum:
-                      - admin
-                      - seller
-                      - cashier
-                    description: Role of the authenticated user
-                    example: seller
+                  categories:
+                    type: object
+                    required:
+                      - categoryId
+                      - categoryName
+                    properties:
+                      categoryId:
+                        type: integer
+                        format: uint64
+                        description: Id of the category
+                        example: 2
+                      categoryName:
+                        type: string
+                        description: Name of the category
+                        example: Shoes
+                      count:
+                        type: integer
+                        description: Number of items in this category
+                        example: 4
         '400':
           description: Failed to parse request body
         '401':
-          description: Failed to authenticate user
+          description: Not authenticated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/FailureResponse'
-        '404':
-          description: Unknown user
+        '403':
+          description: >
+            Item counts are only accessible to admins.
           content:
             application/json:
               schema:
