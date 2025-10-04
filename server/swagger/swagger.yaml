@@ -91,6 +91,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FailureResponse'
+  # /api/v1/logout:
   /api/v1/users:
     get:
       tags:
@@ -464,6 +465,95 @@ paths:
               schema:
                 $ref: '#/components/schemas/FailureResponse'
   /api/v1/items/{itemId}:
+    get:
+      tags:
+        - item
+        - admin
+        - cashier
+        - seller
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  itemId:
+                    type: integer
+                    format: uint64
+                    example: 45
+                  addedAt:
+                    $ref: '#/components/schemas/DateTime'
+                  sellerId:
+                    type: integer
+                    format: uint64
+                    example: 121
+                  description:
+                    type: string
+                    example: Puzzle
+                  priceInCents:
+                    type: integer
+                    example: 500
+                  categoryId:
+                    type: integer
+                    format: uint64
+                    example: 11
+                  charity:
+                    type: boolean
+                    example: false
+                  donation:
+                    type: boolean
+                    example: false
+                  frozen:
+                    type: boolean
+                    example: false
+                  soldIn:
+                    type: array
+                    items:
+                      type: integer
+                      format: uint64
+                    example: [19]
+                required:
+                  - itemId
+                  - addedAt
+                  - sellerId
+                  - description
+                  - priceInCents
+                  - categoryId
+                  - charity
+                  - donation
+                  - frozen
+                  - soldIn
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Allowed for admins, cashiers and the seller that owns the item in question.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '404':
+          description: >
+            The item to be updated does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
     post:
       tags:
         - item
@@ -751,6 +841,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FailureResponse'
+  #/api/v1/labels
+  #/api/v1/sales/{saleId}
+  #/api/v1/users/{userId}
+  #/api/v1/cashiers/{cashierId}/sales
 components:
   schemas:
     DateTime:
