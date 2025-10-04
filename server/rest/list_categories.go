@@ -20,17 +20,6 @@ type CategoryData struct {
 	Count        *int      `json:"count,omitempty"`
 }
 
-// @Summary Get number of items grouped by category.
-// @Description Returns the number of items per category.
-// @Tags items
-// @Accept json
-// @Produce json
-// @Success 200 {object} ListCategoriesSuccessResponse
-// @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
-// @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
-// @Failure 403 {object} failure_response.FailureResponse "Unauthorized access"
-// @Failure 500 {object} failure_response.FailureResponse "Failed to fetch category counts"
-// @Router /categories [get]
 func ListCategories(arguments *HandlerFunctionArguments) {
 	endpoint := listCategoriesEndpoint{
 		Endpoint: Endpoint{
