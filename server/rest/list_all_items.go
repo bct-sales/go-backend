@@ -30,16 +30,6 @@ type GetItemsSuccessResponse struct {
 	TotalItemValue models.MoneyInCents `json:"totalItemValue"`
 }
 
-// @Summary List all items of all sellers.
-// @Description Returns all items of all sellers. Only accessible to users with the admin role.
-// @Tags items
-// @Accept json
-// @Produce json
-// @Success 200 {object} GetItemsSuccessResponse "Items successfully fetched"
-// @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
-// @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
-// @Failure 500 {object} failure_response.FailureResponse "Failed to fetch items"
-// @Router /items [get]
 func ListAllItems(arguments *HandlerFunctionArguments) {
 	endpoint := &listAllItemsEndpoint{
 		Endpoint: Endpoint{
