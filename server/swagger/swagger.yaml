@@ -471,6 +471,9 @@ paths:
         - admin
         - cashier
         - seller
+      summary: Get item information
+      description: >
+        Fetches information about the item and in which sales in occurs.
       responses:
         '200':
           description: Success
