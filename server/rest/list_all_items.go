@@ -111,6 +111,8 @@ func (ep *listAllItemsEndpoint) processItemSelectionQueryParameter(sqlQuery *que
 		// NOP
 	case "hidden":
 		sqlQuery.WithHidden(true)
+	case "visible":
+		sqlQuery.WithHidden(false)
 	default:
 		sqlQuery.WithHidden(false)
 	}
