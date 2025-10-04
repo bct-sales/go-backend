@@ -92,6 +92,100 @@ paths:
               schema:
                 $ref: '#/components/schemas/FailureResponse'
   /api/v1/sales:
+    get:
+      tags:
+        - sale
+        - admin
+      summary: List all sales
+      description: >
+        Returns a list of all users.
+        This operation is reserved for admins.
+      operationId: ListSales
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sales:
+                    description: List of all sales
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        saleId:
+                          type: integer
+                          format: uint64
+                          description: ID of the sale
+                          example: 138
+                        cashierId:
+                          type: integer
+                          format: uint64
+                          description: ID of the cashier having made this sale
+                          example: 5
+                        transactionTime:
+                          $ref: '#/components/schemas/DateTime'
+                        itemCount:
+                          type: integer
+                          description: Number of items in the sale
+                          example: 4
+                        totalPriceInCents:
+                          type: integer
+                          description: Total value of the sale
+                          example: 2500
+                  itemCount:
+                    type: integer
+                    description: Total number of items in the database
+                    example: 1542
+                  totalItemValue:
+                    type: integer
+                    description: Cumulative value of all items in the database
+                    example: 2512350
+                  distinctSoldItemCount:
+                    type: integer
+                    description: >
+                      Number of distinct items sold.
+                      A multiply sold item is only counted once.
+                    example: 348
+                  totalSoldItemCount:
+                    type: integer
+                    description: >
+                      Number of items sold.
+                      If the same item has been sold N times, it is counted N times.
+                    example: 348
+                  saleCount:
+                    type: integer
+                    description: Number of sales
+                    example: 82
+                  totalSaleValue:
+                    type: integer
+                    description: Total value of all sold items
+                    example: 801400
+
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Only admins are allowed to perform this operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
     post:
       tags:
         - sale
