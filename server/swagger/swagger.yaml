@@ -370,6 +370,115 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FailureResponse'
+  /api/v1/sales/{saleId}:
+    get:
+      tags:
+        - sale
+        - admin
+        - cashier
+      summary: Fetch sale information
+      description: >
+        Retrieves information regarding a specified sale.
+      operationId: GetSaleInformation
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - saleId
+                  - cashierId
+                  - transactionTime
+                  - items
+                properties:
+                  saleId:
+                    type: integer
+                    format: uint64
+                    example: 19
+                  cashierId:
+                    type: integer
+                    format: uint64
+                    example: 3
+                  transactionTime:
+                    $ref: '#/components/schemas/DateTime'
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - itemId
+                        - sellerId
+                        - description
+                        - priceInCents
+                        - categoryId
+                        - charity
+                        - donation
+                        - addedAt
+                      properties:
+                        itemId:
+                          type: integer
+                          format: uint64
+                          description: Id of the item
+                          example: 422
+                        sellerId:
+                          type: integer
+                          format: uint64
+                          description: Owning seller
+                          example: 422
+                        description:
+                          type: string
+                          description: Description of the item
+                          example: Blue jeans
+                        priceInCents:
+                          type: integer
+                          description: Price of the item, expressed in cents
+                          example: 350
+                        categoryId:
+                          type: integer
+                          format: uint64
+                          description: Id of the item
+                          example: 8
+                        charity:
+                          type: boolean
+                          description: Whether the item, if unsold, will be donated to charity
+                          example: false
+                        donation:
+                          type: boolean
+                          description: Whether proceeds will be donated to the BCT
+                          example: false
+                        addedAt:
+                          $ref: '#/components/schemas/DateTime'
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Only admins are allowed to perform this operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '404':
+          description: >
+            The provided list of item ids contains an invalid item id.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
   /api/v1/seller/{sellerId}/items:
     post:
       tags:
@@ -845,7 +954,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/FailureResponse'
   #/api/v1/labels
-  #/api/v1/sales/{saleId}
   #/api/v1/users/{userId}
   #/api/v1/cashiers/{cashierId}/sales
 components:
