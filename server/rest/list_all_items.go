@@ -72,19 +72,27 @@ func (ep *listAllItemsEndpoint) execute() {
 func (ep *listAllItemsEndpoint) buildSqlQuery() *queries.GetItemsQuery {
 	query := queries.NewGetItemsQuery()
 
-	if !ep.processItemSelectionQueryParameter(query) {
-		return nil
-	}
-
-	if !ep.processRangeQueryParameters(query) {
-		return nil
-	}
-
-	if !ep.processCategoryQueryParameter(query) {
+	if !ep.processQueryParameters(query) {
 		return nil
 	}
 
 	return query
+}
+
+func (ep *listAllItemsEndpoint) processQueryParameters(query *queries.GetItemsQuery) bool {
+	if !ep.processItemSelectionQueryParameter(query) {
+		return false
+	}
+
+	if !ep.processRangeQueryParameters(query) {
+		return false
+	}
+
+	if !ep.processCategoryQueryParameter(query) {
+		return false
+	}
+
+	return true
 }
 
 func (ep *listAllItemsEndpoint) processCategoryQueryParameter(sqlQuery *queries.GetItemsQuery) bool {
