@@ -670,6 +670,97 @@ paths:
               schema:
                 $ref: '#/components/schemas/FailureResponse'
   /api/v1/seller/{sellerId}/items:
+    get:
+      tags:
+        - item
+        - seller
+      summary: List a seller's items
+      description: >
+        Returns a list of all items owner by a specified seller.
+        Allowed only for admins and the seller.
+      operationId: GetSellerItems
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required: items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - itemId
+                        - addedAt
+                        - description
+                        - priceInCents
+                        - categoryId
+                        - sellerId
+                        - donation
+                        - charity
+                        - frozen
+                      properties:
+                        itemId:
+                          type: integer
+                          format: int64
+                          example: 10
+                        addedAt:
+                          $ref: '#/components/schemas/DateTime'
+                        description:
+                          type: string
+                          example: T-Shirt Jack & Jones
+                        priceInCents:
+                          type: integer
+                          example: 500
+                        categoryId:
+                          type: integer
+                          format: uint64
+                          example: 5
+                        sellerId:
+                          type: integer
+                          format: uint64
+                          example: 401
+                        donation:
+                          type: boolean
+                          example: false
+                        charity:
+                          type: boolean
+                          example: false
+                        frozen:
+                          type: boolean
+                          example: false
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Only admins and the seller are allowed to perform this operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '404':
+          description: >
+            No seller exists with the specified id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
     post:
       tags:
         - item
@@ -753,175 +844,6 @@ paths:
         '404':
           description: >
             The provided list of item ids contains an invalid item id.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FailureResponse'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FailureResponse'
-  /api/v1/items/{itemId}:
-    get:
-      tags:
-        - item
-        - admin
-        - cashier
-        - seller
-      summary: Get item information
-      description: >
-        Fetches information about the item and in which sales in occurs.
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  itemId:
-                    type: integer
-                    format: uint64
-                    example: 45
-                  addedAt:
-                    $ref: '#/components/schemas/DateTime'
-                  sellerId:
-                    type: integer
-                    format: uint64
-                    example: 121
-                  description:
-                    type: string
-                    example: Puzzle
-                  priceInCents:
-                    type: integer
-                    example: 500
-                  categoryId:
-                    type: integer
-                    format: uint64
-                    example: 11
-                  charity:
-                    type: boolean
-                    example: false
-                  donation:
-                    type: boolean
-                    example: false
-                  frozen:
-                    type: boolean
-                    example: false
-                  soldIn:
-                    type: array
-                    items:
-                      type: integer
-                      format: uint64
-                    example: [19]
-                required:
-                  - itemId
-                  - addedAt
-                  - sellerId
-                  - description
-                  - priceInCents
-                  - categoryId
-                  - charity
-                  - donation
-                  - frozen
-                  - soldIn
-        '400':
-          description: Failed to parse request body
-        '401':
-          description: Not authenticated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FailureResponse'
-        '403':
-          description: >
-            Forbidden operation for the current user.
-            Allowed for admins, cashiers and the seller that owns the item in question.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FailureResponse'
-        '404':
-          description: >
-            The item to be updated does not exist.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FailureResponse'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FailureResponse'
-    post:
-      tags:
-        - item
-        - seller
-      summary: Update item
-      parameters:
-        - in: path
-          name: itemId
-          schema:
-            type: integer
-            format: uint64
-          required: true
-          description: Id of the item to be updated
-      description: >
-        Updates an item.
-        Reserved for the owning seller.
-      operationId: UpdateItem
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                price:
-                  type: integer
-                  description: If present, will be the new price of the item
-                  example: 150
-                description:
-                  type: string
-                  description: If present, will be the new description of the item
-                  example: "Puma speedcat red"
-                categoryId:
-                  type: integer
-                  format: uint64
-                  description: If present, will be the new category of the item
-                  example: 1
-                donation:
-                  type: boolean
-                  description: If present, will be the new donation status of the item
-                  example: false
-                charity:
-                  type: boolean
-                  description: If present, will be the new charity status of the item
-                  example: false
-      responses:
-        '204':
-          description: Success
-        '400':
-          description: Failed to parse request body
-        '401':
-          description: Not authenticated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FailureResponse'
-        '403':
-          description: >
-            Forbidden operation for the current user.
-            Only the owning seller is allowed to perform this operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FailureResponse'
-        '404':
-          description: >
-            The item to be updated does not exist.
           content:
             application/json:
               schema:
@@ -1060,6 +982,175 @@ paths:
           description: >
             Forbidden operation for the current user.
             Only admins and cashiers are allowed to perform this operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+  /api/v1/items/{itemId}:
+    get:
+      tags:
+        - item
+        - admin
+        - cashier
+        - seller
+      summary: Get item information
+      description: >
+        Fetches information about the item and in which sales in occurs.
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  itemId:
+                    type: integer
+                    format: uint64
+                    example: 45
+                  addedAt:
+                    $ref: '#/components/schemas/DateTime'
+                  sellerId:
+                    type: integer
+                    format: uint64
+                    example: 121
+                  description:
+                    type: string
+                    example: Puzzle
+                  priceInCents:
+                    type: integer
+                    example: 500
+                  categoryId:
+                    type: integer
+                    format: uint64
+                    example: 11
+                  charity:
+                    type: boolean
+                    example: false
+                  donation:
+                    type: boolean
+                    example: false
+                  frozen:
+                    type: boolean
+                    example: false
+                  soldIn:
+                    type: array
+                    items:
+                      type: integer
+                      format: uint64
+                    example: [19]
+                required:
+                  - itemId
+                  - addedAt
+                  - sellerId
+                  - description
+                  - priceInCents
+                  - categoryId
+                  - charity
+                  - donation
+                  - frozen
+                  - soldIn
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Allowed for admins, cashiers and the seller that owns the item in question.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '404':
+          description: >
+            The item to be updated does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+    put:
+      tags:
+        - item
+        - seller
+      summary: Update item
+      parameters:
+        - in: path
+          name: itemId
+          schema:
+            type: integer
+            format: uint64
+          required: true
+          description: Id of the item to be updated
+      description: >
+        Updates an item.
+        Reserved for the owning seller.
+      operationId: UpdateItem
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                price:
+                  type: integer
+                  description: If present, will be the new price of the item
+                  example: 150
+                description:
+                  type: string
+                  description: If present, will be the new description of the item
+                  example: "Puma speedcat red"
+                categoryId:
+                  type: integer
+                  format: uint64
+                  description: If present, will be the new category of the item
+                  example: 1
+                donation:
+                  type: boolean
+                  description: If present, will be the new donation status of the item
+                  example: false
+                charity:
+                  type: boolean
+                  description: If present, will be the new charity status of the item
+                  example: false
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Only the owning seller is allowed to perform this operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '404':
+          description: >
+            The item to be updated does not exist.
           content:
             application/json:
               schema:
