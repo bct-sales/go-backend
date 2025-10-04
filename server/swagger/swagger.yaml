@@ -195,6 +195,164 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FailureResponse'
+  /api/v1/users/{userId}:
+    get:
+      tags:
+        - user
+        - admin
+        - cashier
+        - seller
+      summary: Fetch user information
+      description: >
+        Retrieves information regarding a specified user.
+      operationId: GetUserInformation
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    required:
+                      - userId
+                      - role
+                      - password
+                      - createdAt
+                      - lastActivity
+                    description: This schema is used in case the querying user is an admin.
+                    properties:
+                      userId:
+                        type: integer
+                        format: uint64
+                      role:
+                        type: string
+                        enum:
+                          - admin
+                          - seller
+                          - cashier
+                      password:
+                        type: string
+                      createdAt:
+                        $ref: '#/components/schemas/DateTime'
+                      lastActivity:
+                        $ref: '#/components/schemas/DateTime'
+                      items:
+                        description: Only present if the queried user is a seller
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - itemId
+                            - addedAt
+                            - sellerId
+                            - description
+                            - priceInCents
+                            - categoryId
+                            - charity
+                            - donation
+                            - frozen
+                            - saleCount
+                          properties:
+                            itemId:
+                              type: number
+                              format: uint64
+                            addedAt:
+                              $ref: '#/components/schemas/DateTime'
+                            sellerId:
+                              type: number
+                              format: uint64
+                            description:
+                              type: string
+                            priceInCents:
+                              type: number
+                            categoryId:
+                              type: number
+                              format: uint64
+                            charity:
+                              type: boolean
+                            donation:
+                              type: boolean
+                            frozen:
+                              type: boolean
+                            saleCount:
+                              type: number
+                      sales:
+                        type: array
+                        description: Only present if the queried user is a cashier
+                        items:
+                          type: object
+                          required:
+                            - saleId
+                            - transactionTime
+                          properties:
+                            saleId:
+                              type: integer
+                              format: uint64
+                            transactionTime:
+                              $ref: '#/components/schemas/DateTime'
+                  - type: object
+                    description: This schema is used in case the querying user is a cashier.
+                    required:
+                      - sales
+                    properties:
+                      sales:
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - saleId
+                            - transactionTime
+                          properties:
+                            saleId:
+                              type: integer
+                              format: uint64
+                            transactionTime:
+                              $ref: '#/components/schemas/DateTime'
+                  - type: object
+                    description: This schema is used in case the querying user is a seller.
+                    required:
+                      - itemCount
+                      - frozenItemCount
+                      - hiddenItemCount
+                      - totalPrice
+                    properties:
+                      itemCount:
+                        type: integer
+                      frozenItemCount:
+                        type: integer
+                      hiddenItemCount:
+                        type: integer
+                      totalPrice:
+                        type: integer
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '404':
+          description: >
+            No user exists with the given user id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
   /api/v1/sales:
     get:
       tags:
@@ -986,7 +1144,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/FailureResponse'
   #/api/v1/labels
-  #/api/v1/users/{userId}
   #/api/v1/cashiers/{cashierId}/sales
 components:
   schemas:
