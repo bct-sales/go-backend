@@ -21,18 +21,6 @@ type UpdateItemData struct {
 type UpdateItemSuccessResponse struct {
 }
 
-// @Summary Update an item.
-// @Description Updates the details of an item. Only accessible to the owner of the item or an admin.
-// @Tags items
-// @Accept json
-// @Produce json
-// @Success 204 {object} UpdateItemSuccessResponse "Items successfully updated"
-// @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
-// @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
-// @Failure 403 {object} failure_response.FailureResponse "Only accessible to sellers and admins, or invalid item data"
-// @Failure 404 {object} failure_response.FailureResponse "Item does not exist"
-// @Failure 500 {object} failure_response.FailureResponse "Failed to update item"
-// @Router /items/{id} [put]
 func UpdateItem(arguments *HandlerFunctionArguments) {
 	context := arguments.Context
 	userId := arguments.UserId
