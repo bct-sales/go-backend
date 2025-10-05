@@ -22,7 +22,7 @@ swagger:
 rest: swagger build
 	go run . -v server --debug
 
-build:
+build: swagger
 	go build
 
 lint:
