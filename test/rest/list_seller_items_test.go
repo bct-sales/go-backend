@@ -34,11 +34,11 @@ func TestListSellerItems(t *testing.T) {
 						for i := 0; i < itemCount; i++ {
 							item := setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
 							expectedItems = append(expectedItems, &rest.GetSellerItemsItemData{
-								ItemId:       item.ItemID,
+								ItemID:       item.ItemID,
 								Description:  item.Description,
 								PriceInCents: item.PriceInCents,
-								CategoryId:   item.CategoryID,
-								SellerId:     item.SellerID,
+								CategoryID:   item.CategoryID,
+								SellerID:     item.SellerID,
 								AddedAt:      shared.ConvertTimestampToDateTime(item.AddedAt),
 								Donation:     item.Donation,
 								Charity:      item.Charity,
@@ -71,11 +71,11 @@ func TestListSellerItems(t *testing.T) {
 			for i := 0; i < itemCount; i++ {
 				item := setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
 				expectedItems = append(expectedItems, &rest.GetSellerItemsItemData{
-					ItemId:       item.ItemID,
+					ItemID:       item.ItemID,
 					Description:  item.Description,
 					PriceInCents: item.PriceInCents,
-					CategoryId:   item.CategoryID,
-					SellerId:     item.SellerID,
+					CategoryID:   item.CategoryID,
+					SellerID:     item.SellerID,
 					AddedAt:      shared.ConvertTimestampToDateTime(item.AddedAt),
 					Donation:     item.Donation,
 					Charity:      item.Charity,

@@ -31,7 +31,7 @@ type getSalesEndpoint struct {
 }
 
 type getSalesQueryParameters struct {
-	startId                    *models.ID
+	startID                    *models.ID
 	rowSelection               *queries.RowSelection
 	orderedAntiChronologically bool
 }
@@ -169,7 +169,7 @@ func (ep *getSalesEndpoint) getTotalSalesValue(transaction *queries.Transactiona
 
 func (ep *getSalesEndpoint) ensureUserIsAdmin() bool {
 	if ep.RoleID != models.NewAdminRoleID() {
-		ep.Logger.InvalidRequest("Unauthorized access to list all sales", "userId", ep.UserID, "roleId", ep.RoleID)
+		ep.Logger.InvalidRequest("Unauthorized access to list all sales", "userID", ep.UserID, "roleID", ep.RoleID)
 		failure_response.WrongRole(ep.Context, "Only admins can list all items")
 		return false
 	}
@@ -206,8 +206,8 @@ func (ep *getSalesEndpoint) getSales(transaction *queries.TransactionalDatabaseQ
 func (ep *getSalesEndpoint) buildQuery(queryParameters *getSalesQueryParameters) *queries.GetSalesQuery {
 	query := queries.NewGetSalesQuery()
 
-	if queryParameters.startId != nil {
-		query.WithIDGreaterThanOrEqualTo(*queryParameters.startId)
+	if queryParameters.startID != nil {
+		query.WithIDGreaterThanOrEqualTo(*queryParameters.startID)
 	}
 
 	if queryParameters.rowSelection != nil {
@@ -237,7 +237,7 @@ func (ep *getSalesEndpoint) buildQuery(queryParameters *getSalesQueryParameters)
 }
 
 func (ep *getSalesEndpoint) parseQueryParameters() (*getSalesQueryParameters, bool) {
-	startId, ok := ep.parseStartId()
+	startID, ok := ep.parseStartID()
 	if !ok {
 		return nil, false
 	}
@@ -254,7 +254,7 @@ func (ep *getSalesEndpoint) parseQueryParameters() (*getSalesQueryParameters, bo
 	antiChronologicalOrder := order == queries.OrderAntiChronological
 
 	queryParameters := getSalesQueryParameters{
-		startId:                    startId,
+		startID:                    startID,
 		rowSelection:               rowSelection,
 		orderedAntiChronologically: antiChronologicalOrder,
 	}
@@ -262,15 +262,15 @@ func (ep *getSalesEndpoint) parseQueryParameters() (*getSalesQueryParameters, bo
 	return &queryParameters, true
 }
 
-func (ep *getSalesEndpoint) parseStartId() (*models.ID, bool) {
-	if startIdStr, exists := ep.Context.GetQuery("startId"); exists {
-		startId, err := models.ParseID(startIdStr)
+func (ep *getSalesEndpoint) parseStartID() (*models.ID, bool) {
+	if startIDStr, exists := ep.Context.GetQuery("startId"); exists {
+		startID, err := models.ParseID(startIDStr)
 		if err != nil {
-			ep.Logger.InvalidInput("Failed to parse startId parameter", "startId", startIdStr, "error", err)
+			ep.Logger.InvalidInput("Failed to parse startId parameter", "startId", startIDStr, "error", err)
 			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Invalid startId parameter: "+err.Error())
 			return nil, false
 		}
-		return &startId, true
+		return &startID, true
 	}
 
 	return nil, true

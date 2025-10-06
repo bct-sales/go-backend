@@ -12,12 +12,12 @@ import (
 )
 
 type GetSellerItemsItemData struct {
-	ItemId       models.ID           `binding:"required" json:"itemId"`
+	ItemID       models.ID           `binding:"required" json:"itemId"`
 	AddedAt      rest.DateTime       `binding:"required" json:"addedAt"`
 	Description  string              `binding:"required" json:"description"`
 	PriceInCents models.MoneyInCents `binding:"required" json:"priceInCents"`
-	CategoryId   models.ID           `binding:"required" json:"categoryId"`
-	SellerId     models.ID           `binding:"required" json:"sellerId"`
+	CategoryID   models.ID           `binding:"required" json:"categoryId"`
+	SellerID     models.ID           `binding:"required" json:"sellerId"`
 	Donation     bool                `binding:"required" json:"donation"`
 	Charity      bool                `binding:"required" json:"charity"`
 	Frozen       bool                `binding:"required" json:"frozen"`
@@ -167,12 +167,12 @@ func (ep *getSellerItemsEndpoint) fetchSellerItemsFromDatabase(queriedSellerId m
 func (ep *getSellerItemsEndpoint) sendSuccessResponse(items []*models.Item) {
 	successResponse := GetSellerItemsSuccessResponse{Items: algorithms.Map(items, func(item *models.Item) *GetSellerItemsItemData {
 		return &GetSellerItemsItemData{
-			ItemId:       item.ItemID,
+			ItemID:       item.ItemID,
 			AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
 			Description:  item.Description,
 			PriceInCents: item.PriceInCents,
-			CategoryId:   item.CategoryID,
-			SellerId:     item.SellerID,
+			CategoryID:   item.CategoryID,
+			SellerID:     item.SellerID,
 			Donation:     item.Donation,
 			Charity:      item.Charity,
 			Frozen:       item.Frozen,

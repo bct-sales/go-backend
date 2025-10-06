@@ -48,7 +48,7 @@ func Login(clock clock.Clock, logger logger.Logger, context *gin.Context, db *sq
 		return
 	}
 
-	userId, err := models.ParseID(loginRequest.Username)
+	userID, err := models.ParseID(loginRequest.Username)
 	if err != nil {
 		logger.InvalidRequest("Someone tried to login with an invalid user ID", slog.String("userId", loginRequest.Username))
 		failure_response.InvalidUserID(context, err.Error())
@@ -56,7 +56,7 @@ func Login(clock clock.Clock, logger logger.Logger, context *gin.Context, db *sq
 	}
 
 	password := loginRequest.Password
-	roleId, err := queries.AuthenticateUser(db, userId, password)
+	roleID, err := queries.AuthenticateUser(db, userID, password)
 
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchUser) {
@@ -66,18 +66,18 @@ func Login(clock clock.Clock, logger logger.Logger, context *gin.Context, db *sq
 		}
 
 		if errors.Is(err, dberr.ErrWrongPassword) {
-			logger.InvalidRequest("User entered wrong password", slog.String("userId", userId.String()), slog.String("wrongPassword", password))
+			logger.InvalidRequest("User entered wrong password", slog.String("userID", userID.String()), slog.String("wrongPassword", password))
 			failure_response.WrongPassword(context, err.Error())
 			return
 		}
 
-		logger.InternalError("Failed authentication for unknown reasons", slog.String("userId", loginRequest.Username), slog.String("error", err.Error()))
+		logger.InternalError("Failed authentication for unknown reasons", slog.String("userID", loginRequest.Username), slog.String("error", err.Error()))
 		failure_response.Unknown(context, err.Error())
 		return
 	}
 
 	expirationTime := clock.Now() + security.SessionDurationInSeconds
-	sessionId, err := queries.AddSession(db, userId, expirationTime)
+	sessionID, err := queries.AddSession(db, userID, expirationTime)
 
 	if err != nil {
 		logger.InternalError("Failed to create session", slog.String("userId", loginRequest.Username), slog.String("error", err.Error()))
@@ -86,8 +86,8 @@ func Login(clock clock.Clock, logger logger.Logger, context *gin.Context, db *sq
 	}
 
 	ensureSecure := false // TODO: set to true when using HTTPS
-	context.SetCookie(security.SessionCookieName, string(sessionId), security.SessionDurationInSeconds, "/", configuration.CookieDomain, ensureSecure, true)
-	roleName := roleId.Name()
+	context.SetCookie(security.SessionCookieName, string(sessionID), security.SessionDurationInSeconds, "/", configuration.CookieDomain, ensureSecure, true)
+	roleName := roleID.Name()
 
 	response := LoginSuccessResponse{Role: roleName}
 	context.JSON(http.StatusOK, response)
