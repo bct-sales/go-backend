@@ -107,7 +107,7 @@ func TestGetUserInformation(t *testing.T) {
 					require.Equal(t, cashier.Password, response.Password)
 					require.Equal(t, rest.ConvertTimestampToDateTime(cashier.CreatedAt), response.CreatedAt)
 					require.Len(t, *response.Sales, 1)
-					require.Equal(t, sale.SaleID, (*response.Sales)[0].SaleId)
+					require.Equal(t, sale.SaleID, (*response.Sales)[0].SaleID)
 				})
 
 				t.Run("Multiple sales", func(t *testing.T) {
@@ -204,10 +204,10 @@ func TestGetUserInformation(t *testing.T) {
 
 				require.Len(t, *response.Sales, 2)
 
-				require.Equal(t, sale1.SaleID, (*response.Sales)[0].SaleId)
+				require.Equal(t, sale1.SaleID, (*response.Sales)[0].SaleID)
 				require.Equal(t, rest.ConvertTimestampToDateTime(sale1TransactionTime), (*response.Sales)[0].TransactionTime)
 
-				require.Equal(t, sale2.SaleID, (*response.Sales)[1].SaleId)
+				require.Equal(t, sale2.SaleID, (*response.Sales)[1].SaleID)
 				require.Equal(t, rest.ConvertTimestampToDateTime(sale2TransactionTime), (*response.Sales)[1].TransactionTime)
 			})
 		})

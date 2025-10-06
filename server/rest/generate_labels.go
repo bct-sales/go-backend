@@ -276,7 +276,7 @@ func (ep *generateLabelsEndpoint) retrieveItemsFromDatabase(itemIDs []models.ID)
 	itemTable, err := queries.GetItemsWithIDs(ep.Database, itemIDs)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
-			ep.Logger.InvalidRequest("Blocked attempt at generating labels for non-existing items", "itemIDs", itemIDs, "userId", ep.UserID)
+			ep.Logger.InvalidRequest("Blocked attempt at generating labels for non-existing items", "itemIDs", itemIDs, "userID", ep.UserID)
 			failure_response.UnknownItem(ep.Context, err.Error())
 			return nil
 		}

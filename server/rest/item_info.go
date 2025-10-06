@@ -38,12 +38,12 @@ func GetItemInformation(arguments *HandlerFunctionArguments) {
 }
 
 func (ep *getItemInformationEndpoint) execute() {
-	itemId, foundItemId := ep.retrieveItemIdFromUri()
+	itemID, foundItemId := ep.retrieveItemIDFromUri()
 	if !foundItemId {
 		return
 	}
 
-	item := ep.retrieveItemFromDatabase(itemId)
+	item := ep.retrieveItemFromDatabase(itemID)
 	if item == nil {
 		return
 	}
@@ -52,7 +52,7 @@ func (ep *getItemInformationEndpoint) execute() {
 		return
 	}
 
-	salesIncludingItem, findSalesOk := ep.findSalesIncludingItem(itemId)
+	salesIncludingItem, findSalesOk := ep.findSalesIncludingItem(itemID)
 	if !findSalesOk {
 		return
 	}
@@ -73,9 +73,9 @@ func (ep *getItemInformationEndpoint) execute() {
 	ep.Context.JSON(http.StatusOK, response)
 }
 
-func (ep *getItemInformationEndpoint) retrieveItemIdFromUri() (models.ID, bool) {
+func (ep *getItemInformationEndpoint) retrieveItemIDFromUri() (models.ID, bool) {
 	var uriParameters struct {
-		ItemId string `binding:"required" uri:"id"`
+		ItemID string `binding:"required" uri:"id"`
 	}
 
 	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
@@ -84,21 +84,21 @@ func (ep *getItemInformationEndpoint) retrieveItemIdFromUri() (models.ID, bool) 
 		return 0, false
 	}
 
-	itemId, err := models.ParseID(uriParameters.ItemId)
+	itemID, err := models.ParseID(uriParameters.ItemID)
 	if err != nil {
-		ep.Logger.InvalidInput("Failed to parse item ID", "error", err, "itemId", uriParameters.ItemId)
+		ep.Logger.InvalidInput("Failed to parse item ID", "error", err, "itemID", uriParameters.ItemID)
 		failure_response.InvalidItemID(ep.Context, err.Error())
 		return 0, false
 	}
 
-	return itemId, true
+	return itemID, true
 }
 
-func (ep *getItemInformationEndpoint) retrieveItemFromDatabase(itemId models.ID) *models.Item {
-	item, err := queries.GetItemWithID(ep.Database, itemId)
+func (ep *getItemInformationEndpoint) retrieveItemFromDatabase(itemID models.ID) *models.Item {
+	item, err := queries.GetItemWithID(ep.Database, itemID)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
-			ep.Logger.InvalidRequest("Attempt to access a non-existing item", "itemId", itemId)
+			ep.Logger.InvalidRequest("Attempt to access a non-existing item", "itemID", itemID)
 			failure_response.UnknownItem(ep.Context, err.Error())
 			return nil
 		}
