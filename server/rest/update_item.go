@@ -88,7 +88,7 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 		AddedAt:      nil,
 		Description:  payload.Description,
 		PriceInCents: payload.PriceInCents,
-		CategoryId:   payload.CategoryId,
+		CategoryID:   payload.CategoryId,
 		Donation:     payload.Donation,
 		Charity:      payload.Charity,
 	}

@@ -193,8 +193,8 @@ func GetItems(db DatabaseQuerier, receiver func(*models.Item) error, itemSelecti
 	return query.Execute(db, receiver)
 }
 
-// GetItemIds retrieves the IDs of all items in the database.
-func GetItemIds(db DatabaseQuerier) (r_result []models.ID, r_err error) {
+// GetItemIDs retrieves the IDs of all items in the database.
+func GetItemIDs(db DatabaseQuerier) (r_result []models.ID, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -217,17 +217,17 @@ func GetItemIds(db DatabaseQuerier) (r_result []models.ID, r_err error) {
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	// Iterate over rows and collect item ids
-	var itemIds []models.ID
+	var itemIDs []models.ID
 	for rows.Next() {
-		var itemId models.ID
-		err = rows.Scan(&itemId)
+		var itemID models.ID
+		err = rows.Scan(&itemID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan row: %w", err)
 		}
-		itemIds = append(itemIds, itemId)
+		itemIDs = append(itemIDs, itemID)
 	}
 
-	return itemIds, nil
+	return itemIDs, nil
 }
 
 // Returns the items associated with the given seller.
@@ -788,7 +788,7 @@ func AddItem(
 		hidden,
 	)
 	if err != nil {
-		categoryExists, err2 := CategoryWithIdExists(db, itemCategoryId)
+		categoryExists, err2 := CategoryWithIDExists(db, itemCategoryId)
 		if err2 != nil {
 			return 0, fmt.Errorf("failed to determine whether category with given id exists: %w", err)
 		}
@@ -1222,7 +1222,7 @@ type ItemUpdate struct {
 	AddedAt      *models.Timestamp    // If nil, the AddedAt field is not updated.
 	Description  *string              // If nil, the Description field is not updated.
 	PriceInCents *models.MoneyInCents // If nil, the PriceInCents field is not updated.
-	CategoryId   *models.ID           // If nil, the CategoryId field is not updated.
+	CategoryID   *models.ID           // If nil, the CategoryId field is not updated.
 	Donation     *bool                // If nil, the Donation field is not updated.
 	Charity      *bool                // If nil, the Charity field is not updated.
 }
@@ -1271,18 +1271,18 @@ func UpdateItem(db *TransactionalDatabaseQuerier, itemId models.ID, itemUpdate *
 		sqlValues = append(sqlValues, *itemUpdate.PriceInCents)
 	}
 
-	if itemUpdate.CategoryId != nil {
-		categoryExists, err := CategoryWithIdExists(db, *itemUpdate.CategoryId)
+	if itemUpdate.CategoryID != nil {
+		categoryExists, err := CategoryWithIDExists(db, *itemUpdate.CategoryID)
 		if err != nil {
 			return err
 		}
 
 		if !categoryExists {
-			return fmt.Errorf("failed to update item's category to %d", *itemUpdate.CategoryId)
+			return fmt.Errorf("failed to update item's category to %d", *itemUpdate.CategoryID)
 		}
 
 		sqlUpdates = append(sqlUpdates, "item_category_id = ?")
-		sqlValues = append(sqlValues, *itemUpdate.CategoryId)
+		sqlValues = append(sqlValues, *itemUpdate.CategoryID)
 	}
 
 	if itemUpdate.Donation != nil {

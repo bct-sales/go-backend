@@ -96,7 +96,7 @@ func TestUpdateItem(t *testing.T) {
 									}
 
 									if updateCategory {
-										itemUpdate.CategoryId = &newCategory
+										itemUpdate.CategoryID = &newCategory
 										expectedCategory = newCategory
 									}
 

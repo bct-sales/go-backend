@@ -72,7 +72,7 @@ func (c *updateItemCommand) execute(args []string) error {
 func (c *updateItemCommand) updateItem(db *queries.TransactionalDatabaseQuerier) error {
 	var description *string
 	var priceInCents *models.MoneyInCents
-	var categoryId *models.ID
+	var categoryID *models.ID
 	var donation *bool
 	var charity *bool
 
@@ -87,7 +87,7 @@ func (c *updateItemCommand) updateItem(db *queries.TransactionalDatabaseQuerier)
 
 	if c.CobraCommand.Flags().Changed("category") {
 		value := models.ID(c.categoryID)
-		categoryId = &value
+		categoryID = &value
 	}
 
 	if c.CobraCommand.Flags().Changed("donation") {
@@ -113,7 +113,7 @@ func (c *updateItemCommand) updateItem(db *queries.TransactionalDatabaseQuerier)
 	itemUpdate := queries.ItemUpdate{
 		Description:  description,
 		PriceInCents: priceInCents,
-		CategoryId:   categoryId,
+		CategoryID:   categoryID,
 		Charity:      charity,
 		Donation:     donation,
 		AddedAt:      nil,

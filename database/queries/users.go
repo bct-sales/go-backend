@@ -9,10 +9,10 @@ import (
 	"strings"
 )
 
-// AddUserWithId adds a user to the database with a specific user ID.
+// AddUserWithID adds a user to the database with a specific user ID.
 // An ErrUserIdAlreadyInUse is returned if the user ID is already in use.
 // An ErrNoSuchRole is returned if the role ID is invalid.
-func AddUserWithId(
+func AddUserWithID(
 	database DatabaseQuerier,
 	userId models.ID,
 	roleId models.RoleID,
@@ -46,7 +46,7 @@ func AddUserWithId(
 			return err
 		}
 		if userExists {
-			return fmt.Errorf("trying to add user with id %d: %w", userId, dberr.ErrIdAlreadyInUse)
+			return fmt.Errorf("trying to add user with id %d: %w", userId, dberr.ErrIDAlreadyInUse)
 		}
 
 		return fmt.Errorf("failed to add user with id %d: %w", userId, err)

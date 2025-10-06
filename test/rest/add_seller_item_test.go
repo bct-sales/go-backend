@@ -362,7 +362,7 @@ func TestAddSellerItem(t *testing.T) {
 			charity := false
 
 			seller := setup.Seller()
-			invalidSessionId := models.SessionId("xxx")
+			invalidSessionId := models.SessionID("xxx")
 
 			url := path.SellerItems(seller.UserID)
 			payload := rest.AddSellerItemPayload{

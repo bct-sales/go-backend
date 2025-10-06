@@ -32,7 +32,7 @@ func Logout(clock clock.Clock, logger logger.Logger, context *gin.Context, db *s
 		return
 	}
 
-	sessionId := models.SessionId(sessionIdString)
+	sessionId := models.SessionID(sessionIdString)
 	err = queries.DeleteSession(db, sessionId)
 
 	if err != nil {

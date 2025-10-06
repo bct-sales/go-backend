@@ -22,8 +22,8 @@ func TestDeleteExpiredSessions(t *testing.T) {
 				defer setup.Close()
 
 				user := setup.Admin()
-				expiredSessions := []models.SessionId{}
-				unexpiredSessions := []models.SessionId{}
+				expiredSessions := []models.SessionID{}
+				unexpiredSessions := []models.SessionID{}
 
 				for i := 0; i < 100; i++ {
 					expirationTime := models.Timestamp(0)

@@ -122,7 +122,7 @@ func TestAddItem(t *testing.T) {
 			setup.Seller(aux.WithUserId(1))
 
 			{
-				categoryExists, err := queries.CategoryWithIdExists(db, itemCategoryId)
+				categoryExists, err := queries.CategoryWithIDExists(db, itemCategoryId)
 				require.NoError(t, err)
 				require.False(t, categoryExists)
 			}

@@ -1198,14 +1198,14 @@ func GetSalesOverview(db DatabaseQuerier) (r_result []CategorySaleTotal, r_err e
 }
 
 type SoldItem struct {
-	SaleId          models.ID
-	CashierId       models.ID
+	SaleID          models.ID
+	CashierID       models.ID
 	TransactionTime models.Timestamp
 	ItemID          models.ID
 	AddedAt         models.Timestamp
 	Description     string
 	PriceInCents    models.MoneyInCents
-	ItemCategoryId  models.ID
+	ItemCategoryID  models.ID
 	SellerId        models.ID
 	Donation        bool
 	Charity         bool
@@ -1287,14 +1287,14 @@ func (q *GetSoldItemsQuery) Execute(db DatabaseQuerier) (r_result []*SoldItem, r
 		}
 
 		soldItem := SoldItem{
-			SaleId:          saleId,
-			CashierId:       cashierId,
+			SaleID:          saleId,
+			CashierID:       cashierId,
 			TransactionTime: transactionTime,
 			ItemID:          itemId,
 			AddedAt:         addedAt,
 			Description:     description,
 			PriceInCents:    priceInCents,
-			ItemCategoryId:  itemCategory,
+			ItemCategoryID:  itemCategory,
 			SellerId:        sellerId,
 			Donation:        donation,
 			Charity:         charity,

@@ -128,14 +128,14 @@ func (ep *listSoldItemsEndpoint) sendResponseAsJSONFile(soldItems []*queries.Sol
 func (ep *listSoldItemsEndpoint) convertData(soldItems []*queries.SoldItem) []ListSoldItemsEntry {
 	return algorithms.Map(soldItems, func(soldItem *queries.SoldItem) ListSoldItemsEntry {
 		return ListSoldItemsEntry{
-			SaleId:          soldItem.SaleId,
-			CashierId:       soldItem.CashierId,
+			SaleId:          soldItem.SaleID,
+			CashierId:       soldItem.CashierID,
 			TransactionTime: rest.ConvertTimestampToDateTime(soldItem.TransactionTime),
 			ItemId:          soldItem.ItemID,
 			AddedAt:         rest.ConvertTimestampToDateTime(soldItem.AddedAt),
 			Description:     soldItem.Description,
 			PriceInCents:    soldItem.PriceInCents,
-			ItemCategoryID:  soldItem.ItemCategoryId,
+			ItemCategoryID:  soldItem.ItemCategoryID,
 			SellerId:        soldItem.SellerId,
 			Donation:        soldItem.Donation,
 			Charity:         soldItem.Charity,

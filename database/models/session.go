@@ -1,13 +1,13 @@
 package models
 
-type SessionId string
+type SessionID string
 
-func (sessionId SessionId) String() string {
+func (sessionId SessionID) String() string {
 	return string(sessionId)
 }
 
 type Session struct {
-	SessionID      SessionId
+	SessionID      SessionID
 	UserID         ID
 	ExpirationTime Timestamp
 }

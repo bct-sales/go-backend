@@ -23,7 +23,7 @@ func TestAddUserWithId(t *testing.T) {
 						setup, db := NewDatabaseFixture(WithDefaultCategories)
 						defer setup.Close()
 
-						err := queries.AddUserWithId(db, userId, roleId, 0, nil, password)
+						err := queries.AddUserWithID(db, userId, roleId, 0, nil, password)
 						require.NoError(t, err)
 
 						userExists, err := queries.UserWithIdExists(db, userId)
@@ -50,13 +50,13 @@ func TestAddUserWithId(t *testing.T) {
 		var lastAccess *models.Timestamp = nil
 
 		{
-			err := queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
+			err := queries.AddUserWithID(db, userId, roleId, createdAt, lastAccess, password)
 			require.NoError(t, err)
 		}
 
 		{
-			err := queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
-			requireDatabaseWrappedError(t, err, dberr.ErrIdAlreadyInUse)
+			err := queries.AddUserWithID(db, userId, roleId, createdAt, lastAccess, password)
+			requireDatabaseWrappedError(t, err, dberr.ErrIDAlreadyInUse)
 		}
 	})
 
@@ -70,7 +70,7 @@ func TestAddUserWithId(t *testing.T) {
 		createdAt := models.Timestamp(0)
 		var lastAccess *models.Timestamp = nil
 
-		err := queries.AddUserWithId(db, userId, roleId, createdAt, lastAccess, password)
+		err := queries.AddUserWithID(db, userId, roleId, createdAt, lastAccess, password)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchRole)
 	})
 }

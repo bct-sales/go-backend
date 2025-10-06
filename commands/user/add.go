@@ -11,7 +11,7 @@ import (
 
 type AddUserCommand struct {
 	common.Command
-	userId   int    `exhaustruct:"optional"`
+	userID   int    `exhaustruct:"optional"`
 	role     string `exhaustruct:"optional"`
 	password string `exhaustruct:"optional"`
 }
@@ -33,7 +33,7 @@ func NewUserAddCommand() *cobra.Command {
 		},
 	}
 
-	command.CobraCommand.Flags().IntVar(&command.userId, "id", 0, "ID of the user to add")
+	command.CobraCommand.Flags().IntVar(&command.userID, "id", 0, "ID of the user to add")
 	command.CobraCommand.Flags().StringVar(&command.role, "role", "", "Role of the user (admin, seller, cashier)")
 	command.CobraCommand.Flags().StringVar(&command.password, "password", "", "Password for the user")
 	command.CobraCommand.MarkFlagRequired("id")
@@ -45,11 +45,11 @@ func NewUserAddCommand() *cobra.Command {
 
 func (c *AddUserCommand) execute() error {
 	role := c.role
-	userId := c.userId
+	userID := c.userID
 	password := c.password
 
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		roleId, err := models.ParseRole(role)
+		roleID, err := models.ParseRole(role)
 		if err != nil {
 			c.PrintErrorf("Invalid role; should be admin, seller or cashier\n")
 			return err
@@ -58,7 +58,7 @@ func (c *AddUserCommand) execute() error {
 		timestamp := models.Now()
 		var lastActivity *models.Timestamp = nil
 
-		if err := queries.AddUserWithId(db, models.ID(userId), roleId, timestamp, lastActivity, password); err != nil {
+		if err := queries.AddUserWithID(db, models.ID(userID), roleID, timestamp, lastActivity, password); err != nil {
 			c.PrintErrorf("Failed to add user\n")
 			return err
 		}

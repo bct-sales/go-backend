@@ -24,7 +24,7 @@ func TestAuthentication(t *testing.T) {
 		createdAt := models.Timestamp(0)
 		var lastActivity *models.Timestamp = nil
 
-		queries.AddUserWithId(db, userId, roleId, createdAt, lastActivity, password)
+		queries.AddUserWithID(db, userId, roleId, createdAt, lastActivity, password)
 
 		actualRoleId, err := queries.AuthenticateUser(db, userId, password)
 		require.NoError(t, err)
@@ -55,7 +55,7 @@ func TestAuthentication(t *testing.T) {
 		userId := models.ID(5)
 		roleId := models.NewSellerRoleID()
 
-		queries.AddUserWithId(db, userId, roleId, 0, nil, password)
+		queries.AddUserWithID(db, userId, roleId, 0, nil, password)
 
 		_, err := queries.AuthenticateUser(db, userId, wrongPassword)
 		requireDatabaseWrappedError(t, err, dberr.ErrWrongPassword)

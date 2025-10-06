@@ -40,7 +40,7 @@ func TestGetSessionData(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			invalidSessionId := models.SessionId("invalid-session-id")
+			invalidSessionId := models.SessionID("invalid-session-id")
 			_, err := queries.GetSessionData(db, invalidSessionId, setup.Clock.Now())
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSession)
 		})

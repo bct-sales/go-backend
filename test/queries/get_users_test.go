@@ -22,7 +22,7 @@ func TestGetUsers(t *testing.T) {
 		createdAt := models.Timestamp(1)
 		lastActivity := models.Timestamp(2)
 
-		queries.AddUserWithId(db, userId, roleId, createdAt, &lastActivity, password)
+		queries.AddUserWithID(db, userId, roleId, createdAt, &lastActivity, password)
 
 		users := []*models.User{}
 		err := queries.GetUsers(db, queries.CollectTo(&users))
@@ -57,8 +57,8 @@ func TestGetUsers(t *testing.T) {
 			Password:     "abc",
 		}
 
-		queries.AddUserWithId(db, user1.UserID, user1.RoleID, user1.CreatedAt, user1.LastActivity, user1.Password)
-		queries.AddUserWithId(db, user2.UserID, user2.RoleID, user2.CreatedAt, user2.LastActivity, user2.Password)
+		queries.AddUserWithID(db, user1.UserID, user1.RoleID, user1.CreatedAt, user1.LastActivity, user1.Password)
+		queries.AddUserWithID(db, user2.UserID, user2.RoleID, user2.CreatedAt, user2.LastActivity, user2.Password)
 
 		users := []*models.User{}
 		err := queries.GetUsers(db, queries.CollectTo(&users))

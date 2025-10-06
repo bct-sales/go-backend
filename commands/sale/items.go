@@ -99,17 +99,17 @@ func (command *ListSoldItemsCommand) listSoldItemsInTableFormat(db *sql.DB) erro
 
 	rowCount := 0
 	addToTable := func(soldItem *queries.SoldItem) error {
-		saleIDStr := soldItem.SaleId.String()
-		cashierIDStr := soldItem.CashierId.String()
+		saleIDStr := soldItem.SaleID.String()
+		cashierIDStr := soldItem.CashierID.String()
 		transactionTimeStr := soldItem.TransactionTime.FormattedDateTime()
 		itemIDStr := soldItem.ItemID.String()
 		descriptionStr := soldItem.Description
 		priceStr := soldItem.PriceInCents.DecimalNotation()
-		itemCategoryStr, ok := categoryNameTable[soldItem.ItemCategoryId]
+		itemCategoryStr, ok := categoryNameTable[soldItem.ItemCategoryID]
 		if !ok {
-			return fmt.Errorf("unknown category id: %v", soldItem.ItemCategoryId)
+			return fmt.Errorf("unknown category id: %v", soldItem.ItemCategoryID)
 		}
-		sellerIdStr := soldItem.SellerId.String()
+		sellerIDStr := soldItem.SellerId.String()
 		donationStr := strconv.FormatBool(soldItem.Donation)
 		charityStr := strconv.FormatBool(soldItem.Charity)
 
@@ -121,7 +121,7 @@ func (command *ListSoldItemsCommand) listSoldItemsInTableFormat(db *sql.DB) erro
 			descriptionStr,
 			priceStr,
 			itemCategoryStr,
-			sellerIdStr,
+			sellerIDStr,
 			donationStr,
 			charityStr,
 		})

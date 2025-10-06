@@ -12,7 +12,7 @@ import (
 func AddSession(
 	db DatabaseQuerier,
 	userId models.ID,
-	expirationTime models.Timestamp) (r_result models.SessionId, r_err error) {
+	expirationTime models.Timestamp) (r_result models.SessionID, r_err error) {
 
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -41,7 +41,7 @@ func AddSession(
 	return sessionId, nil
 }
 
-func GetSessionById(db DatabaseQuerier, sessionId models.SessionId) (r_result *models.Session, r_err error) {
+func GetSessionById(db DatabaseQuerier, sessionId models.SessionID) (r_result *models.Session, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -85,7 +85,7 @@ type SessionData struct {
 // GetSessionData returns information about the given session.
 // The function only returns valid session data if the session has not expired.
 // ErrNoSuchSession is returned if no unexpired session is found with the given sessionId.
-func GetSessionData(db DatabaseQuerier, sessionId models.SessionId, currentTime models.Timestamp) (r_result *SessionData, r_err error) {
+func GetSessionData(db DatabaseQuerier, sessionId models.SessionID, currentTime models.Timestamp) (r_result *SessionData, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -148,7 +148,7 @@ func GetSessions(db DatabaseQuerier) (r_result []models.Session, r_err error) {
 	var sessions []models.Session
 
 	for rows.Next() {
-		var sessionId models.SessionId
+		var sessionId models.SessionID
 		var userId models.ID
 		var expirationTime models.Timestamp
 		if err := rows.Scan(&sessionId, &userId, &expirationTime); err != nil {
@@ -170,7 +170,7 @@ func GetSessions(db DatabaseQuerier) (r_result []models.Session, r_err error) {
 	return sessions, nil
 }
 
-func DeleteSession(db DatabaseQuerier, sessionId models.SessionId) (r_err error) {
+func DeleteSession(db DatabaseQuerier, sessionId models.SessionID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()

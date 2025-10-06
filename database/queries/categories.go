@@ -35,17 +35,17 @@ func AddCategory(db DatabaseQuerier, categoryName string) (r_result models.ID, r
 		return 0, fmt.Errorf("failed to insert category: %w", err)
 	}
 
-	categoryId, err := result.LastInsertId()
+	categoryID, err := result.LastInsertId()
 	if err != nil {
 		return 0, fmt.Errorf("failed to determine id of inserted category: %w", err)
 	}
 
-	return models.ID(categoryId), nil
+	return models.ID(categoryID), nil
 }
 
 // AddCategoryWithID adds a new category with the given ID and name to the database.
 // If the category name is invalid, it returns an ErrInvalidCategoryName error.
-func AddCategoryWithID(db DatabaseQuerier, categoryId models.ID, categoryName string) (r_err error) {
+func AddCategoryWithID(db DatabaseQuerier, categoryID models.ID, categoryName string) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -60,14 +60,14 @@ func AddCategoryWithID(db DatabaseQuerier, categoryId models.ID, categoryName st
 			VALUES ($1, $2)
 			RETURNING item_category_id
 		`,
-		categoryId,
+		categoryID,
 		categoryName,
 	)
 	if err != nil {
 		{
-			inUse, err := CategoryWithIdExists(db, categoryId)
+			inUse, err := CategoryWithIDExists(db, categoryID)
 			if err == nil && inUse {
-				return fmt.Errorf("failed to add category with id %d: %w", categoryId, dberr.ErrIdAlreadyInUse)
+				return fmt.Errorf("failed to add category with id %d: %w", categoryID, dberr.ErrIDAlreadyInUse)
 			}
 		}
 
@@ -75,15 +75,15 @@ func AddCategoryWithID(db DatabaseQuerier, categoryId models.ID, categoryName st
 			return fmt.Errorf("failed to insert category: %w", dberr.ErrDuplicateCategoryName)
 		}
 
-		return fmt.Errorf("failed to insert category with id %d: %w", categoryId, err)
+		return fmt.Errorf("failed to insert category with id %d: %w", categoryID, err)
 	}
 
 	return nil
 }
 
-// CategoryWithIdExists checks if a category with the given ID exists in the database.
+// CategoryWithIDExists checks if a category with the given ID exists in the database.
 // Returns true if such a category exists, false otherwise.
-func CategoryWithIdExists(db DatabaseQuerier, categoryId models.ID) (r_result bool, r_err error) {
+func CategoryWithIDExists(db DatabaseQuerier, categoryId models.ID) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -260,7 +260,7 @@ func RenameCategory(db DatabaseQuerier, categoryId models.ID, newCategoryName st
 		return dberr.ErrInvalidCategoryName
 	}
 
-	idExists, idExistsErr := CategoryWithIdExists(db, categoryId)
+	idExists, idExistsErr := CategoryWithIDExists(db, categoryId)
 	if idExistsErr != nil {
 		return idExistsErr
 	}

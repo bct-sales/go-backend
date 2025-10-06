@@ -20,7 +20,7 @@ func TestGetItemIds(t *testing.T) {
 		seller := setup.Seller()
 		items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
 
-		itemIds, err := queries.GetItemIds(db)
+		itemIds, err := queries.GetItemIDs(db)
 		require.NoError(t, err)
 		require.ElementsMatch(t, itemIds, models.CollectItemIds(items))
 	})

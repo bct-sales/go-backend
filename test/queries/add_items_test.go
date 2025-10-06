@@ -58,7 +58,7 @@ func TestAddItems(t *testing.T) {
 			require.Equal(t, 1, itemStatistics.ItemCount)
 			require.Equal(t, priceInCents, itemStatistics.TotalValueInCents)
 
-			itemIds, err := queries.GetItemIds(db)
+			itemIds, err := queries.GetItemIDs(db)
 			require.NoError(t, err)
 			require.Len(t, itemIds, 1)
 

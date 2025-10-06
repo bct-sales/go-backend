@@ -20,14 +20,14 @@ func TestCategoryWithIdExists(t *testing.T) {
 	setup.Category(3, "Ugly")
 
 	for i := models.ID(1); i <= 3; i++ {
-		categoryExists, err := queries.CategoryWithIdExists(db, i)
+		categoryExists, err := queries.CategoryWithIDExists(db, i)
 
 		require.NoError(t, err)
 		require.True(t, categoryExists)
 	}
 
 	for i := models.ID(4); i <= 10; i++ {
-		categoryExists, err := queries.CategoryWithIdExists(db, i)
+		categoryExists, err := queries.CategoryWithIDExists(db, i)
 
 		require.NoError(t, err)
 		require.False(t, categoryExists)

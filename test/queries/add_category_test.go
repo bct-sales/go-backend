@@ -23,7 +23,7 @@ func TestAddCategory(t *testing.T) {
 		id, err := queries.AddCategory(db, categoryName)
 		require.NoError(t, err, `Failed to add category: %v`, err)
 
-		categoryExists, err := queries.CategoryWithIdExists(db, id)
+		categoryExists, err := queries.CategoryWithIDExists(db, id)
 		require.True(t, categoryExists)
 		require.NoError(t, err)
 

@@ -254,7 +254,7 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 		}
 
 		now := clock.Now()
-		sessionId := models.SessionId(sessionIdString)
+		sessionId := models.SessionID(sessionIdString)
 		sessionData, err := queries.GetSessionData(database, sessionId, now)
 
 		if errors.Is(err, dberr.ErrNoSuchSession) {

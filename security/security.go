@@ -24,12 +24,12 @@ func HashPassword(password string, salt string) string {
 	return fmt.Sprintf("%x", hash.Sum(nil))
 }
 
-func GenerateUniqueSessionId() models.SessionId {
+func GenerateUniqueSessionId() models.SessionID {
 	bytes := make([]byte, SessionIdByteLength)
 	if _, err := rand.Read(bytes); err != nil {
 		panic(err)
 	}
 
 	// Note: base64 leads to trouble
-	return models.SessionId(hex.EncodeToString(bytes))
+	return models.SessionID(hex.EncodeToString(bytes))
 }

@@ -239,7 +239,7 @@ func (c *dummyDatabaseCommand) addAdmin(db *sql.DB) (models.ID, error) {
 	var lastActivity *models.Timestamp = nil
 	password := "abc"
 
-	if err := queries.AddUserWithId(db, id, roleID, createdAt, lastActivity, password); err != nil {
+	if err := queries.AddUserWithID(db, id, roleID, createdAt, lastActivity, password); err != nil {
 		return 0, fmt.Errorf("failed to add admin: %w", err)
 	}
 
@@ -339,7 +339,7 @@ func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIDs []models.ID) ([]mo
 		return nil, fmt.Errorf("failed to add items: %w", err)
 	}
 
-	itemIDs, err := queries.GetItemIds(db)
+	itemIDs, err := queries.GetItemIDs(db)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get item IDs: %w", err)
 	}

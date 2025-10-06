@@ -25,7 +25,7 @@ func TestAddCategoryWithId(t *testing.T) {
 		err := queries.AddCategoryWithID(db, models.ID(1), categoryName)
 		require.NoError(t, err, `Failed to add category: %v`, err)
 
-		categoryExists, err := queries.CategoryWithIdExists(db, id)
+		categoryExists, err := queries.CategoryWithIDExists(db, id)
 		require.True(t, categoryExists)
 		require.NoError(t, err)
 
@@ -75,7 +75,7 @@ func TestAddCategoryWithId(t *testing.T) {
 			id := models.ID(1)
 			categoryName := "xyz"
 			err := queries.AddCategoryWithID(db, id, categoryName)
-			requireDatabaseWrappedError(t, err, dberr.ErrIdAlreadyInUse)
+			requireDatabaseWrappedError(t, err, dberr.ErrIDAlreadyInUse)
 		})
 	})
 }
