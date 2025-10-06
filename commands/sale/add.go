@@ -51,7 +51,7 @@ func (c *addNewSaleCommand) execute() error {
 		timestamp := models.Now()
 
 		itemIDs := algorithms.Map(c.rawItemIDs, func(id int64) models.ID { return models.ID(id) })
-		saleId, err := queries.AddSale(db, models.ID(c.rawCashierID), timestamp, itemIDs)
+		saleID, err := queries.AddSale(db, models.ID(c.rawCashierID), timestamp, itemIDs)
 
 		if err != nil {
 			return fmt.Errorf("failed to add sale: %w", err)
@@ -59,7 +59,7 @@ func (c *addNewSaleCommand) execute() error {
 
 		c.Printf("Sale added successfully\n")
 
-		err = c.printSale(db, saleId)
+		err = c.printSale(db, saleID)
 		if err != nil {
 			return nil // Don't return an error in this case, as the sale is already added to the database.
 		}

@@ -42,7 +42,7 @@ func TestCategoryCounts(t *testing.T) {
 					expectedCount := expectedResponse.Categories[i]
 					actualCount := actualResponse.Categories[i]
 
-					require.Equal(t, expectedCount.CategoryId, actualCount.CategoryId)
+					require.Equal(t, expectedCount.CategoryID, actualCount.CategoryID)
 					require.Equal(t, expectedCount.CategoryName, actualCount.CategoryName)
 					require.Equal(t, expectedCount.Count, actualCount.Count)
 				}
@@ -234,14 +234,14 @@ func createSuccessResponse(countMap map[models.ID]int) rest.ListCategoriesSucces
 		}
 
 		countArray = append(countArray, rest.CategoryData{
-			CategoryId:   categoryId,
+			CategoryID:   categoryId,
 			CategoryName: categoryName,
 			Count:        &count,
 		})
 	}
 
 	slices.SortFunc(countArray, func(a, b rest.CategoryData) int {
-		return cmp.Compare(a.CategoryId, b.CategoryId)
+		return cmp.Compare(a.CategoryID, b.CategoryID)
 	})
 
 	return rest.ListCategoriesSuccessResponse{Categories: countArray}

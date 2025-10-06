@@ -66,10 +66,10 @@ func (u *URL) AntiChronologically() *URL {
 	return u.Order("antichronological")
 }
 
-func (u *URL) StartID(startId models.ID) *URL {
-	return u.WithQueryIDParameter("startId", startId)
+func (u *URL) StartID(startID models.ID) *URL {
+	return u.WithQueryIDParameter("startId", startID)
 }
 
-func (u *URL) CategoryFilter(categoryId models.ID) *URL {
-	return u.WithQueryIDParameter("category", categoryId)
+func (u *URL) CategoryFilter(categoryID models.ID) *URL {
+	return u.WithQueryIDParameter("category", categoryID)
 }

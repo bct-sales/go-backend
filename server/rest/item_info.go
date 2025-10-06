@@ -11,12 +11,12 @@ import (
 )
 
 type GetItemInformationSuccessResponse struct {
-	ItemId       models.ID           `binding:"required" json:"itemId"`
+	ItemID       models.ID           `binding:"required" json:"itemId"`
 	AddedAt      rest.DateTime       `binding:"required" json:"addedAt"`
-	SellerId     models.ID           `binding:"required" json:"sellerId"`
+	SellerID     models.ID           `binding:"required" json:"sellerId"`
 	Description  string              `binding:"required" json:"description"`
 	PriceInCents models.MoneyInCents `binding:"required" json:"priceInCents"`
-	CategoryId   models.ID           `binding:"required" json:"categoryId"`
+	CategoryID   models.ID           `binding:"required" json:"categoryId"`
 	Charity      *bool               `binding:"required" json:"charity"`
 	Donation     *bool               `binding:"required" json:"donation"`
 	Frozen       *bool               `binding:"required" json:"frozen"`
@@ -38,8 +38,8 @@ func GetItemInformation(arguments *HandlerFunctionArguments) {
 }
 
 func (ep *getItemInformationEndpoint) execute() {
-	itemID, foundItemId := ep.retrieveItemIDFromUri()
-	if !foundItemId {
+	itemID, foundItemID := ep.retrieveItemIDFromUri()
+	if !foundItemID {
 		return
 	}
 
@@ -58,12 +58,12 @@ func (ep *getItemInformationEndpoint) execute() {
 	}
 
 	response := GetItemInformationSuccessResponse{
-		ItemId:       item.ItemID,
+		ItemID:       item.ItemID,
 		AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
-		SellerId:     item.SellerID,
+		SellerID:     item.SellerID,
 		Description:  item.Description,
 		PriceInCents: item.PriceInCents,
-		CategoryId:   item.CategoryID,
+		CategoryID:   item.CategoryID,
 		Charity:      &item.Charity,
 		Donation:     &item.Donation,
 		Frozen:       &item.Frozen,
@@ -112,7 +112,7 @@ func (ep *getItemInformationEndpoint) retrieveItemFromDatabase(itemID models.ID)
 
 func (ep *getItemInformationEndpoint) ensureQueryAllowed(item *models.Item) bool {
 	if item.SellerID != ep.UserID && ep.RoleID.IsSeller() {
-		ep.Logger.InvalidRequest("Blocked attempt to access item not owned by the seller", "itemId", item.ItemID, "itemUserId", item.SellerID)
+		ep.Logger.InvalidRequest("Blocked attempt to access item not owned by the seller", "itemID", item.ItemID, "itemUserID", item.SellerID)
 		failure_response.WrongSeller(ep.Context, "Only the owning seller can access this item")
 		return false
 	}
@@ -120,16 +120,16 @@ func (ep *getItemInformationEndpoint) ensureQueryAllowed(item *models.Item) bool
 	return true
 }
 
-func (ep *getItemInformationEndpoint) findSalesIncludingItem(itemId models.ID) ([]models.ID, bool) {
-	soldIn, err := queries.GetSalesWithItem(ep.Database, itemId)
+func (ep *getItemInformationEndpoint) findSalesIncludingItem(itemID models.ID) ([]models.ID, bool) {
+	soldIn, err := queries.GetSalesWithItem(ep.Database, itemID)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
-			ep.Logger.Bug("Unknown item; should have been caught earlier", "itemId", itemId)
+			ep.Logger.Bug("Unknown item; should have been caught earlier", "itemID", itemID)
 			failure_response.Unknown(ep.Context, "Bug: this should be caught by the previous query")
 			return nil, false
 		}
 
-		ep.Logger.InternalError("Failed to get sales for item", "error", err, "itemId", itemId)
+		ep.Logger.InternalError("Failed to get sales for item", "error", err, "itemID", itemID)
 		failure_response.Unknown(ep.Context, err.Error())
 		return nil, false
 	}

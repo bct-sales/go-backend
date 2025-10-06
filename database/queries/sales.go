@@ -680,14 +680,14 @@ func GetItemsSoldBy(db DatabaseQuerier, cashierID models.ID) (r_result []*models
 
 // GetSalesWithItem returns a list of the ids of all sales that include a specified item.
 // The ids are returned in ascending order.
-func GetSalesWithItem(db DatabaseQuerier, itemId models.ID) (r_result []models.ID, r_err error) {
+func GetSalesWithItem(db DatabaseQuerier, itemID models.ID) (r_result []models.ID, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if itemExists, err := ItemWithIDExists(db, itemId); err != nil || !itemExists {
+	if itemExists, err := ItemWithIDExists(db, itemID); err != nil || !itemExists {
 		if !itemExists {
-			return nil, fmt.Errorf("failed to get sales with item %d: %w", itemId, dberr.ErrNoSuchItem)
+			return nil, fmt.Errorf("failed to get sales with item %d: %w", itemID, dberr.ErrNoSuchItem)
 		}
 
 		return nil, err
@@ -700,7 +700,7 @@ func GetSalesWithItem(db DatabaseQuerier, itemId models.ID) (r_result []models.I
 			WHERE item_id = ?
 			ORDER BY sale_id ASC
 		`,
-		itemId,
+		itemID,
 	)
 	if err != nil {
 		return nil, err

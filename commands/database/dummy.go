@@ -374,17 +374,17 @@ func (c *dummyDatabaseCommand) generateRandomColor() string {
 	return colors[c.rng.IntN(len(colors))]
 }
 
-func (c *dummyDatabaseCommand) generateRandomClothingCategoryId() models.ID {
+func (c *dummyDatabaseCommand) generateRandomClothingCategoryID() models.ID {
 	return pickRandom(c.rng, clothingCategories[:])
 }
 
 func (c *dummyDatabaseCommand) generateRandomClothing() (string, models.ID) {
 	color := c.generateRandomColor()
-	categoryId := c.generateRandomClothingCategoryId()
+	categoryID := c.generateRandomClothingCategoryID()
 	clothingType := pickRandom(c.rng, clothing[:])
 	description := fmt.Sprintf("%s %s", color, clothingType)
 
-	return description, categoryId
+	return description, categoryID
 }
 
 func pickRandom[T any](rng *rand.Rand, items []T) T {
@@ -403,9 +403,9 @@ func (c *dummyDatabaseCommand) generateRandomBooks() (string, models.ID) {
 
 func (c *dummyDatabaseCommand) generateRandomToys() (string, models.ID) {
 	description := pickRandom(c.rng, toys[:])
-	categoryId := common.CategoryID_Toys
+	categoryID := common.CategoryID_Toys
 
-	return description, categoryId
+	return description, categoryID
 }
 
 func (c *dummyDatabaseCommand) addSales(db *sql.DB, cashierIDs []models.ID, itemIDs []models.ID) (r_err error) {

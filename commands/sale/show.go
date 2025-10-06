@@ -39,17 +39,17 @@ func NewSaleShowCommand() *cobra.Command {
 
 func (command *saleShowCommand) Execute(args []string) error {
 	return command.WithOpenedDatabase(func(db *sql.DB) error {
-		saleId, err := command.parseSaleId(args[0])
+		saleID, err := command.parseSaleID(args[0])
 		if err != nil {
 			return err
 		}
 
-		sale, err := command.getSaleInformation(db, saleId)
+		sale, err := command.getSaleInformation(db, saleID)
 		if err != nil {
 			return err
 		}
 
-		saleItems, err := command.getSaleItems(db, saleId)
+		saleItems, err := command.getSaleItems(db, saleID)
 		if err != nil {
 			return err
 		}
@@ -71,19 +71,19 @@ func (command *saleShowCommand) Execute(args []string) error {
 	})
 }
 
-func (command *saleShowCommand) parseSaleId(str string) (models.ID, error) {
-	saleId, err := models.ParseID(str)
+func (command *saleShowCommand) parseSaleID(str string) (models.ID, error) {
+	saleID, err := models.ParseID(str)
 
 	if err != nil {
 		command.PrintErrorf("Invalid sale ID: %v\n", err)
 		return 0, fmt.Errorf("invalid sale ID: %w", err)
 	}
 
-	return saleId, nil
+	return saleID, nil
 }
 
-func (command *saleShowCommand) getSaleItems(db *sql.DB, saleId models.ID) ([]*models.Item, error) {
-	saleItems, err := queries.GetSaleItems(db, saleId)
+func (command *saleShowCommand) getSaleItems(db *sql.DB, saleID models.ID) ([]*models.Item, error) {
+	saleItems, err := queries.GetSaleItems(db, saleID)
 
 	if err != nil {
 		command.PrintErrorf("An error occurred while getting the sale items: %v\n", err)
@@ -138,12 +138,12 @@ func (command *saleShowCommand) printSaleItems(saleItems []*models.Item, categor
 	return nil
 }
 
-func (command *saleShowCommand) getSaleInformation(db *sql.DB, saleId models.ID) (*models.Sale, error) {
-	sale, err := queries.GetSaleWithID(db, saleId)
+func (command *saleShowCommand) getSaleInformation(db *sql.DB, saleID models.ID) (*models.Sale, error) {
+	sale, err := queries.GetSaleWithID(db, saleID)
 
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchSale) {
-			command.PrintErrorf("No sale found with ID %d\n", saleId)
+			command.PrintErrorf("No sale found with ID %d\n", saleID)
 			return nil, err
 		}
 

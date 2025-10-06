@@ -83,7 +83,7 @@ func AddCategoryWithID(db DatabaseQuerier, categoryID models.ID, categoryName st
 
 // CategoryWithIDExists checks if a category with the given ID exists in the database.
 // Returns true if such a category exists, false otherwise.
-func CategoryWithIDExists(db DatabaseQuerier, categoryId models.ID) (r_result bool, r_err error) {
+func CategoryWithIDExists(db DatabaseQuerier, categoryID models.ID) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -94,7 +94,7 @@ func CategoryWithIDExists(db DatabaseQuerier, categoryId models.ID) (r_result bo
 			FROM item_categories
 			WHERE item_category_id = $1
 		`,
-		categoryId,
+		categoryID,
 	)
 
 	var dummy int
@@ -199,18 +199,18 @@ func CountItemsPerCategory(database DatabaseQuerier, itemSelection ItemSelection
 	counts := make(map[models.ID]int)
 
 	for rows.Next() {
-		var categoryId models.ID
+		var categoryID models.ID
 		var count int
 
 		err := rows.Scan(
-			&categoryId,
+			&categoryID,
 			&count,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read row: %w", err)
 		}
 
-		counts[categoryId] = count
+		counts[categoryID] = count
 	}
 
 	if err := rows.Err(); err != nil {
@@ -251,7 +251,7 @@ func CategoryWithNameExists(db DatabaseQuerier, categoryName string) (r_result b
 // If the new name is invalid, an ErrInvalidCategoryName is returned.
 // If the id is invalid, an ErrNoSuchCategory is returned.
 // If the new name is in use by another category, an ErrDuplicateCategoryName is returned.
-func RenameCategory(db DatabaseQuerier, categoryId models.ID, newCategoryName string) (r_err error) {
+func RenameCategory(db DatabaseQuerier, categoryID models.ID, newCategoryName string) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -260,7 +260,7 @@ func RenameCategory(db DatabaseQuerier, categoryId models.ID, newCategoryName st
 		return dberr.ErrInvalidCategoryName
 	}
 
-	idExists, idExistsErr := CategoryWithIDExists(db, categoryId)
+	idExists, idExistsErr := CategoryWithIDExists(db, categoryID)
 	if idExistsErr != nil {
 		return idExistsErr
 	}
@@ -282,7 +282,7 @@ func RenameCategory(db DatabaseQuerier, categoryId models.ID, newCategoryName st
 		WHERE item_category_id = ?
 	`
 
-	if _, err := db.Exec(query, newCategoryName, categoryId); err != nil {
+	if _, err := db.Exec(query, newCategoryName, categoryID); err != nil {
 		return fmt.Errorf("failed to update category name: %w", err)
 	}
 

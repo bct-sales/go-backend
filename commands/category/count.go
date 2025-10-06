@@ -108,10 +108,10 @@ func (c *categoryCountCommand) printCategoryCounts(
 			panic("Bug: category ID not found in category name table")
 		}
 
-		categoryIdString := categoryID.String()
+		categoryIDString := categoryID.String()
 		countString := strconv.Itoa(categoryCount)
 		tableData = append(tableData, []string{
-			categoryIdString,
+			categoryIDString,
 			categoryName,
 			countString,
 		})

@@ -130,17 +130,17 @@ func (c *updateItemCommand) updateItem(db *queries.TransactionalDatabaseQuerier)
 }
 
 func (c *updateItemCommand) showUpdatedItem(db *queries.TransactionalDatabaseQuerier) error {
-	itemId := models.ID(c.itemID)
+	itemID := models.ID(c.itemID)
 	categoryNameTable, err := c.GetCategoryNameTable(db)
 	if err != nil {
 		c.PrintErrorf("Failed to get category name table\n")
 		return err
 	}
 
-	item, err := queries.GetItemWithID(db, itemId)
+	item, err := queries.GetItemWithID(db, itemID)
 	if err != nil {
 		c.PrintErrorf("Failed to get item back from database\n")
-		return fmt.Errorf("failed to get item with id %d: %w", itemId, err)
+		return fmt.Errorf("failed to get item with id %d: %w", itemID, err)
 	}
 
 	categoryName, ok := categoryNameTable[item.CategoryID]

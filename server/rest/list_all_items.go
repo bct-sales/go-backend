@@ -13,12 +13,12 @@ import (
 )
 
 type GetItemsItemData struct {
-	ItemId       models.ID           `json:"itemId"`
+	ItemID       models.ID           `json:"itemId"`
 	AddedAt      rest.DateTime       `json:"addedAt"`
 	Description  string              `json:"description"`
 	PriceInCents models.MoneyInCents `json:"priceInCents"`
-	CategoryId   models.ID           `json:"categoryId"`
-	SellerId     models.ID           `json:"sellerId"`
+	CategoryID   models.ID           `json:"categoryId"`
+	SellerID     models.ID           `json:"sellerId"`
 	Donation     bool                `json:"donation"`
 	Charity      bool                `json:"charity"`
 	Frozen       bool                `json:"frozen"`
@@ -89,7 +89,7 @@ func (ep *listAllItemsEndpoint) processCategoryQueryParameter(sqlQuery *queries.
 	parameterValue := ep.Context.Query("category")
 
 	if parameterValue != "" {
-		categoryId, err := strconv.ParseUint(parameterValue, 10, 64)
+		categoryID, err := strconv.ParseUint(parameterValue, 10, 64)
 
 		if err != nil {
 			ep.Logger.InvalidInput("Invalid category parameter", "category", parameterValue)
@@ -97,7 +97,7 @@ func (ep *listAllItemsEndpoint) processCategoryQueryParameter(sqlQuery *queries.
 			return false
 		}
 
-		sqlQuery.WithCategory(models.ID(categoryId))
+		sqlQuery.WithCategory(models.ID(categoryID))
 	}
 
 	return true
@@ -195,12 +195,12 @@ func (ep *listAllItemsEndpoint) sendSuccessResponse(items []*models.Item, itemSe
 func (ep *listAllItemsEndpoint) sendResponseAsJSON(items []*models.Item, itemSelection queries.ItemSelection) {
 	itemsData := algorithms.Map(items, func(item *models.Item) GetItemsItemData {
 		return GetItemsItemData{
-			ItemId:       item.ItemID,
+			ItemID:       item.ItemID,
 			AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
 			Description:  item.Description,
 			PriceInCents: item.PriceInCents,
-			CategoryId:   item.CategoryID,
-			SellerId:     item.SellerID,
+			CategoryID:   item.CategoryID,
+			SellerID:     item.SellerID,
 			Donation:     item.Donation,
 			Charity:      item.Charity,
 			Frozen:       item.Frozen,

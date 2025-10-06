@@ -73,7 +73,7 @@ func (c *addConsumableCommand) execute() error {
 			hidden := false
 			priceInCents := c.priceInCents * quantity
 
-			addedItemId, err := queries.AddItem(
+			addedItemID, err := queries.AddItem(
 				db,
 				timestamp,
 				description,
@@ -104,7 +104,7 @@ func (c *addConsumableCommand) execute() error {
 				return err
 			}
 
-			c.Printf("Quantity %d -> ID %d\n", quantity, addedItemId.Int64())
+			c.Printf("Quantity %d -> ID %d\n", quantity, addedItemID.Int64())
 		}
 
 		return nil

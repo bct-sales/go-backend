@@ -18,8 +18,8 @@ func FormatItemsAsCSV(items []*models.Item, categoryNameTable map[models.ID]stri
 	}
 
 	for _, item := range items {
-		itemIdString := item.ItemID.String()
-		sellerIdString := item.SellerID.String()
+		itemIDString := item.ItemID.String()
+		sellerIDString := item.SellerID.String()
 		priceString := item.PriceInCents.String()
 
 		categoryString, ok := categoryNameTable[item.CategoryID]
@@ -42,8 +42,8 @@ func FormatItemsAsCSV(items []*models.Item, categoryNameTable map[models.ID]stri
 		}
 
 		err = csvWriter.Write([]string{
-			itemIdString,
-			sellerIdString,
+			itemIDString,
+			sellerIDString,
 			item.Description,
 			categoryString,
 			priceString,

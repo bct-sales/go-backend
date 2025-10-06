@@ -62,8 +62,8 @@ func (ep *addSaleEndpoint) execute() {
 		return
 	}
 
-	saleId, saleIdOk := ep.addSaleToDatabase(transaction, payload.Items)
-	if !saleIdOk {
+	saleID, saleAddedOk := ep.addSaleToDatabase(transaction, payload.Items)
+	if !saleAddedOk {
 		return
 	}
 
@@ -71,7 +71,7 @@ func (ep *addSaleEndpoint) execute() {
 		return
 	}
 
-	ep.sendSuccessResponse(saleId)
+	ep.sendSuccessResponse(saleID)
 }
 
 func (ep *addSaleEndpoint) ensureUserIsCashier() bool {
@@ -128,7 +128,7 @@ func (ep *addSaleEndpoint) interpretDatabaseError(err error) {
 func (ep *addSaleEndpoint) addSaleToDatabase(transaction *queries.TransactionalDatabaseQuerier, itemIDs []models.ID) (models.ID, bool) {
 	timestamp := ep.Clock.Now()
 
-	saleId, err := queries.AddSale(
+	saleID, err := queries.AddSale(
 		transaction,
 		ep.UserID,
 		timestamp,
@@ -139,7 +139,7 @@ func (ep *addSaleEndpoint) addSaleToDatabase(transaction *queries.TransactionalD
 		return 0, false
 	}
 
-	return saleId, true
+	return saleID, true
 }
 
 func (ep *addSaleEndpoint) startTransaction() *queries.TransactionalDatabaseQuerier {
@@ -164,7 +164,7 @@ func (ep *addSaleEndpoint) endTransaction(transaction *queries.TransactionalData
 	return true
 }
 
-func (ep *addSaleEndpoint) sendSuccessResponse(saleId models.ID) {
-	response := AddSaleSuccessResponse{SaleID: saleId}
+func (ep *addSaleEndpoint) sendSuccessResponse(saleID models.ID) {
+	response := AddSaleSuccessResponse{SaleID: saleID}
 	ep.Context.JSON(http.StatusCreated, response)
 }

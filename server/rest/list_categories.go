@@ -15,7 +15,7 @@ type ListCategoriesSuccessResponse struct {
 }
 
 type CategoryData struct {
-	CategoryId   models.ID `json:"categoryId"`
+	CategoryID   models.ID `json:"categoryId"`
 	CategoryName string    `json:"categoryName"`
 	Count        *int      `json:"count,omitempty"`
 }
@@ -57,10 +57,10 @@ func (ep *listCategoriesEndpoint) execute() {
 func (ep *listCategoriesEndpoint) listCategoriesWithCounts(itemSelection queries.ItemSelection) {
 	context := ep.Context
 	db := ep.Database
-	roleId := ep.RoleID
+	roleID := ep.RoleID
 	logger := ep.Logger
 
-	if !roleId.IsAdmin() {
+	if !roleID.IsAdmin() {
 		logger.InvalidRequest("Unauthorized access to category counts")
 		failure_response.WrongRole(context, "Only admins can access category counts")
 		return
@@ -84,20 +84,20 @@ func (ep *listCategoriesEndpoint) listCategoriesWithCounts(itemSelection queries
 		Categories: []CategoryData{},
 	}
 
-	categoryIds := slices.Collect(maps.Keys(categoryCounts))
-	slices.Sort(categoryIds)
+	categoryIDs := slices.Collect(maps.Keys(categoryCounts))
+	slices.Sort(categoryIDs)
 
-	for _, categoryId := range categoryIds {
-		categoryCount := categoryCounts[categoryId]
-		categoryName, ok := categoryNameTable[categoryId]
+	for _, categoryID := range categoryIDs {
+		categoryCount := categoryCounts[categoryID]
+		categoryName, ok := categoryNameTable[categoryID]
 		if !ok {
-			logger.InvalidRequest("Unknown category ID", "categoryId", categoryId)
-			failure_response.UnknownCategory(context, fmt.Sprintf("Unknown category ID %d", categoryId))
+			logger.InvalidRequest("Unknown category ID", "categoryId", categoryID)
+			failure_response.UnknownCategory(context, fmt.Sprintf("Unknown category ID %d", categoryID))
 			return
 		}
 
 		translatedCategoryCount := CategoryData{
-			CategoryId:   categoryId,
+			CategoryID:   categoryID,
 			CategoryName: categoryName,
 			Count:        &categoryCount,
 		}
@@ -126,7 +126,7 @@ func (ep *listCategoriesEndpoint) listCategoriesWithoutCounts() {
 
 	for _, categoryCount := range categories {
 		data := CategoryData{
-			CategoryId:   categoryCount.CategoryID,
+			CategoryID:   categoryCount.CategoryID,
 			CategoryName: categoryCount.Name,
 			Count:        nil,
 		}

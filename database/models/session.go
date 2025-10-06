@@ -2,8 +2,8 @@ package models
 
 type SessionID string
 
-func (sessionId SessionID) String() string {
-	return string(sessionId)
+func (sessionID SessionID) String() string {
+	return string(sessionID)
 }
 
 type Session struct {

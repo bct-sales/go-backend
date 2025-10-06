@@ -20,29 +20,29 @@ func FormatSoldItemsAsCSV(soldItems []*queries.SoldItem, categoryNameTable map[m
 	}
 
 	for _, soldItem := range soldItems {
-		saleIdStr := soldItem.SaleID.String()
-		cashierIdStr := soldItem.CashierID.String()
+		saleIDStr := soldItem.SaleID.String()
+		cashierIDStr := soldItem.CashierID.String()
 		transactionTimeStr := soldItem.TransactionTime.FormattedDateTime()
-		itemIdStr := soldItem.ItemID.String()
+		itemIDStr := soldItem.ItemID.String()
 		descriptionStr := soldItem.Description
 		priceInCentsStr := soldItem.PriceInCents.String()
 		itemCategoryStr, ok := categoryNameTable[soldItem.ItemCategoryID]
 		if !ok {
 			return fmt.Errorf("unknown category id: %v", soldItem.ItemCategoryID)
 		}
-		sellerIdStr := soldItem.SellerID.String()
+		sellerIDStr := soldItem.SellerID.String()
 		donationStr := strconv.FormatBool(soldItem.Donation)
 		charityStr := strconv.FormatBool(soldItem.Charity)
 
 		err = csvWriter.Write([]string{
-			saleIdStr,
-			cashierIdStr,
+			saleIDStr,
+			cashierIDStr,
 			transactionTimeStr,
-			itemIdStr,
+			itemIDStr,
 			descriptionStr,
 			priceInCentsStr,
 			itemCategoryStr,
-			sellerIdStr,
+			sellerIDStr,
 			donationStr,
 			charityStr,
 		})

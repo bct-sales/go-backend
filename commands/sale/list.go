@@ -44,15 +44,15 @@ func (command *saleListCommand) execute() error {
 		}
 
 		addToTable := func(sale *models.SaleSummary) error {
-			saleIdString := sale.SaleID.String()
-			cashierIdString := sale.CashierID.String()
+			saleIDString := sale.SaleID.String()
+			cashierIDString := sale.CashierID.String()
 			transactionTimeString := sale.TransactionTime.FormattedDateTime()
 			itemCountString := strconv.Itoa(sale.ItemCount)
 			totalString := sale.TotalPriceInCents.DecimalNotation()
 
 			tableData = append(tableData, []string{
-				saleIdString,
-				cashierIdString,
+				saleIDString,
+				cashierIDString,
 				transactionTimeString,
 				itemCountString,
 				totalString,

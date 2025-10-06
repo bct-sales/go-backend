@@ -208,7 +208,7 @@ func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *Label
 		return &PdfError{Message: "failed to draw category", Wrapped: err}
 	}
 
-	if err := builder.drawItemIdentifier(rectangle, labelData); err != nil {
+	if err := builder.drawItemID(rectangle, labelData); err != nil {
 		return err
 	}
 
@@ -232,13 +232,13 @@ func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *Label
 	return nil
 }
 
-func (builder *PdfBuilder) drawItemIdentifier(rectangle *Rectangle, labelData *LabelData) error {
+func (builder *PdfBuilder) drawItemID(rectangle *Rectangle, labelData *LabelData) error {
 	insets := Insets{Left: 4, Top: 0, Right: 0, Bottom: 2}
 	shrunkRectangle := rectangle.Shrink(insets)
 
-	itemIdentifierString := fmt.Sprintf("%d", labelData.ItemID)
+	itemIDString := fmt.Sprintf("%d", labelData.ItemID)
 
-	if err := builder.drawTextInLowerLeftCorner(itemIdentifierString, shrunkRectangle); err != nil {
+	if err := builder.drawTextInLowerLeftCorner(itemIDString, shrunkRectangle); err != nil {
 		return &PdfError{Message: "failed to draw item identifier", Wrapped: err}
 	}
 
@@ -282,11 +282,11 @@ func (builder *PdfBuilder) drawDonationImage(rectangle *Rectangle) error {
 	return nil
 }
 
-func formatPriceAndSeller(priceInCents int, sellerIdentifier int) string {
+func formatPriceAndSeller(priceInCents int, sellerID int) string {
 	euros := priceInCents / 100
 	cents := priceInCents % 100
 
-	return fmt.Sprintf("€%d.%02d → %d", euros, cents, sellerIdentifier)
+	return fmt.Sprintf("€%d.%02d → %d", euros, cents, sellerID)
 }
 
 func (builder *PdfBuilder) setFont() error {

@@ -14,7 +14,7 @@ import (
 // If the user does not exist, the function returns an ErrNoSuchUser.
 // If the password is wrong, the function returns a ErrWrongPassword.
 // If there is an error while querying the database, the function returns the error.
-func AuthenticateUser(database DatabaseQuerier, userId models.ID, password string) (r_result models.RoleID, r_err error) {
+func AuthenticateUser(database DatabaseQuerier, userII models.ID, password string) (r_result models.RoleID, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -25,22 +25,22 @@ func AuthenticateUser(database DatabaseQuerier, userId models.ID, password strin
 			FROM users
 			where user_id = $1
 		`,
-		userId)
+		userII)
 
-	var roleId models.RoleID
+	var roleID models.RoleID
 	var expectedPassword string
-	err := row.Scan(&roleId.ID, &expectedPassword)
+	err := row.Scan(&roleID.ID, &expectedPassword)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return models.RoleID{}, fmt.Errorf("failed to authenticate user %d: %w", userId, dberr.ErrNoSuchUser)
+			return models.RoleID{}, fmt.Errorf("failed to authenticate user %d: %w", userII, dberr.ErrNoSuchUser)
 		}
 
-		return models.RoleID{}, fmt.Errorf("failed to execute query to look up user %d in database: %w", userId, err)
+		return models.RoleID{}, fmt.Errorf("failed to execute query to look up user %d in database: %w", userII, err)
 	}
 
 	if expectedPassword != password {
 		return models.RoleID{}, dberr.ErrWrongPassword
 	}
 
-	return roleId, nil
+	return roleID, nil
 }

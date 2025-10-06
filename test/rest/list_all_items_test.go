@@ -20,12 +20,12 @@ import (
 
 func FromModel(item *models.Item) *rest.GetItemsItemData {
 	return &rest.GetItemsItemData{
-		ItemId:       item.ItemID,
+		ItemID:       item.ItemID,
 		AddedAt:      shared.ConvertTimestampToDateTime(item.AddedAt),
 		Description:  item.Description,
 		PriceInCents: item.PriceInCents,
-		CategoryId:   item.CategoryID,
-		SellerId:     item.SellerID,
+		CategoryID:   item.CategoryID,
+		SellerID:     item.SellerID,
 		Donation:     item.Donation,
 		Charity:      item.Charity,
 		Frozen:       item.Frozen,
@@ -136,7 +136,7 @@ func TestListAllItems(t *testing.T) {
 						require.Equal(t, aux.ItemsTotalWorth(items), response.TotalItemValue)
 
 						for i := range limit {
-							require.Equal(t, expectedItems[i].ItemID, actualItems[i].ItemId)
+							require.Equal(t, expectedItems[i].ItemID, actualItems[i].ItemID)
 						}
 					})
 				}
@@ -167,7 +167,7 @@ func TestListAllItems(t *testing.T) {
 						require.Equal(t, aux.ItemsTotalWorth(items), response.TotalItemValue)
 
 						for i := range len(expectedItems) - offset {
-							require.Equal(t, expectedItems[i].ItemID, actualItems[i].ItemId)
+							require.Equal(t, expectedItems[i].ItemID, actualItems[i].ItemID)
 						}
 					})
 				}
@@ -199,7 +199,7 @@ func TestListAllItems(t *testing.T) {
 							require.Equal(t, aux.ItemsTotalWorth(items), response.TotalItemValue)
 
 							for i := range len(expectedItems) - offset {
-								require.Equal(t, expectedItems[i].ItemID, actualItems[i].ItemId)
+								require.Equal(t, expectedItems[i].ItemID, actualItems[i].ItemID)
 							}
 						})
 					}
@@ -229,7 +229,7 @@ func TestListAllItems(t *testing.T) {
 
 					require.Len(t, actualItems, 2)
 					for _, actualItem := range actualItems {
-						require.Equal(t, models.ID(2), actualItem.CategoryId)
+						require.Equal(t, models.ID(2), actualItem.CategoryID)
 					}
 				})
 			})

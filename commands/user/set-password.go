@@ -39,18 +39,18 @@ func NewUserSetPasswordCommand() *cobra.Command {
 
 func (c *SetUserPasswordCommand) execute(args []string) error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		userId, err := c.ParseUserID(args[0])
+		userID, err := c.ParseUserID(args[0])
 		if err != nil {
 			return err
 		}
 		newPassword := args[1]
 
-		if err := c.updatePassword(db, userId, newPassword); err != nil {
+		if err := c.updatePassword(db, userID, newPassword); err != nil {
 			return err
 		}
 
 		if !c.noInvalidateSessions {
-			if err := c.invalidateSessions(db, userId); err != nil {
+			if err := c.invalidateSessions(db, userID); err != nil {
 				return err
 			}
 		}
@@ -59,8 +59,8 @@ func (c *SetUserPasswordCommand) execute(args []string) error {
 	})
 }
 
-func (c *SetUserPasswordCommand) updatePassword(db *sql.DB, userId models.ID, newPassword string) error {
-	err := queries.UpdateUserPassword(db, userId, newPassword)
+func (c *SetUserPasswordCommand) updatePassword(db *sql.DB, userID models.ID, newPassword string) error {
+	err := queries.UpdateUserPassword(db, userID, newPassword)
 	if err != nil {
 		c.PrintErrorf("Failed to update user password\n")
 		return fmt.Errorf("failed to update database: %w", err)
@@ -70,8 +70,8 @@ func (c *SetUserPasswordCommand) updatePassword(db *sql.DB, userId models.ID, ne
 	return nil
 }
 
-func (c *SetUserPasswordCommand) invalidateSessions(db *sql.DB, userId models.ID) error {
-	err := queries.DeleteSessionWithUser(db, userId)
+func (c *SetUserPasswordCommand) invalidateSessions(db *sql.DB, userID models.ID) error {
+	err := queries.DeleteSessionWithUser(db, userID)
 
 	if err != nil {
 		c.PrintErrorf("Failed to invalidate sessions")

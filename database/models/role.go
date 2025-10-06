@@ -90,8 +90,8 @@ type RoleVisitor[T any] interface {
 	Cashier() T
 }
 
-func VisitRole[T any](roleId RoleID, visitor RoleVisitor[T]) T {
-	switch roleId.ID {
+func VisitRole[T any](roleID RoleID, visitor RoleVisitor[T]) T {
+	switch roleID.ID {
 	case AdminRoleID:
 		return visitor.Admin()
 	case SellerRoleID:
@@ -99,7 +99,7 @@ func VisitRole[T any](roleId RoleID, visitor RoleVisitor[T]) T {
 	case CashierRoleID:
 		return visitor.Cashier()
 	default:
-		panic(fmt.Sprintf("unknown role id: %d", roleId.ID))
+		panic(fmt.Sprintf("unknown role id: %d", roleID.ID))
 	}
 }
 

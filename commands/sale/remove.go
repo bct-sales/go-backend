@@ -36,17 +36,17 @@ func NewRemoveSalesCommand() *cobra.Command {
 }
 
 func (c *removeSalesCommand) execute(args []string) error {
-	saleIds, err := c.ParseSaleIDs(args)
+	saleIDs, err := c.ParseSaleIDs(args)
 	if err != nil {
 		c.PrintErrorf("Failed to parse sale ids: %v", err)
 	}
 
 	transactionErr := c.WithTransaction(func(transaction *queries.TransactionalDatabaseQuerier) error {
-		for _, saleId := range saleIds {
-			c.Printf("Removing sale with id %s\n", saleId.String())
-			err := queries.RemoveSale(transaction, saleId)
+		for _, saleID := range saleIDs {
+			c.Printf("Removing sale with id %s\n", saleID.String())
+			err := queries.RemoveSale(transaction, saleID)
 			if err != nil {
-				c.PrintErrorf("Failed to remove sale with id %s\n", saleId.String())
+				c.PrintErrorf("Failed to remove sale with id %s\n", saleID.String())
 				return err
 			}
 		}

@@ -75,10 +75,10 @@ func (c *addSellersCommand) execute() error {
 			return nil
 		}
 
-		callback := func(add func(sellerId models.ID, roleId models.RoleID, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
+		callback := func(add func(sellerID models.ID, roleID models.RoleID, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
 			for _, seller := range sellersToBeCreated {
 				add(
-					seller.userId,
+					seller.userID,
 					models.NewSellerRoleID(),
 					models.Now(),
 					nil,
@@ -98,11 +98,11 @@ func (c *addSellersCommand) execute() error {
 }
 
 type sellerCreationData struct {
-	userId   models.ID
+	userID   models.ID
 	password string
 }
 
-func (c *addSellersCommand) collectExistingUserIds(db *sql.DB) (*algorithms.Set[models.ID], error) {
+func (c *addSellersCommand) collectExistingUserIDs(db *sql.DB) (*algorithms.Set[models.ID], error) {
 	result := algorithms.NewSet[models.ID]()
 
 	err := queries.GetUsers(db, func(user *models.User) error {
@@ -131,7 +131,7 @@ func (c *addSellersCommand) collectExistingPasswords(db *sql.DB) (*algorithms.Se
 }
 
 func (c *addSellersCommand) determineSellersToBeCreated(db *sql.DB, zones []int, sellersPerZone int) ([]*sellerCreationData, error) {
-	existingSellers, err := c.collectExistingUserIds(db)
+	existingSellers, err := c.collectExistingUserIDs(db)
 	if err != nil {
 		return nil, err
 	}
@@ -146,9 +146,9 @@ func (c *addSellersCommand) determineSellersToBeCreated(db *sql.DB, zones []int,
 	sellersToBeCreated := []*sellerCreationData{}
 	for _, zone := range zones {
 		for i := range sellersPerZone {
-			sellerId := models.ID(zone*100 + i)
+			sellerID := models.ID(zone*100 + i)
 
-			if !existingSellers.Contains(sellerId) {
+			if !existingSellers.Contains(sellerID) {
 				if passwordIndex == len(passwords) {
 					c.PrintErrorf("ran out of unique passwords\n")
 					return nil, fmt.Errorf("ran out of unique passwords")
@@ -158,7 +158,7 @@ func (c *addSellersCommand) determineSellersToBeCreated(db *sql.DB, zones []int,
 				passwordIndex++
 
 				sellersToBeCreated = append(sellersToBeCreated, &sellerCreationData{
-					userId:   sellerId,
+					userID:   sellerID,
 					password: password,
 				})
 			}
@@ -237,7 +237,7 @@ func (c *addSellersCommand) showAddedSellers(sellers []*sellerCreationData) erro
 
 	for _, seller := range sellers {
 		tableData = append(tableData, []string{
-			fmt.Sprintf("%d", seller.userId),
+			fmt.Sprintf("%d", seller.userID),
 			seller.password,
 		})
 	}

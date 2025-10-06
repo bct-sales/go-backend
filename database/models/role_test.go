@@ -8,21 +8,21 @@ import (
 
 func TestRoleParsing(t *testing.T) {
 	t.Run("admin", func(t *testing.T) {
-		roleId, err := ParseRole("admin")
+		roleID, err := ParseRole("admin")
 		require.NoError(t, err)
-		require.Equal(t, NewAdminRoleID(), roleId)
+		require.Equal(t, NewAdminRoleID(), roleID)
 	})
 
 	t.Run("seller", func(t *testing.T) {
-		roleId, err := ParseRole("seller")
+		roleID, err := ParseRole("seller")
 		require.NoError(t, err)
-		require.Equal(t, NewSellerRoleID(), roleId)
+		require.Equal(t, NewSellerRoleID(), roleID)
 	})
 
 	t.Run("cashier", func(t *testing.T) {
-		roleId, err := ParseRole("cashier")
+		roleID, err := ParseRole("cashier")
 		require.NoError(t, err)
-		require.Equal(t, NewCashierRoleID(), roleId)
+		require.Equal(t, NewCashierRoleID(), roleID)
 	})
 
 	t.Run("unknown", func(t *testing.T) {

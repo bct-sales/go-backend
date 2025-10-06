@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	SessionIdByteLength      = 16
+	SessionIDByteLength      = 16
 	SessionCookieName        = "bct_session_id"
 	Second                   = 1
 	Minute                   = 60 * Second
@@ -25,7 +25,7 @@ func HashPassword(password string, salt string) string {
 }
 
 func GenerateUniqueSessionID() models.SessionID {
-	bytes := make([]byte, SessionIdByteLength)
+	bytes := make([]byte, SessionIDByteLength)
 	if _, err := rand.Read(bytes); err != nil {
 		panic(err)
 	}

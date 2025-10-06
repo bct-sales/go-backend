@@ -12,8 +12,8 @@ import (
 
 type RemoveSessionCommand struct {
 	common.Command
-	sessionId string
-	userId    uint64
+	sessionID string
+	userID    uint64
 	all       bool
 }
 
@@ -36,8 +36,8 @@ func NewRemoveSessionCommand() *cobra.Command {
 		},
 	}
 
-	command.CobraCommand.Flags().StringVarP(&command.sessionId, "session", "s", "", "ID of the session to be removed")
-	command.CobraCommand.Flags().Uint64VarP(&command.userId, "user", "u", 0, "ID of the user")
+	command.CobraCommand.Flags().StringVarP(&command.sessionID, "session", "s", "", "ID of the session to be removed")
+	command.CobraCommand.Flags().Uint64VarP(&command.userID, "user", "u", 0, "ID of the user")
 	command.CobraCommand.Flags().BoolVar(&command.all, "all", true, "remove all sessions")
 
 	command.CobraCommand.MarkFlagsOneRequired("session", "user", "all")
@@ -48,9 +48,9 @@ func NewRemoveSessionCommand() *cobra.Command {
 
 func (c *RemoveSessionCommand) execute() error {
 	if c.CobraCommand.Flags().Changed("session") {
-		return c.removeBySessionId(models.SessionID(c.sessionId))
+		return c.removeBySessionID(models.SessionID(c.sessionID))
 	} else if c.CobraCommand.Flags().Changed("user") {
-		return c.removeByUserId(models.ID(c.userId))
+		return c.removeByUserID(models.ID(c.userID))
 	} else if c.CobraCommand.Flags().Changed("all") {
 		return c.removeAll()
 	} else {
@@ -58,15 +58,15 @@ func (c *RemoveSessionCommand) execute() error {
 	}
 }
 
-func (c *RemoveSessionCommand) removeBySessionId(sessionId models.SessionID) error {
+func (c *RemoveSessionCommand) removeBySessionID(sessionID models.SessionID) error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		return queries.DeleteSession(db, sessionId)
+		return queries.DeleteSession(db, sessionID)
 	})
 }
 
-func (c *RemoveSessionCommand) removeByUserId(userId models.ID) error {
+func (c *RemoveSessionCommand) removeByUserID(userID models.ID) error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		return queries.DeleteSessionWithUser(db, userId)
+		return queries.DeleteSessionWithUser(db, userID)
 	})
 }
 

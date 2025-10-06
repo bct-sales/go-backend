@@ -14,7 +14,7 @@ import (
 
 type AddSessionCommand struct {
 	common.Command
-	userId     uint64
+	userID     uint64
 	expiration string
 }
 
@@ -40,7 +40,7 @@ func NewAddSessionCommand() *cobra.Command {
 		},
 	}
 
-	command.CobraCommand.Flags().Uint64VarP(&command.userId, "user", "u", 0, "ID of the user")
+	command.CobraCommand.Flags().Uint64VarP(&command.userID, "user", "u", 0, "ID of the user")
 	command.CobraCommand.Flags().StringVarP(&command.expiration, "expiration", "e", "1", "Time before session expires")
 
 	if err := command.CobraCommand.MarkFlagRequired("user"); err != nil {
@@ -61,12 +61,12 @@ func (c *AddSessionCommand) execute() error {
 	}
 
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		sessionId, err := queries.AddSession(db, models.ID(c.userId), expiration)
+		sessionID, err := queries.AddSession(db, models.ID(c.userID), expiration)
 		if err != nil {
 			return err
 		}
 
-		c.Printf("%s", sessionId)
+		c.Printf("%s", sessionID)
 
 		return nil
 	})

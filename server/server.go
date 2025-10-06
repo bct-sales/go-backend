@@ -246,7 +246,7 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 	clock := server.clock
 
 	return func(context *gin.Context) {
-		sessionIdString, err := context.Cookie(security.SessionCookieName)
+		sessionIDString, err := context.Cookie(security.SessionCookieName)
 		if err != nil {
 			slog.Error("Unauthorized: missing session ID")
 			failure_response.MissingSessionID(context, err.Error())
@@ -254,8 +254,8 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 		}
 
 		now := clock.Now()
-		sessionId := models.SessionID(sessionIdString)
-		sessionData, err := queries.GetSessionData(database, sessionId, now)
+		sessionID := models.SessionID(sessionIDString)
+		sessionData, err := queries.GetSessionData(database, sessionID, now)
 
 		if errors.Is(err, dberr.ErrNoSuchSession) {
 			slog.Error("Session not found")

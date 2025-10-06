@@ -112,8 +112,8 @@ func Users() *URL {
 	return RESTRoot().AddPathSegment("users")
 }
 
-func UserStr(userId string) *URL {
-	return Users().AddPathSegment(userId)
+func UserStr(userID string) *URL {
+	return Users().AddPathSegment(userID)
 }
 
 func User(id models.ID) *URL {
@@ -124,8 +124,8 @@ func Sales() *URL {
 	return RESTRoot().AddPathSegment("sales")
 }
 
-func SaleStr(saleId string) *URL {
-	return Sales().AddPathSegment(saleId)
+func SaleStr(saleID string) *URL {
+	return Sales().AddPathSegment(saleID)
 }
 
 func Sale(id models.ID) *URL {
@@ -140,8 +140,8 @@ func Items() *URL {
 	return RESTRoot().AddPathSegment("items")
 }
 
-func ItemStr(itemId string) *URL {
-	return Items().AddPathSegment(itemId)
+func ItemStr(itemID string) *URL {
+	return Items().AddPathSegment(itemID)
 }
 
 func Item(id models.ID) *URL {
@@ -165,20 +165,20 @@ func CategoriesWithCounts(itemSelection queries.ItemSelection) *URL {
 	}
 }
 
-func SellerItemsStr(sellerId string) *URL {
-	return RESTRoot().AddPathSegment("sellers").AddPathSegment(sellerId).AddPathSegment("items")
+func SellerItemsStr(sellerID string) *URL {
+	return RESTRoot().AddPathSegment("sellers").AddPathSegment(sellerID).AddPathSegment("items")
 }
 
-func SellerItems(sellerId models.ID) *URL {
-	return SellerItemsStr(sellerId.String())
+func SellerItems(sellerID models.ID) *URL {
+	return SellerItemsStr(sellerID.String())
 }
 
-func CashierSalesStr(cashierId string) *URL {
-	return RESTRoot().AddPathSegment("cashiers").AddPathSegment(cashierId).AddPathSegment("sales")
+func CashierSalesStr(cashierID string) *URL {
+	return RESTRoot().AddPathSegment("cashiers").AddPathSegment(cashierID).AddPathSegment("sales")
 }
 
-func CashierSales(cashierId models.ID) *URL {
-	return CashierSalesStr(cashierId.String())
+func CashierSales(cashierID models.ID) *URL {
+	return CashierSalesStr(cashierID.String())
 }
 
 func Websocket() *URL {
