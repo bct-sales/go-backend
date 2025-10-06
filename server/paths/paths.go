@@ -132,6 +132,10 @@ func Sale(id models.Id) *URL {
 	return SaleStr(id.String())
 }
 
+func SoldItems() *URL {
+	return Sales().AddPathSegment("items")
+}
+
 func Items() *URL {
 	return RESTRoot().AddPathSegment("items")
 }
