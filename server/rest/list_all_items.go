@@ -228,12 +228,13 @@ func (ep *listAllItemsEndpoint) convertData(items []*models.Item) []GetItemsItem
 }
 
 func (ep *listAllItemsEndpoint) sendResponseAsJSONFile(items []*models.Item) {
+	convertedData := ep.convertData(items)
+
 	ep.Context.Header("Content-Type", "application/json")
 	ep.Context.Header("Content-Disposition", "attachment; filename=\"items.json\"")
 	ep.Context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
 	ep.Context.Header("Pragma", "no-cache")
-
-	ep.Context.IndentedJSON(http.StatusOK, items)
+	ep.Context.IndentedJSON(http.StatusOK, convertedData)
 }
 
 func (ep *listAllItemsEndpoint) sendResponseAsCSVFile(items []*models.Item) {
