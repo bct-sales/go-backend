@@ -156,43 +156,6 @@ func (q *GetItemsQuery) buildSqlQuery() (string, []any, error) {
 	return queryString, queryArguments, nil
 }
 
-// GetItems can be used to fetch items from the database.
-// For each item found, the given receiver function is called.
-// If an error occurs while processing an item, the error is returned.
-// The itemSelection parameter specifies which items to retrieve: only hidden, only visible or both.
-// The rowSelection parameter specifies which rows to retrieve.
-func GetItems(db DatabaseQuerier, receiver func(*models.Item) error, itemSelection ItemSelection, rowSelection *RowSelection) error {
-	query := NewGetItemsQuery()
-
-	switch itemSelection {
-	case AllItems:
-		// NOP
-	case OnlyVisibleItems:
-		query.WithHidden(false)
-	case OnlyHiddenItems:
-		query.WithHidden(true)
-	default:
-		panic(fmt.Sprintf("Invalid hidden strategy: %d", itemSelection))
-	}
-
-	if rowSelection != nil && (rowSelection.Offset != nil || rowSelection.Limit != nil) {
-		limit := uint64(100000)
-		offset := uint64(0)
-
-		if rowSelection.Limit != nil {
-			limit = uint64(*rowSelection.Limit)
-		}
-
-		if rowSelection.Offset != nil {
-			offset = uint64(*rowSelection.Offset)
-		}
-
-		query.WithLimitAndOffset(limit, offset)
-	}
-
-	return query.Execute(db, receiver)
-}
-
 // GetItemIDs retrieves the IDs of all items in the database.
 func GetItemIDs(db DatabaseQuerier) (r_result []models.ID, r_err error) {
 	defer func() {
