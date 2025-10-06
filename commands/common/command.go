@@ -96,7 +96,7 @@ func (command *Command) ParseItemID(str string) (models.ID, error) {
 	return command.parseID(str, "item")
 }
 
-func (command *Command) ParseUserId(str string) (models.ID, error) {
+func (command *Command) ParseUserID(str string) (models.ID, error) {
 	return command.parseID(str, "user")
 }
 
@@ -109,7 +109,7 @@ func (command *Command) ParseItemIDs(str []string) ([]models.ID, error) {
 }
 
 func (command *Command) ParseUserIds(str []string) ([]models.ID, error) {
-	return algorithms.MapError(str, command.ParseUserId)
+	return algorithms.MapError(str, command.ParseUserID)
 }
 
 func (command *Command) ParseSaleIDs(str []string) ([]models.ID, error) {

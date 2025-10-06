@@ -39,7 +39,7 @@ func NewUserSetPasswordCommand() *cobra.Command {
 
 func (c *SetUserPasswordCommand) execute(args []string) error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		userId, err := c.ParseUserId(args[0])
+		userId, err := c.ParseUserID(args[0])
 		if err != nil {
 			return err
 		}
