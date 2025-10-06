@@ -48,7 +48,7 @@ func Login(clock clock.Clock, logger logger.Logger, context *gin.Context, db *sq
 		return
 	}
 
-	userId, err := models.ParseId(loginRequest.Username)
+	userId, err := models.ParseID(loginRequest.Username)
 	if err != nil {
 		logger.InvalidRequest("Someone tried to login with an invalid user ID", slog.String("userId", loginRequest.Username))
 		failure_response.InvalidUserId(context, err.Error())

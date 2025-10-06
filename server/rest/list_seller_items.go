@@ -99,7 +99,7 @@ func (ep *getSellerItemsEndpoint) extractSellerIdFromURI() (models.ID, bool) {
 		return 0, false
 	}
 
-	uriSellerId, err := models.ParseId(uriParameters.SellerId)
+	uriSellerId, err := models.ParseID(uriParameters.SellerId)
 	if err != nil {
 		ep.Logger.InvalidInput("Failed to parse seller ID from URI", "error", err, "sellerId", uriParameters.SellerId)
 		failure_response.InvalidUserId(ep.Context, err.Error())

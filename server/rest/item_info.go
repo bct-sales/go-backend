@@ -84,7 +84,7 @@ func (ep *getItemInformationEndpoint) retrieveItemIdFromUri() (models.ID, bool) 
 		return 0, false
 	}
 
-	itemId, err := models.ParseId(uriParameters.ItemId)
+	itemId, err := models.ParseID(uriParameters.ItemId)
 	if err != nil {
 		ep.Logger.InvalidInput("Failed to parse item ID", "error", err, "itemId", uriParameters.ItemId)
 		failure_response.InvalidItemId(ep.Context, err.Error())

@@ -117,7 +117,7 @@ func (command *Command) ParseSaleIDs(str []string) ([]models.ID, error) {
 }
 
 func (command *Command) parseID(str string, idType string) (models.ID, error) {
-	id, err := models.ParseId(str)
+	id, err := models.ParseID(str)
 
 	if err != nil {
 		command.PrintErrorf("Invalid %s ID: %s\n", idType, str)

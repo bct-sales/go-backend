@@ -264,7 +264,7 @@ func (ep *getSalesEndpoint) parseQueryParameters() (*getSalesQueryParameters, bo
 
 func (ep *getSalesEndpoint) parseStartId() (*models.ID, bool) {
 	if startIdStr, exists := ep.Context.GetQuery("startId"); exists {
-		startId, err := models.ParseId(startIdStr)
+		startId, err := models.ParseID(startIdStr)
 		if err != nil {
 			ep.Logger.InvalidInput("Failed to parse startId parameter", "startId", startIdStr, "error", err)
 			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Invalid startId parameter: "+err.Error())

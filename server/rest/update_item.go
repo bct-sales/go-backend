@@ -37,7 +37,7 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 		return
 	}
 
-	itemId, err := models.ParseId(uriParameters.ItemId)
+	itemId, err := models.ParseID(uriParameters.ItemId)
 	if err != nil {
 		logger.InvalidInput("Invalid item ID in URI", "itemId", uriParameters.ItemId, "error", err)
 		failure_response.InvalidItemId(context, err.Error())

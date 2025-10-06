@@ -72,7 +72,7 @@ func (command *saleShowCommand) Execute(args []string) error {
 }
 
 func (command *saleShowCommand) parseSaleId(str string) (models.ID, error) {
-	saleId, err := models.ParseId(str)
+	saleId, err := models.ParseID(str)
 
 	if err != nil {
 		command.PrintErrorf("Invalid sale ID: %v\n", err)

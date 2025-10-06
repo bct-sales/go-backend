@@ -155,7 +155,7 @@ func (ep *GetUserInformationEndpoint) retrieveQueriedUserFromUri() (models.ID, e
 	}
 
 	// Parse user id
-	queriedUserId, err := models.ParseId(uriParameters.UserId)
+	queriedUserId, err := models.ParseID(uriParameters.UserId)
 	if err != nil {
 		ep.Logger.InvalidInput("Invalid user ID", "error", err, "userId", uriParameters.UserId)
 		failure_response.InvalidUserId(ep.Context, err.Error())

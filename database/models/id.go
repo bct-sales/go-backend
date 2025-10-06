@@ -6,7 +6,7 @@ import (
 
 type ID int64
 
-func ParseId(str string) (ID, error) {
+func ParseID(str string) (ID, error) {
 	identifier, err := strconv.ParseInt(str, 10, 64)
 
 	if err != nil {

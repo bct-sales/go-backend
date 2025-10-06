@@ -45,7 +45,7 @@ func NewCopyItemCommand() *cobra.Command {
 
 func (c *copyItemCommand) execute(args []string) error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		itemId, err := models.ParseId(args[0])
+		itemId, err := models.ParseID(args[0])
 		if err != nil {
 			c.PrintErrorf("Invalid item ID\n")
 			return err

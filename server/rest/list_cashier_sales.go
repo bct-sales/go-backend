@@ -89,7 +89,7 @@ func (ep *listCashierSalesEndpoint) extractCashierIdFromUri() (models.ID, bool) 
 		return 0, false
 	}
 
-	uriUserId, err := models.ParseId(uriParameters.CashierId)
+	uriUserId, err := models.ParseID(uriParameters.CashierId)
 	if err != nil {
 		ep.Logger.InvalidInput("Failed to parse cashier ID \"%s\" from URI: %v", uriParameters.CashierId, err)
 		failure_response.InvalidUserId(ep.Context, err.Error())

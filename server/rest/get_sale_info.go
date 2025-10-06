@@ -130,7 +130,7 @@ func (endpoint *getSaleInformationEndpoint) extractSaleIdFromUri() (models.ID, b
 		return 0, false
 	}
 
-	saleId, err := models.ParseId(uriParameters.SaleId)
+	saleId, err := models.ParseID(uriParameters.SaleId)
 	if err != nil {
 		endpoint.Logger.InvalidInput("Invalid sale ID", "saleId", uriParameters.SaleId, "error", err)
 		failure_response.InvalidSaleId(endpoint.Context, err.Error())
