@@ -24,13 +24,13 @@ func TestAddSession(t *testing.T) {
 
 				user := setup.User(roleId)
 				expirationTime := models.Timestamp(0)
-				sessionId, err := queries.AddSession(db, user.UserId, expirationTime)
+				sessionId, err := queries.AddSession(db, user.UserID, expirationTime)
 				require.NoError(t, err)
 
 				session, err := queries.GetSessionById(db, sessionId)
 				require.NoError(t, err)
 				require.Equal(t, sessionId, session.SessionID)
-				require.Equal(t, user.UserId, session.UserID)
+				require.Equal(t, user.UserID, session.UserID)
 				require.Equal(t, expirationTime, session.ExpirationTime)
 			})
 		}

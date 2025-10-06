@@ -19,7 +19,7 @@ func TestContainsHiddenItems(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
 			itemIds := models.CollectItemIds(items)
 
 			result, err := queries.ContainsHiddenItems(db, itemIds)
@@ -32,8 +32,8 @@ func TestContainsHiddenItems(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-			items = append(items, setup.Item(seller.UserId, aux.WithHidden(true)))
+			items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
+			items = append(items, setup.Item(seller.UserID, aux.WithHidden(true)))
 			itemIds := models.CollectItemIds(items)
 
 			result, err := queries.ContainsHiddenItems(db, itemIds)
@@ -46,7 +46,7 @@ func TestContainsHiddenItems(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
 			itemIds := models.CollectItemIds(items)
 			itemIds = append(itemIds, itemIds...)
 
@@ -60,8 +60,8 @@ func TestContainsHiddenItems(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-			items = append(items, setup.Item(seller.UserId, aux.WithHidden(true)))
+			items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
+			items = append(items, setup.Item(seller.UserID, aux.WithHidden(true)))
 			itemIds := models.CollectItemIds(items)
 			itemIds = append(itemIds, itemIds...)
 
@@ -74,7 +74,7 @@ func TestContainsHiddenItems(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
 			itemIds := models.CollectItemIds(items)
 			nonexistentItemId := models.ID(1000)
 			setup.RequireNoSuchItems(t, nonexistentItemId)

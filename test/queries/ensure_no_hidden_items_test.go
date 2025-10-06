@@ -19,7 +19,7 @@ func TestEnsureNoHiddenItems(t *testing.T) {
 		defer setup.Close()
 
 		seller := setup.Seller()
-		items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+		items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 		itemIds := models.CollectItemIds(items)
 
 		err := queries.EnsureNoHiddenItems(db, itemIds)
@@ -31,8 +31,8 @@ func TestEnsureNoHiddenItems(t *testing.T) {
 		defer setup.Close()
 
 		seller := setup.Seller()
-		visibleItems := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-		hiddenItem := setup.Item(seller.UserId, aux.WithFrozen(false), aux.WithHidden(true))
+		visibleItems := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
+		hiddenItem := setup.Item(seller.UserID, aux.WithFrozen(false), aux.WithHidden(true))
 		itemIds := append(models.CollectItemIds(visibleItems), hiddenItem.ItemID)
 
 		err := queries.EnsureNoHiddenItems(db, itemIds)

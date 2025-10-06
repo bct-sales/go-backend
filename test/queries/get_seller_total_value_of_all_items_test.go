@@ -28,11 +28,11 @@ func TestSellerTotalValueOfAllTimes(t *testing.T) {
 					expectedTotal := models.MoneyInCents(0)
 					for i := int64(0); i < itemCount; i++ {
 						price := models.MoneyInCents((i + 1) * 50)
-						setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithHidden(false))
+						setup.Item(seller.UserID, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithHidden(false))
 						expectedTotal += price
 					}
 
-					actualTotal, err := queries.GetSellerTotalValueOfAllItems(db, seller.UserId, queries.AllItems)
+					actualTotal, err := queries.GetSellerTotalValueOfAllItems(db, seller.UserID, queries.AllItems)
 					require.NoError(t, err)
 					require.Equal(t, expectedTotal, actualTotal)
 				})
@@ -52,12 +52,12 @@ func TestSellerTotalValueOfAllTimes(t *testing.T) {
 					expectedTotal := models.MoneyInCents(0)
 					for i := int64(0); i < itemCount; i++ {
 						price := models.MoneyInCents((i + 1) * 50)
-						setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithHidden(false))
-						setup.Item(otherSeller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithHidden(false))
+						setup.Item(seller.UserID, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithHidden(false))
+						setup.Item(otherSeller.UserID, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithHidden(false))
 						expectedTotal += price
 					}
 
-					actualTotal, err := queries.GetSellerTotalValueOfAllItems(db, seller.UserId, queries.AllItems)
+					actualTotal, err := queries.GetSellerTotalValueOfAllItems(db, seller.UserID, queries.AllItems)
 					require.NoError(t, err)
 					require.Equal(t, expectedTotal, actualTotal)
 				})
@@ -75,18 +75,18 @@ func TestSellerTotalValueOfAllTimes(t *testing.T) {
 			// Add visible items
 			for i := 0; i < 10; i++ {
 				price := models.MoneyInCents((i + 1) * 50)
-				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithFrozen(false), aux.WithHidden(false))
+				setup.Item(seller.UserID, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithFrozen(false), aux.WithHidden(false))
 				expectedTotal += price
 			}
 
 			// Add hidden items
 			for i := 0; i < 10; i++ {
 				price := models.MoneyInCents((i + 1) * 150)
-				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithFrozen(false), aux.WithHidden(true))
+				setup.Item(seller.UserID, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithFrozen(false), aux.WithHidden(true))
 				expectedTotal += price
 			}
 
-			actualTotal, err := queries.GetSellerTotalValueOfAllItems(db, seller.UserId, queries.AllItems)
+			actualTotal, err := queries.GetSellerTotalValueOfAllItems(db, seller.UserID, queries.AllItems)
 			require.NoError(t, err)
 			require.Equal(t, expectedTotal, actualTotal)
 		})
@@ -102,17 +102,17 @@ func TestSellerTotalValueOfAllTimes(t *testing.T) {
 			// Add visible items
 			for i := 0; i < 10; i++ {
 				price := models.MoneyInCents((i + 1) * 50)
-				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithFrozen(false), aux.WithHidden(false))
+				setup.Item(seller.UserID, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithFrozen(false), aux.WithHidden(false))
 			}
 
 			// Add hidden items
 			for i := 0; i < 10; i++ {
 				price := models.MoneyInCents((i + 1) * 150)
-				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithFrozen(false), aux.WithHidden(true))
+				setup.Item(seller.UserID, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithFrozen(false), aux.WithHidden(true))
 				expectedTotal += price
 			}
 
-			actualTotal, err := queries.GetSellerTotalValueOfAllItems(db, seller.UserId, queries.OnlyHiddenItems)
+			actualTotal, err := queries.GetSellerTotalValueOfAllItems(db, seller.UserID, queries.OnlyHiddenItems)
 			require.NoError(t, err)
 			require.Equal(t, expectedTotal, actualTotal)
 		})
@@ -128,17 +128,17 @@ func TestSellerTotalValueOfAllTimes(t *testing.T) {
 			// Add visible items
 			for i := 0; i < 10; i++ {
 				price := models.MoneyInCents((i + 1) * 50)
-				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithFrozen(false), aux.WithHidden(false))
+				setup.Item(seller.UserID, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithFrozen(false), aux.WithHidden(false))
 				expectedTotal += price
 			}
 
 			// Add hidden items
 			for i := 0; i < 10; i++ {
 				price := models.MoneyInCents((i + 1) * 150)
-				setup.Item(seller.UserId, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithFrozen(false), aux.WithHidden(true))
+				setup.Item(seller.UserID, aux.WithDummyData(int(i)), aux.WithPriceInCents(price), aux.WithFrozen(false), aux.WithHidden(true))
 			}
 
-			actualTotal, err := queries.GetSellerTotalValueOfAllItems(db, seller.UserId, queries.OnlyVisibleItems)
+			actualTotal, err := queries.GetSellerTotalValueOfAllItems(db, seller.UserID, queries.OnlyVisibleItems)
 			require.NoError(t, err)
 			require.Equal(t, expectedTotal, actualTotal)
 		})
@@ -162,7 +162,7 @@ func TestSellerTotalValueOfAllTimes(t *testing.T) {
 
 			cashier := setup.Cashier()
 
-			_, err := queries.GetSellerTotalValueOfAllItems(db, cashier.UserId, queries.AllItems)
+			_, err := queries.GetSellerTotalValueOfAllItems(db, cashier.UserID, queries.AllItems)
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 
@@ -172,7 +172,7 @@ func TestSellerTotalValueOfAllTimes(t *testing.T) {
 
 			admin := setup.Admin()
 
-			_, err := queries.GetSellerTotalValueOfAllItems(db, admin.UserId, queries.AllItems)
+			_, err := queries.GetSellerTotalValueOfAllItems(db, admin.UserID, queries.AllItems)
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 	})

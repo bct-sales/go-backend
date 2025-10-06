@@ -48,7 +48,7 @@ func TestGetSalesOverview(t *testing.T) {
 		require.NoError(t, err)
 
 		seller := setup.Seller()
-		setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
+		setup.Item(seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -72,11 +72,11 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := setup.Seller()
-		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithItemCategory(categories[0].CategoryID), aux.WithHidden(false))
+		item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categories[0].CategoryID), aux.WithHidden(false))
 		totals[item.CategoryID] += item.PriceInCents
 
 		cashier := setup.Cashier()
-		setup.Sale(cashier.UserId, []models.ID{item.ItemID})
+		setup.Sale(cashier.UserID, []models.ID{item.ItemID})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -100,13 +100,13 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := setup.Seller()
-		item1 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
-		item2 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
+		item1 := setup.Item(seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
+		item2 := setup.Item(seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
 		totals[item1.CategoryID] += item1.PriceInCents
 		totals[item2.CategoryID] += item2.PriceInCents
 
 		cashier := setup.Cashier()
-		setup.Sale(cashier.UserId, []models.ID{item1.ItemID, item2.ItemID})
+		setup.Sale(cashier.UserID, []models.ID{item1.ItemID, item2.ItemID})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -130,13 +130,13 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := setup.Seller()
-		item1 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
-		item2 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
+		item1 := setup.Item(seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
+		item2 := setup.Item(seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
 		totals[item1.CategoryID] += item1.PriceInCents
 		totals[item2.CategoryID] += item2.PriceInCents
 
 		cashier := setup.Cashier()
-		setup.Sale(cashier.UserId, []models.ID{item1.ItemID, item2.ItemID})
+		setup.Sale(cashier.UserID, []models.ID{item1.ItemID, item2.ItemID})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -160,14 +160,14 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := setup.Seller()
-		item1 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
-		item2 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
+		item1 := setup.Item(seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
+		item2 := setup.Item(seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
 		totals[item1.CategoryID] += item1.PriceInCents
 		totals[item2.CategoryID] += item2.PriceInCents
 
 		cashier := setup.Cashier()
-		setup.Sale(cashier.UserId, []models.ID{item1.ItemID})
-		setup.Sale(cashier.UserId, []models.ID{item2.ItemID})
+		setup.Sale(cashier.UserID, []models.ID{item1.ItemID})
+		setup.Sale(cashier.UserID, []models.ID{item2.ItemID})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -191,14 +191,14 @@ func TestGetSalesOverview(t *testing.T) {
 		totals := createTotalMap(categories)
 
 		seller := setup.Seller()
-		item1 := setup.Item(seller.UserId, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
-		item2 := setup.Item(seller.UserId, aux.WithItemCategory(categories[1].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
+		item1 := setup.Item(seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
+		item2 := setup.Item(seller.UserID, aux.WithItemCategory(categories[1].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
 		totals[item1.CategoryID] += item1.PriceInCents
 		totals[item2.CategoryID] += item2.PriceInCents
 
 		cashier := setup.Cashier()
-		setup.Sale(cashier.UserId, []models.ID{item1.ItemID})
-		setup.Sale(cashier.UserId, []models.ID{item2.ItemID})
+		setup.Sale(cashier.UserID, []models.ID{item1.ItemID})
+		setup.Sale(cashier.UserID, []models.ID{item2.ItemID})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)

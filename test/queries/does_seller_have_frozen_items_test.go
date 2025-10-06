@@ -34,11 +34,11 @@ func TestDoesSellerHaveFrozenItems(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-			setup.Items(seller.UserId, 1, aux.WithFrozen(true), aux.WithHidden(false))
+			setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			setup.Items(seller.UserID, 1, aux.WithFrozen(true), aux.WithHidden(false))
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				result, err := queries.DoesSellerHaveFrozenItems(db, seller.UserId)
+				result, err := queries.DoesSellerHaveFrozenItems(db, seller.UserID)
 				require.NoError(t, err)
 				require.True(t, result)
 			})
@@ -117,7 +117,7 @@ func TestDoesSellerHaveFrozenItems(t *testing.T) {
 			user := setup.Admin()
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				_, err := queries.DoesSellerHaveFrozenItems(db, user.UserId)
+				_, err := queries.DoesSellerHaveFrozenItems(db, user.UserID)
 				requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 			})
 		})
@@ -129,7 +129,7 @@ func TestDoesSellerHaveFrozenItems(t *testing.T) {
 			user := setup.Cashier()
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				_, err := queries.DoesSellerHaveFrozenItems(db, user.UserId)
+				_, err := queries.DoesSellerHaveFrozenItems(db, user.UserID)
 				requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 			})
 		})

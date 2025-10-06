@@ -30,8 +30,8 @@ func TestGetSoldItemsQuery(t *testing.T) {
 
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			item := setup.Item(seller.UserId, aux.WithHidden(false))
-			sale := setup.Sale(cashier.UserId, []models.ID{item.ItemID})
+			item := setup.Item(seller.UserID, aux.WithHidden(false))
+			sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
 
 			query := queries.NewGetSoldItemsQuery()
 			actualSoldItems, err := query.Execute(db)
@@ -61,10 +61,10 @@ func TestGetSoldItemsQuery(t *testing.T) {
 
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			soldItem := setup.Item(seller.UserId, aux.WithHidden(false))
+			soldItem := setup.Item(seller.UserID, aux.WithHidden(false))
 			// Make unsold item
-			setup.Item(seller.UserId, aux.WithHidden(false))
-			sale := setup.Sale(cashier.UserId, []models.ID{soldItem.ItemID})
+			setup.Item(seller.UserID, aux.WithHidden(false))
+			sale := setup.Sale(cashier.UserID, []models.ID{soldItem.ItemID})
 
 			query := queries.NewGetSoldItemsQuery()
 			actualSoldItems, err := query.Execute(db)
@@ -94,9 +94,9 @@ func TestGetSoldItemsQuery(t *testing.T) {
 
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			item1 := setup.Item(seller.UserId, aux.WithHidden(false))
-			item2 := setup.Item(seller.UserId, aux.WithHidden(false))
-			sale := setup.Sale(cashier.UserId, []models.ID{item1.ItemID, item2.ItemID})
+			item1 := setup.Item(seller.UserID, aux.WithHidden(false))
+			item2 := setup.Item(seller.UserID, aux.WithHidden(false))
+			sale := setup.Sale(cashier.UserID, []models.ID{item1.ItemID, item2.ItemID})
 
 			query := queries.NewGetSoldItemsQuery()
 			actualSoldItems, err := query.Execute(db)
@@ -140,10 +140,10 @@ func TestGetSoldItemsQuery(t *testing.T) {
 
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			item1 := setup.Item(seller.UserId, aux.WithHidden(false))
-			item2 := setup.Item(seller.UserId, aux.WithHidden(false))
-			sale1 := setup.Sale(cashier.UserId, []models.ID{item1.ItemID})
-			sale2 := setup.Sale(cashier.UserId, []models.ID{item2.ItemID})
+			item1 := setup.Item(seller.UserID, aux.WithHidden(false))
+			item2 := setup.Item(seller.UserID, aux.WithHidden(false))
+			sale1 := setup.Sale(cashier.UserID, []models.ID{item1.ItemID})
+			sale2 := setup.Sale(cashier.UserID, []models.ID{item2.ItemID})
 
 			query := queries.NewGetSoldItemsQuery()
 			actualSoldItems, err := query.Execute(db)
@@ -187,9 +187,9 @@ func TestGetSoldItemsQuery(t *testing.T) {
 
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			item := setup.Item(seller.UserId, aux.WithHidden(false))
-			sale1 := setup.Sale(cashier.UserId, []models.ID{item.ItemID})
-			sale2 := setup.Sale(cashier.UserId, []models.ID{item.ItemID})
+			item := setup.Item(seller.UserID, aux.WithHidden(false))
+			sale1 := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+			sale2 := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
 
 			query := queries.NewGetSoldItemsQuery()
 			actualSoldItems, err := query.Execute(db)

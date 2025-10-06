@@ -71,7 +71,7 @@ func TestListAllItems(t *testing.T) {
 					seller := setup.Seller()
 
 					addedAtTimestamp := models.Timestamp(100)
-					item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(addedAtTimestamp), aux.WithHidden(false))
+					item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithAddedAt(addedAtTimestamp), aux.WithHidden(false))
 
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
 					router.ServeHTTP(writer, request)
@@ -93,8 +93,8 @@ func TestListAllItems(t *testing.T) {
 					_, sessionId := setup.LoggedIn(setup.User(loggedInRole))
 					seller := setup.Seller()
 					addedAtTimestamp := models.Timestamp(500)
-					item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(addedAtTimestamp), aux.WithHidden(false))
-					item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(addedAtTimestamp), aux.WithHidden(false))
+					item1 := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithAddedAt(addedAtTimestamp), aux.WithHidden(false))
+					item2 := setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithAddedAt(addedAtTimestamp), aux.WithHidden(false))
 
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
 					router.ServeHTTP(writer, request)
@@ -120,7 +120,7 @@ func TestListAllItems(t *testing.T) {
 
 						_, sessionId := setup.LoggedIn(setup.User(loggedInRole))
 						seller := setup.Seller()
-						items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
+						items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
 
 						url := path.Items().Limit(limit)
 						request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -151,7 +151,7 @@ func TestListAllItems(t *testing.T) {
 
 						_, sessionId := setup.LoggedIn(setup.User(loggedInRole))
 						seller := setup.Seller()
-						items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
+						items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
 
 						url := path.Items().Offset(offset)
 						request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -183,7 +183,7 @@ func TestListAllItems(t *testing.T) {
 
 							_, sessionId := setup.LoggedIn(setup.User(loggedInRole))
 							seller := setup.Seller()
-							items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
+							items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
 
 							url := path.Items().Limit(limit).Offset(offset)
 							request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -215,9 +215,9 @@ func TestListAllItems(t *testing.T) {
 
 					_, sessionId := setup.LoggedIn(setup.User(loggedInRole))
 					seller := setup.Seller()
-					setup.Items(seller.UserId, 1, aux.WithHidden(false), aux.WithItemCategory(1))
-					setup.Items(seller.UserId, 2, aux.WithHidden(false), aux.WithItemCategory(2))
-					setup.Items(seller.UserId, 3, aux.WithHidden(false), aux.WithItemCategory(3))
+					setup.Items(seller.UserID, 1, aux.WithHidden(false), aux.WithItemCategory(1))
+					setup.Items(seller.UserID, 2, aux.WithHidden(false), aux.WithItemCategory(2))
+					setup.Items(seller.UserID, 3, aux.WithHidden(false), aux.WithItemCategory(3))
 
 					url := path.Items().CategoryFilter(2)
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))

@@ -21,7 +21,7 @@ func TestGetSellerItems(t *testing.T) {
 
 			seller := setup.Seller()
 
-			actual, err := queries.GetSellerItems(db, seller.UserId, queries.AllItems)
+			actual, err := queries.GetSellerItems(db, seller.UserID, queries.AllItems)
 			require.NoError(t, err)
 			require.Empty(t, actual)
 		})
@@ -33,12 +33,12 @@ func TestGetSellerItems(t *testing.T) {
 			sellerWithoutItems := setup.Seller()
 			sellerWithItems := setup.Seller()
 
-			setup.Item(sellerWithItems.UserId, aux.WithDummyData(0), aux.WithHidden(false))
-			setup.Item(sellerWithItems.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-			setup.Item(sellerWithItems.UserId, aux.WithDummyData(2), aux.WithHidden(false))
-			setup.Item(sellerWithItems.UserId, aux.WithDummyData(3), aux.WithHidden(true))
+			setup.Item(sellerWithItems.UserID, aux.WithDummyData(0), aux.WithHidden(false))
+			setup.Item(sellerWithItems.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			setup.Item(sellerWithItems.UserID, aux.WithDummyData(2), aux.WithHidden(false))
+			setup.Item(sellerWithItems.UserID, aux.WithDummyData(3), aux.WithHidden(true))
 
-			actual, err := queries.GetSellerItems(db, sellerWithoutItems.UserId, queries.AllItems)
+			actual, err := queries.GetSellerItems(db, sellerWithoutItems.UserID, queries.AllItems)
 			require.NoError(t, err)
 			require.Empty(t, actual)
 		})
@@ -49,13 +49,13 @@ func TestGetSellerItems(t *testing.T) {
 
 			seller := setup.Seller()
 
-			item1 := setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithAddedAt(models.Timestamp(0)), aux.WithFrozen(false), aux.WithHidden(false))
-			item2 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(models.Timestamp(0)), aux.WithFrozen(false), aux.WithHidden(true))
-			item3 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(models.Timestamp(0)), aux.WithFrozen(false), aux.WithHidden(true))
-			item4 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithAddedAt(models.Timestamp(0)), aux.WithFrozen(false), aux.WithHidden(false))
+			item1 := setup.Item(seller.UserID, aux.WithDummyData(0), aux.WithAddedAt(models.Timestamp(0)), aux.WithFrozen(false), aux.WithHidden(false))
+			item2 := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithAddedAt(models.Timestamp(0)), aux.WithFrozen(false), aux.WithHidden(true))
+			item3 := setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithAddedAt(models.Timestamp(0)), aux.WithFrozen(false), aux.WithHidden(true))
+			item4 := setup.Item(seller.UserID, aux.WithDummyData(3), aux.WithAddedAt(models.Timestamp(0)), aux.WithFrozen(false), aux.WithHidden(false))
 
 			expected := []*models.Item{item1, item2, item3, item4}
-			actual, err := queries.GetSellerItems(db, seller.UserId, queries.AllItems)
+			actual, err := queries.GetSellerItems(db, seller.UserID, queries.AllItems)
 			require.NoError(t, err)
 			require.Equal(t, expected, actual)
 		})
@@ -66,13 +66,13 @@ func TestGetSellerItems(t *testing.T) {
 
 			seller := setup.Seller()
 
-			item1 := setup.Item(seller.UserId, aux.WithDummyData(0), aux.WithAddedAt(models.Timestamp(4)), aux.WithFrozen(false), aux.WithHidden(true))
-			item2 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithAddedAt(models.Timestamp(3)), aux.WithFrozen(false), aux.WithHidden(false))
-			item3 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithAddedAt(models.Timestamp(2)), aux.WithFrozen(false), aux.WithHidden(false))
-			item4 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithAddedAt(models.Timestamp(1)), aux.WithFrozen(false), aux.WithHidden(false))
+			item1 := setup.Item(seller.UserID, aux.WithDummyData(0), aux.WithAddedAt(models.Timestamp(4)), aux.WithFrozen(false), aux.WithHidden(true))
+			item2 := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithAddedAt(models.Timestamp(3)), aux.WithFrozen(false), aux.WithHidden(false))
+			item3 := setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithAddedAt(models.Timestamp(2)), aux.WithFrozen(false), aux.WithHidden(false))
+			item4 := setup.Item(seller.UserID, aux.WithDummyData(3), aux.WithAddedAt(models.Timestamp(1)), aux.WithFrozen(false), aux.WithHidden(false))
 
 			expected := []*models.Item{item4, item3, item2, item1}
-			actual, err := queries.GetSellerItems(db, seller.UserId, queries.AllItems)
+			actual, err := queries.GetSellerItems(db, seller.UserID, queries.AllItems)
 			require.NoError(t, err)
 			require.Equal(t, expected, actual)
 		})
@@ -83,10 +83,10 @@ func TestGetSellerItems(t *testing.T) {
 
 			seller := setup.Seller()
 
-			items := setup.Items(seller.UserId, 20, aux.WithFrozen(false), aux.WithHidden(false), aux.WithAddedAt(models.Timestamp(0)))
-			setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(true), aux.WithAddedAt(models.Timestamp(0)))
+			items := setup.Items(seller.UserID, 20, aux.WithFrozen(false), aux.WithHidden(false), aux.WithAddedAt(models.Timestamp(0)))
+			setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(true), aux.WithAddedAt(models.Timestamp(0)))
 
-			actual, err := queries.GetSellerItems(db, seller.UserId, queries.OnlyVisibleItems)
+			actual, err := queries.GetSellerItems(db, seller.UserID, queries.OnlyVisibleItems)
 			require.NoError(t, err)
 			require.Equal(t, items, actual)
 		})
@@ -97,10 +97,10 @@ func TestGetSellerItems(t *testing.T) {
 
 			seller := setup.Seller()
 
-			setup.Items(seller.UserId, 20, aux.WithFrozen(false), aux.WithHidden(false), aux.WithAddedAt(models.Timestamp(0)))
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(true), aux.WithAddedAt(models.Timestamp(0)))
+			setup.Items(seller.UserID, 20, aux.WithFrozen(false), aux.WithHidden(false), aux.WithAddedAt(models.Timestamp(0)))
+			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(true), aux.WithAddedAt(models.Timestamp(0)))
 
-			actual, err := queries.GetSellerItems(db, seller.UserId, queries.OnlyHiddenItems)
+			actual, err := queries.GetSellerItems(db, seller.UserID, queries.OnlyHiddenItems)
 			require.NoError(t, err)
 			require.Equal(t, items, actual)
 		})
@@ -124,7 +124,7 @@ func TestGetSellerItems(t *testing.T) {
 
 			cashier := setup.Cashier()
 
-			_, err := queries.GetSellerItems(db, cashier.UserId, queries.AllItems)
+			_, err := queries.GetSellerItems(db, cashier.UserID, queries.AllItems)
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 
@@ -134,7 +134,7 @@ func TestGetSellerItems(t *testing.T) {
 
 			admin := setup.Admin()
 
-			_, err := queries.GetSellerItems(db, admin.UserId, queries.AllItems)
+			_, err := queries.GetSellerItems(db, admin.UserID, queries.AllItems)
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 	})

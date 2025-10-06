@@ -24,9 +24,9 @@ func TestCountSellerItems(t *testing.T) {
 					defer setup.Close()
 
 					seller := setup.Seller()
-					setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
+					setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
 
-					actual, err := queries.CountSellerItems(db, seller.UserId, queries.IncludeAll, queries.IncludeAll)
+					actual, err := queries.CountSellerItems(db, seller.UserID, queries.IncludeAll, queries.IncludeAll)
 					require.NoError(t, err)
 					require.Equal(t, itemCount, actual)
 				})
@@ -42,10 +42,10 @@ func TestCountSellerItems(t *testing.T) {
 
 					seller := setup.Seller()
 					otherSeller := setup.Seller()
-					setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
-					setup.Items(otherSeller.UserId, itemCount, aux.WithHidden(false))
+					setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
+					setup.Items(otherSeller.UserID, itemCount, aux.WithHidden(false))
 
-					actual, err := queries.CountSellerItems(db, seller.UserId, queries.IncludeAll, queries.IncludeAll)
+					actual, err := queries.CountSellerItems(db, seller.UserID, queries.IncludeAll, queries.IncludeAll)
 					require.NoError(t, err)
 					require.Equal(t, itemCount, actual)
 				})
@@ -75,11 +75,11 @@ func TestCountSellerItems(t *testing.T) {
 					defer setup.Close()
 
 					seller := setup.Seller()
-					setup.Items(seller.UserId, baseCount, aux.WithFrozen(false), aux.WithHidden(false))
-					setup.Items(seller.UserId, frozenCount, aux.WithFrozen(true), aux.WithHidden(false))
-					setup.Items(seller.UserId, hiddenCount, aux.WithFrozen(false), aux.WithHidden(true))
+					setup.Items(seller.UserID, baseCount, aux.WithFrozen(false), aux.WithHidden(false))
+					setup.Items(seller.UserID, frozenCount, aux.WithFrozen(true), aux.WithHidden(false))
+					setup.Items(seller.UserID, hiddenCount, aux.WithFrozen(false), aux.WithHidden(true))
 
-					actual, err := queries.CountSellerItems(db, seller.UserId, testCase.frozen, testCase.hidden)
+					actual, err := queries.CountSellerItems(db, seller.UserID, testCase.frozen, testCase.hidden)
 					require.NoError(t, err)
 					require.Equal(t, testCase.expected, actual)
 				})
@@ -94,11 +94,11 @@ func TestCountSellerItems(t *testing.T) {
 			baseCount := 4
 			frozenCount := 8
 			hiddenCount := 16
-			setup.Items(seller.UserId, baseCount, aux.WithFrozen(false), aux.WithHidden(false))
-			setup.Items(seller.UserId, frozenCount, aux.WithFrozen(true), aux.WithHidden(false))
-			setup.Items(seller.UserId, hiddenCount, aux.WithFrozen(false), aux.WithHidden(true))
+			setup.Items(seller.UserID, baseCount, aux.WithFrozen(false), aux.WithHidden(false))
+			setup.Items(seller.UserID, frozenCount, aux.WithFrozen(true), aux.WithHidden(false))
+			setup.Items(seller.UserID, hiddenCount, aux.WithFrozen(false), aux.WithHidden(true))
 
-			actual, err := queries.CountSellerItems(db, seller.UserId, queries.IncludeAll, queries.IncludeAll)
+			actual, err := queries.CountSellerItems(db, seller.UserID, queries.IncludeAll, queries.IncludeAll)
 			require.NoError(t, err)
 			require.Equal(t, baseCount+frozenCount+hiddenCount, actual)
 		})
@@ -122,7 +122,7 @@ func TestCountSellerItems(t *testing.T) {
 
 			cashier := setup.Cashier()
 
-			_, err := queries.CountSellerItems(db, cashier.UserId, queries.IncludeAll, queries.IncludeAll)
+			_, err := queries.CountSellerItems(db, cashier.UserID, queries.IncludeAll, queries.IncludeAll)
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 
@@ -132,7 +132,7 @@ func TestCountSellerItems(t *testing.T) {
 
 			admin := setup.Admin()
 
-			_, err := queries.CountSellerItems(db, admin.UserId, queries.IncludeAll, queries.IncludeAll)
+			_, err := queries.CountSellerItems(db, admin.UserID, queries.IncludeAll, queries.IncludeAll)
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 	})

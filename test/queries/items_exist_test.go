@@ -37,7 +37,7 @@ func TestCheckItemsExistence(t *testing.T) {
 
 					itemIds := []models.ID{}
 					for i := 0; i != 10; i++ {
-						itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
+						itemIds = append(itemIds, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
 					}
 
 					actual, err := queries.ItemsExist(db, selection)
@@ -62,7 +62,7 @@ func TestCheckItemsExistence(t *testing.T) {
 
 					itemIds := []models.ID{}
 					for i := 0; i != 10; i++ {
-						itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
+						itemIds = append(itemIds, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
 					}
 
 					actual, err := queries.ItemsExist(db, selection)

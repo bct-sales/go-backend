@@ -185,21 +185,21 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserId mo
 	}
 
 	basicInformation := GetUserInformationByAdminSuccessResponse{
-		UserId:       user.UserId,
-		Role:         user.RoleId.Name(),
+		UserId:       user.UserID,
+		Role:         user.RoleID.Name(),
 		Password:     user.Password,
 		CreatedAt:    rest.ConvertTimestampToDateTime(user.CreatedAt),
 		LastActivity: algorithms.MapOptional(user.LastActivity, rest.ConvertTimestampToDateTime),
 	}
 
-	if user.RoleId.IsAdmin() {
+	if user.RoleID.IsAdmin() {
 		response := GetAdminInformationByAdminSuccessResponse{
 			GetUserInformationByAdminSuccessResponse: basicInformation,
 		}
 		context.JSON(http.StatusOK, response)
 		return
-	} else if user.RoleId.IsSeller() {
-		items, err := queries.GetSellerItemsWithSaleCounts(db, user.UserId)
+	} else if user.RoleID.IsSeller() {
+		items, err := queries.GetSellerItemsWithSaleCounts(db, user.UserID)
 		if err != nil {
 			{
 				if errors.Is(err, dberr.ErrNoSuchUser) {
@@ -228,8 +228,8 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserId mo
 
 		context.JSON(http.StatusOK, response)
 		return
-	} else if user.RoleId.IsCashier() {
-		sales, err := queries.GetSalesWithCashier(db, user.UserId)
+	} else if user.RoleID.IsCashier() {
+		sales, err := queries.GetSalesWithCashier(db, user.UserID)
 		if err != nil {
 			if errors.Is(err, dberr.ErrNoSuchUser) {
 				logger.Bug("User not found; should have been caught earlier", "queriedUserId", queriedUserId)
@@ -257,7 +257,7 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserId mo
 		return
 	} else {
 		logger.Bug("Unhandled user role")
-		failure_response.Unknown(context, fmt.Sprintf("Bug: unhandled role %d", user.RoleId.Int64()))
+		failure_response.Unknown(context, fmt.Sprintf("Bug: unhandled role %d", user.RoleID.Int64()))
 		return
 	}
 }

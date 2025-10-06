@@ -95,9 +95,9 @@ func (ep *listUsersEndpoint) convertToUserData(users []*queries.UserWithItemCoun
 		}
 
 		userDatum := GetUsersUserData{
-			Id:           user.UserId.Int64(),
+			Id:           user.UserID.Int64(),
 			Password:     user.Password,
-			Role:         user.RoleId.Name(),
+			Role:         user.RoleID.Name(),
 			CreatedAt:    createdAt,
 			LastActivity: lastActivity,
 			ItemCount:    user.ItemCount,

@@ -19,7 +19,7 @@ func TestEnsureUserExists(t *testing.T) {
 
 		user := setup.Seller()
 
-		err := queries.EnsureUserExists(db, user.UserId)
+		err := queries.EnsureUserExists(db, user.UserID)
 		require.NoError(t, err)
 	})
 

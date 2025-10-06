@@ -22,12 +22,12 @@ func TestCountCashierSales(t *testing.T) {
 			seller := setup.Seller()
 			cashier := setup.Cashier()
 
-			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
-			setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[1].ItemID})
-			setup.Sale(cashier.UserId, []models.ID{items[2].ItemID, items[3].ItemID})
-			setup.Sale(cashier.UserId, []models.ID{items[4].ItemID})
+			items := setup.Items(seller.UserID, 5, aux.WithHidden(false))
+			setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
+			setup.Sale(cashier.UserID, []models.ID{items[2].ItemID, items[3].ItemID})
+			setup.Sale(cashier.UserID, []models.ID{items[4].ItemID})
 
-			count, err := queries.CountCashierSales(db, cashier.UserId)
+			count, err := queries.CountCashierSales(db, cashier.UserID)
 			require.NoError(t, err)
 			require.Equal(t, 3, count)
 		})
@@ -40,12 +40,12 @@ func TestCountCashierSales(t *testing.T) {
 			cashier := setup.Cashier()
 			cashier2 := setup.Cashier()
 
-			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
-			setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[1].ItemID})
-			setup.Sale(cashier.UserId, []models.ID{items[2].ItemID, items[3].ItemID})
-			setup.Sale(cashier2.UserId, []models.ID{items[4].ItemID})
+			items := setup.Items(seller.UserID, 5, aux.WithHidden(false))
+			setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
+			setup.Sale(cashier.UserID, []models.ID{items[2].ItemID, items[3].ItemID})
+			setup.Sale(cashier2.UserID, []models.ID{items[4].ItemID})
 
-			count, err := queries.CountCashierSales(db, cashier.UserId)
+			count, err := queries.CountCashierSales(db, cashier.UserID)
 			require.NoError(t, err)
 			require.Equal(t, 2, count)
 		})
@@ -69,7 +69,7 @@ func TestCountCashierSales(t *testing.T) {
 
 			noncashier := setup.Seller()
 
-			_, err := queries.CountCashierSales(db, noncashier.UserId)
+			_, err := queries.CountCashierSales(db, noncashier.UserID)
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 	})

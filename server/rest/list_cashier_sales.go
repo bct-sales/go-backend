@@ -116,11 +116,11 @@ func (ep *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.I
 		return false
 	}
 
-	if user.RoleId.IsAdmin() {
+	if user.RoleID.IsAdmin() {
 		return true
 	}
 
-	if user.RoleId.IsCashier() {
+	if user.RoleID.IsCashier() {
 		loggedInUser := ep.UserId
 
 		if loggedInUser != queriedUser {

@@ -26,7 +26,7 @@ func TestHeavyLoad(t *testing.T) {
 
 		seller, sessionId := setup.LoggedIn(setup.Seller())
 		itemCount := 100
-		items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false), aux.WithFrozen(false))
+		items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false), aux.WithFrozen(false))
 
 		waitGroup := sync.WaitGroup{}
 

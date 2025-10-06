@@ -46,8 +46,8 @@ func ListRoles() []RoleID {
 	}
 }
 
-func (roleId RoleID) Name() string {
-	switch roleId.ID {
+func (roleID RoleID) Name() string {
+	switch roleID.ID {
 	case AdminRoleID:
 		return AdminName
 	case SellerRoleID:
@@ -55,7 +55,7 @@ func (roleId RoleID) Name() string {
 	case CashierRoleID:
 		return CashierName
 	default:
-		panic(fmt.Sprintf("unknown role id: %d", roleId.ID))
+		panic(fmt.Sprintf("unknown role id: %d", roleID.ID))
 	}
 }
 
@@ -103,6 +103,6 @@ func VisitRole[T any](roleId RoleID, visitor RoleVisitor[T]) T {
 	}
 }
 
-func (roleId RoleID) IsValid() bool {
-	return roleId.ID == AdminRoleID || roleId.ID == SellerRoleID || roleId.ID == CashierRoleID
+func (roleID RoleID) IsValid() bool {
+	return roleID.ID == AdminRoleID || roleID.ID == SellerRoleID || roleID.ID == CashierRoleID
 }

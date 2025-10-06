@@ -23,7 +23,7 @@ func TestItemIsHidden(t *testing.T) {
 				defer setup.Close()
 
 				seller := setup.Seller()
-				item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(false), aux.WithHidden(hidden))
+				item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithFrozen(false), aux.WithHidden(hidden))
 
 				actual, err := queries.IsItemHidden(db, item.ItemID)
 				require.NoError(t, err)

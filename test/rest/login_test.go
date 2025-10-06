@@ -26,7 +26,7 @@ func TestLogin(t *testing.T) {
 			seller := setup.Seller()
 
 			form := url.Values{}
-			form.Add("username", seller.UserId.String())
+			form.Add("username", seller.UserID.String())
 			form.Add("password", seller.Password)
 
 			url := path.Login()
@@ -57,7 +57,7 @@ func TestLogin(t *testing.T) {
 
 			sessionData, err := queries.GetSessionById(setup.Db, sessionId)
 			require.NoError(t, err)
-			require.Equal(t, seller.UserId, sessionData.UserID)
+			require.Equal(t, seller.UserID, sessionData.UserID)
 		})
 
 		t.Run("Admin", func(t *testing.T) {
@@ -67,7 +67,7 @@ func TestLogin(t *testing.T) {
 			admin := setup.Admin()
 
 			form := url.Values{}
-			form.Add("username", admin.UserId.String())
+			form.Add("username", admin.UserID.String())
 			form.Add("password", admin.Password)
 
 			url := path.Login()
@@ -98,7 +98,7 @@ func TestLogin(t *testing.T) {
 
 			sessionData, err := queries.GetSessionById(setup.Db, sessionId)
 			require.NoError(t, err)
-			require.Equal(t, admin.UserId, sessionData.UserID)
+			require.Equal(t, admin.UserID, sessionData.UserID)
 		})
 
 		t.Run("Cashier", func(t *testing.T) {
@@ -108,7 +108,7 @@ func TestLogin(t *testing.T) {
 			cashier := setup.Cashier()
 
 			form := url.Values{}
-			form.Add("username", cashier.UserId.String())
+			form.Add("username", cashier.UserID.String())
 			form.Add("password", cashier.Password)
 
 			url := path.Login()
@@ -139,7 +139,7 @@ func TestLogin(t *testing.T) {
 
 			sessionData, err := queries.GetSessionById(setup.Db, sessionId)
 			require.NoError(t, err)
-			require.Equal(t, cashier.UserId, sessionData.UserID)
+			require.Equal(t, cashier.UserID, sessionData.UserID)
 		})
 	})
 
@@ -169,7 +169,7 @@ func TestLogin(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			userId := seller.UserId
+			userId := seller.UserID
 			password := "wrong password"
 
 			require.NotEqual(t, password, seller.Password, "Bug in tests if this assertion fails")
@@ -212,7 +212,7 @@ func TestLogin(t *testing.T) {
 			cashier := setup.Cashier()
 
 			form := url.Values{}
-			form.Add("username", cashier.UserId.String())
+			form.Add("username", cashier.UserID.String())
 
 			url := path.Login()
 			request, err := http.NewRequest("POST", url.String(), bytes.NewBufferString(form.Encode()))

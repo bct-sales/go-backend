@@ -28,7 +28,7 @@ func TestGetSessionData(t *testing.T) {
 
 				require.NoError(t, err)
 				require.NotNil(t, sessionData)
-				require.Equal(t, seller.UserId, sessionData.UserId)
+				require.Equal(t, seller.UserID, sessionData.UserId)
 				require.Equal(t, roleId, sessionData.RoleId)
 				require.Equal(t, expectedExpirationTime, sessionData.ExpirationTime)
 			})
@@ -50,7 +50,7 @@ func TestGetSessionData(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			sessionId := setup.Session(seller.UserId, aux.WithExpiration(10))
+			sessionId := setup.Session(seller.UserID, aux.WithExpiration(10))
 
 			// Advance time to ensure session is expired
 			setup.Clock.Advance(11)

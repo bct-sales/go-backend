@@ -30,11 +30,11 @@ func TestGetItemInformation(t *testing.T) {
 
 					seller := setup.Seller()
 					cashier, sessionId := setup.LoggedIn(setup.Cashier())
-					item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+					item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 					saleIds := []models.ID{}
 					for i := 0; i < sale_count; i++ {
-						sale := setup.Sale(cashier.UserId, []models.ID{item.ItemID})
+						sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
 						saleIds = append(saleIds, sale.SaleID)
 					}
 
@@ -66,7 +66,7 @@ func TestGetItemInformation(t *testing.T) {
 			seller := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Admin())
 
-			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			url := path.Item(item.ItemID)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -92,7 +92,7 @@ func TestGetItemInformation(t *testing.T) {
 			defer setup.Close()
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
-			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			url := path.Item(item.ItemID)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -133,7 +133,7 @@ func TestGetItemInformation(t *testing.T) {
 
 			_, sessionId := setup.LoggedIn(setup.Seller())
 			ownerSeller := setup.Seller()
-			item := setup.Item(ownerSeller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+			item := setup.Item(ownerSeller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			url := path.Item(item.ItemID)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -170,10 +170,10 @@ func TestGetItemInformation(t *testing.T) {
 
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			for i := 0; i < sale_count; i++ {
-				setup.Sale(cashier.UserId, []models.ID{item.ItemID})
+				setup.Sale(cashier.UserID, []models.ID{item.ItemID})
 			}
 
 			url := path.Item(item.ItemID)
@@ -187,7 +187,7 @@ func TestGetItemInformation(t *testing.T) {
 			defer setup.Close()
 
 			seller, sessionId := setup.LoggedIn(setup.Seller(), aux.WithExpiration(100))
-			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			setup.Clock.Advance(200)
 

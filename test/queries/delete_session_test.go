@@ -19,7 +19,7 @@ func TestDeleteSession(t *testing.T) {
 
 		user := setup.Admin()
 		expirationTime := models.Timestamp(0)
-		sessionId, err := queries.AddSession(db, user.UserId, expirationTime)
+		sessionId, err := queries.AddSession(db, user.UserID, expirationTime)
 		require.NoError(t, err)
 
 		err = queries.DeleteSession(db, sessionId)

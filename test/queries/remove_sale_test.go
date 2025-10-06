@@ -21,16 +21,16 @@ func TestRemoveSale(t *testing.T) {
 		seller := setup.Seller()
 		cashier := setup.Cashier()
 		sale1ItemIds := []models.ID{
-			setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID,
-			setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false)).ItemID,
+			setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)).ItemID,
+			setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false)).ItemID,
 		}
 		sale2ItemIds := []models.ID{
-			setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false)).ItemID,
-			setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false)).ItemID,
+			setup.Item(seller.UserID, aux.WithDummyData(3), aux.WithHidden(false)).ItemID,
+			setup.Item(seller.UserID, aux.WithDummyData(4), aux.WithHidden(false)).ItemID,
 		}
 
-		sale1 := setup.Sale(cashier.UserId, sale1ItemIds)
-		sale2 := setup.Sale(cashier.UserId, sale2ItemIds)
+		sale1 := setup.Sale(cashier.UserID, sale1ItemIds)
+		sale2 := setup.Sale(cashier.UserID, sale2ItemIds)
 
 		setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
 			err := queries.RemoveSale(transaction, sale1.SaleID)
@@ -66,8 +66,8 @@ func TestRemoveSale(t *testing.T) {
 
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			item := setup.Item(seller.UserId, aux.WithHidden(false), aux.WithFrozen(false))
-			sale := setup.Sale(cashier.UserId, []models.ID{item.ItemID})
+			item := setup.Item(seller.UserID, aux.WithHidden(false), aux.WithFrozen(false))
+			sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
 
 			nonexistentSaleId := models.ID(999)
 			setup.RequireNoSuchSales(t, nonexistentSaleId)

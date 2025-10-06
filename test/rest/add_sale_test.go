@@ -25,7 +25,7 @@ func TestAddSale(t *testing.T) {
 
 		seller := setup.Seller()
 		cashier, sessionId := setup.LoggedIn(setup.Cashier())
-		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+		item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 		payload := rest.AddSalePayload{
 			Items: []models.ID{item.ItemID},
@@ -38,7 +38,7 @@ func TestAddSale(t *testing.T) {
 
 		sale, err := queries.GetSaleWithID(setup.Db, response.SaleId)
 		require.NoError(t, err)
-		require.Equal(t, cashier.UserId, sale.CashierID)
+		require.Equal(t, cashier.UserID, sale.CashierID)
 
 		saleItems, err := queries.GetSaleItems(setup.Db, sale.SaleID)
 		require.NoError(t, err)
@@ -52,7 +52,7 @@ func TestAddSale(t *testing.T) {
 			defer setup.Close()
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
-			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest.AddSalePayload{
 				Items: []models.ID{item.ItemID},
@@ -73,7 +73,7 @@ func TestAddSale(t *testing.T) {
 
 			_, sessionId := setup.LoggedIn(setup.Admin())
 			seller := setup.Seller()
-			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 			payload := rest.AddSalePayload{
 				Items: []models.ID{item.ItemID},
 			}
@@ -132,7 +132,7 @@ func TestAddSale(t *testing.T) {
 
 			_, sessionId := setup.LoggedIn(setup.Cashier())
 			seller := setup.Seller()
-			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest.AddSalePayload{
 				Items: []models.ID{item.ItemID, item.ItemID},
@@ -152,7 +152,7 @@ func TestAddSale(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest.AddSalePayload{
 				Items: []models.ID{item.ItemID},
@@ -167,7 +167,7 @@ func TestAddSale(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest.AddSalePayload{
 				Items: []models.ID{item.ItemID},
@@ -182,7 +182,7 @@ func TestAddSale(t *testing.T) {
 			defer setup.Close()
 
 			seller, sessionId := setup.LoggedIn(setup.Seller(), aux.WithExpiration(10))
-			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			// Advance time to ensure session is expired
 			setup.Clock.Advance(10)

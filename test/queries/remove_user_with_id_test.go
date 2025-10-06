@@ -21,26 +21,26 @@ func TestRemoveUserWithId(t *testing.T) {
 		cashier := setup.Cashier()
 
 		{
-			sellerExists, err := queries.UserWithIdExists(db, seller.UserId)
+			sellerExists, err := queries.UserWithIdExists(db, seller.UserID)
 			require.NoError(t, err)
 			require.True(t, sellerExists)
 		}
 		{
-			cashierExists, err := queries.UserWithIdExists(db, cashier.UserId)
+			cashierExists, err := queries.UserWithIdExists(db, cashier.UserID)
 			require.NoError(t, err)
 			require.True(t, cashierExists)
 		}
 
-		err := queries.RemoveUserWithId(db, seller.UserId)
+		err := queries.RemoveUserWithId(db, seller.UserID)
 		require.NoError(t, err)
 
 		{
-			sellerExists, err := queries.UserWithIdExists(db, seller.UserId)
+			sellerExists, err := queries.UserWithIdExists(db, seller.UserID)
 			require.NoError(t, err)
 			require.False(t, sellerExists)
 		}
 		{
-			cashierExists, err := queries.UserWithIdExists(db, cashier.UserId)
+			cashierExists, err := queries.UserWithIdExists(db, cashier.UserID)
 			require.NoError(t, err)
 			require.True(t, cashierExists)
 		}

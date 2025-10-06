@@ -38,7 +38,7 @@ func TestGetItemsWithIds(t *testing.T) {
 				seller := setup.Seller()
 
 				for i := 0; i != 10; i++ {
-					setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
+					setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
 				}
 
 				actual, err := queries.GetItemsWithIds(db, selection)
@@ -69,7 +69,7 @@ func TestGetItemsWithIds(t *testing.T) {
 					seller := setup.Seller()
 
 					for i := 0; i != 10; i++ {
-						setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false))
+						setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
 					}
 
 					actual, err := queries.GetItemsWithIds(db, selection)

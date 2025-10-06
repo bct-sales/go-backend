@@ -21,7 +21,7 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 
 			seller := setup.Seller()
 
-			items, err := queries.GetSellerItemsWithSaleCounts(db, seller.UserId)
+			items, err := queries.GetSellerItemsWithSaleCounts(db, seller.UserID)
 			require.NoError(t, err)
 			require.Equal(t, 0, len(items))
 		})
@@ -31,9 +31,9 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
-			items, err := queries.GetSellerItemsWithSaleCounts(db, seller.UserId)
+			items, err := queries.GetSellerItemsWithSaleCounts(db, seller.UserID)
 			require.NoError(t, err)
 			require.Equal(t, 1, len(items))
 			require.Equal(t, item.ItemID, items[0].ItemID)
@@ -54,10 +54,10 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-			setup.Sale(cashier.UserId, []models.ID{item.ItemID})
+			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			setup.Sale(cashier.UserID, []models.ID{item.ItemID})
 
-			items, err := queries.GetSellerItemsWithSaleCounts(db, seller.UserId)
+			items, err := queries.GetSellerItemsWithSaleCounts(db, seller.UserID)
 			require.NoError(t, err)
 			require.Equal(t, 1, len(items))
 			require.Equal(t, item.ItemID, items[0].ItemID)
@@ -70,11 +70,11 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-			setup.Sale(cashier.UserId, []models.ID{item.ItemID})
-			setup.Sale(cashier.UserId, []models.ID{item.ItemID})
+			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+			setup.Sale(cashier.UserID, []models.ID{item.ItemID})
 
-			items, err := queries.GetSellerItemsWithSaleCounts(db, seller.UserId)
+			items, err := queries.GetSellerItemsWithSaleCounts(db, seller.UserID)
 			require.NoError(t, err)
 			require.Equal(t, 1, len(items))
 			require.Equal(t, item.ItemID, items[0].ItemID)

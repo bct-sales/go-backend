@@ -155,7 +155,7 @@ func TestAddItem(t *testing.T) {
 			priceInCents := models.MoneyInCents(0)
 
 			{
-				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
+				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserID, donation, charity, frozen, hidden)
 				requireDatabaseWrappedError(t, err, dberr.ErrInvalidPrice)
 			}
 
@@ -181,7 +181,7 @@ func TestAddItem(t *testing.T) {
 			hidden := false
 			priceInCents := models.MoneyInCents(-100)
 
-			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
+			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserID, donation, charity, frozen, hidden)
 			requireDatabaseWrappedError(t, err, dberr.ErrInvalidPrice)
 
 			itemStatistics, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
@@ -204,7 +204,7 @@ func TestAddItem(t *testing.T) {
 			frozen := false
 			hidden := false
 
-			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen, hidden)
+			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserID, donation, charity, frozen, hidden)
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 
 			{
@@ -230,7 +230,7 @@ func TestAddItem(t *testing.T) {
 			hidden := false
 
 			{
-				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserId, donation, charity, frozen, hidden)
+				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserID, donation, charity, frozen, hidden)
 				requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 			}
 
@@ -257,7 +257,7 @@ func TestAddItem(t *testing.T) {
 			hidden := true
 
 			{
-				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserId, donation, charity, frozen, hidden)
+				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserID, donation, charity, frozen, hidden)
 				requireDatabaseWrappedError(t, err, dberr.ErrHiddenFrozenItem)
 			}
 

@@ -27,11 +27,11 @@ func TestGetSalesWithItem(t *testing.T) {
 				seller := setup.Seller()
 				cashier := setup.Cashier()
 
-				item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
+				item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 				saleIds := make([]models.ID, saleCount)
 				for index := range saleIds {
-					saleIds[index] = setup.Sale(cashier.UserId, []models.ID{item.ItemID}).SaleID
+					saleIds[index] = setup.Sale(cashier.UserID, []models.ID{item.ItemID}).SaleID
 				}
 
 				actualSaleIds, err := queries.GetSalesWithItem(db, item.ItemID)
@@ -47,11 +47,11 @@ func TestGetSalesWithItem(t *testing.T) {
 			seller := setup.Seller()
 			cashier := setup.Cashier()
 
-			item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-			item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false))
+			item1 := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			item2 := setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false))
 
-			setup.Sale(cashier.UserId, []models.ID{item1.ItemID})
-			setup.Sale(cashier.UserId, []models.ID{item2.ItemID})
+			setup.Sale(cashier.UserID, []models.ID{item1.ItemID})
+			setup.Sale(cashier.UserID, []models.ID{item2.ItemID})
 
 			expectedSaleIds := []models.ID{item1.ItemID}
 			actualSaleIds, err := queries.GetSalesWithItem(db, item1.ItemID)
@@ -68,13 +68,13 @@ func TestGetSalesWithItem(t *testing.T) {
 			seller := setup.Seller()
 			cashier := setup.Cashier()
 
-			item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-			item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false))
+			item1 := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			item2 := setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false))
 			invalidItemId := models.ID(1000)
 			setup.RequireNoSuchItems(t, invalidItemId)
 
-			setup.Sale(cashier.UserId, []models.ID{item1.ItemID})
-			setup.Sale(cashier.UserId, []models.ID{item2.ItemID})
+			setup.Sale(cashier.UserID, []models.ID{item1.ItemID})
+			setup.Sale(cashier.UserID, []models.ID{item2.ItemID})
 
 			_, err := queries.GetSalesWithItem(db, invalidItemId)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)

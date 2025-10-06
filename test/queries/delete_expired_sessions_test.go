@@ -27,7 +27,7 @@ func TestDeleteExpiredSessions(t *testing.T) {
 
 				for i := 0; i < 100; i++ {
 					expirationTime := models.Timestamp(0)
-					sessionId, err := queries.AddSession(db, user.UserId, expirationTime)
+					sessionId, err := queries.AddSession(db, user.UserID, expirationTime)
 					require.NoError(t, err)
 
 					if expirationTime < models.Timestamp(cutoff) {

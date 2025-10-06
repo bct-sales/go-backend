@@ -20,13 +20,13 @@ func TestGetSaleItems(t *testing.T) {
 	seller := setup.Seller()
 	cashier := setup.Cashier()
 	itemIds := []models.ID{
-		setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID,
-		setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false)).ItemID,
-		setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false)).ItemID,
-		setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false)).ItemID,
+		setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)).ItemID,
+		setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false)).ItemID,
+		setup.Item(seller.UserID, aux.WithDummyData(3), aux.WithHidden(false)).ItemID,
+		setup.Item(seller.UserID, aux.WithDummyData(4), aux.WithHidden(false)).ItemID,
 	}
 
-	sale := setup.Sale(cashier.UserId, itemIds)
+	sale := setup.Sale(cashier.UserID, itemIds)
 
 	actualItems, err := queries.GetSaleItems(db, sale.SaleID)
 

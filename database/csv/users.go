@@ -20,8 +20,8 @@ func OutputUsers(db *sql.DB, writer io.Writer) error {
 	}
 
 	writeRow := func(user *models.User) error {
-		idString := user.UserId.String()
-		roleString := user.RoleId.Name()
+		idString := user.UserID.String()
+		roleString := user.RoleID.Name()
 
 		var lastActivityString string
 		if user.LastActivity != nil {

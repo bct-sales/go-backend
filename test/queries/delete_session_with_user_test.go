@@ -18,9 +18,9 @@ func TestDeleteSessionWithUser(t *testing.T) {
 			defer setup.Close()
 
 			user := setup.Admin()
-			sessionId := setup.Session(user.UserId)
+			sessionId := setup.Session(user.UserID)
 
-			err := queries.DeleteSessionWithUser(db, user.UserId)
+			err := queries.DeleteSessionWithUser(db, user.UserID)
 			require.NoError(t, err)
 
 			_, err = queries.GetSessionById(db, sessionId)
@@ -34,10 +34,10 @@ func TestDeleteSessionWithUser(t *testing.T) {
 			user := setup.Admin()
 			user2 := setup.Cashier()
 
-			sessionId := setup.Session(user.UserId)
-			sessionId2 := setup.Session(user2.UserId)
+			sessionId := setup.Session(user.UserID)
+			sessionId2 := setup.Session(user2.UserID)
 
-			err := queries.DeleteSessionWithUser(db, user.UserId)
+			err := queries.DeleteSessionWithUser(db, user.UserID)
 			require.NoError(t, err)
 
 			{
@@ -57,10 +57,10 @@ func TestDeleteSessionWithUser(t *testing.T) {
 
 			user := setup.Admin()
 
-			sessionId := setup.Session(user.UserId)
-			sessionId2 := setup.Session(user.UserId)
+			sessionId := setup.Session(user.UserID)
+			sessionId2 := setup.Session(user.UserID)
 
-			err := queries.DeleteSessionWithUser(db, user.UserId)
+			err := queries.DeleteSessionWithUser(db, user.UserID)
 			require.NoError(t, err)
 
 			{

@@ -36,7 +36,7 @@ func TestGenerateLabels(t *testing.T) {
 				defer setup.Close()
 
 				seller, sessionId := setup.LoggedIn(setup.Seller())
-				item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithFrozen(false), aux.WithHidden(false))
+				item1 := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithFrozen(false), aux.WithHidden(false))
 
 				url := path.Labels()
 				request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
@@ -54,7 +54,7 @@ func TestGenerateLabels(t *testing.T) {
 
 				seller, sessionId := setup.LoggedIn(setup.Seller())
 
-				items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+				items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 				itemIds := models.CollectItemIds(items)
 
 				url := path.Labels()
@@ -78,8 +78,8 @@ func TestGenerateLabels(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 			otherSeller := setup.Seller()
 
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-			otherItems := setup.Items(otherSeller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			otherItems := setup.Items(otherSeller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 			itemIds := models.CollectItemIds(items)
 
 			url := path.Labels()
@@ -105,7 +105,7 @@ func TestGenerateLabels(t *testing.T) {
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(true), aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 10, aux.WithFrozen(true), aux.WithHidden(false))
 			itemIds := models.CollectItemIds(items)
 
 			url := path.Labels()
@@ -127,7 +127,7 @@ func TestGenerateLabels(t *testing.T) {
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 			itemIds := models.CollectItemIds(items)
 
 			url := path.Labels()
@@ -151,7 +151,7 @@ func TestGenerateLabels(t *testing.T) {
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 
 			url := path.Labels()
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
@@ -172,7 +172,7 @@ func TestGenerateLabels(t *testing.T) {
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 			nonexistendItemId := models.ID(1000)
 			setup.RequireNoSuchItems(t, nonexistendItemId)
 
@@ -196,7 +196,7 @@ func TestGenerateLabels(t *testing.T) {
 			owningSeller := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Seller())
 
-			items := setup.Items(owningSeller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			items := setup.Items(owningSeller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 
 			url := path.Labels()
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
@@ -218,7 +218,7 @@ func TestGenerateLabels(t *testing.T) {
 			seller := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Admin())
 
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 
 			url := path.Labels()
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
@@ -240,7 +240,7 @@ func TestGenerateLabels(t *testing.T) {
 			seller := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Cashier())
 
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 
 			url := path.Labels()
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
@@ -261,7 +261,7 @@ func TestGenerateLabels(t *testing.T) {
 
 			seller, _ := setup.LoggedIn(setup.Seller())
 
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 
 			url := path.Labels()
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
@@ -282,7 +282,7 @@ func TestGenerateLabels(t *testing.T) {
 
 			seller, _ := setup.LoggedIn(setup.Seller())
 
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 
 			url := path.Labels()
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
@@ -303,7 +303,7 @@ func TestGenerateLabels(t *testing.T) {
 
 			seller, sessionId := setup.LoggedIn(setup.Seller(), aux.WithExpiration(500))
 
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 
 			// Advance clock so that session expires
 			setup.Clock.Advance(501)
@@ -552,7 +552,7 @@ func TestGenerateLabels(t *testing.T) {
 					defer setup.Close()
 
 					seller, sessionId := setup.LoggedIn(setup.Seller())
-					items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+					items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 					itemIds := models.CollectItemIds(items)
 
 					url := path.Labels()

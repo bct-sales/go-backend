@@ -37,7 +37,7 @@ func TestAddSellerItem(t *testing.T) {
 
 										setup.Clock.Advance(models.Timestamp(delay))
 
-										url := path.SellerItems(seller.UserId)
+										url := path.SellerItems(seller.UserID)
 										payload := rest.AddSellerItemPayload{
 											Price:       &price,
 											Description: &description,
@@ -58,7 +58,7 @@ func TestAddSellerItem(t *testing.T) {
 
 										itemInDatabase := itemsInDatabase[0]
 										require.Equal(t, response.ItemId, itemInDatabase.ItemID)
-										require.Equal(t, seller.UserId, itemInDatabase.SellerID)
+										require.Equal(t, seller.UserID, itemInDatabase.SellerID)
 										require.Equal(t, price, itemInDatabase.PriceInCents)
 										require.Equal(t, description, itemInDatabase.Description)
 										require.Equal(t, categoryId, itemInDatabase.CategoryID)
@@ -87,7 +87,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 
-			url := path.SellerItems(seller.UserId)
+			url := path.SellerItems(seller.UserID)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
@@ -117,7 +117,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 
-			url := path.SellerItems(seller.UserId)
+			url := path.SellerItems(seller.UserID)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
@@ -149,7 +149,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 
-			url := path.SellerItems(seller.UserId)
+			url := path.SellerItems(seller.UserID)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
@@ -180,7 +180,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Admin())
 
-			url := path.SellerItems(seller.UserId)
+			url := path.SellerItems(seller.UserID)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
@@ -210,7 +210,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			seller := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Cashier())
-			url := path.SellerItems(seller.UserId)
+			url := path.SellerItems(seller.UserID)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
@@ -271,7 +271,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller1 := setup.Seller()
 			_, sessionId := setup.LoggedIn(setup.Seller())
 
-			url := path.SellerItems(seller1.UserId)
+			url := path.SellerItems(seller1.UserID)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
@@ -333,7 +333,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			seller := setup.Seller()
 
-			url := path.SellerItems(seller.UserId)
+			url := path.SellerItems(seller.UserID)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
@@ -364,7 +364,7 @@ func TestAddSellerItem(t *testing.T) {
 			seller := setup.Seller()
 			invalidSessionId := models.SessionId("xxx")
 
-			url := path.SellerItems(seller.UserId)
+			url := path.SellerItems(seller.UserID)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
@@ -396,7 +396,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			setup.Clock.Advance(100) // Advance time to ensure session is expired
 
-			url := path.SellerItems(seller.UserId)
+			url := path.SellerItems(seller.UserID)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,

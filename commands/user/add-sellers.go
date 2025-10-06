@@ -106,7 +106,7 @@ func (c *addSellersCommand) collectExistingUserIds(db *sql.DB) (*algorithms.Set[
 	result := algorithms.NewSet[models.ID]()
 
 	err := queries.GetUsers(db, func(user *models.User) error {
-		result.Add(user.UserId)
+		result.Add(user.UserID)
 		return nil
 	})
 	if err != nil {

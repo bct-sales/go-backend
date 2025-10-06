@@ -27,7 +27,7 @@ func TestGetTotalSalesValue(t *testing.T) {
 		defer setup.Close()
 
 		seller := setup.Seller()
-		setup.Items(seller.UserId, 10, aux.WithHidden(false))
+		setup.Items(seller.UserID, 10, aux.WithHidden(false))
 
 		total, err := queries.GetTotalSalesValue(db)
 		require.NoError(t, err)
@@ -40,8 +40,8 @@ func TestGetTotalSalesValue(t *testing.T) {
 
 		seller := setup.Seller()
 		cashier := setup.Cashier()
-		items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-		setup.Sale(cashier.UserId, []models.ID{items[0].ItemID})
+		items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
+		setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
 
 		total, err := queries.GetTotalSalesValue(db)
 		require.NoError(t, err)
@@ -54,8 +54,8 @@ func TestGetTotalSalesValue(t *testing.T) {
 
 		seller := setup.Seller()
 		cashier := setup.Cashier()
-		items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-		setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[1].ItemID, items[2].ItemID})
+		items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
+		setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID, items[2].ItemID})
 
 		total, err := queries.GetTotalSalesValue(db)
 		require.NoError(t, err)
@@ -68,10 +68,10 @@ func TestGetTotalSalesValue(t *testing.T) {
 
 		seller := setup.Seller()
 		cashier := setup.Cashier()
-		items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-		setup.Sale(cashier.UserId, []models.ID{items[0].ItemID})
-		setup.Sale(cashier.UserId, []models.ID{items[1].ItemID})
-		setup.Sale(cashier.UserId, []models.ID{items[2].ItemID})
+		items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
+		setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
+		setup.Sale(cashier.UserID, []models.ID{items[1].ItemID})
+		setup.Sale(cashier.UserID, []models.ID{items[2].ItemID})
 
 		total, err := queries.GetTotalSalesValue(db)
 		require.NoError(t, err)
@@ -84,10 +84,10 @@ func TestGetTotalSalesValue(t *testing.T) {
 
 		seller := setup.Seller()
 		cashier := setup.Cashier()
-		items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-		setup.Sale(cashier.UserId, []models.ID{items[0].ItemID})
-		setup.Sale(cashier.UserId, []models.ID{items[0].ItemID})
-		setup.Sale(cashier.UserId, []models.ID{items[0].ItemID})
+		items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
+		setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
+		setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
+		setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
 
 		total, err := queries.GetTotalSalesValue(db)
 		require.NoError(t, err)
@@ -101,11 +101,11 @@ func TestGetTotalSalesValue(t *testing.T) {
 		seller := setup.Seller()
 		cashier1 := setup.Cashier()
 		cashier2 := setup.Cashier()
-		items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-		setup.Sale(cashier1.UserId, []models.ID{items[0].ItemID})
-		setup.Sale(cashier2.UserId, []models.ID{items[1].ItemID})
-		setup.Sale(cashier2.UserId, []models.ID{items[2].ItemID})
-		setup.Sale(cashier2.UserId, []models.ID{items[3].ItemID})
+		items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
+		setup.Sale(cashier1.UserID, []models.ID{items[0].ItemID})
+		setup.Sale(cashier2.UserID, []models.ID{items[1].ItemID})
+		setup.Sale(cashier2.UserID, []models.ID{items[2].ItemID})
+		setup.Sale(cashier2.UserID, []models.ID{items[3].ItemID})
 
 		total, err := queries.GetTotalSalesValue(db)
 		require.NoError(t, err)
@@ -119,12 +119,12 @@ func TestGetTotalSalesValue(t *testing.T) {
 		seller := setup.Seller()
 		cashier1 := setup.Cashier()
 		cashier2 := setup.Cashier()
-		items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-		setup.Sale(cashier1.UserId, []models.ID{items[0].ItemID})
-		setup.Sale(cashier1.UserId, []models.ID{items[1].ItemID})
-		setup.Sale(cashier2.UserId, []models.ID{items[1].ItemID})
-		setup.Sale(cashier2.UserId, []models.ID{items[2].ItemID})
-		setup.Sale(cashier2.UserId, []models.ID{items[3].ItemID})
+		items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
+		setup.Sale(cashier1.UserID, []models.ID{items[0].ItemID})
+		setup.Sale(cashier1.UserID, []models.ID{items[1].ItemID})
+		setup.Sale(cashier2.UserID, []models.ID{items[1].ItemID})
+		setup.Sale(cashier2.UserID, []models.ID{items[2].ItemID})
+		setup.Sale(cashier2.UserID, []models.ID{items[3].ItemID})
 
 		total, err := queries.GetTotalSalesValue(db)
 		require.NoError(t, err)

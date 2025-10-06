@@ -86,7 +86,7 @@ func (q *addSaleQuery) ensureInputsValidity(db DatabaseQuerier) error {
 	if err != nil {
 		return err
 	}
-	if !cashier.RoleId.IsCashier() {
+	if !cashier.RoleID.IsCashier() {
 		return dberr.ErrSaleRequiresCashier
 	}
 

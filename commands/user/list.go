@@ -66,8 +66,8 @@ func (c *ListUsersCommand) listUsersInTableFormat() error {
 		userCount := 0
 
 		for _, user := range users {
-			idString := user.UserId.String()
-			roleString := user.RoleId.Name()
+			idString := user.UserID.String()
+			roleString := user.RoleID.Name()
 			createdAtString := user.CreatedAt.FormattedDateTime()
 
 			var lastActivityString string

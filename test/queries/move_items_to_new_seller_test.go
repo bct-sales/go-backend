@@ -21,10 +21,10 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 
 			oldSeller := setup.Seller()
 			newSeller := setup.Seller()
-			items := setup.Items(oldSeller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			items := setup.Items(oldSeller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.MoveItemsToNewSeller(db, oldSeller.UserId, newSeller.UserId)
+				err := queries.MoveItemsToNewSeller(db, oldSeller.UserID, newSeller.UserID)
 				require.NoError(t, err)
 			})
 
@@ -36,7 +36,7 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 				require.Equal(t, item.Charity, newItem.Charity)
 				require.Equal(t, item.Description, newItem.Description)
 				require.Equal(t, item.Donation, newItem.Donation)
-				require.Equal(t, newSeller.UserId, newItem.SellerID)
+				require.Equal(t, newSeller.UserID, newItem.SellerID)
 				require.Equal(t, item.Frozen, newItem.Frozen)
 				require.Equal(t, item.Hidden, newItem.Hidden)
 				require.Equal(t, item.PriceInCents, newItem.PriceInCents)
@@ -49,10 +49,10 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 
 			oldSeller := setup.Seller()
 			newSeller := setup.Seller()
-			items := setup.Items(oldSeller.UserId, 10, aux.WithFrozen(true), aux.WithHidden(false))
+			items := setup.Items(oldSeller.UserID, 10, aux.WithFrozen(true), aux.WithHidden(false))
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.MoveItemsToNewSeller(db, oldSeller.UserId, newSeller.UserId)
+				err := queries.MoveItemsToNewSeller(db, oldSeller.UserID, newSeller.UserID)
 				require.NoError(t, err)
 			})
 
@@ -64,7 +64,7 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 				require.Equal(t, item.Charity, newItem.Charity)
 				require.Equal(t, item.Description, newItem.Description)
 				require.Equal(t, item.Donation, newItem.Donation)
-				require.Equal(t, newSeller.UserId, newItem.SellerID)
+				require.Equal(t, newSeller.UserID, newItem.SellerID)
 				require.Equal(t, item.Frozen, newItem.Frozen)
 				require.Equal(t, item.Hidden, newItem.Hidden)
 				require.Equal(t, item.PriceInCents, newItem.PriceInCents)
@@ -77,10 +77,10 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 
 			oldSeller := setup.Seller()
 			newSeller := setup.Seller()
-			items := setup.Items(oldSeller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(true))
+			items := setup.Items(oldSeller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(true))
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.MoveItemsToNewSeller(db, oldSeller.UserId, newSeller.UserId)
+				err := queries.MoveItemsToNewSeller(db, oldSeller.UserID, newSeller.UserID)
 				require.NoError(t, err)
 			})
 
@@ -92,7 +92,7 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 				require.Equal(t, item.Charity, newItem.Charity)
 				require.Equal(t, item.Description, newItem.Description)
 				require.Equal(t, item.Donation, newItem.Donation)
-				require.Equal(t, newSeller.UserId, newItem.SellerID)
+				require.Equal(t, newSeller.UserID, newItem.SellerID)
 				require.Equal(t, item.Frozen, newItem.Frozen)
 				require.Equal(t, item.Hidden, newItem.Hidden)
 				require.Equal(t, item.PriceInCents, newItem.PriceInCents)
@@ -109,17 +109,17 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			newSeller := setup.Seller()
 			otherSeller3 := setup.Seller()
 
-			setup.Items(otherSeller1.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-			setup.Items(oldSeller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-			setup.Items(otherSeller2.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-			setup.Items(newSeller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-			setup.Items(otherSeller3.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			setup.Items(otherSeller1.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			setup.Items(oldSeller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			setup.Items(otherSeller2.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			setup.Items(newSeller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			setup.Items(otherSeller3.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 
 			var itemsBefore []*models.Item
 			require.NoError(t, queries.GetItems(db, queries.CollectTo(&itemsBefore), queries.AllItems, queries.AllRows()))
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.MoveItemsToNewSeller(db, oldSeller.UserId, newSeller.UserId)
+				err := queries.MoveItemsToNewSeller(db, oldSeller.UserID, newSeller.UserID)
 				require.NoError(t, err)
 			})
 
@@ -136,8 +136,8 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 				require.Equal(t, itemBefore.PriceInCents, itemAfter.PriceInCents)
 
 				var expectedSeller models.ID
-				if itemBefore.SellerID == oldSeller.UserId {
-					expectedSeller = newSeller.UserId
+				if itemBefore.SellerID == oldSeller.UserID {
+					expectedSeller = newSeller.UserID
 				} else {
 					expectedSeller = itemBefore.SellerID
 				}
@@ -157,7 +157,7 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			setup.RequireNoSuchUsers(t, invalidSellerId)
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.MoveItemsToNewSeller(db, invalidSellerId, newSeller.UserId)
+				err := queries.MoveItemsToNewSeller(db, invalidSellerId, newSeller.UserID)
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 			})
 		})
@@ -171,7 +171,7 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			setup.RequireNoSuchUsers(t, invalidSellerId)
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.MoveItemsToNewSeller(db, oldSeller.UserId, invalidSellerId)
+				err := queries.MoveItemsToNewSeller(db, oldSeller.UserID, invalidSellerId)
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 			})
 		})
@@ -184,7 +184,7 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			newSeller := setup.Seller()
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.MoveItemsToNewSeller(db, oldSeller.UserId, newSeller.UserId)
+				err := queries.MoveItemsToNewSeller(db, oldSeller.UserID, newSeller.UserID)
 				requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 			})
 		})
@@ -197,7 +197,7 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			newSeller := setup.Seller()
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.MoveItemsToNewSeller(db, oldSeller.UserId, newSeller.UserId)
+				err := queries.MoveItemsToNewSeller(db, oldSeller.UserID, newSeller.UserID)
 				requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 			})
 		})
@@ -210,7 +210,7 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			newSeller := setup.Admin()
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.MoveItemsToNewSeller(db, oldSeller.UserId, newSeller.UserId)
+				err := queries.MoveItemsToNewSeller(db, oldSeller.UserID, newSeller.UserID)
 				requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 			})
 		})
@@ -223,7 +223,7 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			newSeller := setup.Cashier()
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.MoveItemsToNewSeller(db, oldSeller.UserId, newSeller.UserId)
+				err := queries.MoveItemsToNewSeller(db, oldSeller.UserID, newSeller.UserID)
 				requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 			})
 		})

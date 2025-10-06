@@ -37,7 +37,7 @@ func TestUpdateHiddenStatusOfItems(t *testing.T) {
 
 				itemIds := []models.ID{}
 				for i := 0; i != 10; i++ {
-					itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false), aux.WithFrozen(false)).ItemID)
+					itemIds = append(itemIds, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false), aux.WithFrozen(false)).ItemID)
 				}
 
 				setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
@@ -74,9 +74,9 @@ func TestUpdateHiddenStatusOfItems(t *testing.T) {
 
 			itemIds := []models.ID{}
 			for i := 0; i != 10; i++ {
-				itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithHidden(false), aux.WithFrozen(false)).ItemID)
+				itemIds = append(itemIds, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false), aux.WithFrozen(false)).ItemID)
 			}
-			itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(10), aux.WithHidden(false), aux.WithFrozen(true)).ItemID)
+			itemIds = append(itemIds, setup.Item(seller.UserID, aux.WithDummyData(10), aux.WithHidden(false), aux.WithFrozen(true)).ItemID)
 
 			setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
 				err := queries.UpdateHiddenStatusOfItems(transaction, itemIds, true)

@@ -55,7 +55,7 @@ func TestCategoryCounts(t *testing.T) {
 
 					_, sessionId := setup.LoggedIn(setup.Admin())
 					seller := setup.Seller()
-					setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithItemCategory(categoryId), aux.WithHidden(false))
+					setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categoryId), aux.WithHidden(false))
 
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
 					router.ServeHTTP(writer, request)
@@ -74,8 +74,8 @@ func TestCategoryCounts(t *testing.T) {
 
 					_, sessionId := setup.LoggedIn(setup.Admin())
 					seller := setup.Seller()
-					setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithItemCategory(categoryId), aux.WithHidden(false))
-					setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithItemCategory(categoryId), aux.WithHidden(false))
+					setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categoryId), aux.WithHidden(false))
+					setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categoryId), aux.WithHidden(false))
 
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
 					router.ServeHTTP(writer, request)
@@ -96,8 +96,8 @@ func TestCategoryCounts(t *testing.T) {
 
 							_, sessionId := setup.LoggedIn(setup.Admin())
 							seller := setup.Seller()
-							setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithItemCategory(categoryId1), aux.WithFrozen(false), aux.WithHidden(false))
-							setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithItemCategory(categoryId2), aux.WithFrozen(false), aux.WithHidden(false))
+							setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categoryId1), aux.WithFrozen(false), aux.WithHidden(false))
+							setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithItemCategory(categoryId2), aux.WithFrozen(false), aux.WithHidden(false))
 
 							request := CreateGetRequest(url, WithSessionCookie(sessionId))
 							router.ServeHTTP(writer, request)
@@ -123,8 +123,8 @@ func TestCategoryCounts(t *testing.T) {
 				_, sessionId := setup.LoggedIn(setup.Admin())
 				seller := setup.Seller()
 				category := aux.CategoryId_BabyChildEquipment
-				setup.Items(seller.UserId, 5, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(false))
-				setup.Items(seller.UserId, 3, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(true))
+				setup.Items(seller.UserID, 5, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(false))
+				setup.Items(seller.UserID, 3, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(true))
 
 				url := path.CategoriesWithCounts(queries.AllItems)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -144,8 +144,8 @@ func TestCategoryCounts(t *testing.T) {
 				_, sessionId := setup.LoggedIn(setup.Admin())
 				seller := setup.Seller()
 				category := aux.CategoryId_BabyChildEquipment
-				setup.Items(seller.UserId, 5, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(false))
-				setup.Items(seller.UserId, 3, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(true))
+				setup.Items(seller.UserID, 5, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(false))
+				setup.Items(seller.UserID, 3, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(true))
 
 				url := path.CategoriesWithCounts(queries.OnlyHiddenItems)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -165,8 +165,8 @@ func TestCategoryCounts(t *testing.T) {
 				_, sessionId := setup.LoggedIn(setup.Admin())
 				seller := setup.Seller()
 				category := aux.CategoryId_BabyChildEquipment
-				setup.Items(seller.UserId, 5, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(false))
-				setup.Items(seller.UserId, 3, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(true))
+				setup.Items(seller.UserID, 5, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(false))
+				setup.Items(seller.UserID, 3, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(true))
 
 				url := path.CategoriesWithCounts(queries.OnlyVisibleItems)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))

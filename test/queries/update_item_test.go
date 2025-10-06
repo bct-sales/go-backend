@@ -51,7 +51,7 @@ func TestUpdateItem(t *testing.T) {
 									seller := setup.Seller()
 
 									item := setup.Item(
-										seller.UserId,
+										seller.UserID,
 										aux.WithAddedAt(oldAddedAt),
 										aux.WithDescription(oldDescription),
 										aux.WithPriceInCents(oldPriceInCents),
@@ -114,7 +114,7 @@ func TestUpdateItem(t *testing.T) {
 									require.NoError(t, err)
 
 									require.Equal(t, item.ItemID, updatedItem.ItemID)
-									require.Equal(t, seller.UserId, updatedItem.SellerID)
+									require.Equal(t, seller.UserID, updatedItem.SellerID)
 									require.Equal(t, expectedAddedAt, updatedItem.AddedAt)
 									require.Equal(t, expectedDescription, updatedItem.Description)
 									require.Equal(t, expectedPriceInCents, updatedItem.PriceInCents)
@@ -152,7 +152,7 @@ func TestUpdateItem(t *testing.T) {
 			seller := setup.Seller()
 
 			item := setup.Item(
-				seller.UserId,
+				seller.UserID,
 				aux.WithFrozen(true),
 				aux.WithHidden(false),
 			)
@@ -172,7 +172,7 @@ func TestUpdateItem(t *testing.T) {
 			seller := setup.Seller()
 
 			item := setup.Item(
-				seller.UserId,
+				seller.UserID,
 				aux.WithFrozen(false),
 				aux.WithHidden(true),
 			)
@@ -192,7 +192,7 @@ func TestUpdateItem(t *testing.T) {
 			seller := setup.Seller()
 
 			item := setup.Item(
-				seller.UserId,
+				seller.UserID,
 				aux.WithFrozen(false),
 				aux.WithHidden(false),
 			)

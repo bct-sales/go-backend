@@ -190,7 +190,7 @@ func GetUserWithId(db DatabaseQuerier, userId models.ID) (r_result *models.User,
 		return nil, err
 	}
 
-	user := models.User{UserId: userId, RoleId: roleId, CreatedAt: createdAt, LastActivity: lastActivity, Password: password}
+	user := models.User{UserID: userId, RoleID: roleId, CreatedAt: createdAt, LastActivity: lastActivity, Password: password}
 	return &user, nil
 }
 
@@ -229,8 +229,8 @@ func GetUsers(db DatabaseQuerier, receiver func(*models.User) error) (r_err erro
 		}
 
 		user := models.User{
-			UserId:       userId,
-			RoleId:       roleId,
+			UserID:       userId,
+			RoleID:       roleId,
 			CreatedAt:    createdAt,
 			LastActivity: lastActivity,
 			Password:     password,
@@ -296,8 +296,8 @@ func GetUsersWithItemCount(db DatabaseQuerier, itemSelection ItemSelection, rece
 
 		userWithItemCount := UserWithItemCount{
 			User: models.User{
-				UserId:       userId,
-				RoleId:       roleId,
+				UserID:       userId,
+				RoleID:       roleId,
 				CreatedAt:    createdAt,
 				LastActivity: lastActivity,
 				Password:     password,
@@ -375,8 +375,8 @@ func EnsureUserExistsAndHasRole(db DatabaseQuerier, userId models.ID, expectedRo
 		return err
 	}
 
-	if user.RoleId != expectedRoleId {
-		return fmt.Errorf("user %d expected to have role %s but is %s instead: %w", userId, expectedRoleId.Name(), user.RoleId.Name(), dberr.ErrWrongRole)
+	if user.RoleID != expectedRoleId {
+		return fmt.Errorf("user %d expected to have role %s but is %s instead: %w", userId, expectedRoleId.Name(), user.RoleID.Name(), dberr.ErrWrongRole)
 	}
 
 	return nil

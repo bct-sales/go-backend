@@ -30,7 +30,7 @@ func TestEnsureUserExistsAndHasRole(t *testing.T) {
 
 				user := setup.User(roleId)
 
-				err := queries.EnsureUserExistsAndHasRole(db, user.UserId, roleId)
+				err := queries.EnsureUserExistsAndHasRole(db, user.UserID, roleId)
 				require.NoError(t, err)
 			})
 		}
@@ -48,7 +48,7 @@ func TestEnsureUserExistsAndHasRole(t *testing.T) {
 
 							user := setup.User(actualRoleId)
 
-							err := queries.EnsureUserExistsAndHasRole(db, user.UserId, expectedRoleId)
+							err := queries.EnsureUserExistsAndHasRole(db, user.UserID, expectedRoleId)
 							requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 						})
 					}

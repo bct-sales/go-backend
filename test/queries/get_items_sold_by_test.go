@@ -20,12 +20,12 @@ func TestGetItemsSoldBy(t *testing.T) {
 
 		seller := setup.Seller()
 		cashier := setup.Cashier()
-		setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-		setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false))
-		setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false))
-		setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false))
+		setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+		setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false))
+		setup.Item(seller.UserID, aux.WithDummyData(3), aux.WithHidden(false))
+		setup.Item(seller.UserID, aux.WithDummyData(4), aux.WithHidden(false))
 
-		items, err := queries.GetItemsSoldBy(db, cashier.UserId)
+		items, err := queries.GetItemsSoldBy(db, cashier.UserID)
 		require.NoError(t, err)
 		require.Len(t, items, 0)
 	})
@@ -39,15 +39,15 @@ func TestGetItemsSoldBy(t *testing.T) {
 		cashierWithSales := setup.Cashier()
 
 		itemIds := []models.ID{
-			setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID,
-			setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false)).ItemID,
-			setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false)).ItemID,
-			setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false)).ItemID,
+			setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)).ItemID,
+			setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false)).ItemID,
+			setup.Item(seller.UserID, aux.WithDummyData(3), aux.WithHidden(false)).ItemID,
+			setup.Item(seller.UserID, aux.WithDummyData(4), aux.WithHidden(false)).ItemID,
 		}
 
-		setup.Sale(cashierWithSales.UserId, itemIds)
+		setup.Sale(cashierWithSales.UserID, itemIds)
 
-		items, err := queries.GetItemsSoldBy(db, zeroSaleCashier.UserId)
+		items, err := queries.GetItemsSoldBy(db, zeroSaleCashier.UserID)
 		require.NoError(t, err)
 		require.Len(t, items, 0)
 	})
@@ -60,15 +60,15 @@ func TestGetItemsSoldBy(t *testing.T) {
 		cashier := setup.Cashier()
 
 		expectedItems := []*models.Item{
-			setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)),
-			setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false)),
-			setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false)),
-			setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false)),
+			setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)),
+			setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false)),
+			setup.Item(seller.UserID, aux.WithDummyData(3), aux.WithHidden(false)),
+			setup.Item(seller.UserID, aux.WithDummyData(4), aux.WithHidden(false)),
 		}
 
-		setup.Sale(cashier.UserId, []models.ID{expectedItems[0].ItemID, expectedItems[1].ItemID, expectedItems[2].ItemID, expectedItems[3].ItemID})
+		setup.Sale(cashier.UserID, []models.ID{expectedItems[0].ItemID, expectedItems[1].ItemID, expectedItems[2].ItemID, expectedItems[3].ItemID})
 
-		actualItems, err := queries.GetItemsSoldBy(db, cashier.UserId)
+		actualItems, err := queries.GetItemsSoldBy(db, cashier.UserID)
 		require.NoError(t, err)
 		require.Len(t, actualItems, 4)
 		require.Equal(t, expectedItems, actualItems)
@@ -81,15 +81,15 @@ func TestGetItemsSoldBy(t *testing.T) {
 		seller := setup.Seller()
 		cashier := setup.Cashier()
 
-		item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-		item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false))
-		item3 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false))
-		item4 := setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false))
+		item1 := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+		item2 := setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false))
+		item3 := setup.Item(seller.UserID, aux.WithDummyData(3), aux.WithHidden(false))
+		item4 := setup.Item(seller.UserID, aux.WithDummyData(4), aux.WithHidden(false))
 
 		expectedItems := []*models.Item{item1, item2, item3, item4}
-		setup.Sale(cashier.UserId, []models.ID{item4.ItemID, item3.ItemID, item2.ItemID, item1.ItemID})
+		setup.Sale(cashier.UserID, []models.ID{item4.ItemID, item3.ItemID, item2.ItemID, item1.ItemID})
 
-		actualItems, err := queries.GetItemsSoldBy(db, cashier.UserId)
+		actualItems, err := queries.GetItemsSoldBy(db, cashier.UserID)
 		require.NoError(t, err)
 		require.Len(t, expectedItems, 4)
 		require.Equal(t, expectedItems, actualItems)
@@ -102,15 +102,15 @@ func TestGetItemsSoldBy(t *testing.T) {
 		seller := setup.Seller()
 		cashier := setup.Cashier()
 
-		item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-		item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false))
-		item3 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false))
-		item4 := setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false))
+		item1 := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+		item2 := setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false))
+		item3 := setup.Item(seller.UserID, aux.WithDummyData(3), aux.WithHidden(false))
+		item4 := setup.Item(seller.UserID, aux.WithDummyData(4), aux.WithHidden(false))
 
-		setup.Sale(cashier.UserId, []models.ID{item1.ItemID, item2.ItemID})
-		setup.Sale(cashier.UserId, []models.ID{item3.ItemID, item4.ItemID})
+		setup.Sale(cashier.UserID, []models.ID{item1.ItemID, item2.ItemID})
+		setup.Sale(cashier.UserID, []models.ID{item3.ItemID, item4.ItemID})
 
-		items, err := queries.GetItemsSoldBy(db, cashier.UserId)
+		items, err := queries.GetItemsSoldBy(db, cashier.UserID)
 		require.NoError(t, err)
 		require.Len(t, items, 4)
 		require.Equal(t, []*models.Item{item1, item2, item3, item4}, items)
@@ -123,15 +123,15 @@ func TestGetItemsSoldBy(t *testing.T) {
 		seller := setup.Seller()
 		cashier := setup.Cashier()
 
-		item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-		item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false))
-		item3 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false))
-		item4 := setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false))
+		item1 := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+		item2 := setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false))
+		item3 := setup.Item(seller.UserID, aux.WithDummyData(3), aux.WithHidden(false))
+		item4 := setup.Item(seller.UserID, aux.WithDummyData(4), aux.WithHidden(false))
 
-		setup.Sale(cashier.UserId, []models.ID{item2.ItemID, item1.ItemID}, aux.WithTransactionTime(models.Timestamp(1)))
-		setup.Sale(cashier.UserId, []models.ID{item4.ItemID, item3.ItemID}, aux.WithTransactionTime(models.Timestamp(0)))
+		setup.Sale(cashier.UserID, []models.ID{item2.ItemID, item1.ItemID}, aux.WithTransactionTime(models.Timestamp(1)))
+		setup.Sale(cashier.UserID, []models.ID{item4.ItemID, item3.ItemID}, aux.WithTransactionTime(models.Timestamp(0)))
 
-		items, err := queries.GetItemsSoldBy(db, cashier.UserId)
+		items, err := queries.GetItemsSoldBy(db, cashier.UserID)
 		require.NoError(t, err)
 		require.Len(t, items, 4)
 		require.Equal(t, []*models.Item{item1, item2, item3, item4}, items)
@@ -144,15 +144,15 @@ func TestGetItemsSoldBy(t *testing.T) {
 		seller := setup.Seller()
 		cashier := setup.Cashier()
 
-		item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-		item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false))
-		item3 := setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false))
-		item4 := setup.Item(seller.UserId, aux.WithDummyData(4), aux.WithHidden(false))
+		item1 := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+		item2 := setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false))
+		item3 := setup.Item(seller.UserID, aux.WithDummyData(3), aux.WithHidden(false))
+		item4 := setup.Item(seller.UserID, aux.WithDummyData(4), aux.WithHidden(false))
 
-		setup.Sale(cashier.UserId, []models.ID{item2.ItemID, item1.ItemID}, aux.WithTransactionTime(models.Timestamp(0)))
-		setup.Sale(cashier.UserId, []models.ID{item4.ItemID, item3.ItemID}, aux.WithTransactionTime(models.Timestamp(1)))
+		setup.Sale(cashier.UserID, []models.ID{item2.ItemID, item1.ItemID}, aux.WithTransactionTime(models.Timestamp(0)))
+		setup.Sale(cashier.UserID, []models.ID{item4.ItemID, item3.ItemID}, aux.WithTransactionTime(models.Timestamp(1)))
 
-		items, err := queries.GetItemsSoldBy(db, cashier.UserId)
+		items, err := queries.GetItemsSoldBy(db, cashier.UserID)
 		require.NoError(t, err)
 		require.Len(t, items, 4)
 		require.Equal(t, []*models.Item{item3, item4, item1, item2}, items)
@@ -163,7 +163,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 		defer setup.Close()
 
 		cashier := setup.Cashier()
-		unknownCashierId := cashier.UserId + 1
+		unknownCashierId := cashier.UserID + 1
 		setup.RequireNoSuchUsers(t, unknownCashierId)
 
 		_, err := queries.GetItemsSoldBy(db, unknownCashierId)
@@ -176,7 +176,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 
 		seller := setup.Seller()
 
-		_, err := queries.GetItemsSoldBy(db, seller.UserId)
+		_, err := queries.GetItemsSoldBy(db, seller.UserID)
 		requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 	})
 }

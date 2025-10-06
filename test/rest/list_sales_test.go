@@ -28,9 +28,9 @@ func TestListAllSales(t *testing.T) {
 			_, sessionId := setup.LoggedIn(setup.Admin())
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 5, aux.WithHidden(false))
 
-			sale := setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[1].ItemID})
+			sale := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
 
 			url := path.Sales()
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -42,7 +42,7 @@ func TestListAllSales(t *testing.T) {
 				Sales: []*rest.ListSalesSaleData{
 					{
 						SaleID:            sale.SaleID,
-						CashierID:         cashier.UserId,
+						CashierID:         cashier.UserID,
 						TransactionTime:   shared.ConvertTimestampToDateTime(sale.TransactionTime),
 						ItemCount:         2,
 						TotalPriceInCents: items[0].PriceInCents + items[1].PriceInCents,
@@ -65,10 +65,10 @@ func TestListAllSales(t *testing.T) {
 			_, sessionId := setup.LoggedIn(setup.Admin())
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 5, aux.WithHidden(false))
 
-			sale1 := setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[1].ItemID})
-			sale2 := setup.Sale(cashier.UserId, []models.ID{items[2].ItemID, items[3].ItemID, items[4].ItemID})
+			sale1 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
+			sale2 := setup.Sale(cashier.UserID, []models.ID{items[2].ItemID, items[3].ItemID, items[4].ItemID})
 
 			url := path.Sales()
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -80,14 +80,14 @@ func TestListAllSales(t *testing.T) {
 				Sales: []*rest.ListSalesSaleData{
 					{
 						SaleID:            sale1.SaleID,
-						CashierID:         cashier.UserId,
+						CashierID:         cashier.UserID,
 						TransactionTime:   shared.ConvertTimestampToDateTime(sale1.TransactionTime),
 						ItemCount:         2,
 						TotalPriceInCents: items[0].PriceInCents + items[1].PriceInCents,
 					},
 					{
 						SaleID:            sale2.SaleID,
-						CashierID:         cashier.UserId,
+						CashierID:         cashier.UserID,
 						TransactionTime:   shared.ConvertTimestampToDateTime(sale2.TransactionTime),
 						ItemCount:         3,
 						TotalPriceInCents: items[2].PriceInCents + items[3].PriceInCents + items[4].PriceInCents,
@@ -110,10 +110,10 @@ func TestListAllSales(t *testing.T) {
 			_, sessionId := setup.LoggedIn(setup.Admin())
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 5, aux.WithHidden(false))
 
-			sale1 := setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[1].ItemID})
-			sale2 := setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[2].ItemID})
+			sale1 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
+			sale2 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[2].ItemID})
 
 			url := path.Sales()
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -125,14 +125,14 @@ func TestListAllSales(t *testing.T) {
 				Sales: []*rest.ListSalesSaleData{
 					{
 						SaleID:            sale1.SaleID,
-						CashierID:         cashier.UserId,
+						CashierID:         cashier.UserID,
 						TransactionTime:   shared.ConvertTimestampToDateTime(sale1.TransactionTime),
 						ItemCount:         2,
 						TotalPriceInCents: items[0].PriceInCents + items[1].PriceInCents,
 					},
 					{
 						SaleID:            sale2.SaleID,
-						CashierID:         cashier.UserId,
+						CashierID:         cashier.UserID,
 						TransactionTime:   shared.ConvertTimestampToDateTime(sale2.TransactionTime),
 						ItemCount:         2,
 						TotalPriceInCents: items[0].PriceInCents + items[2].PriceInCents,
@@ -158,10 +158,10 @@ func TestListAllSales(t *testing.T) {
 					_, sessionId := setup.LoggedIn(setup.Admin())
 					seller := setup.Seller()
 					cashier := setup.Cashier()
-					items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
+					items := setup.Items(seller.UserID, 100, aux.WithHidden(false))
 
 					for _, item := range items {
-						setup.Sale(cashier.UserId, []models.ID{item.ItemID})
+						setup.Sale(cashier.UserID, []models.ID{item.ItemID})
 					}
 
 					url := path.Sales().StartId(models.ID(k))
@@ -191,8 +191,8 @@ func TestListAllSales(t *testing.T) {
 						_, sessionId := setup.LoggedIn(setup.Admin())
 						seller := setup.Seller()
 						cashier := setup.Cashier()
-						items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
-						sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserId, []models.ID{item.ItemID}) })
+						items := setup.Items(seller.UserID, 100, aux.WithHidden(false))
+						sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
 
 						url := path.Sales().Limit(limit).Offset(offset)
 						request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -226,8 +226,8 @@ func TestListAllSales(t *testing.T) {
 						_, sessionId := setup.LoggedIn(setup.Admin())
 						seller := setup.Seller()
 						cashier := setup.Cashier()
-						items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
-						sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserId, []models.ID{item.ItemID}) })
+						items := setup.Items(seller.UserID, 100, aux.WithHidden(false))
+						sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
 
 						url := path.Sales().Limit(limit).Offset(offset).AntiChronologically()
 						request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -260,8 +260,8 @@ func TestListAllSales(t *testing.T) {
 
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 			cashier := setup.Cashier()
-			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
-			setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[1].ItemID})
+			items := setup.Items(seller.UserID, 5, aux.WithHidden(false))
+			setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
 
 			url := path.Sales()
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -276,8 +276,8 @@ func TestListAllSales(t *testing.T) {
 
 			seller := setup.Seller()
 			cashier, sessionId := setup.LoggedIn(setup.Cashier())
-			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
-			setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[1].ItemID})
+			items := setup.Items(seller.UserID, 5, aux.WithHidden(false))
+			setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
 
 			url := path.Sales()
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -292,8 +292,8 @@ func TestListAllSales(t *testing.T) {
 
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
-			setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[1].ItemID})
+			items := setup.Items(seller.UserID, 5, aux.WithHidden(false))
+			setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
 
 			url := path.Sales()
 			request := CreateGetRequest(url)
@@ -308,8 +308,8 @@ func TestListAllSales(t *testing.T) {
 
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
-			setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[1].ItemID})
+			items := setup.Items(seller.UserID, 5, aux.WithHidden(false))
+			setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
 
 			url := path.Sales()
 			request := CreateGetRequest(url, WithSessionCookie("fake_session_id"))
@@ -324,8 +324,8 @@ func TestListAllSales(t *testing.T) {
 
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
-			setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[1].ItemID})
+			items := setup.Items(seller.UserID, 5, aux.WithHidden(false))
+			setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
 
 			url := path.Sales()
 			request := CreateGetRequest(url, WithCookie("whatever", "whatever"))

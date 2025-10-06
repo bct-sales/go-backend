@@ -23,12 +23,12 @@ func TestRemoveAllSales(t *testing.T) {
 		seller3 := setup.Seller()
 		cashier1 := setup.Cashier()
 		cashier2 := setup.Cashier()
-		items1 := setup.Items(seller1.UserId, 10, aux.WithHidden(false))
-		items2 := setup.Items(seller2.UserId, 20, aux.WithHidden(false))
-		items3 := setup.Items(seller3.UserId, 30, aux.WithHidden(false))
-		sale1 := setup.Sale(cashier1.UserId, models.CollectItemIds(items1))
-		sale2 := setup.Sale(cashier1.UserId, models.CollectItemIds(items2))
-		sale3 := setup.Sale(cashier2.UserId, models.CollectItemIds(items3))
+		items1 := setup.Items(seller1.UserID, 10, aux.WithHidden(false))
+		items2 := setup.Items(seller2.UserID, 20, aux.WithHidden(false))
+		items3 := setup.Items(seller3.UserID, 30, aux.WithHidden(false))
+		sale1 := setup.Sale(cashier1.UserID, models.CollectItemIds(items1))
+		sale2 := setup.Sale(cashier1.UserID, models.CollectItemIds(items2))
+		sale3 := setup.Sale(cashier2.UserID, models.CollectItemIds(items3))
 
 		setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
 			err := queries.RemoveAllSales(transaction)

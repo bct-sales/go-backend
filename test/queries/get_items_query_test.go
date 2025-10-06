@@ -26,7 +26,7 @@ func TestGetItemsQuery(t *testing.T) {
 						defer setup.Close()
 
 						seller := setup.Seller()
-						items := setup.Items(seller.UserId, itemCount, aux.WithHidden(false))
+						items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
 
 						actualItems := []*models.Item{}
 						query := queries.NewGetItemsQuery()
@@ -50,7 +50,7 @@ func TestGetItemsQuery(t *testing.T) {
 						defer setup.Close()
 
 						seller := setup.Seller()
-						setup.Items(seller.UserId, itemCount, aux.WithFrozen(false), aux.WithHidden(true))
+						setup.Items(seller.UserID, itemCount, aux.WithFrozen(false), aux.WithHidden(true))
 
 						actualItems := []*models.Item{}
 						query := queries.NewGetItemsQuery()
@@ -69,8 +69,8 @@ func TestGetItemsQuery(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-			items = slices.Concat(items, setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(true)))
+			items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
+			items = slices.Concat(items, setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(true)))
 
 			actualItems := []*models.Item{}
 			query := queries.NewGetItemsQuery()
@@ -88,8 +88,8 @@ func TestGetItemsQuery(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			setup.Items(seller.UserId, 10, aux.WithHidden(false))
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(true))
+			setup.Items(seller.UserID, 10, aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(true))
 
 			actualItems := []*models.Item{}
 			query := queries.NewGetItemsQuery()
@@ -111,7 +111,7 @@ func TestGetItemsQuery(t *testing.T) {
 			limit := 5
 
 			seller := setup.Seller()
-			items := setup.Items(seller.UserId, 20, aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 20, aux.WithHidden(false))
 
 			actualItems := []*models.Item{}
 			query := queries.NewGetItemsQuery()
@@ -133,9 +133,9 @@ func TestGetItemsQuery(t *testing.T) {
 			setup.Category(1, "a")
 			setup.Category(2, "b")
 			setup.Category(3, "c")
-			items1 := setup.Items(seller.UserId, 1, aux.WithHidden(false), aux.WithItemCategory(1))
-			items2 := setup.Items(seller.UserId, 2, aux.WithHidden(false), aux.WithItemCategory(2))
-			items3 := setup.Items(seller.UserId, 3, aux.WithHidden(false), aux.WithItemCategory(3))
+			items1 := setup.Items(seller.UserID, 1, aux.WithHidden(false), aux.WithItemCategory(1))
+			items2 := setup.Items(seller.UserID, 2, aux.WithHidden(false), aux.WithItemCategory(2))
+			items3 := setup.Items(seller.UserID, 3, aux.WithHidden(false), aux.WithItemCategory(3))
 
 			{
 				actualItems := []*models.Item{}
@@ -175,8 +175,8 @@ func TestGetItemsQuery(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-			items = slices.Concat(items, setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(true)))
+			items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
+			items = slices.Concat(items, setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(true)))
 
 			dummyError := errors.New("test error")
 			callback := func(item *models.Item) error {

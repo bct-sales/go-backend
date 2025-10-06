@@ -60,7 +60,7 @@ func (c *showUserCommand) execute(args []string) error {
 		}
 
 		// Display user information based on their role
-		return models.VisitRole(user.RoleId, &showUser{command: c, database: db, user: user})
+		return models.VisitRole(user.RoleID, &showUser{command: c, database: db, user: user})
 	})
 }
 
@@ -99,7 +99,7 @@ func (c *showUserCommand) showSeller(db *sql.DB, user *models.User) error {
 		return err
 	}
 
-	sellerItems, err := queries.GetSellerItems(db, user.UserId, queries.AllItems)
+	sellerItems, err := queries.GetSellerItems(db, user.UserID, queries.AllItems)
 	if err != nil {
 		c.PrintErrorf("Failed to get seller items\n")
 		return err
@@ -126,7 +126,7 @@ func (c *showUserCommand) showCashier(db *sql.DB, user *models.User) error {
 		return err
 	}
 
-	soldItems, err := queries.GetItemsSoldBy(db, user.UserId)
+	soldItems, err := queries.GetItemsSoldBy(db, user.UserID)
 	if err != nil {
 		c.PrintErrorf("Failed to get items sold by cashier\n")
 		return err
@@ -158,8 +158,8 @@ func (c *showUserCommand) printUserTable(user *models.User) error {
 
 	tableData := pterm.TableData{
 		{"Property", "Value"},
-		{"ID", user.UserId.String()},
-		{"Role", user.RoleId.Name()},
+		{"ID", user.UserID.String()},
+		{"Role", user.RoleID.Name()},
 		{"Created At", user.CreatedAt.FormattedDateTime()},
 		{"Last Activity", lastActivity},
 	}

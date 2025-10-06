@@ -20,8 +20,8 @@ func TestGetSaleWithId(t *testing.T) {
 
 		seller := setup.Seller()
 		cashier := setup.Cashier()
-		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-		sale := setup.Sale(cashier.UserId, []models.ID{item.ItemID})
+		item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+		sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
 
 		actual, err := queries.GetSaleWithID(db, sale.SaleID)
 		require.NoError(t, err)

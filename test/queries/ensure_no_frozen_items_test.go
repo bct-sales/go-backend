@@ -19,7 +19,7 @@ func TestEnsureNoFrozenItems(t *testing.T) {
 		defer setup.Close()
 
 		seller := setup.Seller()
-		items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+		items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 		itemIds := models.CollectItemIds(items)
 
 		err := queries.EnsureNoFrozenItems(db, itemIds)
@@ -31,8 +31,8 @@ func TestEnsureNoFrozenItems(t *testing.T) {
 		defer setup.Close()
 
 		seller := setup.Seller()
-		unfrozenItems := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-		frozenItem := setup.Item(seller.UserId, aux.WithFrozen(true), aux.WithHidden(false))
+		unfrozenItems := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
+		frozenItem := setup.Item(seller.UserID, aux.WithFrozen(true), aux.WithHidden(false))
 		itemIds := append(models.CollectItemIds(unfrozenItems), frozenItem.ItemID)
 
 		err := queries.EnsureNoFrozenItems(db, itemIds)

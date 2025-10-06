@@ -21,15 +21,15 @@ func TestGetUserWithId(t *testing.T) {
 		lastActivity := models.Timestamp(2)
 		user := models.User{
 			Password:     "xyz",
-			UserId:       models.ID(1),
-			RoleId:       models.NewSellerRoleID(),
+			UserID:       models.ID(1),
+			RoleID:       models.NewSellerRoleID(),
 			CreatedAt:    models.Timestamp(1),
 			LastActivity: &lastActivity,
 		}
 
-		user.UserId = setup.User(user.RoleId, aux.WithCreatedAt(user.CreatedAt), aux.WithLastActivity(*user.LastActivity), aux.WithPassword(user.Password)).UserId
+		user.UserID = setup.User(user.RoleID, aux.WithCreatedAt(user.CreatedAt), aux.WithLastActivity(*user.LastActivity), aux.WithPassword(user.Password)).UserID
 
-		actual, err := queries.GetUserWithId(db, user.UserId)
+		actual, err := queries.GetUserWithId(db, user.UserID)
 		require.NoError(t, err)
 		require.Equal(t, user, *actual)
 	})

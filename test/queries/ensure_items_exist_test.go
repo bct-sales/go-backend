@@ -20,7 +20,7 @@ func TestEnsureItemsExist(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 			itemIds := models.CollectItemIds(items)
 
 			err := queries.EnsureItemsExist(db, itemIds)
@@ -32,7 +32,7 @@ func TestEnsureItemsExist(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(true))
+			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(true))
 			itemIds := models.CollectItemIds(items)
 
 			err := queries.EnsureItemsExist(db, itemIds)
@@ -45,7 +45,7 @@ func TestEnsureItemsExist(t *testing.T) {
 		defer setup.Close()
 
 		seller := setup.Seller()
-		items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
+		items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 		nonexistentItemId := models.ID(150)
 		setup.RequireNoSuchItems(t, nonexistentItemId)
 		itemIds := append(models.CollectItemIds(items), nonexistentItemId)

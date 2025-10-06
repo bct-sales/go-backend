@@ -20,7 +20,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 			defer setup.Close()
 
 			cashier := setup.Cashier()
-			sales, err := queries.GetSalesWithCashier(db, cashier.UserId)
+			sales, err := queries.GetSalesWithCashier(db, cashier.UserID)
 			require.NoError(t, err)
 
 			require.Empty(t, sales)
@@ -33,15 +33,15 @@ func TestGetSalesWithCashier(t *testing.T) {
 			cashier := setup.Cashier()
 			seller := setup.Seller()
 
-			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-			sale := setup.Sale(cashier.UserId, []models.ID{item.ItemID})
+			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
 
-			sales, err := queries.GetSalesWithCashier(db, cashier.UserId)
+			sales, err := queries.GetSalesWithCashier(db, cashier.UserID)
 			require.NoError(t, err)
 
 			require.Len(t, sales, 1)
 			require.Equal(t, sale.SaleID, sales[0].SaleID)
-			require.Equal(t, cashier.UserId, sales[0].CashierID)
+			require.Equal(t, cashier.UserID, sales[0].CashierID)
 		})
 
 		t.Run("Two sales", func(t *testing.T) {
@@ -51,12 +51,12 @@ func TestGetSalesWithCashier(t *testing.T) {
 			cashier := setup.Cashier()
 			seller := setup.Seller()
 
-			item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-			item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false))
-			sale1 := setup.Sale(cashier.UserId, []models.ID{item1.ItemID})
-			sale2 := setup.Sale(cashier.UserId, []models.ID{item2.ItemID})
+			item1 := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			item2 := setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false))
+			sale1 := setup.Sale(cashier.UserID, []models.ID{item1.ItemID})
+			sale2 := setup.Sale(cashier.UserID, []models.ID{item2.ItemID})
 
-			sales, err := queries.GetSalesWithCashier(db, cashier.UserId)
+			sales, err := queries.GetSalesWithCashier(db, cashier.UserID)
 			require.NoError(t, err)
 
 			require.Len(t, sales, 2)
@@ -83,7 +83,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 
 			admin := setup.Admin()
 
-			_, err := queries.GetSalesWithCashier(db, admin.UserId)
+			_, err := queries.GetSalesWithCashier(db, admin.UserID)
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 
@@ -93,7 +93,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 
 			seller := setup.Seller()
 
-			_, err := queries.GetSalesWithCashier(db, seller.UserId)
+			_, err := queries.GetSalesWithCashier(db, seller.UserID)
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 	})

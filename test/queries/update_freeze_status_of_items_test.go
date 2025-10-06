@@ -37,7 +37,7 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 
 				itemIds := []models.ID{}
 				for i := 0; i != 10; i++ {
-					itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
+					itemIds = append(itemIds, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
 				}
 
 				setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
@@ -74,9 +74,9 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 
 			itemIds := []models.ID{}
 			for i := 0; i != 10; i++ {
-				itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
+				itemIds = append(itemIds, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
 			}
-			itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(10), aux.WithFrozen(false), aux.WithHidden(true)).ItemID)
+			itemIds = append(itemIds, setup.Item(seller.UserID, aux.WithDummyData(10), aux.WithFrozen(false), aux.WithHidden(true)).ItemID)
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
 				err := queries.UpdateFreezeStatusOfItems(db, itemIds, true)

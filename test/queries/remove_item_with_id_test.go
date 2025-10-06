@@ -19,7 +19,7 @@ func TestRemoveItemWithId(t *testing.T) {
 		defer setup.Close()
 
 		seller := setup.Seller()
-		itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
+		itemId := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
 
 		err := queries.RemoveItemWithID(db, itemId)
 
@@ -47,9 +47,9 @@ func TestRemoveItemWithId(t *testing.T) {
 
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
+			itemId := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
 
-			setup.Sale(cashier.UserId, []models.ID{itemId})
+			setup.Sale(cashier.UserID, []models.ID{itemId})
 
 			err := queries.RemoveItemWithID(db, itemId)
 			requireDatabaseWrappedError(t, err, dberr.ErrItemSold)
@@ -64,7 +64,7 @@ func TestRemoveItemWithId(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false), aux.WithFrozen(true)).ItemID
+			itemId := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false), aux.WithFrozen(true)).ItemID
 
 			err := queries.RemoveItemWithID(db, itemId)
 			requireDatabaseWrappedError(t, err, dberr.ErrItemFrozen)

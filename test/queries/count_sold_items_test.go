@@ -19,7 +19,7 @@ func TestCountSoldItems(t *testing.T) {
 
 		seller := setup.Seller()
 
-		setup.Items(seller.UserId, 10, aux.WithHidden(false))
+		setup.Items(seller.UserID, 10, aux.WithHidden(false))
 
 		actual, err := queries.CountSoldItems(db)
 		require.NoError(t, err)
@@ -34,9 +34,9 @@ func TestCountSoldItems(t *testing.T) {
 		seller := setup.Seller()
 		cashier := setup.Cashier()
 
-		items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-		setup.Sale(cashier.UserId, []models.ID{items[0].ItemID})
-		setup.Sale(cashier.UserId, []models.ID{items[1].ItemID, items[2].ItemID})
+		items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
+		setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
+		setup.Sale(cashier.UserID, []models.ID{items[1].ItemID, items[2].ItemID})
 
 		actual, err := queries.CountSoldItems(db)
 		require.NoError(t, err)
@@ -51,9 +51,9 @@ func TestCountSoldItems(t *testing.T) {
 		seller := setup.Seller()
 		cashier := setup.Cashier()
 
-		items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
-		setup.Sale(cashier.UserId, []models.ID{items[0].ItemID})
-		setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[2].ItemID})
+		items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
+		setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
+		setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[2].ItemID})
 
 		actual, err := queries.CountSoldItems(db)
 		require.NoError(t, err)

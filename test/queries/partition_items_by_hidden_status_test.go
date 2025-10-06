@@ -21,8 +21,8 @@ func TestPartitionItemsByHiddenStatus(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			visibleItems := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-			hiddenItems := setup.Items(seller.UserId, 5, aux.WithFrozen(false), aux.WithHidden(true))
+			visibleItems := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			hiddenItems := setup.Items(seller.UserID, 5, aux.WithFrozen(false), aux.WithHidden(true))
 			allItems := slices.Concat(
 				algorithms.Map(visibleItems, func(i *models.Item) models.ID { return i.ItemID }),
 				algorithms.Map(hiddenItems, func(i *models.Item) models.ID { return i.ItemID }))
@@ -38,8 +38,8 @@ func TestPartitionItemsByHiddenStatus(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			visibleItems := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-			hiddenItems := setup.Items(seller.UserId, 5, aux.WithFrozen(false), aux.WithHidden(true))
+			visibleItems := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			hiddenItems := setup.Items(seller.UserID, 5, aux.WithFrozen(false), aux.WithHidden(true))
 			nonexistentItemIds := []models.ID{999, 1000}
 			setup.RequireNoSuchItems(t, nonexistentItemIds...)
 			allItems := slices.Concat(
