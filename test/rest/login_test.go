@@ -45,17 +45,17 @@ func TestLogin(t *testing.T) {
 			require.NotEmpty(t, cookies, "Expected cookies to be set")
 
 			found := false
-			sessionId := models.SessionID("")
+			sessionID := models.SessionID("")
 			for _, cookie := range cookies {
 				if cookie.Name == security.SessionCookieName {
-					sessionId = models.SessionID(cookie.Value)
+					sessionID = models.SessionID(cookie.Value)
 					found = true
 					break
 				}
 			}
 			require.True(t, found, "Expected session_id cookie to be set")
 
-			sessionData, err := queries.GetSessionByID(setup.Db, sessionId)
+			sessionData, err := queries.GetSessionByID(setup.Db, sessionID)
 			require.NoError(t, err)
 			require.Equal(t, seller.UserID, sessionData.UserID)
 		})
@@ -86,17 +86,17 @@ func TestLogin(t *testing.T) {
 			require.NotEmpty(t, cookies, "Expected cookies to be set")
 
 			found := false
-			sessionId := models.SessionID("")
+			sessionID := models.SessionID("")
 			for _, cookie := range cookies {
 				if cookie.Name == security.SessionCookieName {
-					sessionId = models.SessionID(cookie.Value)
+					sessionID = models.SessionID(cookie.Value)
 					found = true
 					break
 				}
 			}
 			require.True(t, found, "Expected session_id cookie to be set")
 
-			sessionData, err := queries.GetSessionByID(setup.Db, sessionId)
+			sessionData, err := queries.GetSessionByID(setup.Db, sessionID)
 			require.NoError(t, err)
 			require.Equal(t, admin.UserID, sessionData.UserID)
 		})
@@ -127,17 +127,17 @@ func TestLogin(t *testing.T) {
 			require.NotEmpty(t, cookies, "Expected cookies to be set")
 
 			found := false
-			sessionId := models.SessionID("")
+			sessionID := models.SessionID("")
 			for _, cookie := range cookies {
 				if cookie.Name == security.SessionCookieName {
-					sessionId = models.SessionID(cookie.Value)
+					sessionID = models.SessionID(cookie.Value)
 					found = true
 					break
 				}
 			}
 			require.True(t, found, "Expected session_id cookie to be set")
 
-			sessionData, err := queries.GetSessionByID(setup.Db, sessionId)
+			sessionData, err := queries.GetSessionByID(setup.Db, sessionID)
 			require.NoError(t, err)
 			require.Equal(t, cashier.UserID, sessionData.UserID)
 		})

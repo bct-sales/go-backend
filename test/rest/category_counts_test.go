@@ -87,23 +87,23 @@ func TestCategoryCounts(t *testing.T) {
 				})
 			}
 
-			for categoryId1 := range defaultCategoryNameTable {
-				for categoryId2 := range defaultCategoryNameTable {
-					if categoryId1 != categoryId2 {
+			for categoryID1 := range defaultCategoryNameTable {
+				for categoryID2 := range defaultCategoryNameTable {
+					if categoryID1 != categoryID2 {
 						t.Run("Two items in different categories", func(t *testing.T) {
 							setup, router, writer := NewRestFixture(WithDefaultCategories)
 							defer setup.Close()
 
 							_, sessionID := setup.LoggedIn(setup.Admin())
 							seller := setup.Seller()
-							setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categoryId1), aux.WithFrozen(false), aux.WithHidden(false))
-							setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithItemCategory(categoryId2), aux.WithFrozen(false), aux.WithHidden(false))
+							setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categoryID1), aux.WithFrozen(false), aux.WithHidden(false))
+							setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithItemCategory(categoryID2), aux.WithFrozen(false), aux.WithHidden(false))
 
 							request := CreateGetRequest(url, WithSessionCookie(sessionID))
 							router.ServeHTTP(writer, request)
-							countMap := map[models.ID]int{categoryId1: 0, categoryId2: 0}
-							countMap[categoryId1] += 1
-							countMap[categoryId2] += 1
+							countMap := map[models.ID]int{categoryID1: 0, categoryID2: 0}
+							countMap[categoryID1] += 1
+							countMap[categoryID2] += 1
 							expected := createSuccessResponse(countMap)
 
 							actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
@@ -226,15 +226,15 @@ func createSuccessResponse(countMap map[models.ID]int) rest.ListCategoriesSucces
 	defaultCategoryNameTable := aux.DefaultCategoryNameTable()
 	countArray := []rest.CategoryData{}
 
-	for categoryId, categoryName := range defaultCategoryNameTable {
-		count, ok := countMap[categoryId]
+	for categoryID, categoryName := range defaultCategoryNameTable {
+		count, ok := countMap[categoryID]
 
 		if !ok {
 			count = 0
 		}
 
 		countArray = append(countArray, rest.CategoryData{
-			CategoryID:   categoryId,
+			CategoryID:   categoryID,
 			CategoryName: categoryName,
 			Count:        &count,
 		})

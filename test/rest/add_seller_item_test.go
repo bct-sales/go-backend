@@ -111,7 +111,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := ""
-			categoryId := aux.CategoryID_Shoes
+			categoryID := aux.CategoryID_Shoes
 			donation := false
 			charity := false
 
@@ -121,7 +121,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryID:  categoryId,
+				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
@@ -141,11 +141,11 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := models.ID(1000)
+			categoryID := models.ID(1000)
 			donation := false
 			charity := false
 
-			require.NotContains(t, defaultCategoryNameTable, categoryId)
+			require.NotContains(t, defaultCategoryNameTable, categoryID)
 
 			seller, sessionID := setup.LoggedIn(setup.Seller())
 
@@ -153,7 +153,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryID:  categoryId,
+				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
@@ -173,7 +173,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := aux.CategoryID_BabyChildEquipment
+			categoryID := aux.CategoryID_BabyChildEquipment
 			donation := false
 			charity := false
 
@@ -184,7 +184,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryID:  categoryId,
+				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
@@ -204,7 +204,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := aux.CategoryID_Clothing104_116
+			categoryID := aux.CategoryID_Clothing104_116
 			donation := false
 			charity := false
 
@@ -214,7 +214,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryID:  categoryId,
+				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
@@ -234,7 +234,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := aux.CategoryID_BabyChildEquipment
+			categoryID := aux.CategoryID_BabyChildEquipment
 			donation := false
 			charity := false
 
@@ -244,7 +244,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryID:  categoryId,
+				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
@@ -264,7 +264,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := aux.CategoryID_BabyChildEquipment
+			categoryID := aux.CategoryID_BabyChildEquipment
 			donation := false
 			charity := false
 
@@ -275,7 +275,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryID:  categoryId,
+				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
@@ -295,19 +295,19 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := aux.CategoryID_BabyChildEquipment
+			categoryID := aux.CategoryID_BabyChildEquipment
 			donation := false
 			charity := false
 
 			_, sessionID := setup.LoggedIn(setup.Seller())
-			nonexistentUserId := models.ID(1000)
-			setup.RequireNoSuchUsers(t, nonexistentUserId)
+			nonexistentUserID := models.ID(1000)
+			setup.RequireNoSuchUsers(t, nonexistentUserID)
 
-			url := path.SellerItems(nonexistentUserId)
+			url := path.SellerItems(nonexistentUserID)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryID:  categoryId,
+				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
@@ -327,7 +327,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(0)
 			description := "Test Description"
-			categoryId := aux.CategoryID_Clothing50_56
+			categoryID := aux.CategoryID_Clothing50_56
 			donation := false
 			charity := false
 
@@ -337,7 +337,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryID:  categoryId,
+				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
@@ -357,22 +357,22 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(0)
 			description := "Test Description"
-			categoryId := aux.CategoryID_Clothing50_56
+			categoryID := aux.CategoryID_Clothing50_56
 			donation := false
 			charity := false
 
 			seller := setup.Seller()
-			invalidSessionId := models.SessionID("xxx")
+			invalidSessionID := models.SessionID("xxx")
 
 			url := path.SellerItems(seller.UserID)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryID:  categoryId,
+				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload, WithSessionCookie(invalidSessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(invalidSessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
 
@@ -388,7 +388,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(50)
 			description := "Test Description"
-			categoryId := aux.CategoryID_Clothing50_56
+			categoryID := aux.CategoryID_Clothing50_56
 			donation := false
 			charity := false
 
@@ -400,7 +400,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryID:  categoryId,
+				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
 			}

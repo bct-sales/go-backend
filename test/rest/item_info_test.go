@@ -32,10 +32,10 @@ func TestGetItemInformation(t *testing.T) {
 					cashier, sessionID := setup.LoggedIn(setup.Cashier())
 					item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
-					saleIds := []models.ID{}
+					saleIDs := []models.ID{}
 					for i := 0; i < sale_count; i++ {
 						sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
-						saleIds = append(saleIds, sale.SaleID)
+						saleIDs = append(saleIDs, sale.SaleID)
 					}
 
 					url := path.Item(item.ItemID)
@@ -54,7 +54,7 @@ func TestGetItemInformation(t *testing.T) {
 					require.Equal(t, item.Charity, *response.Charity)
 					require.Equal(t, item.Frozen, *response.Frozen)
 					require.NotNil(t, response.SoldIn)
-					require.Equal(t, saleIds, *response.SoldIn)
+					require.Equal(t, saleIDs, *response.SoldIn)
 				})
 			}
 		})
