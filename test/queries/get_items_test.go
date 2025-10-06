@@ -91,7 +91,9 @@ func TestGetItems(t *testing.T) {
 			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(true))
 
 			actualItems := []*models.Item{}
-			err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.OnlyHiddenItems, queries.AllRows())
+			query := queries.NewGetItemsQuery()
+			query.WithHidden(true)
+			err := query.Execute(db, queries.CollectTo(&actualItems))
 			require.NoError(t, err)
 			require.Equal(t, 10, len(actualItems))
 
@@ -111,8 +113,9 @@ func TestGetItems(t *testing.T) {
 			items := setup.Items(seller.UserID, 20, aux.WithHidden(false))
 
 			actualItems := []*models.Item{}
-			rowSelection := queries.RowSelection{Offset: &offset, Limit: &limit}
-			err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.AllItems, &rowSelection)
+			query := queries.NewGetItemsQuery()
+			query.WithLimitAndOffset(uint64(limit), uint64(offset))
+			err := query.Execute(db, queries.CollectTo(&actualItems))
 			require.NoError(t, err)
 			require.Equal(t, limit, len(actualItems))
 
@@ -136,7 +139,8 @@ func TestGetItems(t *testing.T) {
 				return dummyError
 			}
 
-			err := queries.GetItems(db, callback, queries.AllItems, queries.AllRows())
+			query := queries.NewGetItemsQuery()
+			err := query.Execute(db, callback)
 			requireDatabaseWrappedError(t, err, dummyError)
 		})
 	})
