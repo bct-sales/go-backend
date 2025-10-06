@@ -97,18 +97,18 @@ func (c *categoryCountCommand) printCategoryCounts(
 	categoryIDs := maps.Keys(categoryCounts)
 	sortedCategoryIDs := slices.Sorted(categoryIDs)
 
-	for _, categoryId := range sortedCategoryIDs {
-		categoryCount, categoryCountOk := categoryCounts[categoryId]
+	for _, categoryID := range sortedCategoryIDs {
+		categoryCount, categoryCountOk := categoryCounts[categoryID]
 		if !categoryCountOk {
 			panic("Bug: category ID not found in counts map")
 		}
 
-		categoryName, categoryNameOk := categoryNameTable[categoryId]
+		categoryName, categoryNameOk := categoryNameTable[categoryID]
 		if !categoryNameOk {
 			panic("Bug: category ID not found in category name table")
 		}
 
-		categoryIdString := categoryId.String()
+		categoryIdString := categoryID.String()
 		countString := strconv.Itoa(categoryCount)
 		tableData = append(tableData, []string{
 			categoryIdString,
