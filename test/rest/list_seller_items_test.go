@@ -20,15 +20,15 @@ import (
 func TestListSellerItems(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("View own items", func(t *testing.T) {
-			for _, sellerId := range []models.ID{models.ID(1), models.ID(2), models.ID(100)} {
+			for _, sellerID := range []models.ID{models.ID(1), models.ID(2), models.ID(100)} {
 				for _, itemCount := range []int{0, 1, 5, 100} {
-					testLabel := fmt.Sprintf("SellerId: %d, ItemCount: %d", sellerId, itemCount)
+					testLabel := fmt.Sprintf("SellerID: %d, ItemCount: %d", sellerID, itemCount)
 
 					t.Run(testLabel, func(t *testing.T) {
 						setup, router, writer := NewRestFixture(WithDefaultCategories)
 						defer setup.Close()
 
-						seller, sessionID := setup.LoggedIn(setup.Seller(aux.WithUserID(sellerId)))
+						seller, sessionID := setup.LoggedIn(setup.Seller(aux.WithUserID(sellerID)))
 
 						expectedItems := []*rest.GetSellerItemsItemData{}
 						for i := 0; i < itemCount; i++ {
@@ -169,10 +169,10 @@ func TestListSellerItems(t *testing.T) {
 			defer setup.Close()
 
 			_, sessionID := setup.LoggedIn(setup.Seller())
-			nonexistentSellerId := models.ID(1000)
-			setup.RequireNoSuchUsers(t, nonexistentSellerId)
+			nonexistentSellerID := models.ID(1000)
+			setup.RequireNoSuchUsers(t, nonexistentSellerID)
 
-			url := path.SellerItems(nonexistentSellerId)
+			url := path.SellerItems(nonexistentSellerID)
 			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_user")

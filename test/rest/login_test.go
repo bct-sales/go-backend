@@ -148,11 +148,11 @@ func TestLogin(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			userId := models.ID(0)
+			userID := models.ID(0)
 			password := "xyz"
 
 			form := url.Values{}
-			form.Add("username", userId.String())
+			form.Add("username", userID.String())
 			form.Add("password", password)
 
 			url := path.Login()
@@ -169,13 +169,13 @@ func TestLogin(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			userId := seller.UserID
+			userID := seller.UserID
 			password := "wrong password"
 
 			require.NotEqual(t, password, seller.Password, "Bug in tests if this assertion fails")
 
 			form := url.Values{}
-			form.Add("username", userId.String())
+			form.Add("username", userID.String())
 			form.Add("password", password)
 
 			url := path.Login()

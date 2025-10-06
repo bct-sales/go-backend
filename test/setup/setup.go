@@ -96,8 +96,8 @@ func (s DatabaseFixture) DefaultCategories() {
 	}
 }
 
-func (s DatabaseFixture) User(roleId models.RoleID, options ...func(*aux.AddUserData)) *models.User {
-	return aux.AddUserToDatabase(s.Db, roleId, options...)
+func (s DatabaseFixture) User(roleID models.RoleID, options ...func(*aux.AddUserData)) *models.User {
+	return aux.AddUserToDatabase(s.Db, roleID, options...)
 }
 
 func (s DatabaseFixture) Admin(options ...func(*aux.AddUserData)) *models.User {
@@ -152,32 +152,32 @@ func (s DatabaseFixture) Sale(cashier models.ID, itemIds []models.ID, options ..
 	return sale
 }
 
-func (s DatabaseFixture) RequireNoSuchUsers(t *testing.T, userIds ...models.ID) {
-	for _, userId := range userIds {
-		exists, err := queries.UserWithIDExists(s.Db, userId)
+func (s DatabaseFixture) RequireNoSuchUsers(t *testing.T, userIDs ...models.ID) {
+	for _, userID := range userIDs {
+		exists, err := queries.UserWithIDExists(s.Db, userID)
 		require.NoError(t, err)
 		require.False(t, exists)
 	}
 }
 
-func (s DatabaseFixture) RequireNoSuchItems(t *testing.T, itemIds ...models.ID) {
-	for _, itemId := range itemIds {
-		exists, err := queries.ItemWithIDExists(s.Db, itemId)
+func (s DatabaseFixture) RequireNoSuchItems(t *testing.T, itemIDs ...models.ID) {
+	for _, itemID := range itemIDs {
+		exists, err := queries.ItemWithIDExists(s.Db, itemID)
 		require.NoError(t, err)
 		require.False(t, exists)
 	}
 }
 
-func (s DatabaseFixture) RequireNoSuchSales(t *testing.T, saleIds ...models.ID) {
-	for _, itemId := range saleIds {
-		exists, err := queries.SaleWithIDExists(s.Db, itemId)
+func (s DatabaseFixture) RequireNoSuchSales(t *testing.T, saleIDs ...models.ID) {
+	for _, itemID := range saleIDs {
+		exists, err := queries.SaleWithIDExists(s.Db, itemID)
 		require.NoError(t, err)
 		require.False(t, exists)
 	}
 }
 
-func (s DatabaseFixture) RequireFrozen(t *testing.T, saleId ...models.ID) {
-	for _, id := range saleId {
+func (s DatabaseFixture) RequireFrozen(t *testing.T, saleID ...models.ID) {
+	for _, id := range saleID {
 		frozen, err := queries.IsItemFrozen(s.Db, id)
 		require.NoError(t, err)
 		require.True(t, frozen)

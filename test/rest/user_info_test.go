@@ -267,10 +267,10 @@ func TestGetUserInformation(t *testing.T) {
 			defer setup.Close()
 
 			_, sessionID := setup.LoggedIn(setup.Admin())
-			nonexistentUserId := models.ID(99999999)
-			setup.RequireNoSuchUsers(t, nonexistentUserId)
+			nonexistentUserID := models.ID(99999999)
+			setup.RequireNoSuchUsers(t, nonexistentUserID)
 
-			url := path.User(nonexistentUserId)
+			url := path.User(nonexistentUserID)
 			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_user")

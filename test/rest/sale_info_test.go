@@ -61,8 +61,8 @@ func TestGetSaleInformation(t *testing.T) {
 				transactionTime := models.Timestamp(100)
 				itemCount := 5
 				items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
-				itemIds := models.CollectItemIDs(items)
-				sale := setup.Sale(cashier.UserID, itemIds, aux.WithTransactionTime(transactionTime))
+				itemIDs := models.CollectItemIDs(items)
+				sale := setup.Sale(cashier.UserID, itemIDs, aux.WithTransactionTime(transactionTime))
 
 				url := path.Sale(sale.SaleID)
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -129,10 +129,10 @@ func TestGetSaleInformation(t *testing.T) {
 			defer setup.Close()
 
 			_, sessionID := setup.LoggedIn(setup.Admin())
-			saleId := models.ID(9999) // Assuming this ID does not exist
-			setup.RequireNoSuchSales(t, saleId)
+			saleID := models.ID(9999) // Assuming this ID does not exist
+			setup.RequireNoSuchSales(t, saleID)
 
-			url := path.Sale(saleId)
+			url := path.Sale(saleID)
 			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNotFound, writer.Code)

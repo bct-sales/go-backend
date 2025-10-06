@@ -185,9 +185,9 @@ func TestUpdateItem(t *testing.T) {
 
 			_, sessionID := setup.LoggedIn(setup.Seller())
 
-			nonexistingItemId := models.ID(123)
-			url := path.Item(nonexistingItemId)
-			setup.RequireNoSuchItems(t, nonexistingItemId)
+			nonexistingItemID := models.ID(123)
+			url := path.Item(nonexistingItemID)
+			setup.RequireNoSuchItems(t, nonexistingItemID)
 
 			payload := struct {
 				PriceInCents int `json:"priceInCents"`
