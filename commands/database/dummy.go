@@ -273,7 +273,7 @@ func (c *dummyDatabaseCommand) addCashiers(db *sql.DB) ([]models.ID, error) {
 func (c *dummyDatabaseCommand) addSellers(db *sql.DB) ([]models.ID, error) {
 	c.Printf("Adding sellers\n")
 
-	sellerIds := make([]models.ID, 0, zoneCount*10)
+	sellerIDs := make([]models.ID, 0, zoneCount*10)
 
 	addSellers := func(addUser func(userId models.ID, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
 		for area := 1; area <= zoneCount; area++ {
@@ -288,7 +288,7 @@ func (c *dummyDatabaseCommand) addSellers(db *sql.DB) ([]models.ID, error) {
 
 				addUser(userId, roleId, createdAt, lastActivity, password)
 
-				sellerIds = append(sellerIds, userId)
+				sellerIDs = append(sellerIDs, userId)
 			}
 		}
 	}
@@ -296,7 +296,7 @@ func (c *dummyDatabaseCommand) addSellers(db *sql.DB) ([]models.ID, error) {
 		return nil, fmt.Errorf("failed to add sellers: %w", err)
 	}
 
-	return sellerIds, nil
+	return sellerIDs, nil
 }
 
 func (c *dummyDatabaseCommand) getSellerId(zone int, offset int) models.ID {
