@@ -54,5 +54,38 @@ func TestGetSoldItemsQuery(t *testing.T) {
 			}
 			require.Equal(t, expectedSoldItem, actualSoldItem)
 		})
+
+		t.Run("One sold item, one unsold item", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+			cashier := setup.Cashier()
+			soldItem := setup.Item(seller.UserId, aux.WithHidden(false))
+			// Make unsold item
+			setup.Item(seller.UserId, aux.WithHidden(false))
+			sale := setup.Sale(cashier.UserId, []models.Id{soldItem.ItemID})
+
+			query := queries.NewGetSoldItemsQuery()
+			soldItems, err := query.Execute(db)
+			require.NoError(t, err)
+			require.Len(t, soldItems, 1)
+
+			actualSoldItem := soldItems[0]
+			expectedSoldItem := queries.SoldItem{
+				SaleId:          sale.SaleID,
+				CashierId:       sale.CashierID,
+				TransactionTime: sale.TransactionTime,
+				ItemId:          soldItem.ItemID,
+				AddedAt:         soldItem.AddedAt,
+				Description:     soldItem.Description,
+				PriceInCents:    soldItem.PriceInCents,
+				ItemCategory:    soldItem.CategoryID,
+				SellerId:        soldItem.SellerID,
+				Donation:        soldItem.Donation,
+				Charity:         soldItem.Charity,
+			}
+			require.Equal(t, expectedSoldItem, actualSoldItem)
+		})
 	})
 }
