@@ -52,7 +52,7 @@ func TestGetSoldItemsQuery(t *testing.T) {
 				Donation:        item.Donation,
 				Charity:         item.Charity,
 			}
-			require.Equal(t, expectedSoldItem, actualSoldItem)
+			require.Equal(t, &expectedSoldItem, actualSoldItem)
 		})
 
 		t.Run("One sold item, one unsold item", func(t *testing.T) {
@@ -85,7 +85,7 @@ func TestGetSoldItemsQuery(t *testing.T) {
 				Donation:        soldItem.Donation,
 				Charity:         soldItem.Charity,
 			}
-			require.Equal(t, expectedSoldItem, actualSoldItem)
+			require.Equal(t, &expectedSoldItem, actualSoldItem)
 		})
 
 		t.Run("Two items sold in same sale", func(t *testing.T) {
@@ -103,7 +103,7 @@ func TestGetSoldItemsQuery(t *testing.T) {
 			require.NoError(t, err)
 			require.Len(t, actualSoldItems, 2)
 
-			expectedSoldItems := []queries.SoldItem{
+			expectedSoldItems := []*queries.SoldItem{
 				{
 					SaleId:          sale.SaleID,
 					CashierId:       sale.CashierID,
@@ -150,7 +150,7 @@ func TestGetSoldItemsQuery(t *testing.T) {
 			require.NoError(t, err)
 			require.Len(t, actualSoldItems, 2)
 
-			expectedSoldItems := []queries.SoldItem{
+			expectedSoldItems := []*queries.SoldItem{
 				{
 					SaleId:          sale1.SaleID,
 					CashierId:       sale1.CashierID,

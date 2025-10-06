@@ -1219,7 +1219,7 @@ func NewGetSoldItemsQuery() *GetSoldItemsQuery {
 	return &query
 }
 
-func (q *GetSoldItemsQuery) Execute(db DatabaseQuerier) (r_result []SoldItem, r_err error) {
+func (q *GetSoldItemsQuery) Execute(db DatabaseQuerier) (r_result []*SoldItem, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -1254,7 +1254,7 @@ func (q *GetSoldItemsQuery) Execute(db DatabaseQuerier) (r_result []SoldItem, r_
 	}
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
-	var soldItems []SoldItem
+	var soldItems []*SoldItem
 
 	for rows.Next() {
 		var saleId models.Id
@@ -1300,7 +1300,7 @@ func (q *GetSoldItemsQuery) Execute(db DatabaseQuerier) (r_result []SoldItem, r_
 			Charity:         charity,
 		}
 
-		soldItems = append(soldItems, soldItem)
+		soldItems = append(soldItems, &soldItem)
 	}
 
 	if err := rows.Err(); err != nil {
