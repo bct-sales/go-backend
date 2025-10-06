@@ -19,7 +19,7 @@ type GetSoldItemsEntry struct {
 	AddedAt         rest.DateTime       `json:"addedAt"`
 	Description     string              `json:"description"`
 	PriceInCents    models.MoneyInCents `json:"priceInCents"`
-	ItemCategory    models.Id           `json:"itemCategory"`
+	ItemCategoryId  models.Id           `json:"itemCategory"`
 	SellerId        models.Id           `json:"sellerId"`
 	Donation        bool                `json:"donation"`
 	Charity         bool                `json:"charity"`
@@ -137,7 +137,7 @@ func (ep *listSoldItemsEndpoint) convertData(soldItems []*queries.SoldItem) []Ge
 			AddedAt:         rest.ConvertTimestampToDateTime(soldItem.AddedAt),
 			Description:     soldItem.Description,
 			PriceInCents:    soldItem.PriceInCents,
-			ItemCategory:    soldItem.ItemCategory,
+			ItemCategoryId:  soldItem.ItemCategory,
 			SellerId:        soldItem.SellerId,
 			Donation:        soldItem.Donation,
 			Charity:         soldItem.Charity,
