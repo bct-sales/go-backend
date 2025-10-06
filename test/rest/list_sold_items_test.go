@@ -201,4 +201,20 @@ func TestListSoldItems(t *testing.T) {
 
 			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
 		})
+
+		t.Run("Cookie with fake session id", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+			cashier := setup.Cashier()
+			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
+			setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
+
+			url := path.SoldItems()
+			request := CreateGetRequest(url, WithSessionCookie("fake_session_id"))
+			router.ServeHTTP(writer, request)
+
+			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
+		})
 }
