@@ -258,13 +258,13 @@ func (c *dummyDatabaseCommand) addCashiers(db *sql.DB) ([]models.ID, error) {
 		var lastActivity *models.Timestamp = nil
 		password := "abc"
 
-		cashierId, err := queries.AddUser(db, roleId, createdAt, lastActivity, password)
+		cashierID, err := queries.AddUser(db, roleId, createdAt, lastActivity, password)
 
 		if err != nil {
 			return nil, fmt.Errorf("failed to add cashier: %w", err)
 		}
 
-		cashierIDs = append(cashierIDs, cashierId)
+		cashierIDs = append(cashierIDs, cashierID)
 	}
 
 	return cashierIDs, nil
