@@ -12,15 +12,15 @@ import (
 )
 
 type ListSoldItemsEntry struct {
-	SaleId          models.ID           `json:"saleId"`
-	CashierId       models.ID           `json:"cashierId"`
+	SaleID          models.ID           `json:"saleId"`
+	CashierID       models.ID           `json:"cashierId"`
 	TransactionTime rest.DateTime       `json:"transactionTime"`
-	ItemId          models.ID           `json:"itemId"`
+	ItemID          models.ID           `json:"itemId"`
 	AddedAt         rest.DateTime       `json:"addedAt"`
 	Description     string              `json:"description"`
 	PriceInCents    models.MoneyInCents `json:"priceInCents"`
 	ItemCategoryID  models.ID           `json:"itemCategory"`
-	SellerId        models.ID           `json:"sellerId"`
+	SellerID        models.ID           `json:"sellerId"`
 	Donation        bool                `json:"donation"`
 	Charity         bool                `json:"charity"`
 }
@@ -128,15 +128,15 @@ func (ep *listSoldItemsEndpoint) sendResponseAsJSONFile(soldItems []*queries.Sol
 func (ep *listSoldItemsEndpoint) convertData(soldItems []*queries.SoldItem) []ListSoldItemsEntry {
 	return algorithms.Map(soldItems, func(soldItem *queries.SoldItem) ListSoldItemsEntry {
 		return ListSoldItemsEntry{
-			SaleId:          soldItem.SaleID,
-			CashierId:       soldItem.CashierID,
+			SaleID:          soldItem.SaleID,
+			CashierID:       soldItem.CashierID,
 			TransactionTime: rest.ConvertTimestampToDateTime(soldItem.TransactionTime),
-			ItemId:          soldItem.ItemID,
+			ItemID:          soldItem.ItemID,
 			AddedAt:         rest.ConvertTimestampToDateTime(soldItem.AddedAt),
 			Description:     soldItem.Description,
 			PriceInCents:    soldItem.PriceInCents,
 			ItemCategoryID:  soldItem.ItemCategoryID,
-			SellerId:        soldItem.SellerID,
+			SellerID:        soldItem.SellerID,
 			Donation:        soldItem.Donation,
 			Charity:         soldItem.Charity,
 		}
