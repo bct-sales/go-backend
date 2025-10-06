@@ -41,12 +41,12 @@ func TestDeleteExpiredSessions(t *testing.T) {
 				require.NoError(t, err)
 
 				for _, sessionId := range expiredSessions {
-					_, err := queries.GetSessionById(db, sessionId)
+					_, err := queries.GetSessionByID(db, sessionId)
 					requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSession)
 				}
 
 				for _, sessionId := range unexpiredSessions {
-					_, err := queries.GetSessionById(db, sessionId)
+					_, err := queries.GetSessionByID(db, sessionId)
 					require.NoError(t, err)
 				}
 			})

@@ -26,7 +26,7 @@ func TestAddUserWithId(t *testing.T) {
 						err := queries.AddUserWithID(db, userId, roleId, 0, nil, password)
 						require.NoError(t, err)
 
-						userExists, err := queries.UserWithIdExists(db, userId)
+						userExists, err := queries.UserWithIDExists(db, userId)
 						require.NoError(t, err)
 						require.True(t, userExists)
 

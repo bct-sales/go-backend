@@ -23,7 +23,7 @@ func TestDeleteSessionWithUser(t *testing.T) {
 			err := queries.DeleteSessionWithUser(db, user.UserID)
 			require.NoError(t, err)
 
-			_, err = queries.GetSessionById(db, sessionId)
+			_, err = queries.GetSessionByID(db, sessionId)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSession)
 		})
 
@@ -41,12 +41,12 @@ func TestDeleteSessionWithUser(t *testing.T) {
 			require.NoError(t, err)
 
 			{
-				_, err := queries.GetSessionById(db, sessionId)
+				_, err := queries.GetSessionByID(db, sessionId)
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSession)
 			}
 
 			{
-				_, err := queries.GetSessionById(db, sessionId2)
+				_, err := queries.GetSessionByID(db, sessionId2)
 				require.NoError(t, err)
 			}
 		})
@@ -64,12 +64,12 @@ func TestDeleteSessionWithUser(t *testing.T) {
 			require.NoError(t, err)
 
 			{
-				_, err := queries.GetSessionById(db, sessionId)
+				_, err := queries.GetSessionByID(db, sessionId)
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSession)
 			}
 
 			{
-				_, err := queries.GetSessionById(db, sessionId2)
+				_, err := queries.GetSessionByID(db, sessionId2)
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSession)
 			}
 		})

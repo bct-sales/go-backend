@@ -11,26 +11,26 @@ import (
 
 func AddSession(
 	db DatabaseQuerier,
-	userId models.ID,
+	userID models.ID,
 	expirationTime models.Timestamp) (r_result models.SessionID, r_err error) {
 
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if err := EnsureUserExists(db, userId); err != nil {
+	if err := EnsureUserExists(db, userID); err != nil {
 		return "", fmt.Errorf("failed to add session: %w", err)
 	}
 
-	sessionId := security.GenerateUniqueSessionId()
+	sessionID := security.GenerateUniqueSessionID()
 
 	_, err := db.Exec(
 		`
 			INSERT INTO sessions (session_id, user_id, expiration_time)
 			VALUES (?, ?, ?)
 		`,
-		sessionId,
-		userId,
+		sessionID,
+		userID,
 		expirationTime,
 	)
 
@@ -38,10 +38,10 @@ func AddSession(
 		return "", err
 	}
 
-	return sessionId, nil
+	return sessionID, nil
 }
 
-func GetSessionById(db DatabaseQuerier, sessionId models.SessionID) (r_result *models.Session, r_err error) {
+func GetSessionByID(db DatabaseQuerier, sessionID models.SessionID) (r_result *models.Session, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -56,36 +56,36 @@ func GetSessionById(db DatabaseQuerier, sessionId models.SessionID) (r_result *m
 			WHERE
 				session_id = ?
 		`,
-		sessionId,
+		sessionID,
 	)
 
-	var userId models.ID
+	var userID models.ID
 	var expirationTime models.Timestamp
-	if err := row.Scan(&userId, &expirationTime); err != nil {
+	if err := row.Scan(&userID, &expirationTime); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("failed to get session with id %s: %w", sessionId, dberr.ErrNoSuchSession)
+			return nil, fmt.Errorf("failed to get session with id %s: %w", sessionID, dberr.ErrNoSuchSession)
 		}
 		return nil, err
 	}
 
 	session := models.Session{
-		SessionID:      sessionId,
-		UserID:         userId,
+		SessionID:      sessionID,
+		UserID:         userID,
 		ExpirationTime: expirationTime,
 	}
 	return &session, nil
 }
 
 type SessionData struct {
-	UserId         models.ID
-	RoleId         models.RoleID
+	UserID         models.ID
+	RoleID         models.RoleID
 	ExpirationTime models.Timestamp
 }
 
 // GetSessionData returns information about the given session.
 // The function only returns valid session data if the session has not expired.
-// ErrNoSuchSession is returned if no unexpired session is found with the given sessionId.
-func GetSessionData(db DatabaseQuerier, sessionId models.SessionID, currentTime models.Timestamp) (r_result *SessionData, r_err error) {
+// ErrNoSuchSession is returned if no unexpired session is found with the given sessionID.
+func GetSessionData(db DatabaseQuerier, sessionID models.SessionID, currentTime models.Timestamp) (r_result *SessionData, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -101,14 +101,14 @@ func GetSessionData(db DatabaseQuerier, sessionId models.SessionID, currentTime 
 			WHERE
 				session_id = ? AND ? < expiration_time
 		`,
-		sessionId,
+		sessionID,
 		currentTime,
 	)
 
-	var userId models.ID
-	var roleId models.RoleID
+	var userID models.ID
+	var roleID models.RoleID
 	var expirationTime models.Timestamp
-	if err := row.Scan(&userId, &roleId.ID, &expirationTime); err != nil {
+	if err := row.Scan(&userID, &roleID.ID, &expirationTime); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, dberr.ErrNoSuchSession
 		}
@@ -116,8 +116,8 @@ func GetSessionData(db DatabaseQuerier, sessionId models.SessionID, currentTime 
 	}
 
 	sessionData := SessionData{
-		UserId:         userId,
-		RoleId:         roleId,
+		UserID:         userID,
+		RoleID:         roleID,
 		ExpirationTime: expirationTime,
 	}
 	return &sessionData, nil
@@ -148,16 +148,16 @@ func GetSessions(db DatabaseQuerier) (r_result []models.Session, r_err error) {
 	var sessions []models.Session
 
 	for rows.Next() {
-		var sessionId models.SessionID
-		var userId models.ID
+		var sessionID models.SessionID
+		var userID models.ID
 		var expirationTime models.Timestamp
-		if err := rows.Scan(&sessionId, &userId, &expirationTime); err != nil {
+		if err := rows.Scan(&sessionID, &userID, &expirationTime); err != nil {
 			return nil, err
 		}
 
 		session := models.Session{
-			SessionID:      sessionId,
-			UserID:         userId,
+			SessionID:      sessionID,
+			UserID:         userID,
 			ExpirationTime: expirationTime,
 		}
 		sessions = append(sessions, session)
@@ -170,7 +170,7 @@ func GetSessions(db DatabaseQuerier) (r_result []models.Session, r_err error) {
 	return sessions, nil
 }
 
-func DeleteSession(db DatabaseQuerier, sessionId models.SessionID) (r_err error) {
+func DeleteSession(db DatabaseQuerier, sessionID models.SessionID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -180,7 +180,7 @@ func DeleteSession(db DatabaseQuerier, sessionId models.SessionID) (r_err error)
 			DELETE FROM sessions
 			WHERE session_id = ?
 		`,
-		sessionId,
+		sessionID,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to delete session: %w", err)
@@ -197,7 +197,7 @@ func DeleteSession(db DatabaseQuerier, sessionId models.SessionID) (r_err error)
 	return nil
 }
 
-func DeleteSessionWithUser(db DatabaseQuerier, userId models.ID) (r_err error) {
+func DeleteSessionWithUser(db DatabaseQuerier, userID models.ID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -207,7 +207,7 @@ func DeleteSessionWithUser(db DatabaseQuerier, userId models.ID) (r_err error) {
 			DELETE FROM sessions
 			WHERE user_id = ?
 		`,
-		userId,
+		userID,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to delete session: %w", err)

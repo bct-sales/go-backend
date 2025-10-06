@@ -17,14 +17,14 @@ const (
 )
 
 type LabelData struct {
-	BarcodeData      string
-	Description      string
-	Category         string
-	ItemIdentifier   int
-	PriceInCents     int
-	SellerIdentifier int
-	Charity          bool
-	Donation         bool
+	BarcodeData  string
+	Description  string
+	Category     string
+	ItemID       int
+	PriceInCents int
+	SellerID     int
+	Charity      bool
+	Donation     bool
 }
 
 type PdfBuilder struct {
@@ -212,7 +212,7 @@ func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *Label
 		return err
 	}
 
-	priceAndSellerString := formatPriceAndSeller(labelData.PriceInCents, labelData.SellerIdentifier)
+	priceAndSellerString := formatPriceAndSeller(labelData.PriceInCents, labelData.SellerID)
 	if err := builder.drawTextInLowerRightCorner(priceAndSellerString, rectangle); err != nil {
 		return &PdfError{Message: "failed to draw price and seller", Wrapped: err}
 	}
@@ -236,7 +236,7 @@ func (builder *PdfBuilder) drawItemIdentifier(rectangle *Rectangle, labelData *L
 	insets := Insets{Left: 4, Top: 0, Right: 0, Bottom: 2}
 	shrunkRectangle := rectangle.Shrink(insets)
 
-	itemIdentifierString := fmt.Sprintf("%d", labelData.ItemIdentifier)
+	itemIdentifierString := fmt.Sprintf("%d", labelData.ItemID)
 
 	if err := builder.drawTextInLowerLeftCorner(itemIdentifierString, shrunkRectangle); err != nil {
 		return &PdfError{Message: "failed to draw item identifier", Wrapped: err}

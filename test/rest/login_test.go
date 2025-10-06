@@ -55,7 +55,7 @@ func TestLogin(t *testing.T) {
 			}
 			require.True(t, found, "Expected session_id cookie to be set")
 
-			sessionData, err := queries.GetSessionById(setup.Db, sessionId)
+			sessionData, err := queries.GetSessionByID(setup.Db, sessionId)
 			require.NoError(t, err)
 			require.Equal(t, seller.UserID, sessionData.UserID)
 		})
@@ -96,7 +96,7 @@ func TestLogin(t *testing.T) {
 			}
 			require.True(t, found, "Expected session_id cookie to be set")
 
-			sessionData, err := queries.GetSessionById(setup.Db, sessionId)
+			sessionData, err := queries.GetSessionByID(setup.Db, sessionId)
 			require.NoError(t, err)
 			require.Equal(t, admin.UserID, sessionData.UserID)
 		})
@@ -137,7 +137,7 @@ func TestLogin(t *testing.T) {
 			}
 			require.True(t, found, "Expected session_id cookie to be set")
 
-			sessionData, err := queries.GetSessionById(setup.Db, sessionId)
+			sessionData, err := queries.GetSessionByID(setup.Db, sessionId)
 			require.NoError(t, err)
 			require.Equal(t, cashier.UserID, sessionData.UserID)
 		})

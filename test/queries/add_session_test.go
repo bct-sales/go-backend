@@ -27,7 +27,7 @@ func TestAddSession(t *testing.T) {
 				sessionId, err := queries.AddSession(db, user.UserID, expirationTime)
 				require.NoError(t, err)
 
-				session, err := queries.GetSessionById(db, sessionId)
+				session, err := queries.GetSessionByID(db, sessionId)
 				require.NoError(t, err)
 				require.Equal(t, sessionId, session.SessionID)
 				require.Equal(t, user.UserID, session.UserID)

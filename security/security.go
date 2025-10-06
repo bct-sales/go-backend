@@ -24,7 +24,7 @@ func HashPassword(password string, salt string) string {
 	return fmt.Sprintf("%x", hash.Sum(nil))
 }
 
-func GenerateUniqueSessionId() models.SessionID {
+func GenerateUniqueSessionID() models.SessionID {
 	bytes := make([]byte, SessionIdByteLength)
 	if _, err := rand.Read(bytes); err != nil {
 		panic(err)

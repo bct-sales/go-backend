@@ -93,7 +93,7 @@ func (ep *addSellerItemEndpoint) parseURI() (models.ID, bool) {
 }
 
 func (ep *addSellerItemEndpoint) ensureValidity(uriSellerId models.ID) bool {
-	sellerExists, err := queries.UserWithIdExists(ep.Database, uriSellerId)
+	sellerExists, err := queries.UserWithIDExists(ep.Database, uriSellerId)
 	if err != nil {
 		ep.Logger.InternalError("Failed to check if seller exists", "error", err, "sellerId", uriSellerId)
 		failure_response.Unknown(ep.Context, err.Error())

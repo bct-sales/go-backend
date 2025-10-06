@@ -166,14 +166,14 @@ func (ep *generateLabelsEndpoint) createLabelDataFromItem(categoryNameTable map[
 	}
 
 	labelData := &pdf.LabelData{
-		BarcodeData:      barcode,
-		Description:      item.Description,
-		Category:         category,
-		ItemIdentifier:   int(item.ItemID),
-		PriceInCents:     int(item.PriceInCents),
-		SellerIdentifier: int(item.SellerID),
-		Charity:          item.Charity,
-		Donation:         item.Donation,
+		BarcodeData:  barcode,
+		Description:  item.Description,
+		Category:     category,
+		ItemID:       int(item.ItemID),
+		PriceInCents: int(item.PriceInCents),
+		SellerID:     int(item.SellerID),
+		Charity:      item.Charity,
+		Donation:     item.Donation,
 	}
 
 	return labelData, nil

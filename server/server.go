@@ -269,8 +269,8 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 			return
 		}
 
-		userId := sessionData.UserId
-		roleId := sessionData.RoleId
+		userId := sessionData.UserID
+		roleId := sessionData.RoleID
 
 		if err := queries.UpdateLastActivity(database, userId, now); err != nil {
 			slog.Error("Failed to update last activity", slog.String("error", err.Error()))

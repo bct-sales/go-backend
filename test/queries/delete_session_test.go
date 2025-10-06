@@ -25,7 +25,7 @@ func TestDeleteSession(t *testing.T) {
 		err = queries.DeleteSession(db, sessionId)
 		require.NoError(t, err)
 
-		_, err = queries.GetSessionById(db, sessionId)
+		_, err = queries.GetSessionByID(db, sessionId)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSession)
 	})
 

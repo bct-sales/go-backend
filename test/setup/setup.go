@@ -154,7 +154,7 @@ func (s DatabaseFixture) Sale(cashier models.ID, itemIds []models.ID, options ..
 
 func (s DatabaseFixture) RequireNoSuchUsers(t *testing.T, userIds ...models.ID) {
 	for _, userId := range userIds {
-		exists, err := queries.UserWithIdExists(s.Db, userId)
+		exists, err := queries.UserWithIDExists(s.Db, userId)
 		require.NoError(t, err)
 		require.False(t, exists)
 	}

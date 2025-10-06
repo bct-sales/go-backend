@@ -28,8 +28,8 @@ func TestGetSessionData(t *testing.T) {
 
 				require.NoError(t, err)
 				require.NotNil(t, sessionData)
-				require.Equal(t, seller.UserID, sessionData.UserId)
-				require.Equal(t, roleId, sessionData.RoleId)
+				require.Equal(t, seller.UserID, sessionData.UserID)
+				require.Equal(t, roleId, sessionData.RoleID)
 				require.Equal(t, expectedExpirationTime, sessionData.ExpirationTime)
 			})
 		}

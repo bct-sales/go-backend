@@ -10,12 +10,12 @@ import (
 )
 
 // AddUserWithID adds a user to the database with a specific user ID.
-// An ErrUserIdAlreadyInUse is returned if the user ID is already in use.
+// An ErrUserIDAlreadyInUse is returned if the user ID is already in use.
 // An ErrNoSuchRole is returned if the role ID is invalid.
 func AddUserWithID(
 	database DatabaseQuerier,
-	userId models.ID,
-	roleId models.RoleID,
+	userID models.ID,
+	roleID models.RoleID,
 	createdAt models.Timestamp,
 	lastActivity *models.Timestamp,
 	password string) (r_err error) {
@@ -24,8 +24,8 @@ func AddUserWithID(
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if !roleId.IsValid() {
-		return fmt.Errorf("invalid role id %d: %w", roleId.ID, dberr.ErrNoSuchRole)
+	if !roleID.IsValid() {
+		return fmt.Errorf("invalid role id %d: %w", roleID.ID, dberr.ErrNoSuchRole)
 	}
 
 	_, err := database.Exec(
@@ -33,23 +33,23 @@ func AddUserWithID(
 			INSERT INTO users (user_id, role_id, created_at, last_activity, password)
 			VALUES ($1, $2, $3, $4, $5)
 		`,
-		userId,
-		roleId.Int64(),
+		userID,
+		roleID.Int64(),
 		createdAt,
 		lastActivity,
 		password,
 	)
 
 	if err != nil {
-		userExists, err := UserWithIdExists(database, userId)
+		userExists, err := UserWithIDExists(database, userID)
 		if err != nil {
 			return err
 		}
 		if userExists {
-			return fmt.Errorf("trying to add user with id %d: %w", userId, dberr.ErrIDAlreadyInUse)
+			return fmt.Errorf("trying to add user with id %d: %w", userID, dberr.ErrIDAlreadyInUse)
 		}
 
-		return fmt.Errorf("failed to add user with id %d: %w", userId, err)
+		return fmt.Errorf("failed to add user with id %d: %w", userID, err)
 	}
 
 	return nil
@@ -57,7 +57,7 @@ func AddUserWithID(
 
 func AddUser(
 	db DatabaseQuerier,
-	roleId models.RoleID,
+	roleID models.RoleID,
 	createdAt models.Timestamp,
 	lastActivity *models.Timestamp,
 	password string) (r_result models.ID, r_err error) {
@@ -66,8 +66,8 @@ func AddUser(
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if !roleId.IsValid() {
-		return 0, fmt.Errorf("invalid role id %d: %w", roleId.ID, dberr.ErrNoSuchRole)
+	if !roleID.IsValid() {
+		return 0, fmt.Errorf("invalid role id %d: %w", roleID.ID, dberr.ErrNoSuchRole)
 	}
 
 	result, err := db.Exec(
@@ -75,7 +75,7 @@ func AddUser(
 			INSERT INTO users (role_id, created_at, last_activity, password)
 			VALUES ($1, $2, $3, $4)
 		`,
-		roleId.Int64(),
+		roleID.Int64(),
 		createdAt,
 		lastActivity,
 		password,
@@ -85,15 +85,15 @@ func AddUser(
 		return 0, err
 	}
 
-	userId, err := result.LastInsertId()
+	userID, err := result.LastInsertId()
 	if err != nil {
 		return 0, fmt.Errorf("failed to get last insert id: %w", err)
 	}
 
-	return models.ID(userId), nil
+	return models.ID(userID), nil
 }
 
-type AddUsersCallback func(addUser func(userId models.ID, roleId models.RoleID, createdAt models.Timestamp, lastActivity *models.Timestamp, password string))
+type AddUsersCallback func(addUser func(userID models.ID, roleID models.RoleID, createdAt models.Timestamp, lastActivity *models.Timestamp, password string))
 
 func AddUsers(database DatabaseQuerier, callback AddUsersCallback) (r_err error) {
 	defer func() {
@@ -104,9 +104,9 @@ func AddUsers(database DatabaseQuerier, callback AddUsersCallback) (r_err error)
 	arguments := []any{}
 	tupleString := "(?, ?, ?, ?, ?)"
 
-	add := func(userId models.ID, roleId models.RoleID, createdAt models.Timestamp, lastActivity *models.Timestamp, password string) {
+	add := func(userID models.ID, roleID models.RoleID, createdAt models.Timestamp, lastActivity *models.Timestamp, password string) {
 		valuesString = append(valuesString, tupleString)
-		arguments = append(arguments, userId, roleId.Int64(), createdAt, lastActivity, password)
+		arguments = append(arguments, userID, roleID.Int64(), createdAt, lastActivity, password)
 	}
 
 	callback(add)
@@ -124,7 +124,7 @@ func AddUsers(database DatabaseQuerier, callback AddUsersCallback) (r_err error)
 	return nil
 }
 
-func UserWithIdExists(db DatabaseQuerier, userId models.ID) (r_result bool, r_err error) {
+func UserWithIDExists(db DatabaseQuerier, userId models.ID) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -323,7 +323,7 @@ func UpdateUserPassword(database DatabaseQuerier, userId models.ID, password str
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	userExists, err := UserWithIdExists(database, userId)
+	userExists, err := UserWithIDExists(database, userId)
 	if err != nil {
 		return err
 	}
@@ -351,7 +351,7 @@ func EnsureUserExists(db DatabaseQuerier, userId models.ID) (r_err error) {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	userExists, err := UserWithIdExists(db, userId)
+	userExists, err := UserWithIDExists(db, userId)
 	if err != nil {
 		return fmt.Errorf("failed to ensure user %d exists: %w", userId, err)
 	}
@@ -392,7 +392,7 @@ func RemoveUserWithID(db DatabaseQuerier, userId models.ID) (r_err error) {
 	}()
 
 	{
-		userExist, err := UserWithIdExists(db, userId)
+		userExist, err := UserWithIDExists(db, userId)
 		if err != nil {
 			return err
 		}
@@ -420,7 +420,7 @@ func UpdateLastActivity(db DatabaseQuerier, userId models.ID, lastActivity model
 	}()
 
 	{
-		userExist, err := UserWithIdExists(db, userId)
+		userExist, err := UserWithIDExists(db, userId)
 		if err != nil {
 			return err
 		}
