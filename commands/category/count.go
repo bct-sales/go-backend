@@ -94,8 +94,8 @@ func (c *categoryCountCommand) printCategoryCounts(
 		{"ID", "Name", "Count"},
 	}
 
-	categoryIds := maps.Keys(categoryCounts)
-	sortedCategoryIds := slices.Sorted(categoryIds)
+	categoryIDs := maps.Keys(categoryCounts)
+	sortedCategoryIds := slices.Sorted(categoryIDs)
 
 	for _, categoryId := range sortedCategoryIds {
 		categoryCount, categoryCountOk := categoryCounts[categoryId]
