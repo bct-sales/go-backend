@@ -194,7 +194,7 @@ func (c *dummyDatabaseCommand) execute() error {
 			return err
 		}
 
-		cashierIds, err := c.addCashiers(db)
+		cashierIDs, err := c.addCashiers(db)
 		if err != nil {
 			return err
 		}
@@ -209,7 +209,7 @@ func (c *dummyDatabaseCommand) execute() error {
 			return err
 		}
 
-		if err := c.addSales(db, cashierIds, itemIds); err != nil {
+		if err := c.addSales(db, cashierIDs, itemIds); err != nil {
 			return err
 		}
 
