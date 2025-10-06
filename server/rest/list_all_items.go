@@ -193,19 +193,8 @@ func (ep *listAllItemsEndpoint) sendSuccessResponse(items []*models.Item, itemSe
 }
 
 func (ep *listAllItemsEndpoint) sendResponseAsJSON(items []*models.Item, itemSelection queries.ItemSelection) {
-	itemsData := algorithms.Map(items, func(item *models.Item) GetItemsItemData {
-		return GetItemsItemData{
-			ItemID:       item.ItemID,
-			AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
-			Description:  item.Description,
-			PriceInCents: item.PriceInCents,
-			CategoryID:   item.CategoryID,
-			SellerID:     item.SellerID,
-			Donation:     item.Donation,
-			Charity:      item.Charity,
-			Frozen:       item.Frozen,
-		}
-	})
+	itemsData := ep.convertData(items)
+
 	itemStatistics, err := queries.GetItemStatistics(ep.Database, itemSelection)
 	if err != nil {
 		ep.Logger.InternalError("Failed to count items", "error", err)
@@ -220,6 +209,22 @@ func (ep *listAllItemsEndpoint) sendResponseAsJSON(items []*models.Item, itemSel
 	}
 
 	ep.Context.IndentedJSON(http.StatusOK, response)
+}
+
+func (ep *listAllItemsEndpoint) convertData(items []*models.Item) []GetItemsItemData {
+	return algorithms.Map(items, func(item *models.Item) GetItemsItemData {
+		return GetItemsItemData{
+			ItemID:       item.ItemID,
+			AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
+			Description:  item.Description,
+			PriceInCents: item.PriceInCents,
+			CategoryID:   item.CategoryID,
+			SellerID:     item.SellerID,
+			Donation:     item.Donation,
+			Charity:      item.Charity,
+			Frozen:       item.Frozen,
+		}
+	})
 }
 
 func (ep *listAllItemsEndpoint) sendResponseAsJSONFile(items []*models.Item) {
