@@ -29,9 +29,9 @@ func TestCategoryCounts(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionId := setup.LoggedIn(setup.Admin())
+				_, sessionID := setup.LoggedIn(setup.Admin())
 
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				countMap := map[models.ID]int{}
 				expectedResponse := createSuccessResponse(countMap)
@@ -48,18 +48,18 @@ func TestCategoryCounts(t *testing.T) {
 				}
 			})
 
-			for categoryId, _ := range defaultCategoryNameTable {
+			for categoryID, _ := range defaultCategoryNameTable {
 				t.Run("Single item", func(t *testing.T) {
 					setup, router, writer := NewRestFixture(WithDefaultCategories)
 					defer setup.Close()
 
-					_, sessionId := setup.LoggedIn(setup.Admin())
+					_, sessionID := setup.LoggedIn(setup.Admin())
 					seller := setup.Seller()
-					setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categoryId), aux.WithHidden(false))
+					setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categoryID), aux.WithHidden(false))
 
-					request := CreateGetRequest(url, WithSessionCookie(sessionId))
+					request := CreateGetRequest(url, WithSessionCookie(sessionID))
 					router.ServeHTTP(writer, request)
-					countMap := map[models.ID]int{categoryId: 1}
+					countMap := map[models.ID]int{categoryID: 1}
 					expected := createSuccessResponse(countMap)
 
 					actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
@@ -67,19 +67,19 @@ func TestCategoryCounts(t *testing.T) {
 				})
 			}
 
-			for categoryId, _ := range defaultCategoryNameTable {
+			for categoryID := range defaultCategoryNameTable {
 				t.Run("Two items in same category", func(t *testing.T) {
 					setup, router, writer := NewRestFixture(WithDefaultCategories)
 					defer setup.Close()
 
-					_, sessionId := setup.LoggedIn(setup.Admin())
+					_, sessionID := setup.LoggedIn(setup.Admin())
 					seller := setup.Seller()
-					setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categoryId), aux.WithHidden(false))
-					setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categoryId), aux.WithHidden(false))
+					setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categoryID), aux.WithHidden(false))
+					setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categoryID), aux.WithHidden(false))
 
-					request := CreateGetRequest(url, WithSessionCookie(sessionId))
+					request := CreateGetRequest(url, WithSessionCookie(sessionID))
 					router.ServeHTTP(writer, request)
-					countMap := map[models.ID]int{categoryId: 2}
+					countMap := map[models.ID]int{categoryID: 2}
 					expected := createSuccessResponse(countMap)
 
 					actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())

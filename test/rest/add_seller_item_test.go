@@ -22,18 +22,18 @@ func TestAddSellerItem(t *testing.T) {
 	defaultCategoryNameTable := aux.DefaultCategoryNameTable()
 
 	t.Run("Successful", func(t *testing.T) {
-		for _, sellerId := range []models.ID{models.ID(1), models.ID(2)} {
+		for _, sellerID := range []models.ID{models.ID(1), models.ID(2)} {
 			for _, price := range []models.MoneyInCents{1, 10000} {
 				for _, description := range []string{"Xyz", "Test Description"} {
-					for categoryId, _ := range defaultCategoryNameTable {
+					for categoryID := range defaultCategoryNameTable {
 						for _, donation := range []bool{true, false} {
 							for _, charity := range []bool{true, false} {
 								for _, delay := range []int{0, 100} {
-									t.Run(fmt.Sprintf("sellerId=%d price=%d description=%s categoryId=%d donation=%t charity=%t", sellerId, price, description, categoryId, donation, charity), func(t *testing.T) {
+									t.Run(fmt.Sprintf("sellerID=%d price=%d description=%s categoryID=%d donation=%t charity=%t", sellerID, price, description, categoryID, donation, charity), func(t *testing.T) {
 										setup, router, writer := NewRestFixture(WithDefaultCategories)
 										defer setup.Close()
 
-										seller, sessionId := setup.LoggedIn(setup.Seller(aux.WithUserID(sellerId)), aux.WithExpiration(200))
+										seller, sessionID := setup.LoggedIn(setup.Seller(aux.WithUserID(sellerID)), aux.WithExpiration(200))
 
 										setup.Clock.Advance(models.Timestamp(delay))
 
@@ -41,11 +41,11 @@ func TestAddSellerItem(t *testing.T) {
 										payload := rest.AddSellerItemPayload{
 											Price:       &price,
 											Description: &description,
-											CategoryID:  categoryId,
+											CategoryID:  categoryID,
 											Donation:    &donation,
 											Charity:     &charity,
 										}
-										request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
+										request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 										router.ServeHTTP(writer, request)
 
 										require.Equal(t, http.StatusCreated, writer.Code)
@@ -61,7 +61,7 @@ func TestAddSellerItem(t *testing.T) {
 										require.Equal(t, seller.UserID, itemInDatabase.SellerID)
 										require.Equal(t, price, itemInDatabase.PriceInCents)
 										require.Equal(t, description, itemInDatabase.Description)
-										require.Equal(t, categoryId, itemInDatabase.CategoryID)
+										require.Equal(t, categoryID, itemInDatabase.CategoryID)
 										require.Equal(t, donation, itemInDatabase.Donation)
 										require.Equal(t, charity, itemInDatabase.Charity)
 									})
@@ -81,21 +81,21 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(0)
 			description := "Test Description"
-			categoryId := aux.CategoryID_Clothing50_56
+			categoryID := aux.CategoryID_Clothing50_56
 			donation := false
 			charity := false
 
-			seller, sessionId := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(setup.Seller())
 
 			url := path.SellerItems(seller.UserID)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryID:  categoryId,
+				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "invalid_price")
 
@@ -147,7 +147,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			require.NotContains(t, defaultCategoryNameTable, categoryId)
 
-			seller, sessionId := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(setup.Seller())
 
 			url := path.SellerItems(seller.UserID)
 			payload := rest.AddSellerItemPayload{
@@ -157,7 +157,7 @@ func TestAddSellerItem(t *testing.T) {
 				Donation:    &donation,
 				Charity:     &charity,
 			}
-			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_category")
 
