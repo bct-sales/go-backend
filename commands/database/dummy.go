@@ -48,15 +48,15 @@ var clothing = [...]string{
 }
 
 var clothingCategories = [...]models.ID{
-	common.CategoryId_Clothing50_56,
-	common.CategoryId_Clothing56_62,
-	common.CategoryId_Clothing68_80,
-	common.CategoryId_Clothing86_92,
-	common.CategoryId_Clothing92_98,
-	common.CategoryId_Clothing104_116,
-	common.CategoryId_Clothing122_128,
-	common.CategoryId_Clothing128_140,
-	common.CategoryId_Clothing140_152,
+	common.CategoryID_Clothing50_56,
+	common.CategoryID_Clothing56_62,
+	common.CategoryID_Clothing68_80,
+	common.CategoryID_Clothing86_92,
+	common.CategoryID_Clothing92_98,
+	common.CategoryID_Clothing104_116,
+	common.CategoryID_Clothing122_128,
+	common.CategoryID_Clothing128_140,
+	common.CategoryID_Clothing140_152,
 }
 
 var books = [...]string{

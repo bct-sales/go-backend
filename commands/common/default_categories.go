@@ -5,15 +5,15 @@ import (
 )
 
 const (
-	CategoryId_Clothing50_56      models.ID = 1
-	CategoryId_Clothing56_62      models.ID = 2
-	CategoryId_Clothing68_80      models.ID = 3
-	CategoryId_Clothing86_92      models.ID = 4
-	CategoryId_Clothing92_98      models.ID = 5
-	CategoryId_Clothing104_116    models.ID = 6
-	CategoryId_Clothing122_128    models.ID = 7
-	CategoryId_Clothing128_140    models.ID = 8
-	CategoryId_Clothing140_152    models.ID = 9
+	CategoryID_Clothing50_56      models.ID = 1
+	CategoryID_Clothing56_62      models.ID = 2
+	CategoryID_Clothing68_80      models.ID = 3
+	CategoryID_Clothing86_92      models.ID = 4
+	CategoryID_Clothing92_98      models.ID = 5
+	CategoryID_Clothing104_116    models.ID = 6
+	CategoryID_Clothing122_128    models.ID = 7
+	CategoryID_Clothing128_140    models.ID = 8
+	CategoryID_Clothing140_152    models.ID = 9
 	CategoryId_Books              models.ID = 10
 	CategoryId_Toys               models.ID = 11
 	CategoryId_BabyChildEquipment models.ID = 12
@@ -38,15 +38,15 @@ const (
 
 func ListCategoryIDs() []models.ID {
 	return []models.ID{
-		CategoryId_Clothing50_56,
-		CategoryId_Clothing56_62,
-		CategoryId_Clothing68_80,
-		CategoryId_Clothing86_92,
-		CategoryId_Clothing92_98,
-		CategoryId_Clothing104_116,
-		CategoryId_Clothing122_128,
-		CategoryId_Clothing128_140,
-		CategoryId_Clothing140_152,
+		CategoryID_Clothing50_56,
+		CategoryID_Clothing56_62,
+		CategoryID_Clothing68_80,
+		CategoryID_Clothing86_92,
+		CategoryID_Clothing92_98,
+		CategoryID_Clothing104_116,
+		CategoryID_Clothing122_128,
+		CategoryID_Clothing128_140,
+		CategoryID_Clothing140_152,
 		CategoryId_Books,
 		CategoryId_Toys,
 		CategoryId_BabyChildEquipment,
@@ -56,31 +56,31 @@ func ListCategoryIDs() []models.ID {
 }
 
 func GenerateDefaultCategories(callback func(id models.ID, name string) error) error {
-	if err := callback(CategoryId_Clothing50_56, CategoryName_Clothing50_56); err != nil {
+	if err := callback(CategoryID_Clothing50_56, CategoryName_Clothing50_56); err != nil {
 		return err
 	}
-	if err := callback(CategoryId_Clothing56_62, CategoryName_Clothing56_62); err != nil {
+	if err := callback(CategoryID_Clothing56_62, CategoryName_Clothing56_62); err != nil {
 		return err
 	}
-	if err := callback(CategoryId_Clothing68_80, CategoryName_Clothing68_80); err != nil {
+	if err := callback(CategoryID_Clothing68_80, CategoryName_Clothing68_80); err != nil {
 		return err
 	}
-	if err := callback(CategoryId_Clothing86_92, CategoryName_Clothing86_92); err != nil {
+	if err := callback(CategoryID_Clothing86_92, CategoryName_Clothing86_92); err != nil {
 		return err
 	}
-	if err := callback(CategoryId_Clothing92_98, CategoryName_Clothing92_98); err != nil {
+	if err := callback(CategoryID_Clothing92_98, CategoryName_Clothing92_98); err != nil {
 		return err
 	}
-	if err := callback(CategoryId_Clothing104_116, CategoryName_Clothing104_116); err != nil {
+	if err := callback(CategoryID_Clothing104_116, CategoryName_Clothing104_116); err != nil {
 		return err
 	}
-	if err := callback(CategoryId_Clothing122_128, CategoryName_Clothing122_128); err != nil {
+	if err := callback(CategoryID_Clothing122_128, CategoryName_Clothing122_128); err != nil {
 		return err
 	}
-	if err := callback(CategoryId_Clothing128_140, CategoryName_Clothing128_140); err != nil {
+	if err := callback(CategoryID_Clothing128_140, CategoryName_Clothing128_140); err != nil {
 		return err
 	}
-	if err := callback(CategoryId_Clothing140_152, CategoryName_Clothing140_152); err != nil {
+	if err := callback(CategoryID_Clothing140_152, CategoryName_Clothing140_152); err != nil {
 		return err
 	}
 	if err := callback(CategoryId_Books, CategoryName_Books); err != nil {
