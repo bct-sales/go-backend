@@ -34,11 +34,11 @@ func TestGetSoldItemsQuery(t *testing.T) {
 			sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
 
 			query := queries.NewGetSoldItemsQuery()
-			soldItems, err := query.Execute(db)
+			actualSoldItems, err := query.Execute(db)
 			require.NoError(t, err)
-			require.Len(t, soldItems, 1)
+			require.Len(t, actualSoldItems, 1)
 
-			actualSoldItem := soldItems[0]
+			actualSoldItem := actualSoldItems[0]
 			expectedSoldItem := queries.SoldItem{
 				SaleId:          sale.SaleID,
 				CashierId:       sale.CashierID,
@@ -67,11 +67,11 @@ func TestGetSoldItemsQuery(t *testing.T) {
 			sale := setup.Sale(cashier.UserId, []models.Id{soldItem.ItemID})
 
 			query := queries.NewGetSoldItemsQuery()
-			soldItems, err := query.Execute(db)
+			actualSoldItems, err := query.Execute(db)
 			require.NoError(t, err)
-			require.Len(t, soldItems, 1)
+			require.Len(t, actualSoldItems, 1)
 
-			actualSoldItem := soldItems[0]
+			actualSoldItem := actualSoldItems[0]
 			expectedSoldItem := queries.SoldItem{
 				SaleId:          sale.SaleID,
 				CashierId:       sale.CashierID,
