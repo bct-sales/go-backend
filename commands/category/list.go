@@ -47,11 +47,11 @@ func (c *listCategoriesCommand) execute() error {
 		}
 
 		for _, category := range categories {
-			categoryIdString := fmt.Sprintf("%d", category.CategoryID)
+			categoryIDString := fmt.Sprintf("%d", category.CategoryID)
 			categoryNameString := category.Name
 
 			tableData = append(tableData, []string{
-				categoryIdString,
+				categoryIDString,
 				categoryNameString,
 			})
 		}
