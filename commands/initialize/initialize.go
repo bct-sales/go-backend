@@ -219,7 +219,7 @@ func (c *InitializeCommand) createDatabaseFile() (r_err error) {
 
 	{
 		err := common.GenerateDefaultCategories(func(id models.Id, name string) error {
-			return queries.AddCategoryWithId(db, id, name)
+			return queries.AddCategoryWithID(db, id, name)
 		})
 
 		if err != nil {

@@ -221,7 +221,7 @@ func (c *dummyDatabaseCommand) addCategories(db *sql.DB) error {
 	c.Printf("Adding categories\n")
 
 	addCategory := func(id models.Id, name string) error {
-		return queries.AddCategoryWithId(db, id, name)
+		return queries.AddCategoryWithID(db, id, name)
 	}
 
 	if err := common.GenerateDefaultCategories(addCategory); err != nil {

@@ -84,7 +84,7 @@ func (f *RestFixture) Close() {
 }
 
 func (s DatabaseFixture) Category(id models.Id, name string) {
-	if err := queries.AddCategoryWithId(s.Db, id, name); err != nil {
+	if err := queries.AddCategoryWithID(s.Db, id, name); err != nil {
 		panic(err)
 	}
 }

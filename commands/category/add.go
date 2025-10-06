@@ -43,7 +43,7 @@ func NewAddCategoryCommand() *cobra.Command {
 
 func (c *addCategoryCommand) execute() error {
 	return c.WithOpenedDatabase(func(database *sql.DB) error {
-		if err := queries.AddCategoryWithId(database, models.Id(c.id), c.name); err != nil {
+		if err := queries.AddCategoryWithID(database, models.Id(c.id), c.name); err != nil {
 			return fmt.Errorf("failed to add category to database: %w", err)
 		}
 
