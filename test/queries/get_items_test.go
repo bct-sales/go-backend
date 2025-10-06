@@ -31,8 +31,7 @@ func TestGetItems(t *testing.T) {
 						actualItems := []*models.Item{}
 						query := queries.NewGetItemsQuery()
 						query.WithHidden(false)
-						err := query.Execute(db, queries.CollectTo(&actualItems))
-						require.NoError(t, err)
+						require.NoError(t, query.Execute(db, queries.CollectTo(&actualItems)))
 						require.Equal(t, itemCount, len(actualItems))
 
 						for i, item := range items {
@@ -55,8 +54,7 @@ func TestGetItems(t *testing.T) {
 						actualItems := []*models.Item{}
 						query := queries.NewGetItemsQuery()
 						query.WithHidden(false)
-						err := query.Execute(db, queries.CollectTo(&actualItems))
-						require.NoError(t, err)
+						require.NoError(t, query.Execute(db, queries.CollectTo(&actualItems)))
 						require.Equal(t, 0, len(actualItems))
 					})
 				}
@@ -73,8 +71,7 @@ func TestGetItems(t *testing.T) {
 
 			actualItems := []*models.Item{}
 			query := queries.NewGetItemsQuery()
-			err := query.Execute(db, queries.CollectTo(&actualItems))
-			require.NoError(t, err)
+			require.NoError(t, query.Execute(db, queries.CollectTo(&actualItems)))
 			require.Equal(t, 20, len(actualItems))
 
 			for i, item := range items {
@@ -93,8 +90,7 @@ func TestGetItems(t *testing.T) {
 			actualItems := []*models.Item{}
 			query := queries.NewGetItemsQuery()
 			query.WithHidden(true)
-			err := query.Execute(db, queries.CollectTo(&actualItems))
-			require.NoError(t, err)
+			require.NoError(t, query.Execute(db, queries.CollectTo(&actualItems)))
 			require.Equal(t, 10, len(actualItems))
 
 			for i, item := range items {
@@ -115,8 +111,7 @@ func TestGetItems(t *testing.T) {
 			actualItems := []*models.Item{}
 			query := queries.NewGetItemsQuery()
 			query.WithLimitAndOffset(uint64(limit), uint64(offset))
-			err := query.Execute(db, queries.CollectTo(&actualItems))
-			require.NoError(t, err)
+			require.NoError(t, query.Execute(db, queries.CollectTo(&actualItems)))
 			require.Equal(t, limit, len(actualItems))
 
 			for index, actualItem := range actualItems {
