@@ -1245,7 +1245,7 @@ func (q *GetSoldItemsQuery) Execute(db DatabaseQuerier) (r_result []SoldItem, r_
 			INNER JOIN
 				items item ON sale_item.item_id = item.item_id
 			ORDER BY
-				sale.sale_id
+				sale.sale_id, item.item_id
 		`,
 	)
 
