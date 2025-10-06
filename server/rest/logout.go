@@ -10,7 +10,6 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	_ "bctbackend/docs"
 	"bctbackend/security"
 	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"

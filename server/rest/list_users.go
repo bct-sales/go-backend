@@ -9,8 +9,6 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
-
-	_ "bctbackend/docs"
 )
 
 type GetUsersUserData struct {
@@ -26,17 +24,6 @@ type GetUsersSuccessResponse struct {
 	Users []GetUsersUserData `json:"users"`
 }
 
-// @Summary Get list of users.
-// @Description Returns all users. Only accessible to users with the admin role.
-// @Tags users, admin
-// @Accept json
-// @Produce json
-// @Success 200 {object} GetUsersSuccessResponse "Users successfully fetched"
-// @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
-// @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
-// @Failure 403 {object} failure_response.FailureResponse "Only accessible to admins"
-// @Failure 500 {object} failure_response.FailureResponse "Internal error"
-// @Router /users [get]
 func ListUsers(arguments *HandlerFunctionArguments) {
 	endpoint := listUsersEndpoint{
 		Endpoint: Endpoint{

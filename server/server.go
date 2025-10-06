@@ -16,6 +16,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"log/slog"
 	"net/http"
 	"os"
@@ -23,15 +24,16 @@ import (
 	"runtime"
 	"strings"
 
-	_ "bctbackend/docs"
+	"embed"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	sloggin "github.com/samber/slog-gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 )
+
+//go:embed swagger/ui/*
+var swaggerUi embed.FS
 
 type Server struct {
 	loggerResources      *LoggerResources
@@ -48,23 +50,6 @@ type LoggerResources struct {
 	logger     *slog.Logger
 }
 
-// @title           BCT Sales
-// @version         1.0
-// @description     BCT Sales REST API
-
-// @contact.name   Frederic Vogels
-// @contact.email  frederic.vogels@gmail.com
-
-// @license.name  Apache 2.0
-// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
-
-// @host      localhost:8000
-// @BasePath  /api/v1
-
-// @securityDefinitions.basic  BasicAuth
-
-// @externalDocs.description  OpenAPI
-// @externalDocs.url          https://swagger.io/resources/open-api/
 func StartServer(clock clock.Clock, database *sql.DB, configuration *configuration.Configuration) error {
 	server, err := NewServer(clock, database, configuration)
 	if err != nil {
@@ -168,7 +153,10 @@ func (server *Server) defineRESTEndpoints() {
 
 	if server.configuration.Server.Swagger {
 		slog.Info("Enabling Swagger documentation")
-		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+		router.StaticFile("/swagger/swagger.yaml", "./server/swagger/swagger.yaml")
+
+		content, _ := fs.Sub(swaggerUi, "swagger/ui")
+		router.StaticFS("/swagger/ui", http.FS(content))
 	}
 
 	server.RawPOST(paths.Login(), rest.Login)

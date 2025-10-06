@@ -9,8 +9,6 @@ import (
 	rest "bctbackend/server/shared"
 	"errors"
 	"net/http"
-
-	_ "bctbackend/docs"
 )
 
 type ListCashierSaleData struct {

@@ -10,8 +10,6 @@ import (
 	"bytes"
 	"net/http"
 	"strconv"
-
-	_ "bctbackend/docs"
 )
 
 type GetItemsItemData struct {
@@ -32,16 +30,6 @@ type GetItemsSuccessResponse struct {
 	TotalItemValue models.MoneyInCents `json:"totalItemValue"`
 }
 
-// @Summary List all items of all sellers.
-// @Description Returns all items of all sellers. Only accessible to users with the admin role.
-// @Tags items
-// @Accept json
-// @Produce json
-// @Success 200 {object} GetItemsSuccessResponse "Items successfully fetched"
-// @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
-// @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
-// @Failure 500 {object} failure_response.FailureResponse "Failed to fetch items"
-// @Router /items [get]
 func ListAllItems(arguments *HandlerFunctionArguments) {
 	endpoint := &listAllItemsEndpoint{
 		Endpoint: Endpoint{
@@ -74,19 +62,27 @@ func (ep *listAllItemsEndpoint) execute() {
 func (ep *listAllItemsEndpoint) buildSqlQuery() *queries.GetItemsQuery {
 	query := queries.NewGetItemsQuery()
 
-	if !ep.processItemSelectionQueryParameter(query) {
-		return nil
-	}
-
-	if !ep.processRangeQueryParameters(query) {
-		return nil
-	}
-
-	if !ep.processCategoryQueryParameter(query) {
+	if !ep.processQueryParameters(query) {
 		return nil
 	}
 
 	return query
+}
+
+func (ep *listAllItemsEndpoint) processQueryParameters(query *queries.GetItemsQuery) bool {
+	if !ep.processItemSelectionQueryParameter(query) {
+		return false
+	}
+
+	if !ep.processRangeQueryParameters(query) {
+		return false
+	}
+
+	if !ep.processCategoryQueryParameter(query) {
+		return false
+	}
+
+	return true
 }
 
 func (ep *listAllItemsEndpoint) processCategoryQueryParameter(sqlQuery *queries.GetItemsQuery) bool {
@@ -113,6 +109,8 @@ func (ep *listAllItemsEndpoint) processItemSelectionQueryParameter(sqlQuery *que
 		// NOP
 	case "hidden":
 		sqlQuery.WithHidden(true)
+	case "visible":
+		sqlQuery.WithHidden(false)
 	default:
 		sqlQuery.WithHidden(false)
 	}

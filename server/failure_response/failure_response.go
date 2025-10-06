@@ -52,7 +52,8 @@ func InvalidUserId(context *gin.Context, message string) {
 	BadRequest(context, "invalid_user_id", "invalid user id: "+message)
 }
 
-// Ill-formed item ID, e.g., "abc" instead of "123"
+// Ill-formed item ID, e.g., "abc" instead of "123".
+// Leads to 400 Bad Request.
 func InvalidItemId(context *gin.Context, message string) {
 	BadRequest(context, "invalid_item_id", "invalid item id: "+message)
 }

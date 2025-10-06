@@ -14,8 +14,6 @@ import (
 	"log/slog"
 	"net/http"
 
-	_ "bctbackend/docs"
-
 	"github.com/gin-gonic/gin"
 )
 

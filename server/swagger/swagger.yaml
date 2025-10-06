@@ -1,0 +1,1465 @@
+openapi: 3.0.4
+info:
+  title: BCT Sales REST API
+  description: |-
+    BCT Sales REST API
+  termsOfService: https://swagger.io/terms/
+  contact:
+    email: frederic.vogels+bctsales@gmail.com
+  version: 1.10.3
+externalDocs:
+  description: Find out more about BCT Sales Backend
+  url: https://github.com/bct-sales/go-backend
+tags:
+  - name: user
+    description: User related functionality
+  - name: item
+    description: Item related functionality
+  - name: sale
+    description: Sale related functionality
+  - name: category
+    description: Category related functionality
+  - name: admin
+    description: Admin-accessible functionality
+  - name: seller
+    description: Seller-accessible functionality
+  - name: cashier
+    description: Cashier-accessible functionality
+  - name: authentication
+    description: Authentication related functionality
+paths:
+  /api/v1/login:
+    post:
+      tags:
+        - authentication
+      summary: Log in
+      description: >
+        Authenticates a user
+      operationId: Login
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  description: Id of the user to log in
+                  example: 5
+                password:
+                  type: string
+                  description: Password used to authenticate user
+                  example: azer1234
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - role
+                properties:
+                  role:
+                    type: string
+                    enum:
+                      - admin
+                      - seller
+                      - cashier
+                    description: Role of the authenticated user
+                    example: seller
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Failed to authenticate user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '404':
+          description: Unknown user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+  /api/v1/logout:
+    post:
+      tags:
+        - authentication
+      summary: Log in
+      description: Authenticates a user
+      operationId: Logout
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - role
+                properties:
+                  role:
+                    type: string
+                    enum:
+                      - admin
+                      - seller
+                      - cashier
+                    description: Role of the authenticated user
+                    example: seller
+        '400':
+          description: Failed to parse request body
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+  /api/v1/users:
+    get:
+      tags:
+        - user
+        - admin
+      summary: List all users
+      description: >
+        Returns a list of all users.
+        This operation is reserved for admins.
+      operationId: ListUsers
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          format: uint64
+                          example: 10
+                        password:
+                          type: string
+                          example: azer1234
+                        role:
+                          type: string
+                          enum:
+                            - admin
+                            - seller
+                            - cashier
+                          example: seller
+                        createdAt:
+                          $ref: '#/components/schemas/DateTime'
+                        lastActivity:
+                          $ref: '#/components/schemas/DateTime'
+                      required:
+                        - id
+                        - password
+                        - role
+                        - createdAt
+                        - lastActivity
+                required:
+                  - users
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Only admins are allowed to perform this operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+  /api/v1/users/{userId}:
+    get:
+      tags:
+        - user
+        - admin
+        - cashier
+        - seller
+      summary: Fetch user information
+      description: >
+        Retrieves information regarding a specified user.
+      operationId: GetUserInformation
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    required:
+                      - userId
+                      - role
+                      - password
+                      - createdAt
+                      - lastActivity
+                    description: This schema is used in case the querying user is an admin.
+                    properties:
+                      userId:
+                        type: integer
+                        format: uint64
+                      role:
+                        type: string
+                        enum:
+                          - admin
+                          - seller
+                          - cashier
+                      password:
+                        type: string
+                      createdAt:
+                        $ref: '#/components/schemas/DateTime'
+                      lastActivity:
+                        $ref: '#/components/schemas/DateTime'
+                      items:
+                        description: Only present if the queried user is a seller
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - itemId
+                            - addedAt
+                            - sellerId
+                            - description
+                            - priceInCents
+                            - categoryId
+                            - charity
+                            - donation
+                            - frozen
+                            - saleCount
+                          properties:
+                            itemId:
+                              type: number
+                              format: uint64
+                            addedAt:
+                              $ref: '#/components/schemas/DateTime'
+                            sellerId:
+                              type: number
+                              format: uint64
+                            description:
+                              type: string
+                            priceInCents:
+                              type: number
+                            categoryId:
+                              type: number
+                              format: uint64
+                            charity:
+                              type: boolean
+                            donation:
+                              type: boolean
+                            frozen:
+                              type: boolean
+                            saleCount:
+                              type: number
+                      sales:
+                        type: array
+                        description: Only present if the queried user is a cashier
+                        items:
+                          type: object
+                          required:
+                            - saleId
+                            - transactionTime
+                          properties:
+                            saleId:
+                              type: integer
+                              format: uint64
+                            transactionTime:
+                              $ref: '#/components/schemas/DateTime'
+                  - type: object
+                    description: This schema is used in case the querying user is a cashier.
+                    required:
+                      - sales
+                    properties:
+                      sales:
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - saleId
+                            - transactionTime
+                          properties:
+                            saleId:
+                              type: integer
+                              format: uint64
+                            transactionTime:
+                              $ref: '#/components/schemas/DateTime'
+                  - type: object
+                    description: This schema is used in case the querying user is a seller.
+                    required:
+                      - itemCount
+                      - frozenItemCount
+                      - hiddenItemCount
+                      - totalPrice
+                    properties:
+                      itemCount:
+                        type: integer
+                      frozenItemCount:
+                        type: integer
+                      hiddenItemCount:
+                        type: integer
+                      totalPrice:
+                        type: integer
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '404':
+          description: >
+            No user exists with the given user id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+  /api/v1/sales:
+    get:
+      tags:
+        - sale
+        - admin
+      summary: List all sales
+      description: >
+        Returns a list of all users.
+        This operation is reserved for admins.
+      operationId: ListSales
+      parameters:
+        - in: query
+          name: startId
+          description: Id of first sale to list
+          example: 15
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            example: 20
+          description: Maximum number of sales to return
+          required: false
+        - in: query
+          name: offset
+          description: >
+            Index of sale to start listing at.
+          schema:
+            type: integer
+            minimum: 0
+            example: 140
+          required: false
+        - in: query
+          name: order
+          description: Order in which to return sales
+          schema:
+            type: string
+            enum:
+              - antichronological
+          required: false
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sales:
+                    description: List of all sales
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        saleId:
+                          type: integer
+                          format: uint64
+                          description: ID of the sale
+                          example: 138
+                        cashierId:
+                          type: integer
+                          format: uint64
+                          description: ID of the cashier having made this sale
+                          example: 5
+                        transactionTime:
+                          $ref: '#/components/schemas/DateTime'
+                        itemCount:
+                          type: integer
+                          description: Number of items in the sale
+                          example: 4
+                        totalPriceInCents:
+                          type: integer
+                          description: Total value of the sale
+                          example: 2500
+                      required:
+                        - saleId
+                        - cashierId
+                        - transactionTime
+                        - itemCount
+                        - totalPriceInCents
+                  itemCount:
+                    type: integer
+                    description: Total number of items in the database
+                    example: 1542
+                  totalItemValue:
+                    type: integer
+                    description: Cumulative value of all items in the database
+                    example: 2512350
+                  distinctSoldItemCount:
+                    type: integer
+                    description: >
+                      Number of distinct items sold.
+                      A multiply sold item is only counted once.
+                    example: 348
+                  totalSoldItemCount:
+                    type: integer
+                    description: >
+                      Number of items sold.
+                      If the same item has been sold N times, it is counted N times.
+                    example: 348
+                  saleCount:
+                    type: integer
+                    description: Number of sales
+                    example: 82
+                  totalSaleValue:
+                    type: integer
+                    description: Total value of all sold items
+                    example: 801400
+                required:
+                  - sales
+                  - itemCount
+                  - totalItemValue
+                  - distinctSoldItemCount
+                  - totalSoldItemCount
+                  - saleCount
+                  - totalSaleValue
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Only admins are allowed to perform this operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+    post:
+      tags:
+        - sale
+        - cashier
+      summary: Registers a sale
+      description: >
+        Registers a sale.
+        Reserved for cashiers.
+      operationId: AddSale
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                itemIds:
+                  type: array
+                  items:
+                    type: integer
+                    format: uint64
+                    description: item identifier
+                  example:
+                    [1, 4, 100]
+              required:
+                - itemIds
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  saleId:
+                    type: integer
+                    format: uint64
+                    description: Id of the newly added sale
+                    example: 5
+                required:
+                  - saleId
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Only admins are allowed to perform this operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '404':
+          description: >
+            The provided list of item ids contains an invalid item id.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+  /api/v1/sales/{saleId}:
+    get:
+      tags:
+        - sale
+        - admin
+        - cashier
+      summary: Fetch sale information
+      description: >
+        Retrieves information regarding a specified sale.
+      operationId: GetSaleInformation
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - saleId
+                  - cashierId
+                  - transactionTime
+                  - items
+                properties:
+                  saleId:
+                    type: integer
+                    format: uint64
+                    example: 19
+                  cashierId:
+                    type: integer
+                    format: uint64
+                    example: 3
+                  transactionTime:
+                    $ref: '#/components/schemas/DateTime'
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - itemId
+                        - sellerId
+                        - description
+                        - priceInCents
+                        - categoryId
+                        - charity
+                        - donation
+                        - addedAt
+                      properties:
+                        itemId:
+                          type: integer
+                          format: uint64
+                          description: Id of the item
+                          example: 422
+                        sellerId:
+                          type: integer
+                          format: uint64
+                          description: Owning seller
+                          example: 422
+                        description:
+                          type: string
+                          description: Description of the item
+                          example: Blue jeans
+                        priceInCents:
+                          type: integer
+                          description: Price of the item, expressed in cents
+                          example: 350
+                        categoryId:
+                          type: integer
+                          format: uint64
+                          description: Id of the item
+                          example: 8
+                        charity:
+                          type: boolean
+                          description: Whether the item, if unsold, will be donated to charity
+                          example: false
+                        donation:
+                          type: boolean
+                          description: Whether proceeds will be donated to the BCT
+                          example: false
+                        addedAt:
+                          $ref: '#/components/schemas/DateTime'
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Only admins are allowed to perform this operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '404':
+          description: >
+            The provided list of item ids contains an invalid item id.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+  /api/v1/seller/{sellerId}/items:
+    get:
+      tags:
+        - item
+        - seller
+      summary: List a seller's items
+      description: >
+        Returns a list of all items owner by a specified seller.
+        Allowed only for admins and the seller.
+      operationId: GetSellerItems
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required: items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - itemId
+                        - addedAt
+                        - description
+                        - priceInCents
+                        - categoryId
+                        - sellerId
+                        - donation
+                        - charity
+                        - frozen
+                      properties:
+                        itemId:
+                          type: integer
+                          format: uint64
+                          example: 10
+                        addedAt:
+                          $ref: '#/components/schemas/DateTime'
+                        description:
+                          type: string
+                          example: T-Shirt Jack & Jones
+                        priceInCents:
+                          type: integer
+                          example: 500
+                        categoryId:
+                          type: integer
+                          format: uint64
+                          example: 5
+                        sellerId:
+                          type: integer
+                          format: uint64
+                          example: 401
+                        donation:
+                          type: boolean
+                          example: false
+                        charity:
+                          type: boolean
+                          example: false
+                        frozen:
+                          type: boolean
+                          example: false
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Only admins and the seller are allowed to perform this operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '404':
+          description: >
+            No seller exists with the specified id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+    post:
+      tags:
+        - item
+        - seller
+      summary: Add item
+      parameters:
+        - in: path
+          name: sellerId
+          schema:
+            type: integer
+            format: uint64
+          required: true
+          description: Id of item owner
+      description: >
+        Adds an item to the database.
+        Reserved for sellers.
+      operationId: AddSellerItem
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                price:
+                  type: integer
+                  description: Price in cents
+                  example: 150
+                description:
+                  type: string
+                  description: Description of the item
+                  example: "Nike sneakers"
+                categoryId:
+                  type: integer
+                  format: uint64
+                  description: Id of the item category
+                  example: 1
+                donation:
+                  type: boolean
+                  description: Whether proceeds will be donated to the BCT
+                  example: false
+                charity:
+                  type: boolean
+                  description: Whether the item will be donated to charity if unsold
+                  example: false
+              required:
+                - price
+                - description
+                - categoryId
+                - donation
+                - charity
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  itemId:
+                    type: integer
+                    format: uint64
+                    example: 158
+                required:
+                  - itemId
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Only admins are allowed to perform this operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '404':
+          description: >
+            The provided list of item ids contains an invalid item id.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+  /api/v1/items:
+    get:
+      tags:
+        - item
+        - admin
+        - cashier
+      summary: List items
+      description: >
+        Returns a list of items.
+        This operation is reserved for admins and cashiers.
+      operationId: ListAllItems
+      parameters:
+        - in: query
+          name: items
+          description: >
+            Determines which items to show based on visibility.
+
+            - **all**: show all items
+
+            - **hidden**: show only invisible items
+
+            - **visible**: show only visible items
+
+            - if omitted: same as **visible**
+          schema:
+            type: string
+            enum:
+              - all
+              - hidden
+              - visible
+          required: false
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            example: 100
+          description: Maximum number of items to return
+          required: false
+        - in: query
+          name: offset
+          description: >
+            Index of item to start listing at.
+          schema:
+            type: integer
+            minimum: 0
+            example: 1500
+          required: false
+        - in: query
+          name: category
+          description: Filter items based on category
+          schema:
+            type: integer
+            format: uint64
+            example: 2
+          required: false
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - totalItemCount
+                  - totalItemValue
+                  - items
+                properties:
+                  totalItemCount:
+                    type: integer
+                    description: >
+                      Total number of items
+                    example:
+                      53
+                  totalItemValue:
+                    type: integer
+                    example: 15250
+                    description: >
+                      Total value of items in cents
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - itemId
+                        - addedAt
+                        - description
+                        - priceInCents
+                        - categoryId
+                        - sellerId
+                        - donation
+                        - charity
+                        - frozen
+                      properties:
+                        itemId:
+                          type: integer
+                          format: uint64
+                          example: 10
+                        addedAt:
+                          $ref: '#/components/schemas/DateTime'
+                        description:
+                          type: string
+                        priceInCents:
+                          type: integer
+                        categoryId:
+                          type: integer
+                          format: uint64
+                        sellerId:
+                          type: integer
+                          format: uint64
+                        donation:
+                          type: boolean
+                        charity:
+                          type: boolean
+                        frozen:
+                          type: boolean
+        '400':
+          description: Failed to parse request body or query parameters
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Only admins and cashiers are allowed to perform this operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+  /api/v1/items/{itemId}:
+    get:
+      tags:
+        - item
+        - admin
+        - cashier
+        - seller
+      summary: Get item information
+      description: >
+        Fetches information about the item and in which sales in occurs.
+      operationId: GetItemInformation
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  itemId:
+                    type: integer
+                    format: uint64
+                    example: 45
+                  addedAt:
+                    $ref: '#/components/schemas/DateTime'
+                  sellerId:
+                    type: integer
+                    format: uint64
+                    example: 121
+                  description:
+                    type: string
+                    example: Puzzle
+                  priceInCents:
+                    type: integer
+                    example: 500
+                  categoryId:
+                    type: integer
+                    format: uint64
+                    example: 11
+                  charity:
+                    type: boolean
+                    example: false
+                  donation:
+                    type: boolean
+                    example: false
+                  frozen:
+                    type: boolean
+                    example: false
+                  soldIn:
+                    type: array
+                    items:
+                      type: integer
+                      format: uint64
+                    example: [19]
+                required:
+                  - itemId
+                  - addedAt
+                  - sellerId
+                  - description
+                  - priceInCents
+                  - categoryId
+                  - charity
+                  - donation
+                  - frozen
+                  - soldIn
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Allowed for admins, cashiers and the seller that owns the item in question.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '404':
+          description: >
+            The item to be updated does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+    put:
+      tags:
+        - item
+        - seller
+      summary: Update item
+      parameters:
+        - in: path
+          name: itemId
+          schema:
+            type: integer
+            format: uint64
+          required: true
+          description: Id of the item to be updated
+      description: >
+        Updates an item.
+        Reserved for the owning seller.
+      operationId: UpdateItem
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                price:
+                  type: integer
+                  description: If present, will be the new price of the item
+                  example: 150
+                description:
+                  type: string
+                  description: If present, will be the new description of the item
+                  example: "Puma speedcat red"
+                categoryId:
+                  type: integer
+                  format: uint64
+                  description: If present, will be the new category of the item
+                  example: 1
+                donation:
+                  type: boolean
+                  description: If present, will be the new donation status of the item
+                  example: false
+                charity:
+                  type: boolean
+                  description: If present, will be the new charity status of the item
+                  example: false
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Only the owning seller is allowed to perform this operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '404':
+          description: >
+            The item to be updated does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+  /api/v1/categories:
+    get:
+      tags:
+        - category
+        - admin
+        - seller
+        - cashier
+      summary: >
+        List all categories.
+      description: >
+        Returns a list of all categories.
+        If requested, the number of items per category can be included in the response (only for admins).
+      operationId: ListCategories
+      parameters:
+        - in: query
+          name: counts
+          description: If present, causes item counts to be included.
+          schema:
+            type: string
+            enum:
+              - all
+              - hidden
+              - visible
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - categories
+                properties:
+                  categories:
+                    type: object
+                    required:
+                      - categoryId
+                      - categoryName
+                    properties:
+                      categoryId:
+                        type: integer
+                        format: uint64
+                        description: Id of the category
+                        example: 2
+                      categoryName:
+                        type: string
+                        description: Name of the category
+                        example: Shoes
+                      count:
+                        type: integer
+                        description: Number of items in this category
+                        example: 4
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Item counts are only accessible to admins.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+  /api/v1/cashiers/{cashierId}/sales:
+    get:
+      tags:
+        - sale
+        - admin
+        - cashier
+      summary: List sales by cashier
+      description: >
+        Retrieves information regarding a all sales made by a specified cashier.
+      operationId: ListCashierSales
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - sales
+                  - saleCount
+                properties:
+                  sales:
+                    type: object
+                    required:
+                      - saleId
+                      - transactionTime
+                      - itemCount
+                      - totalPriceInCents
+                    properties:
+                      saleId:
+                        type: integer
+                        format: uint64
+                        example: 194
+                      transactionTime:
+                        $ref: '#/components/schemas/DateTime'
+                      itemCount:
+                        type: integer
+                        example: 8
+                      totalPriceInCents:
+                        type: integer
+                        example: 4850
+                  saleCount:
+                    type: integer
+                    example: 15
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Only admins and owning cashiers are allowed to perform this operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '404':
+          description: >
+            The provided list of item ids contains an invalid item id.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+  /api/v1/labels:
+    get:
+      tags:
+        - seller
+      summary: Generate labels for a seller's items
+      description: >
+        Generates a PDF with labels for the current seller's items.
+      operationId: GenerateLabels
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - itemIds
+                - layout
+              properties:
+                itemIds:
+                  type: array
+                  items:
+                    type: integer
+                    format: uint64
+                  example: [15, 16, 17, 18, 19]
+                layout:
+                  type: object
+                  required:
+                    - paperWidth
+                    - paperHeight
+                    - paperMargins
+                    - columns
+                    - rows
+                    - labelMargins
+                    - labelPadding
+                    - fontSize
+                  properties:
+                    paperWidth:
+                      type: number
+                      example: 210
+                    paperHeight:
+                      type: number
+                      example: 297
+                    paperMargins:
+                      $ref: '#/components/schemas/Insets'
+                    columns:
+                      type: integer
+                      minimum: 1
+                    rows:
+                      type: integer
+                      minimum: 1
+                    labelMargins:
+                      $ref: '#/components/schemas/Insets'
+                    labelPadding:
+                      $ref: '#/components/schemas/Insets'
+                    fontSize:
+                      type: number
+                      minimum: 1
+      responses:
+        '200':
+          description: Success
+          headers:
+            content-disposition:
+              schema:
+                type: string
+              example: attachment; filename=labels.pdf
+        '400':
+          description: Failed to parse request body
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Only admins and owning cashiers are allowed to perform this operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+components:
+  schemas:
+    Insets:
+      properties:
+        top:
+          type: number
+          example: 5
+        bottom:
+          type: number
+          example: 5
+        left:
+          type: number
+          example: 5
+        right:
+          type: number
+          example: 5
+    DateTime:
+      properties:
+        year:
+          type: integer
+          example: 2025
+        month:
+          type: integer
+          example: 10
+        day:
+          type: integer
+          example: 5
+        hour:
+          type: integer
+          example: 15
+        minute:
+          type: integer
+          example: 49
+        second:
+          type: integer
+          example: 33
+        timestamp:
+          type: integer
+          format: uint64
+          example: 515468
+    FailureResponse:
+      properties:
+        type:
+          type: string
+          enum:
+            - unknown
+            - invalid_request
+            - invalid_uri_parameters
+            - invalid_user_id
+            - invalid_item_id
+            - invalid_sale_id
+            - no_such_item
+            - no_such_user
+            - no_such_sale
+            - wrong_user
+            - no_such_category
+            - wrong_password
+            - item_frozen
+            - invalid_price
+            - wrong_role
+            - duplicate_item_in_sale
+            - wrong_seller
+            - invalid_item_description
+            - missing_session_id
+            - no_such_session
+            - missing_items
+            - invalid_layout
+        details:
+          type: string
