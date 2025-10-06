@@ -253,12 +253,12 @@ func (c *dummyDatabaseCommand) addCashiers(db *sql.DB) ([]models.ID, error) {
 	cashierIDs := make([]models.ID, 0, cashierCount)
 
 	for range cashierCount {
-		roleId := models.NewCashierRoleID()
+		roleID := models.NewCashierRoleID()
 		createdAt := models.Now()
 		var lastActivity *models.Timestamp = nil
 		password := "abc"
 
-		cashierID, err := queries.AddUser(db, roleId, createdAt, lastActivity, password)
+		cashierID, err := queries.AddUser(db, roleID, createdAt, lastActivity, password)
 
 		if err != nil {
 			return nil, fmt.Errorf("failed to add cashier: %w", err)
@@ -303,11 +303,11 @@ func (c *dummyDatabaseCommand) getSellerId(zone int, offset int) models.ID {
 	return models.ID(zone*100 + offset)
 }
 
-func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIds []models.ID) ([]models.ID, error) {
+func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIDs []models.ID) ([]models.ID, error) {
 	c.Printf("Adding items\n")
 
 	err := queries.AddItems(db, func(addItem queries.AddItemFunction) {
-		for _, sellerId := range sellerIds {
+		for _, sellerID := range sellerIDs {
 			itemCount := c.rng.IntN(50) + 5
 
 			times := c.generateChronologicalTimes(itemCount, 60*60*24, 60*60*24*30)
@@ -325,7 +325,7 @@ func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIds []models.ID) ([]mo
 					description,
 					priceInCents,
 					category,
-					sellerId,
+					sellerID,
 					donation,
 					charity,
 					frozen,
@@ -339,12 +339,12 @@ func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIds []models.ID) ([]mo
 		return nil, fmt.Errorf("failed to add items: %w", err)
 	}
 
-	itemIds, err := queries.GetItemIds(db)
+	itemIDs, err := queries.GetItemIds(db)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get item IDs: %w", err)
 	}
 
-	return itemIds, nil
+	return itemIDs, nil
 }
 
 func (c *dummyDatabaseCommand) generateRandomTime(minDelta int64, maxDelta int64) models.Timestamp {
@@ -408,7 +408,7 @@ func (c *dummyDatabaseCommand) generateRandomToys() (string, models.ID) {
 	return description, categoryId
 }
 
-func (c *dummyDatabaseCommand) addSales(db *sql.DB, cashierIds []models.ID, itemIds []models.ID) (r_err error) {
+func (c *dummyDatabaseCommand) addSales(db *sql.DB, cashierIDs []models.ID, itemIDs []models.ID) (r_err error) {
 	c.Printf("Adding sales\n")
 
 	transaction, err := queries.NewTransactionalDatabaseQuerier(context.Background(), db)
@@ -418,19 +418,19 @@ func (c *dummyDatabaseCommand) addSales(db *sql.DB, cashierIds []models.ID, item
 	defer transaction.RollbackIfNotCommitted()
 
 	// Make copy because we need to shuffle it repeatedly
-	itemIds = slices.Clone(itemIds)
+	itemIDs = slices.Clone(itemIDs)
 
 	saleCount := c.rng.IntN(100) + 10
 	times := c.generateChronologicalTimes(saleCount, 0, 60*60*24)
 	for _, transactionTime := range times {
-		cashierId := pickRandom(c.rng, cashierIds)
+		cashierID := pickRandom(c.rng, cashierIDs)
 		itemCount := c.rng.IntN(20) + 1
 
-		c.rng.Shuffle(len(itemIds), func(i, j int) {
-			itemIds[i], itemIds[j] = itemIds[j], itemIds[i]
+		c.rng.Shuffle(len(itemIDs), func(i, j int) {
+			itemIDs[i], itemIDs[j] = itemIDs[j], itemIDs[i]
 		})
-		saleItems := itemIds[:itemCount]
-		_, err := queries.AddSale(transaction, cashierId, transactionTime, saleItems)
+		saleItems := itemIDs[:itemCount]
+		_, err := queries.AddSale(transaction, cashierID, transactionTime, saleItems)
 
 		if err != nil {
 			return fmt.Errorf("failed to add sale: %w", err)
