@@ -43,18 +43,18 @@ func NewRemoveItemCommand() *cobra.Command {
 func (c *RemoveItemCommand) execute(args []string) error {
 	err := c.WithTransaction(func(db *queries.TransactionalDatabaseQuerier) error {
 		for _, arg := range args {
-			itemId, err := models.ParseID(arg)
+			itemID, err := models.ParseID(arg)
 			if err != nil {
 				c.PrintErrorf("Invalid item ID: %s\n", args[0])
 				return err
 			}
 
-			if err := queries.RemoveItemWithId(db, itemId); err != nil {
+			if err := queries.RemoveItemWithID(db, itemID); err != nil {
 				c.PrintErrorf("Failed to remove item: %v\n", err)
 				return err
 			}
 
-			c.Printf("Removed item %d\n", itemId.Int64())
+			c.Printf("Removed item %d\n", itemID.Int64())
 		}
 
 		return nil

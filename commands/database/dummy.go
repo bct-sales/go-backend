@@ -396,14 +396,14 @@ func pickRandom[T any](rng *rand.Rand, items []T) T {
 
 func (c *dummyDatabaseCommand) generateRandomBooks() (string, models.ID) {
 	description := pickRandom(c.rng, books[:])
-	categoryId := common.CategoryId_Books
+	categoryID := common.CategoryID_Books
 
-	return description, categoryId
+	return description, categoryID
 }
 
 func (c *dummyDatabaseCommand) generateRandomToys() (string, models.ID) {
 	description := pickRandom(c.rng, toys[:])
-	categoryId := common.CategoryId_Toys
+	categoryId := common.CategoryID_Toys
 
 	return description, categoryId
 }

@@ -16,8 +16,8 @@ type addConsumableCommand struct {
 	common.Command
 	description  string `exhaustruct:"optional"`
 	priceInCents int    `exhaustruct:"optional"`
-	categoryId   int    `exhaustruct:"optional"`
-	sellerId     int    `exhaustruct:"optional"`
+	categoryID   int    `exhaustruct:"optional"`
+	sellerID     int    `exhaustruct:"optional"`
 }
 
 func NewAddConsumableCommand() *cobra.Command {
@@ -41,8 +41,8 @@ func NewAddConsumableCommand() *cobra.Command {
 
 	command.CobraCommand.Flags().StringVar(&command.description, "description", "", "Description of the item")
 	command.CobraCommand.Flags().IntVar(&command.priceInCents, "price", 0, "Price in cents per unit")
-	command.CobraCommand.Flags().IntVar(&command.categoryId, "category", 0, "ID of the category the item belongs to")
-	command.CobraCommand.Flags().IntVar(&command.sellerId, "seller", 0, "ID of the seller of the item")
+	command.CobraCommand.Flags().IntVar(&command.categoryID, "category", 0, "ID of the category the item belongs to")
+	command.CobraCommand.Flags().IntVar(&command.sellerID, "seller", 0, "ID of the seller of the item")
 
 	if err := command.CobraCommand.MarkFlagRequired("description"); err != nil {
 		panic(fmt.Sprintf("failed to mark description flag as required: %v", err))
@@ -78,8 +78,8 @@ func (c *addConsumableCommand) execute() error {
 				timestamp,
 				description,
 				models.MoneyInCents(priceInCents),
-				models.ID(c.categoryId),
-				models.ID(c.sellerId),
+				models.ID(c.categoryID),
+				models.ID(c.sellerID),
 				donation,
 				charity,
 				frozen,
@@ -87,13 +87,13 @@ func (c *addConsumableCommand) execute() error {
 
 			if err != nil {
 				if errors.Is(err, dberr.ErrNoSuchCategory) {
-					c.PrintErrorf("No such category with ID %d\n", c.categoryId)
+					c.PrintErrorf("No such category with ID %d\n", c.categoryID)
 					return err
 				} else if errors.Is(err, dberr.ErrNoSuchUser) {
-					c.PrintErrorf("No user with ID %d\n", c.sellerId)
+					c.PrintErrorf("No user with ID %d\n", c.sellerID)
 					return err
 				} else if errors.Is(err, dberr.ErrWrongRole) {
-					c.PrintErrorf("User with ID %d is not a seller\n", c.sellerId)
+					c.PrintErrorf("User with ID %d is not a seller\n", c.sellerID)
 					return err
 				} else if errors.Is(err, dberr.ErrInvalidPrice) {
 					c.PrintErrorf("Invalid price: %d cents\n", c.priceInCents)

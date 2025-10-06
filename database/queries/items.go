@@ -1175,13 +1175,13 @@ func IsItemHidden(db DatabaseQuerier, itemId models.ID) (r_result bool, r_err er
 	return false, fmt.Errorf("failed to check if item %d is hidden: %w", itemId, dberr.ErrNoSuchItem)
 }
 
-// RemoveItemWithId removes the item with the given ID from the database.
+// RemoveItemWithID removes the item with the given ID from the database.
 // This function breaks the monotonicity invariant upon which other functionality relies,
 // so it should be used with caution.
 // If the item does not exist, ErrNoSuchItem is returned.
 // If the item has been sold, ErrItemSold is returned and the item remains in the database.
 // If the item is frozen, ErrItemFrozen is returned and the item remains in the database.
-func RemoveItemWithId(db DatabaseQuerier, itemId models.ID) (r_err error) {
+func RemoveItemWithID(db DatabaseQuerier, itemId models.ID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()

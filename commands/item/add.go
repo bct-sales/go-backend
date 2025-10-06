@@ -19,8 +19,8 @@ type addItemCommand struct {
 	common.Command
 	description  string `exhaustruct:"optional"`
 	priceInCents int    `exhaustruct:"optional"`
-	categoryId   int    `exhaustruct:"optional"`
-	sellerId     int    `exhaustruct:"optional"`
+	categoryID   int    `exhaustruct:"optional"`
+	sellerID     int    `exhaustruct:"optional"`
 	donation     bool   `exhaustruct:"optional"`
 	charity      bool   `exhaustruct:"optional"`
 }
@@ -48,8 +48,8 @@ func NewAddItemCommand() *cobra.Command {
 
 	command.CobraCommand.Flags().StringVar(&command.description, "description", "", "Description of the item")
 	command.CobraCommand.Flags().IntVar(&command.priceInCents, "price", 0, "Price of the item in cents")
-	command.CobraCommand.Flags().IntVar(&command.categoryId, "category", 0, "ID of the category the item belongs to")
-	command.CobraCommand.Flags().IntVar(&command.sellerId, "seller", 0, "ID of the seller of the item")
+	command.CobraCommand.Flags().IntVar(&command.categoryID, "category", 0, "ID of the category the item belongs to")
+	command.CobraCommand.Flags().IntVar(&command.sellerID, "seller", 0, "ID of the seller of the item")
 	command.CobraCommand.Flags().BoolVar(&command.donation, "donation", false, "Whether the item is a donation")
 	command.CobraCommand.Flags().BoolVar(&command.charity, "charity", false, "Whether the item is for charity")
 
@@ -73,13 +73,13 @@ func (c *addItemCommand) execute() error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		timestamp := models.Now()
 
-		addedItemId, err := queries.AddItem(
+		addedItemID, err := queries.AddItem(
 			db,
 			timestamp,
 			c.description,
 			models.MoneyInCents(c.priceInCents),
-			models.ID(c.categoryId),
-			models.ID(c.sellerId),
+			models.ID(c.categoryID),
+			models.ID(c.sellerID),
 			c.donation,
 			c.charity,
 			false,
@@ -87,13 +87,13 @@ func (c *addItemCommand) execute() error {
 
 		if err != nil {
 			if errors.Is(err, dberr.ErrNoSuchCategory) {
-				c.PrintErrorf("No such category with ID %d\n", c.categoryId)
+				c.PrintErrorf("No such category with ID %d\n", c.categoryID)
 				return err
 			} else if errors.Is(err, dberr.ErrNoSuchUser) {
-				c.PrintErrorf("No user with ID %d\n", c.sellerId)
+				c.PrintErrorf("No user with ID %d\n", c.sellerID)
 				return err
 			} else if errors.Is(err, dberr.ErrWrongRole) {
-				c.PrintErrorf("User with ID %d is not a seller\n", c.sellerId)
+				c.PrintErrorf("User with ID %d is not a seller\n", c.sellerID)
 				return err
 			} else if errors.Is(err, dberr.ErrInvalidPrice) {
 				c.PrintErrorf("Invalid price: %d cents\n", c.priceInCents)
@@ -103,9 +103,9 @@ func (c *addItemCommand) execute() error {
 			c.PrintErrorf("Failed to add item to database\n")
 			return err
 		}
-		c.Printf("Item %d added successfully", addedItemId.Int64())
+		c.Printf("Item %d added successfully", addedItemID.Int64())
 
-		err = c.printItem(db, addedItemId)
+		err = c.printItem(db, addedItemID)
 		if err != nil {
 			return nil // Don't return an error in this case, as the item is already added to the database.
 		}

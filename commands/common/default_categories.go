@@ -14,11 +14,11 @@ const (
 	CategoryID_Clothing122_128    models.ID = 7
 	CategoryID_Clothing128_140    models.ID = 8
 	CategoryID_Clothing140_152    models.ID = 9
-	CategoryId_Books              models.ID = 10
-	CategoryId_Toys               models.ID = 11
-	CategoryId_BabyChildEquipment models.ID = 12
-	CategoryId_Maternity          models.ID = 13
-	CategoryId_Large              models.ID = 14
+	CategoryID_Books              models.ID = 10
+	CategoryID_Toys               models.ID = 11
+	CategoryID_BabyChildEquipment models.ID = 12
+	CategoryID_Maternity          models.ID = 13
+	CategoryID_Large              models.ID = 14
 
 	CategoryName_Clothing50_56      string = "Clothing 0-3 mos (50-56)"
 	CategoryName_Clothing56_62      string = "Clothing 3-6 mos (56-62)"
@@ -47,11 +47,11 @@ func ListCategoryIDs() []models.ID {
 		CategoryID_Clothing122_128,
 		CategoryID_Clothing128_140,
 		CategoryID_Clothing140_152,
-		CategoryId_Books,
-		CategoryId_Toys,
-		CategoryId_BabyChildEquipment,
-		CategoryId_Maternity,
-		CategoryId_Large,
+		CategoryID_Books,
+		CategoryID_Toys,
+		CategoryID_BabyChildEquipment,
+		CategoryID_Maternity,
+		CategoryID_Large,
 	}
 }
 
@@ -83,19 +83,19 @@ func GenerateDefaultCategories(callback func(id models.ID, name string) error) e
 	if err := callback(CategoryID_Clothing140_152, CategoryName_Clothing140_152); err != nil {
 		return err
 	}
-	if err := callback(CategoryId_Books, CategoryName_Books); err != nil {
+	if err := callback(CategoryID_Books, CategoryName_Books); err != nil {
 		return err
 	}
-	if err := callback(CategoryId_Toys, CategoryName_Toys); err != nil {
+	if err := callback(CategoryID_Toys, CategoryName_Toys); err != nil {
 		return err
 	}
-	if err := callback(CategoryId_BabyChildEquipment, CategoryName_BabyChildEquipment); err != nil {
+	if err := callback(CategoryID_BabyChildEquipment, CategoryName_BabyChildEquipment); err != nil {
 		return err
 	}
-	if err := callback(CategoryId_Maternity, CategoryName_Maternity); err != nil {
+	if err := callback(CategoryID_Maternity, CategoryName_Maternity); err != nil {
 		return err
 	}
-	if err := callback(CategoryId_Large, CategoryName_Large); err != nil {
+	if err := callback(CategoryID_Large, CategoryName_Large); err != nil {
 		return err
 	}
 

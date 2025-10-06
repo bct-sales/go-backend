@@ -21,7 +21,7 @@ func TestRemoveItemWithId(t *testing.T) {
 		seller := setup.Seller()
 		itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
 
-		err := queries.RemoveItemWithId(db, itemId)
+		err := queries.RemoveItemWithID(db, itemId)
 
 		require.NoError(t, err)
 
@@ -37,7 +37,7 @@ func TestRemoveItemWithId(t *testing.T) {
 
 			itemId := models.ID(1)
 
-			err := queries.RemoveItemWithId(db, itemId)
+			err := queries.RemoveItemWithID(db, itemId)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 		})
 
@@ -51,7 +51,7 @@ func TestRemoveItemWithId(t *testing.T) {
 
 			setup.Sale(cashier.UserId, []models.ID{itemId})
 
-			err := queries.RemoveItemWithId(db, itemId)
+			err := queries.RemoveItemWithID(db, itemId)
 			requireDatabaseWrappedError(t, err, dberr.ErrItemSold)
 
 			itemExists, err := queries.ItemWithIdExists(db, itemId)
@@ -66,7 +66,7 @@ func TestRemoveItemWithId(t *testing.T) {
 			seller := setup.Seller()
 			itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false), aux.WithFrozen(true)).ItemID
 
-			err := queries.RemoveItemWithId(db, itemId)
+			err := queries.RemoveItemWithID(db, itemId)
 			requireDatabaseWrappedError(t, err, dberr.ErrItemFrozen)
 
 			itemExists, err := queries.ItemWithIdExists(db, itemId)
