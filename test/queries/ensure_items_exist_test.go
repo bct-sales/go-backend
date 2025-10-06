@@ -21,9 +21,9 @@ func TestEnsureItemsExist(t *testing.T) {
 
 			seller := setup.Seller()
 			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
-			itemIds := models.CollectItemIDs(items)
+			itemIDs := models.CollectItemIDs(items)
 
-			err := queries.EnsureItemsExist(db, itemIds)
+			err := queries.EnsureItemsExist(db, itemIDs)
 			require.NoError(t, err)
 		})
 
@@ -33,9 +33,9 @@ func TestEnsureItemsExist(t *testing.T) {
 
 			seller := setup.Seller()
 			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(true))
-			itemIds := models.CollectItemIDs(items)
+			itemIDs := models.CollectItemIDs(items)
 
-			err := queries.EnsureItemsExist(db, itemIds)
+			err := queries.EnsureItemsExist(db, itemIDs)
 			require.NoError(t, err)
 		})
 	})
@@ -46,11 +46,11 @@ func TestEnsureItemsExist(t *testing.T) {
 
 		seller := setup.Seller()
 		items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
-		nonexistentItemId := models.ID(150)
-		setup.RequireNoSuchItems(t, nonexistentItemId)
-		itemIds := append(models.CollectItemIDs(items), nonexistentItemId)
+		nonexistentItemID := models.ID(150)
+		setup.RequireNoSuchItems(t, nonexistentItemID)
+		itemIDs := append(models.CollectItemIDs(items), nonexistentItemID)
 
-		err := queries.EnsureItemsExist(db, itemIds)
+		err := queries.EnsureItemsExist(db, itemIDs)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 	})
 }

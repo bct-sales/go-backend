@@ -25,9 +25,9 @@ func TestAddItem(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		for _, timestamp := range []models.Timestamp{0, 1000} {
 			for _, priceInCents := range []models.MoneyInCents{50, 100} {
-				for _, itemCategoryId := range defaultCategoryKeys {
+				for _, itemCategoryID := range defaultCategoryKeys {
 					for _, description := range []string{"desc1", "desc2"} {
-						for _, sellerId := range []models.ID{1, 2} {
+						for _, sellerID := range []models.ID{1, 2} {
 							for _, donation := range []bool{false, true} {
 								for _, charity := range []bool{false, true} {
 									for _, frozen := range []bool{false, true} {
@@ -42,11 +42,11 @@ func TestAddItem(t *testing.T) {
 													setup.Seller(aux.WithUserID(1))
 													setup.Seller(aux.WithUserID(2))
 
-													itemId, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
+													itemID, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryID, sellerID, donation, charity, frozen, hidden)
 													require.NoError(t, err, `Failed to add item: %v`, err)
 
 													{
-														itemExists, err := queries.ItemWithIDExists(db, itemId)
+														itemExists, err := queries.ItemWithIDExists(db, itemID)
 														require.NoError(t, err)
 														require.True(t, itemExists)
 													}
@@ -60,8 +60,8 @@ func TestAddItem(t *testing.T) {
 													require.Equal(t, timestamp, item.AddedAt)
 													require.Equal(t, description, item.Description)
 													require.Equal(t, priceInCents, item.PriceInCents)
-													require.Equal(t, itemCategoryId, item.CategoryID)
-													require.Equal(t, sellerId, sellerId)
+													require.Equal(t, itemCategoryID, item.CategoryID)
+													require.Equal(t, sellerID, sellerID)
 													require.Equal(t, donation, item.Donation)
 													require.Equal(t, charity, item.Charity)
 													require.Equal(t, frozen, item.Frozen)
@@ -87,16 +87,16 @@ func TestAddItem(t *testing.T) {
 			timestamp := models.Timestamp(0)
 			description := "description"
 			priceInCents := models.MoneyInCents(100)
-			itemCategoryId := helpers.CategoryID_Clothing140_152
+			itemCategoryID := helpers.CategoryID_Clothing140_152
 			charity := false
-			sellerId := models.ID(1)
+			sellerID := models.ID(1)
 			donation := false
 			frozen := false
 			hidden := false
 
 			setup.Seller(aux.WithUserID(2))
 
-			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
+			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryID, sellerID, donation, charity, frozen, hidden)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 
 			itemStatistics, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
@@ -111,24 +111,24 @@ func TestAddItem(t *testing.T) {
 
 			timestamp := models.Timestamp(0)
 			description := "description"
-			sellerId := models.ID(1)
+			sellerID := models.ID(1)
 			priceInCents := models.MoneyInCents(100)
 			charity := false
 			donation := false
 			frozen := false
 			hidden := false
-			itemCategoryId := models.ID(100)
+			itemCategoryID := models.ID(100)
 
 			setup.Seller(aux.WithUserID(1))
 
 			{
-				categoryExists, err := queries.CategoryWithIDExists(db, itemCategoryId)
+				categoryExists, err := queries.CategoryWithIDExists(db, itemCategoryID)
 				require.NoError(t, err)
 				require.False(t, categoryExists)
 			}
 
 			{
-				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
+				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryID, sellerID, donation, charity, frozen, hidden)
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchCategory)
 			}
 
@@ -146,7 +146,7 @@ func TestAddItem(t *testing.T) {
 
 			timestamp := models.Timestamp(0)
 			description := "description"
-			itemCategoryId := helpers.CategoryID_Toys
+			itemCategoryID := helpers.CategoryID_Toys
 			charity := false
 			seller := setup.Seller()
 			donation := false
@@ -155,7 +155,7 @@ func TestAddItem(t *testing.T) {
 			priceInCents := models.MoneyInCents(0)
 
 			{
-				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserID, donation, charity, frozen, hidden)
+				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryID, seller.UserID, donation, charity, frozen, hidden)
 				requireDatabaseWrappedError(t, err, dberr.ErrInvalidPrice)
 			}
 
@@ -173,7 +173,7 @@ func TestAddItem(t *testing.T) {
 
 			timestamp := models.Timestamp(0)
 			description := "description"
-			itemCategoryId := helpers.CategoryID_Toys
+			itemCategoryID := helpers.CategoryID_Toys
 			charity := false
 			seller := setup.Seller()
 			donation := false
@@ -181,7 +181,7 @@ func TestAddItem(t *testing.T) {
 			hidden := false
 			priceInCents := models.MoneyInCents(-100)
 
-			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserID, donation, charity, frozen, hidden)
+			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryID, seller.UserID, donation, charity, frozen, hidden)
 			requireDatabaseWrappedError(t, err, dberr.ErrInvalidPrice)
 
 			itemStatistics, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
@@ -198,13 +198,13 @@ func TestAddItem(t *testing.T) {
 			description := "description"
 			invalidSeller := setup.Cashier()
 			priceInCents := models.MoneyInCents(100)
-			itemCategoryId := helpers.CategoryID_Toys
+			itemCategoryID := helpers.CategoryID_Toys
 			charity := false
 			donation := false
 			frozen := false
 			hidden := false
 
-			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserID, donation, charity, frozen, hidden)
+			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryID, invalidSeller.UserID, donation, charity, frozen, hidden)
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 
 			{
@@ -223,14 +223,14 @@ func TestAddItem(t *testing.T) {
 			description := "description"
 			invalidSeller := setup.Admin()
 			priceInCents := models.MoneyInCents(100)
-			itemCategoryId := helpers.CategoryID_Toys
+			itemCategoryID := helpers.CategoryID_Toys
 			charity := false
 			donation := false
 			frozen := false
 			hidden := false
 
 			{
-				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, invalidSeller.UserID, donation, charity, frozen, hidden)
+				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryID, invalidSeller.UserID, donation, charity, frozen, hidden)
 				requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 			}
 
@@ -250,14 +250,14 @@ func TestAddItem(t *testing.T) {
 			description := "description"
 			seller := setup.Seller()
 			priceInCents := models.MoneyInCents(100)
-			itemCategoryId := helpers.CategoryID_Toys
+			itemCategoryID := helpers.CategoryID_Toys
 			charity := false
 			donation := false
 			frozen := true
 			hidden := true
 
 			{
-				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, seller.UserID, donation, charity, frozen, hidden)
+				_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryID, seller.UserID, donation, charity, frozen, hidden)
 				requireDatabaseWrappedError(t, err, dberr.ErrHiddenFrozenItem)
 			}
 

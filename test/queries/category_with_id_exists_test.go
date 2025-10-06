@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCategoryWithIdExists(t *testing.T) {
+func TestCategoryWithIDExists(t *testing.T) {
 	setup, db := NewDatabaseFixture()
 	defer setup.Close()
 

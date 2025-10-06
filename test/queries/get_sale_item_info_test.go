@@ -47,8 +47,8 @@ func TestGetSaleItemInformation(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			nonexistentItemId := models.ID(1000)
-			setup.RequireNoSuchItems(t, nonexistentItemId)
+			nonexistentItemID := models.ID(1000)
+			setup.RequireNoSuchItems(t, nonexistentItemID)
 
 			_, err := queries.GetSaleItemInformation(db, 1)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)

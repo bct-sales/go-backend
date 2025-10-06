@@ -12,7 +12,7 @@ import (
 )
 
 type GetUsersUserData struct {
-	Id           int64          `json:"id"`
+	ID           int64          `json:"id"`
 	Password     string         `json:"password"`
 	Role         string         `json:"role"`
 	CreatedAt    rest.DateTime  `json:"createdAt"`
@@ -95,7 +95,7 @@ func (ep *listUsersEndpoint) convertToUserData(users []*queries.UserWithItemCoun
 		}
 
 		userDatum := GetUsersUserData{
-			Id:           user.UserID.Int64(),
+			ID:           user.UserID.Int64(),
 			Password:     user.Password,
 			Role:         user.RoleID.Name(),
 			CreatedAt:    createdAt,
@@ -162,7 +162,7 @@ func (ep *listUsersEndpoint) formatAsCSV(userData []GetUsersUserData) *string {
 
 	// Write rows, one per user
 	for _, user := range userData {
-		idString := strconv.FormatInt(user.Id, 10)
+		idString := strconv.FormatInt(user.ID, 10)
 		roleString := user.Role
 
 		var lastActivityString string

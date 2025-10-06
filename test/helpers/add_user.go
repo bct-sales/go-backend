@@ -28,9 +28,9 @@ func (data *AddUserData) FillWithDefaults() {
 	}
 }
 
-func WithUserID(userId models.ID) func(*AddUserData) {
+func WithUserID(userID models.ID) func(*AddUserData) {
 	return func(data *AddUserData) {
-		data.UserID = &userId
+		data.UserID = &userID
 	}
 }
 
@@ -58,9 +58,9 @@ func WithLastActivity(lastActivity models.Timestamp) func(*AddUserData) {
 	}
 }
 
-func AddUserToDatabase(db *sql.DB, roleId models.RoleID, options ...func(*AddUserData)) *models.User {
+func AddUserToDatabase(db *sql.DB, roleID models.RoleID, options ...func(*AddUserData)) *models.User {
 	data := AddUserData{
-		RoleID: roleId,
+		RoleID: roleID,
 	}
 
 	for _, option := range options {
@@ -69,25 +69,25 @@ func AddUserToDatabase(db *sql.DB, roleId models.RoleID, options ...func(*AddUse
 
 	data.FillWithDefaults()
 
-	var userId models.ID
+	var userID models.ID
 	if data.UserID == nil {
 		var err error
-		userId, err = queries.AddUser(db, roleId, *data.CreatedAt, data.LastActivity, *data.Password)
+		userID, err = queries.AddUser(db, roleID, *data.CreatedAt, data.LastActivity, *data.Password)
 
 		if err != nil {
 			panic(err)
 		}
 	} else {
-		userId = *data.UserID
+		userID = *data.UserID
 		var err error
-		err = queries.AddUserWithID(db, userId, roleId, *data.CreatedAt, data.LastActivity, *data.Password)
+		err = queries.AddUserWithID(db, userID, roleID, *data.CreatedAt, data.LastActivity, *data.Password)
 
 		if err != nil {
 			panic(err)
 		}
 	}
 
-	user, err := queries.GetUserWithID(db, userId)
+	user, err := queries.GetUserWithID(db, userID)
 	if err != nil {
 		panic(err)
 	}

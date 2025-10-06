@@ -19,18 +19,18 @@ func TestRenameCategory(t *testing.T) {
 			setup, db := NewDatabaseFixture()
 			defer setup.Close()
 
-			categoryId := models.ID(1)
+			categoryID := models.ID(1)
 			newName := "bar"
-			setup.Category(categoryId, "foo")
+			setup.Category(categoryID, "foo")
 
-			err := queries.RenameCategory(db, categoryId, newName)
+			err := queries.RenameCategory(db, categoryID, newName)
 			require.NoError(t, err)
 
 			categories, err := queries.GetCategories(db)
 			require.NoError(t, err)
 
 			require.Len(t, categories, 1)
-			require.Equal(t, categoryId, categories[0].CategoryID)
+			require.Equal(t, categoryID, categories[0].CategoryID)
 			require.Equal(t, newName, categories[0].Name)
 		})
 

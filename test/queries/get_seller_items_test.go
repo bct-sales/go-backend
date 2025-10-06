@@ -111,10 +111,10 @@ func TestGetSellerItems(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			unknownSellerId := models.ID(9999)
-			setup.RequireNoSuchUsers(t, unknownSellerId)
+			unknownSellerID := models.ID(9999)
+			setup.RequireNoSuchUsers(t, unknownSellerID)
 
-			_, err := queries.GetSellerItems(db, unknownSellerId, queries.AllItems)
+			_, err := queries.GetSellerItems(db, unknownSellerID, queries.AllItems)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 

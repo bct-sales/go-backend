@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetItemWithId(t *testing.T) {
+func TestGetItemWithID(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
@@ -31,8 +31,8 @@ func TestGetItemWithId(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			itemId := models.ID(1)
-			_, err := queries.GetItemWithID(db, itemId)
+			itemID := models.ID(1)
+			_, err := queries.GetItemWithID(db, itemID)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 		})
 	})

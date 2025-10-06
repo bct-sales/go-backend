@@ -58,14 +58,14 @@ func TestAddItems(t *testing.T) {
 			require.Equal(t, 1, itemStatistics.ItemCount)
 			require.Equal(t, priceInCents, itemStatistics.TotalValueInCents)
 
-			itemIds, err := queries.GetItemIDs(db)
+			itemIDs, err := queries.GetItemIDs(db)
 			require.NoError(t, err)
-			require.Len(t, itemIds, 1)
+			require.Len(t, itemIDs, 1)
 
-			itemId := itemIds[0]
-			item, err := queries.GetItemWithID(db, itemId)
+			itemID := itemIDs[0]
+			item, err := queries.GetItemWithID(db, itemID)
 			require.NoError(t, err)
-			require.Equal(t, itemId, item.ItemID)
+			require.Equal(t, itemID, item.ItemID)
 			require.Equal(t, addedAt, item.AddedAt)
 			require.Equal(t, description, item.Description)
 			require.Equal(t, priceInCents, item.PriceInCents)

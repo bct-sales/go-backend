@@ -35,9 +35,9 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 
 				seller := setup.Seller()
 
-				itemIds := []models.ID{}
+				itemIDs := []models.ID{}
 				for i := 0; i != 10; i++ {
-					itemIds = append(itemIds, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
+					itemIDs = append(itemIDs, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
 				}
 
 				setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
@@ -45,11 +45,11 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 					require.NoError(t, err)
 				})
 
-				for _, itemId := range itemIds {
-					isFrozen, err := queries.IsItemFrozen(db, itemId)
-					expectedFrozen := slices.Contains(selection, itemId)
+				for _, itemID := range itemIDs {
+					isFrozen, err := queries.IsItemFrozen(db, itemID)
+					expectedFrozen := slices.Contains(selection, itemID)
 					assert.NoError(t, err)
-					assert.Equal(t, expectedFrozen, isFrozen, "item [%d] should have frozen=%v", itemId, expectedFrozen)
+					assert.Equal(t, expectedFrozen, isFrozen, "item [%d] should have frozen=%v", itemID, expectedFrozen)
 				}
 			})
 		}
@@ -72,21 +72,21 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 
 			seller := setup.Seller()
 
-			itemIds := []models.ID{}
+			itemIDs := []models.ID{}
 			for i := 0; i != 10; i++ {
-				itemIds = append(itemIds, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
+				itemIDs = append(itemIDs, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
 			}
-			itemIds = append(itemIds, setup.Item(seller.UserID, aux.WithDummyData(10), aux.WithFrozen(false), aux.WithHidden(true)).ItemID)
+			itemIDs = append(itemIDs, setup.Item(seller.UserID, aux.WithDummyData(10), aux.WithFrozen(false), aux.WithHidden(true)).ItemID)
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.UpdateFreezeStatusOfItems(db, itemIds, true)
+				err := queries.UpdateFreezeStatusOfItems(db, itemIDs, true)
 				requireDatabaseWrappedError(t, err, dberr.ErrItemHidden)
 			})
 
-			for _, itemId := range itemIds {
-				isFrozen, err := queries.IsItemFrozen(db, itemId)
+			for _, itemID := range itemIDs {
+				isFrozen, err := queries.IsItemFrozen(db, itemID)
 				assert.NoError(t, err)
-				assert.Equal(t, false, isFrozen, "item with id %d should not be frozen", itemId)
+				assert.Equal(t, false, isFrozen, "item with id %d should not be frozen", itemID)
 			}
 		})
 	})

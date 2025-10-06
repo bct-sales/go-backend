@@ -29,30 +29,30 @@ func TestAddSale(t *testing.T) {
 				cashier := setup.Cashier()
 
 				items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
-				itemIds := models.CollectItemIDs(items)
+				itemIDs := models.CollectItemIDs(items)
 
-				saleItemIds := make([]models.ID, len(itemIndices))
+				saleItemIDs := make([]models.ID, len(itemIndices))
 				for index, itemIndex := range itemIndices {
-					saleItemIds[index] = itemIds[itemIndex]
+					saleItemIDs[index] = itemIDs[itemIndex]
 				}
 
 				timestamp := models.Timestamp(0)
 
-				var saleId models.ID
+				var saleID models.ID
 				setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
 					var err error
-					saleId, err = queries.AddSale(transaction, cashier.UserID, timestamp, saleItemIds)
+					saleID, err = queries.AddSale(transaction, cashier.UserID, timestamp, saleItemIDs)
 					require.NoError(t, err)
 				})
 
-				actualItems, err := queries.GetSaleItems(db, saleId)
+				actualItems, err := queries.GetSaleItems(db, saleID)
 				require.NoError(t, err)
-				require.Len(t, actualItems, len(saleItemIds))
+				require.Len(t, actualItems, len(saleItemIDs))
 
 				for index, actualItem := range actualItems {
-					require.Equal(t, saleItemIds[index], actualItem.ItemID)
+					require.Equal(t, saleItemIDs[index], actualItem.ItemID)
 
-					expectedItem, err := queries.GetItemWithID(db, saleItemIds[index])
+					expectedItem, err := queries.GetItemWithID(db, saleItemIDs[index])
 					require.NoError(t, err)
 					require.Equal(t, expectedItem, actualItem)
 				}
@@ -81,11 +81,11 @@ func TestAddSale(t *testing.T) {
 			cashier := setup.Cashier()
 			timestamp := models.Timestamp(0)
 
-			nonexistentItemId := models.ID(9999)
-			setup.RequireNoSuchItems(t, nonexistentItemId)
+			nonexistentItemID := models.ID(9999)
+			setup.RequireNoSuchItems(t, nonexistentItemID)
 
 			setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
-				_, err := queries.AddSale(transaction, cashier.UserID, timestamp, []models.ID{nonexistentItemId})
+				_, err := queries.AddSale(transaction, cashier.UserID, timestamp, []models.ID{nonexistentItemID})
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 			})
 		})
@@ -96,10 +96,10 @@ func TestAddSale(t *testing.T) {
 
 			seller := setup.Seller()
 			timestamp := models.Timestamp(0)
-			itemId := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
+			itemID := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
 
 			setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
-				_, err := queries.AddSale(transaction, seller.UserID, timestamp, []models.ID{itemId})
+				_, err := queries.AddSale(transaction, seller.UserID, timestamp, []models.ID{itemID})
 				requireDatabaseWrappedError(t, err, dberr.ErrSaleRequiresCashier)
 			})
 		})
@@ -111,10 +111,10 @@ func TestAddSale(t *testing.T) {
 			seller := setup.Seller()
 			admin := setup.Admin()
 			timestamp := models.Timestamp(0)
-			itemId := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
+			itemID := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
 
 			setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
-				_, err := queries.AddSale(transaction, admin.UserID, timestamp, []models.ID{itemId})
+				_, err := queries.AddSale(transaction, admin.UserID, timestamp, []models.ID{itemID})
 				requireDatabaseWrappedError(t, err, dberr.ErrSaleRequiresCashier)
 			})
 		})

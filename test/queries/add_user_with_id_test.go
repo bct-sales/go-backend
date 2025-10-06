@@ -14,16 +14,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAddUserWithId(t *testing.T) {
+func TestAddUserWithID(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		for _, password := range []string{"a", "xyz"} {
 			for _, userID := range []models.ID{1, 5} {
-				for _, roleId := range models.ListRoles() {
-					t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
+				for _, roleID := range models.ListRoles() {
+					t.Run(fmt.Sprintf("With role id %d", roleID), func(t *testing.T) {
 						setup, db := NewDatabaseFixture(WithDefaultCategories)
 						defer setup.Close()
 
-						err := queries.AddUserWithID(db, userID, roleId, 0, nil, password)
+						err := queries.AddUserWithID(db, userID, roleID, 0, nil, password)
 						require.NoError(t, err)
 
 						userExists, err := queries.UserWithIDExists(db, userID)
@@ -32,7 +32,7 @@ func TestAddUserWithId(t *testing.T) {
 
 						actualRoleID, err := queries.AuthenticateUser(db, userID, password)
 						require.NoError(t, err)
-						require.Equal(t, roleId, actualRoleID)
+						require.Equal(t, roleID, actualRoleID)
 					})
 				}
 			}

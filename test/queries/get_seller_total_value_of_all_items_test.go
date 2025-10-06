@@ -149,10 +149,10 @@ func TestSellerTotalValueOfAllTimes(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			nonExistentSellerId := models.ID(1000)
-			setup.RequireNoSuchUsers(t, nonExistentSellerId)
+			nonExistentSellerID := models.ID(1000)
+			setup.RequireNoSuchUsers(t, nonExistentSellerID)
 
-			_, err := queries.GetSellerTotalValueOfAllItems(db, nonExistentSellerId, queries.AllItems)
+			_, err := queries.GetSellerTotalValueOfAllItems(db, nonExistentSellerID, queries.AllItems)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 

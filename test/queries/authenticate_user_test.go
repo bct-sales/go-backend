@@ -19,29 +19,29 @@ func TestAuthentication(t *testing.T) {
 		defer setup.Close()
 
 		password := "xyz"
-		userId := models.ID(1)
-		roleId := models.NewSellerRoleID()
+		userID := models.ID(1)
+		roleID := models.NewSellerRoleID()
 		createdAt := models.Timestamp(0)
 		var lastActivity *models.Timestamp = nil
 
-		queries.AddUserWithID(db, userId, roleId, createdAt, lastActivity, password)
+		queries.AddUserWithID(db, userID, roleID, createdAt, lastActivity, password)
 
-		actualRoleId, err := queries.AuthenticateUser(db, userId, password)
+		actualRoleID, err := queries.AuthenticateUser(db, userID, password)
 		require.NoError(t, err)
-		require.Equal(t, roleId, actualRoleId)
+		require.Equal(t, roleID, actualRoleID)
 	})
 
 	t.Run("Authenticating non-existing user", func(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		userId := models.ID(5)
+		userID := models.ID(5)
 		password := "xyz"
 
-		setup.RequireNoSuchUsers(t, userId)
+		setup.RequireNoSuchUsers(t, userID)
 
 		{
-			_, err := queries.AuthenticateUser(db, userId, password)
+			_, err := queries.AuthenticateUser(db, userID, password)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		}
 	})
@@ -52,12 +52,12 @@ func TestAuthentication(t *testing.T) {
 
 		password := "xyz"
 		wrongPassword := "abc"
-		userId := models.ID(5)
-		roleId := models.NewSellerRoleID()
+		userID := models.ID(5)
+		roleID := models.NewSellerRoleID()
 
-		queries.AddUserWithID(db, userId, roleId, 0, nil, password)
+		queries.AddUserWithID(db, userID, roleID, 0, nil, password)
 
-		_, err := queries.AuthenticateUser(db, userId, wrongPassword)
+		_, err := queries.AuthenticateUser(db, userID, wrongPassword)
 		requireDatabaseWrappedError(t, err, dberr.ErrWrongPassword)
 	})
 }

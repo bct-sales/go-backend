@@ -56,10 +56,10 @@ func TestCountCashierSales(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			nonexistentCashierId := models.ID(999)
-			setup.RequireNoSuchUsers(t, nonexistentCashierId)
+			nonexistentCashierID := models.ID(999)
+			setup.RequireNoSuchUsers(t, nonexistentCashierID)
 
-			_, err := queries.CountCashierSales(db, nonexistentCashierId)
+			_, err := queries.CountCashierSales(db, nonexistentCashierID)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 

@@ -25,15 +25,15 @@ type LogoutPayload struct{}
 // @Tags authentication
 // @Router /logout [post]
 func Logout(clock clock.Clock, logger logger.Logger, context *gin.Context, db *sql.DB, configuration *configuration.ServerConfiguration) {
-	sessionIdString, err := context.Cookie(security.SessionCookieName)
+	sessionIDString, err := context.Cookie(security.SessionCookieName)
 	if err != nil {
 		logger.InvalidRequest("Cannot logout without session ID", slog.String("error", err.Error()))
 		context.JSON(http.StatusOK, gin.H{"message": "Unauthorized: missing session ID"})
 		return
 	}
 
-	sessionId := models.SessionID(sessionIdString)
-	err = queries.DeleteSession(db, sessionId)
+	sessionID := models.SessionID(sessionIDString)
+	err = queries.DeleteSession(db, sessionID)
 
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchSession) {

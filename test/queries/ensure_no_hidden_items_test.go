@@ -20,9 +20,9 @@ func TestEnsureNoHiddenItems(t *testing.T) {
 
 		seller := setup.Seller()
 		items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
-		itemIds := models.CollectItemIDs(items)
+		itemIDs := models.CollectItemIDs(items)
 
-		err := queries.EnsureNoHiddenItems(db, itemIds)
+		err := queries.EnsureNoHiddenItems(db, itemIDs)
 		require.NoError(t, err)
 	})
 
@@ -33,9 +33,9 @@ func TestEnsureNoHiddenItems(t *testing.T) {
 		seller := setup.Seller()
 		visibleItems := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 		hiddenItem := setup.Item(seller.UserID, aux.WithFrozen(false), aux.WithHidden(true))
-		itemIds := append(models.CollectItemIDs(visibleItems), hiddenItem.ItemID)
+		itemIDs := append(models.CollectItemIDs(visibleItems), hiddenItem.ItemID)
 
-		err := queries.EnsureNoHiddenItems(db, itemIds)
+		err := queries.EnsureNoHiddenItems(db, itemIDs)
 		requireDatabaseWrappedError(t, err, dberr.ErrItemHidden)
 	})
 }

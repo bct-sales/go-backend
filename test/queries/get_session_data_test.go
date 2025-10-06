@@ -15,21 +15,21 @@ import (
 
 func TestGetSessionData(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		for _, roleId := range models.ListRoles() {
-			testLabel := roleId.Name()
+		for _, roleID := range models.ListRoles() {
+			testLabel := roleID.Name()
 
 			t.Run(testLabel, func(t *testing.T) {
 				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				seller, sessionId := setup.LoggedIn(setup.User(roleId), aux.WithExpiration(100))
-				sessionData, err := queries.GetSessionData(db, sessionId, setup.Clock.Now())
+				seller, sessionID := setup.LoggedIn(setup.User(roleID), aux.WithExpiration(100))
+				sessionData, err := queries.GetSessionData(db, sessionID, setup.Clock.Now())
 				expectedExpirationTime := setup.Clock.Now() + models.Timestamp(100)
 
 				require.NoError(t, err)
 				require.NotNil(t, sessionData)
 				require.Equal(t, seller.UserID, sessionData.UserID)
-				require.Equal(t, roleId, sessionData.RoleID)
+				require.Equal(t, roleID, sessionData.RoleID)
 				require.Equal(t, expectedExpirationTime, sessionData.ExpirationTime)
 			})
 		}
@@ -40,8 +40,8 @@ func TestGetSessionData(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			invalidSessionId := models.SessionID("invalid-session-id")
-			_, err := queries.GetSessionData(db, invalidSessionId, setup.Clock.Now())
+			invalidSessionID := models.SessionID("invalid-session-id")
+			_, err := queries.GetSessionData(db, invalidSessionID, setup.Clock.Now())
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSession)
 		})
 
@@ -50,12 +50,12 @@ func TestGetSessionData(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			sessionId := setup.Session(seller.UserID, aux.WithExpiration(10))
+			sessionID := setup.Session(seller.UserID, aux.WithExpiration(10))
 
 			// Advance time to ensure session is expired
 			setup.Clock.Advance(11)
 
-			_, err := queries.GetSessionData(db, sessionId, setup.Clock.Now())
+			_, err := queries.GetSessionData(db, sessionID, setup.Clock.Now())
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSession)
 		})
 	})

@@ -56,7 +56,7 @@ func TestGetSales(t *testing.T) {
 
 					items := setup.Items(seller.UserID, 100, aux.WithHidden(false))
 
-					saleIds := make([]models.ID, len(items))
+					saleIDs := make([]models.ID, len(items))
 					for _, item := range items {
 						setup.Sale(cashier.UserID, []models.ID{item.ItemID})
 					}
@@ -64,7 +64,7 @@ func TestGetSales(t *testing.T) {
 					actualSales := []*models.SaleSummary{}
 					err := queries.NewGetSalesQuery().WithIDGreaterThanOrEqualTo(models.ID(k+1)).Execute(db, queries.CollectTo(&actualSales))
 					require.NoError(t, err)
-					require.Len(t, actualSales, len(saleIds)-k)
+					require.Len(t, actualSales, len(saleIDs)-k)
 
 					for _, actualSale := range actualSales {
 						require.Equal(t, cashier.UserID, actualSale.CashierID)

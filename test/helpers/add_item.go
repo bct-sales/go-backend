@@ -131,7 +131,7 @@ func WithDummyData(k int) func(*AddItemData) {
 	}
 }
 
-func AddItemToDatabase(db *sql.DB, sellerId models.ID, options ...func(*AddItemData)) *models.Item {
+func AddItemToDatabase(db *sql.DB, sellerID models.ID, options ...func(*AddItemData)) *models.Item {
 	data := AddItemData{}
 
 	for _, option := range options {
@@ -140,12 +140,12 @@ func AddItemToDatabase(db *sql.DB, sellerId models.ID, options ...func(*AddItemD
 
 	data.FillWithDefaults()
 
-	itemId, err := queries.AddItem(db, *data.AddedAt, *data.Description, *data.PriceInCents, *data.ItemCategory, sellerId, *data.Donation, *data.Charity, *data.Frozen, *data.Hidden)
+	itemID, err := queries.AddItem(db, *data.AddedAt, *data.Description, *data.PriceInCents, *data.ItemCategory, sellerID, *data.Donation, *data.Charity, *data.Frozen, *data.Hidden)
 	if err != nil {
 		panic(err)
 	}
 
-	item, err := queries.GetItemWithID(db, itemId)
+	item, err := queries.GetItemWithID(db, itemID)
 	if err != nil {
 		panic(err)
 	}

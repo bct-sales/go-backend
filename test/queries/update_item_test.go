@@ -136,11 +136,11 @@ func TestUpdateItem(t *testing.T) {
 			setup, _ := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			itemId := models.ID(1)
+			itemID := models.ID(1)
 			itemUpdate := queries.ItemUpdate{}
 
 			setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
-				err := queries.UpdateItem(transaction, itemId, &itemUpdate)
+				err := queries.UpdateItem(transaction, itemID, &itemUpdate)
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 			})
 		})

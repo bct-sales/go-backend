@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetUserWithId(t *testing.T) {
+func TestGetUserWithID(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
@@ -38,10 +38,10 @@ func TestGetUserWithId(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		userId := models.ID(999)
-		setup.RequireNoSuchUsers(t, userId)
+		userID := models.ID(999)
+		setup.RequireNoSuchUsers(t, userID)
 
-		_, err := queries.GetUserWithID(db, userId)
+		_, err := queries.GetUserWithID(db, userID)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 	})
 }

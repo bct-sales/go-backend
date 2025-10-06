@@ -35,9 +35,9 @@ func TestUpdateHiddenStatusOfItems(t *testing.T) {
 
 				seller := setup.Seller()
 
-				itemIds := []models.ID{}
+				itemIDs := []models.ID{}
 				for i := 0; i != 10; i++ {
-					itemIds = append(itemIds, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false), aux.WithFrozen(false)).ItemID)
+					itemIDs = append(itemIDs, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false), aux.WithFrozen(false)).ItemID)
 				}
 
 				setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
@@ -45,11 +45,11 @@ func TestUpdateHiddenStatusOfItems(t *testing.T) {
 					require.NoError(t, err)
 				})
 
-				for _, itemId := range itemIds {
-					isHidden, err := queries.IsItemHidden(db, itemId)
-					expectedHidden := slices.Contains(selection, itemId)
+				for _, itemID := range itemIDs {
+					isHidden, err := queries.IsItemHidden(db, itemID)
+					expectedHidden := slices.Contains(selection, itemID)
 					assert.NoError(t, err)
-					assert.Equal(t, expectedHidden, isHidden, "item %d should have hidden=%v", itemId, expectedHidden)
+					assert.Equal(t, expectedHidden, isHidden, "item %d should have hidden=%v", itemID, expectedHidden)
 				}
 			})
 		}
@@ -72,21 +72,21 @@ func TestUpdateHiddenStatusOfItems(t *testing.T) {
 
 			seller := setup.Seller()
 
-			itemIds := []models.ID{}
+			itemIDs := []models.ID{}
 			for i := 0; i != 10; i++ {
-				itemIds = append(itemIds, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false), aux.WithFrozen(false)).ItemID)
+				itemIDs = append(itemIDs, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false), aux.WithFrozen(false)).ItemID)
 			}
-			itemIds = append(itemIds, setup.Item(seller.UserID, aux.WithDummyData(10), aux.WithHidden(false), aux.WithFrozen(true)).ItemID)
+			itemIDs = append(itemIDs, setup.Item(seller.UserID, aux.WithDummyData(10), aux.WithHidden(false), aux.WithFrozen(true)).ItemID)
 
 			setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
-				err := queries.UpdateHiddenStatusOfItems(transaction, itemIds, true)
+				err := queries.UpdateHiddenStatusOfItems(transaction, itemIDs, true)
 				requireDatabaseWrappedError(t, err, dberr.ErrItemFrozen)
 			})
 
-			for _, itemId := range itemIds {
-				isHidden, err := queries.IsItemHidden(db, itemId)
+			for _, itemID := range itemIDs {
+				isHidden, err := queries.IsItemHidden(db, itemID)
 				assert.NoError(t, err)
-				assert.Equal(t, false, isHidden, "item with id %d should not be hidden", itemId)
+				assert.Equal(t, false, isHidden, "item with id %d should not be hidden", itemID)
 			}
 		})
 	})

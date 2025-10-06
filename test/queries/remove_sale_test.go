@@ -20,17 +20,17 @@ func TestRemoveSale(t *testing.T) {
 
 		seller := setup.Seller()
 		cashier := setup.Cashier()
-		sale1ItemIds := []models.ID{
+		sale1ItemIDs := []models.ID{
 			setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)).ItemID,
 			setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false)).ItemID,
 		}
-		sale2ItemIds := []models.ID{
+		sale2ItemIDs := []models.ID{
 			setup.Item(seller.UserID, aux.WithDummyData(3), aux.WithHidden(false)).ItemID,
 			setup.Item(seller.UserID, aux.WithDummyData(4), aux.WithHidden(false)).ItemID,
 		}
 
-		sale1 := setup.Sale(cashier.UserID, sale1ItemIds)
-		sale2 := setup.Sale(cashier.UserID, sale2ItemIds)
+		sale1 := setup.Sale(cashier.UserID, sale1ItemIDs)
+		sale2 := setup.Sale(cashier.UserID, sale2ItemIDs)
 
 		setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
 			err := queries.RemoveSale(transaction, sale1.SaleID)
@@ -51,11 +51,11 @@ func TestRemoveSale(t *testing.T) {
 			setup, _ := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			nonexistentSaleId := models.ID(999)
-			setup.RequireNoSuchSales(t, nonexistentSaleId)
+			nonexistentSaleID := models.ID(999)
+			setup.RequireNoSuchSales(t, nonexistentSaleID)
 
 			setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
-				err := queries.RemoveSale(transaction, nonexistentSaleId)
+				err := queries.RemoveSale(transaction, nonexistentSaleID)
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSale)
 			})
 		})
@@ -69,14 +69,14 @@ func TestRemoveSale(t *testing.T) {
 			item := setup.Item(seller.UserID, aux.WithHidden(false), aux.WithFrozen(false))
 			sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
 
-			nonexistentSaleId := models.ID(999)
-			setup.RequireNoSuchSales(t, nonexistentSaleId)
+			nonexistentSaleID := models.ID(999)
+			setup.RequireNoSuchSales(t, nonexistentSaleID)
 
 			transactionErr := setup.WithTransactionErr(t, func(transaction *queries.TransactionalDatabaseQuerier) error {
 				err := queries.RemoveSale(transaction, sale.SaleID)
 				require.NoError(t, err)
 
-				return queries.RemoveSale(transaction, nonexistentSaleId)
+				return queries.RemoveSale(transaction, nonexistentSaleID)
 			})
 
 			requireDatabaseWrappedError(t, transactionErr, dberr.ErrNoSuchSale)

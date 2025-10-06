@@ -14,61 +14,61 @@ import (
 )
 
 type pair struct {
-	UserId models.ID
-	RoleId models.RoleID
+	UserID models.ID
+	RoleID models.RoleID
 }
 
 func TestCheckUserRole(t *testing.T) {
 	t.Run("Check correct role", func(t *testing.T) {
-		sellerId := models.ID(1)
-		adminId := models.ID(2)
-		cashierId := models.ID(3)
+		sellerID := models.ID(1)
+		adminID := models.ID(2)
+		cashierID := models.ID(3)
 
 		for _, pair := range []pair{
-			{UserId: sellerId, RoleId: models.NewSellerRoleID()},
-			{UserId: adminId, RoleId: models.NewAdminRoleID()},
-			{UserId: cashierId, RoleId: models.NewCashierRoleID()},
+			{UserID: sellerID, RoleID: models.NewSellerRoleID()},
+			{UserID: adminID, RoleID: models.NewAdminRoleID()},
+			{UserID: cashierID, RoleID: models.NewCashierRoleID()},
 		} {
-			roleName := pair.RoleId.Name()
+			roleName := pair.RoleID.Name()
 
 			t.Run(roleName, func(t *testing.T) {
 				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				setup.Cashier(aux.WithUserID(cashierId))
-				setup.Admin(aux.WithUserID(adminId))
-				setup.Seller(aux.WithUserID(sellerId))
+				setup.Cashier(aux.WithUserID(cashierID))
+				setup.Admin(aux.WithUserID(adminID))
+				setup.Seller(aux.WithUserID(sellerID))
 
-				err := queries.EnsureUserExistsAndHasRole(db, pair.UserId, pair.RoleId)
+				err := queries.EnsureUserExistsAndHasRole(db, pair.UserID, pair.RoleID)
 				require.NoError(t, err)
 			})
 		}
 	})
 
 	t.Run("Check incorrect role", func(t *testing.T) {
-		sellerId := models.ID(1)
-		adminId := models.ID(2)
-		cashierId := models.ID(3)
+		sellerID := models.ID(1)
+		adminID := models.ID(2)
+		cashierID := models.ID(3)
 
 		for _, pair := range []pair{
-			{UserId: adminId, RoleId: models.NewSellerRoleID()},
-			{UserId: cashierId, RoleId: models.NewSellerRoleID()},
-			{UserId: sellerId, RoleId: models.NewAdminRoleID()},
-			{UserId: cashierId, RoleId: models.NewAdminRoleID()},
-			{UserId: sellerId, RoleId: models.NewCashierRoleID()},
-			{UserId: adminId, RoleId: models.NewCashierRoleID()},
+			{UserID: adminID, RoleID: models.NewSellerRoleID()},
+			{UserID: cashierID, RoleID: models.NewSellerRoleID()},
+			{UserID: sellerID, RoleID: models.NewAdminRoleID()},
+			{UserID: cashierID, RoleID: models.NewAdminRoleID()},
+			{UserID: sellerID, RoleID: models.NewCashierRoleID()},
+			{UserID: adminID, RoleID: models.NewCashierRoleID()},
 		} {
-			roleName := pair.RoleId.Name()
+			roleName := pair.RoleID.Name()
 
 			t.Run(roleName, func(t *testing.T) {
 				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				setup.Cashier(aux.WithUserID(cashierId))
-				setup.Admin(aux.WithUserID(adminId))
-				setup.Seller(aux.WithUserID(sellerId))
+				setup.Cashier(aux.WithUserID(cashierID))
+				setup.Admin(aux.WithUserID(adminID))
+				setup.Seller(aux.WithUserID(sellerID))
 
-				err := queries.EnsureUserExistsAndHasRole(db, pair.UserId, pair.RoleId)
+				err := queries.EnsureUserExistsAndHasRole(db, pair.UserID, pair.RoleID)
 				requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 			})
 		}
@@ -78,9 +78,9 @@ func TestCheckUserRole(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		invalidId := models.ID(9999)
+		invalidID := models.ID(9999)
 
-		err := queries.EnsureUserExistsAndHasRole(db, invalidId, models.NewAdminRoleID())
+		err := queries.EnsureUserExistsAndHasRole(db, invalidID, models.NewAdminRoleID())
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 	})
 }

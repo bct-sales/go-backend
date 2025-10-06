@@ -24,13 +24,13 @@ func TestAddSale(t *testing.T) {
 		defer setup.Close()
 
 		seller := setup.Seller()
-		cashier, sessionId := setup.LoggedIn(setup.Cashier())
+		cashier, sessionID := setup.LoggedIn(setup.Cashier())
 		item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 		payload := rest.AddSalePayload{
 			Items: []models.ID{item.ItemID},
 		}
-		request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
+		request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 		router.ServeHTTP(writer, request)
 		require.Equal(t, http.StatusCreated, writer.Code)
 
@@ -51,13 +51,13 @@ func TestAddSale(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionId := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(setup.Seller())
 			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest.AddSalePayload{
 				Items: []models.ID{item.ItemID},
 			}
-			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
@@ -71,13 +71,13 @@ func TestAddSale(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionId := setup.LoggedIn(setup.Admin())
+			_, sessionID := setup.LoggedIn(setup.Admin())
 			seller := setup.Seller()
 			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 			payload := rest.AddSalePayload{
 				Items: []models.ID{item.ItemID},
 			}
-			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
@@ -91,11 +91,11 @@ func TestAddSale(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionId := setup.LoggedIn(setup.Cashier())
+			_, sessionID := setup.LoggedIn(setup.Cashier())
 			payload := rest.AddSalePayload{
 				Items: []models.ID{},
 			}
-			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
@@ -109,14 +109,14 @@ func TestAddSale(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionId := setup.LoggedIn(setup.Cashier())
-			nonexistentItemId := models.ID(1000)
-			setup.RequireNoSuchItems(t, nonexistentItemId)
+			_, sessionID := setup.LoggedIn(setup.Cashier())
+			nonexistentItemID := models.ID(1000)
+			setup.RequireNoSuchItems(t, nonexistentItemID)
 
 			payload := rest.AddSalePayload{
-				Items: []models.ID{nonexistentItemId},
+				Items: []models.ID{nonexistentItemID},
 			}
-			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_item")
 

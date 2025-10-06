@@ -16,14 +16,14 @@ import (
 
 func TestUpdateLastActivity(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		for _, roleId := range models.ListRoles() {
+		for _, roleID := range models.ListRoles() {
 			for _, lastActivity := range []models.Timestamp{500, 1000, 2000} {
-				testLabel := fmt.Sprintf("Role: %s, LastActivity: %d", roleId, lastActivity)
+				testLabel := fmt.Sprintf("Role: %s, LastActivity: %d", roleID, lastActivity)
 				t.Run(testLabel, func(t *testing.T) {
 					setup, db := NewDatabaseFixture(WithDefaultCategories)
 					defer setup.Close()
 
-					seller := setup.User(roleId, aux.WithNoLastActivity())
+					seller := setup.User(roleID, aux.WithNoLastActivity())
 
 					queries.UpdateLastActivity(db, seller.UserID, lastActivity)
 
@@ -42,10 +42,10 @@ func TestUpdateLastActivity(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			userId := models.ID(999)
-			setup.RequireNoSuchUsers(t, userId)
+			userID := models.ID(999)
+			setup.RequireNoSuchUsers(t, userID)
 
-			err := queries.UpdateLastActivity(db, userId, 1000)
+			err := queries.UpdateLastActivity(db, userID, 1000)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 	})

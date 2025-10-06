@@ -20,9 +20,9 @@ func TestEnsureNoFrozenItems(t *testing.T) {
 
 		seller := setup.Seller()
 		items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
-		itemIds := models.CollectItemIDs(items)
+		itemIDs := models.CollectItemIDs(items)
 
-		err := queries.EnsureNoFrozenItems(db, itemIds)
+		err := queries.EnsureNoFrozenItems(db, itemIDs)
 		require.NoError(t, err)
 	})
 
@@ -33,9 +33,9 @@ func TestEnsureNoFrozenItems(t *testing.T) {
 		seller := setup.Seller()
 		unfrozenItems := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 		frozenItem := setup.Item(seller.UserID, aux.WithFrozen(true), aux.WithHidden(false))
-		itemIds := append(models.CollectItemIDs(unfrozenItems), frozenItem.ItemID)
+		itemIDs := append(models.CollectItemIDs(unfrozenItems), frozenItem.ItemID)
 
-		err := queries.EnsureNoFrozenItems(db, itemIds)
+		err := queries.EnsureNoFrozenItems(db, itemIDs)
 		requireDatabaseWrappedError(t, err, dberr.ErrItemFrozen)
 	})
 }

@@ -15,21 +15,21 @@ import (
 
 func TestAddSession(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		for _, roleId := range models.ListRoles() {
-			testLabel := fmt.Sprintf("Role=%s", roleId.Name())
+		for _, roleID := range models.ListRoles() {
+			testLabel := fmt.Sprintf("Role=%s", roleID.Name())
 
 			t.Run(testLabel, func(t *testing.T) {
 				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				user := setup.User(roleId)
+				user := setup.User(roleID)
 				expirationTime := models.Timestamp(0)
-				sessionId, err := queries.AddSession(db, user.UserID, expirationTime)
+				sessionID, err := queries.AddSession(db, user.UserID, expirationTime)
 				require.NoError(t, err)
 
-				session, err := queries.GetSessionByID(db, sessionId)
+				session, err := queries.GetSessionByID(db, sessionID)
 				require.NoError(t, err)
-				require.Equal(t, sessionId, session.SessionID)
+				require.Equal(t, sessionID, session.SessionID)
 				require.Equal(t, user.UserID, session.UserID)
 				require.Equal(t, expirationTime, session.ExpirationTime)
 			})
@@ -41,10 +41,10 @@ func TestAddSession(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			userId := models.ID(999)
-			setup.RequireNoSuchUsers(t, userId)
+			userID := models.ID(999)
+			setup.RequireNoSuchUsers(t, userID)
 			expirationTime := models.Timestamp(0)
-			_, err := queries.AddSession(db, userId, expirationTime)
+			_, err := queries.AddSession(db, userID, expirationTime)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 	})

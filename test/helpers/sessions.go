@@ -18,7 +18,7 @@ func WithExpiration(secondsBeforeExpiration int64) func(*AddSessionData) {
 	}
 }
 
-func AddSessionToDatabase(db *sql.DB, userId models.ID, currentTime models.Timestamp, options ...func(*AddSessionData)) models.SessionID {
+func AddSessionToDatabase(db *sql.DB, userID models.ID, currentTime models.Timestamp, options ...func(*AddSessionData)) models.SessionID {
 	data := &AddSessionData{
 		secondsBeforeExpiration: 3600,
 	}
@@ -28,11 +28,11 @@ func AddSessionToDatabase(db *sql.DB, userId models.ID, currentTime models.Times
 	}
 
 	expirationTime := currentTime + models.Timestamp(data.secondsBeforeExpiration)
-	sessionId, err := queries.AddSession(db, userId, expirationTime)
+	sessionID, err := queries.AddSession(db, userID, expirationTime)
 
 	if err != nil {
 		panic(err)
 	}
 
-	return sessionId
+	return sessionID
 }

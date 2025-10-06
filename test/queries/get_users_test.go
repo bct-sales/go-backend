@@ -17,19 +17,19 @@ func TestGetUsers(t *testing.T) {
 		defer setup.Close()
 
 		password := "xyz"
-		userId := models.ID(1)
-		roleId := models.NewSellerRoleID()
+		userID := models.ID(1)
+		roleID := models.NewSellerRoleID()
 		createdAt := models.Timestamp(1)
 		lastActivity := models.Timestamp(2)
 
-		queries.AddUserWithID(db, userId, roleId, createdAt, &lastActivity, password)
+		queries.AddUserWithID(db, userID, roleID, createdAt, &lastActivity, password)
 
 		users := []*models.User{}
 		err := queries.GetUsers(db, queries.CollectTo(&users))
 		require.NoError(t, err)
 		require.Len(t, users, 1)
-		require.Equal(t, userId, users[0].UserID)
-		require.Equal(t, roleId, users[0].RoleID)
+		require.Equal(t, userID, users[0].UserID)
+		require.Equal(t, roleID, users[0].RoleID)
 		require.Equal(t, password, users[0].Password)
 		require.Equal(t, createdAt, users[0].CreatedAt)
 		require.NotNil(t, users[0].LastActivity)

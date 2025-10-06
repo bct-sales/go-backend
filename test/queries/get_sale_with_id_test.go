@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetSaleWithId(t *testing.T) {
+func TestGetSaleWithID(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
@@ -33,10 +33,10 @@ func TestGetSaleWithId(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		saleId := models.ID(999)
-		setup.RequireNoSuchSales(t, saleId)
+		saleID := models.ID(999)
+		setup.RequireNoSuchSales(t, saleID)
 
-		_, err := queries.GetSaleWithID(db, saleId)
+		_, err := queries.GetSaleWithID(db, saleID)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSale)
 	})
 }

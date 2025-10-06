@@ -153,11 +153,11 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			defer setup.Close()
 
 			newSeller := setup.Seller()
-			invalidSellerId := models.ID(999)
-			setup.RequireNoSuchUsers(t, invalidSellerId)
+			invalidSellerID := models.ID(999)
+			setup.RequireNoSuchUsers(t, invalidSellerID)
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.MoveItemsToNewSeller(db, invalidSellerId, newSeller.UserID)
+				err := queries.MoveItemsToNewSeller(db, invalidSellerID, newSeller.UserID)
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 			})
 		})
@@ -167,11 +167,11 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			defer setup.Close()
 
 			oldSeller := setup.Seller()
-			invalidSellerId := models.ID(999)
-			setup.RequireNoSuchUsers(t, invalidSellerId)
+			invalidSellerID := models.ID(999)
+			setup.RequireNoSuchUsers(t, invalidSellerID)
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.MoveItemsToNewSeller(db, oldSeller.UserID, invalidSellerId)
+				err := queries.MoveItemsToNewSeller(db, oldSeller.UserID, invalidSellerID)
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 			})
 		})

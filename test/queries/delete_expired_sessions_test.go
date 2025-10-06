@@ -27,26 +27,26 @@ func TestDeleteExpiredSessions(t *testing.T) {
 
 				for i := 0; i < 100; i++ {
 					expirationTime := models.Timestamp(0)
-					sessionId, err := queries.AddSession(db, user.UserID, expirationTime)
+					sessionID, err := queries.AddSession(db, user.UserID, expirationTime)
 					require.NoError(t, err)
 
 					if expirationTime < models.Timestamp(cutoff) {
-						expiredSessions = append(expiredSessions, sessionId)
+						expiredSessions = append(expiredSessions, sessionID)
 					} else {
-						unexpiredSessions = append(unexpiredSessions, sessionId)
+						unexpiredSessions = append(unexpiredSessions, sessionID)
 					}
 				}
 
 				err := queries.DeleteExpiredSessions(db, models.Timestamp(cutoff))
 				require.NoError(t, err)
 
-				for _, sessionId := range expiredSessions {
-					_, err := queries.GetSessionByID(db, sessionId)
+				for _, sessionID := range expiredSessions {
+					_, err := queries.GetSessionByID(db, sessionID)
 					requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSession)
 				}
 
-				for _, sessionId := range unexpiredSessions {
-					_, err := queries.GetSessionByID(db, sessionId)
+				for _, sessionID := range unexpiredSessions {
+					_, err := queries.GetSessionByID(db, sessionID)
 					require.NoError(t, err)
 				}
 			})

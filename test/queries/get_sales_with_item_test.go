@@ -29,14 +29,14 @@ func TestGetSalesWithItem(t *testing.T) {
 
 				item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
-				saleIds := make([]models.ID, saleCount)
-				for index := range saleIds {
-					saleIds[index] = setup.Sale(cashier.UserID, []models.ID{item.ItemID}).SaleID
+				saleIDs := make([]models.ID, saleCount)
+				for index := range saleIDs {
+					saleIDs[index] = setup.Sale(cashier.UserID, []models.ID{item.ItemID}).SaleID
 				}
 
-				actualSaleIds, err := queries.GetSalesWithItem(db, item.ItemID)
+				actualSaleIDs, err := queries.GetSalesWithItem(db, item.ItemID)
 				require.NoError(t, err)
-				require.Equal(t, saleIds, actualSaleIds)
+				require.Equal(t, saleIDs, actualSaleIDs)
 			})
 		}
 
@@ -53,10 +53,10 @@ func TestGetSalesWithItem(t *testing.T) {
 			setup.Sale(cashier.UserID, []models.ID{item1.ItemID})
 			setup.Sale(cashier.UserID, []models.ID{item2.ItemID})
 
-			expectedSaleIds := []models.ID{item1.ItemID}
-			actualSaleIds, err := queries.GetSalesWithItem(db, item1.ItemID)
+			expectedSaleIDs := []models.ID{item1.ItemID}
+			actualSaleIDs, err := queries.GetSalesWithItem(db, item1.ItemID)
 			require.NoError(t, err)
-			require.Equal(t, expectedSaleIds, actualSaleIds)
+			require.Equal(t, expectedSaleIDs, actualSaleIDs)
 		})
 	})
 
@@ -70,13 +70,13 @@ func TestGetSalesWithItem(t *testing.T) {
 
 			item1 := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 			item2 := setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false))
-			invalidItemId := models.ID(1000)
-			setup.RequireNoSuchItems(t, invalidItemId)
+			invalidItemID := models.ID(1000)
+			setup.RequireNoSuchItems(t, invalidItemID)
 
 			setup.Sale(cashier.UserID, []models.ID{item1.ItemID})
 			setup.Sale(cashier.UserID, []models.ID{item2.ItemID})
 
-			_, err := queries.GetSalesWithItem(db, invalidItemId)
+			_, err := queries.GetSalesWithItem(db, invalidItemID)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 		})
 	})

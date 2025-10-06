@@ -38,14 +38,14 @@ func TestGetItemsSoldBy(t *testing.T) {
 		zeroSaleCashier := setup.Cashier()
 		cashierWithSales := setup.Cashier()
 
-		itemIds := []models.ID{
+		itemIDs := []models.ID{
 			setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)).ItemID,
 			setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false)).ItemID,
 			setup.Item(seller.UserID, aux.WithDummyData(3), aux.WithHidden(false)).ItemID,
 			setup.Item(seller.UserID, aux.WithDummyData(4), aux.WithHidden(false)).ItemID,
 		}
 
-		setup.Sale(cashierWithSales.UserID, itemIds)
+		setup.Sale(cashierWithSales.UserID, itemIDs)
 
 		items, err := queries.GetItemsSoldBy(db, zeroSaleCashier.UserID)
 		require.NoError(t, err)
@@ -163,10 +163,10 @@ func TestGetItemsSoldBy(t *testing.T) {
 		defer setup.Close()
 
 		cashier := setup.Cashier()
-		unknownCashierId := cashier.UserID + 1
-		setup.RequireNoSuchUsers(t, unknownCashierId)
+		unknownCashierID := cashier.UserID + 1
+		setup.RequireNoSuchUsers(t, unknownCashierID)
 
-		_, err := queries.GetItemsSoldBy(db, unknownCashierId)
+		_, err := queries.GetItemsSoldBy(db, unknownCashierID)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 	})
 

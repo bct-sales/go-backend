@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetItemsWithIds(t *testing.T) {
+func TestGetItemsWithIDs(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		selections := [][]models.ID{
 			{},
@@ -45,10 +45,10 @@ func TestGetItemsWithIds(t *testing.T) {
 				require.NoError(t, err)
 
 				require.Equal(t, algorithms.NewSet(selection...).Len(), len(actual))
-				for _, itemId := range selection {
-					item, ok := actual[itemId]
+				for _, itemID := range selection {
+					item, ok := actual[itemID]
 					require.True(t, ok, "Item not found in result")
-					require.Equal(t, itemId, item.ItemID)
+					require.Equal(t, itemID, item.ItemID)
 				}
 			})
 		}

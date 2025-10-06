@@ -45,10 +45,10 @@ func TestGetCashierSales(t *testing.T) {
 			cashier := setup.Cashier()
 			items := setup.Items(seller.UserID, 100, aux.WithHidden(false))
 
-			saleIds := []models.ID{}
+			saleIDs := []models.ID{}
 			for _, item := range items {
 				sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
-				saleIds = append(saleIds, sale.SaleID)
+				saleIDs = append(saleIDs, sale.SaleID)
 			}
 
 			actual := []*models.SaleSummary{}
@@ -56,11 +56,11 @@ func TestGetCashierSales(t *testing.T) {
 
 			require.NoError(t, err)
 			require.Len(t, actual, 5)
-			require.Equal(t, saleIds[2], actual[0].SaleID)
-			require.Equal(t, saleIds[3], actual[1].SaleID)
-			require.Equal(t, saleIds[4], actual[2].SaleID)
-			require.Equal(t, saleIds[5], actual[3].SaleID)
-			require.Equal(t, saleIds[6], actual[4].SaleID)
+			require.Equal(t, saleIDs[2], actual[0].SaleID)
+			require.Equal(t, saleIDs[3], actual[1].SaleID)
+			require.Equal(t, saleIDs[4], actual[2].SaleID)
+			require.Equal(t, saleIDs[5], actual[3].SaleID)
+			require.Equal(t, saleIDs[6], actual[4].SaleID)
 		})
 
 		t.Run("Anti chronologically", func(t *testing.T) {
@@ -71,10 +71,10 @@ func TestGetCashierSales(t *testing.T) {
 			cashier := setup.Cashier()
 			items := setup.Items(seller.UserID, 3, aux.WithHidden(false))
 
-			saleIds := []models.ID{}
+			saleIDs := []models.ID{}
 			for _, item := range items {
 				sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
-				saleIds = append(saleIds, sale.SaleID)
+				saleIDs = append(saleIDs, sale.SaleID)
 			}
 
 			actual := []*models.SaleSummary{}
@@ -82,9 +82,9 @@ func TestGetCashierSales(t *testing.T) {
 
 			require.NoError(t, err)
 			require.Len(t, actual, 3)
-			require.Equal(t, saleIds[2], actual[0].SaleID)
-			require.Equal(t, saleIds[1], actual[1].SaleID)
-			require.Equal(t, saleIds[0], actual[2].SaleID)
+			require.Equal(t, saleIDs[2], actual[0].SaleID)
+			require.Equal(t, saleIDs[1], actual[1].SaleID)
+			require.Equal(t, saleIDs[0], actual[2].SaleID)
 		})
 	})
 
@@ -99,11 +99,11 @@ func TestGetCashierSales(t *testing.T) {
 			setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
 			setup.Sale(cashier.UserID, []models.ID{items[1].ItemID})
 
-			cashierId := models.ID(9999)
-			setup.RequireNoSuchUsers(t, cashierId)
+			cashierID := models.ID(9999)
+			setup.RequireNoSuchUsers(t, cashierID)
 
 			callback := func(sales *models.SaleSummary) error { return nil }
-			err := queries.GetCashierSales(db, cashierId, callback, queries.OrderChronological, queries.AllRows())
+			err := queries.GetCashierSales(db, cashierID, callback, queries.OrderChronological, queries.AllRows())
 
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})

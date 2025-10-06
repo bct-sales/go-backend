@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetItemIds(t *testing.T) {
+func TestGetItemIDs(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
@@ -20,8 +20,8 @@ func TestGetItemIds(t *testing.T) {
 		seller := setup.Seller()
 		items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
 
-		itemIds, err := queries.GetItemIDs(db)
+		itemIDs, err := queries.GetItemIDs(db)
 		require.NoError(t, err)
-		require.ElementsMatch(t, itemIds, models.CollectItemIDs(items))
+		require.ElementsMatch(t, itemIDs, models.CollectItemIDs(items))
 	})
 }

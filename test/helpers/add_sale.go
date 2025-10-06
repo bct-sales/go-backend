@@ -24,7 +24,7 @@ func (data *AddSaleData) FillWithDefaults() {
 	}
 }
 
-func AddSaleToDatabase(db *queries.TransactionalDatabaseQuerier, cashierId models.ID, itemIds []models.ID, options ...func(*AddSaleData)) *models.Sale {
+func AddSaleToDatabase(db *queries.TransactionalDatabaseQuerier, cashierID models.ID, itemIDs []models.ID, options ...func(*AddSaleData)) *models.Sale {
 	data := AddSaleData{}
 
 	for _, option := range options {
@@ -33,12 +33,12 @@ func AddSaleToDatabase(db *queries.TransactionalDatabaseQuerier, cashierId model
 
 	data.FillWithDefaults()
 
-	saleId, err := queries.AddSale(db, cashierId, *data.TransactionTime, itemIds)
+	saleID, err := queries.AddSale(db, cashierID, *data.TransactionTime, itemIDs)
 	if err != nil {
 		panic(err)
 	}
 
-	sale, err := queries.GetSaleWithID(db, saleId)
+	sale, err := queries.GetSaleWithID(db, saleID)
 	if err != nil {
 		panic(err)
 	}

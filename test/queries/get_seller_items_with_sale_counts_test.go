@@ -87,10 +87,10 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			invalidSellerId := models.ID(1000)
-			setup.RequireNoSuchUsers(t, invalidSellerId)
+			invalidSellerID := models.ID(1000)
+			setup.RequireNoSuchUsers(t, invalidSellerID)
 
-			_, err := queries.GetSellerItemsWithSaleCounts(db, invalidSellerId)
+			_, err := queries.GetSellerItemsWithSaleCounts(db, invalidSellerID)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 	})

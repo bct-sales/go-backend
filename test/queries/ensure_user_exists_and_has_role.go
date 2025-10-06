@@ -14,23 +14,23 @@ import (
 )
 
 func TestEnsureUserExistsAndHasRole(t *testing.T) {
-	roleIds := []models.RoleID{
+	roleIDs := []models.RoleID{
 		models.NewSellerRoleID(),
 		models.NewCashierRoleID(),
 		models.NewAdminRoleID(),
 	}
 
 	t.Run("Success", func(t *testing.T) {
-		for _, roleId := range roleIds {
-			testLabel := roleId.String()
+		for _, roleID := range roleIDs {
+			testLabel := roleID.String()
 
 			t.Run(testLabel, func(t *testing.T) {
 				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				user := setup.User(roleId)
+				user := setup.User(roleID)
 
-				err := queries.EnsureUserExistsAndHasRole(db, user.UserID, roleId)
+				err := queries.EnsureUserExistsAndHasRole(db, user.UserID, roleID)
 				require.NoError(t, err)
 			})
 		}
@@ -38,17 +38,17 @@ func TestEnsureUserExistsAndHasRole(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Wrong role", func(t *testing.T) {
-			for _, expectedRoleId := range roleIds {
-				for _, actualRoleId := range roleIds {
-					if expectedRoleId != actualRoleId {
-						testLabel := fmt.Sprintf("Expected role: %s, actual role: %s", expectedRoleId, actualRoleId)
+			for _, expectedRoleID := range roleIDs {
+				for _, actualRoleID := range roleIDs {
+					if expectedRoleID != actualRoleID {
+						testLabel := fmt.Sprintf("Expected role: %s, actual role: %s", expectedRoleID, actualRoleID)
 						t.Run(testLabel, func(t *testing.T) {
 							setup, db := NewDatabaseFixture(WithDefaultCategories)
 							defer setup.Close()
 
-							user := setup.User(actualRoleId)
+							user := setup.User(actualRoleID)
 
-							err := queries.EnsureUserExistsAndHasRole(db, user.UserID, expectedRoleId)
+							err := queries.EnsureUserExistsAndHasRole(db, user.UserID, expectedRoleID)
 							requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 						})
 					}
@@ -60,10 +60,10 @@ func TestEnsureUserExistsAndHasRole(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			nonexistentUserId := models.ID(9999) // Assuming this ID does not exist in the database
-			setup.RequireNoSuchUsers(t, nonexistentUserId)
+			nonexistentUserID := models.ID(9999) // Assuming this ID does not exist in the database
+			setup.RequireNoSuchUsers(t, nonexistentUserID)
 
-			err := queries.EnsureUserExistsAndHasRole(db, nonexistentUserId, models.NewSellerRoleID())
+			err := queries.EnsureUserExistsAndHasRole(db, nonexistentUserID, models.NewSellerRoleID())
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 	})

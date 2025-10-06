@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAddCategoryWithId(t *testing.T) {
+func TestAddCategoryWithID(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		// Note the lack of WithDefaultCategories here
 		// We want to start with a clean slate
