@@ -36,7 +36,7 @@ func NewRemoveSalesCommand() *cobra.Command {
 }
 
 func (c *removeSalesCommand) execute(args []string) error {
-	saleIds, err := c.ParseSaleIds(args)
+	saleIds, err := c.ParseSaleIDs(args)
 	if err != nil {
 		c.PrintErrorf("Failed to parse sale ids: %v", err)
 	}
