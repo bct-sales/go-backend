@@ -199,12 +199,12 @@ func (c *dummyDatabaseCommand) execute() error {
 			return err
 		}
 
-		sellerIds, err := c.addSellers(db)
+		sellerIDs, err := c.addSellers(db)
 		if err != nil {
 			return err
 		}
 
-		itemIDs, err := c.addItems(db, sellerIds)
+		itemIDs, err := c.addItems(db, sellerIDs)
 		if err != nil {
 			return err
 		}
