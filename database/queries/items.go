@@ -13,20 +13,22 @@ import (
 )
 
 type GetItemsQuery struct {
-	frozen     *bool
-	hidden     *bool
-	limit      *uint64
-	offset     *uint64
-	categoryID *models.ID
+	frozen             *bool
+	hidden             *bool
+	limit              *uint64
+	offset             *uint64
+	categoryID         *models.ID
+	descriptionPattern *string
 }
 
 func NewGetItemsQuery() *GetItemsQuery {
 	return &GetItemsQuery{
-		frozen:     nil,
-		hidden:     nil,
-		limit:      nil,
-		offset:     nil,
-		categoryID: nil,
+		frozen:             nil,
+		hidden:             nil,
+		limit:              nil,
+		offset:             nil,
+		categoryID:         nil,
+		descriptionPattern: nil,
 	}
 }
 
@@ -45,6 +47,10 @@ func (q *GetItemsQuery) WithLimitAndOffset(limit uint64, offset uint64) {
 
 func (q *GetItemsQuery) WithCategory(categoryID models.ID) {
 	q.categoryID = &categoryID
+}
+
+func (q *GetItemsQuery) WithDescriptionPattern(descriptionSubstring string) {
+	q.descriptionPattern = &descriptionSubstring
 }
 
 func (q *GetItemsQuery) Execute(db DatabaseQuerier, receiver func(*models.Item) error) (r_err error) {
@@ -146,6 +152,10 @@ func (q *GetItemsQuery) buildSqlQuery() (string, []any, error) {
 
 	if q.categoryID != nil {
 		query = query.Where(sq.Eq{"item_category_id": (*q.categoryID).Int64()})
+	}
+
+	if q.descriptionPattern != nil {
+		query = query.Where(sq.Like{"description": q.descriptionPattern})
 	}
 
 	queryString, queryArguments, err := query.ToSql()
