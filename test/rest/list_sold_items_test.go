@@ -37,6 +37,7 @@ func TestListSoldItems(t *testing.T) {
 			}
 			require.Equal(t, expected, actual)
 		})
+
 		t.Run("Single sale with single item", func(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
