@@ -152,4 +152,21 @@ func TestListSoldItems(t *testing.T) {
 			require.Equal(t, expected, actual)
 		})
 	})
+
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("As seller", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller, sessionId := setup.LoggedIn(setup.Seller())
+			cashier := setup.Cashier()
+			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
+			setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
+
+			url := path.SoldItems()
+			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+
+			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
+		})
 }
