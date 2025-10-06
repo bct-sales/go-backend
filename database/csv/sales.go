@@ -26,9 +26,9 @@ func FormatSoldItemsAsCSV(soldItems []*queries.SoldItem, categoryNameTable map[m
 		itemIdStr := soldItem.ItemId.String()
 		descriptionStr := soldItem.Description
 		priceInCentsStr := soldItem.PriceInCents.String()
-		itemCategoryStr, ok := categoryNameTable[soldItem.ItemCategory]
+		itemCategoryStr, ok := categoryNameTable[soldItem.ItemCategoryId]
 		if !ok {
-			return fmt.Errorf("unknown category id: %v", soldItem.ItemCategory)
+			return fmt.Errorf("unknown category id: %v", soldItem.ItemCategoryId)
 		}
 		sellerIdStr := soldItem.SellerId.String()
 		donationStr := strconv.FormatBool(soldItem.Donation)

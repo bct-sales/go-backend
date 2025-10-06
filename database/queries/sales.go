@@ -1205,7 +1205,7 @@ type SoldItem struct {
 	AddedAt         models.Timestamp
 	Description     string
 	PriceInCents    models.MoneyInCents
-	ItemCategory    models.Id
+	ItemCategoryId  models.Id
 	SellerId        models.Id
 	Donation        bool
 	Charity         bool
@@ -1294,7 +1294,7 @@ func (q *GetSoldItemsQuery) Execute(db DatabaseQuerier) (r_result []*SoldItem, r
 			AddedAt:         addedAt,
 			Description:     description,
 			PriceInCents:    priceInCents,
-			ItemCategory:    itemCategory,
+			ItemCategoryId:  itemCategory,
 			SellerId:        sellerId,
 			Donation:        donation,
 			Charity:         charity,

@@ -135,7 +135,7 @@ func (ep *listSoldItemsEndpoint) convertData(soldItems []*queries.SoldItem) []Ge
 			AddedAt:         rest.ConvertTimestampToDateTime(soldItem.AddedAt),
 			Description:     soldItem.Description,
 			PriceInCents:    soldItem.PriceInCents,
-			ItemCategoryID:  soldItem.ItemCategory,
+			ItemCategoryID:  soldItem.ItemCategoryId,
 			SellerId:        soldItem.SellerId,
 			Donation:        soldItem.Donation,
 			Charity:         soldItem.Charity,

@@ -105,9 +105,9 @@ func (command *ListSoldItemsCommand) listSoldItemsInTableFormat(db *sql.DB) erro
 		itemIdStr := soldItem.ItemId.String()
 		descriptionStr := soldItem.Description
 		priceStr := soldItem.PriceInCents.DecimalNotation()
-		itemCategoryStr, ok := categoryNameTable[soldItem.ItemCategory]
+		itemCategoryStr, ok := categoryNameTable[soldItem.ItemCategoryId]
 		if !ok {
-			return fmt.Errorf("unknown category id: %v", soldItem.ItemCategory)
+			return fmt.Errorf("unknown category id: %v", soldItem.ItemCategoryId)
 		}
 		sellerIdStr := soldItem.SellerId.String()
 		donationStr := strconv.FormatBool(soldItem.Donation)
