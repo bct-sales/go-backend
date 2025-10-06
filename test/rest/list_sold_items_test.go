@@ -74,5 +74,82 @@ func TestListSoldItems(t *testing.T) {
 			}
 			require.Equal(t, expected, actual)
 		})
+
+		t.Run("Two sales with shared item", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			_, sessionId := setup.LoggedIn(setup.Admin())
+			seller := setup.Seller()
+			cashier := setup.Cashier()
+			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
+
+			sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
+			sale2 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[2].ItemID})
+
+			url := path.SoldItems()
+			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusOK, writer.Code)
+
+			actual := FromJson[rest.GetSoldItemsSuccessResponse](t, writer.Body.String())
+			expected := &rest.GetSoldItemsSuccessResponse{
+				SoldItems: []rest.GetSoldItemsEntry{
+					{
+						SaleId:          sale1.SaleID,
+						CashierId:       sale1.CashierID,
+						TransactionTime: util.ConvertTimestampToDateTime(sale1.TransactionTime),
+						ItemId:          items[0].ItemID,
+						AddedAt:         util.ConvertTimestampToDateTime(items[0].AddedAt),
+						Description:     items[0].Description,
+						PriceInCents:    items[0].PriceInCents,
+						ItemCategory:    items[0].CategoryID,
+						SellerId:        items[0].SellerID,
+						Donation:        items[0].Donation,
+						Charity:         items[0].Charity,
+					},
+					{
+						SaleId:          sale1.SaleID,
+						CashierId:       sale1.CashierID,
+						TransactionTime: util.ConvertTimestampToDateTime(sale1.TransactionTime),
+						ItemId:          items[1].ItemID,
+						AddedAt:         util.ConvertTimestampToDateTime(items[1].AddedAt),
+						Description:     items[1].Description,
+						PriceInCents:    items[1].PriceInCents,
+						ItemCategory:    items[1].CategoryID,
+						SellerId:        items[1].SellerID,
+						Donation:        items[1].Donation,
+						Charity:         items[1].Charity,
+					},
+					{
+						SaleId:          sale2.SaleID,
+						CashierId:       sale2.CashierID,
+						TransactionTime: util.ConvertTimestampToDateTime(sale2.TransactionTime),
+						ItemId:          items[0].ItemID,
+						AddedAt:         util.ConvertTimestampToDateTime(items[0].AddedAt),
+						Description:     items[0].Description,
+						PriceInCents:    items[0].PriceInCents,
+						ItemCategory:    items[0].CategoryID,
+						SellerId:        items[0].SellerID,
+						Donation:        items[0].Donation,
+						Charity:         items[0].Charity,
+					},
+					{
+						SaleId:          sale2.SaleID,
+						CashierId:       sale2.CashierID,
+						TransactionTime: util.ConvertTimestampToDateTime(sale2.TransactionTime),
+						ItemId:          items[2].ItemID,
+						AddedAt:         util.ConvertTimestampToDateTime(items[2].AddedAt),
+						Description:     items[2].Description,
+						PriceInCents:    items[2].PriceInCents,
+						ItemCategory:    items[2].CategoryID,
+						SellerId:        items[2].SellerID,
+						Donation:        items[2].Donation,
+						Charity:         items[2].Charity,
+					},
+				},
+			}
+			require.Equal(t, expected, actual)
+		})
 	})
 }
