@@ -36,7 +36,7 @@ func TestRemoveAllSales(t *testing.T) {
 		})
 
 		for _, sale := range []*models.Sale{sale1, sale2, sale3} {
-			exists, err := queries.SaleWithIdExists(db, sale.SaleID)
+			exists, err := queries.SaleWithIDExists(db, sale.SaleID)
 			require.NoError(t, err)
 			require.False(t, exists, "Sale should not exist after removal")
 		}

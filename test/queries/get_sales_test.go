@@ -62,7 +62,7 @@ func TestGetSales(t *testing.T) {
 					}
 
 					actualSales := []*models.SaleSummary{}
-					err := queries.NewGetSalesQuery().WithIdGreaterThanOrEqualTo(models.ID(k+1)).Execute(db, queries.CollectTo(&actualSales))
+					err := queries.NewGetSalesQuery().WithIDGreaterThanOrEqualTo(models.ID(k+1)).Execute(db, queries.CollectTo(&actualSales))
 					require.NoError(t, err)
 					require.Len(t, actualSales, len(saleIds)-k)
 

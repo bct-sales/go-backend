@@ -33,10 +33,10 @@ func TestGetSaleItemInformation(t *testing.T) {
 
 				itemInformation, err := queries.GetSaleItemInformation(db, item.ItemID)
 				require.NoError(t, err)
-				require.Equal(t, item.SellerID, itemInformation.SellerId)
+				require.Equal(t, item.SellerID, itemInformation.SellerID)
 				require.Equal(t, item.Description, itemInformation.Description)
 				require.Equal(t, item.PriceInCents, itemInformation.PriceInCents)
-				require.Equal(t, item.CategoryID, itemInformation.ItemCategoryId)
+				require.Equal(t, item.CategoryID, itemInformation.ItemCategoryID)
 				require.Equal(t, itemInformation.SellCount, int64(sellCount))
 			})
 		}

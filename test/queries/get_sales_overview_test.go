@@ -34,7 +34,7 @@ func TestGetSalesOverview(t *testing.T) {
 		require.Equal(t, len(categories), len(categorySaleTotals))
 
 		for categoryIndex, category := range categories {
-			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryId)
+			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryID)
 			require.Equal(t, category.Name, categorySaleTotals[categoryIndex].CategoryName)
 			require.Equal(t, models.MoneyInCents(0), categorySaleTotals[categoryIndex].TotalInCents)
 		}
@@ -56,7 +56,7 @@ func TestGetSalesOverview(t *testing.T) {
 		require.Equal(t, len(categories), len(categorySaleTotals))
 
 		for categoryIndex, category := range categories {
-			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryId)
+			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryID)
 			require.Equal(t, category.Name, categorySaleTotals[categoryIndex].CategoryName)
 			require.Equal(t, models.MoneyInCents(0), categorySaleTotals[categoryIndex].TotalInCents)
 		}
@@ -84,7 +84,7 @@ func TestGetSalesOverview(t *testing.T) {
 		require.Equal(t, len(categories), len(categorySaleTotals))
 
 		for categoryIndex, category := range categories {
-			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryId)
+			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryID)
 			require.Equal(t, category.Name, categorySaleTotals[categoryIndex].CategoryName)
 			require.Equal(t, totals[category.CategoryID], categorySaleTotals[categoryIndex].TotalInCents)
 		}
@@ -114,7 +114,7 @@ func TestGetSalesOverview(t *testing.T) {
 		require.Equal(t, len(categories), len(categorySaleTotals))
 
 		for categoryIndex, category := range categories {
-			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryId)
+			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryID)
 			require.Equal(t, category.Name, categorySaleTotals[categoryIndex].CategoryName)
 			require.Equal(t, totals[category.CategoryID], categorySaleTotals[categoryIndex].TotalInCents)
 		}
@@ -144,7 +144,7 @@ func TestGetSalesOverview(t *testing.T) {
 		require.Equal(t, len(categories), len(categorySaleTotals))
 
 		for categoryIndex, category := range categories {
-			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryId)
+			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryID)
 			require.Equal(t, category.Name, categorySaleTotals[categoryIndex].CategoryName)
 			require.Equal(t, totals[category.CategoryID], categorySaleTotals[categoryIndex].TotalInCents)
 		}
@@ -175,7 +175,7 @@ func TestGetSalesOverview(t *testing.T) {
 		require.Equal(t, len(categories), len(categorySaleTotals))
 
 		for categoryIndex, category := range categories {
-			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryId)
+			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryID)
 			require.Equal(t, category.Name, categorySaleTotals[categoryIndex].CategoryName)
 			require.Equal(t, totals[category.CategoryID], categorySaleTotals[categoryIndex].TotalInCents)
 		}
@@ -206,7 +206,7 @@ func TestGetSalesOverview(t *testing.T) {
 		require.Equal(t, len(categories), len(categorySaleTotals))
 
 		for categoryIndex, category := range categories {
-			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryId)
+			require.Equal(t, category.CategoryID, categorySaleTotals[categoryIndex].CategoryID)
 			require.Equal(t, category.Name, categorySaleTotals[categoryIndex].CategoryName)
 			require.Equal(t, totals[category.CategoryID], categorySaleTotals[categoryIndex].TotalInCents)
 		}

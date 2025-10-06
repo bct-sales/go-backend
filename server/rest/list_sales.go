@@ -207,7 +207,7 @@ func (ep *getSalesEndpoint) buildQuery(queryParameters *getSalesQueryParameters)
 	query := queries.NewGetSalesQuery()
 
 	if queryParameters.startId != nil {
-		query.WithIdGreaterThanOrEqualTo(*queryParameters.startId)
+		query.WithIDGreaterThanOrEqualTo(*queryParameters.startId)
 	}
 
 	if queryParameters.rowSelection != nil {

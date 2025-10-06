@@ -23,7 +23,7 @@ func TestSaleExists(t *testing.T) {
 			itemId := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
 
 			sale := setup.Sale(cashier.UserID, []models.ID{itemId})
-			saleExists, err := queries.SaleWithIdExists(db, sale.SaleID)
+			saleExists, err := queries.SaleWithIDExists(db, sale.SaleID)
 			require.NoError(t, err)
 			require.True(t, saleExists)
 		})
@@ -32,7 +32,7 @@ func TestSaleExists(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			saleExists, err := queries.SaleWithIdExists(db, 1)
+			saleExists, err := queries.SaleWithIDExists(db, 1)
 			require.NoError(t, err)
 			require.False(t, saleExists)
 		})

@@ -37,11 +37,11 @@ func TestRemoveSale(t *testing.T) {
 			require.NoError(t, err)
 		})
 
-		sale1Exists, err := queries.SaleWithIdExists(db, sale1.SaleID)
+		sale1Exists, err := queries.SaleWithIDExists(db, sale1.SaleID)
 		require.NoError(t, err)
 		require.False(t, sale1Exists)
 
-		sale2Exists, err := queries.SaleWithIdExists(db, sale2.SaleID)
+		sale2Exists, err := queries.SaleWithIDExists(db, sale2.SaleID)
 		require.NoError(t, err)
 		require.True(t, sale2Exists)
 	})
@@ -81,7 +81,7 @@ func TestRemoveSale(t *testing.T) {
 
 			requireDatabaseWrappedError(t, transactionErr, dberr.ErrNoSuchSale)
 
-			saleExists, saleExistsErr := queries.SaleWithIdExists(db, sale.SaleID)
+			saleExists, saleExistsErr := queries.SaleWithIDExists(db, sale.SaleID)
 			require.NoError(t, saleExistsErr)
 			require.True(t, saleExists)
 		})
