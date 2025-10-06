@@ -234,12 +234,12 @@ func (c *dummyDatabaseCommand) addAdmin(db *sql.DB) (models.ID, error) {
 	c.Printf("Adding admin user\n")
 
 	id := models.ID(1)
-	roleId := models.NewAdminRoleID()
+	roleID := models.NewAdminRoleID()
 	createdAt := models.Now()
 	var lastActivity *models.Timestamp = nil
 	password := "abc"
 
-	if err := queries.AddUserWithId(db, id, roleId, createdAt, lastActivity, password); err != nil {
+	if err := queries.AddUserWithId(db, id, roleID, createdAt, lastActivity, password); err != nil {
 		return 0, fmt.Errorf("failed to add admin: %w", err)
 	}
 
@@ -275,20 +275,20 @@ func (c *dummyDatabaseCommand) addSellers(db *sql.DB) ([]models.ID, error) {
 
 	sellerIDs := make([]models.ID, 0, zoneCount*10)
 
-	addSellers := func(addUser func(userId models.ID, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
+	addSellers := func(addUser func(userID models.ID, roleID models.RoleID, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
 		for area := 1; area <= zoneCount; area++ {
 			sellerCount := c.rng.IntN(10) + 1
 
 			for offset := 0; offset != sellerCount; offset++ {
-				userId := c.getSellerId(area, offset)
-				roleId := models.NewSellerRoleId()
+				userID := c.getSellerId(area, offset)
+				roleID := models.NewSellerRoleID()
 				createdAt := models.Now()
 				var lastActivity *models.Timestamp = nil
-				password := fmt.Sprintf("%d", userId)
+				password := fmt.Sprintf("%d", userID)
 
-				addUser(userId, roleId, createdAt, lastActivity, password)
+				addUser(userID, roleID, createdAt, lastActivity, password)
 
-				sellerIDs = append(sellerIDs, userId)
+				sellerIDs = append(sellerIDs, userID)
 			}
 		}
 	}

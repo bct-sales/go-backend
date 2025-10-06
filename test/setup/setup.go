@@ -96,7 +96,7 @@ func (s DatabaseFixture) DefaultCategories() {
 	}
 }
 
-func (s DatabaseFixture) User(roleId models.RoleId, options ...func(*aux.AddUserData)) *models.User {
+func (s DatabaseFixture) User(roleId models.RoleID, options ...func(*aux.AddUserData)) *models.User {
 	return aux.AddUserToDatabase(s.Db, roleId, options...)
 }
 
@@ -109,7 +109,7 @@ func (s DatabaseFixture) Cashier(options ...func(*aux.AddUserData)) *models.User
 }
 
 func (s DatabaseFixture) Seller(options ...func(*aux.AddUserData)) *models.User {
-	return aux.AddUserToDatabase(s.Db, models.NewSellerRoleId(), options...)
+	return aux.AddUserToDatabase(s.Db, models.NewSellerRoleID(), options...)
 }
 
 func (s DatabaseFixture) Session(userId models.ID, options ...func(*aux.AddSessionData)) models.SessionId {

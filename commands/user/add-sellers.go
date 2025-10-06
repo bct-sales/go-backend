@@ -75,11 +75,11 @@ func (c *addSellersCommand) execute() error {
 			return nil
 		}
 
-		callback := func(add func(sellerId models.ID, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
+		callback := func(add func(sellerId models.ID, roleId models.RoleID, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
 			for _, seller := range sellersToBeCreated {
 				add(
 					seller.userId,
-					models.NewSellerRoleId(),
+					models.NewSellerRoleID(),
 					models.Now(),
 					nil,
 					seller.password,

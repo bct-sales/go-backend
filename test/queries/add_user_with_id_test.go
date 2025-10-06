@@ -44,7 +44,7 @@ func TestAddUserWithId(t *testing.T) {
 		defer setup.Close()
 
 		userId := models.ID(1)
-		roleId := models.NewSellerRoleId()
+		roleId := models.NewSellerRoleID()
 		password := "xyz"
 		createdAt := models.Timestamp(0)
 		var lastAccess *models.Timestamp = nil
@@ -65,7 +65,7 @@ func TestAddUserWithId(t *testing.T) {
 		defer setup.Close()
 
 		userId := models.ID(1)
-		roleId := models.RoleId{ID: 999} // Assuming this ID does not exist in the database
+		roleId := models.RoleID{ID: 999} // Assuming this ID does not exist in the database
 		password := "xyz"
 		createdAt := models.Timestamp(0)
 		var lastAccess *models.Timestamp = nil

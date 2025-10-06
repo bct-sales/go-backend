@@ -110,7 +110,7 @@ func (ep *getSellerItemsEndpoint) extractSellerIdFromURI() (models.ID, bool) {
 }
 
 func (ep *getSellerItemsEndpoint) ensureQueriedUserIsSeller(queriedSellerId models.ID) bool {
-	if err := queries.EnsureUserExistsAndHasRole(ep.Database, queriedSellerId, models.NewSellerRoleId()); err != nil {
+	if err := queries.EnsureUserExistsAndHasRole(ep.Database, queriedSellerId, models.NewSellerRoleID()); err != nil {
 		if errors.Is(err, dberr.ErrNoSuchUser) {
 			ep.Logger.InvalidRequest("Seller does not exist", "error", err, "sellerId", queriedSellerId)
 			failure_response.UnknownUser(ep.Context, err.Error())

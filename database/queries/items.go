@@ -242,7 +242,7 @@ func GetSellerItems(db DatabaseQuerier, sellerId models.ID, itemSelection ItemSe
 
 	// Note: GetSellerItems performs multiple queries, but no transaction is necessary
 	// since once a user exists with a certain role, it will not disappear.
-	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleId()); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleID()); err != nil {
 		return nil, err
 	}
 
@@ -343,7 +343,7 @@ func GetItemsWithSaleCounts(db DatabaseQuerier, itemSelection ItemSelection, sel
 	// Note: GetSellerItems performs multiple queries, but no transaction is necessary
 	// since once a user exists with a certain role, it will not disappear.
 	if sellerId != nil {
-		if err := EnsureUserExistsAndHasRole(db, *sellerId, models.NewSellerRoleId()); err != nil {
+		if err := EnsureUserExistsAndHasRole(db, *sellerId, models.NewSellerRoleID()); err != nil {
 			return nil, err
 		}
 	}
@@ -444,7 +444,7 @@ func GetSellerItemsWithSaleCounts(db DatabaseQuerier, sellerId models.ID) (r_ite
 
 	// Note: GetSellerItems performs multiple queries, but no transaction is necessary
 	// since once a user exists with a certain role, it will not disappear.
-	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleId()); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleID()); err != nil {
 		return nil, err
 	}
 
@@ -764,7 +764,7 @@ func AddItem(
 		return 0, fmt.Errorf("failed to add item with description %s: %w", description, dberr.ErrInvalidItemDescription)
 	}
 	// No transaction is necessary here, since users don't change
-	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleId()); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleID()); err != nil {
 		return 0, fmt.Errorf("could not ensure user %d exists and is seller: %w", sellerId, err)
 	}
 	if frozen && hidden {
@@ -1351,7 +1351,7 @@ func DoesSellerHaveFrozenItems(db *TransactionalDatabaseQuerier, sellerId models
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleId()); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleID()); err != nil {
 		return false, err
 	}
 
@@ -1388,12 +1388,12 @@ func MoveItemsToNewSeller(db *TransactionalDatabaseQuerier, oldSellerId models.I
 	}()
 
 	// oldSellerId must refer to seller
-	if err := EnsureUserExistsAndHasRole(db, oldSellerId, models.NewSellerRoleId()); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, oldSellerId, models.NewSellerRoleID()); err != nil {
 		return err
 	}
 
 	// newSellerId must refer to seller
-	if err := EnsureUserExistsAndHasRole(db, newSellerId, models.NewSellerRoleId()); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, newSellerId, models.NewSellerRoleID()); err != nil {
 		return err
 	}
 

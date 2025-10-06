@@ -15,7 +15,7 @@ import (
 
 type pair struct {
 	UserId models.ID
-	RoleId models.RoleId
+	RoleId models.RoleID
 }
 
 func TestCheckUserRole(t *testing.T) {
@@ -25,7 +25,7 @@ func TestCheckUserRole(t *testing.T) {
 		cashierId := models.ID(3)
 
 		for _, pair := range []pair{
-			{UserId: sellerId, RoleId: models.NewSellerRoleId()},
+			{UserId: sellerId, RoleId: models.NewSellerRoleID()},
 			{UserId: adminId, RoleId: models.NewAdminRoleID()},
 			{UserId: cashierId, RoleId: models.NewCashierRoleID()},
 		} {
@@ -51,8 +51,8 @@ func TestCheckUserRole(t *testing.T) {
 		cashierId := models.ID(3)
 
 		for _, pair := range []pair{
-			{UserId: adminId, RoleId: models.NewSellerRoleId()},
-			{UserId: cashierId, RoleId: models.NewSellerRoleId()},
+			{UserId: adminId, RoleId: models.NewSellerRoleID()},
+			{UserId: cashierId, RoleId: models.NewSellerRoleID()},
 			{UserId: sellerId, RoleId: models.NewAdminRoleID()},
 			{UserId: cashierId, RoleId: models.NewAdminRoleID()},
 			{UserId: sellerId, RoleId: models.NewCashierRoleID()},

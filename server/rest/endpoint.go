@@ -20,7 +20,7 @@ type HandlerFunctionArguments struct {
 	Configuration *configuration.Configuration
 	Database      Database
 	UserId        models.ID
-	RoleId        models.RoleId
+	RoleId        models.RoleID
 	Logger        logger.Logger
 }
 

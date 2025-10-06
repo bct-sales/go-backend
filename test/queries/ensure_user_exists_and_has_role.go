@@ -14,8 +14,8 @@ import (
 )
 
 func TestEnsureUserExistsAndHasRole(t *testing.T) {
-	roleIds := []models.RoleId{
-		models.NewSellerRoleId(),
+	roleIds := []models.RoleID{
+		models.NewSellerRoleID(),
 		models.NewCashierRoleID(),
 		models.NewAdminRoleID(),
 	}
@@ -63,7 +63,7 @@ func TestEnsureUserExistsAndHasRole(t *testing.T) {
 			nonexistentUserId := models.ID(9999) // Assuming this ID does not exist in the database
 			setup.RequireNoSuchUsers(t, nonexistentUserId)
 
-			err := queries.EnsureUserExistsAndHasRole(db, nonexistentUserId, models.NewSellerRoleId())
+			err := queries.EnsureUserExistsAndHasRole(db, nonexistentUserId, models.NewSellerRoleID())
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 	})

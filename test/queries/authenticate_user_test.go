@@ -20,7 +20,7 @@ func TestAuthentication(t *testing.T) {
 
 		password := "xyz"
 		userId := models.ID(1)
-		roleId := models.NewSellerRoleId()
+		roleId := models.NewSellerRoleID()
 		createdAt := models.Timestamp(0)
 		var lastActivity *models.Timestamp = nil
 
@@ -53,7 +53,7 @@ func TestAuthentication(t *testing.T) {
 		password := "xyz"
 		wrongPassword := "abc"
 		userId := models.ID(5)
-		roleId := models.NewSellerRoleId()
+		roleId := models.NewSellerRoleID()
 
 		queries.AddUserWithId(db, userId, roleId, 0, nil, password)
 

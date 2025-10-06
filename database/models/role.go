@@ -14,39 +14,39 @@ const (
 	CashierName   string = "cashier"
 )
 
-type RoleId struct {
+type RoleID struct {
 	ID
 }
 
-func NewRoleId(id ID) RoleId {
+func NewRoleId(id ID) RoleID {
 	if id != AdminRoleId && id != SellerRoleId && id != CashierRoleId {
 		panic(fmt.Sprintf("invalid role id: %d", id))
 	}
 
-	return RoleId{ID: id}
+	return RoleID{ID: id}
 }
 
-func NewAdminRoleID() RoleId {
+func NewAdminRoleID() RoleID {
 	return NewRoleId(AdminRoleId)
 }
 
-func NewSellerRoleId() RoleId {
+func NewSellerRoleID() RoleID {
 	return NewRoleId(SellerRoleId)
 }
 
-func NewCashierRoleID() RoleId {
+func NewCashierRoleID() RoleID {
 	return NewRoleId(CashierRoleId)
 }
 
-func ListRoles() []RoleId {
-	return []RoleId{
+func ListRoles() []RoleID {
+	return []RoleID{
 		NewAdminRoleID(),
-		NewSellerRoleId(),
+		NewSellerRoleID(),
 		NewCashierRoleID(),
 	}
 }
 
-func (roleId RoleId) Name() string {
+func (roleId RoleID) Name() string {
 	switch roleId.ID {
 	case AdminRoleId:
 		return AdminName
@@ -59,28 +59,28 @@ func (roleId RoleId) Name() string {
 	}
 }
 
-func ParseRole(role string) (RoleId, error) {
+func ParseRole(role string) (RoleID, error) {
 	switch role {
 	case "admin":
-		return RoleId{ID: AdminRoleId}, nil
+		return RoleID{ID: AdminRoleId}, nil
 	case "seller":
-		return RoleId{ID: SellerRoleId}, nil
+		return RoleID{ID: SellerRoleId}, nil
 	case "cashier":
-		return RoleId{ID: CashierRoleId}, nil
+		return RoleID{ID: CashierRoleId}, nil
 	default:
-		return RoleId{}, fmt.Errorf("unknown role %s: %w", role, dberr.ErrNoSuchRole)
+		return RoleID{}, fmt.Errorf("unknown role %s: %w", role, dberr.ErrNoSuchRole)
 	}
 }
 
-func (roleId RoleId) IsAdmin() bool {
+func (roleId RoleID) IsAdmin() bool {
 	return roleId.ID == AdminRoleId
 }
 
-func (roleId RoleId) IsSeller() bool {
+func (roleId RoleID) IsSeller() bool {
 	return roleId.ID == SellerRoleId
 }
 
-func (roleId RoleId) IsCashier() bool {
+func (roleId RoleID) IsCashier() bool {
 	return roleId.ID == CashierRoleId
 }
 
@@ -90,7 +90,7 @@ type RoleVisitor[T any] interface {
 	Cashier() T
 }
 
-func VisitRole[T any](roleId RoleId, visitor RoleVisitor[T]) T {
+func VisitRole[T any](roleId RoleID, visitor RoleVisitor[T]) T {
 	switch roleId.ID {
 	case AdminRoleId:
 		return visitor.Admin()
@@ -103,6 +103,6 @@ func VisitRole[T any](roleId RoleId, visitor RoleVisitor[T]) T {
 	}
 }
 
-func (roleId RoleId) IsValid() bool {
+func (roleId RoleID) IsValid() bool {
 	return roleId.ID == AdminRoleId || roleId.ID == SellerRoleId || roleId.ID == CashierRoleId
 }

@@ -16,7 +16,7 @@ func TestRoleParsing(t *testing.T) {
 	t.Run("seller", func(t *testing.T) {
 		roleId, err := ParseRole("seller")
 		require.NoError(t, err)
-		require.Equal(t, NewSellerRoleId(), roleId)
+		require.Equal(t, NewSellerRoleID(), roleId)
 	})
 
 	t.Run("cashier", func(t *testing.T) {

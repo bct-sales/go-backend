@@ -60,7 +60,7 @@ func (c *moveItemsCommand) execute() error {
 		}
 
 		// Check if donating seller exists and is indeed a seller
-		if err := queries.EnsureUserExistsAndHasRole(transaction, oldSeller, models.NewSellerRoleId()); err != nil {
+		if err := queries.EnsureUserExistsAndHasRole(transaction, oldSeller, models.NewSellerRoleID()); err != nil {
 			if errors.Is(err, dberr.ErrNoSuchUser) {
 				c.PrintErrorf("User %s does not exist\n", oldSeller.String())
 				return err
@@ -76,7 +76,7 @@ func (c *moveItemsCommand) execute() error {
 		}
 
 		// Check if receiving seller exists and is indeed a seller
-		if err := queries.EnsureUserExistsAndHasRole(transaction, newSeller, models.NewSellerRoleId()); err != nil {
+		if err := queries.EnsureUserExistsAndHasRole(transaction, newSeller, models.NewSellerRoleID()); err != nil {
 			if errors.Is(err, dberr.ErrNoSuchUser) {
 				c.PrintErrorf("User %s does not exist\n", newSeller.String())
 				return err

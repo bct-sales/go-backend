@@ -15,7 +15,7 @@ import (
 func AddUserWithId(
 	database DatabaseQuerier,
 	userId models.ID,
-	roleId models.RoleId,
+	roleId models.RoleID,
 	createdAt models.Timestamp,
 	lastActivity *models.Timestamp,
 	password string) (r_err error) {
@@ -57,7 +57,7 @@ func AddUserWithId(
 
 func AddUser(
 	db DatabaseQuerier,
-	roleId models.RoleId,
+	roleId models.RoleID,
 	createdAt models.Timestamp,
 	lastActivity *models.Timestamp,
 	password string) (r_result models.ID, r_err error) {
@@ -93,7 +93,7 @@ func AddUser(
 	return models.ID(userId), nil
 }
 
-type AddUsersCallback func(addUser func(userId models.ID, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string))
+type AddUsersCallback func(addUser func(userId models.ID, roleId models.RoleID, createdAt models.Timestamp, lastActivity *models.Timestamp, password string))
 
 func AddUsers(database DatabaseQuerier, callback AddUsersCallback) (r_err error) {
 	defer func() {
@@ -104,7 +104,7 @@ func AddUsers(database DatabaseQuerier, callback AddUsersCallback) (r_err error)
 	arguments := []any{}
 	tupleString := "(?, ?, ?, ?, ?)"
 
-	add := func(userId models.ID, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string) {
+	add := func(userId models.ID, roleId models.RoleID, createdAt models.Timestamp, lastActivity *models.Timestamp, password string) {
 		valuesString = append(valuesString, tupleString)
 		arguments = append(arguments, userId, roleId.Int64(), createdAt, lastActivity, password)
 	}
@@ -177,7 +177,7 @@ func GetUserWithId(db DatabaseQuerier, userId models.ID) (r_result *models.User,
 		userId,
 	)
 
-	var roleId models.RoleId
+	var roleId models.RoleID
 	var createdAt models.Timestamp
 	var lastActivity *models.Timestamp
 	var password string
@@ -219,7 +219,7 @@ func GetUsers(db DatabaseQuerier, receiver func(*models.User) error) (r_err erro
 
 	for rows.Next() {
 		var userId models.ID
-		var roleId models.RoleId
+		var roleId models.RoleID
 		var createdAt models.Timestamp
 		var lastActivity *models.Timestamp
 		var password string
@@ -285,7 +285,7 @@ func GetUsersWithItemCount(db DatabaseQuerier, itemSelection ItemSelection, rece
 
 	for rows.Next() {
 		var userId models.ID
-		var roleId models.RoleId
+		var roleId models.RoleID
 		var createdAt models.Timestamp
 		var lastActivity *models.Timestamp
 		var password string
@@ -364,7 +364,7 @@ func EnsureUserExists(db DatabaseQuerier, userId models.ID) (r_err error) {
 // EnsureUserExistsAndHasRole checks if a user has a specific role.
 // An ErrNoSuchUser is returned if the user does not exist.
 // An ErrWrongRole is returned if the user has a different role.
-func EnsureUserExistsAndHasRole(db DatabaseQuerier, userId models.ID, expectedRoleId models.RoleId) (r_err error) {
+func EnsureUserExistsAndHasRole(db DatabaseQuerier, userId models.ID, expectedRoleId models.RoleID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -462,7 +462,7 @@ func CountSellerItems(db DatabaseQuerier, sellerId models.ID, frozen GetSellerIt
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleId()); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleID()); err != nil {
 		return 0, fmt.Errorf("failed to get hidden item count of user %d: %w", sellerId, err)
 	}
 
@@ -517,7 +517,7 @@ func GetSellerTotalValueOfAllItems(db DatabaseQuerier, sellerId models.ID, itemS
 	}()
 
 	// Ensure the user exists and is a seller
-	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleId()); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, sellerId, models.NewSellerRoleID()); err != nil {
 		return 0, fmt.Errorf("failed to get total price of all items of user %d: %w", sellerId, err)
 	}
 

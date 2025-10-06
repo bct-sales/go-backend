@@ -78,7 +78,7 @@ func GetSessionById(db DatabaseQuerier, sessionId models.SessionId) (r_result *m
 
 type SessionData struct {
 	UserId         models.ID
-	RoleId         models.RoleId
+	RoleId         models.RoleID
 	ExpirationTime models.Timestamp
 }
 
@@ -106,7 +106,7 @@ func GetSessionData(db DatabaseQuerier, sessionId models.SessionId, currentTime 
 	)
 
 	var userId models.ID
-	var roleId models.RoleId
+	var roleId models.RoleID
 	var expirationTime models.Timestamp
 	if err := row.Scan(&userId, &roleId.ID, &expirationTime); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
