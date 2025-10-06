@@ -1196,3 +1196,116 @@ func GetSalesOverview(db DatabaseQuerier) (r_result []CategorySaleTotal, r_err e
 
 	return categorySaleTotals, nil
 }
+
+type SoldItem struct {
+	SaleId          models.Id
+	CashierId       models.Id
+	TransactionTime models.Timestamp
+	ItemId          models.Id
+	AddedAt         models.Timestamp
+	Description     string
+	PriceInCents    models.MoneyInCents
+	ItemCategory    models.Id
+	SellerId        models.Id
+	Donation        bool
+	Charity         bool
+}
+
+type GetSoldItemsQuery struct{}
+
+func NewGetSoldItemsQuery() *GetSoldItemsQuery {
+	query := GetSoldItemsQuery{}
+
+	return &query
+}
+
+func (q *GetSoldItemsQuery) Execute(db DatabaseQuerier) (r_result []SoldItem, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
+	rows, err := db.Query(
+		`
+			SELECT
+				sale.sale_id,
+				sale.cashier_id,
+				sale.transaction_time,
+				item.item_id,
+				item.added_at,
+				item.description,
+				item.price_in_cents,
+				item.item_category_id,
+				item.seller_id,
+				item.donation,
+				item.charity
+			FROM
+				sales sale
+			INNER JOIN
+				sale_items sale_item ON sale.sale_id = sale_item.sale_id
+			INNER JOIN
+				items item ON sale_item.item_id = item.item_id
+			ORDER BY
+				sale.sale_id
+		`,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
+
+	var soldItems []SoldItem
+
+	for rows.Next() {
+		var saleId models.Id
+		var cashierId models.Id
+		var transactionTime models.Timestamp
+		var itemId models.Id
+		var addedAt models.Timestamp
+		var description string
+		var priceInCents models.MoneyInCents
+		var itemCategory models.Id
+		var sellerId models.Id
+		var donation bool
+		var charity bool
+
+		err := rows.Scan(
+			&saleId,
+			&cashierId,
+			&transactionTime,
+			&itemId,
+			&addedAt,
+			&description,
+			&priceInCents,
+			&itemCategory,
+			&sellerId,
+			&donation,
+			&charity,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		soldItem := SoldItem{
+			SaleId:          saleId,
+			CashierId:       cashierId,
+			TransactionTime: transactionTime,
+			ItemId:          itemId,
+			AddedAt:         addedAt,
+			Description:     description,
+			PriceInCents:    priceInCents,
+			ItemCategory:    itemCategory,
+			SellerId:        sellerId,
+			Donation:        donation,
+			Charity:         charity,
+		}
+
+		soldItems = append(soldItems, soldItem)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
+	}
+
+	return soldItems, nil
+}
