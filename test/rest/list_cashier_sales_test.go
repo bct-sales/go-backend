@@ -24,7 +24,7 @@ func TestListCashierSales(t *testing.T) {
 				defer setup.Close()
 
 				seller := setup.Seller()
-				cashier, sessionId := setup.LoggedIn(setup.Cashier())
+				cashier, sessionID := setup.LoggedIn(setup.Cashier())
 				cashier2 := setup.Cashier()
 
 				items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
@@ -33,7 +33,7 @@ func TestListCashierSales(t *testing.T) {
 				algorithms.Map(items2, func(item *models.Item) *models.Sale { return setup.Sale(cashier2.UserID, []models.ID{item.ItemID}) })
 
 				url := path.CashierSales(cashier.UserID)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
@@ -48,13 +48,13 @@ func TestListCashierSales(t *testing.T) {
 				defer setup.Close()
 
 				seller := setup.Seller()
-				cashier, sessionId := setup.LoggedIn(setup.Cashier())
+				cashier, sessionID := setup.LoggedIn(setup.Cashier())
 
 				items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
 				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
 
 				url := path.CashierSales(cashier.UserID).Offset(1)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
@@ -70,13 +70,13 @@ func TestListCashierSales(t *testing.T) {
 				defer setup.Close()
 
 				seller := setup.Seller()
-				cashier, sessionId := setup.LoggedIn(setup.Cashier())
+				cashier, sessionID := setup.LoggedIn(setup.Cashier())
 
 				items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
 				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
 
 				url := path.CashierSales(cashier.UserID).Limit(1)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
@@ -92,13 +92,13 @@ func TestListCashierSales(t *testing.T) {
 				defer setup.Close()
 
 				seller := setup.Seller()
-				cashier, sessionId := setup.LoggedIn(setup.Cashier())
+				cashier, sessionID := setup.LoggedIn(setup.Cashier())
 
 				items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
 				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
 
 				url := path.CashierSales(cashier.UserID).Limit(3).Offset(2)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
@@ -114,13 +114,13 @@ func TestListCashierSales(t *testing.T) {
 				defer setup.Close()
 
 				seller := setup.Seller()
-				cashier, sessionId := setup.LoggedIn(setup.Cashier())
+				cashier, sessionID := setup.LoggedIn(setup.Cashier())
 
 				items := setup.Items(seller.UserID, 3, aux.WithHidden(false))
 				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
 
 				url := path.CashierSales(cashier.UserID).AntiChronologically()
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
@@ -138,7 +138,7 @@ func TestListCashierSales(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionId := setup.LoggedIn(setup.Admin())
+			_, sessionID := setup.LoggedIn(setup.Admin())
 			seller := setup.Seller()
 			cashier := setup.Cashier()
 			cashier2 := setup.Cashier()
@@ -149,7 +149,7 @@ func TestListCashierSales(t *testing.T) {
 			algorithms.Map(items2, func(item *models.Item) *models.Sale { return setup.Sale(cashier2.UserID, []models.ID{item.ItemID}) })
 
 			url := path.CashierSales(cashier.UserID)
-			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
@@ -164,7 +164,7 @@ func TestListCashierSales(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionId := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(setup.Seller())
 			cashier := setup.Cashier()
 			cashier2 := setup.Cashier()
 
@@ -174,7 +174,7 @@ func TestListCashierSales(t *testing.T) {
 			algorithms.Map(items2, func(item *models.Item) *models.Sale { return setup.Sale(cashier2.UserID, []models.ID{item.ItemID}) })
 
 			url := path.CashierSales(cashier.UserID)
-			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)
 		})
@@ -185,7 +185,7 @@ func TestListCashierSales(t *testing.T) {
 
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			cashier2, sessionId := setup.LoggedIn(setup.Cashier())
+			cashier2, sessionID := setup.LoggedIn(setup.Cashier())
 
 			items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
 			algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
@@ -193,7 +193,7 @@ func TestListCashierSales(t *testing.T) {
 			algorithms.Map(items2, func(item *models.Item) *models.Sale { return setup.Sale(cashier2.UserID, []models.ID{item.ItemID}) })
 
 			url := path.CashierSales(cashier.UserID)
-			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)
 		})

@@ -25,10 +25,10 @@ func TestGetUserInformation(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				admin, sessionId := setup.LoggedIn(setup.Admin())
+				admin, sessionID := setup.LoggedIn(setup.Admin())
 
 				url := path.User(admin.UserID)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
@@ -48,11 +48,11 @@ func TestGetUserInformation(t *testing.T) {
 						defer setup.Close()
 
 						seller := setup.Seller()
-						_, sessionId := setup.LoggedIn(setup.Admin())
+						_, sessionID := setup.LoggedIn(setup.Admin())
 
 						setup.Items(seller.UserID, item_count, aux.WithHidden(false))
 						url := path.User(seller.UserID)
-						request := CreateGetRequest(url, WithSessionCookie(sessionId))
+						request := CreateGetRequest(url, WithSessionCookie(sessionID))
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
@@ -72,10 +72,10 @@ func TestGetUserInformation(t *testing.T) {
 					defer setup.Close()
 
 					cashier := setup.Cashier()
-					_, sessionId := setup.LoggedIn(setup.Admin())
+					_, sessionID := setup.LoggedIn(setup.Admin())
 
 					url := path.User(cashier.UserID)
-					request := CreateGetRequest(url, WithSessionCookie(sessionId))
+					request := CreateGetRequest(url, WithSessionCookie(sessionID))
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
@@ -92,13 +92,13 @@ func TestGetUserInformation(t *testing.T) {
 
 					seller := setup.Seller()
 					cashier := setup.Cashier()
-					_, sessionId := setup.LoggedIn(setup.Admin())
+					_, sessionID := setup.LoggedIn(setup.Admin())
 
 					item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 					sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
 
 					url := path.User(cashier.UserID)
-					request := CreateGetRequest(url, WithSessionCookie(sessionId))
+					request := CreateGetRequest(url, WithSessionCookie(sessionID))
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
@@ -120,7 +120,7 @@ func TestGetUserInformation(t *testing.T) {
 
 							seller := setup.Seller()
 							cashier := setup.Cashier()
-							_, sessionId := setup.LoggedIn(setup.Admin())
+							_, sessionID := setup.LoggedIn(setup.Admin())
 
 							algorithms.RepeatWithError(saleCount, func() error {
 								item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
@@ -129,7 +129,7 @@ func TestGetUserInformation(t *testing.T) {
 							})
 
 							url := path.User(cashier.UserID)
-							request := CreateGetRequest(url, WithSessionCookie(sessionId))
+							request := CreateGetRequest(url, WithSessionCookie(sessionID))
 							router.ServeHTTP(writer, request)
 							require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
@@ -153,7 +153,7 @@ func TestGetUserInformation(t *testing.T) {
 						setup, router, writer := NewRestFixture(WithDefaultCategories)
 						defer setup.Close()
 
-						seller, sessionId := setup.LoggedIn(setup.Seller())
+						seller, sessionID := setup.LoggedIn(setup.Seller())
 						expectedTotal := models.MoneyInCents(0)
 
 						for i := 0; i != unfrozenItemCount; i++ {
@@ -169,7 +169,7 @@ func TestGetUserInformation(t *testing.T) {
 						}
 
 						url := path.User(seller.UserID)
-						request := CreateGetRequest(url, WithSessionCookie(sessionId))
+						request := CreateGetRequest(url, WithSessionCookie(sessionID))
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
@@ -187,7 +187,7 @@ func TestGetUserInformation(t *testing.T) {
 				defer setup.Close()
 
 				seller := setup.Seller()
-				cashier, sessionId := setup.LoggedIn(setup.Cashier())
+				cashier, sessionID := setup.LoggedIn(setup.Cashier())
 
 				items := setup.Items(seller.UserID, 5, aux.WithDummyData(1), aux.WithHidden(false))
 				sale1TransactionTime := models.Timestamp(1000)
@@ -196,7 +196,7 @@ func TestGetUserInformation(t *testing.T) {
 				sale2 := setup.Sale(cashier.UserID, []models.ID{items[2].ItemID, items[3].ItemID}, aux.WithTransactionTime(sale2TransactionTime))
 
 				url := path.User(cashier.UserID)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
@@ -254,10 +254,10 @@ func TestGetUserInformation(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionId := setup.LoggedIn(setup.Admin())
+			_, sessionID := setup.LoggedIn(setup.Admin())
 
 			url := path.UserStr("invalid")
-			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_user_id")
 		})
@@ -266,12 +266,12 @@ func TestGetUserInformation(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionId := setup.LoggedIn(setup.Admin())
+			_, sessionID := setup.LoggedIn(setup.Admin())
 			nonexistentUserId := models.ID(99999999)
 			setup.RequireNoSuchUsers(t, nonexistentUserId)
 
 			url := path.User(nonexistentUserId)
-			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_user")
 		})
@@ -281,11 +281,11 @@ func TestGetUserInformation(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionId := setup.LoggedIn(setup.Seller())
+				_, sessionID := setup.LoggedIn(setup.Seller())
 				otherSeller := setup.Seller()
 
 				url := path.User(otherSeller.UserID)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 			})
@@ -294,11 +294,11 @@ func TestGetUserInformation(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionId := setup.LoggedIn(setup.Seller())
+				_, sessionID := setup.LoggedIn(setup.Seller())
 				cashier := setup.Cashier()
 
 				url := path.User(cashier.UserID)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 			})
@@ -307,11 +307,11 @@ func TestGetUserInformation(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionId := setup.LoggedIn(setup.Seller())
+				_, sessionID := setup.LoggedIn(setup.Seller())
 				admin := setup.Admin()
 
 				url := path.User(admin.UserID)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 			})
@@ -320,11 +320,11 @@ func TestGetUserInformation(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionId := setup.LoggedIn(setup.Cashier())
+				_, sessionID := setup.LoggedIn(setup.Cashier())
 				seller := setup.Seller()
 
 				url := path.User(seller.UserID)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 			})
@@ -333,11 +333,11 @@ func TestGetUserInformation(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionId := setup.LoggedIn(setup.Cashier())
+				_, sessionID := setup.LoggedIn(setup.Cashier())
 				otherCashier := setup.Cashier()
 
 				url := path.User(otherCashier.UserID)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 			})
@@ -346,11 +346,11 @@ func TestGetUserInformation(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionId := setup.LoggedIn(setup.Cashier())
+				_, sessionID := setup.LoggedIn(setup.Cashier())
 				admin := setup.Admin()
 
 				url := path.User(admin.UserID)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 			})

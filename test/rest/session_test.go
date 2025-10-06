@@ -14,10 +14,10 @@ func TestSessionExpiration(t *testing.T) {
 	setup, router, writer := NewRestFixture(WithDefaultCategories)
 	defer setup.Close()
 
-	_, sessionId := setup.LoggedIn(setup.Admin(), aux.WithExpiration(-1))
+	_, sessionID := setup.LoggedIn(setup.Admin(), aux.WithExpiration(-1))
 
 	url := path.Items()
-	request := CreateGetRequest(url, WithSessionCookie(sessionId))
+	request := CreateGetRequest(url, WithSessionCookie(sessionID))
 	router.ServeHTTP(writer, request)
 	RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
 }

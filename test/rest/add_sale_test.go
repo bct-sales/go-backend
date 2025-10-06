@@ -130,14 +130,14 @@ func TestAddSale(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionId := setup.LoggedIn(setup.Cashier())
+			_, sessionID := setup.LoggedIn(setup.Cashier())
 			seller := setup.Seller()
 			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest.AddSalePayload{
 				Items: []models.ID{item.ItemID, item.ItemID},
 			}
-			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "duplicate_item_in_sale")
 
@@ -181,7 +181,7 @@ func TestAddSale(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionId := setup.LoggedIn(setup.Seller(), aux.WithExpiration(10))
+			seller, sessionID := setup.LoggedIn(setup.Seller(), aux.WithExpiration(10))
 			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			// Advance time to ensure session is expired
@@ -190,7 +190,7 @@ func TestAddSale(t *testing.T) {
 			payload := rest.AddSalePayload{
 				Items: []models.ID{item.ItemID},
 			}
-			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
+			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
 

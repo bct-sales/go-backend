@@ -32,10 +32,10 @@ func TestListCategories(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionId := setup.LoggedIn(setup.Admin())
+				_, sessionID := setup.LoggedIn(setup.Admin())
 
 				url := path.Categories()
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
@@ -51,10 +51,10 @@ func TestListCategories(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionId := setup.LoggedIn(setup.Admin())
+				_, sessionID := setup.LoggedIn(setup.Admin())
 
 				url := path.CategoriesWithCounts(queries.AllItems)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
@@ -72,10 +72,10 @@ func TestListCategories(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionId := setup.LoggedIn(setup.Seller())
+				_, sessionID := setup.LoggedIn(setup.Seller())
 
 				url := path.Categories()
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
@@ -90,10 +90,10 @@ func TestListCategories(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionId := setup.LoggedIn(setup.Seller())
+				_, sessionID := setup.LoggedIn(setup.Seller())
 
 				url := path.CategoriesWithCounts(queries.AllItems)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 			})
@@ -104,10 +104,10 @@ func TestListCategories(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionId := setup.LoggedIn(setup.Cashier())
+				_, sessionID := setup.LoggedIn(setup.Cashier())
 
 				url := path.Categories()
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
@@ -122,10 +122,10 @@ func TestListCategories(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionId := setup.LoggedIn(setup.Cashier())
+				_, sessionID := setup.LoggedIn(setup.Cashier())
 
 				url := path.CategoriesWithCounts(queries.AllItems)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 			})

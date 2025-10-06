@@ -29,7 +29,7 @@ func TestGetItemInformation(t *testing.T) {
 					sale_count := 0
 
 					seller := setup.Seller()
-					cashier, sessionId := setup.LoggedIn(setup.Cashier())
+					cashier, sessionID := setup.LoggedIn(setup.Cashier())
 					item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 					saleIds := []models.ID{}
@@ -39,7 +39,7 @@ func TestGetItemInformation(t *testing.T) {
 					}
 
 					url := path.Item(item.ItemID)
-					request := CreateGetRequest(url, WithSessionCookie(sessionId))
+					request := CreateGetRequest(url, WithSessionCookie(sessionID))
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code)
 
@@ -64,12 +64,12 @@ func TestGetItemInformation(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			_, sessionId := setup.LoggedIn(setup.Admin())
+			_, sessionID := setup.LoggedIn(setup.Admin())
 
 			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			url := path.Item(item.ItemID)
-			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
@@ -91,11 +91,11 @@ func TestGetItemInformation(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionId := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(setup.Seller())
 			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			url := path.Item(item.ItemID)
-			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
@@ -119,10 +119,10 @@ func TestGetItemInformation(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionId := setup.LoggedIn(setup.Cashier())
+			_, sessionID := setup.LoggedIn(setup.Cashier())
 
 			url := path.ItemStr("abc")
-			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_item_id")
 		})
@@ -131,12 +131,12 @@ func TestGetItemInformation(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionId := setup.LoggedIn(setup.Seller())
+			_, sessionID := setup.LoggedIn(setup.Seller())
 			ownerSeller := setup.Seller()
 			item := setup.Item(ownerSeller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			url := path.Item(item.ItemID)
-			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_seller")
 		})
@@ -146,7 +146,7 @@ func TestGetItemInformation(t *testing.T) {
 			defer setup.Close()
 
 			// Log in as cashier
-			_, sessionId := setup.LoggedIn(setup.Cashier())
+			_, sessionID := setup.LoggedIn(setup.Cashier())
 
 			// Get ID for nonexisting item
 			nonexistentItem := models.ID(1)
@@ -154,7 +154,7 @@ func TestGetItemInformation(t *testing.T) {
 
 			// Attempt to get information for nonexistent item
 			url := path.Item(nonexistentItem)
-			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 
 			// Send request
 			router.ServeHTTP(writer, request)
@@ -186,13 +186,13 @@ func TestGetItemInformation(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionId := setup.LoggedIn(setup.Seller(), aux.WithExpiration(100))
+			seller, sessionID := setup.LoggedIn(setup.Seller(), aux.WithExpiration(100))
 			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			setup.Clock.Advance(200)
 
 			url := path.Item(item.ItemID)
-			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusUnauthorized, writer.Code)
 		})

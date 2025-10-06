@@ -23,7 +23,7 @@ func TestGetSaleInformation(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionId := setup.LoggedIn(setup.Admin())
+				_, sessionID := setup.LoggedIn(setup.Admin())
 				seller := setup.Seller()
 				cashier := setup.Cashier()
 
@@ -32,7 +32,7 @@ func TestGetSaleInformation(t *testing.T) {
 				sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID}, aux.WithTransactionTime(transactionTime))
 
 				url := path.Sale(sale.SaleID)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
@@ -54,7 +54,7 @@ func TestGetSaleInformation(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionId := setup.LoggedIn(setup.Admin())
+				_, sessionID := setup.LoggedIn(setup.Admin())
 				seller := setup.Seller()
 				cashier := setup.Cashier()
 
@@ -65,7 +65,7 @@ func TestGetSaleInformation(t *testing.T) {
 				sale := setup.Sale(cashier.UserID, itemIds, aux.WithTransactionTime(transactionTime))
 
 				url := path.Sale(sale.SaleID)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
@@ -92,7 +92,7 @@ func TestGetSaleInformation(t *testing.T) {
 				defer setup.Close()
 
 				seller := setup.Seller()
-				cashier, sessionId := setup.LoggedIn(setup.Cashier())
+				cashier, sessionID := setup.LoggedIn(setup.Cashier())
 
 				transactionTime := models.Timestamp(100)
 				itemCount := 5
@@ -101,7 +101,7 @@ func TestGetSaleInformation(t *testing.T) {
 				sale := setup.Sale(cashier.UserID, itemIds, aux.WithTransactionTime(transactionTime))
 
 				url := path.Sale(sale.SaleID)
-				request := CreateGetRequest(url, WithSessionCookie(sessionId))
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
@@ -128,12 +128,12 @@ func TestGetSaleInformation(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionId := setup.LoggedIn(setup.Admin())
+			_, sessionID := setup.LoggedIn(setup.Admin())
 			saleId := models.ID(9999) // Assuming this ID does not exist
 			setup.RequireNoSuchSales(t, saleId)
 
 			url := path.Sale(saleId)
-			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNotFound, writer.Code)
 		})
@@ -142,13 +142,13 @@ func TestGetSaleInformation(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionId := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(setup.Seller())
 			cashier := setup.Cashier()
 			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 			sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
 
 			url := path.Sale(sale.SaleID)
-			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)
 		})
@@ -159,12 +159,12 @@ func TestGetSaleInformation(t *testing.T) {
 
 			seller := setup.Seller()
 			cashier := setup.Cashier()
-			_, sessionId := setup.LoggedIn(setup.Cashier())
+			_, sessionID := setup.LoggedIn(setup.Cashier())
 			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 			sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
 
 			url := path.Sale(sale.SaleID)
-			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusForbidden, writer.Code)
 		})

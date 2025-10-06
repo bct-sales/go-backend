@@ -22,7 +22,7 @@ func TestUpdateItem(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionId := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(setup.Seller())
 			originalDescription := "old description"
 			newDescription := "new description"
 			originalItem := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithDescription(originalDescription), aux.WithHidden(false))
@@ -33,7 +33,7 @@ func TestUpdateItem(t *testing.T) {
 			}{
 				Description: newDescription,
 			}
-			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
@@ -50,7 +50,7 @@ func TestUpdateItem(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			_, sessionId := setup.LoggedIn(setup.Admin())
+			_, sessionID := setup.LoggedIn(setup.Admin())
 			originalDescription := "old description"
 			newDescription := "new description"
 			originalItem := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithDescription(originalDescription), aux.WithHidden(false))
@@ -61,7 +61,7 @@ func TestUpdateItem(t *testing.T) {
 			}{
 				Description: newDescription,
 			}
-			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
@@ -77,7 +77,7 @@ func TestUpdateItem(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionId := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(setup.Seller())
 			originalPrice := 100
 			newPrice := 200
 			originalItem := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithPriceInCents(models.MoneyInCents(originalPrice)), aux.WithHidden(false))
@@ -88,7 +88,7 @@ func TestUpdateItem(t *testing.T) {
 			}{
 				PriceInCents: newPrice,
 			}
-			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
@@ -104,7 +104,7 @@ func TestUpdateItem(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionId := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(setup.Seller())
 			originalItem := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithCharity(false), aux.WithDonation(false), aux.WithHidden(false))
 
 			url := path.Item(originalItem.ItemID)
@@ -115,7 +115,7 @@ func TestUpdateItem(t *testing.T) {
 				Donation: true,
 				Charity:  true,
 			}
-			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
@@ -134,7 +134,7 @@ func TestUpdateItem(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionId := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(setup.Seller())
 			originalItem := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithFrozen(true), aux.WithHidden(false))
 
 			url := path.Item(originalItem.ItemID)
@@ -143,7 +143,7 @@ func TestUpdateItem(t *testing.T) {
 			}{
 				Description: "updated",
 			}
-			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "item_frozen")
 			require.Equal(t, http.StatusForbidden, writer.Code)
@@ -159,7 +159,7 @@ func TestUpdateItem(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionId := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(setup.Seller())
 			originalItem := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			url := path.Item(originalItem.ItemID)
@@ -168,7 +168,7 @@ func TestUpdateItem(t *testing.T) {
 			}{
 				PriceInCents: -100,
 			}
-			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "invalid_price")
 
@@ -183,7 +183,7 @@ func TestUpdateItem(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionId := setup.LoggedIn(setup.Seller())
+			_, sessionID := setup.LoggedIn(setup.Seller())
 
 			nonexistingItemId := models.ID(123)
 			url := path.Item(nonexistingItemId)
@@ -194,7 +194,7 @@ func TestUpdateItem(t *testing.T) {
 			}{
 				PriceInCents: 100,
 			}
-			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_item")
 		})
@@ -204,7 +204,7 @@ func TestUpdateItem(t *testing.T) {
 			defer setup.Close()
 
 			ownerSeller := setup.Seller()
-			_, sessionId := setup.LoggedIn(setup.Seller())
+			_, sessionID := setup.LoggedIn(setup.Seller())
 			originalItem := setup.Item(ownerSeller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			url := path.Item(originalItem.ItemID)
@@ -213,7 +213,7 @@ func TestUpdateItem(t *testing.T) {
 			}{
 				PriceInCents: 100,
 			}
-			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_seller")
 
@@ -229,7 +229,7 @@ func TestUpdateItem(t *testing.T) {
 			defer setup.Close()
 
 			ownerSeller := setup.Seller()
-			_, sessionId := setup.LoggedIn(setup.Cashier())
+			_, sessionID := setup.LoggedIn(setup.Cashier())
 			originalItem := setup.Item(ownerSeller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			url := path.Item(originalItem.ItemID)
@@ -238,7 +238,7 @@ func TestUpdateItem(t *testing.T) {
 			}{
 				PriceInCents: 100,
 			}
-			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 

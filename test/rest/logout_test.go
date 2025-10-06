@@ -18,10 +18,10 @@ func TestLogout(t *testing.T) {
 		setup, router, writer := NewRestFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		_, sessionId := setup.LoggedIn(setup.Admin())
+		_, sessionID := setup.LoggedIn(setup.Admin())
 
 		url := path.Logout()
-		request := CreatePostRequest(url, &rest.LogoutPayload{}, WithSessionCookie(sessionId))
+		request := CreatePostRequest(url, &rest.LogoutPayload{}, WithSessionCookie(sessionID))
 		router.ServeHTTP(writer, request)
 		require.Equal(t, http.StatusOK, writer.Code)
 	})
@@ -30,12 +30,12 @@ func TestLogout(t *testing.T) {
 		setup, router, writer := NewRestFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		_, sessionId := setup.LoggedIn(setup.Admin(), aux.WithExpiration(100))
+		_, sessionID := setup.LoggedIn(setup.Admin(), aux.WithExpiration(100))
 
 		setup.Clock.Advance(200)
 
 		url := path.Logout()
-		request := CreatePostRequest(url, &rest.LogoutPayload{}, WithSessionCookie(sessionId))
+		request := CreatePostRequest(url, &rest.LogoutPayload{}, WithSessionCookie(sessionID))
 		router.ServeHTTP(writer, request)
 		require.Equal(t, http.StatusUnauthorized, writer.Code, "body", writer.Body.String())
 	})

@@ -48,9 +48,9 @@ func TestListAllItems(t *testing.T) {
 					setup, router, writer := NewRestFixture(WithDefaultCategories)
 					defer setup.Close()
 
-					_, sessionId := setup.LoggedIn(setup.User(loggedInRole))
+					_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
 
-					request := CreateGetRequest(url, WithSessionCookie(sessionId))
+					request := CreateGetRequest(url, WithSessionCookie(sessionID))
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code)
 
@@ -67,13 +67,13 @@ func TestListAllItems(t *testing.T) {
 					setup, router, writer := NewRestFixture(WithDefaultCategories)
 					defer setup.Close()
 
-					_, sessionId := setup.LoggedIn(setup.User(loggedInRole))
+					_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
 					seller := setup.Seller()
 
 					addedAtTimestamp := models.Timestamp(100)
 					item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithAddedAt(addedAtTimestamp), aux.WithHidden(false))
 
-					request := CreateGetRequest(url, WithSessionCookie(sessionId))
+					request := CreateGetRequest(url, WithSessionCookie(sessionID))
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code)
 
@@ -90,13 +90,13 @@ func TestListAllItems(t *testing.T) {
 					setup, router, writer := NewRestFixture(WithDefaultCategories)
 					defer setup.Close()
 
-					_, sessionId := setup.LoggedIn(setup.User(loggedInRole))
+					_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
 					seller := setup.Seller()
 					addedAtTimestamp := models.Timestamp(500)
 					item1 := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithAddedAt(addedAtTimestamp), aux.WithHidden(false))
 					item2 := setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithAddedAt(addedAtTimestamp), aux.WithHidden(false))
 
-					request := CreateGetRequest(url, WithSessionCookie(sessionId))
+					request := CreateGetRequest(url, WithSessionCookie(sessionID))
 					router.ServeHTTP(writer, request)
 
 					require.Equal(t, http.StatusOK, writer.Code)
@@ -118,12 +118,12 @@ func TestListAllItems(t *testing.T) {
 
 						itemCount := 100
 
-						_, sessionId := setup.LoggedIn(setup.User(loggedInRole))
+						_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
 						seller := setup.Seller()
 						items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
 
 						url := path.Items().Limit(limit)
-						request := CreateGetRequest(url, WithSessionCookie(sessionId))
+						request := CreateGetRequest(url, WithSessionCookie(sessionID))
 						router.ServeHTTP(writer, request)
 
 						require.Equal(t, http.StatusOK, writer.Code)
@@ -149,12 +149,12 @@ func TestListAllItems(t *testing.T) {
 
 						itemCount := 100
 
-						_, sessionId := setup.LoggedIn(setup.User(loggedInRole))
+						_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
 						seller := setup.Seller()
 						items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
 
 						url := path.Items().Offset(offset)
-						request := CreateGetRequest(url, WithSessionCookie(sessionId))
+						request := CreateGetRequest(url, WithSessionCookie(sessionID))
 						router.ServeHTTP(writer, request)
 
 						require.Equal(t, http.StatusOK, writer.Code)
@@ -181,12 +181,12 @@ func TestListAllItems(t *testing.T) {
 
 							itemCount := 100
 
-							_, sessionId := setup.LoggedIn(setup.User(loggedInRole))
+							_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
 							seller := setup.Seller()
 							items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
 
 							url := path.Items().Limit(limit).Offset(offset)
-							request := CreateGetRequest(url, WithSessionCookie(sessionId))
+							request := CreateGetRequest(url, WithSessionCookie(sessionID))
 							router.ServeHTTP(writer, request)
 
 							require.Equal(t, http.StatusOK, writer.Code)
@@ -213,14 +213,14 @@ func TestListAllItems(t *testing.T) {
 					setup.Category(2, "b")
 					setup.Category(3, "c")
 
-					_, sessionId := setup.LoggedIn(setup.User(loggedInRole))
+					_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
 					seller := setup.Seller()
 					setup.Items(seller.UserID, 1, aux.WithHidden(false), aux.WithItemCategory(1))
 					setup.Items(seller.UserID, 2, aux.WithHidden(false), aux.WithItemCategory(2))
 					setup.Items(seller.UserID, 3, aux.WithHidden(false), aux.WithItemCategory(3))
 
 					url := path.Items().CategoryFilter(2)
-					request := CreateGetRequest(url, WithSessionCookie(sessionId))
+					request := CreateGetRequest(url, WithSessionCookie(sessionID))
 					router.ServeHTTP(writer, request)
 
 					require.Equal(t, http.StatusOK, writer.Code)
@@ -241,9 +241,9 @@ func TestListAllItems(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionId := setup.LoggedIn(setup.Seller())
+			_, sessionID := setup.LoggedIn(setup.Seller())
 
-			request := CreateGetRequest(url, WithSessionCookie(sessionId))
+			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")

@@ -35,14 +35,14 @@ func TestGenerateLabels(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				seller, sessionId := setup.LoggedIn(setup.Seller())
+				seller, sessionID := setup.LoggedIn(setup.Seller())
 				item1 := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithFrozen(false), aux.WithHidden(false))
 
 				url := path.Labels()
 				request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 					Layout:  defaultLayout,
 					ItemIDs: []models.ID{item1.ItemID},
-				}, WithSessionCookie(sessionId))
+				}, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 				setup.RequireFrozen(t, item1.ItemID)
@@ -52,7 +52,7 @@ func TestGenerateLabels(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				seller, sessionId := setup.LoggedIn(setup.Seller())
+				seller, sessionID := setup.LoggedIn(setup.Seller())
 
 				items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 				itemIds := models.CollectItemIDs(items)
@@ -61,7 +61,7 @@ func TestGenerateLabels(t *testing.T) {
 				request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 					Layout:  defaultLayout,
 					ItemIDs: itemIds,
-				}, WithSessionCookie(sessionId))
+				}, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
@@ -75,7 +75,7 @@ func TestGenerateLabels(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionId := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(setup.Seller())
 			otherSeller := setup.Seller()
 
 			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
@@ -86,7 +86,7 @@ func TestGenerateLabels(t *testing.T) {
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 				Layout:  defaultLayout,
 				ItemIDs: itemIds,
-			}, WithSessionCookie(sessionId))
+			}, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
@@ -103,7 +103,7 @@ func TestGenerateLabels(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionId := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(setup.Seller())
 
 			items := setup.Items(seller.UserID, 10, aux.WithFrozen(true), aux.WithHidden(false))
 			itemIds := models.CollectItemIDs(items)
@@ -112,7 +112,7 @@ func TestGenerateLabels(t *testing.T) {
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 				Layout:  defaultLayout,
 				ItemIDs: itemIds,
-			}, WithSessionCookie(sessionId))
+			}, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
@@ -125,7 +125,7 @@ func TestGenerateLabels(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionId := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(setup.Seller())
 
 			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 			itemIds := models.CollectItemIDs(items)
@@ -134,7 +134,7 @@ func TestGenerateLabels(t *testing.T) {
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 				Layout:  defaultLayout,
 				ItemIDs: append(itemIds, itemIds...),
-			}, WithSessionCookie(sessionId))
+			}, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
@@ -149,7 +149,7 @@ func TestGenerateLabels(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionId := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(setup.Seller())
 
 			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 
@@ -157,7 +157,7 @@ func TestGenerateLabels(t *testing.T) {
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 				Layout:  defaultLayout,
 				ItemIDs: []models.ID{},
-			}, WithSessionCookie(sessionId))
+			}, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "missing_items")
 
@@ -170,7 +170,7 @@ func TestGenerateLabels(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionId := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(setup.Seller())
 
 			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 			nonexistendItemId := models.ID(1000)
@@ -180,7 +180,7 @@ func TestGenerateLabels(t *testing.T) {
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 				Layout:  defaultLayout,
 				ItemIDs: []models.ID{nonexistendItemId},
-			}, WithSessionCookie(sessionId))
+			}, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_item")
 
@@ -194,7 +194,7 @@ func TestGenerateLabels(t *testing.T) {
 			defer setup.Close()
 
 			owningSeller := setup.Seller()
-			_, sessionId := setup.LoggedIn(setup.Seller())
+			_, sessionID := setup.LoggedIn(setup.Seller())
 
 			items := setup.Items(owningSeller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 
@@ -202,7 +202,7 @@ func TestGenerateLabels(t *testing.T) {
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 				Layout:  defaultLayout,
 				ItemIDs: []models.ID{items[0].ItemID},
-			}, WithSessionCookie(sessionId))
+			}, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_seller")
 
@@ -216,7 +216,7 @@ func TestGenerateLabels(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			_, sessionId := setup.LoggedIn(setup.Admin())
+			_, sessionID := setup.LoggedIn(setup.Admin())
 
 			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 
@@ -224,7 +224,7 @@ func TestGenerateLabels(t *testing.T) {
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 				Layout:  defaultLayout,
 				ItemIDs: []models.ID{items[0].ItemID},
-			}, WithSessionCookie(sessionId))
+			}, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
@@ -238,7 +238,7 @@ func TestGenerateLabels(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			_, sessionId := setup.LoggedIn(setup.Cashier())
+			_, sessionID := setup.LoggedIn(setup.Cashier())
 
 			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 
@@ -246,7 +246,7 @@ func TestGenerateLabels(t *testing.T) {
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 				Layout:  defaultLayout,
 				ItemIDs: []models.ID{items[0].ItemID},
-			}, WithSessionCookie(sessionId))
+			}, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
@@ -301,7 +301,7 @@ func TestGenerateLabels(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionId := setup.LoggedIn(setup.Seller(), aux.WithExpiration(500))
+			seller, sessionID := setup.LoggedIn(setup.Seller(), aux.WithExpiration(500))
 
 			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 
@@ -312,7 +312,7 @@ func TestGenerateLabels(t *testing.T) {
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 				Layout:  defaultLayout,
 				ItemIDs: []models.ID{items[0].ItemID},
-			}, WithSessionCookie(sessionId))
+			}, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
 
@@ -551,7 +551,7 @@ func TestGenerateLabels(t *testing.T) {
 					setup, router, writer := NewRestFixture(WithDefaultCategories)
 					defer setup.Close()
 
-					seller, sessionId := setup.LoggedIn(setup.Seller())
+					seller, sessionID := setup.LoggedIn(setup.Seller())
 					items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 					itemIds := models.CollectItemIDs(items)
 
@@ -559,7 +559,7 @@ func TestGenerateLabels(t *testing.T) {
 					request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 						Layout:  layout,
 						ItemIDs: itemIds,
-					}, WithSessionCookie(sessionId))
+					}, WithSessionCookie(sessionID))
 					router.ServeHTTP(writer, request)
 					RequireFailureType(t, writer, http.StatusForbidden, "invalid_layout")
 

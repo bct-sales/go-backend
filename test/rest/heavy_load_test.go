@@ -24,7 +24,7 @@ func TestHeavyLoad(t *testing.T) {
 			setup.Close()
 		}()
 
-		seller, sessionId := setup.LoggedIn(setup.Seller())
+		seller, sessionID := setup.LoggedIn(setup.Seller())
 		itemCount := 100
 		items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false), aux.WithFrozen(false))
 
@@ -48,7 +48,7 @@ func TestHeavyLoad(t *testing.T) {
 					Charity:      !item.Charity,
 				}
 
-				request := CreatePutRequest(url, &payload, WithSessionCookie(sessionId))
+				request := CreatePutRequest(url, &payload, WithSessionCookie(sessionID))
 				writer := setup.NewResponseRecorder()
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusNoContent, writer.Code, "body", writer.Body.String())
