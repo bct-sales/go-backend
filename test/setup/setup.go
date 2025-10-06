@@ -160,12 +160,12 @@ func (s DatabaseFixture) RequireNoSuchUsers(t *testing.T, userIDs ...models.ID) 
 	}
 }
 
-func (s DatabaseFixture) GenerateNonexistentUserID(t *testing.T) models.ID {
-	id := models.ID(999)
+func (s DatabaseFixture) GenerateNonexistentID(t *testing.T, existenceChecker func(id models.ID) (bool, error)) models.ID {
+	id := models.ID(9999)
 	attemptsLeft := 5
 
 	for {
-		exists, err := queries.UserWithIDExists(s.Db, id)
+		exists, err := existenceChecker(id)
 		require.NoError(t, err)
 
 		if !exists {
@@ -175,9 +175,13 @@ func (s DatabaseFixture) GenerateNonexistentUserID(t *testing.T) models.ID {
 		id += 23
 		attemptsLeft--
 		if attemptsLeft == 0 {
-			require.Fail(t, "Failed to generate nonexistent user")
+			require.Fail(t, "Failed to generate nonexistent id")
 		}
 	}
+}
+
+func (s DatabaseFixture) GenerateNonexistentUserID(t *testing.T) models.ID {
+	return s.GenerateNonexistentID(t, func(id models.ID) (bool, error) { return queries.UserWithIDExists(s.Db, id) })
 }
 
 func (s DatabaseFixture) RequireNoSuchItems(t *testing.T, itemIDs ...models.ID) {
