@@ -87,5 +87,51 @@ func TestGetSoldItemsQuery(t *testing.T) {
 			}
 			require.Equal(t, expectedSoldItem, actualSoldItem)
 		})
+
+		t.Run("Two items sold in same sale", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+			cashier := setup.Cashier()
+			item1 := setup.Item(seller.UserId, aux.WithHidden(false))
+			item2 := setup.Item(seller.UserId, aux.WithHidden(false))
+			sale := setup.Sale(cashier.UserId, []models.Id{item1.ItemID, item2.ItemID})
+
+			query := queries.NewGetSoldItemsQuery()
+			actualSoldItems, err := query.Execute(db)
+			require.NoError(t, err)
+			require.Len(t, actualSoldItems, 2)
+
+			expectedSoldItems := []queries.SoldItem{
+				{
+					SaleId:          sale.SaleID,
+					CashierId:       sale.CashierID,
+					TransactionTime: sale.TransactionTime,
+					ItemId:          item1.ItemID,
+					AddedAt:         item1.AddedAt,
+					Description:     item1.Description,
+					PriceInCents:    item1.PriceInCents,
+					ItemCategory:    item1.CategoryID,
+					SellerId:        item1.SellerID,
+					Donation:        item1.Donation,
+					Charity:         item1.Charity,
+				},
+				{
+					SaleId:          sale.SaleID,
+					CashierId:       sale.CashierID,
+					TransactionTime: sale.TransactionTime,
+					ItemId:          item2.ItemID,
+					AddedAt:         item2.AddedAt,
+					Description:     item2.Description,
+					PriceInCents:    item2.PriceInCents,
+					ItemCategory:    item2.CategoryID,
+					SellerId:        item2.SellerID,
+					Donation:        item2.Donation,
+					Charity:         item2.Charity,
+				},
+			}
+			require.Equal(t, expectedSoldItems, actualSoldItems)
+		})
 	})
 }
