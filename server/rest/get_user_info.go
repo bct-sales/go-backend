@@ -120,7 +120,7 @@ type GetUserInformationEndpoint struct {
 
 func (ep *GetUserInformationEndpoint) execute() {
 	context := ep.Context
-	roleId := ep.RoleId
+	roleId := ep.RoleID
 
 	queriedUserId, err := ep.retrieveQueriedUserFromUri()
 	if err != nil {
@@ -158,7 +158,7 @@ func (ep *GetUserInformationEndpoint) retrieveQueriedUserFromUri() (models.ID, e
 	queriedUserId, err := models.ParseID(uriParameters.UserId)
 	if err != nil {
 		ep.Logger.InvalidInput("Invalid user ID", "error", err, "userId", uriParameters.UserId)
-		failure_response.InvalidUserId(ep.Context, err.Error())
+		failure_response.InvalidUserID(ep.Context, err.Error())
 		return 0, err
 	}
 
@@ -266,7 +266,7 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsSeller(queriedUserId m
 	logger := ep.Logger
 	context := ep.Context
 	db := ep.Database
-	userId := ep.UserId
+	userId := ep.UserID
 
 	if userId != queriedUserId {
 		logger.InvalidRequest("Seller attempted to access another user's information", "queriedUserId", queriedUserId)
@@ -320,7 +320,7 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsCashier(queriedUserId 
 	logger := ep.Logger
 	context := ep.Context
 	db := ep.Database
-	userId := ep.UserId
+	userId := ep.UserID
 
 	if userId != queriedUserId {
 		logger.InvalidRequest("Cashier attempted to access another user's information", "queriedUserId", queriedUserId)

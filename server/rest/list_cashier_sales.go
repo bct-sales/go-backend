@@ -92,7 +92,7 @@ func (ep *listCashierSalesEndpoint) extractCashierIdFromUri() (models.ID, bool) 
 	uriUserId, err := models.ParseID(uriParameters.CashierId)
 	if err != nil {
 		ep.Logger.InvalidInput("Failed to parse cashier ID \"%s\" from URI: %v", uriParameters.CashierId, err)
-		failure_response.InvalidUserId(ep.Context, err.Error())
+		failure_response.InvalidUserID(ep.Context, err.Error())
 		return 0, false
 	}
 
@@ -104,7 +104,7 @@ func (ep *listCashierSalesEndpoint) extractCashierIdFromUri() (models.ID, bool) 
 }
 
 func (ep *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.ID) bool {
-	user, err := queries.GetUserWithID(ep.Database, ep.UserId)
+	user, err := queries.GetUserWithID(ep.Database, ep.UserID)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchUser) {
 			// This should not happen, as the userId is from the logged-in user
@@ -121,7 +121,7 @@ func (ep *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.I
 	}
 
 	if user.RoleID.IsCashier() {
-		loggedInUser := ep.UserId
+		loggedInUser := ep.UserID
 
 		if loggedInUser != queriedUser {
 			ep.Logger.InvalidRequest("User tried to access sales of cashier %d, but is not the owning cashier", queriedUser)

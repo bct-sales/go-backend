@@ -80,7 +80,7 @@ func (ep *getSellerItemsEndpoint) execute() {
 }
 
 func (ep *getSellerItemsEndpoint) ensureUserHasRightRole() bool {
-	if !ep.RoleId.IsSeller() && !ep.RoleId.IsAdmin() {
+	if !ep.RoleID.IsSeller() && !ep.RoleID.IsAdmin() {
 		ep.Logger.InvalidRequest("User lacks permissions to access seller items")
 		failure_response.Forbidden(ep.Context, "wrong_role", "Only accessible to sellers and admins")
 		return false
@@ -102,7 +102,7 @@ func (ep *getSellerItemsEndpoint) extractSellerIdFromURI() (models.ID, bool) {
 	uriSellerId, err := models.ParseID(uriParameters.SellerId)
 	if err != nil {
 		ep.Logger.InvalidInput("Failed to parse seller ID from URI", "error", err, "sellerId", uriParameters.SellerId)
-		failure_response.InvalidUserId(ep.Context, err.Error())
+		failure_response.InvalidUserID(ep.Context, err.Error())
 		return 0, false
 	}
 
@@ -132,7 +132,7 @@ func (ep *getSellerItemsEndpoint) ensureQueriedUserIsSeller(queriedSellerId mode
 }
 
 func (ep *getSellerItemsEndpoint) ensureUserHasPermissions(queriedSellerId models.ID) bool {
-	if ep.UserId != queriedSellerId && !ep.RoleId.IsAdmin() {
+	if ep.UserID != queriedSellerId && !ep.RoleID.IsAdmin() {
 		ep.Logger.InvalidRequest("Logged in user does not match URI seller ID", "uriSellerId", queriedSellerId)
 		failure_response.WrongSeller(ep.Context, "Logged in user does not match URI seller ID")
 		return false

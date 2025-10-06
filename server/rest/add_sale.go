@@ -14,7 +14,7 @@ type AddSalePayload struct {
 }
 
 type AddSaleSuccessResponse struct {
-	SaleId models.ID `json:"saleId"`
+	SaleID models.ID `json:"saleId"`
 }
 
 // @Summary Add a new sale
@@ -75,7 +75,7 @@ func (ep *addSaleEndpoint) execute() {
 }
 
 func (ep *addSaleEndpoint) ensureUserIsCashier() bool {
-	if !ep.RoleId.IsCashier() {
+	if !ep.RoleID.IsCashier() {
 		ep.Logger.InvalidRequest("Blocked attempt to add sale with wrong role")
 		failure_response.WrongRole(ep.Context, "Adding sale is only accessible to cashiers")
 		return false
@@ -130,7 +130,7 @@ func (ep *addSaleEndpoint) addSaleToDatabase(transaction *queries.TransactionalD
 
 	saleId, err := queries.AddSale(
 		transaction,
-		ep.UserId,
+		ep.UserID,
 		timestamp,
 		itemIDs,
 	)
@@ -165,6 +165,6 @@ func (ep *addSaleEndpoint) endTransaction(transaction *queries.TransactionalData
 }
 
 func (ep *addSaleEndpoint) sendSuccessResponse(saleId models.ID) {
-	response := AddSaleSuccessResponse{SaleId: saleId}
+	response := AddSaleSuccessResponse{SaleID: saleId}
 	ep.Context.JSON(http.StatusCreated, response)
 }

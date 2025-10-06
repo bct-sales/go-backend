@@ -36,7 +36,7 @@ func TestAddSale(t *testing.T) {
 
 		response := FromJson[rest.AddSaleSuccessResponse](t, writer.Body.String())
 
-		sale, err := queries.GetSaleWithID(setup.Db, response.SaleId)
+		sale, err := queries.GetSaleWithID(setup.Db, response.SaleID)
 		require.NoError(t, err)
 		require.Equal(t, cashier.UserID, sale.CashierID)
 

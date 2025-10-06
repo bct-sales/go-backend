@@ -23,8 +23,8 @@ type UpdateItemSuccessResponse struct {
 
 func UpdateItem(arguments *HandlerFunctionArguments) {
 	context := arguments.Context
-	userId := arguments.UserId
-	roleId := arguments.RoleId
+	userId := arguments.UserID
+	roleId := arguments.RoleID
 	db := arguments.Database
 	logger := arguments.Logger
 
@@ -40,7 +40,7 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 	itemId, err := models.ParseID(uriParameters.ItemId)
 	if err != nil {
 		logger.InvalidInput("Invalid item ID in URI", "itemId", uriParameters.ItemId, "error", err)
-		failure_response.InvalidItemId(context, err.Error())
+		failure_response.InvalidItemID(context, err.Error())
 		return
 	}
 

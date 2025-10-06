@@ -249,7 +249,7 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 		sessionIdString, err := context.Cookie(security.SessionCookieName)
 		if err != nil {
 			slog.Error("Unauthorized: missing session ID")
-			failure_response.MissingSessionId(context, err.Error())
+			failure_response.MissingSessionID(context, err.Error())
 			return
 		}
 
@@ -269,17 +269,17 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 			return
 		}
 
-		userId := sessionData.UserID
-		roleId := sessionData.RoleID
+		userID := sessionData.UserID
+		roleID := sessionData.RoleID
 
-		if err := queries.UpdateLastActivity(database, userId, now); err != nil {
+		if err := queries.UpdateLastActivity(database, userID, now); err != nil {
 			slog.Error("Failed to update last activity", slog.String("error", err.Error()))
 			// Keep going, we don't want to block the request
 		}
 
 		decoratedSlogger := server.loggerResources.logger.With(
-			slog.String("user_id", userId.String()),
-			slog.String("role_id", roleId.String()),
+			slog.String("user_id", userID.String()),
+			slog.String("role_id", roleID.String()),
 			slog.String("handler", getFunctionName(handler)),
 		)
 		logger := logger.NewLoggerWrapper(decoratedSlogger)
@@ -288,8 +288,8 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 			Context:       context,
 			Configuration: configuration,
 			Database:      rest.NewDatabaseWrapper(context, database),
-			UserId:        userId,
-			RoleId:        roleId,
+			UserID:        userID,
+			RoleID:        roleID,
 			Logger:        logger,
 		}
 		handler(&arguments)

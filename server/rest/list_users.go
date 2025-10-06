@@ -54,11 +54,11 @@ func (ep *listUsersEndpoint) execute() {
 }
 
 func (ep *listUsersEndpoint) ensureUserIsAdmin() bool {
-	if !ep.RoleId.IsAdmin() {
+	if !ep.RoleID.IsAdmin() {
 		ep.Logger.InvalidRequest(
 			"Non-admin attempted to list all items",
-			slog.Int64("user_id", ep.UserId.Int64()),
-			slog.Int64("role_id", ep.RoleId.Int64()))
+			slog.Int64("user_id", ep.UserID.Int64()),
+			slog.Int64("role_id", ep.RoleID.Int64()))
 
 		failure_response.WrongRole(ep.Context, "Only accessible to admins")
 

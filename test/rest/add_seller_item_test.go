@@ -41,7 +41,7 @@ func TestAddSellerItem(t *testing.T) {
 										payload := rest.AddSellerItemPayload{
 											Price:       &price,
 											Description: &description,
-											CategoryId:  categoryId,
+											CategoryID:  categoryId,
 											Donation:    &donation,
 											Charity:     &charity,
 										}
@@ -57,7 +57,7 @@ func TestAddSellerItem(t *testing.T) {
 										require.Equal(t, 1, len(itemsInDatabase))
 
 										itemInDatabase := itemsInDatabase[0]
-										require.Equal(t, response.ItemId, itemInDatabase.ItemID)
+										require.Equal(t, response.ItemID, itemInDatabase.ItemID)
 										require.Equal(t, seller.UserID, itemInDatabase.SellerID)
 										require.Equal(t, price, itemInDatabase.PriceInCents)
 										require.Equal(t, description, itemInDatabase.Description)
@@ -91,7 +91,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryId:  categoryId,
+				CategoryID:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
@@ -121,7 +121,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryId:  categoryId,
+				CategoryID:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
@@ -153,7 +153,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryId:  categoryId,
+				CategoryID:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
@@ -184,7 +184,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryId:  categoryId,
+				CategoryID:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
@@ -214,7 +214,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryId:  categoryId,
+				CategoryID:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
@@ -244,7 +244,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryId:  categoryId,
+				CategoryID:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
@@ -275,7 +275,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryId:  categoryId,
+				CategoryID:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
@@ -307,7 +307,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryId:  categoryId,
+				CategoryID:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
@@ -337,7 +337,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryId:  categoryId,
+				CategoryID:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
@@ -368,7 +368,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryId:  categoryId,
+				CategoryID:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
 			}
@@ -400,7 +400,7 @@ func TestAddSellerItem(t *testing.T) {
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
 				Description: &description,
-				CategoryId:  categoryId,
+				CategoryID:  categoryId,
 				Donation:    &donation,
 				Charity:     &charity,
 			}

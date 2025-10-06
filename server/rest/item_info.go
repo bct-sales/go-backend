@@ -87,7 +87,7 @@ func (ep *getItemInformationEndpoint) retrieveItemIdFromUri() (models.ID, bool) 
 	itemId, err := models.ParseID(uriParameters.ItemId)
 	if err != nil {
 		ep.Logger.InvalidInput("Failed to parse item ID", "error", err, "itemId", uriParameters.ItemId)
-		failure_response.InvalidItemId(ep.Context, err.Error())
+		failure_response.InvalidItemID(ep.Context, err.Error())
 		return 0, false
 	}
 
@@ -111,7 +111,7 @@ func (ep *getItemInformationEndpoint) retrieveItemFromDatabase(itemId models.ID)
 }
 
 func (ep *getItemInformationEndpoint) ensureQueryAllowed(item *models.Item) bool {
-	if item.SellerID != ep.UserId && ep.RoleId.IsSeller() {
+	if item.SellerID != ep.UserID && ep.RoleID.IsSeller() {
 		ep.Logger.InvalidRequest("Blocked attempt to access item not owned by the seller", "itemId", item.ItemID, "itemUserId", item.SellerID)
 		failure_response.WrongSeller(ep.Context, "Only the owning seller can access this item")
 		return false

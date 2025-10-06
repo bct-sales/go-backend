@@ -57,7 +57,7 @@ func (ep *listCategoriesEndpoint) execute() {
 func (ep *listCategoriesEndpoint) listCategoriesWithCounts(itemSelection queries.ItemSelection) {
 	context := ep.Context
 	db := ep.Database
-	roleId := ep.RoleId
+	roleId := ep.RoleID
 	logger := ep.Logger
 
 	if !roleId.IsAdmin() {

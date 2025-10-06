@@ -56,19 +56,19 @@ func InvalidUriParameters(context *gin.Context, message string) {
 
 // Ill-formed user ID, e.g., "abc" instead of "123"
 // HTTP status code 400
-func InvalidUserId(context *gin.Context, message string) {
+func InvalidUserID(context *gin.Context, message string) {
 	BadRequest(context, "invalid_user_id", "invalid user id: "+message)
 }
 
 // Ill-formed item ID, e.g., "abc" instead of "123".
 // HTTP status code 400
-func InvalidItemId(context *gin.Context, message string) {
+func InvalidItemID(context *gin.Context, message string) {
 	BadRequest(context, "invalid_item_id", "invalid item id: "+message)
 }
 
 // Ill-formed sale ID, e.g., "abc" instead of "123"
 // HTTP status code 400
-func InvalidSaleId(context *gin.Context, message string) {
+func InvalidSaleID(context *gin.Context, message string) {
 	BadRequest(context, "invalid_sale_id", "invalid sale id: "+message)
 }
 
@@ -137,7 +137,7 @@ func InvalidItemDescription(context *gin.Context, message string) {
 }
 
 // HTTP status code 401
-func MissingSessionId(context *gin.Context, message string) {
+func MissingSessionID(context *gin.Context, message string) {
 	Unauthorized(context, "missing_session_id", message)
 }
 

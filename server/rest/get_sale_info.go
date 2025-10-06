@@ -68,7 +68,7 @@ func (endpoint *getSaleInformationEndpoint) execute() {
 		return
 	}
 
-	if endpoint.RoleId.IsCashier() && sale.CashierID != endpoint.UserId {
+	if endpoint.RoleID.IsCashier() && sale.CashierID != endpoint.UserID {
 		logger.InvalidRequest("Sale is not owned by the cashier", "saleId", saleId, "saleOwnerId", sale.CashierID)
 		failure_response.Forbidden(endpoint.Context, "wrong_sale", "Only accessible to cashiers and owning cashiers")
 		return
@@ -111,7 +111,7 @@ func (endpoint *getSaleInformationEndpoint) convertSaleItemToData(saleItem *mode
 }
 
 func (endpoint *getSaleInformationEndpoint) ensureUserHasRightRole() bool {
-	if !endpoint.RoleId.IsAdmin() && !endpoint.RoleId.IsCashier() {
+	if !endpoint.RoleID.IsAdmin() && !endpoint.RoleID.IsCashier() {
 		endpoint.Logger.InvalidRequest("User does not have the right role to access sale information")
 		failure_response.Forbidden(endpoint.Context, "wrong_role", "Only accessible to cashiers and owning cashiers")
 		return false
@@ -133,7 +133,7 @@ func (endpoint *getSaleInformationEndpoint) extractSaleIdFromUri() (models.ID, b
 	saleId, err := models.ParseID(uriParameters.SaleId)
 	if err != nil {
 		endpoint.Logger.InvalidInput("Invalid sale ID", "saleId", uriParameters.SaleId, "error", err)
-		failure_response.InvalidSaleId(endpoint.Context, err.Error())
+		failure_response.InvalidSaleID(endpoint.Context, err.Error())
 		return 0, false
 	}
 
