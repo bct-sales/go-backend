@@ -22,7 +22,7 @@ func TestSessionExpiration(t *testing.T) {
 	RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
 }
 
-func TestMissingSessionId(t *testing.T) {
+func TestMissingSessionID(t *testing.T) {
 	setup, router, writer := NewRestFixture(WithDefaultCategories)
 	defer setup.Close()
 

@@ -41,10 +41,9 @@ func TestAddSession(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			userID := models.ID(999)
-			setup.RequireNoSuchUsers(t, userID)
+			nonexistentUserID := setup.GenerateNonexistentUserId(t)
 			expirationTime := models.Timestamp(0)
-			_, err := queries.AddSession(db, userID, expirationTime)
+			_, err := queries.AddSession(db, nonexistentUserID, expirationTime)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 	})

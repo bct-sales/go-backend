@@ -97,8 +97,8 @@ func TestGetSaleInformation(t *testing.T) {
 				transactionTime := models.Timestamp(100)
 				itemCount := 5
 				items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
-				itemIds := models.CollectItemIDs(items)
-				sale := setup.Sale(cashier.UserID, itemIds, aux.WithTransactionTime(transactionTime))
+				itemIDs := models.CollectItemIDs(items)
+				sale := setup.Sale(cashier.UserID, itemIDs, aux.WithTransactionTime(transactionTime))
 
 				url := path.Sale(sale.SaleID)
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))

@@ -75,9 +75,9 @@ func WithCookie(name string, value string) func(*http.Request) {
 	}
 }
 
-func WithSessionCookie(sessionId models.SessionID) func(*http.Request) {
+func WithSessionCookie(sessionID models.SessionID) func(*http.Request) {
 	return func(request *http.Request) {
-		cookie := createSessionCookie(sessionId)
+		cookie := createSessionCookie(sessionID)
 		request.AddCookie(cookie)
 	}
 }
