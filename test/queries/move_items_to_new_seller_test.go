@@ -116,7 +116,8 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			setup.Items(otherSeller3.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 
 			var itemsBefore []*models.Item
-			require.NoError(t, queries.GetItems(db, queries.CollectTo(&itemsBefore), queries.AllItems, queries.AllRows()))
+			query := queries.NewGetItemsQuery()
+			require.NoError(t, query.Execute(db, queries.CollectTo(&itemsBefore)))
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
 				err := queries.MoveItemsToNewSeller(db, oldSeller.UserID, newSeller.UserID)

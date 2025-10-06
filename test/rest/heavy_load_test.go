@@ -58,7 +58,7 @@ func TestHeavyLoad(t *testing.T) {
 		waitGroup.Wait()
 
 		newItems := []*models.Item{}
-		err := queries.GetItems(setup.Db, queries.CollectTo(&newItems), queries.AllItems, queries.AllRows())
+		err := queries.NewGetItemsQuery().Execute(setup.Db, queries.CollectTo(&newItems))
 		require.NoError(t, err)
 		require.Len(t, newItems, itemCount)
 
