@@ -95,9 +95,9 @@ func (c *categoryCountCommand) printCategoryCounts(
 	}
 
 	categoryIDs := maps.Keys(categoryCounts)
-	sortedCategoryIds := slices.Sorted(categoryIDs)
+	sortedCategoryIDs := slices.Sorted(categoryIDs)
 
-	for _, categoryId := range sortedCategoryIds {
+	for _, categoryId := range sortedCategoryIDs {
 		categoryCount, categoryCountOk := categoryCounts[categoryId]
 		if !categoryCountOk {
 			panic("Bug: category ID not found in counts map")
