@@ -65,10 +65,10 @@ func TestGetCategoryCounts(t *testing.T) {
 					require.NoError(t, err)
 					require.Equal(t, len(defaultCategoryNameTable), len(actualCounts))
 
-					for categoryId, _ := range defaultCategoryNameTable {
-						actualCount, ok := actualCounts[categoryId]
-						require.True(t, ok, "Category ID %d not found in actual counts", categoryId)
-						expectedCount := expectedCounts[categoryId]
+					for categoryID := range defaultCategoryNameTable {
+						actualCount, ok := actualCounts[categoryID]
+						require.True(t, ok, "Category ID %d not found in actual counts", categoryID)
+						expectedCount := expectedCounts[categoryID]
 
 						require.Equal(t, expectedCount, actualCount)
 					}
@@ -115,7 +115,7 @@ func TestGetCategoryCounts(t *testing.T) {
 						seller := setup.Seller()
 
 						for categoryId, count := range expectedCounts {
-							for i := 0; i < count; i++ {
+							for i := range count {
 								setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithItemCategory(categoryId), aux.WithFrozen(false), aux.WithHidden(false))
 								setup.Item(seller.UserID, aux.WithDummyData(2*i), aux.WithItemCategory(categoryId), aux.WithFrozen(false), aux.WithHidden(true))
 								setup.Item(seller.UserID, aux.WithDummyData(3*i), aux.WithItemCategory(categoryId), aux.WithFrozen(false), aux.WithHidden(true))
