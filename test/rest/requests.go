@@ -20,8 +20,8 @@ const (
 func createRequest[T any](verb string, url *path.URL, payload *T, options ...func(*http.Request)) *http.Request {
 	var reader io.Reader
 	if payload != nil {
-		payloadJson := ToJSON(payload)
-		reader = strings.NewReader(payloadJson)
+		payloadJSON := ToJSON(payload)
+		reader = strings.NewReader(payloadJSON)
 	}
 
 	request, err := http.NewRequest(verb, url.String(), reader)
@@ -41,12 +41,12 @@ func CreateGetRequest(url *path.URL, options ...func(*http.Request)) *http.Reque
 }
 
 func CreatePostRequest[T any](url *path.URL, payload *T, options ...func(*http.Request)) *http.Request {
-	options = append(options, WithJsonContentType())
+	options = append(options, WithJSONContentType())
 	return createRequest(HTTP_VERB_POST, url, payload, options...)
 }
 
 func CreatePutRequest[T any](url *path.URL, payload *T, options ...func(*http.Request)) *http.Request {
-	options = append(options, WithJsonContentType())
+	options = append(options, WithJSONContentType())
 	return createRequest(HTTP_VERB_PUT, url, payload, options...)
 }
 
@@ -92,6 +92,6 @@ func WithContentType(contentType string) func(*http.Request) {
 	return WithHeader("Content-Type", contentType)
 }
 
-func WithJsonContentType() func(*http.Request) {
+func WithJSONContentType() func(*http.Request) {
 	return WithContentType("application/json")
 }

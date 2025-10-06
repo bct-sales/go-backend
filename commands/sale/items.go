@@ -47,7 +47,7 @@ func (command *ListSoldItemsCommand) execute() error {
 		case "table":
 			return command.listSoldItemsInTableFormat(db)
 		case "csv":
-			return command.listSoldItemsInCsvFormat(db)
+			return command.listSoldItemsInCSVFormat(db)
 		default:
 			command.PrintErrorf("Invalid format: %s\n", command.format)
 			return fmt.Errorf("unknown format: %s", command.format)
@@ -55,7 +55,7 @@ func (command *ListSoldItemsCommand) execute() error {
 	})
 }
 
-func (command *ListSoldItemsCommand) listSoldItemsInCsvFormat(db *sql.DB) error {
+func (command *ListSoldItemsCommand) listSoldItemsInCSVFormat(db *sql.DB) error {
 	categoryNameTable, err := command.GetCategoryNameTable(db)
 	if err != nil {
 		return err
