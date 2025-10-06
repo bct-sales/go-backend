@@ -118,6 +118,25 @@ func TestGetItems(t *testing.T) {
 				require.Equal(t, items[index+offset], actualItem)
 			}
 		})
+
+		t.Run("Get items with description", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+			setup.Item(seller.UserID, aux.WithDescription("foo"), aux.WithHidden(false))
+			item2 := setup.Item(seller.UserID, aux.WithDescription("bar"), aux.WithHidden(false))
+			item3 := setup.Item(seller.UserID, aux.WithDescription("baz"), aux.WithHidden(false))
+			setup.Item(seller.UserID, aux.WithDescription("qux"), aux.WithHidden(false))
+
+			actualItems := []*models.Item{}
+			query := queries.NewGetItemsQuery()
+			query.WithDescriptionPattern("%a%")
+			require.NoError(t, query.Execute(db, queries.CollectTo(&actualItems)))
+			require.Equal(t, 2, len(actualItems))
+			require.Equal(t, item2.ItemID, actualItems[0].ItemID)
+			require.Equal(t, item3.ItemID, actualItems[1].ItemID)
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
