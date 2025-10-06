@@ -29,7 +29,9 @@ func TestGetItems(t *testing.T) {
 						items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
 
 						actualItems := []*models.Item{}
-						err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.OnlyVisibleItems, queries.AllRows())
+						query := queries.NewGetItemsQuery()
+						query.WithHidden(false)
+						err := query.Execute(db, queries.CollectTo(&actualItems))
 						require.NoError(t, err)
 						require.Equal(t, itemCount, len(actualItems))
 
