@@ -160,7 +160,7 @@ func (s DatabaseFixture) RequireNoSuchUsers(t *testing.T, userIDs ...models.ID) 
 	}
 }
 
-func (s DatabaseFixture) GenerateNonexistentUserId(t *testing.T) models.ID {
+func (s DatabaseFixture) GenerateNonexistentUserID(t *testing.T) models.ID {
 	id := models.ID(999)
 	attemptsLeft := 5
 
