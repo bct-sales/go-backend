@@ -38,7 +38,7 @@ func NewShowItemCommand() *cobra.Command {
 
 func (c *showItemCommand) execute(args []string) error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		itemId, err := c.ParseItemId(args[0])
+		itemId, err := c.ParseItemID(args[0])
 		if err != nil {
 			c.PrintErrorf("Invalid item ID\n")
 			return err
