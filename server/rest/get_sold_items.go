@@ -29,9 +29,7 @@ type GetSoldItemsSuccessResponse struct {
 	SoldItems []GetSoldItemsEntry `json:"items"`
 }
 
-type ListSoldItemsParameters struct {
-	format *string
-}
+type ListSoldItemsParameters struct{}
 
 func ListSoldItems(arguments *HandlerFunctionArguments) {
 	endpoint := &listSoldItemsEndpoint{
