@@ -36,7 +36,7 @@ func NewHideItemCommand() *cobra.Command {
 }
 
 func (c *hideItemCommand) execute(args []string) error {
-	itemIds, err := c.ParseItemIds(args)
+	itemIds, err := c.ParseItemIDs(args)
 	if err != nil {
 		return err
 	}

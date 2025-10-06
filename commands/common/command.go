@@ -104,7 +104,7 @@ func (command *Command) ParseSaleId(str string) (models.ID, error) {
 	return command.parseId(str, "sale")
 }
 
-func (command *Command) ParseItemIds(str []string) ([]models.ID, error) {
+func (command *Command) ParseItemIDs(str []string) ([]models.ID, error) {
 	return algorithms.MapError(str, command.ParseItemID)
 }
 

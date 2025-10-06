@@ -35,7 +35,7 @@ func NewUnhideItemCommand() *cobra.Command {
 }
 
 func (c *unhideItemCommand) execute(args []string) error {
-	itemIds, err := c.ParseItemIds(args)
+	itemIds, err := c.ParseItemIDs(args)
 	if err != nil {
 		return err
 	}
