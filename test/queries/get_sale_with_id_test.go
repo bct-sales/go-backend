@@ -33,10 +33,9 @@ func TestGetSaleWithID(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		saleID := models.ID(999)
-		setup.RequireNoSuchSales(t, saleID)
+		nonexistentSaleID := setup.GenerateNonexistentSaleID(t)
 
-		_, err := queries.GetSaleWithID(db, saleID)
+		_, err := queries.GetSaleWithID(db, nonexistentSaleID)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSale)
 	})
 }

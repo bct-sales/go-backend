@@ -129,10 +129,9 @@ func TestGetSaleInformation(t *testing.T) {
 			defer setup.Close()
 
 			_, sessionID := setup.LoggedIn(setup.Admin())
-			saleID := models.ID(9999) // Assuming this ID does not exist
-			setup.RequireNoSuchSales(t, saleID)
+			nonexistentSaleID := setup.GenerateNonexistentSaleID(t)
 
-			url := path.Sale(saleID)
+			url := path.Sale(nonexistentSaleID)
 			request := CreateGetRequest(url, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNotFound, writer.Code)
