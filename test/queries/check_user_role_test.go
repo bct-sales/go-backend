@@ -27,7 +27,7 @@ func TestCheckUserRole(t *testing.T) {
 		for _, pair := range []pair{
 			{UserId: sellerId, RoleId: models.NewSellerRoleId()},
 			{UserId: adminId, RoleId: models.NewAdminRoleID()},
-			{UserId: cashierId, RoleId: models.NewCashierRoleId()},
+			{UserId: cashierId, RoleId: models.NewCashierRoleID()},
 		} {
 			roleName := pair.RoleId.Name()
 
@@ -55,8 +55,8 @@ func TestCheckUserRole(t *testing.T) {
 			{UserId: cashierId, RoleId: models.NewSellerRoleId()},
 			{UserId: sellerId, RoleId: models.NewAdminRoleID()},
 			{UserId: cashierId, RoleId: models.NewAdminRoleID()},
-			{UserId: sellerId, RoleId: models.NewCashierRoleId()},
-			{UserId: adminId, RoleId: models.NewCashierRoleId()},
+			{UserId: sellerId, RoleId: models.NewCashierRoleID()},
+			{UserId: adminId, RoleId: models.NewCashierRoleID()},
 		} {
 			roleName := pair.RoleId.Name()
 

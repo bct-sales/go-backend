@@ -22,7 +22,7 @@ func TestRoleParsing(t *testing.T) {
 	t.Run("cashier", func(t *testing.T) {
 		roleId, err := ParseRole("cashier")
 		require.NoError(t, err)
-		require.Equal(t, NewCashierRoleId(), roleId)
+		require.Equal(t, NewCashierRoleID(), roleId)
 	})
 
 	t.Run("unknown", func(t *testing.T) {

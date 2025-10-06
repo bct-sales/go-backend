@@ -34,7 +34,7 @@ func NewSellerRoleId() RoleId {
 	return NewRoleId(SellerRoleId)
 }
 
-func NewCashierRoleId() RoleId {
+func NewCashierRoleID() RoleId {
 	return NewRoleId(CashierRoleId)
 }
 
@@ -42,7 +42,7 @@ func ListRoles() []RoleId {
 	return []RoleId{
 		NewAdminRoleID(),
 		NewSellerRoleId(),
-		NewCashierRoleId(),
+		NewCashierRoleID(),
 	}
 }
 

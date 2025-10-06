@@ -253,7 +253,7 @@ func (c *dummyDatabaseCommand) addCashiers(db *sql.DB) ([]models.ID, error) {
 	cashierIDs := make([]models.ID, 0, cashierCount)
 
 	for range cashierCount {
-		roleId := models.NewCashierRoleId()
+		roleId := models.NewCashierRoleID()
 		createdAt := models.Now()
 		var lastActivity *models.Timestamp = nil
 		password := "abc"

@@ -600,7 +600,7 @@ func GetItemsSoldBy(db DatabaseQuerier, cashierId models.ID) (r_result []*models
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if err := EnsureUserExistsAndHasRole(db, cashierId, models.NewCashierRoleId()); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, cashierId, models.NewCashierRoleID()); err != nil {
 		return nil, err
 	}
 
@@ -736,7 +736,7 @@ func GetSalesWithCashier(db DatabaseQuerier, cashierId models.ID) (r_result []*m
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if err := EnsureUserExistsAndHasRole(db, cashierId, models.NewCashierRoleId()); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, cashierId, models.NewCashierRoleID()); err != nil {
 		return nil, err
 	}
 
@@ -818,7 +818,7 @@ func GetCashierSales(db DatabaseQuerier, cashierId models.ID, receiver func(*mod
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if err := EnsureUserExistsAndHasRole(db, cashierId, models.NewCashierRoleId()); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, cashierId, models.NewCashierRoleID()); err != nil {
 		return err
 	}
 
@@ -906,7 +906,7 @@ func CountCashierSales(db DatabaseQuerier, cashierId models.ID) (r_result int, r
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if err := EnsureUserExistsAndHasRole(db, cashierId, models.NewCashierRoleId()); err != nil {
+	if err := EnsureUserExistsAndHasRole(db, cashierId, models.NewCashierRoleID()); err != nil {
 		return 0, err
 	}
 

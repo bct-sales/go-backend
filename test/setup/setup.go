@@ -105,7 +105,7 @@ func (s DatabaseFixture) Admin(options ...func(*aux.AddUserData)) *models.User {
 }
 
 func (s DatabaseFixture) Cashier(options ...func(*aux.AddUserData)) *models.User {
-	return aux.AddUserToDatabase(s.Db, models.NewCashierRoleId(), options...)
+	return aux.AddUserToDatabase(s.Db, models.NewCashierRoleID(), options...)
 }
 
 func (s DatabaseFixture) Seller(options ...func(*aux.AddUserData)) *models.User {

@@ -150,7 +150,7 @@ func (ep *listAllItemsEndpoint) processRangeQueryParameters(query *queries.GetIt
 }
 
 func (ep *listAllItemsEndpoint) ensureUserHasCorrectRole() bool {
-	if ep.RoleId != models.NewAdminRoleID() && ep.RoleId != models.NewCashierRoleId() {
+	if ep.RoleId != models.NewAdminRoleID() && ep.RoleId != models.NewCashierRoleID() {
 		ep.Logger.InvalidRequest("Unauthorized access attempt to list all items")
 		failure_response.WrongRole(ep.Context, "Only admins and cashiers can list all items")
 		return false

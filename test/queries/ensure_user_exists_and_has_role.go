@@ -16,7 +16,7 @@ import (
 func TestEnsureUserExistsAndHasRole(t *testing.T) {
 	roleIds := []models.RoleId{
 		models.NewSellerRoleId(),
-		models.NewCashierRoleId(),
+		models.NewCashierRoleID(),
 		models.NewAdminRoleID(),
 	}
 
