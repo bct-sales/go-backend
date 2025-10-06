@@ -3,7 +3,9 @@
 package queries
 
 import (
+	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 	"testing"
 
@@ -20,6 +22,37 @@ func TestGetSoldItemsQuery(t *testing.T) {
 			soldItems, err := query.Execute(db)
 			require.NoError(t, err)
 			require.Empty(t, soldItems)
+		})
+
+		t.Run("Single item", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+			cashier := setup.Cashier()
+			item := setup.Item(seller.UserId, aux.WithHidden(false))
+			sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+
+			query := queries.NewGetSoldItemsQuery()
+			soldItems, err := query.Execute(db)
+			require.NoError(t, err)
+			require.Len(t, soldItems, 1)
+
+			actualSoldItem := soldItems[0]
+			expectedSoldItem := queries.SoldItem{
+				SaleId:          sale.SaleID,
+				CashierId:       sale.CashierID,
+				TransactionTime: sale.TransactionTime,
+				ItemId:          item.ItemID,
+				AddedAt:         item.AddedAt,
+				Description:     item.Description,
+				PriceInCents:    item.PriceInCents,
+				ItemCategory:    item.CategoryID,
+				SellerId:        item.SellerID,
+				Donation:        item.Donation,
+				Charity:         item.Charity,
+			}
+			require.Equal(t, expectedSoldItem, actualSoldItem)
 		})
 	})
 }
