@@ -108,7 +108,7 @@ func (command *Command) ParseItemIDs(str []string) ([]models.ID, error) {
 	return algorithms.MapError(str, command.ParseItemID)
 }
 
-func (command *Command) ParseUserIds(str []string) ([]models.ID, error) {
+func (command *Command) ParseUserIDs(str []string) ([]models.ID, error) {
 	return algorithms.MapError(str, command.ParseUserID)
 }
 
