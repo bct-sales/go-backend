@@ -11,16 +11,16 @@ import (
 )
 
 type GetItemInformationSuccessResponse struct {
-	ItemId       models.Id           `binding:"required" json:"itemId"`
+	ItemId       models.ID           `binding:"required" json:"itemId"`
 	AddedAt      rest.DateTime       `binding:"required" json:"addedAt"`
-	SellerId     models.Id           `binding:"required" json:"sellerId"`
+	SellerId     models.ID           `binding:"required" json:"sellerId"`
 	Description  string              `binding:"required" json:"description"`
 	PriceInCents models.MoneyInCents `binding:"required" json:"priceInCents"`
-	CategoryId   models.Id           `binding:"required" json:"categoryId"`
+	CategoryId   models.ID           `binding:"required" json:"categoryId"`
 	Charity      *bool               `binding:"required" json:"charity"`
 	Donation     *bool               `binding:"required" json:"donation"`
 	Frozen       *bool               `binding:"required" json:"frozen"`
-	SoldIn       *[]models.Id        `binding:"required" json:"soldIn"`
+	SoldIn       *[]models.ID        `binding:"required" json:"soldIn"`
 }
 
 type getItemInformationEndpoint struct {
@@ -73,7 +73,7 @@ func (ep *getItemInformationEndpoint) execute() {
 	ep.Context.JSON(http.StatusOK, response)
 }
 
-func (ep *getItemInformationEndpoint) retrieveItemIdFromUri() (models.Id, bool) {
+func (ep *getItemInformationEndpoint) retrieveItemIdFromUri() (models.ID, bool) {
 	var uriParameters struct {
 		ItemId string `binding:"required" uri:"id"`
 	}
@@ -94,7 +94,7 @@ func (ep *getItemInformationEndpoint) retrieveItemIdFromUri() (models.Id, bool) 
 	return itemId, true
 }
 
-func (ep *getItemInformationEndpoint) retrieveItemFromDatabase(itemId models.Id) *models.Item {
+func (ep *getItemInformationEndpoint) retrieveItemFromDatabase(itemId models.ID) *models.Item {
 	item, err := queries.GetItemWithId(ep.Database, itemId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
@@ -120,7 +120,7 @@ func (ep *getItemInformationEndpoint) ensureQueryAllowed(item *models.Item) bool
 	return true
 }
 
-func (ep *getItemInformationEndpoint) findSalesIncludingItem(itemId models.Id) ([]models.Id, bool) {
+func (ep *getItemInformationEndpoint) findSalesIncludingItem(itemId models.ID) ([]models.ID, bool) {
 	soldIn, err := queries.GetSalesWithItem(ep.Database, itemId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {

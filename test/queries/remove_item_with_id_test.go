@@ -35,7 +35,7 @@ func TestRemoveItemWithId(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			itemId := models.Id(1)
+			itemId := models.ID(1)
 
 			err := queries.RemoveItemWithId(db, itemId)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
@@ -49,7 +49,7 @@ func TestRemoveItemWithId(t *testing.T) {
 			cashier := setup.Cashier()
 			itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
 
-			setup.Sale(cashier.UserId, []models.Id{itemId})
+			setup.Sale(cashier.UserId, []models.ID{itemId})
 
 			err := queries.RemoveItemWithId(db, itemId)
 			requireDatabaseWrappedError(t, err, dberr.ErrItemSold)

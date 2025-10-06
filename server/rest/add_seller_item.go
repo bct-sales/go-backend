@@ -12,13 +12,13 @@ import (
 type AddSellerItemPayload struct {
 	Price       *models.MoneyInCents `binding:"required" json:"priceInCents"`
 	Description *string              `binding:"required" json:"description"`
-	CategoryId  models.Id            `binding:"required" json:"categoryId"`
+	CategoryId  models.ID            `binding:"required" json:"categoryId"`
 	Donation    *bool                `binding:"required" json:"donation"` // needs to be a pointer to differentiate between false and not present
 	Charity     *bool                `binding:"required" json:"charity"`  // needs to be a pointer to differentiate between false and not present
 }
 
 type AddSellerItemResponse struct {
-	ItemId models.Id `json:"itemId"`
+	ItemId models.ID `json:"itemId"`
 }
 
 func AddSellerItem(arguments *HandlerFunctionArguments) {
@@ -72,7 +72,7 @@ func (ep *addSellerItemEndpoint) ensureUserIsSeller() bool {
 	return true
 }
 
-func (ep *addSellerItemEndpoint) parseURI() (models.Id, bool) {
+func (ep *addSellerItemEndpoint) parseURI() (models.ID, bool) {
 	var uriParameters struct {
 		SellerId string `binding:"required" uri:"id"`
 	}
@@ -92,7 +92,7 @@ func (ep *addSellerItemEndpoint) parseURI() (models.Id, bool) {
 	return uriSellerId, true
 }
 
-func (ep *addSellerItemEndpoint) ensureValidity(uriSellerId models.Id) bool {
+func (ep *addSellerItemEndpoint) ensureValidity(uriSellerId models.ID) bool {
 	sellerExists, err := queries.UserWithIdExists(ep.Database, uriSellerId)
 	if err != nil {
 		ep.Logger.InternalError("Failed to check if seller exists", "error", err, "sellerId", uriSellerId)
@@ -161,7 +161,7 @@ func (ep *addSellerItemEndpoint) interpretDatabaseError(err error, payload *AddS
 	failure_response.Unknown(ep.Context, err.Error())
 }
 
-func (ep *addSellerItemEndpoint) addItemToDatabase(payload *AddSellerItemPayload) (models.Id, bool) {
+func (ep *addSellerItemEndpoint) addItemToDatabase(payload *AddSellerItemPayload) (models.ID, bool) {
 	timestamp := ep.Clock.Now()
 	itemId, err := queries.AddItem(
 		ep.Database,
@@ -184,7 +184,7 @@ func (ep *addSellerItemEndpoint) addItemToDatabase(payload *AddSellerItemPayload
 	return itemId, true
 }
 
-func (ep *addSellerItemEndpoint) sendSuccessResponse(itemId models.Id) {
+func (ep *addSellerItemEndpoint) sendSuccessResponse(itemId models.ID) {
 	response := AddSellerItemResponse{ItemId: itemId}
 	ep.Context.JSON(http.StatusCreated, response)
 }

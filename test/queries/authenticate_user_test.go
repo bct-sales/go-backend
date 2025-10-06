@@ -19,7 +19,7 @@ func TestAuthentication(t *testing.T) {
 		defer setup.Close()
 
 		password := "xyz"
-		userId := models.Id(1)
+		userId := models.ID(1)
 		roleId := models.NewSellerRoleId()
 		createdAt := models.Timestamp(0)
 		var lastActivity *models.Timestamp = nil
@@ -35,7 +35,7 @@ func TestAuthentication(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		userId := models.Id(5)
+		userId := models.ID(5)
 		password := "xyz"
 
 		setup.RequireNoSuchUsers(t, userId)
@@ -52,7 +52,7 @@ func TestAuthentication(t *testing.T) {
 
 		password := "xyz"
 		wrongPassword := "abc"
-		userId := models.Id(5)
+		userId := models.ID(5)
 		roleId := models.NewSellerRoleId()
 
 		queries.AddUserWithId(db, userId, roleId, 0, nil, password)

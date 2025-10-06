@@ -3,12 +3,12 @@ package models
 import "bctbackend/algorithms"
 
 type Item struct {
-	ItemID       Id
+	ItemID       ID
 	AddedAt      Timestamp
 	Description  string
 	PriceInCents MoneyInCents
-	CategoryID   Id
-	SellerID     Id
+	CategoryID   ID
+	SellerID     ID
 	Donation     bool
 	Charity      bool
 	Frozen       bool
@@ -20,6 +20,6 @@ func IsValidItemDescription(description string) bool {
 }
 
 // CollectItemIds extracts the ItemID from each Item in the slice and returns a slice of Ids.
-func CollectItemIds(items []*Item) []Id {
-	return algorithms.Map(items, func(item *Item) Id { return item.ItemID })
+func CollectItemIds(items []*Item) []ID {
+	return algorithms.Map(items, func(item *Item) ID { return item.ItemID })
 }

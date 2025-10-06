@@ -17,7 +17,7 @@ import (
 
 type GetCategoriesSuccessResponse struct {
 	Categories []struct {
-		CategoryId   models.Id `json:"categoryId"`
+		CategoryId   models.ID `json:"categoryId"`
 		CategoryName string    `json:"categoryName"`
 		Count        *int64    `json:"count,omitempty"`
 	} `json:"categories"`

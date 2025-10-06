@@ -18,7 +18,7 @@ func WithExpiration(secondsBeforeExpiration int64) func(*AddSessionData) {
 	}
 }
 
-func AddSessionToDatabase(db *sql.DB, userId models.Id, currentTime models.Timestamp, options ...func(*AddSessionData)) models.SessionId {
+func AddSessionToDatabase(db *sql.DB, userId models.ID, currentTime models.Timestamp, options ...func(*AddSessionData)) models.SessionId {
 	data := &AddSessionData{
 		secondsBeforeExpiration: 3600,
 	}

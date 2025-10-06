@@ -53,7 +53,7 @@ func (c *showItemCommand) execute(args []string) error {
 	})
 }
 
-func (c *showItemCommand) printItem(db *sql.DB, itemId models.Id) error {
+func (c *showItemCommand) printItem(db *sql.DB, itemId models.ID) error {
 	categoryNameTable, err := c.GetCategoryNameTable(db)
 	if err != nil {
 		return err

@@ -60,7 +60,7 @@ func TestEnsureUserExistsAndHasRole(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			nonexistentUserId := models.Id(9999) // Assuming this ID does not exist in the database
+			nonexistentUserId := models.ID(9999) // Assuming this ID does not exist in the database
 			setup.RequireNoSuchUsers(t, nonexistentUserId)
 
 			err := queries.EnsureUserExistsAndHasRole(db, nonexistentUserId, models.NewSellerRoleId())

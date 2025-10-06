@@ -27,7 +27,7 @@ func TestAddItem(t *testing.T) {
 			for _, priceInCents := range []models.MoneyInCents{50, 100} {
 				for _, itemCategoryId := range defaultCategoryKeys {
 					for _, description := range []string{"desc1", "desc2"} {
-						for _, sellerId := range []models.Id{1, 2} {
+						for _, sellerId := range []models.ID{1, 2} {
 							for _, donation := range []bool{false, true} {
 								for _, charity := range []bool{false, true} {
 									for _, frozen := range []bool{false, true} {
@@ -89,7 +89,7 @@ func TestAddItem(t *testing.T) {
 			priceInCents := models.MoneyInCents(100)
 			itemCategoryId := helpers.CategoryId_Clothing140_152
 			charity := false
-			sellerId := models.Id(1)
+			sellerId := models.ID(1)
 			donation := false
 			frozen := false
 			hidden := false
@@ -111,13 +111,13 @@ func TestAddItem(t *testing.T) {
 
 			timestamp := models.Timestamp(0)
 			description := "description"
-			sellerId := models.Id(1)
+			sellerId := models.ID(1)
 			priceInCents := models.MoneyInCents(100)
 			charity := false
 			donation := false
 			frozen := false
 			hidden := false
-			itemCategoryId := models.Id(100)
+			itemCategoryId := models.ID(100)
 
 			setup.Seller(aux.WithUserId(1))
 

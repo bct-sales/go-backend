@@ -15,7 +15,7 @@ type ListCategoriesSuccessResponse struct {
 }
 
 type CategoryData struct {
-	CategoryId   models.Id `json:"categoryId"`
+	CategoryId   models.ID `json:"categoryId"`
 	CategoryName string    `json:"categoryName"`
 	Count        *int      `json:"count,omitempty"`
 }

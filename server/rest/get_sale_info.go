@@ -12,18 +12,18 @@ import (
 )
 
 type GetSaleInformationSuccessResponse struct {
-	SaleId          models.Id          `binding:"required" json:"saleId"`
-	CashierId       models.Id          `binding:"required" json:"cashierId"`
+	SaleId          models.ID          `binding:"required" json:"saleId"`
+	CashierId       models.ID          `binding:"required" json:"cashierId"`
 	TransactionTime rest.DateTime      `binding:"required" json:"transactionTime"`
 	Items           []*GetSaleItemData `binding:"required" json:"items"`
 }
 
 type GetSaleItemData struct {
-	ItemId       models.Id           `binding:"required" json:"itemId"`
-	SellerId     models.Id           `binding:"required" json:"sellerId"`
+	ItemId       models.ID           `binding:"required" json:"itemId"`
+	SellerId     models.ID           `binding:"required" json:"sellerId"`
 	Description  string              `binding:"required" json:"description"`
 	PriceInCents models.MoneyInCents `binding:"required" json:"priceInCents"`
-	CategoryId   models.Id           `binding:"required" json:"categoryId"`
+	CategoryId   models.ID           `binding:"required" json:"categoryId"`
 	Charity      *bool               `binding:"required" json:"charity"`
 	Donation     *bool               `binding:"required" json:"donation"`
 	AddedAt      rest.DateTime       `binding:"required" json:"addedAt"`
@@ -120,7 +120,7 @@ func (endpoint *getSaleInformationEndpoint) ensureUserHasRightRole() bool {
 	return true
 }
 
-func (endpoint *getSaleInformationEndpoint) extractSaleIdFromUri() (models.Id, bool) {
+func (endpoint *getSaleInformationEndpoint) extractSaleIdFromUri() (models.ID, bool) {
 	var uriParameters struct {
 		SaleId string `binding:"required" uri:"id"`
 	}

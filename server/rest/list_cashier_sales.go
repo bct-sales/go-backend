@@ -12,7 +12,7 @@ import (
 )
 
 type ListCashierSaleData struct {
-	SaleId            models.Id           `json:"saleId"`
+	SaleId            models.ID           `json:"saleId"`
 	TransactionTime   rest.DateTime       `json:"transactionTime"`
 	ItemCount         int                 `json:"itemCount"`
 	TotalPriceInCents models.MoneyInCents `json:"totalPriceInCents"`
@@ -79,7 +79,7 @@ func (ep *listCashierSalesEndpoint) convertSaleSummaryToData(saleSummary *models
 // It returns the cashier ID and a boolean indicating success or failure.
 // If the extraction or validation fails, it sends an appropriate error response.
 // False indicates failure, true indicates success.
-func (ep *listCashierSalesEndpoint) extractCashierIdFromUri() (models.Id, bool) {
+func (ep *listCashierSalesEndpoint) extractCashierIdFromUri() (models.ID, bool) {
 	var uriParameters struct {
 		CashierId string `binding:"required" uri:"id"`
 	}
@@ -103,7 +103,7 @@ func (ep *listCashierSalesEndpoint) extractCashierIdFromUri() (models.Id, bool) 
 	return uriUserId, true
 }
 
-func (ep *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.Id) bool {
+func (ep *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.ID) bool {
 	user, err := queries.GetUserWithId(ep.Database, ep.UserId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchUser) {
@@ -137,7 +137,7 @@ func (ep *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.I
 	return false
 }
 
-func (ep *listCashierSalesEndpoint) getSaleSummariesFromDatabase(uriCashierId models.Id, order queries.Order, rowSelection *queries.RowSelection) ([]*models.SaleSummary, bool) {
+func (ep *listCashierSalesEndpoint) getSaleSummariesFromDatabase(uriCashierId models.ID, order queries.Order, rowSelection *queries.RowSelection) ([]*models.SaleSummary, bool) {
 	var saleSummaries []*models.SaleSummary
 	if err := queries.GetCashierSales(ep.Database, uriCashierId, queries.CollectTo(&saleSummaries), order, rowSelection); err != nil {
 		ep.Logger.InternalError("Failed to retrieve cashier sales for user %d: %v", uriCashierId, err)
@@ -158,7 +158,7 @@ func (ep *listCashierSalesEndpoint) sendSuccessResponse(saleCount int, saleSumma
 	ep.Context.IndentedJSON(http.StatusOK, successResponse)
 }
 
-func (ep *listCashierSalesEndpoint) getCashierSaleCount(uriCashierId models.Id) (int, bool) {
+func (ep *listCashierSalesEndpoint) getCashierSaleCount(uriCashierId models.ID) (int, bool) {
 	count, err := queries.CountCashierSales(ep.Database, uriCashierId)
 	if err != nil {
 		ep.Logger.InternalError("Failed to count cashier sales for user %d: %v", uriCashierId, err)

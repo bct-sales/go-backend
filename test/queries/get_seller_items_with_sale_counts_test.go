@@ -55,7 +55,7 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 			seller := setup.Seller()
 			cashier := setup.Cashier()
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-			setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+			setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 
 			items, err := queries.GetSellerItemsWithSaleCounts(db, seller.UserId)
 			require.NoError(t, err)
@@ -71,8 +71,8 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 			seller := setup.Seller()
 			cashier := setup.Cashier()
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-			setup.Sale(cashier.UserId, []models.Id{item.ItemID})
-			setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+			setup.Sale(cashier.UserId, []models.ID{item.ItemID})
+			setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 
 			items, err := queries.GetSellerItemsWithSaleCounts(db, seller.UserId)
 			require.NoError(t, err)
@@ -87,7 +87,7 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			invalidSellerId := models.Id(1000)
+			invalidSellerId := models.ID(1000)
 			setup.RequireNoSuchUsers(t, invalidSellerId)
 
 			_, err := queries.GetSellerItemsWithSaleCounts(db, invalidSellerId)

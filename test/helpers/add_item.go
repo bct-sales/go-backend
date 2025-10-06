@@ -13,7 +13,7 @@ type AddItemData struct {
 	AddedAt      *models.Timestamp
 	Description  *string
 	PriceInCents *models.MoneyInCents
-	ItemCategory *models.Id
+	ItemCategory *models.ID
 	Donation     *bool
 	Charity      *bool
 	Frozen       *bool
@@ -79,7 +79,7 @@ func WithPriceInCents(priceInCents models.MoneyInCents) func(*AddItemData) {
 	}
 }
 
-func WithItemCategory(itemCategory models.Id) func(*AddItemData) {
+func WithItemCategory(itemCategory models.ID) func(*AddItemData) {
 	return func(data *AddItemData) {
 		data.ItemCategory = &itemCategory
 	}
@@ -131,7 +131,7 @@ func WithDummyData(k int) func(*AddItemData) {
 	}
 }
 
-func AddItemToDatabase(db *sql.DB, sellerId models.Id, options ...func(*AddItemData)) *models.Item {
+func AddItemToDatabase(db *sql.DB, sellerId models.ID, options ...func(*AddItemData)) *models.Item {
 	data := AddItemData{}
 
 	for _, option := range options {

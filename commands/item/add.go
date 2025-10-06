@@ -78,8 +78,8 @@ func (c *addItemCommand) execute() error {
 			timestamp,
 			c.description,
 			models.MoneyInCents(c.priceInCents),
-			models.Id(c.categoryId),
-			models.Id(c.sellerId),
+			models.ID(c.categoryId),
+			models.ID(c.sellerId),
 			c.donation,
 			c.charity,
 			false,
@@ -114,7 +114,7 @@ func (c *addItemCommand) execute() error {
 	})
 }
 
-func (c *addItemCommand) printItem(db *sql.DB, itemId models.Id) error {
+func (c *addItemCommand) printItem(db *sql.DB, itemId models.ID) error {
 	item, err := queries.GetItemWithId(db, itemId)
 	if err != nil {
 		c.PrintErrorf("Failed to get item back from database\n")

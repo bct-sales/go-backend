@@ -18,7 +18,7 @@ import (
 
 func TestUpdateFreezeStatusOfItems(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		selections := [][]models.Id{
+		selections := [][]models.ID{
 			{},
 			{1},
 			{2},
@@ -35,7 +35,7 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 
 				seller := setup.Seller()
 
-				itemIds := []models.Id{}
+				itemIds := []models.ID{}
 				for i := 0; i != 10; i++ {
 					itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
 				}
@@ -61,7 +61,7 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 			defer setup.Close()
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.UpdateFreezeStatusOfItems(db, []models.Id{1}, true)
+				err := queries.UpdateFreezeStatusOfItems(db, []models.ID{1}, true)
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 			})
 		})
@@ -72,7 +72,7 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 
 			seller := setup.Seller()
 
-			itemIds := []models.Id{}
+			itemIds := []models.ID{}
 			for i := 0; i != 10; i++ {
 				itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
 			}

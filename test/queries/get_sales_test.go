@@ -27,7 +27,7 @@ func TestGetSales(t *testing.T) {
 			items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
 
 			for _, item := range items {
-				setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+				setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 			}
 
 			actualSales := []*models.SaleSummary{}
@@ -56,13 +56,13 @@ func TestGetSales(t *testing.T) {
 
 					items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
 
-					saleIds := make([]models.Id, len(items))
+					saleIds := make([]models.ID, len(items))
 					for _, item := range items {
-						setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+						setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 					}
 
 					actualSales := []*models.SaleSummary{}
-					err := queries.NewGetSalesQuery().WithIdGreaterThanOrEqualTo(models.Id(k+1)).Execute(db, queries.CollectTo(&actualSales))
+					err := queries.NewGetSalesQuery().WithIdGreaterThanOrEqualTo(models.ID(k+1)).Execute(db, queries.CollectTo(&actualSales))
 					require.NoError(t, err)
 					require.Len(t, actualSales, len(saleIds)-k)
 
@@ -90,7 +90,7 @@ func TestGetSales(t *testing.T) {
 
 						items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
 						sales := algorithms.Map(items, func(item *models.Item) *models.Sale {
-							return setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+							return setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 						})
 
 						expectedSales := sales[offset : offset+limit]
@@ -127,7 +127,7 @@ func TestGetSales(t *testing.T) {
 
 						sales := []*models.Sale{}
 						for index, item := range items {
-							sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID}, aux.WithTransactionTime(models.Timestamp(index)))
+							sale := setup.Sale(cashier.UserId, []models.ID{item.ItemID}, aux.WithTransactionTime(models.Timestamp(index)))
 							sales = append(sales, sale)
 						}
 

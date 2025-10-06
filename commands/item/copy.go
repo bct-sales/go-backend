@@ -83,7 +83,7 @@ func (c *copyItemCommand) execute(args []string) error {
 	})
 }
 
-func (c *copyItemCommand) printItem(db *sql.DB, itemId models.Id) error {
+func (c *copyItemCommand) printItem(db *sql.DB, itemId models.ID) error {
 	item, err := queries.GetItemWithId(db, itemId)
 	if err != nil {
 		c.PrintErrorf("Failed to get item back from database\n")

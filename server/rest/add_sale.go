@@ -10,11 +10,11 @@ import (
 )
 
 type AddSalePayload struct {
-	Items []models.Id `binding:"required" json:"itemIds"`
+	Items []models.ID `binding:"required" json:"itemIds"`
 }
 
 type AddSaleSuccessResponse struct {
-	SaleId models.Id `json:"saleId"`
+	SaleId models.ID `json:"saleId"`
 }
 
 // @Summary Add a new sale
@@ -125,7 +125,7 @@ func (ep *addSaleEndpoint) interpretDatabaseError(err error) {
 	failure_response.Unknown(ep.Context, "Failed to add sale: "+err.Error())
 }
 
-func (ep *addSaleEndpoint) addSaleToDatabase(transaction *queries.TransactionalDatabaseQuerier, itemIDs []models.Id) (models.Id, bool) {
+func (ep *addSaleEndpoint) addSaleToDatabase(transaction *queries.TransactionalDatabaseQuerier, itemIDs []models.ID) (models.ID, bool) {
 	timestamp := ep.Clock.Now()
 
 	saleId, err := queries.AddSale(
@@ -164,7 +164,7 @@ func (ep *addSaleEndpoint) endTransaction(transaction *queries.TransactionalData
 	return true
 }
 
-func (ep *addSaleEndpoint) sendSuccessResponse(saleId models.Id) {
+func (ep *addSaleEndpoint) sendSuccessResponse(saleId models.ID) {
 	response := AddSaleSuccessResponse{SaleId: saleId}
 	ep.Context.JSON(http.StatusCreated, response)
 }

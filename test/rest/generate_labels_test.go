@@ -41,7 +41,7 @@ func TestGenerateLabels(t *testing.T) {
 				url := path.Labels()
 				request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 					Layout:  defaultLayout,
-					ItemIds: []models.Id{item1.ItemID},
+					ItemIds: []models.ID{item1.ItemID},
 				}, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
@@ -156,7 +156,7 @@ func TestGenerateLabels(t *testing.T) {
 			url := path.Labels()
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 				Layout:  defaultLayout,
-				ItemIds: []models.Id{},
+				ItemIds: []models.ID{},
 			}, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "missing_items")
@@ -173,13 +173,13 @@ func TestGenerateLabels(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 
 			items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-			nonexistendItemId := models.Id(1000)
+			nonexistendItemId := models.ID(1000)
 			setup.RequireNoSuchItems(t, nonexistendItemId)
 
 			url := path.Labels()
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 				Layout:  defaultLayout,
-				ItemIds: []models.Id{nonexistendItemId},
+				ItemIds: []models.ID{nonexistendItemId},
 			}, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_item")
@@ -201,7 +201,7 @@ func TestGenerateLabels(t *testing.T) {
 			url := path.Labels()
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 				Layout:  defaultLayout,
-				ItemIds: []models.Id{items[0].ItemID},
+				ItemIds: []models.ID{items[0].ItemID},
 			}, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_seller")
@@ -223,7 +223,7 @@ func TestGenerateLabels(t *testing.T) {
 			url := path.Labels()
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 				Layout:  defaultLayout,
-				ItemIds: []models.Id{items[0].ItemID},
+				ItemIds: []models.ID{items[0].ItemID},
 			}, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
@@ -245,7 +245,7 @@ func TestGenerateLabels(t *testing.T) {
 			url := path.Labels()
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 				Layout:  defaultLayout,
-				ItemIds: []models.Id{items[0].ItemID},
+				ItemIds: []models.ID{items[0].ItemID},
 			}, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
@@ -266,7 +266,7 @@ func TestGenerateLabels(t *testing.T) {
 			url := path.Labels()
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 				Layout:  defaultLayout,
-				ItemIds: []models.Id{items[0].ItemID},
+				ItemIds: []models.ID{items[0].ItemID},
 			})
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
@@ -287,7 +287,7 @@ func TestGenerateLabels(t *testing.T) {
 			url := path.Labels()
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 				Layout:  defaultLayout,
-				ItemIds: []models.Id{items[0].ItemID},
+				ItemIds: []models.ID{items[0].ItemID},
 			}, WithSessionCookie("fake_session_id"))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
@@ -311,7 +311,7 @@ func TestGenerateLabels(t *testing.T) {
 			url := path.Labels()
 			request := CreatePostRequest(url, &restapi.GenerateLabelsPayload{
 				Layout:  defaultLayout,
-				ItemIds: []models.Id{items[0].ItemID},
+				ItemIds: []models.ID{items[0].ItemID},
 			}, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")

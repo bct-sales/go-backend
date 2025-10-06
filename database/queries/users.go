@@ -14,7 +14,7 @@ import (
 // An ErrNoSuchRole is returned if the role ID is invalid.
 func AddUserWithId(
 	database DatabaseQuerier,
-	userId models.Id,
+	userId models.ID,
 	roleId models.RoleId,
 	createdAt models.Timestamp,
 	lastActivity *models.Timestamp,
@@ -25,7 +25,7 @@ func AddUserWithId(
 	}()
 
 	if !roleId.IsValid() {
-		return fmt.Errorf("invalid role id %d: %w", roleId.Id, dberr.ErrNoSuchRole)
+		return fmt.Errorf("invalid role id %d: %w", roleId.ID, dberr.ErrNoSuchRole)
 	}
 
 	_, err := database.Exec(
@@ -60,14 +60,14 @@ func AddUser(
 	roleId models.RoleId,
 	createdAt models.Timestamp,
 	lastActivity *models.Timestamp,
-	password string) (r_result models.Id, r_err error) {
+	password string) (r_result models.ID, r_err error) {
 
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
 	if !roleId.IsValid() {
-		return 0, fmt.Errorf("invalid role id %d: %w", roleId.Id, dberr.ErrNoSuchRole)
+		return 0, fmt.Errorf("invalid role id %d: %w", roleId.ID, dberr.ErrNoSuchRole)
 	}
 
 	result, err := db.Exec(
@@ -90,10 +90,10 @@ func AddUser(
 		return 0, fmt.Errorf("failed to get last insert id: %w", err)
 	}
 
-	return models.Id(userId), nil
+	return models.ID(userId), nil
 }
 
-type AddUsersCallback func(addUser func(userId models.Id, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string))
+type AddUsersCallback func(addUser func(userId models.ID, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string))
 
 func AddUsers(database DatabaseQuerier, callback AddUsersCallback) (r_err error) {
 	defer func() {
@@ -104,7 +104,7 @@ func AddUsers(database DatabaseQuerier, callback AddUsersCallback) (r_err error)
 	arguments := []any{}
 	tupleString := "(?, ?, ?, ?, ?)"
 
-	add := func(userId models.Id, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string) {
+	add := func(userId models.ID, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string) {
 		valuesString = append(valuesString, tupleString)
 		arguments = append(arguments, userId, roleId.Int64(), createdAt, lastActivity, password)
 	}
@@ -124,7 +124,7 @@ func AddUsers(database DatabaseQuerier, callback AddUsersCallback) (r_err error)
 	return nil
 }
 
-func UserWithIdExists(db DatabaseQuerier, userId models.Id) (r_result bool, r_err error) {
+func UserWithIdExists(db DatabaseQuerier, userId models.ID) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -157,7 +157,7 @@ func UserWithIdExists(db DatabaseQuerier, userId models.Id) (r_result bool, r_er
 
 // GetUserWithId retrieves a user from the database by their user ID.
 // An ErrNoSuchUser is returned if the user does not exist.
-func GetUserWithId(db DatabaseQuerier, userId models.Id) (r_result *models.User, r_err error) {
+func GetUserWithId(db DatabaseQuerier, userId models.ID) (r_result *models.User, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -181,7 +181,7 @@ func GetUserWithId(db DatabaseQuerier, userId models.Id) (r_result *models.User,
 	var createdAt models.Timestamp
 	var lastActivity *models.Timestamp
 	var password string
-	err := row.Scan(&roleId.Id, &createdAt, &lastActivity, &password)
+	err := row.Scan(&roleId.ID, &createdAt, &lastActivity, &password)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("failed to get user with id %d: %w", userId, dberr.ErrNoSuchUser)
@@ -218,13 +218,13 @@ func GetUsers(db DatabaseQuerier, receiver func(*models.User) error) (r_err erro
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	for rows.Next() {
-		var userId models.Id
+		var userId models.ID
 		var roleId models.RoleId
 		var createdAt models.Timestamp
 		var lastActivity *models.Timestamp
 		var password string
 
-		if err := rows.Scan(&userId, &roleId.Id, &createdAt, &lastActivity, &password); err != nil {
+		if err := rows.Scan(&userId, &roleId.ID, &createdAt, &lastActivity, &password); err != nil {
 			return err
 		}
 
@@ -284,13 +284,13 @@ func GetUsersWithItemCount(db DatabaseQuerier, itemSelection ItemSelection, rece
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	for rows.Next() {
-		var userId models.Id
+		var userId models.ID
 		var roleId models.RoleId
 		var createdAt models.Timestamp
 		var lastActivity *models.Timestamp
 		var password string
 		var itemCount int
-		if err := rows.Scan(&userId, &roleId.Id, &createdAt, &lastActivity, &password, &itemCount); err != nil {
+		if err := rows.Scan(&userId, &roleId.ID, &createdAt, &lastActivity, &password, &itemCount); err != nil {
 			return err
 		}
 
@@ -318,7 +318,7 @@ func GetUsersWithItemCount(db DatabaseQuerier, itemSelection ItemSelection, rece
 
 // UpdateUserPassword updates the password of a user in the database by their user ID.
 // An ErrNoSuchUser is returned if the user does not exist.
-func UpdateUserPassword(database DatabaseQuerier, userId models.Id, password string) (r_err error) {
+func UpdateUserPassword(database DatabaseQuerier, userId models.ID, password string) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -346,7 +346,7 @@ func UpdateUserPassword(database DatabaseQuerier, userId models.Id, password str
 
 // EnsureUserExists checks if a user exists in the database by their user ID.
 // An ErrNoSuchUser is returned if the user does not exist.
-func EnsureUserExists(db DatabaseQuerier, userId models.Id) (r_err error) {
+func EnsureUserExists(db DatabaseQuerier, userId models.ID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -364,7 +364,7 @@ func EnsureUserExists(db DatabaseQuerier, userId models.Id) (r_err error) {
 // EnsureUserExistsAndHasRole checks if a user has a specific role.
 // An ErrNoSuchUser is returned if the user does not exist.
 // An ErrWrongRole is returned if the user has a different role.
-func EnsureUserExistsAndHasRole(db DatabaseQuerier, userId models.Id, expectedRoleId models.RoleId) (r_err error) {
+func EnsureUserExistsAndHasRole(db DatabaseQuerier, userId models.ID, expectedRoleId models.RoleId) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -386,7 +386,7 @@ func EnsureUserExistsAndHasRole(db DatabaseQuerier, userId models.Id, expectedRo
 // An ErrNoSuchUser is returned if the user does not exist.
 // An error is returned if the user cannot be removed, e.g., because items or sales are
 // associated with the user.
-func RemoveUserWithId(db DatabaseQuerier, userId models.Id) (r_err error) {
+func RemoveUserWithId(db DatabaseQuerier, userId models.ID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -414,7 +414,7 @@ func RemoveUserWithId(db DatabaseQuerier, userId models.Id) (r_err error) {
 
 // UpdateLastActivity updates the last activity timestamp of a user in the database by their user ID.
 // An ErrNoSuchUser is returned if the user does not exist.
-func UpdateLastActivity(db DatabaseQuerier, userId models.Id, lastActivity models.Timestamp) (r_err error) {
+func UpdateLastActivity(db DatabaseQuerier, userId models.ID, lastActivity models.Timestamp) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -457,7 +457,7 @@ const (
 // For example, if frozen equals IncludeAll, both frozen and unfrozen items are included.
 // If frozen equals Exclude, only unfrozen items are included.
 // If frozen equals IncludeOnly, only frozen items are included.
-func CountSellerItems(db DatabaseQuerier, sellerId models.Id, frozen GetSellerItemCountFlag, hidden GetSellerItemCountFlag) (r_result int, r_err error) {
+func CountSellerItems(db DatabaseQuerier, sellerId models.ID, frozen GetSellerItemCountFlag, hidden GetSellerItemCountFlag) (r_result int, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -511,7 +511,7 @@ func CountSellerItems(db DatabaseQuerier, sellerId models.Id, frozen GetSellerIt
 // Note that whether an item has been sold does not matter.
 // An ErrNoSuchUser is returned if the user does not exist.
 // An ErrWrongRole is returned if the user with the given id is not a seller.
-func GetSellerTotalValueOfAllItems(db DatabaseQuerier, sellerId models.Id, itemSelection ItemSelection) (r_result models.MoneyInCents, r_err error) {
+func GetSellerTotalValueOfAllItems(db DatabaseQuerier, sellerId models.ID, itemSelection ItemSelection) (r_result models.MoneyInCents, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()

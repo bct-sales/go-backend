@@ -46,7 +46,7 @@ func TestEnsureItemsExist(t *testing.T) {
 
 		seller := setup.Seller()
 		items := setup.Items(seller.UserId, 10, aux.WithFrozen(false), aux.WithHidden(false))
-		nonexistentItemId := models.Id(150)
+		nonexistentItemId := models.ID(150)
 		setup.RequireNoSuchItems(t, nonexistentItemId)
 		itemIds := append(models.CollectItemIds(items), nonexistentItemId)
 

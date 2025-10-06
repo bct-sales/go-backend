@@ -33,11 +33,11 @@ func TestGetMultiplySoldItems(t *testing.T) {
 		seller := setup.Seller()
 		cashier := setup.Cashier()
 
-		itemIds := []models.Id{
+		itemIds := []models.ID{
 			setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID,
 		}
 
-		setup.Sale(cashier.UserId, []models.Id{itemIds[0]})
+		setup.Sale(cashier.UserId, []models.ID{itemIds[0]})
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
 
@@ -56,8 +56,8 @@ func TestGetMultiplySoldItems(t *testing.T) {
 			setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)),
 		}
 
-		sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID})
-		sale2 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID})
+		sale1 := setup.Sale(cashier.UserId, []models.ID{items[0].ItemID})
+		sale2 := setup.Sale(cashier.UserId, []models.ID{items[0].ItemID})
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
 
@@ -82,9 +82,9 @@ func TestGetMultiplySoldItems(t *testing.T) {
 			setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)),
 		}
 
-		sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID})
-		sale2 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID})
-		sale3 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID})
+		sale1 := setup.Sale(cashier.UserId, []models.ID{items[0].ItemID})
+		sale2 := setup.Sale(cashier.UserId, []models.ID{items[0].ItemID})
+		sale3 := setup.Sale(cashier.UserId, []models.ID{items[0].ItemID})
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
 
@@ -111,8 +111,8 @@ func TestGetMultiplySoldItems(t *testing.T) {
 			setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false)),
 		}
 
-		sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
-		sale2 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
+		sale1 := setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[1].ItemID})
+		sale2 := setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[1].ItemID})
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
 
@@ -143,9 +143,9 @@ func TestGetMultiplySoldItems(t *testing.T) {
 			setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false)),
 		}
 
-		sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID})
-		sale2 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
-		sale3 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID, items[2].ItemID})
+		sale1 := setup.Sale(cashier.UserId, []models.ID{items[0].ItemID})
+		sale2 := setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[1].ItemID})
+		sale3 := setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[1].ItemID, items[2].ItemID})
 
 		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
 

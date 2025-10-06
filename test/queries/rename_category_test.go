@@ -19,7 +19,7 @@ func TestRenameCategory(t *testing.T) {
 			setup, db := NewDatabaseFixture()
 			defer setup.Close()
 
-			categoryId := models.Id(1)
+			categoryId := models.ID(1)
 			newName := "bar"
 			setup.Category(categoryId, "foo")
 

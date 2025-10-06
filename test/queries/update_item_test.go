@@ -136,7 +136,7 @@ func TestUpdateItem(t *testing.T) {
 			setup, _ := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			itemId := models.Id(1)
+			itemId := models.ID(1)
 			itemUpdate := queries.ItemUpdate{}
 
 			setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {

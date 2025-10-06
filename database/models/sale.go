@@ -1,14 +1,14 @@
 package models
 
 type Sale struct {
-	SaleID          Id
-	CashierID       Id
+	SaleID          ID
+	CashierID       ID
 	TransactionTime Timestamp
 }
 
 type SaleSummary struct {
-	SaleID            Id
-	CashierID         Id
+	SaleID            ID
+	CashierID         ID
 	TransactionTime   Timestamp
 	ItemCount         int
 	TotalPriceInCents MoneyInCents

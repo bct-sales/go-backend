@@ -21,7 +21,7 @@ func TestHasAnyBeenSold(t *testing.T) {
 
 		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-		actual, err := queries.HasAnyBeenSold(db, []models.Id{item.ItemID})
+		actual, err := queries.HasAnyBeenSold(db, []models.ID{item.ItemID})
 		require.NoError(t, err)
 		require.False(t, actual)
 	})
@@ -34,9 +34,9 @@ func TestHasAnyBeenSold(t *testing.T) {
 		cashier := setup.Cashier()
 
 		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-		setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+		setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 
-		actual, err := queries.HasAnyBeenSold(db, []models.Id{item.ItemID})
+		actual, err := queries.HasAnyBeenSold(db, []models.ID{item.ItemID})
 		require.NoError(t, err)
 		require.True(t, actual)
 	})
@@ -76,10 +76,10 @@ func TestHasAnyBeenSold(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		nonexistentItemId := models.Id(1)
+		nonexistentItemId := models.ID(1)
 		setup.RequireNoSuchItems(t, nonexistentItemId)
 
-		actual, err := queries.HasAnyBeenSold(db, []models.Id{nonexistentItemId})
+		actual, err := queries.HasAnyBeenSold(db, []models.ID{nonexistentItemId})
 		require.NoError(t, err)
 		require.False(t, actual)
 	})

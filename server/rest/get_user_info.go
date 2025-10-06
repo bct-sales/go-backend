@@ -15,7 +15,7 @@ import (
 // GetUserInformationByAdminSuccessResponse is the common response part for all user information requests done by admins.
 // It is embedded in other response structs specialized for sellers, cashiers and admins.
 type GetUserInformationByAdminSuccessResponse struct {
-	UserId       models.Id      `binding:"required"            json:"userId"`
+	UserId       models.ID      `binding:"required"            json:"userId"`
 	Role         string         `binding:"required"            json:"role"`
 	Password     string         `binding:"required"            json:"password"`
 	CreatedAt    rest.DateTime  `binding:"required"            json:"createdAt"`
@@ -42,12 +42,12 @@ type GetAdminInformationByAdminSuccessResponse struct {
 // GetSellerInformationItemData contains data regarding items.
 // It is used when an admin requests information about a seller.
 type GetSellerInformationItemData struct {
-	ItemId       models.Id           `binding:"required" json:"itemId"`
+	ItemId       models.ID           `binding:"required" json:"itemId"`
 	AddedAt      rest.DateTime       `binding:"required" json:"addedAt"`
-	SellerId     models.Id           `binding:"required" json:"sellerId"`
+	SellerId     models.ID           `binding:"required" json:"sellerId"`
 	Description  string              `binding:"required" json:"description"`
 	PriceInCents models.MoneyInCents `binding:"required" json:"priceInCents"`
-	CategoryId   models.Id           `binding:"required" json:"categoryId"`
+	CategoryId   models.ID           `binding:"required" json:"categoryId"`
 	Charity      *bool               `binding:"required" json:"charity"`
 	Donation     *bool               `binding:"required" json:"donation"`
 	Frozen       *bool               `binding:"required" json:"frozen"`
@@ -57,7 +57,7 @@ type GetSellerInformationItemData struct {
 // GetCashierInformationByAdminSaleData contains data regarding sales.
 // It is used when an admin requests information about a cashier.
 type GetCashierInformationByAdminSaleData struct {
-	SaleId          models.Id     `binding:"required" json:"saleId"`
+	SaleId          models.ID     `binding:"required" json:"saleId"`
 	TransactionTime rest.DateTime `binding:"required" json:"transactionTime"`
 }
 
@@ -110,7 +110,7 @@ func GetUserInformation(arguments *HandlerFunctionArguments) {
 			HandlerFunctionArguments: *arguments,
 		},
 	}
-	
+
 	endpoint.execute()
 }
 
@@ -143,7 +143,7 @@ func (ep *GetUserInformationEndpoint) execute() {
 	}
 }
 
-func (ep *GetUserInformationEndpoint) retrieveQueriedUserFromUri() (models.Id, error) {
+func (ep *GetUserInformationEndpoint) retrieveQueriedUserFromUri() (models.ID, error) {
 	// Retrieve id of user whose information is being requested
 	var uriParameters struct {
 		UserId string `binding:"required" uri:"id"`
@@ -165,7 +165,7 @@ func (ep *GetUserInformationEndpoint) retrieveQueriedUserFromUri() (models.Id, e
 	return queriedUserId, nil
 }
 
-func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserId models.Id) {
+func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserId models.ID) {
 	logger := ep.Logger
 	context := ep.Context
 	db := ep.Database
@@ -262,7 +262,7 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserId mo
 	}
 }
 
-func (ep *GetUserInformationEndpoint) getUserInformationAsSeller(queriedUserId models.Id) {
+func (ep *GetUserInformationEndpoint) getUserInformationAsSeller(queriedUserId models.ID) {
 	logger := ep.Logger
 	context := ep.Context
 	db := ep.Database
@@ -316,7 +316,7 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsSeller(queriedUserId m
 	context.JSON(http.StatusOK, response)
 }
 
-func (ep *GetUserInformationEndpoint) getUserInformationAsCashier(queriedUserId models.Id) {
+func (ep *GetUserInformationEndpoint) getUserInformationAsCashier(queriedUserId models.ID) {
 	logger := ep.Logger
 	context := ep.Context
 	db := ep.Database

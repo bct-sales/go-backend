@@ -58,7 +58,7 @@ func (c *AddUserCommand) execute() error {
 		timestamp := models.Now()
 		var lastActivity *models.Timestamp = nil
 
-		if err := queries.AddUserWithId(db, models.Id(userId), roleId, timestamp, lastActivity, password); err != nil {
+		if err := queries.AddUserWithId(db, models.ID(userId), roleId, timestamp, lastActivity, password); err != nil {
 			c.PrintErrorf("Failed to add user\n")
 			return err
 		}

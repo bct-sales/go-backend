@@ -31,7 +31,7 @@ func TestGetItemWithId(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			itemId := models.Id(1)
+			itemId := models.ID(1)
 			_, err := queries.GetItemWithId(db, itemId)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 		})

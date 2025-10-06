@@ -24,8 +24,8 @@ func TestPartitionItemsByFrozenStatus(t *testing.T) {
 			frozenItems := setup.Items(seller.UserId, 10, aux.WithFrozen(true), aux.WithHidden(false))
 			unfrozenItems := setup.Items(seller.UserId, 5, aux.WithFrozen(false), aux.WithHidden(false))
 			allItems := slices.Concat(
-				algorithms.Map(frozenItems, func(i *models.Item) models.Id { return i.ItemID }),
-				algorithms.Map(unfrozenItems, func(i *models.Item) models.Id { return i.ItemID }))
+				algorithms.Map(frozenItems, func(i *models.Item) models.ID { return i.ItemID }),
+				algorithms.Map(unfrozenItems, func(i *models.Item) models.ID { return i.ItemID }))
 
 			actualUnfrozen, actualFrozen, err := queries.PartitionItemsByFrozenStatus(db, allItems)
 			require.NoError(t, err)
@@ -42,9 +42,9 @@ func TestPartitionItemsByFrozenStatus(t *testing.T) {
 			unfrozenVisibleItems := setup.Items(seller.UserId, 5, aux.WithFrozen(false), aux.WithHidden(false))
 			unfrozenHiddenItems := setup.Items(seller.UserId, 5, aux.WithFrozen(false), aux.WithHidden(true))
 			allItems := slices.Concat(
-				algorithms.Map(frozenItems, func(i *models.Item) models.Id { return i.ItemID }),
-				algorithms.Map(unfrozenVisibleItems, func(i *models.Item) models.Id { return i.ItemID }),
-				algorithms.Map(unfrozenHiddenItems, func(i *models.Item) models.Id { return i.ItemID }),
+				algorithms.Map(frozenItems, func(i *models.Item) models.ID { return i.ItemID }),
+				algorithms.Map(unfrozenVisibleItems, func(i *models.Item) models.ID { return i.ItemID }),
+				algorithms.Map(unfrozenHiddenItems, func(i *models.Item) models.ID { return i.ItemID }),
 			)
 
 			actualUnfrozen, actualFrozen, err := queries.PartitionItemsByFrozenStatus(db, allItems)
@@ -60,11 +60,11 @@ func TestPartitionItemsByFrozenStatus(t *testing.T) {
 			seller := setup.Seller()
 			frozenItems := setup.Items(seller.UserId, 10, aux.WithFrozen(true), aux.WithHidden(false))
 			unfrozenItems := setup.Items(seller.UserId, 5, aux.WithFrozen(false), aux.WithHidden(false))
-			nonexistentItems := []models.Id{999, 1000, 1001}
+			nonexistentItems := []models.ID{999, 1000, 1001}
 			setup.RequireNoSuchItems(t, nonexistentItems...)
 			allItems := slices.Concat(
-				algorithms.Map(frozenItems, func(i *models.Item) models.Id { return i.ItemID }),
-				algorithms.Map(unfrozenItems, func(i *models.Item) models.Id { return i.ItemID }),
+				algorithms.Map(frozenItems, func(i *models.Item) models.ID { return i.ItemID }),
+				algorithms.Map(unfrozenItems, func(i *models.Item) models.ID { return i.ItemID }),
 				nonexistentItems)
 
 			actualUnfrozen, actualFrozen, err := queries.PartitionItemsByFrozenStatus(db, allItems)

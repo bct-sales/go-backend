@@ -9,7 +9,7 @@ import (
 )
 
 type AddUserData struct {
-	UserId       *models.Id
+	UserId       *models.ID
 	RoleId       models.RoleId
 	Password     *string
 	CreatedAt    *models.Timestamp
@@ -28,7 +28,7 @@ func (data *AddUserData) FillWithDefaults() {
 	}
 }
 
-func WithUserId(userId models.Id) func(*AddUserData) {
+func WithUserId(userId models.ID) func(*AddUserData) {
 	return func(data *AddUserData) {
 		data.UserId = &userId
 	}
@@ -69,7 +69,7 @@ func AddUserToDatabase(db *sql.DB, roleId models.RoleId, options ...func(*AddUse
 
 	data.FillWithDefaults()
 
-	var userId models.Id
+	var userId models.ID
 	if data.UserId == nil {
 		var err error
 		userId, err = queries.AddUser(db, roleId, *data.CreatedAt, data.LastActivity, *data.Password)

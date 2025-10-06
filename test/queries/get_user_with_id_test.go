@@ -21,7 +21,7 @@ func TestGetUserWithId(t *testing.T) {
 		lastActivity := models.Timestamp(2)
 		user := models.User{
 			Password:     "xyz",
-			UserId:       models.Id(1),
+			UserId:       models.ID(1),
 			RoleId:       models.NewSellerRoleId(),
 			CreatedAt:    models.Timestamp(1),
 			LastActivity: &lastActivity,
@@ -38,7 +38,7 @@ func TestGetUserWithId(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		userId := models.Id(999)
+		userId := models.ID(999)
 		setup.RequireNoSuchUsers(t, userId)
 
 		_, err := queries.GetUserWithId(db, userId)

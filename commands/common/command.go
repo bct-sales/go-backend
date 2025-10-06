@@ -92,31 +92,31 @@ func (command *Command) AsCobraCommand() *cobra.Command {
 	return command.CobraCommand
 }
 
-func (command *Command) ParseItemId(str string) (models.Id, error) {
+func (command *Command) ParseItemId(str string) (models.ID, error) {
 	return command.parseId(str, "item")
 }
 
-func (command *Command) ParseUserId(str string) (models.Id, error) {
+func (command *Command) ParseUserId(str string) (models.ID, error) {
 	return command.parseId(str, "user")
 }
 
-func (command *Command) ParseSaleId(str string) (models.Id, error) {
+func (command *Command) ParseSaleId(str string) (models.ID, error) {
 	return command.parseId(str, "sale")
 }
 
-func (command *Command) ParseItemIds(str []string) ([]models.Id, error) {
+func (command *Command) ParseItemIds(str []string) ([]models.ID, error) {
 	return algorithms.MapError(str, command.ParseItemId)
 }
 
-func (command *Command) ParseUserIds(str []string) ([]models.Id, error) {
+func (command *Command) ParseUserIds(str []string) ([]models.ID, error) {
 	return algorithms.MapError(str, command.ParseUserId)
 }
 
-func (command *Command) ParseSaleIds(str []string) ([]models.Id, error) {
+func (command *Command) ParseSaleIds(str []string) ([]models.ID, error) {
 	return algorithms.MapError(str, command.ParseSaleId)
 }
 
-func (command *Command) parseId(str string, idType string) (models.Id, error) {
+func (command *Command) parseId(str string, idType string) (models.ID, error) {
 	id, err := models.ParseId(str)
 
 	if err != nil {
@@ -127,7 +127,7 @@ func (command *Command) parseId(str string, idType string) (models.Id, error) {
 	return id, nil
 }
 
-func (command *Command) GetCategoryNameTable(db queries.DatabaseQuerier) (map[models.Id]string, error) {
+func (command *Command) GetCategoryNameTable(db queries.DatabaseQuerier) (map[models.ID]string, error) {
 	categoryNameTable, err := queries.GetCategoryNameTable(db)
 
 	if err != nil {

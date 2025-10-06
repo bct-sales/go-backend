@@ -66,7 +66,7 @@ func (c *categoryCountCommand) execute() error {
 	})
 }
 
-func (c *categoryCountCommand) getCategoryCounts(database *sql.DB) (map[models.Id]int, error) {
+func (c *categoryCountCommand) getCategoryCounts(database *sql.DB) (map[models.ID]int, error) {
 	var itemSelection queries.ItemSelection
 
 	if c.includeHidden {
@@ -86,8 +86,8 @@ func (c *categoryCountCommand) getCategoryCounts(database *sql.DB) (map[models.I
 }
 
 func (c *categoryCountCommand) printCategoryCounts(
-	categoryCounts map[models.Id]int,
-	categoryNameTable map[models.Id]string,
+	categoryCounts map[models.ID]int,
+	categoryNameTable map[models.ID]string,
 ) error {
 
 	tableData := pterm.TableData{

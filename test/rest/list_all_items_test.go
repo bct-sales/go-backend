@@ -229,7 +229,7 @@ func TestListAllItems(t *testing.T) {
 
 					require.Len(t, actualItems, 2)
 					for _, actualItem := range actualItems {
-						require.Equal(t, models.Id(2), actualItem.CategoryId)
+						require.Equal(t, models.ID(2), actualItem.CategoryId)
 					}
 				})
 			})

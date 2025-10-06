@@ -34,7 +34,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 			seller := setup.Seller()
 
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-			sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+			sale := setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 
 			sales, err := queries.GetSalesWithCashier(db, cashier.UserId)
 			require.NoError(t, err)
@@ -53,8 +53,8 @@ func TestGetSalesWithCashier(t *testing.T) {
 
 			item1 := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 			item2 := setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false))
-			sale1 := setup.Sale(cashier.UserId, []models.Id{item1.ItemID})
-			sale2 := setup.Sale(cashier.UserId, []models.Id{item2.ItemID})
+			sale1 := setup.Sale(cashier.UserId, []models.ID{item1.ItemID})
+			sale2 := setup.Sale(cashier.UserId, []models.ID{item2.ItemID})
 
 			sales, err := queries.GetSalesWithCashier(db, cashier.UserId)
 			require.NoError(t, err)
@@ -70,7 +70,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			unknownCashierId := models.Id(9999)
+			unknownCashierId := models.ID(9999)
 			setup.RequireNoSuchUsers(t, unknownCashierId)
 
 			_, err := queries.GetSalesWithCashier(db, unknownCashierId)

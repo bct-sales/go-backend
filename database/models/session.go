@@ -8,6 +8,6 @@ func (sessionId SessionId) String() string {
 
 type Session struct {
 	SessionID      SessionId
-	UserID         Id
+	UserID         ID
 	ExpirationTime Timestamp
 }

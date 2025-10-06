@@ -29,7 +29,7 @@ func TestGetSaleInformation(t *testing.T) {
 
 				transactionTime := models.Timestamp(100)
 				item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-				sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID}, aux.WithTransactionTime(transactionTime))
+				sale := setup.Sale(cashier.UserId, []models.ID{item.ItemID}, aux.WithTransactionTime(transactionTime))
 
 				url := path.Sale(sale.SaleID)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -129,7 +129,7 @@ func TestGetSaleInformation(t *testing.T) {
 			defer setup.Close()
 
 			_, sessionId := setup.LoggedIn(setup.Admin())
-			saleId := models.Id(9999) // Assuming this ID does not exist
+			saleId := models.ID(9999) // Assuming this ID does not exist
 			setup.RequireNoSuchSales(t, saleId)
 
 			url := path.Sale(saleId)
@@ -145,7 +145,7 @@ func TestGetSaleInformation(t *testing.T) {
 			seller, sessionId := setup.LoggedIn(setup.Seller())
 			cashier := setup.Cashier()
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-			sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+			sale := setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 
 			url := path.Sale(sale.SaleID)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -161,7 +161,7 @@ func TestGetSaleInformation(t *testing.T) {
 			cashier := setup.Cashier()
 			_, sessionId := setup.LoggedIn(setup.Cashier())
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-			sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+			sale := setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 
 			url := path.Sale(sale.SaleID)
 			request := CreateGetRequest(url, WithSessionCookie(sessionId))

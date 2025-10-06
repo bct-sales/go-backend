@@ -111,7 +111,7 @@ func TestGetSellerItems(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			unknownSellerId := models.Id(9999)
+			unknownSellerId := models.ID(9999)
 			setup.RequireNoSuchUsers(t, unknownSellerId)
 
 			_, err := queries.GetSellerItems(db, unknownSellerId, queries.AllItems)

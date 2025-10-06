@@ -83,7 +83,7 @@ func (f *RestFixture) Close() {
 	f.Writer = nil
 }
 
-func (s DatabaseFixture) Category(id models.Id, name string) {
+func (s DatabaseFixture) Category(id models.ID, name string) {
 	if err := queries.AddCategoryWithID(s.Db, id, name); err != nil {
 		panic(err)
 	}
@@ -112,7 +112,7 @@ func (s DatabaseFixture) Seller(options ...func(*aux.AddUserData)) *models.User 
 	return aux.AddUserToDatabase(s.Db, models.NewSellerRoleId(), options...)
 }
 
-func (s DatabaseFixture) Session(userId models.Id, options ...func(*aux.AddSessionData)) models.SessionId {
+func (s DatabaseFixture) Session(userId models.ID, options ...func(*aux.AddSessionData)) models.SessionId {
 	return aux.AddSessionToDatabase(s.Db, userId, s.Clock.Now(), options...)
 }
 
@@ -121,11 +121,11 @@ func (s DatabaseFixture) LoggedIn(user *models.User, options ...func(*aux.AddSes
 	return user, session
 }
 
-func (s DatabaseFixture) Item(seller models.Id, options ...func(*aux.AddItemData)) *models.Item {
+func (s DatabaseFixture) Item(seller models.ID, options ...func(*aux.AddItemData)) *models.Item {
 	return aux.AddItemToDatabase(s.Db, seller, options...)
 }
 
-func (s DatabaseFixture) Items(seller models.Id, count int, options ...func(*aux.AddItemData)) []*models.Item {
+func (s DatabaseFixture) Items(seller models.ID, count int, options ...func(*aux.AddItemData)) []*models.Item {
 	items := []*models.Item{}
 
 	for i := 0; i < count; i++ {
@@ -137,7 +137,7 @@ func (s DatabaseFixture) Items(seller models.Id, count int, options ...func(*aux
 	return items
 }
 
-func (s DatabaseFixture) Sale(cashier models.Id, itemIds []models.Id, options ...func(*aux.AddSaleData)) *models.Sale {
+func (s DatabaseFixture) Sale(cashier models.ID, itemIds []models.ID, options ...func(*aux.AddSaleData)) *models.Sale {
 	transaction, err := queries.NewTransactionalDatabaseQuerier(context.Background(), s.Db)
 	if err != nil {
 		panic(err)
@@ -152,7 +152,7 @@ func (s DatabaseFixture) Sale(cashier models.Id, itemIds []models.Id, options ..
 	return sale
 }
 
-func (s DatabaseFixture) RequireNoSuchUsers(t *testing.T, userIds ...models.Id) {
+func (s DatabaseFixture) RequireNoSuchUsers(t *testing.T, userIds ...models.ID) {
 	for _, userId := range userIds {
 		exists, err := queries.UserWithIdExists(s.Db, userId)
 		require.NoError(t, err)
@@ -160,7 +160,7 @@ func (s DatabaseFixture) RequireNoSuchUsers(t *testing.T, userIds ...models.Id) 
 	}
 }
 
-func (s DatabaseFixture) RequireNoSuchItems(t *testing.T, itemIds ...models.Id) {
+func (s DatabaseFixture) RequireNoSuchItems(t *testing.T, itemIds ...models.ID) {
 	for _, itemId := range itemIds {
 		exists, err := queries.ItemWithIdExists(s.Db, itemId)
 		require.NoError(t, err)
@@ -168,7 +168,7 @@ func (s DatabaseFixture) RequireNoSuchItems(t *testing.T, itemIds ...models.Id) 
 	}
 }
 
-func (s DatabaseFixture) RequireNoSuchSales(t *testing.T, saleIds ...models.Id) {
+func (s DatabaseFixture) RequireNoSuchSales(t *testing.T, saleIds ...models.ID) {
 	for _, itemId := range saleIds {
 		exists, err := queries.SaleWithIdExists(s.Db, itemId)
 		require.NoError(t, err)
@@ -176,7 +176,7 @@ func (s DatabaseFixture) RequireNoSuchSales(t *testing.T, saleIds ...models.Id) 
 	}
 }
 
-func (s DatabaseFixture) RequireFrozen(t *testing.T, saleId ...models.Id) {
+func (s DatabaseFixture) RequireFrozen(t *testing.T, saleId ...models.ID) {
 	for _, id := range saleId {
 		frozen, err := queries.IsItemFrozen(s.Db, id)
 		require.NoError(t, err)
@@ -184,7 +184,7 @@ func (s DatabaseFixture) RequireFrozen(t *testing.T, saleId ...models.Id) {
 	}
 }
 
-func (s DatabaseFixture) RequireNotFrozen(t *testing.T, saleId ...models.Id) {
+func (s DatabaseFixture) RequireNotFrozen(t *testing.T, saleId ...models.ID) {
 	for _, id := range saleId {
 		frozen, err := queries.IsItemFrozen(s.Db, id)
 		require.NoError(t, err)

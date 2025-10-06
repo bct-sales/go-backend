@@ -11,7 +11,7 @@ import (
 
 func AddSession(
 	db DatabaseQuerier,
-	userId models.Id,
+	userId models.ID,
 	expirationTime models.Timestamp) (r_result models.SessionId, r_err error) {
 
 	defer func() {
@@ -59,7 +59,7 @@ func GetSessionById(db DatabaseQuerier, sessionId models.SessionId) (r_result *m
 		sessionId,
 	)
 
-	var userId models.Id
+	var userId models.ID
 	var expirationTime models.Timestamp
 	if err := row.Scan(&userId, &expirationTime); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -77,7 +77,7 @@ func GetSessionById(db DatabaseQuerier, sessionId models.SessionId) (r_result *m
 }
 
 type SessionData struct {
-	UserId         models.Id
+	UserId         models.ID
 	RoleId         models.RoleId
 	ExpirationTime models.Timestamp
 }
@@ -105,10 +105,10 @@ func GetSessionData(db DatabaseQuerier, sessionId models.SessionId, currentTime 
 		currentTime,
 	)
 
-	var userId models.Id
+	var userId models.ID
 	var roleId models.RoleId
 	var expirationTime models.Timestamp
-	if err := row.Scan(&userId, &roleId.Id, &expirationTime); err != nil {
+	if err := row.Scan(&userId, &roleId.ID, &expirationTime); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, dberr.ErrNoSuchSession
 		}
@@ -149,7 +149,7 @@ func GetSessions(db DatabaseQuerier) (r_result []models.Session, r_err error) {
 
 	for rows.Next() {
 		var sessionId models.SessionId
-		var userId models.Id
+		var userId models.ID
 		var expirationTime models.Timestamp
 		if err := rows.Scan(&sessionId, &userId, &expirationTime); err != nil {
 			return nil, err
@@ -197,7 +197,7 @@ func DeleteSession(db DatabaseQuerier, sessionId models.SessionId) (r_err error)
 	return nil
 }
 
-func DeleteSessionWithUser(db DatabaseQuerier, userId models.Id) (r_err error) {
+func DeleteSessionWithUser(db DatabaseQuerier, userId models.ID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()

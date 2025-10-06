@@ -47,7 +47,7 @@ var clothing = [...]string{
 	"gloves",
 }
 
-var clothingCategories = [...]models.Id{
+var clothingCategories = [...]models.ID{
 	common.CategoryId_Clothing50_56,
 	common.CategoryId_Clothing56_62,
 	common.CategoryId_Clothing68_80,
@@ -220,7 +220,7 @@ func (c *dummyDatabaseCommand) execute() error {
 func (c *dummyDatabaseCommand) addCategories(db *sql.DB) error {
 	c.Printf("Adding categories\n")
 
-	addCategory := func(id models.Id, name string) error {
+	addCategory := func(id models.ID, name string) error {
 		return queries.AddCategoryWithID(db, id, name)
 	}
 
@@ -230,10 +230,10 @@ func (c *dummyDatabaseCommand) addCategories(db *sql.DB) error {
 	return nil
 }
 
-func (c *dummyDatabaseCommand) addAdmin(db *sql.DB) (models.Id, error) {
+func (c *dummyDatabaseCommand) addAdmin(db *sql.DB) (models.ID, error) {
 	c.Printf("Adding admin user\n")
 
-	id := models.Id(1)
+	id := models.ID(1)
 	roleId := models.NewAdminRoleId()
 	createdAt := models.Now()
 	var lastActivity *models.Timestamp = nil
@@ -246,11 +246,11 @@ func (c *dummyDatabaseCommand) addAdmin(db *sql.DB) (models.Id, error) {
 	return id, nil
 }
 
-func (c *dummyDatabaseCommand) addCashiers(db *sql.DB) ([]models.Id, error) {
+func (c *dummyDatabaseCommand) addCashiers(db *sql.DB) ([]models.ID, error) {
 	c.Printf("Adding cashier users\n")
 
 	cashierCount := c.rng.IntN(10) + 1
-	cashierIDs := make([]models.Id, 0, cashierCount)
+	cashierIDs := make([]models.ID, 0, cashierCount)
 
 	for range cashierCount {
 		roleId := models.NewCashierRoleId()
@@ -270,12 +270,12 @@ func (c *dummyDatabaseCommand) addCashiers(db *sql.DB) ([]models.Id, error) {
 	return cashierIDs, nil
 }
 
-func (c *dummyDatabaseCommand) addSellers(db *sql.DB) ([]models.Id, error) {
+func (c *dummyDatabaseCommand) addSellers(db *sql.DB) ([]models.ID, error) {
 	c.Printf("Adding sellers\n")
 
-	sellerIds := make([]models.Id, 0, zoneCount*10)
+	sellerIds := make([]models.ID, 0, zoneCount*10)
 
-	addSellers := func(addUser func(userId models.Id, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
+	addSellers := func(addUser func(userId models.ID, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
 		for area := 1; area <= zoneCount; area++ {
 			sellerCount := c.rng.IntN(10) + 1
 
@@ -299,11 +299,11 @@ func (c *dummyDatabaseCommand) addSellers(db *sql.DB) ([]models.Id, error) {
 	return sellerIds, nil
 }
 
-func (c *dummyDatabaseCommand) getSellerId(zone int, offset int) models.Id {
-	return models.Id(zone*100 + offset)
+func (c *dummyDatabaseCommand) getSellerId(zone int, offset int) models.ID {
+	return models.ID(zone*100 + offset)
 }
 
-func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIds []models.Id) ([]models.Id, error) {
+func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIds []models.ID) ([]models.ID, error) {
 	c.Printf("Adding items\n")
 
 	err := queries.AddItems(db, func(addItem queries.AddItemFunction) {
@@ -359,7 +359,7 @@ func (c *dummyDatabaseCommand) generateChronologicalTimes(count int, minDelta in
 	return times
 }
 
-func (c *dummyDatabaseCommand) generateRandomItemDescriptionAndCategory() (string, models.Id) {
+func (c *dummyDatabaseCommand) generateRandomItemDescriptionAndCategory() (string, models.ID) {
 	switch c.rng.IntN(3) {
 	case 0:
 		return c.generateRandomClothing()
@@ -374,11 +374,11 @@ func (c *dummyDatabaseCommand) generateRandomColor() string {
 	return colors[c.rng.IntN(len(colors))]
 }
 
-func (c *dummyDatabaseCommand) generateRandomClothingCategoryId() models.Id {
+func (c *dummyDatabaseCommand) generateRandomClothingCategoryId() models.ID {
 	return pickRandom(c.rng, clothingCategories[:])
 }
 
-func (c *dummyDatabaseCommand) generateRandomClothing() (string, models.Id) {
+func (c *dummyDatabaseCommand) generateRandomClothing() (string, models.ID) {
 	color := c.generateRandomColor()
 	categoryId := c.generateRandomClothingCategoryId()
 	clothingType := pickRandom(c.rng, clothing[:])
@@ -394,21 +394,21 @@ func pickRandom[T any](rng *rand.Rand, items []T) T {
 	return items[rng.IntN(len(items))]
 }
 
-func (c *dummyDatabaseCommand) generateRandomBooks() (string, models.Id) {
+func (c *dummyDatabaseCommand) generateRandomBooks() (string, models.ID) {
 	description := pickRandom(c.rng, books[:])
 	categoryId := common.CategoryId_Books
 
 	return description, categoryId
 }
 
-func (c *dummyDatabaseCommand) generateRandomToys() (string, models.Id) {
+func (c *dummyDatabaseCommand) generateRandomToys() (string, models.ID) {
 	description := pickRandom(c.rng, toys[:])
 	categoryId := common.CategoryId_Toys
 
 	return description, categoryId
 }
 
-func (c *dummyDatabaseCommand) addSales(db *sql.DB, cashierIds []models.Id, itemIds []models.Id) (r_err error) {
+func (c *dummyDatabaseCommand) addSales(db *sql.DB, cashierIds []models.ID, itemIds []models.ID) (r_err error) {
 	c.Printf("Adding sales\n")
 
 	transaction, err := queries.NewTransactionalDatabaseQuerier(context.Background(), db)

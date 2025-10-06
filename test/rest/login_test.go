@@ -148,7 +148,7 @@ func TestLogin(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			userId := models.Id(0)
+			userId := models.ID(0)
 			password := "xyz"
 
 			form := url.Values{}

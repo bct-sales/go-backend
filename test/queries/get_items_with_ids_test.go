@@ -17,7 +17,7 @@ import (
 
 func TestGetItemsWithIds(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		selections := [][]models.Id{
+		selections := [][]models.ID{
 			{},
 			{1},
 			{2},
@@ -56,7 +56,7 @@ func TestGetItemsWithIds(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Nonexistent item", func(t *testing.T) {
-			selections := [][]models.Id{
+			selections := [][]models.ID{
 				{100},
 				{1, 2, 3, 15},
 			}

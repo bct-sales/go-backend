@@ -21,8 +21,8 @@ func TestAddCategoryWithId(t *testing.T) {
 		defer setup.Close()
 
 		categoryName := "Test Category"
-		id := models.Id(1)
-		err := queries.AddCategoryWithID(db, models.Id(1), categoryName)
+		id := models.ID(1)
+		err := queries.AddCategoryWithID(db, models.ID(1), categoryName)
 		require.NoError(t, err, `Failed to add category: %v`, err)
 
 		categoryExists, err := queries.CategoryWithIdExists(db, id)
@@ -41,7 +41,7 @@ func TestAddCategoryWithId(t *testing.T) {
 			setup, db := NewDatabaseFixture()
 			defer setup.Close()
 
-			id := models.Id(1)
+			id := models.ID(1)
 			categoryName := ""
 			err := queries.AddCategoryWithID(db, id, categoryName)
 			requireDatabaseWrappedError(t, err, dberr.ErrInvalidCategoryName)
@@ -54,13 +54,13 @@ func TestAddCategoryWithId(t *testing.T) {
 			categoryName := "Foo"
 
 			{
-				id := models.Id(1)
+				id := models.ID(1)
 				err := queries.AddCategoryWithID(db, id, categoryName)
 				require.NoError(t, err)
 			}
 
 			{
-				id := models.Id(2)
+				id := models.ID(2)
 				err := queries.AddCategoryWithID(db, id, categoryName)
 				requireDatabaseWrappedError(t, err, dberr.ErrDuplicateCategoryName)
 			}
@@ -72,7 +72,7 @@ func TestAddCategoryWithId(t *testing.T) {
 
 			setup.Category(1, "Test Category")
 
-			id := models.Id(1)
+			id := models.ID(1)
 			categoryName := "xyz"
 			err := queries.AddCategoryWithID(db, id, categoryName)
 			requireDatabaseWrappedError(t, err, dberr.ErrIdAlreadyInUse)

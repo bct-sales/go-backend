@@ -59,7 +59,7 @@ func (c *SetUserPasswordCommand) execute(args []string) error {
 	})
 }
 
-func (c *SetUserPasswordCommand) updatePassword(db *sql.DB, userId models.Id, newPassword string) error {
+func (c *SetUserPasswordCommand) updatePassword(db *sql.DB, userId models.ID, newPassword string) error {
 	err := queries.UpdateUserPassword(db, userId, newPassword)
 	if err != nil {
 		c.PrintErrorf("Failed to update user password\n")
@@ -70,7 +70,7 @@ func (c *SetUserPasswordCommand) updatePassword(db *sql.DB, userId models.Id, ne
 	return nil
 }
 
-func (c *SetUserPasswordCommand) invalidateSessions(db *sql.DB, userId models.Id) error {
+func (c *SetUserPasswordCommand) invalidateSessions(db *sql.DB, userId models.ID) error {
 	err := queries.DeleteSessionWithUser(db, userId)
 
 	if err != nil {

@@ -37,7 +37,7 @@ func TestGetItemsWithSaleCounts(t *testing.T) {
 			require.Equal(t, len(expectedItems), len(actualItems))
 
 			expectedItemIds := models.CollectItemIds(expectedItems)
-			actualItemIds := algorithms.Map(actualItems, func(item *queries.ItemWithSaleCount) models.Id { return item.ItemID })
+			actualItemIds := algorithms.Map(actualItems, func(item *queries.ItemWithSaleCount) models.ID { return item.ItemID })
 			require.ElementsMatch(t, expectedItemIds, actualItemIds)
 			for _, item := range actualItems {
 				require.Equal(t, 0, item.SaleCount) // No sales in the fixture
@@ -59,13 +59,13 @@ func TestGetItemsWithSaleCounts(t *testing.T) {
 			setup.Items(seller3.UserId, 32, aux.WithHidden(true), aux.WithFrozen(false))
 
 			expectedItems := slices.Concat(visibleItems1, hiddenItems1)
-			sellerId := models.Id(1)
+			sellerId := models.ID(1)
 			actualItems, err := queries.GetItemsWithSaleCounts(db, queries.AllItems, &sellerId)
 			require.NoError(t, err)
 			require.Equal(t, len(expectedItems), len(actualItems))
 
 			expectedItemIds := models.CollectItemIds(expectedItems)
-			actualItemIds := algorithms.Map(actualItems, func(item *queries.ItemWithSaleCount) models.Id { return item.ItemID })
+			actualItemIds := algorithms.Map(actualItems, func(item *queries.ItemWithSaleCount) models.ID { return item.ItemID })
 			require.ElementsMatch(t, expectedItemIds, actualItemIds)
 			for _, item := range actualItems {
 				require.Equal(t, 0, item.SaleCount) // No sales in the fixture
@@ -87,13 +87,13 @@ func TestGetItemsWithSaleCounts(t *testing.T) {
 			setup.Items(seller3.UserId, 32, aux.WithHidden(true), aux.WithFrozen(false))
 
 			expectedItems := slices.Concat(visibleItems2, hiddenItems2)
-			sellerId := models.Id(2)
+			sellerId := models.ID(2)
 			actualItems, err := queries.GetItemsWithSaleCounts(db, queries.AllItems, &sellerId)
 			require.NoError(t, err)
 			require.Equal(t, len(expectedItems), len(actualItems))
 
 			expectedItemIds := models.CollectItemIds(expectedItems)
-			actualItemIds := algorithms.Map(actualItems, func(item *queries.ItemWithSaleCount) models.Id { return item.ItemID })
+			actualItemIds := algorithms.Map(actualItems, func(item *queries.ItemWithSaleCount) models.ID { return item.ItemID })
 			require.ElementsMatch(t, expectedItemIds, actualItemIds)
 			for _, item := range actualItems {
 				require.Equal(t, 0, item.SaleCount) // No sales in the fixture
@@ -120,7 +120,7 @@ func TestGetItemsWithSaleCounts(t *testing.T) {
 			require.Equal(t, len(expectedItems), len(actualItems))
 
 			expectedItemIds := models.CollectItemIds(expectedItems)
-			actualItemIds := algorithms.Map(actualItems, func(item *queries.ItemWithSaleCount) models.Id { return item.ItemID })
+			actualItemIds := algorithms.Map(actualItems, func(item *queries.ItemWithSaleCount) models.ID { return item.ItemID })
 			require.ElementsMatch(t, expectedItemIds, actualItemIds)
 			for _, item := range actualItems {
 				require.Equal(t, 0, item.SaleCount) // No sales in the fixture
@@ -147,7 +147,7 @@ func TestGetItemsWithSaleCounts(t *testing.T) {
 			require.Equal(t, len(expectedItems), len(actualItems))
 
 			expectedItemIds := models.CollectItemIds(expectedItems)
-			actualItemIds := algorithms.Map(actualItems, func(item *queries.ItemWithSaleCount) models.Id { return item.ItemID })
+			actualItemIds := algorithms.Map(actualItems, func(item *queries.ItemWithSaleCount) models.ID { return item.ItemID })
 			require.ElementsMatch(t, expectedItemIds, actualItemIds)
 			for _, item := range actualItems {
 				require.Equal(t, 0, item.SaleCount) // No sales in the fixture
@@ -169,7 +169,7 @@ func TestGetItemsWithSaleCounts(t *testing.T) {
 			cashier := setup.Cashier()
 			for _, item := range allItems {
 				for range item.ItemID.Int64() {
-					setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+					setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 				}
 			}
 
@@ -178,7 +178,7 @@ func TestGetItemsWithSaleCounts(t *testing.T) {
 			require.Equal(t, len(allItems), len(actualItems))
 
 			expectedItemIds := models.CollectItemIds(allItems)
-			actualItemIds := algorithms.Map(actualItems, func(item *queries.ItemWithSaleCount) models.Id { return item.ItemID })
+			actualItemIds := algorithms.Map(actualItems, func(item *queries.ItemWithSaleCount) models.ID { return item.ItemID })
 			require.ElementsMatch(t, expectedItemIds, actualItemIds)
 			for _, item := range actualItems {
 				expectedSaleCount := item.ItemID.Int64()
@@ -196,7 +196,7 @@ func TestGetItemsWithSaleCounts(t *testing.T) {
 			seller := setup.Seller()
 			setup.Items(seller.UserId, 4, aux.WithHidden(false), aux.WithFrozen(false))
 
-			invalidSellerId := models.Id(999)
+			invalidSellerId := models.ID(999)
 			setup.RequireNoSuchUsers(t, invalidSellerId)
 
 			_, err := queries.GetItemsWithSaleCounts(db, queries.AllItems, &invalidSellerId)

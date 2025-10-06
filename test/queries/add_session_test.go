@@ -41,7 +41,7 @@ func TestAddSession(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			userId := models.Id(999)
+			userId := models.ID(999)
 			setup.RequireNoSuchUsers(t, userId)
 			expirationTime := models.Timestamp(0)
 			_, err := queries.AddSession(db, userId, expirationTime)

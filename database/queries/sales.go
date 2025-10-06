@@ -11,12 +11,12 @@ import (
 )
 
 type addSaleQuery struct {
-	CashierId       models.Id
+	CashierId       models.ID
 	TransactionTime models.Timestamp
-	ItemIds         []models.Id
+	ItemIds         []models.ID
 }
 
-func (q *addSaleQuery) execute(db *TransactionalDatabaseQuerier) (r_result models.Id, r_err error) {
+func (q *addSaleQuery) execute(db *TransactionalDatabaseQuerier) (r_result models.ID, r_err error) {
 	if err := q.ensureInputsValidity(db); err != nil {
 		return 0, err
 	}
@@ -65,7 +65,7 @@ func (q *addSaleQuery) execute(db *TransactionalDatabaseQuerier) (r_result model
 		}
 	}
 
-	return models.Id(saleId), nil
+	return models.ID(saleId), nil
 }
 
 func (q *addSaleQuery) ensureInputsValidity(db DatabaseQuerier) error {
@@ -101,9 +101,9 @@ func (q *addSaleQuery) ensureInputsValidity(db DatabaseQuerier) error {
 // A ErrDuplicateItemInSale is returned if itemIds contains duplicate item IDs.
 func AddSale(
 	db *TransactionalDatabaseQuerier,
-	cashierId models.Id,
+	cashierId models.ID,
 	transactionTime models.Timestamp,
-	itemIds []models.Id) (r_result models.Id, r_err error) {
+	itemIds []models.ID) (r_result models.ID, r_err error) {
 
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -119,7 +119,7 @@ func AddSale(
 }
 
 type GetSalesQuery struct {
-	minimalId    *models.Id // If set, only sales with an ID greater than or equal to this value are returned.
+	minimalId    *models.ID // If set, only sales with an ID greater than or equal to this value are returned.
 	rowSelection *struct {
 		limit  int // Max number of sales to return
 		offset int // Determines the starting point for the query
@@ -135,7 +135,7 @@ func NewGetSalesQuery() *GetSalesQuery {
 	}
 }
 
-func (q *GetSalesQuery) WithIdGreaterThanOrEqualTo(minimalId models.Id) *GetSalesQuery {
+func (q *GetSalesQuery) WithIdGreaterThanOrEqualTo(minimalId models.ID) *GetSalesQuery {
 	q.minimalId = &minimalId
 	return q
 }
@@ -189,8 +189,8 @@ func (q *GetSalesQuery) Execute(db DatabaseQuerier, receiver func(*models.SaleSu
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	for rows.Next() {
-		var saleId models.Id
-		var cashierId models.Id
+		var saleId models.ID
+		var cashierId models.ID
 		var transactionTime models.Timestamp
 		var itemCount int
 		var totalPriceInCents models.MoneyInCents
@@ -248,12 +248,12 @@ func (q *GetSalesQuery) orderClause() string {
 
 // GetSaleWithId returns the sale with the given saleId.
 // A ErrNoSuchSale is returned if no sale with the given saleId exists.
-func GetSaleWithId(db DatabaseQuerier, saleId models.Id) (r_result *models.Sale, r_err error) {
+func GetSaleWithId(db DatabaseQuerier, saleId models.ID) (r_result *models.Sale, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	var cashierId models.Id
+	var cashierId models.ID
 	var transactionTime models.Timestamp
 	err := db.QueryRow(
 		`
@@ -284,7 +284,7 @@ func GetSaleWithId(db DatabaseQuerier, saleId models.Id) (r_result *models.Sale,
 
 // SaleWithIdExists checks whether a sale with the given saleId exists in the database.
 // Returns true if the sale exists, false otherwise.
-func SaleWithIdExists(db DatabaseQuerier, saleId models.Id) (r_result bool, r_err error) {
+func SaleWithIdExists(db DatabaseQuerier, saleId models.ID) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -316,7 +316,7 @@ func SaleWithIdExists(db DatabaseQuerier, saleId models.Id) (r_result bool, r_er
 
 // GetSaleItems lists all items associated with a specified sale.
 // Returns ErrNoSuchSale if the sale does not exist.
-func GetSaleItems(db DatabaseQuerier, saleId models.Id) (r_result []*models.Item, r_err error) {
+func GetSaleItems(db DatabaseQuerier, saleId models.ID) (r_result []*models.Item, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -357,12 +357,12 @@ func GetSaleItems(db DatabaseQuerier, saleId models.Id) (r_result []*models.Item
 
 	var items []*models.Item
 	for rows.Next() {
-		var itemId models.Id
+		var itemId models.ID
 		var addedAt models.Timestamp
 		var description string
 		var priceInCents models.MoneyInCents
-		var categoryId models.Id
-		var sellerId models.Id
+		var categoryId models.ID
+		var sellerId models.ID
 		var donation bool
 		var charity bool
 		var frozen bool
@@ -397,7 +397,7 @@ func GetSaleItems(db DatabaseQuerier, saleId models.Id) (r_result []*models.Item
 // RemoveSale removes the sale with the given saleId from the database.
 // Returns ErrNoSuchSale if no such sale exists.
 // This function should be use with care.
-func RemoveSale(transaction *TransactionalDatabaseQuerier, saleId models.Id) (r_err error) {
+func RemoveSale(transaction *TransactionalDatabaseQuerier, saleId models.ID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -472,12 +472,12 @@ func GetSoldItems(db DatabaseQuerier) (r_result []*models.Item, r_err error) {
 
 	var items []*models.Item
 	for rows.Next() {
-		var itemId models.Id
+		var itemId models.ID
 		var addedAt models.Timestamp
 		var description string
 		var priceInCents models.MoneyInCents
-		var categoryId models.Id
-		var sellerId models.Id
+		var categoryId models.ID
+		var sellerId models.ID
 		var donation bool
 		var charity bool
 		var frozen bool
@@ -558,7 +558,7 @@ func CountSoldItems(db DatabaseQuerier) (r_result *struct {
 
 // HasAnyBeenSold checks if any one of the given item was involved in one or more sales.
 // Does not check if items exist.
-func HasAnyBeenSold(db DatabaseQuerier, itemIds []models.Id) (r_result bool, r_err error) {
+func HasAnyBeenSold(db DatabaseQuerier, itemIds []models.ID) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -573,7 +573,7 @@ func HasAnyBeenSold(db DatabaseQuerier, itemIds []models.Id) (r_result bool, r_e
 		WHERE
 			items.item_id IN (%s)
 	`, placeholderString(len(itemIds)))
-	convertedItemIds := algorithms.Map(itemIds, func(id models.Id) any { return id })
+	convertedItemIds := algorithms.Map(itemIds, func(id models.ID) any { return id })
 
 	rows, err := db.Query(query, convertedItemIds...)
 	if err != nil {
@@ -595,7 +595,7 @@ func HasAnyBeenSold(db DatabaseQuerier, itemIds []models.Id) (r_result bool, r_e
 
 // GetItemsSoldBy returns a list of all items sold by a specified cashier.
 // The items are ordered by transaction time (most recent first) and item ID (lowest first).
-func GetItemsSoldBy(db DatabaseQuerier, cashierId models.Id) (r_result []*models.Item, r_err error) {
+func GetItemsSoldBy(db DatabaseQuerier, cashierId models.ID) (r_result []*models.Item, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -639,12 +639,12 @@ func GetItemsSoldBy(db DatabaseQuerier, cashierId models.Id) (r_result []*models
 
 	var items []*models.Item
 	for rows.Next() {
-		var itemId models.Id
+		var itemId models.ID
 		var addedAt models.Timestamp
 		var description string
 		var priceInCents models.MoneyInCents
-		var categoryId models.Id
-		var sellerId models.Id
+		var categoryId models.ID
+		var sellerId models.ID
 		var donation bool
 		var charity bool
 		var frozen bool
@@ -680,7 +680,7 @@ func GetItemsSoldBy(db DatabaseQuerier, cashierId models.Id) (r_result []*models
 
 // GetSalesWithItem returns a list of the ids of all sales that include a specified item.
 // The ids are returned in ascending order.
-func GetSalesWithItem(db DatabaseQuerier, itemId models.Id) (r_result []models.Id, r_err error) {
+func GetSalesWithItem(db DatabaseQuerier, itemId models.ID) (r_result []models.ID, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -707,9 +707,9 @@ func GetSalesWithItem(db DatabaseQuerier, itemId models.Id) (r_result []models.I
 	}
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
-	saleIds := []models.Id{}
+	saleIds := []models.ID{}
 	for rows.Next() {
-		var saleId models.Id
+		var saleId models.ID
 
 		err := rows.Scan(&saleId)
 
@@ -731,7 +731,7 @@ func GetSalesWithItem(db DatabaseQuerier, itemId models.Id) (r_result []models.I
 // The sales are ordered by transaction time (chronologically) and sale ID (lowest first).
 // Returns ErrNoSuchUser if the cashierId does not correspond to any user.
 // Returns ErrWrongRole if the cashierId does not correspond to a cashier.
-func GetSalesWithCashier(db DatabaseQuerier, cashierId models.Id) (r_result []*models.Sale, r_err error) {
+func GetSalesWithCashier(db DatabaseQuerier, cashierId models.ID) (r_result []*models.Sale, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -756,8 +756,8 @@ func GetSalesWithCashier(db DatabaseQuerier, cashierId models.Id) (r_result []*m
 
 	sales := []*models.Sale{}
 	for rows.Next() {
-		var saleId models.Id
-		var cashierId models.Id
+		var saleId models.ID
+		var cashierId models.ID
 		var transactionTime models.Timestamp
 		err := rows.Scan(&cashierId, &saleId, &transactionTime)
 		if err != nil {
@@ -813,7 +813,7 @@ func RemoveAllSales(transaction *TransactionalDatabaseQuerier) (r_err error) {
 // GetCashierSales retrieves a list of sales made by a specified cashier.
 // If cashierId does not correspond to any user, ErrNoSuchUser is returned.
 // If cashierId does not correspond to a cashier, ErrWrongRole is returned.
-func GetCashierSales(db DatabaseQuerier, cashierId models.Id, receiver func(*models.SaleSummary) error, order Order, rowSelection *RowSelection) (r_err error) {
+func GetCashierSales(db DatabaseQuerier, cashierId models.ID, receiver func(*models.SaleSummary) error, order Order, rowSelection *RowSelection) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -851,8 +851,8 @@ func GetCashierSales(db DatabaseQuerier, cashierId models.Id, receiver func(*mod
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	for rows.Next() {
-		var saleId models.Id
-		var cashierId models.Id
+		var saleId models.ID
+		var cashierId models.ID
 		var transactionTime models.Timestamp
 		var itemCount int
 		var totalPriceInCents models.MoneyInCents
@@ -901,7 +901,7 @@ func CountSales(db DatabaseQuerier) (r_result int, r_err error) {
 }
 
 // CountCashierSales returns the total number of sales made by the specified cashier.
-func CountCashierSales(db DatabaseQuerier, cashierId models.Id) (r_result int, r_err error) {
+func CountCashierSales(db DatabaseQuerier, cashierId models.ID) (r_result int, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -1009,17 +1009,17 @@ func GetMultiplySoldItems(db DatabaseQuerier) (r_result []MultiplySoldItem, r_er
 
 	for rows.Next() {
 		var rowData struct {
-			ItemId          models.Id
+			ItemId          models.ID
 			AddedAt         models.Timestamp
 			Description     string
 			PriceInCents    models.MoneyInCents
-			CategoryId      models.Id
-			SellerId        models.Id
+			CategoryId      models.ID
+			SellerId        models.ID
 			Donation        bool
 			Charity         bool
 			Frozen          bool
-			SaleId          models.Id
-			CashierId       models.Id
+			SaleId          models.ID
+			CashierId       models.ID
 			TransactionTime models.Timestamp
 		}
 		err := rows.Scan(
@@ -1079,9 +1079,9 @@ func GetMultiplySoldItems(db DatabaseQuerier) (r_result []MultiplySoldItem, r_er
 }
 
 type SaleItemInformation struct {
-	SellerId       models.Id
+	SellerId       models.ID
 	Description    string
-	ItemCategoryId models.Id
+	ItemCategoryId models.ID
 	PriceInCents   models.MoneyInCents
 	SellCount      int64
 }
@@ -1090,7 +1090,7 @@ type SaleItemInformation struct {
 // If the item is not found, it returns an ErrNoSuchItem.
 func GetSaleItemInformation(
 	db DatabaseQuerier,
-	itemId models.Id) (r_result *SaleItemInformation, r_err error) {
+	itemId models.ID) (r_result *SaleItemInformation, r_err error) {
 
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -1105,9 +1105,9 @@ func GetSaleItemInformation(
 		`,
 		itemId)
 
-	var sellerId models.Id
+	var sellerId models.ID
 	var description string
-	var itemCategoryId models.Id
+	var itemCategoryId models.ID
 	var priceInCents models.MoneyInCents
 	var sellCount int64
 	err := row.Scan(
@@ -1136,7 +1136,7 @@ func GetSaleItemInformation(
 }
 
 type CategorySaleTotal struct {
-	CategoryId   models.Id
+	CategoryId   models.ID
 	CategoryName string
 	TotalInCents models.MoneyInCents
 }
@@ -1169,7 +1169,7 @@ func GetSalesOverview(db DatabaseQuerier) (r_result []CategorySaleTotal, r_err e
 	var categorySaleTotals []CategorySaleTotal
 
 	for rows.Next() {
-		var categoryId models.Id
+		var categoryId models.ID
 		var categoryName string
 		var totalInCents models.MoneyInCents
 		err := rows.Scan(
@@ -1198,15 +1198,15 @@ func GetSalesOverview(db DatabaseQuerier) (r_result []CategorySaleTotal, r_err e
 }
 
 type SoldItem struct {
-	SaleId          models.Id
-	CashierId       models.Id
+	SaleId          models.ID
+	CashierId       models.ID
 	TransactionTime models.Timestamp
-	ItemId          models.Id
+	ItemId          models.ID
 	AddedAt         models.Timestamp
 	Description     string
 	PriceInCents    models.MoneyInCents
-	ItemCategoryId  models.Id
-	SellerId        models.Id
+	ItemCategoryId  models.ID
+	SellerId        models.ID
 	Donation        bool
 	Charity         bool
 }
@@ -1257,15 +1257,15 @@ func (q *GetSoldItemsQuery) Execute(db DatabaseQuerier) (r_result []*SoldItem, r
 	var soldItems []*SoldItem
 
 	for rows.Next() {
-		var saleId models.Id
-		var cashierId models.Id
+		var saleId models.ID
+		var cashierId models.ID
 		var transactionTime models.Timestamp
-		var itemId models.Id
+		var itemId models.ID
 		var addedAt models.Timestamp
 		var description string
 		var priceInCents models.MoneyInCents
-		var itemCategory models.Id
-		var sellerId models.Id
+		var itemCategory models.ID
+		var sellerId models.ID
 		var donation bool
 		var charity bool
 

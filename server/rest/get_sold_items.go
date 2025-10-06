@@ -12,15 +12,15 @@ import (
 )
 
 type ListSoldItemsEntry struct {
-	SaleId          models.Id           `json:"saleId"`
-	CashierId       models.Id           `json:"cashierId"`
+	SaleId          models.ID           `json:"saleId"`
+	CashierId       models.ID           `json:"cashierId"`
 	TransactionTime rest.DateTime       `json:"transactionTime"`
-	ItemId          models.Id           `json:"itemId"`
+	ItemId          models.ID           `json:"itemId"`
 	AddedAt         rest.DateTime       `json:"addedAt"`
 	Description     string              `json:"description"`
 	PriceInCents    models.MoneyInCents `json:"priceInCents"`
-	ItemCategoryID  models.Id           `json:"itemCategory"`
-	SellerId        models.Id           `json:"sellerId"`
+	ItemCategoryID  models.ID           `json:"itemCategory"`
+	SellerId        models.ID           `json:"sellerId"`
 	Donation        bool                `json:"donation"`
 	Charity         bool                `json:"charity"`
 }

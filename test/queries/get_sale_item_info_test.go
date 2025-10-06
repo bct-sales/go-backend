@@ -28,7 +28,7 @@ func TestGetSaleItemInformation(t *testing.T) {
 				item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 				for i := 0; i < sellCount; i++ {
-					setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+					setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 				}
 
 				itemInformation, err := queries.GetSaleItemInformation(db, item.ItemID)
@@ -47,7 +47,7 @@ func TestGetSaleItemInformation(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			nonexistentItemId := models.Id(1000)
+			nonexistentItemId := models.ID(1000)
 			setup.RequireNoSuchItems(t, nonexistentItemId)
 
 			_, err := queries.GetSaleItemInformation(db, 1)

@@ -13,12 +13,12 @@ import (
 )
 
 type GetItemsItemData struct {
-	ItemId       models.Id           `json:"itemId"`
+	ItemId       models.ID           `json:"itemId"`
 	AddedAt      rest.DateTime       `json:"addedAt"`
 	Description  string              `json:"description"`
 	PriceInCents models.MoneyInCents `json:"priceInCents"`
-	CategoryId   models.Id           `json:"categoryId"`
-	SellerId     models.Id           `json:"sellerId"`
+	CategoryId   models.ID           `json:"categoryId"`
+	SellerId     models.ID           `json:"sellerId"`
 	Donation     bool                `json:"donation"`
 	Charity      bool                `json:"charity"`
 	Frozen       bool                `json:"frozen"`
@@ -97,7 +97,7 @@ func (ep *listAllItemsEndpoint) processCategoryQueryParameter(sqlQuery *queries.
 			return false
 		}
 
-		sqlQuery.WithCategory(models.Id(categoryId))
+		sqlQuery.WithCategory(models.ID(categoryId))
 	}
 
 	return true

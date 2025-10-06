@@ -61,7 +61,7 @@ func (c *AddSessionCommand) execute() error {
 	}
 
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		sessionId, err := queries.AddSession(db, models.Id(c.userId), expiration)
+		sessionId, err := queries.AddSession(db, models.ID(c.userId), expiration)
 		if err != nil {
 			return err
 		}

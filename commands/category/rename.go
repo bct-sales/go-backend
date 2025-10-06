@@ -46,7 +46,7 @@ func NewRenameCategoryCommand() *cobra.Command {
 
 func (c *renameCategoryCommand) execute() error {
 	return c.WithOpenedDatabase(func(database *sql.DB) error {
-		if err := queries.RenameCategory(database, models.Id(c.id), c.newName); err != nil {
+		if err := queries.RenameCategory(database, models.ID(c.id), c.newName); err != nil {
 			return fmt.Errorf("failed to rename category: %w", err)
 		}
 

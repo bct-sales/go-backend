@@ -18,7 +18,7 @@ func TestGetCategoryCounts(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Without hidden items", func(t *testing.T) {
-			countTables := []map[models.Id]int{
+			countTables := []map[models.ID]int{
 				{},
 				{
 					aux.CategoryId_Clothing50_56: 1,
@@ -78,7 +78,7 @@ func TestGetCategoryCounts(t *testing.T) {
 
 		t.Run("With hidden items", func(t *testing.T) {
 			t.Run("Only visible items", func(t *testing.T) {
-				countTables := []map[models.Id]int{
+				countTables := []map[models.ID]int{
 					{},
 					{
 						aux.CategoryId_Clothing50_56: 1,
@@ -138,7 +138,7 @@ func TestGetCategoryCounts(t *testing.T) {
 			})
 
 			t.Run("Only hidden items", func(t *testing.T) {
-				countTables := []map[models.Id]int{
+				countTables := []map[models.ID]int{
 					{},
 					{
 						aux.CategoryId_Clothing50_56: 1,
@@ -198,7 +198,7 @@ func TestGetCategoryCounts(t *testing.T) {
 			})
 
 			t.Run("All items", func(t *testing.T) {
-				countTables := []map[models.Id]int{
+				countTables := []map[models.ID]int{
 					{},
 					{
 						aux.CategoryId_Clothing50_56: 1,

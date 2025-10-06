@@ -109,7 +109,7 @@ func TestCountSellerItems(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			nonExistentSellerId := models.Id(1000)
+			nonExistentSellerId := models.ID(1000)
 			setup.RequireNoSuchUsers(t, nonExistentSellerId)
 
 			_, err := queries.CountSellerItems(db, nonExistentSellerId, queries.IncludeAll, queries.IncludeAll)

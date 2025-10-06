@@ -19,7 +19,7 @@ type HandlerFunctionArguments struct {
 	Context       *gin.Context
 	Configuration *configuration.Configuration
 	Database      Database
-	UserId        models.Id
+	UserId        models.ID
 	RoleId        models.RoleId
 	Logger        logger.Logger
 }

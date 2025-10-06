@@ -1,7 +1,7 @@
 package models
 
 type User struct {
-	UserId       Id
+	UserId       ID
 	RoleId       RoleId
 	CreatedAt    Timestamp
 	LastActivity *Timestamp

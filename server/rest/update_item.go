@@ -13,7 +13,7 @@ import (
 type UpdateItemData struct {
 	Description  *string              `json:"description"`
 	PriceInCents *models.MoneyInCents `json:"priceInCents"`
-	CategoryId   *models.Id           `json:"categoryId"`
+	CategoryId   *models.ID           `json:"categoryId"`
 	Donation     *bool                `json:"donation"`
 	Charity      *bool                `json:"charity"`
 }

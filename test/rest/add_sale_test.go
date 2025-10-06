@@ -28,7 +28,7 @@ func TestAddSale(t *testing.T) {
 		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 		payload := rest.AddSalePayload{
-			Items: []models.Id{item.ItemID},
+			Items: []models.ID{item.ItemID},
 		}
 		request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 		router.ServeHTTP(writer, request)
@@ -55,7 +55,7 @@ func TestAddSale(t *testing.T) {
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest.AddSalePayload{
-				Items: []models.Id{item.ItemID},
+				Items: []models.ID{item.ItemID},
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
@@ -75,7 +75,7 @@ func TestAddSale(t *testing.T) {
 			seller := setup.Seller()
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 			payload := rest.AddSalePayload{
-				Items: []models.Id{item.ItemID},
+				Items: []models.ID{item.ItemID},
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
@@ -93,7 +93,7 @@ func TestAddSale(t *testing.T) {
 
 			_, sessionId := setup.LoggedIn(setup.Cashier())
 			payload := rest.AddSalePayload{
-				Items: []models.Id{},
+				Items: []models.ID{},
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
@@ -110,11 +110,11 @@ func TestAddSale(t *testing.T) {
 			defer setup.Close()
 
 			_, sessionId := setup.LoggedIn(setup.Cashier())
-			nonexistentItemId := models.Id(1000)
+			nonexistentItemId := models.ID(1000)
 			setup.RequireNoSuchItems(t, nonexistentItemId)
 
 			payload := rest.AddSalePayload{
-				Items: []models.Id{nonexistentItemId},
+				Items: []models.ID{nonexistentItemId},
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
@@ -135,7 +135,7 @@ func TestAddSale(t *testing.T) {
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest.AddSalePayload{
-				Items: []models.Id{item.ItemID, item.ItemID},
+				Items: []models.ID{item.ItemID, item.ItemID},
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)
@@ -155,7 +155,7 @@ func TestAddSale(t *testing.T) {
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest.AddSalePayload{
-				Items: []models.Id{item.ItemID},
+				Items: []models.ID{item.ItemID},
 			}
 			request := CreatePostRequest(url, &payload)
 			router.ServeHTTP(writer, request)
@@ -170,7 +170,7 @@ func TestAddSale(t *testing.T) {
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest.AddSalePayload{
-				Items: []models.Id{item.ItemID},
+				Items: []models.ID{item.ItemID},
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie("fake_session_id"))
 			router.ServeHTTP(writer, request)
@@ -188,7 +188,7 @@ func TestAddSale(t *testing.T) {
 			setup.Clock.Advance(10)
 
 			payload := rest.AddSalePayload{
-				Items: []models.Id{item.ItemID},
+				Items: []models.ID{item.ItemID},
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionId))
 			router.ServeHTTP(writer, request)

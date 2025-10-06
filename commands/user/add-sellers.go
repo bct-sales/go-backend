@@ -75,7 +75,7 @@ func (c *addSellersCommand) execute() error {
 			return nil
 		}
 
-		callback := func(add func(sellerId models.Id, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
+		callback := func(add func(sellerId models.ID, roleId models.RoleId, createdAt models.Timestamp, lastActivity *models.Timestamp, password string)) {
 			for _, seller := range sellersToBeCreated {
 				add(
 					seller.userId,
@@ -98,12 +98,12 @@ func (c *addSellersCommand) execute() error {
 }
 
 type sellerCreationData struct {
-	userId   models.Id
+	userId   models.ID
 	password string
 }
 
-func (c *addSellersCommand) collectExistingUserIds(db *sql.DB) (*algorithms.Set[models.Id], error) {
-	result := algorithms.NewSet[models.Id]()
+func (c *addSellersCommand) collectExistingUserIds(db *sql.DB) (*algorithms.Set[models.ID], error) {
+	result := algorithms.NewSet[models.ID]()
 
 	err := queries.GetUsers(db, func(user *models.User) error {
 		result.Add(user.UserId)
@@ -146,7 +146,7 @@ func (c *addSellersCommand) determineSellersToBeCreated(db *sql.DB, zones []int,
 	sellersToBeCreated := []*sellerCreationData{}
 	for _, zone := range zones {
 		for i := range sellersPerZone {
-			sellerId := models.Id(zone*100 + i)
+			sellerId := models.ID(zone*100 + i)
 
 			if !existingSellers.Contains(sellerId) {
 				if passwordIndex == len(passwords) {

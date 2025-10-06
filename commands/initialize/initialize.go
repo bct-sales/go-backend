@@ -218,7 +218,7 @@ func (c *InitializeCommand) createDatabaseFile() (r_err error) {
 	}
 
 	{
-		err := common.GenerateDefaultCategories(func(id models.Id, name string) error {
+		err := common.GenerateDefaultCategories(func(id models.ID, name string) error {
 			return queries.AddCategoryWithID(db, id, name)
 		})
 

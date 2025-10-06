@@ -95,7 +95,7 @@ func TestGetUserInformation(t *testing.T) {
 					_, sessionId := setup.LoggedIn(setup.Admin())
 
 					item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-					sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+					sale := setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 
 					url := path.User(cashier.UserId)
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -124,7 +124,7 @@ func TestGetUserInformation(t *testing.T) {
 
 							algorithms.RepeatWithError(saleCount, func() error {
 								item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
-								setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+								setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 								return nil
 							})
 
@@ -192,8 +192,8 @@ func TestGetUserInformation(t *testing.T) {
 				items := setup.Items(seller.UserId, 5, aux.WithDummyData(1), aux.WithHidden(false))
 				sale1TransactionTime := models.Timestamp(1000)
 				sale2TransactionTime := models.Timestamp(4000)
-				sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID}, aux.WithTransactionTime(sale1TransactionTime))
-				sale2 := setup.Sale(cashier.UserId, []models.Id{items[2].ItemID, items[3].ItemID}, aux.WithTransactionTime(sale2TransactionTime))
+				sale1 := setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[1].ItemID}, aux.WithTransactionTime(sale1TransactionTime))
+				sale2 := setup.Sale(cashier.UserId, []models.ID{items[2].ItemID, items[3].ItemID}, aux.WithTransactionTime(sale2TransactionTime))
 
 				url := path.User(cashier.UserId)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
@@ -267,7 +267,7 @@ func TestGetUserInformation(t *testing.T) {
 			defer setup.Close()
 
 			_, sessionId := setup.LoggedIn(setup.Admin())
-			nonexistentUserId := models.Id(99999999)
+			nonexistentUserId := models.ID(99999999)
 			setup.RequireNoSuchUsers(t, nonexistentUserId)
 
 			url := path.User(nonexistentUserId)

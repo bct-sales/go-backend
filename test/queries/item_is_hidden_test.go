@@ -37,7 +37,7 @@ func TestItemIsHidden(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			invalidId := models.Id(1)
+			invalidId := models.ID(1)
 
 			_, err := queries.IsItemHidden(db, invalidId)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)

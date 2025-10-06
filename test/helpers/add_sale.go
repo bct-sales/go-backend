@@ -24,7 +24,7 @@ func (data *AddSaleData) FillWithDefaults() {
 	}
 }
 
-func AddSaleToDatabase(db *queries.TransactionalDatabaseQuerier, cashierId models.Id, itemIds []models.Id, options ...func(*AddSaleData)) *models.Sale {
+func AddSaleToDatabase(db *queries.TransactionalDatabaseQuerier, cashierId models.ID, itemIds []models.ID, options ...func(*AddSaleData)) *models.Sale {
 	data := AddSaleData{}
 
 	for _, option := range options {

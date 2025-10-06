@@ -101,7 +101,7 @@ func TestDoesSellerHaveFrozenItems(t *testing.T) {
 			defer setup.Close()
 
 			setup.Seller()
-			invalidSellerId := models.Id(999)
+			invalidSellerId := models.ID(999)
 			setup.RequireNoSuchUsers(t, invalidSellerId)
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {

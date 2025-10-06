@@ -36,7 +36,7 @@ func TestAddUser(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		roleId := models.RoleId{Id: 999} // Assuming this ID does not exist in the database
+		roleId := models.RoleId{ID: 999} // Assuming this ID does not exist in the database
 		password := "xyz"
 		createdAt := models.Timestamp(0)
 		var lastActivity *models.Timestamp = nil

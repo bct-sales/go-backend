@@ -50,8 +50,8 @@ func (c *addNewSaleCommand) execute() error {
 	return c.WithTransaction(func(db *queries.TransactionalDatabaseQuerier) error {
 		timestamp := models.Now()
 
-		itemIDs := algorithms.Map(c.rawItemIDs, func(id int64) models.Id { return models.Id(id) })
-		saleId, err := queries.AddSale(db, models.Id(c.rawCashierID), timestamp, itemIDs)
+		itemIDs := algorithms.Map(c.rawItemIDs, func(id int64) models.ID { return models.ID(id) })
+		saleId, err := queries.AddSale(db, models.ID(c.rawCashierID), timestamp, itemIDs)
 
 		if err != nil {
 			return fmt.Errorf("failed to add sale: %w", err)
@@ -68,7 +68,7 @@ func (c *addNewSaleCommand) execute() error {
 	})
 }
 
-func (c *addNewSaleCommand) printSale(db queries.DatabaseQuerier, saleId models.Id) error {
+func (c *addNewSaleCommand) printSale(db queries.DatabaseQuerier, saleId models.ID) error {
 	sale, err := queries.GetSaleWithId(db, saleId)
 	if err != nil {
 		c.PrintErrorf("Failed to get sale back from database\n")

@@ -12,12 +12,12 @@ import (
 )
 
 type GetSellerItemsItemData struct {
-	ItemId       models.Id           `binding:"required" json:"itemId"`
+	ItemId       models.ID           `binding:"required" json:"itemId"`
 	AddedAt      rest.DateTime       `binding:"required" json:"addedAt"`
 	Description  string              `binding:"required" json:"description"`
 	PriceInCents models.MoneyInCents `binding:"required" json:"priceInCents"`
-	CategoryId   models.Id           `binding:"required" json:"categoryId"`
-	SellerId     models.Id           `binding:"required" json:"sellerId"`
+	CategoryId   models.ID           `binding:"required" json:"categoryId"`
+	SellerId     models.ID           `binding:"required" json:"sellerId"`
 	Donation     bool                `binding:"required" json:"donation"`
 	Charity      bool                `binding:"required" json:"charity"`
 	Frozen       bool                `binding:"required" json:"frozen"`
@@ -89,7 +89,7 @@ func (ep *getSellerItemsEndpoint) ensureUserHasRightRole() bool {
 	return true
 }
 
-func (ep *getSellerItemsEndpoint) extractSellerIdFromURI() (models.Id, bool) {
+func (ep *getSellerItemsEndpoint) extractSellerIdFromURI() (models.ID, bool) {
 	var uriParameters struct {
 		SellerId string `binding:"required" uri:"id"`
 	}
@@ -109,7 +109,7 @@ func (ep *getSellerItemsEndpoint) extractSellerIdFromURI() (models.Id, bool) {
 	return uriSellerId, true
 }
 
-func (ep *getSellerItemsEndpoint) ensureQueriedUserIsSeller(queriedSellerId models.Id) bool {
+func (ep *getSellerItemsEndpoint) ensureQueriedUserIsSeller(queriedSellerId models.ID) bool {
 	if err := queries.EnsureUserExistsAndHasRole(ep.Database, queriedSellerId, models.NewSellerRoleId()); err != nil {
 		if errors.Is(err, dberr.ErrNoSuchUser) {
 			ep.Logger.InvalidRequest("Seller does not exist", "error", err, "sellerId", queriedSellerId)
@@ -131,7 +131,7 @@ func (ep *getSellerItemsEndpoint) ensureQueriedUserIsSeller(queriedSellerId mode
 	return true
 }
 
-func (ep *getSellerItemsEndpoint) ensureUserHasPermissions(queriedSellerId models.Id) bool {
+func (ep *getSellerItemsEndpoint) ensureUserHasPermissions(queriedSellerId models.ID) bool {
 	if ep.UserId != queriedSellerId && !ep.RoleId.IsAdmin() {
 		ep.Logger.InvalidRequest("Logged in user does not match URI seller ID", "uriSellerId", queriedSellerId)
 		failure_response.WrongSeller(ep.Context, "Logged in user does not match URI seller ID")
@@ -152,7 +152,7 @@ func (ep *getSellerItemsEndpoint) extractItemSelectionFromQueryParameters() quer
 	}
 }
 
-func (ep *getSellerItemsEndpoint) fetchSellerItemsFromDatabase(queriedSellerId models.Id, itemSelection queries.ItemSelection) ([]*models.Item, bool) {
+func (ep *getSellerItemsEndpoint) fetchSellerItemsFromDatabase(queriedSellerId models.ID, itemSelection queries.ItemSelection) ([]*models.Item, bool) {
 	items, err := queries.GetSellerItems(ep.Database, queriedSellerId, itemSelection)
 
 	if err != nil {

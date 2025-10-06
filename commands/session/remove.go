@@ -50,7 +50,7 @@ func (c *RemoveSessionCommand) execute() error {
 	if c.CobraCommand.Flags().Changed("session") {
 		return c.removeBySessionId(models.SessionId(c.sessionId))
 	} else if c.CobraCommand.Flags().Changed("user") {
-		return c.removeByUserId(models.Id(c.userId))
+		return c.removeByUserId(models.ID(c.userId))
 	} else if c.CobraCommand.Flags().Changed("all") {
 		return c.removeAll()
 	} else {
@@ -64,7 +64,7 @@ func (c *RemoveSessionCommand) removeBySessionId(sessionId models.SessionId) err
 	})
 }
 
-func (c *RemoveSessionCommand) removeByUserId(userId models.Id) error {
+func (c *RemoveSessionCommand) removeByUserId(userId models.ID) error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		return queries.DeleteSessionWithUser(db, userId)
 	})

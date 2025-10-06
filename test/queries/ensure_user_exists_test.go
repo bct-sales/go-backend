@@ -27,7 +27,7 @@ func TestEnsureUserExists(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		nonexistentUserId := models.Id(999)
+		nonexistentUserId := models.ID(999)
 		setup.RequireNoSuchUsers(t, nonexistentUserId)
 
 		err := queries.EnsureUserExists(db, nonexistentUserId)

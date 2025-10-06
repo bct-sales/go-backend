@@ -14,15 +14,15 @@ import (
 )
 
 type pair struct {
-	UserId models.Id
+	UserId models.ID
 	RoleId models.RoleId
 }
 
 func TestCheckUserRole(t *testing.T) {
 	t.Run("Check correct role", func(t *testing.T) {
-		sellerId := models.Id(1)
-		adminId := models.Id(2)
-		cashierId := models.Id(3)
+		sellerId := models.ID(1)
+		adminId := models.ID(2)
+		cashierId := models.ID(3)
 
 		for _, pair := range []pair{
 			{UserId: sellerId, RoleId: models.NewSellerRoleId()},
@@ -46,9 +46,9 @@ func TestCheckUserRole(t *testing.T) {
 	})
 
 	t.Run("Check incorrect role", func(t *testing.T) {
-		sellerId := models.Id(1)
-		adminId := models.Id(2)
-		cashierId := models.Id(3)
+		sellerId := models.ID(1)
+		adminId := models.ID(2)
+		cashierId := models.ID(3)
 
 		for _, pair := range []pair{
 			{UserId: adminId, RoleId: models.NewSellerRoleId()},
@@ -78,7 +78,7 @@ func TestCheckUserRole(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		invalidId := models.Id(9999)
+		invalidId := models.ID(9999)
 
 		err := queries.EnsureUserExistsAndHasRole(db, invalidId, models.NewAdminRoleId())
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)

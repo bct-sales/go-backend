@@ -173,7 +173,7 @@ func (c *showUserCommand) printUserTable(user *models.User) error {
 	return nil
 }
 
-func (c *showUserCommand) printItems(categoryNameTable map[models.Id]string, items []*models.Item) error {
+func (c *showUserCommand) printItems(categoryNameTable map[models.ID]string, items []*models.Item) error {
 	tableData := pterm.TableData{
 		{"ID", "Description", "Price", "Category", "Seller", "Donation", "Charity", "Added At", "Frozen", "Hidden"},
 	}

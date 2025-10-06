@@ -9,8 +9,8 @@ import (
 )
 
 type ListSalesSaleData struct {
-	SaleID            models.Id           `binding:"required" json:"saleId"`
-	CashierID         models.Id           `binding:"required" json:"cashierId"`
+	SaleID            models.ID           `binding:"required" json:"saleId"`
+	CashierID         models.ID           `binding:"required" json:"cashierId"`
 	TransactionTime   rest.DateTime       `binding:"required" json:"transactionTime"`
 	ItemCount         int                 `binding:"required" json:"itemCount"`
 	TotalPriceInCents models.MoneyInCents `binding:"required" json:"totalPriceInCents"`
@@ -31,7 +31,7 @@ type getSalesEndpoint struct {
 }
 
 type getSalesQueryParameters struct {
-	startId                    *models.Id
+	startId                    *models.ID
 	rowSelection               *queries.RowSelection
 	orderedAntiChronologically bool
 }
@@ -262,7 +262,7 @@ func (ep *getSalesEndpoint) parseQueryParameters() (*getSalesQueryParameters, bo
 	return &queryParameters, true
 }
 
-func (ep *getSalesEndpoint) parseStartId() (*models.Id, bool) {
+func (ep *getSalesEndpoint) parseStartId() (*models.ID, bool) {
 	if startIdStr, exists := ep.Context.GetQuery("startId"); exists {
 		startId, err := models.ParseId(startIdStr)
 		if err != nil {

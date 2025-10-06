@@ -72,7 +72,7 @@ func (c *updateItemCommand) execute(args []string) error {
 func (c *updateItemCommand) updateItem(db *queries.TransactionalDatabaseQuerier) error {
 	var description *string
 	var priceInCents *models.MoneyInCents
-	var categoryId *models.Id
+	var categoryId *models.ID
 	var donation *bool
 	var charity *bool
 
@@ -86,7 +86,7 @@ func (c *updateItemCommand) updateItem(db *queries.TransactionalDatabaseQuerier)
 	}
 
 	if c.CobraCommand.Flags().Changed("category") {
-		value := models.Id(c.categoryId)
+		value := models.ID(c.categoryId)
 		categoryId = &value
 	}
 
@@ -119,7 +119,7 @@ func (c *updateItemCommand) updateItem(db *queries.TransactionalDatabaseQuerier)
 		AddedAt:      nil,
 	}
 
-	err := queries.UpdateItem(db, models.Id(c.itemId), &itemUpdate)
+	err := queries.UpdateItem(db, models.ID(c.itemId), &itemUpdate)
 	if err != nil {
 		c.PrintErrorf("Failed to update item\n")
 		return err
@@ -130,7 +130,7 @@ func (c *updateItemCommand) updateItem(db *queries.TransactionalDatabaseQuerier)
 }
 
 func (c *updateItemCommand) showUpdatedItem(db *queries.TransactionalDatabaseQuerier) error {
-	itemId := models.Id(c.itemId)
+	itemId := models.ID(c.itemId)
 	categoryNameTable, err := c.GetCategoryNameTable(db)
 	if err != nil {
 		c.PrintErrorf("Failed to get category name table\n")

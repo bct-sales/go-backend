@@ -116,7 +116,7 @@ func UserStr(userId string) *URL {
 	return Users().AddPathSegment(userId)
 }
 
-func User(id models.Id) *URL {
+func User(id models.ID) *URL {
 	return UserStr(id.String())
 }
 
@@ -128,7 +128,7 @@ func SaleStr(saleId string) *URL {
 	return Sales().AddPathSegment(saleId)
 }
 
-func Sale(id models.Id) *URL {
+func Sale(id models.ID) *URL {
 	return SaleStr(id.String())
 }
 
@@ -144,7 +144,7 @@ func ItemStr(itemId string) *URL {
 	return Items().AddPathSegment(itemId)
 }
 
-func Item(id models.Id) *URL {
+func Item(id models.ID) *URL {
 	return ItemStr(id.String())
 }
 
@@ -169,7 +169,7 @@ func SellerItemsStr(sellerId string) *URL {
 	return RESTRoot().AddPathSegment("sellers").AddPathSegment(sellerId).AddPathSegment("items")
 }
 
-func SellerItems(sellerId models.Id) *URL {
+func SellerItems(sellerId models.ID) *URL {
 	return SellerItemsStr(sellerId.String())
 }
 
@@ -177,7 +177,7 @@ func CashierSalesStr(cashierId string) *URL {
 	return RESTRoot().AddPathSegment("cashiers").AddPathSegment(cashierId).AddPathSegment("sales")
 }
 
-func CashierSales(cashierId models.Id) *URL {
+func CashierSales(cashierId models.ID) *URL {
 	return CashierSalesStr(cashierId.String())
 }
 

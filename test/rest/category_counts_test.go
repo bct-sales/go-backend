@@ -33,7 +33,7 @@ func TestCategoryCounts(t *testing.T) {
 
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
-				countMap := map[models.Id]int{}
+				countMap := map[models.ID]int{}
 				expectedResponse := createSuccessResponse(countMap)
 				actualResponse := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 
@@ -59,7 +59,7 @@ func TestCategoryCounts(t *testing.T) {
 
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
 					router.ServeHTTP(writer, request)
-					countMap := map[models.Id]int{categoryId: 1}
+					countMap := map[models.ID]int{categoryId: 1}
 					expected := createSuccessResponse(countMap)
 
 					actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
@@ -79,7 +79,7 @@ func TestCategoryCounts(t *testing.T) {
 
 					request := CreateGetRequest(url, WithSessionCookie(sessionId))
 					router.ServeHTTP(writer, request)
-					countMap := map[models.Id]int{categoryId: 2}
+					countMap := map[models.ID]int{categoryId: 2}
 					expected := createSuccessResponse(countMap)
 
 					actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
@@ -101,7 +101,7 @@ func TestCategoryCounts(t *testing.T) {
 
 							request := CreateGetRequest(url, WithSessionCookie(sessionId))
 							router.ServeHTTP(writer, request)
-							countMap := map[models.Id]int{categoryId1: 0, categoryId2: 0}
+							countMap := map[models.ID]int{categoryId1: 0, categoryId2: 0}
 							countMap[categoryId1] += 1
 							countMap[categoryId2] += 1
 							expected := createSuccessResponse(countMap)
@@ -129,7 +129,7 @@ func TestCategoryCounts(t *testing.T) {
 				url := path.CategoriesWithCounts(queries.AllItems)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
-				countMap := map[models.Id]int{category: 8}
+				countMap := map[models.ID]int{category: 8}
 				expected := createSuccessResponse(countMap)
 
 				actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
@@ -150,7 +150,7 @@ func TestCategoryCounts(t *testing.T) {
 				url := path.CategoriesWithCounts(queries.OnlyHiddenItems)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
-				countMap := map[models.Id]int{category: 3}
+				countMap := map[models.ID]int{category: 3}
 				expected := createSuccessResponse(countMap)
 
 				actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
@@ -171,7 +171,7 @@ func TestCategoryCounts(t *testing.T) {
 				url := path.CategoriesWithCounts(queries.OnlyVisibleItems)
 				request := CreateGetRequest(url, WithSessionCookie(sessionId))
 				router.ServeHTTP(writer, request)
-				countMap := map[models.Id]int{category: 5}
+				countMap := map[models.ID]int{category: 5}
 				expected := createSuccessResponse(countMap)
 
 				actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
@@ -222,7 +222,7 @@ func TestCategoryCounts(t *testing.T) {
 	})
 }
 
-func createSuccessResponse(countMap map[models.Id]int) rest.ListCategoriesSuccessResponse {
+func createSuccessResponse(countMap map[models.ID]int) rest.ListCategoriesSuccessResponse {
 	defaultCategoryNameTable := aux.DefaultCategoryNameTable()
 	countArray := []rest.CategoryData{}
 

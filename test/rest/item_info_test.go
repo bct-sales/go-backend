@@ -32,9 +32,9 @@ func TestGetItemInformation(t *testing.T) {
 					cashier, sessionId := setup.LoggedIn(setup.Cashier())
 					item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
-					saleIds := []models.Id{}
+					saleIds := []models.ID{}
 					for i := 0; i < sale_count; i++ {
-						sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+						sale := setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 						saleIds = append(saleIds, sale.SaleID)
 					}
 
@@ -84,7 +84,7 @@ func TestGetItemInformation(t *testing.T) {
 			require.Equal(t, item.Charity, *response.Charity)
 			require.Equal(t, item.Frozen, *response.Frozen)
 			require.NotNil(t, response.SoldIn)
-			require.Equal(t, []models.Id{}, *response.SoldIn)
+			require.Equal(t, []models.ID{}, *response.SoldIn)
 		})
 
 		t.Run("As owning seller", func(t *testing.T) {
@@ -110,7 +110,7 @@ func TestGetItemInformation(t *testing.T) {
 			require.Equal(t, item.Charity, *response.Charity)
 			require.Equal(t, item.Frozen, *response.Frozen)
 			require.NotNil(t, response.SoldIn)
-			require.Equal(t, []models.Id{}, *response.SoldIn)
+			require.Equal(t, []models.ID{}, *response.SoldIn)
 		})
 	})
 
@@ -149,7 +149,7 @@ func TestGetItemInformation(t *testing.T) {
 			_, sessionId := setup.LoggedIn(setup.Cashier())
 
 			// Get ID for nonexisting item
-			nonexistentItem := models.Id(1)
+			nonexistentItem := models.ID(1)
 			setup.RequireNoSuchItems(t, nonexistentItem)
 
 			// Attempt to get information for nonexistent item
@@ -173,7 +173,7 @@ func TestGetItemInformation(t *testing.T) {
 			item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 
 			for i := 0; i < sale_count; i++ {
-				setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+				setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 			}
 
 			url := path.Item(item.ItemID)

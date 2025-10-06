@@ -135,7 +135,7 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 				require.Equal(t, itemBefore.Hidden, itemAfter.Hidden)
 				require.Equal(t, itemBefore.PriceInCents, itemAfter.PriceInCents)
 
-				var expectedSeller models.Id
+				var expectedSeller models.ID
 				if itemBefore.SellerID == oldSeller.UserId {
 					expectedSeller = newSeller.UserId
 				} else {
@@ -153,7 +153,7 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			defer setup.Close()
 
 			newSeller := setup.Seller()
-			invalidSellerId := models.Id(999)
+			invalidSellerId := models.ID(999)
 			setup.RequireNoSuchUsers(t, invalidSellerId)
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
@@ -167,7 +167,7 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			defer setup.Close()
 
 			oldSeller := setup.Seller()
-			invalidSellerId := models.Id(999)
+			invalidSellerId := models.ID(999)
 			setup.RequireNoSuchUsers(t, invalidSellerId)
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {

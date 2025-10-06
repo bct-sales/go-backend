@@ -51,8 +51,8 @@ func NewMoveItemsCommand() *cobra.Command {
 
 func (c *moveItemsCommand) execute() error {
 	return c.WithTransaction(func(transaction *queries.TransactionalDatabaseQuerier) error {
-		oldSeller := models.Id(c.oldSeller)
-		newSeller := models.Id(c.newSeller)
+		oldSeller := models.ID(c.oldSeller)
+		newSeller := models.ID(c.newSeller)
 
 		if oldSeller == newSeller {
 			c.Printf("Warning: this is a no-op because from and to are equal\n")

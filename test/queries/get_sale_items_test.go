@@ -19,7 +19,7 @@ func TestGetSaleItems(t *testing.T) {
 
 	seller := setup.Seller()
 	cashier := setup.Cashier()
-	itemIds := []models.Id{
+	itemIds := []models.ID{
 		setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID,
 		setup.Item(seller.UserId, aux.WithDummyData(2), aux.WithHidden(false)).ItemID,
 		setup.Item(seller.UserId, aux.WithDummyData(3), aux.WithHidden(false)).ItemID,
@@ -47,7 +47,7 @@ func TestGetSaleItemsOfNonexistentSale(t *testing.T) {
 	setup, db := NewDatabaseFixture(WithDefaultCategories)
 	defer setup.Close()
 
-	saleId := models.Id(1)
+	saleId := models.ID(1)
 
 	saleExists, err := queries.SaleWithIdExists(db, saleId)
 

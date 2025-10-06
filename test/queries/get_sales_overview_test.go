@@ -12,8 +12,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func createTotalMap(categories []*models.ItemCategory) map[models.Id]models.MoneyInCents {
-	totalMap := make(map[models.Id]models.MoneyInCents)
+func createTotalMap(categories []*models.ItemCategory) map[models.ID]models.MoneyInCents {
+	totalMap := make(map[models.ID]models.MoneyInCents)
 	for _, category := range categories {
 		totalMap[category.CategoryID] = models.MoneyInCents(0)
 	}
@@ -76,7 +76,7 @@ func TestGetSalesOverview(t *testing.T) {
 		totals[item.CategoryID] += item.PriceInCents
 
 		cashier := setup.Cashier()
-		setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+		setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -106,7 +106,7 @@ func TestGetSalesOverview(t *testing.T) {
 		totals[item2.CategoryID] += item2.PriceInCents
 
 		cashier := setup.Cashier()
-		setup.Sale(cashier.UserId, []models.Id{item1.ItemID, item2.ItemID})
+		setup.Sale(cashier.UserId, []models.ID{item1.ItemID, item2.ItemID})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -136,7 +136,7 @@ func TestGetSalesOverview(t *testing.T) {
 		totals[item2.CategoryID] += item2.PriceInCents
 
 		cashier := setup.Cashier()
-		setup.Sale(cashier.UserId, []models.Id{item1.ItemID, item2.ItemID})
+		setup.Sale(cashier.UserId, []models.ID{item1.ItemID, item2.ItemID})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -166,8 +166,8 @@ func TestGetSalesOverview(t *testing.T) {
 		totals[item2.CategoryID] += item2.PriceInCents
 
 		cashier := setup.Cashier()
-		setup.Sale(cashier.UserId, []models.Id{item1.ItemID})
-		setup.Sale(cashier.UserId, []models.Id{item2.ItemID})
+		setup.Sale(cashier.UserId, []models.ID{item1.ItemID})
+		setup.Sale(cashier.UserId, []models.ID{item2.ItemID})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)
@@ -197,8 +197,8 @@ func TestGetSalesOverview(t *testing.T) {
 		totals[item2.CategoryID] += item2.PriceInCents
 
 		cashier := setup.Cashier()
-		setup.Sale(cashier.UserId, []models.Id{item1.ItemID})
-		setup.Sale(cashier.UserId, []models.Id{item2.ItemID})
+		setup.Sale(cashier.UserId, []models.ID{item1.ItemID})
+		setup.Sale(cashier.UserId, []models.ID{item2.ItemID})
 
 		categorySaleTotals, err := queries.GetSalesOverview(db)
 		t.Log(categorySaleTotals)

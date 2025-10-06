@@ -12,7 +12,7 @@ import (
 // Returns the ID of the newly created category.
 // Returns ErrInvalidCategoryName if the category name is invalid.
 // Returns ErrDuplicateCategoryName if there already exists a category with that name.
-func AddCategory(db DatabaseQuerier, categoryName string) (r_result models.Id, r_err error) {
+func AddCategory(db DatabaseQuerier, categoryName string) (r_result models.ID, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -40,12 +40,12 @@ func AddCategory(db DatabaseQuerier, categoryName string) (r_result models.Id, r
 		return 0, fmt.Errorf("failed to determine id of inserted category: %w", err)
 	}
 
-	return models.Id(categoryId), nil
+	return models.ID(categoryId), nil
 }
 
 // AddCategoryWithID adds a new category with the given ID and name to the database.
 // If the category name is invalid, it returns an ErrInvalidCategoryName error.
-func AddCategoryWithID(db DatabaseQuerier, categoryId models.Id, categoryName string) (r_err error) {
+func AddCategoryWithID(db DatabaseQuerier, categoryId models.ID, categoryName string) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -83,7 +83,7 @@ func AddCategoryWithID(db DatabaseQuerier, categoryId models.Id, categoryName st
 
 // CategoryWithIdExists checks if a category with the given ID exists in the database.
 // Returns true if such a category exists, false otherwise.
-func CategoryWithIdExists(db DatabaseQuerier, categoryId models.Id) (r_result bool, r_err error) {
+func CategoryWithIdExists(db DatabaseQuerier, categoryId models.ID) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -154,7 +154,7 @@ func GetCategories(db DatabaseQuerier) (r_result []*models.ItemCategory, r_err e
 
 // GetCategoryNameTable retrieves the IDs and names of all categories from the database.
 // Returns a map where the keys are category IDs and the values are category names.
-func GetCategoryNameTable(db DatabaseQuerier) (r_result map[models.Id]string, r_err error) {
+func GetCategoryNameTable(db DatabaseQuerier) (r_result map[models.ID]string, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -164,7 +164,7 @@ func GetCategoryNameTable(db DatabaseQuerier) (r_result map[models.Id]string, r_
 		return nil, fmt.Errorf("failed to get categories: %w", err)
 	}
 
-	result := make(map[models.Id]string)
+	result := make(map[models.ID]string)
 
 	for _, category := range categories {
 		result[category.CategoryID] = category.Name
@@ -176,7 +176,7 @@ func GetCategoryNameTable(db DatabaseQuerier) (r_result map[models.Id]string, r_
 // CountItemsPerCategory retrieves the count of items in each category.
 // Returns a map where the keys are category IDs and the values are the counts of items in that category.
 // The itemSelection parameter allows filtering items based on specific criteria.
-func CountItemsPerCategory(database DatabaseQuerier, itemSelection ItemSelection) (r_counts map[models.Id]int, r_err error) {
+func CountItemsPerCategory(database DatabaseQuerier, itemSelection ItemSelection) (r_counts map[models.ID]int, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -196,10 +196,10 @@ func CountItemsPerCategory(database DatabaseQuerier, itemSelection ItemSelection
 	}
 	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
-	counts := make(map[models.Id]int)
+	counts := make(map[models.ID]int)
 
 	for rows.Next() {
-		var categoryId models.Id
+		var categoryId models.ID
 		var count int
 
 		err := rows.Scan(
@@ -251,7 +251,7 @@ func CategoryWithNameExists(db DatabaseQuerier, categoryName string) (r_result b
 // If the new name is invalid, an ErrInvalidCategoryName is returned.
 // If the id is invalid, an ErrNoSuchCategory is returned.
 // If the new name is in use by another category, an ErrDuplicateCategoryName is returned.
-func RenameCategory(db DatabaseQuerier, categoryId models.Id, newCategoryName string) (r_err error) {
+func RenameCategory(db DatabaseQuerier, categoryId models.ID, newCategoryName string) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()

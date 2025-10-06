@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func FormatSoldItemsAsCSV(soldItems []*queries.SoldItem, categoryNameTable map[models.Id]string, writer io.Writer) error {
+func FormatSoldItemsAsCSV(soldItems []*queries.SoldItem, categoryNameTable map[models.ID]string, writer io.Writer) error {
 	csvWriter := csv.NewWriter(writer)
 	defer csvWriter.Flush()
 

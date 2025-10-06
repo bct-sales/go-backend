@@ -35,7 +35,7 @@ type Layout struct {
 
 type GenerateLabelsPayload struct {
 	Layout  Layout      `json:"layout"`
-	ItemIds []models.Id `json:"itemIds"`
+	ItemIds []models.ID `json:"itemIds"`
 }
 
 type generateLabelsEndpoint struct {
@@ -105,7 +105,7 @@ func (ep *generateLabelsEndpoint) execute() {
 	)
 }
 
-func (ep *generateLabelsEndpoint) freezeItems(db Database, itemIds []models.Id) bool {
+func (ep *generateLabelsEndpoint) freezeItems(db Database, itemIds []models.ID) bool {
 	transaction, err := db.StartTransaction()
 	if err != nil {
 		ep.Logger.InternalError("Failed to start transaction", "error", err)
@@ -129,8 +129,8 @@ func (ep *generateLabelsEndpoint) freezeItems(db Database, itemIds []models.Id) 
 	return true
 }
 
-func (ep *generateLabelsEndpoint) collectLabelData(db Database, itemTable map[models.Id]*models.Item, itemIds []models.Id) []*pdf.LabelData {
-	createLabelData := func(itemId models.Id) (*pdf.LabelData, error) {
+func (ep *generateLabelsEndpoint) collectLabelData(db Database, itemTable map[models.ID]*models.Item, itemIds []models.ID) []*pdf.LabelData {
+	createLabelData := func(itemId models.ID) (*pdf.LabelData, error) {
 		item, ok := itemTable[itemId]
 		if !ok {
 			ep.Logger.Bug("Bug: did not find item with id %s", itemId.String())
@@ -156,7 +156,7 @@ func (ep *generateLabelsEndpoint) collectLabelData(db Database, itemTable map[mo
 	return labelData
 }
 
-func (ep *generateLabelsEndpoint) createLabelDataFromItem(categoryNameTable map[models.Id]string, item *models.Item) (*pdf.LabelData, error) {
+func (ep *generateLabelsEndpoint) createLabelDataFromItem(categoryNameTable map[models.ID]string, item *models.Item) (*pdf.LabelData, error) {
 	barcode := fmt.Sprintf("%dx", item.ItemID)
 
 	category, ok := categoryNameTable[item.CategoryID]
@@ -272,7 +272,7 @@ func (ep *generateLabelsEndpoint) validatePayload(payload *GenerateLabelsPayload
 	return true
 }
 
-func (ep *generateLabelsEndpoint) retrieveItemsFromDatabase(itemIds []models.Id) map[models.Id]*models.Item {
+func (ep *generateLabelsEndpoint) retrieveItemsFromDatabase(itemIds []models.ID) map[models.ID]*models.Item {
 	itemTable, err := queries.GetItemsWithIds(ep.Database, itemIds)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
@@ -289,7 +289,7 @@ func (ep *generateLabelsEndpoint) retrieveItemsFromDatabase(itemIds []models.Id)
 	return itemTable
 }
 
-func (ep *generateLabelsEndpoint) checkItemOwnership(itemTable map[models.Id]*models.Item) bool {
+func (ep *generateLabelsEndpoint) checkItemOwnership(itemTable map[models.ID]*models.Item) bool {
 	for _, item := range itemTable {
 		if item.SellerID != ep.UserId {
 			ep.Logger.InvalidRequest("Blocked attempt at generating labels for items not owned by the seller", "loggedInUserId", ep.UserId, "itemUserId", item.SellerID, "itemId", item.ItemID)

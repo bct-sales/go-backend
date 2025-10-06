@@ -185,7 +185,7 @@ func TestUpdateItem(t *testing.T) {
 
 			_, sessionId := setup.LoggedIn(setup.Seller())
 
-			nonexistingItemId := models.Id(123)
+			nonexistingItemId := models.ID(123)
 			url := path.Item(nonexistingItemId)
 			setup.RequireNoSuchItems(t, nonexistingItemId)
 

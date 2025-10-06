@@ -76,7 +76,7 @@ func TestContainsHiddenItems(t *testing.T) {
 			seller := setup.Seller()
 			items := setup.Items(seller.UserId, 10, aux.WithHidden(false))
 			itemIds := models.CollectItemIds(items)
-			nonexistentItemId := models.Id(1000)
+			nonexistentItemId := models.ID(1000)
 			setup.RequireNoSuchItems(t, nonexistentItemId)
 			itemIds = append(itemIds, nonexistentItemId)
 

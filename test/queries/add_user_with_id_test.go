@@ -17,7 +17,7 @@ import (
 func TestAddUserWithId(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		for _, password := range []string{"a", "xyz"} {
-			for _, userId := range []models.Id{1, 5} {
+			for _, userId := range []models.ID{1, 5} {
 				for _, roleId := range models.ListRoles() {
 					t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
 						setup, db := NewDatabaseFixture(WithDefaultCategories)
@@ -43,7 +43,7 @@ func TestAddUserWithId(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		userId := models.Id(1)
+		userId := models.ID(1)
 		roleId := models.NewSellerRoleId()
 		password := "xyz"
 		createdAt := models.Timestamp(0)
@@ -64,8 +64,8 @@ func TestAddUserWithId(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		userId := models.Id(1)
-		roleId := models.RoleId{Id: 999} // Assuming this ID does not exist in the database
+		userId := models.ID(1)
+		roleId := models.RoleId{ID: 999} // Assuming this ID does not exist in the database
 		password := "xyz"
 		createdAt := models.Timestamp(0)
 		var lastAccess *models.Timestamp = nil

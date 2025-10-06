@@ -22,7 +22,7 @@ func TestSaleExists(t *testing.T) {
 			cashier := setup.Cashier()
 			itemId := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false)).ItemID
 
-			sale := setup.Sale(cashier.UserId, []models.Id{itemId})
+			sale := setup.Sale(cashier.UserId, []models.ID{itemId})
 			saleExists, err := queries.SaleWithIdExists(db, sale.SaleID)
 			require.NoError(t, err)
 			require.True(t, saleExists)

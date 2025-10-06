@@ -42,7 +42,7 @@ func TestUpdateLastActivity(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			userId := models.Id(999)
+			userId := models.ID(999)
 			setup.RequireNoSuchUsers(t, userId)
 
 			err := queries.UpdateLastActivity(db, userId, 1000)

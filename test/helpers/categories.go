@@ -7,18 +7,18 @@ import (
 )
 
 const (
-	CategoryId_Clothing50_56      models.Id = 1
-	CategoryId_Clothing56_62      models.Id = 2
-	CategoryId_Clothing68_80      models.Id = 3
-	CategoryId_Clothing86_92      models.Id = 4
-	CategoryId_Clothing92_98      models.Id = 5
-	CategoryId_Clothing104_116    models.Id = 6
-	CategoryId_Clothing122_128    models.Id = 7
-	CategoryId_Clothing128_140    models.Id = 8
-	CategoryId_Clothing140_152    models.Id = 9
-	CategoryId_Shoes              models.Id = 10
-	CategoryId_Toys               models.Id = 11
-	CategoryId_BabyChildEquipment models.Id = 12
+	CategoryId_Clothing50_56      models.ID = 1
+	CategoryId_Clothing56_62      models.ID = 2
+	CategoryId_Clothing68_80      models.ID = 3
+	CategoryId_Clothing86_92      models.ID = 4
+	CategoryId_Clothing92_98      models.ID = 5
+	CategoryId_Clothing104_116    models.ID = 6
+	CategoryId_Clothing122_128    models.ID = 7
+	CategoryId_Clothing128_140    models.ID = 8
+	CategoryId_Clothing140_152    models.ID = 9
+	CategoryId_Shoes              models.ID = 10
+	CategoryId_Toys               models.ID = 11
+	CategoryId_BabyChildEquipment models.ID = 12
 
 	CategoryName_Clothing50_56      string = "Clothing 0-3 mos (50-56)"
 	CategoryName_Clothing56_62      string = "Clothing 3-6 mos (56-62)"
@@ -34,8 +34,8 @@ const (
 	CategoryName_BabyChildEquipment string = "Baby/Child Equipment"
 )
 
-func DefaultCategoryNameTable() map[models.Id]string {
-	return map[models.Id]string{
+func DefaultCategoryNameTable() map[models.ID]string {
+	return map[models.ID]string{
 		CategoryId_Clothing50_56:      CategoryName_Clothing50_56,
 		CategoryId_Clothing56_62:      CategoryName_Clothing56_62,
 		CategoryId_Clothing68_80:      CategoryName_Clothing68_80,
@@ -51,6 +51,6 @@ func DefaultCategoryNameTable() map[models.Id]string {
 	}
 }
 
-func DefaultCategoryIds() []models.Id {
+func DefaultCategoryIds() []models.ID {
 	return slices.Collect(maps.Keys(DefaultCategoryNameTable()))
 }

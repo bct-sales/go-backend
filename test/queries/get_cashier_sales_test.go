@@ -24,9 +24,9 @@ func TestGetCashierSales(t *testing.T) {
 			otherCashier := setup.Cashier()
 			items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
 
-			sale1 := setup.Sale(cashier.UserId, []models.Id{items[0].ItemID})
-			sale2 := setup.Sale(cashier.UserId, []models.Id{items[1].ItemID})
-			setup.Sale(otherCashier.UserId, []models.Id{items[2].ItemID})
+			sale1 := setup.Sale(cashier.UserId, []models.ID{items[0].ItemID})
+			sale2 := setup.Sale(cashier.UserId, []models.ID{items[1].ItemID})
+			setup.Sale(otherCashier.UserId, []models.ID{items[2].ItemID})
 
 			actual := []*models.SaleSummary{}
 			err := queries.GetCashierSales(db, cashier.UserId, queries.CollectTo(&actual), queries.OrderChronological, queries.AllRows())
@@ -45,9 +45,9 @@ func TestGetCashierSales(t *testing.T) {
 			cashier := setup.Cashier()
 			items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
 
-			saleIds := []models.Id{}
+			saleIds := []models.ID{}
 			for _, item := range items {
-				sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+				sale := setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 				saleIds = append(saleIds, sale.SaleID)
 			}
 
@@ -71,9 +71,9 @@ func TestGetCashierSales(t *testing.T) {
 			cashier := setup.Cashier()
 			items := setup.Items(seller.UserId, 3, aux.WithHidden(false))
 
-			saleIds := []models.Id{}
+			saleIds := []models.ID{}
 			for _, item := range items {
-				sale := setup.Sale(cashier.UserId, []models.Id{item.ItemID})
+				sale := setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 				saleIds = append(saleIds, sale.SaleID)
 			}
 
@@ -96,10 +96,10 @@ func TestGetCashierSales(t *testing.T) {
 			seller := setup.Seller()
 			cashier := setup.Cashier()
 			items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
-			setup.Sale(cashier.UserId, []models.Id{items[0].ItemID})
-			setup.Sale(cashier.UserId, []models.Id{items[1].ItemID})
+			setup.Sale(cashier.UserId, []models.ID{items[0].ItemID})
+			setup.Sale(cashier.UserId, []models.ID{items[1].ItemID})
 
-			cashierId := models.Id(9999)
+			cashierId := models.ID(9999)
 			setup.RequireNoSuchUsers(t, cashierId)
 
 			callback := func(sales *models.SaleSummary) error { return nil }
@@ -116,8 +116,8 @@ func TestGetCashierSales(t *testing.T) {
 			cashier := setup.Cashier()
 			admin := setup.Admin()
 			items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
-			setup.Sale(cashier.UserId, []models.Id{items[0].ItemID})
-			setup.Sale(cashier.UserId, []models.Id{items[1].ItemID})
+			setup.Sale(cashier.UserId, []models.ID{items[0].ItemID})
+			setup.Sale(cashier.UserId, []models.ID{items[1].ItemID})
 
 			callback := func(sales *models.SaleSummary) error { return nil }
 			err := queries.GetCashierSales(db, admin.UserId, callback, queries.OrderChronological, queries.AllRows())
@@ -132,8 +132,8 @@ func TestGetCashierSales(t *testing.T) {
 			seller := setup.Seller()
 			cashier := setup.Cashier()
 			items := setup.Items(seller.UserId, 100, aux.WithHidden(false))
-			setup.Sale(cashier.UserId, []models.Id{items[0].ItemID})
-			setup.Sale(cashier.UserId, []models.Id{items[1].ItemID})
+			setup.Sale(cashier.UserId, []models.ID{items[0].ItemID})
+			setup.Sale(cashier.UserId, []models.ID{items[1].ItemID})
 
 			callback := func(sales *models.SaleSummary) error { return nil }
 			err := queries.GetCashierSales(db, seller.UserId, callback, queries.OrderChronological, queries.AllRows())

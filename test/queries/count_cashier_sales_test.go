@@ -23,9 +23,9 @@ func TestCountCashierSales(t *testing.T) {
 			cashier := setup.Cashier()
 
 			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
-			setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
-			setup.Sale(cashier.UserId, []models.Id{items[2].ItemID, items[3].ItemID})
-			setup.Sale(cashier.UserId, []models.Id{items[4].ItemID})
+			setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[1].ItemID})
+			setup.Sale(cashier.UserId, []models.ID{items[2].ItemID, items[3].ItemID})
+			setup.Sale(cashier.UserId, []models.ID{items[4].ItemID})
 
 			count, err := queries.CountCashierSales(db, cashier.UserId)
 			require.NoError(t, err)
@@ -41,9 +41,9 @@ func TestCountCashierSales(t *testing.T) {
 			cashier2 := setup.Cashier()
 
 			items := setup.Items(seller.UserId, 5, aux.WithHidden(false))
-			setup.Sale(cashier.UserId, []models.Id{items[0].ItemID, items[1].ItemID})
-			setup.Sale(cashier.UserId, []models.Id{items[2].ItemID, items[3].ItemID})
-			setup.Sale(cashier2.UserId, []models.Id{items[4].ItemID})
+			setup.Sale(cashier.UserId, []models.ID{items[0].ItemID, items[1].ItemID})
+			setup.Sale(cashier.UserId, []models.ID{items[2].ItemID, items[3].ItemID})
+			setup.Sale(cashier2.UserId, []models.ID{items[4].ItemID})
 
 			count, err := queries.CountCashierSales(db, cashier.UserId)
 			require.NoError(t, err)
@@ -56,7 +56,7 @@ func TestCountCashierSales(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			nonexistentCashierId := models.Id(999)
+			nonexistentCashierId := models.ID(999)
 			setup.RequireNoSuchUsers(t, nonexistentCashierId)
 
 			_, err := queries.CountCashierSales(db, nonexistentCashierId)

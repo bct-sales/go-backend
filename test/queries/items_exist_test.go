@@ -16,7 +16,7 @@ import (
 func TestCheckItemsExistence(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("All items exist", func(t *testing.T) {
-			selections := [][]models.Id{
+			selections := [][]models.ID{
 				{},
 				{1},
 				{2},
@@ -35,7 +35,7 @@ func TestCheckItemsExistence(t *testing.T) {
 
 					seller := setup.Seller()
 
-					itemIds := []models.Id{}
+					itemIds := []models.ID{}
 					for i := 0; i != 10; i++ {
 						itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
 					}
@@ -48,7 +48,7 @@ func TestCheckItemsExistence(t *testing.T) {
 		})
 
 		t.Run("Not all items exist", func(t *testing.T) {
-			selections := [][]models.Id{
+			selections := [][]models.ID{
 				{11},
 				{1, 11},
 			}
@@ -60,7 +60,7 @@ func TestCheckItemsExistence(t *testing.T) {
 
 					seller := setup.Seller()
 
-					itemIds := []models.Id{}
+					itemIds := []models.ID{}
 					for i := 0; i != 10; i++ {
 						itemIds = append(itemIds, setup.Item(seller.UserId, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
 					}

@@ -42,7 +42,7 @@ func (u *URL) String() string {
 	return path
 }
 
-func (u *URL) WithQueryIdParameter(key string, id models.Id) *URL {
+func (u *URL) WithQueryIdParameter(key string, id models.ID) *URL {
 	return u.AddQueryParameter(key, id.String())
 }
 
@@ -66,10 +66,10 @@ func (u *URL) AntiChronologically() *URL {
 	return u.Order("antichronological")
 }
 
-func (u *URL) StartId(startId models.Id) *URL {
+func (u *URL) StartId(startId models.ID) *URL {
 	return u.WithQueryIdParameter("startId", startId)
 }
 
-func (u *URL) CategoryFilter(categoryId models.Id) *URL {
+func (u *URL) CategoryFilter(categoryId models.ID) *URL {
 	return u.WithQueryIdParameter("category", categoryId)
 }
