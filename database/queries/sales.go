@@ -82,7 +82,7 @@ func (q *addSaleQuery) ensureInputsValidity(db DatabaseQuerier) error {
 	}
 
 	// Ensure the user exists and is a cashier
-	cashier, err := GetUserWithId(db, q.CashierId)
+	cashier, err := GetUserWithID(db, q.CashierId)
 	if err != nil {
 		return err
 	}
@@ -685,7 +685,7 @@ func GetSalesWithItem(db DatabaseQuerier, itemId models.ID) (r_result []models.I
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if itemExists, err := ItemWithIdExists(db, itemId); err != nil || !itemExists {
+	if itemExists, err := ItemWithIDExists(db, itemId); err != nil || !itemExists {
 		if !itemExists {
 			return nil, fmt.Errorf("failed to get sales with item %d: %w", itemId, dberr.ErrNoSuchItem)
 		}
@@ -1206,7 +1206,7 @@ type SoldItem struct {
 	Description     string
 	PriceInCents    models.MoneyInCents
 	ItemCategoryID  models.ID
-	SellerId        models.ID
+	SellerID        models.ID
 	Donation        bool
 	Charity         bool
 }
@@ -1295,7 +1295,7 @@ func (q *GetSoldItemsQuery) Execute(db DatabaseQuerier) (r_result []*SoldItem, r
 			Description:     description,
 			PriceInCents:    priceInCents,
 			ItemCategoryID:  itemCategory,
-			SellerId:        sellerId,
+			SellerID:        sellerId,
 			Donation:        donation,
 			Charity:         charity,
 		}

@@ -30,7 +30,7 @@ func FormatSoldItemsAsCSV(soldItems []*queries.SoldItem, categoryNameTable map[m
 		if !ok {
 			return fmt.Errorf("unknown category id: %v", soldItem.ItemCategoryID)
 		}
-		sellerIdStr := soldItem.SellerId.String()
+		sellerIdStr := soldItem.SellerID.String()
 		donationStr := strconv.FormatBool(soldItem.Donation)
 		charityStr := strconv.FormatBool(soldItem.Charity)
 

@@ -22,6 +22,6 @@ func TestGetItemIds(t *testing.T) {
 
 		itemIds, err := queries.GetItemIDs(db)
 		require.NoError(t, err)
-		require.ElementsMatch(t, itemIds, models.CollectItemIds(items))
+		require.ElementsMatch(t, itemIds, models.CollectItemIDs(items))
 	})
 }

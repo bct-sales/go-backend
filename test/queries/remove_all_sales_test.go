@@ -26,9 +26,9 @@ func TestRemoveAllSales(t *testing.T) {
 		items1 := setup.Items(seller1.UserID, 10, aux.WithHidden(false))
 		items2 := setup.Items(seller2.UserID, 20, aux.WithHidden(false))
 		items3 := setup.Items(seller3.UserID, 30, aux.WithHidden(false))
-		sale1 := setup.Sale(cashier1.UserID, models.CollectItemIds(items1))
-		sale2 := setup.Sale(cashier1.UserID, models.CollectItemIds(items2))
-		sale3 := setup.Sale(cashier2.UserID, models.CollectItemIds(items3))
+		sale1 := setup.Sale(cashier1.UserID, models.CollectItemIDs(items1))
+		sale2 := setup.Sale(cashier1.UserID, models.CollectItemIDs(items2))
+		sale3 := setup.Sale(cashier2.UserID, models.CollectItemIDs(items3))
 
 		setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
 			err := queries.RemoveAllSales(transaction)
@@ -42,7 +42,7 @@ func TestRemoveAllSales(t *testing.T) {
 		}
 
 		for _, item := range slices.Concat(items1, items2, items3) {
-			exists, err := queries.ItemWithIdExists(db, item.ItemID)
+			exists, err := queries.ItemWithIDExists(db, item.ItemID)
 			require.NoError(t, err)
 			require.True(t, exists, "Item should still exist after sales removal")
 		}

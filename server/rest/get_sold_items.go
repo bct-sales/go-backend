@@ -136,7 +136,7 @@ func (ep *listSoldItemsEndpoint) convertData(soldItems []*queries.SoldItem) []Li
 			Description:     soldItem.Description,
 			PriceInCents:    soldItem.PriceInCents,
 			ItemCategoryID:  soldItem.ItemCategoryID,
-			SellerId:        soldItem.SellerId,
+			SellerId:        soldItem.SellerID,
 			Donation:        soldItem.Donation,
 			Charity:         soldItem.Charity,
 		}

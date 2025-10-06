@@ -21,7 +21,7 @@ func TestEnsureItemsExist(t *testing.T) {
 
 			seller := setup.Seller()
 			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
-			itemIds := models.CollectItemIds(items)
+			itemIds := models.CollectItemIDs(items)
 
 			err := queries.EnsureItemsExist(db, itemIds)
 			require.NoError(t, err)
@@ -33,7 +33,7 @@ func TestEnsureItemsExist(t *testing.T) {
 
 			seller := setup.Seller()
 			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(true))
-			itemIds := models.CollectItemIds(items)
+			itemIds := models.CollectItemIDs(items)
 
 			err := queries.EnsureItemsExist(db, itemIds)
 			require.NoError(t, err)
@@ -48,7 +48,7 @@ func TestEnsureItemsExist(t *testing.T) {
 		items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 		nonexistentItemId := models.ID(150)
 		setup.RequireNoSuchItems(t, nonexistentItemId)
-		itemIds := append(models.CollectItemIds(items), nonexistentItemId)
+		itemIds := append(models.CollectItemIDs(items), nonexistentItemId)
 
 		err := queries.EnsureItemsExist(db, itemIds)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)

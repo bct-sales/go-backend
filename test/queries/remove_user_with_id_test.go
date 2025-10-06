@@ -31,7 +31,7 @@ func TestRemoveUserWithId(t *testing.T) {
 			require.True(t, cashierExists)
 		}
 
-		err := queries.RemoveUserWithId(db, seller.UserID)
+		err := queries.RemoveUserWithID(db, seller.UserID)
 		require.NoError(t, err)
 
 		{
@@ -54,7 +54,7 @@ func TestRemoveUserWithId(t *testing.T) {
 			userId := models.ID(99999)
 			setup.RequireNoSuchUsers(t, userId)
 
-			err := queries.RemoveUserWithId(db, userId)
+			err := queries.RemoveUserWithID(db, userId)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 	})

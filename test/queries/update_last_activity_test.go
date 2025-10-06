@@ -27,7 +27,7 @@ func TestUpdateLastActivity(t *testing.T) {
 
 					queries.UpdateLastActivity(db, seller.UserID, lastActivity)
 
-					userData, err := queries.GetUserWithId(db, seller.UserID)
+					userData, err := queries.GetUserWithID(db, seller.UserID)
 					require.NoError(t, err)
 					require.NotNil(t, userData)
 					require.NotNil(t, userData.LastActivity)

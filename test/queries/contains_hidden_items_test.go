@@ -20,7 +20,7 @@ func TestContainsHiddenItems(t *testing.T) {
 
 			seller := setup.Seller()
 			items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
-			itemIds := models.CollectItemIds(items)
+			itemIds := models.CollectItemIDs(items)
 
 			result, err := queries.ContainsHiddenItems(db, itemIds)
 			require.NoError(t, err)
@@ -34,7 +34,7 @@ func TestContainsHiddenItems(t *testing.T) {
 			seller := setup.Seller()
 			items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
 			items = append(items, setup.Item(seller.UserID, aux.WithHidden(true)))
-			itemIds := models.CollectItemIds(items)
+			itemIds := models.CollectItemIDs(items)
 
 			result, err := queries.ContainsHiddenItems(db, itemIds)
 			require.NoError(t, err)
@@ -47,7 +47,7 @@ func TestContainsHiddenItems(t *testing.T) {
 
 			seller := setup.Seller()
 			items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
-			itemIds := models.CollectItemIds(items)
+			itemIds := models.CollectItemIDs(items)
 			itemIds = append(itemIds, itemIds...)
 
 			result, err := queries.ContainsHiddenItems(db, itemIds)
@@ -62,7 +62,7 @@ func TestContainsHiddenItems(t *testing.T) {
 			seller := setup.Seller()
 			items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
 			items = append(items, setup.Item(seller.UserID, aux.WithHidden(true)))
-			itemIds := models.CollectItemIds(items)
+			itemIds := models.CollectItemIDs(items)
 			itemIds = append(itemIds, itemIds...)
 
 			result, err := queries.ContainsHiddenItems(db, itemIds)
@@ -75,7 +75,7 @@ func TestContainsHiddenItems(t *testing.T) {
 
 			seller := setup.Seller()
 			items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
-			itemIds := models.CollectItemIds(items)
+			itemIds := models.CollectItemIDs(items)
 			nonexistentItemId := models.ID(1000)
 			setup.RequireNoSuchItems(t, nonexistentItemId)
 			itemIds = append(itemIds, nonexistentItemId)

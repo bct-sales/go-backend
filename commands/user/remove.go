@@ -42,13 +42,13 @@ func NewUserRemoveCommand() *cobra.Command {
 
 func (c *RemoveUserCommand) execute(args []string) error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		userId, err := models.ParseID(args[0])
+		userID, err := models.ParseID(args[0])
 		if err != nil {
 			c.PrintErrorf("Invalid user ID: %s\n", args[0])
 			return err
 		}
 
-		if err = queries.RemoveUserWithId(db, userId); err != nil {
+		if err = queries.RemoveUserWithID(db, userID); err != nil {
 			c.PrintErrorf("Failed to remove user\n")
 			return err
 		}

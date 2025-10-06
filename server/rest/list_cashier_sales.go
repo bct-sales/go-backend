@@ -104,7 +104,7 @@ func (ep *listCashierSalesEndpoint) extractCashierIdFromUri() (models.ID, bool) 
 }
 
 func (ep *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.ID) bool {
-	user, err := queries.GetUserWithId(ep.Database, ep.UserId)
+	user, err := queries.GetUserWithID(ep.Database, ep.UserId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchUser) {
 			// This should not happen, as the userId is from the logged-in user

@@ -87,7 +87,7 @@ func AddUserToDatabase(db *sql.DB, roleId models.RoleID, options ...func(*AddUse
 		}
 	}
 
-	user, err := queries.GetUserWithId(db, userId)
+	user, err := queries.GetUserWithID(db, userId)
 	if err != nil {
 		panic(err)
 	}

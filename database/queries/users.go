@@ -155,9 +155,9 @@ func UserWithIdExists(db DatabaseQuerier, userId models.ID) (r_result bool, r_er
 	return true, nil
 }
 
-// GetUserWithId retrieves a user from the database by their user ID.
+// GetUserWithID retrieves a user from the database by their user ID.
 // An ErrNoSuchUser is returned if the user does not exist.
-func GetUserWithId(db DatabaseQuerier, userId models.ID) (r_result *models.User, r_err error) {
+func GetUserWithID(db DatabaseQuerier, userId models.ID) (r_result *models.User, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -369,7 +369,7 @@ func EnsureUserExistsAndHasRole(db DatabaseQuerier, userId models.ID, expectedRo
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	user, err := GetUserWithId(db, userId)
+	user, err := GetUserWithID(db, userId)
 
 	if err != nil {
 		return err
@@ -382,11 +382,11 @@ func EnsureUserExistsAndHasRole(db DatabaseQuerier, userId models.ID, expectedRo
 	return nil
 }
 
-// RemoveUserWithId removes a user from the database by their user ID.
+// RemoveUserWithID removes a user from the database by their user ID.
 // An ErrNoSuchUser is returned if the user does not exist.
 // An error is returned if the user cannot be removed, e.g., because items or sales are
 // associated with the user.
-func RemoveUserWithId(db DatabaseQuerier, userId models.ID) (r_err error) {
+func RemoveUserWithID(db DatabaseQuerier, userId models.ID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()

@@ -39,8 +39,8 @@ func NewMoveItemsCommand() *cobra.Command {
 		},
 	}
 
-	command.CobraCommand.Flags().Uint64Var(&command.oldSeller, "from", 0, "Id of old seller")
-	command.CobraCommand.Flags().Uint64Var(&command.newSeller, "to", 0, "Id of new seller")
+	command.CobraCommand.Flags().Uint64Var(&command.oldSeller, "from", 0, "ID of old seller")
+	command.CobraCommand.Flags().Uint64Var(&command.newSeller, "to", 0, "ID of new seller")
 	command.CobraCommand.Flags().BoolVar(&command.forceFrozen, "force-frozen", false, "Force frozen items")
 	command.CobraCommand.Flags().BoolVar(&command.forceReceive, "force-merge", false, "Force even if receiver seller already has items")
 	command.CobraCommand.MarkFlagRequired("from")

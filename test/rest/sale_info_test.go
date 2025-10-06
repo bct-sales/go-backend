@@ -61,7 +61,7 @@ func TestGetSaleInformation(t *testing.T) {
 				transactionTime := models.Timestamp(100)
 				itemCount := 5
 				items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
-				itemIds := models.CollectItemIds(items)
+				itemIds := models.CollectItemIDs(items)
 				sale := setup.Sale(cashier.UserID, itemIds, aux.WithTransactionTime(transactionTime))
 
 				url := path.Sale(sale.SaleID)
@@ -97,7 +97,7 @@ func TestGetSaleInformation(t *testing.T) {
 				transactionTime := models.Timestamp(100)
 				itemCount := 5
 				items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
-				itemIds := models.CollectItemIds(items)
+				itemIds := models.CollectItemIDs(items)
 				sale := setup.Sale(cashier.UserID, itemIds, aux.WithTransactionTime(transactionTime))
 
 				url := path.Sale(sale.SaleID)

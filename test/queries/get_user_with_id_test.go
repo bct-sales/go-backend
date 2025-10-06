@@ -29,7 +29,7 @@ func TestGetUserWithId(t *testing.T) {
 
 		user.UserID = setup.User(user.RoleID, aux.WithCreatedAt(user.CreatedAt), aux.WithLastActivity(*user.LastActivity), aux.WithPassword(user.Password)).UserID
 
-		actual, err := queries.GetUserWithId(db, user.UserID)
+		actual, err := queries.GetUserWithID(db, user.UserID)
 		require.NoError(t, err)
 		require.Equal(t, user, *actual)
 	})
@@ -41,7 +41,7 @@ func TestGetUserWithId(t *testing.T) {
 		userId := models.ID(999)
 		setup.RequireNoSuchUsers(t, userId)
 
-		_, err := queries.GetUserWithId(db, userId)
+		_, err := queries.GetUserWithID(db, userId)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 	})
 }

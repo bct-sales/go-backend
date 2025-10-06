@@ -109,7 +109,7 @@ func (command *ListSoldItemsCommand) listSoldItemsInTableFormat(db *sql.DB) erro
 		if !ok {
 			return fmt.Errorf("unknown category id: %v", soldItem.ItemCategoryID)
 		}
-		sellerIDStr := soldItem.SellerId.String()
+		sellerIDStr := soldItem.SellerID.String()
 		donationStr := strconv.FormatBool(soldItem.Donation)
 		charityStr := strconv.FormatBool(soldItem.Charity)
 

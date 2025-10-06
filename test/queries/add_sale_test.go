@@ -29,7 +29,7 @@ func TestAddSale(t *testing.T) {
 				cashier := setup.Cashier()
 
 				items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
-				itemIds := models.CollectItemIds(items)
+				itemIds := models.CollectItemIDs(items)
 
 				saleItemIds := make([]models.ID, len(itemIndices))
 				for index, itemIndex := range itemIndices {

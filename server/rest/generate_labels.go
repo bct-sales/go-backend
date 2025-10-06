@@ -273,7 +273,7 @@ func (ep *generateLabelsEndpoint) validatePayload(payload *GenerateLabelsPayload
 }
 
 func (ep *generateLabelsEndpoint) retrieveItemsFromDatabase(itemIds []models.ID) map[models.ID]*models.Item {
-	itemTable, err := queries.GetItemsWithIds(ep.Database, itemIds)
+	itemTable, err := queries.GetItemsWithIDs(ep.Database, itemIds)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
 			ep.Logger.InvalidRequest("Blocked attempt at generating labels for non-existing items", "itemIds", itemIds, "userId", ep.UserId)

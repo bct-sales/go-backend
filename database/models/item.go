@@ -19,7 +19,7 @@ func IsValidItemDescription(description string) bool {
 	return len(description) > 0
 }
 
-// CollectItemIds extracts the ItemID from each Item in the slice and returns a slice of Ids.
-func CollectItemIds(items []*Item) []ID {
+// CollectItemIDs extracts the ItemID from each Item in the slice and returns a slice of ids.
+func CollectItemIDs(items []*Item) []ID {
 	return algorithms.Map(items, func(item *Item) ID { return item.ItemID })
 }

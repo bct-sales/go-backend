@@ -162,7 +162,7 @@ func (s DatabaseFixture) RequireNoSuchUsers(t *testing.T, userIds ...models.ID) 
 
 func (s DatabaseFixture) RequireNoSuchItems(t *testing.T, itemIds ...models.ID) {
 	for _, itemId := range itemIds {
-		exists, err := queries.ItemWithIdExists(s.Db, itemId)
+		exists, err := queries.ItemWithIDExists(s.Db, itemId)
 		require.NoError(t, err)
 		require.False(t, exists)
 	}

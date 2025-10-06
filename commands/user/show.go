@@ -41,21 +41,21 @@ func NewUserShowCommand() *cobra.Command {
 func (c *showUserCommand) execute(args []string) error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		// Parse the user ID from the first argument
-		userId, err := models.ParseID(args[0])
+		userID, err := models.ParseID(args[0])
 		if err != nil {
 			c.PrintErrorf("Invalid user ID: %s\n", args[0])
 			return err
 		}
 
 		// Fetch user information from the database
-		user, err := queries.GetUserWithId(db, userId)
+		user, err := queries.GetUserWithID(db, userID)
 		if err != nil {
 			if errors.Is(err, dberr.ErrNoSuchUser) {
-				c.PrintErrorf("User with ID %d does not exist.\n", userId)
+				c.PrintErrorf("User with ID %d does not exist.\n", userID)
 				return err
 			}
 
-			c.PrintErrorf("Failed to get user with ID %d: %s\n", userId, err.Error())
+			c.PrintErrorf("Failed to get user with ID %d: %s\n", userID, err.Error())
 			return err
 		}
 

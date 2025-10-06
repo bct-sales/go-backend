@@ -41,7 +41,7 @@ func TestGetItemsWithIds(t *testing.T) {
 					setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
 				}
 
-				actual, err := queries.GetItemsWithIds(db, selection)
+				actual, err := queries.GetItemsWithIDs(db, selection)
 				require.NoError(t, err)
 
 				require.Equal(t, algorithms.NewSet(selection...).Len(), len(actual))
@@ -72,7 +72,7 @@ func TestGetItemsWithIds(t *testing.T) {
 						setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
 					}
 
-					actual, err := queries.GetItemsWithIds(db, selection)
+					actual, err := queries.GetItemsWithIDs(db, selection)
 					require.Nil(t, actual)
 					requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 				})

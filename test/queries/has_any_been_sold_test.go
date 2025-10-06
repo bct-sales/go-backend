@@ -48,7 +48,7 @@ func TestHasAnyBeenSold(t *testing.T) {
 		seller := setup.Seller()
 
 		items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
-		itemIds := models.CollectItemIds(items)
+		itemIds := models.CollectItemIDs(items)
 
 		actual, err := queries.HasAnyBeenSold(db, itemIds)
 		require.NoError(t, err)
@@ -63,7 +63,7 @@ func TestHasAnyBeenSold(t *testing.T) {
 		cashier := setup.Cashier()
 
 		items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
-		itemIds := models.CollectItemIds(items)
+		itemIds := models.CollectItemIDs(items)
 
 		setup.Sale(cashier.UserID, itemIds)
 

@@ -25,7 +25,7 @@ func TestRemoveItemWithId(t *testing.T) {
 
 		require.NoError(t, err)
 
-		itemExists, err := queries.ItemWithIdExists(db, itemId)
+		itemExists, err := queries.ItemWithIDExists(db, itemId)
 		require.NoError(t, err)
 		require.False(t, itemExists)
 	})
@@ -54,7 +54,7 @@ func TestRemoveItemWithId(t *testing.T) {
 			err := queries.RemoveItemWithID(db, itemId)
 			requireDatabaseWrappedError(t, err, dberr.ErrItemSold)
 
-			itemExists, err := queries.ItemWithIdExists(db, itemId)
+			itemExists, err := queries.ItemWithIDExists(db, itemId)
 			require.NoError(t, err)
 			require.True(t, itemExists)
 		})
@@ -69,7 +69,7 @@ func TestRemoveItemWithId(t *testing.T) {
 			err := queries.RemoveItemWithID(db, itemId)
 			requireDatabaseWrappedError(t, err, dberr.ErrItemFrozen)
 
-			itemExists, err := queries.ItemWithIdExists(db, itemId)
+			itemExists, err := queries.ItemWithIDExists(db, itemId)
 			require.NoError(t, err)
 			require.True(t, itemExists)
 		})

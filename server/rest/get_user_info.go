@@ -171,7 +171,7 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserId mo
 	db := ep.Database
 
 	// Look up user in database
-	user, err := queries.GetUserWithId(db, queriedUserId)
+	user, err := queries.GetUserWithID(db, queriedUserId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchUser) {
 			logger.InvalidRequest("User not found", "queriedUserId", queriedUserId)
