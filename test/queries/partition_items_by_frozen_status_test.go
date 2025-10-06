@@ -60,8 +60,11 @@ func TestPartitionItemsByFrozenStatus(t *testing.T) {
 			seller := setup.Seller()
 			frozenItems := setup.Items(seller.UserID, 10, aux.WithFrozen(true), aux.WithHidden(false))
 			unfrozenItems := setup.Items(seller.UserID, 5, aux.WithFrozen(false), aux.WithHidden(false))
-			nonexistentItems := []models.ID{999, 1000, 1001}
-			setup.RequireNoSuchItems(t, nonexistentItems...)
+			nonexistentItems := []models.ID{
+				setup.GenerateNonexistentItemID(t),
+				setup.GenerateNonexistentItemID(t),
+				setup.GenerateNonexistentItemID(t),
+			}
 			allItems := slices.Concat(
 				algorithms.Map(frozenItems, func(i *models.Item) models.ID { return i.ItemID }),
 				algorithms.Map(unfrozenItems, func(i *models.Item) models.ID { return i.ItemID }),

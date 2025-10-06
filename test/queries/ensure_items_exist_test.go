@@ -46,8 +46,7 @@ func TestEnsureItemsExist(t *testing.T) {
 
 		seller := setup.Seller()
 		items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
-		nonexistentItemID := models.ID(150)
-		setup.RequireNoSuchItems(t, nonexistentItemID)
+		nonexistentItemID := setup.GenerateNonexistentItemID(t)
 		itemIDs := append(models.CollectItemIDs(items), nonexistentItemID)
 
 		err := queries.EnsureItemsExist(db, itemIDs)

@@ -70,8 +70,7 @@ func TestGetSalesWithItem(t *testing.T) {
 
 			item1 := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 			item2 := setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false))
-			invalidItemID := models.ID(1000)
-			setup.RequireNoSuchItems(t, invalidItemID)
+			invalidItemID := setup.GenerateNonexistentItemID(t)
 
 			setup.Sale(cashier.UserID, []models.ID{item1.ItemID})
 			setup.Sale(cashier.UserID, []models.ID{item2.ItemID})

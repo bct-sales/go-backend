@@ -76,8 +76,7 @@ func TestHasAnyBeenSold(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		nonexistentItemID := models.ID(1)
-		setup.RequireNoSuchItems(t, nonexistentItemID)
+		nonexistentItemID := setup.GenerateNonexistentItemID(t)
 
 		actual, err := queries.HasAnyBeenSold(db, []models.ID{nonexistentItemID})
 		require.NoError(t, err)

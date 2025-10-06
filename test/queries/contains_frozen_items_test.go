@@ -92,8 +92,7 @@ func TestContainsFrozenItems(t *testing.T) {
 			seller := setup.Seller()
 			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 			itemIDs := models.CollectItemIDs(items)
-			nonexistentItemID := models.ID(1000)
-			setup.RequireNoSuchItems(t, nonexistentItemID)
+			nonexistentItemID := setup.GenerateNonexistentItemID(t)
 			itemIDs = append(itemIDs, nonexistentItemID)
 
 			containsFrozen, err := queries.ContainsFrozenItems(db, itemIDs)

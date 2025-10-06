@@ -192,6 +192,10 @@ func (s DatabaseFixture) RequireNoSuchItems(t *testing.T, itemIDs ...models.ID) 
 	}
 }
 
+func (s DatabaseFixture) GenerateNonexistentItemID(t *testing.T) models.ID {
+	return s.GenerateNonexistentID(t, func(id models.ID) (bool, error) { return queries.ItemWithIDExists(s.Db, id) })
+}
+
 func (s DatabaseFixture) RequireNoSuchSales(t *testing.T, saleIDs ...models.ID) {
 	for _, itemID := range saleIDs {
 		exists, err := queries.SaleWithIDExists(s.Db, itemID)
