@@ -93,15 +93,15 @@ func (command *Command) AsCobraCommand() *cobra.Command {
 }
 
 func (command *Command) ParseItemID(str string) (models.ID, error) {
-	return command.parseId(str, "item")
+	return command.parseID(str, "item")
 }
 
 func (command *Command) ParseUserId(str string) (models.ID, error) {
-	return command.parseId(str, "user")
+	return command.parseID(str, "user")
 }
 
 func (command *Command) ParseSaleId(str string) (models.ID, error) {
-	return command.parseId(str, "sale")
+	return command.parseID(str, "sale")
 }
 
 func (command *Command) ParseItemIDs(str []string) ([]models.ID, error) {
@@ -116,7 +116,7 @@ func (command *Command) ParseSaleIDs(str []string) ([]models.ID, error) {
 	return algorithms.MapError(str, command.ParseSaleId)
 }
 
-func (command *Command) parseId(str string, idType string) (models.ID, error) {
+func (command *Command) parseID(str string, idType string) (models.ID, error) {
 	id, err := models.ParseId(str)
 
 	if err != nil {
