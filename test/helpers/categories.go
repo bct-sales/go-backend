@@ -7,18 +7,18 @@ import (
 )
 
 const (
-	CategoryId_Clothing50_56      models.ID = 1
-	CategoryId_Clothing56_62      models.ID = 2
-	CategoryId_Clothing68_80      models.ID = 3
-	CategoryId_Clothing86_92      models.ID = 4
-	CategoryId_Clothing92_98      models.ID = 5
-	CategoryId_Clothing104_116    models.ID = 6
-	CategoryId_Clothing122_128    models.ID = 7
-	CategoryId_Clothing128_140    models.ID = 8
-	CategoryId_Clothing140_152    models.ID = 9
-	CategoryId_Shoes              models.ID = 10
-	CategoryId_Toys               models.ID = 11
-	CategoryId_BabyChildEquipment models.ID = 12
+	CategoryID_Clothing50_56      models.ID = 1
+	CategoryID_Clothing56_62      models.ID = 2
+	CategoryID_Clothing68_80      models.ID = 3
+	CategoryID_Clothing86_92      models.ID = 4
+	CategoryID_Clothing92_98      models.ID = 5
+	CategoryID_Clothing104_116    models.ID = 6
+	CategoryID_Clothing122_128    models.ID = 7
+	CategoryID_Clothing128_140    models.ID = 8
+	CategoryID_Clothing140_152    models.ID = 9
+	CategoryID_Shoes              models.ID = 10
+	CategoryID_Toys               models.ID = 11
+	CategoryID_BabyChildEquipment models.ID = 12
 
 	CategoryName_Clothing50_56      string = "Clothing 0-3 mos (50-56)"
 	CategoryName_Clothing56_62      string = "Clothing 3-6 mos (56-62)"
@@ -36,21 +36,21 @@ const (
 
 func DefaultCategoryNameTable() map[models.ID]string {
 	return map[models.ID]string{
-		CategoryId_Clothing50_56:      CategoryName_Clothing50_56,
-		CategoryId_Clothing56_62:      CategoryName_Clothing56_62,
-		CategoryId_Clothing68_80:      CategoryName_Clothing68_80,
-		CategoryId_Clothing86_92:      CategoryName_Clothing86_92,
-		CategoryId_Clothing92_98:      CategoryName_Clothing92_98,
-		CategoryId_Clothing104_116:    CategoryName_Clothing104_116,
-		CategoryId_Clothing122_128:    CategoryName_Clothing122_128,
-		CategoryId_Clothing128_140:    CategoryName_Clothing128_140,
-		CategoryId_Clothing140_152:    CategoryName_Clothing140_152,
-		CategoryId_Shoes:              CategoryName_Shoes,
-		CategoryId_Toys:               CategoryName_Toys,
-		CategoryId_BabyChildEquipment: CategoryName_BabyChildEquipment,
+		CategoryID_Clothing50_56:      CategoryName_Clothing50_56,
+		CategoryID_Clothing56_62:      CategoryName_Clothing56_62,
+		CategoryID_Clothing68_80:      CategoryName_Clothing68_80,
+		CategoryID_Clothing86_92:      CategoryName_Clothing86_92,
+		CategoryID_Clothing92_98:      CategoryName_Clothing92_98,
+		CategoryID_Clothing104_116:    CategoryName_Clothing104_116,
+		CategoryID_Clothing122_128:    CategoryName_Clothing122_128,
+		CategoryID_Clothing128_140:    CategoryName_Clothing128_140,
+		CategoryID_Clothing140_152:    CategoryName_Clothing140_152,
+		CategoryID_Shoes:              CategoryName_Shoes,
+		CategoryID_Toys:               CategoryName_Toys,
+		CategoryID_BabyChildEquipment: CategoryName_BabyChildEquipment,
 	}
 }
 
-func DefaultCategoryIds() []models.ID {
+func DefaultCategoryIDs() []models.ID {
 	return slices.Collect(maps.Keys(DefaultCategoryNameTable()))
 }

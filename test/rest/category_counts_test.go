@@ -122,7 +122,7 @@ func TestCategoryCounts(t *testing.T) {
 
 				_, sessionId := setup.LoggedIn(setup.Admin())
 				seller := setup.Seller()
-				category := aux.CategoryId_BabyChildEquipment
+				category := aux.CategoryID_BabyChildEquipment
 				setup.Items(seller.UserID, 5, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(false))
 				setup.Items(seller.UserID, 3, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(true))
 
@@ -143,7 +143,7 @@ func TestCategoryCounts(t *testing.T) {
 
 				_, sessionId := setup.LoggedIn(setup.Admin())
 				seller := setup.Seller()
-				category := aux.CategoryId_BabyChildEquipment
+				category := aux.CategoryID_BabyChildEquipment
 				setup.Items(seller.UserID, 5, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(false))
 				setup.Items(seller.UserID, 3, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(true))
 
@@ -164,7 +164,7 @@ func TestCategoryCounts(t *testing.T) {
 
 				_, sessionId := setup.LoggedIn(setup.Admin())
 				seller := setup.Seller()
-				category := aux.CategoryId_BabyChildEquipment
+				category := aux.CategoryID_BabyChildEquipment
 				setup.Items(seller.UserID, 5, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(false))
 				setup.Items(seller.UserID, 3, aux.WithItemCategory(category), aux.WithFrozen(false), aux.WithHidden(true))
 

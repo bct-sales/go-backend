@@ -9,8 +9,8 @@ import (
 )
 
 type AddUserData struct {
-	UserId       *models.ID
-	RoleId       models.RoleID
+	UserID       *models.ID
+	RoleID       models.RoleID
 	Password     *string
 	CreatedAt    *models.Timestamp
 	LastActivity *models.Timestamp
@@ -28,9 +28,9 @@ func (data *AddUserData) FillWithDefaults() {
 	}
 }
 
-func WithUserId(userId models.ID) func(*AddUserData) {
+func WithUserID(userId models.ID) func(*AddUserData) {
 	return func(data *AddUserData) {
-		data.UserId = &userId
+		data.UserID = &userId
 	}
 }
 
@@ -60,7 +60,7 @@ func WithLastActivity(lastActivity models.Timestamp) func(*AddUserData) {
 
 func AddUserToDatabase(db *sql.DB, roleId models.RoleID, options ...func(*AddUserData)) *models.User {
 	data := AddUserData{
-		RoleId: roleId,
+		RoleID: roleId,
 	}
 
 	for _, option := range options {
@@ -70,7 +70,7 @@ func AddUserToDatabase(db *sql.DB, roleId models.RoleID, options ...func(*AddUse
 	data.FillWithDefaults()
 
 	var userId models.ID
-	if data.UserId == nil {
+	if data.UserID == nil {
 		var err error
 		userId, err = queries.AddUser(db, roleId, *data.CreatedAt, data.LastActivity, *data.Password)
 
@@ -78,7 +78,7 @@ func AddUserToDatabase(db *sql.DB, roleId models.RoleID, options ...func(*AddUse
 			panic(err)
 		}
 	} else {
-		userId = *data.UserId
+		userId = *data.UserID
 		var err error
 		err = queries.AddUserWithID(db, userId, roleId, *data.CreatedAt, data.LastActivity, *data.Password)
 

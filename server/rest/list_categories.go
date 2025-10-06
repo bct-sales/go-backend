@@ -91,7 +91,7 @@ func (ep *listCategoriesEndpoint) listCategoriesWithCounts(itemSelection queries
 		categoryCount := categoryCounts[categoryID]
 		categoryName, ok := categoryNameTable[categoryID]
 		if !ok {
-			logger.InvalidRequest("Unknown category ID", "categoryId", categoryID)
+			logger.InvalidRequest("Unknown category ID", "categoryID", categoryID)
 			failure_response.UnknownCategory(context, fmt.Sprintf("Unknown category ID %d", categoryID))
 			return
 		}

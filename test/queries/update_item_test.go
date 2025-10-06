@@ -21,14 +21,14 @@ func TestUpdateItem(t *testing.T) {
 		oldPriceInCents := models.MoneyInCents(1000)
 		oldCharity := false
 		oldDonation := false
-		oldCategory := aux.CategoryId_BabyChildEquipment
+		oldCategory := aux.CategoryID_BabyChildEquipment
 
 		newAddedAt := models.Timestamp(2000)
 		newDescription := "new description"
 		newPriceInCents := models.MoneyInCents(2000)
 		newCharity := true
 		newDonation := true
-		newCategory := aux.CategoryId_Clothing140_152
+		newCategory := aux.CategoryID_Clothing140_152
 
 		for _, updateAddedAt := range []bool{false, true} {
 			for _, updateDescription := range []bool{false, true} {

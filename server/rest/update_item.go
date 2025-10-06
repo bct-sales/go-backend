@@ -39,7 +39,7 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 
 	itemID, err := models.ParseID(uriParameters.ItemID)
 	if err != nil {
-		logger.InvalidInput("Invalid item ID in URI", "itemId", uriParameters.ItemID, "error", err)
+		logger.InvalidInput("Invalid item ID in URI", "itemID", uriParameters.ItemID, "error", err)
 		failure_response.InvalidItemID(context, err.Error())
 		return
 	}
@@ -123,7 +123,7 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 	}
 
 	if commitErr := transaction.Commit(); commitErr != nil {
-		logger.InternalError("Failed to commit transaction after item update", "itemId", itemID, "error", commitErr)
+		logger.InternalError("Failed to commit transaction after item update", "itemID", itemID, "error", commitErr)
 		failure_response.Unknown(context, fmt.Sprintf("Failed to commit item update: %s", commitErr.Error()))
 		return
 	}

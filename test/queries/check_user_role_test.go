@@ -35,9 +35,9 @@ func TestCheckUserRole(t *testing.T) {
 				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				setup.Cashier(aux.WithUserId(cashierId))
-				setup.Admin(aux.WithUserId(adminId))
-				setup.Seller(aux.WithUserId(sellerId))
+				setup.Cashier(aux.WithUserID(cashierId))
+				setup.Admin(aux.WithUserID(adminId))
+				setup.Seller(aux.WithUserID(sellerId))
 
 				err := queries.EnsureUserExistsAndHasRole(db, pair.UserId, pair.RoleId)
 				require.NoError(t, err)
@@ -64,9 +64,9 @@ func TestCheckUserRole(t *testing.T) {
 				setup, db := NewDatabaseFixture(WithDefaultCategories)
 				defer setup.Close()
 
-				setup.Cashier(aux.WithUserId(cashierId))
-				setup.Admin(aux.WithUserId(adminId))
-				setup.Seller(aux.WithUserId(sellerId))
+				setup.Cashier(aux.WithUserID(cashierId))
+				setup.Admin(aux.WithUserID(adminId))
+				setup.Seller(aux.WithUserID(sellerId))
 
 				err := queries.EnsureUserExistsAndHasRole(db, pair.UserId, pair.RoleId)
 				requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)

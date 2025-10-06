@@ -107,7 +107,7 @@ func (ep *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.I
 	user, err := queries.GetUserWithID(ep.Database, ep.UserID)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchUser) {
-			// This should not happen, as the userId is from the logged-in user
+			// This should not happen, as the userID is from the logged-in user
 			ep.Logger.Bug("Logged in user does not exist")
 			failure_response.Unknown(ep.Context, "Bug: logged in user does not exist")
 			return false

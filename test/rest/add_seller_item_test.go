@@ -33,7 +33,7 @@ func TestAddSellerItem(t *testing.T) {
 										setup, router, writer := NewRestFixture(WithDefaultCategories)
 										defer setup.Close()
 
-										seller, sessionId := setup.LoggedIn(setup.Seller(aux.WithUserId(sellerId)), aux.WithExpiration(200))
+										seller, sessionId := setup.LoggedIn(setup.Seller(aux.WithUserID(sellerId)), aux.WithExpiration(200))
 
 										setup.Clock.Advance(models.Timestamp(delay))
 
@@ -81,7 +81,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(0)
 			description := "Test Description"
-			categoryId := aux.CategoryId_Clothing50_56
+			categoryId := aux.CategoryID_Clothing50_56
 			donation := false
 			charity := false
 
@@ -111,7 +111,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := ""
-			categoryId := aux.CategoryId_Shoes
+			categoryId := aux.CategoryID_Shoes
 			donation := false
 			charity := false
 
@@ -173,7 +173,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := aux.CategoryId_BabyChildEquipment
+			categoryId := aux.CategoryID_BabyChildEquipment
 			donation := false
 			charity := false
 
@@ -204,7 +204,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := aux.CategoryId_Clothing104_116
+			categoryId := aux.CategoryID_Clothing104_116
 			donation := false
 			charity := false
 
@@ -234,7 +234,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := aux.CategoryId_BabyChildEquipment
+			categoryId := aux.CategoryID_BabyChildEquipment
 			donation := false
 			charity := false
 
@@ -264,7 +264,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := aux.CategoryId_BabyChildEquipment
+			categoryId := aux.CategoryID_BabyChildEquipment
 			donation := false
 			charity := false
 
@@ -295,7 +295,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(100)
 			description := "Test Description"
-			categoryId := aux.CategoryId_BabyChildEquipment
+			categoryId := aux.CategoryID_BabyChildEquipment
 			donation := false
 			charity := false
 
@@ -327,7 +327,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(0)
 			description := "Test Description"
-			categoryId := aux.CategoryId_Clothing50_56
+			categoryId := aux.CategoryID_Clothing50_56
 			donation := false
 			charity := false
 
@@ -357,7 +357,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(0)
 			description := "Test Description"
-			categoryId := aux.CategoryId_Clothing50_56
+			categoryId := aux.CategoryID_Clothing50_56
 			donation := false
 			charity := false
 
@@ -388,7 +388,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			price := models.MoneyInCents(50)
 			description := "Test Description"
-			categoryId := aux.CategoryId_Clothing50_56
+			categoryId := aux.CategoryID_Clothing50_56
 			donation := false
 			charity := false
 

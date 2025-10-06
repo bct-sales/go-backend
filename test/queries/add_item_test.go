@@ -39,8 +39,8 @@ func TestAddItem(t *testing.T) {
 													setup, db := NewDatabaseFixture(WithDefaultCategories)
 													defer setup.Close()
 
-													setup.Seller(aux.WithUserId(1))
-													setup.Seller(aux.WithUserId(2))
+													setup.Seller(aux.WithUserID(1))
+													setup.Seller(aux.WithUserID(2))
 
 													itemId, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
 													require.NoError(t, err, `Failed to add item: %v`, err)
@@ -87,14 +87,14 @@ func TestAddItem(t *testing.T) {
 			timestamp := models.Timestamp(0)
 			description := "description"
 			priceInCents := models.MoneyInCents(100)
-			itemCategoryId := helpers.CategoryId_Clothing140_152
+			itemCategoryId := helpers.CategoryID_Clothing140_152
 			charity := false
 			sellerId := models.ID(1)
 			donation := false
 			frozen := false
 			hidden := false
 
-			setup.Seller(aux.WithUserId(2))
+			setup.Seller(aux.WithUserID(2))
 
 			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryId, sellerId, donation, charity, frozen, hidden)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
@@ -119,7 +119,7 @@ func TestAddItem(t *testing.T) {
 			hidden := false
 			itemCategoryId := models.ID(100)
 
-			setup.Seller(aux.WithUserId(1))
+			setup.Seller(aux.WithUserID(1))
 
 			{
 				categoryExists, err := queries.CategoryWithIDExists(db, itemCategoryId)
@@ -146,7 +146,7 @@ func TestAddItem(t *testing.T) {
 
 			timestamp := models.Timestamp(0)
 			description := "description"
-			itemCategoryId := helpers.CategoryId_Toys
+			itemCategoryId := helpers.CategoryID_Toys
 			charity := false
 			seller := setup.Seller()
 			donation := false
@@ -173,7 +173,7 @@ func TestAddItem(t *testing.T) {
 
 			timestamp := models.Timestamp(0)
 			description := "description"
-			itemCategoryId := helpers.CategoryId_Toys
+			itemCategoryId := helpers.CategoryID_Toys
 			charity := false
 			seller := setup.Seller()
 			donation := false
@@ -198,7 +198,7 @@ func TestAddItem(t *testing.T) {
 			description := "description"
 			invalidSeller := setup.Cashier()
 			priceInCents := models.MoneyInCents(100)
-			itemCategoryId := helpers.CategoryId_Toys
+			itemCategoryId := helpers.CategoryID_Toys
 			charity := false
 			donation := false
 			frozen := false
@@ -223,7 +223,7 @@ func TestAddItem(t *testing.T) {
 			description := "description"
 			invalidSeller := setup.Admin()
 			priceInCents := models.MoneyInCents(100)
-			itemCategoryId := helpers.CategoryId_Toys
+			itemCategoryId := helpers.CategoryID_Toys
 			charity := false
 			donation := false
 			frozen := false
@@ -250,7 +250,7 @@ func TestAddItem(t *testing.T) {
 			description := "description"
 			seller := setup.Seller()
 			priceInCents := models.MoneyInCents(100)
-			itemCategoryId := helpers.CategoryId_Toys
+			itemCategoryId := helpers.CategoryID_Toys
 			charity := false
 			donation := false
 			frozen := true

@@ -28,7 +28,7 @@ func TestListSellerItems(t *testing.T) {
 						setup, router, writer := NewRestFixture(WithDefaultCategories)
 						defer setup.Close()
 
-						seller, sessionId := setup.LoggedIn(setup.Seller(aux.WithUserId(sellerId)))
+						seller, sessionId := setup.LoggedIn(setup.Seller(aux.WithUserID(sellerId)))
 
 						expectedItems := []*rest.GetSellerItemsItemData{}
 						for i := 0; i < itemCount; i++ {

@@ -40,7 +40,7 @@ func TestAddItems(t *testing.T) {
 			addedAt := models.Timestamp(100)
 			description := "Black T-Shirt"
 			priceInCents := models.MoneyInCents(1500)
-			categoryID := helpers.CategoryId_Clothing56_62
+			categoryID := helpers.CategoryID_Clothing56_62
 			sellerID := seller.UserID
 			donation := false
 			charity := false
@@ -90,7 +90,7 @@ func TestAddItems(t *testing.T) {
 					addedAt := models.Timestamp(100)
 					description := fmt.Sprintf("Item %d", i)
 					priceInCents := models.MoneyInCents(50 * (i + 1))
-					categoryID := helpers.CategoryId_Clothing56_62
+					categoryID := helpers.CategoryID_Clothing56_62
 					sellerID := seller.UserID
 					donation := i%2 == 0
 					charity := i%3 == 0

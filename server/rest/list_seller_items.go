@@ -57,21 +57,21 @@ func (ep *getSellerItemsEndpoint) execute() {
 		return
 	}
 
-	queriedSellerId, sellerIdOk := ep.extractSellerIdFromURI()
-	if !sellerIdOk {
+	queriedSellerID, sellerIDOk := ep.extractSellerIDFromURI()
+	if !sellerIDOk {
 		return
 	}
 
-	if !ep.ensureQueriedUserIsSeller(queriedSellerId) {
+	if !ep.ensureQueriedUserIsSeller(queriedSellerID) {
 		return
 	}
-	if !ep.ensureUserHasPermissions(queriedSellerId) {
+	if !ep.ensureUserHasPermissions(queriedSellerID) {
 		return
 	}
 
 	itemSelection := ep.extractItemSelectionFromQueryParameters()
 
-	items, itemsOk := ep.fetchSellerItemsFromDatabase(queriedSellerId, itemSelection)
+	items, itemsOk := ep.fetchSellerItemsFromDatabase(queriedSellerID, itemSelection)
 	if !itemsOk {
 		return
 	}
@@ -89,9 +89,9 @@ func (ep *getSellerItemsEndpoint) ensureUserHasRightRole() bool {
 	return true
 }
 
-func (ep *getSellerItemsEndpoint) extractSellerIdFromURI() (models.ID, bool) {
+func (ep *getSellerItemsEndpoint) extractSellerIDFromURI() (models.ID, bool) {
 	var uriParameters struct {
-		SellerId string `binding:"required" uri:"id"`
+		SellerID string `binding:"required" uri:"id"`
 	}
 	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
 		ep.Logger.InvalidInput("Failed to bind URI parameters for GetSellerItems", "error", err)
@@ -99,26 +99,26 @@ func (ep *getSellerItemsEndpoint) extractSellerIdFromURI() (models.ID, bool) {
 		return 0, false
 	}
 
-	uriSellerId, err := models.ParseID(uriParameters.SellerId)
+	uriSellerID, err := models.ParseID(uriParameters.SellerID)
 	if err != nil {
-		ep.Logger.InvalidInput("Failed to parse seller ID from URI", "error", err, "sellerId", uriParameters.SellerId)
+		ep.Logger.InvalidInput("Failed to parse seller ID from URI", "error", err, "sellerID", uriParameters.SellerID)
 		failure_response.InvalidUserID(ep.Context, err.Error())
 		return 0, false
 	}
 
-	return uriSellerId, true
+	return uriSellerID, true
 }
 
-func (ep *getSellerItemsEndpoint) ensureQueriedUserIsSeller(queriedSellerId models.ID) bool {
-	if err := queries.EnsureUserExistsAndHasRole(ep.Database, queriedSellerId, models.NewSellerRoleID()); err != nil {
+func (ep *getSellerItemsEndpoint) ensureQueriedUserIsSeller(queriedSellerID models.ID) bool {
+	if err := queries.EnsureUserExistsAndHasRole(ep.Database, queriedSellerID, models.NewSellerRoleID()); err != nil {
 		if errors.Is(err, dberr.ErrNoSuchUser) {
-			ep.Logger.InvalidRequest("Seller does not exist", "error", err, "sellerId", queriedSellerId)
+			ep.Logger.InvalidRequest("Seller does not exist", "error", err, "sellerID", queriedSellerID)
 			failure_response.UnknownUser(ep.Context, err.Error())
 			return false
 		}
 
 		if errors.Is(err, dberr.ErrWrongRole) {
-			ep.Logger.InvalidRequest("Can only list items of sellers", "nonSellerId", queriedSellerId)
+			ep.Logger.InvalidRequest("Can only list items of sellers", "nonSellerID", queriedSellerID)
 			failure_response.WrongUser(ep.Context, "Can only list items of sellers")
 			return false
 		}
@@ -131,9 +131,9 @@ func (ep *getSellerItemsEndpoint) ensureQueriedUserIsSeller(queriedSellerId mode
 	return true
 }
 
-func (ep *getSellerItemsEndpoint) ensureUserHasPermissions(queriedSellerId models.ID) bool {
-	if ep.UserID != queriedSellerId && !ep.RoleID.IsAdmin() {
-		ep.Logger.InvalidRequest("Logged in user does not match URI seller ID", "uriSellerId", queriedSellerId)
+func (ep *getSellerItemsEndpoint) ensureUserHasPermissions(queriedSellerID models.ID) bool {
+	if ep.UserID != queriedSellerID && !ep.RoleID.IsAdmin() {
+		ep.Logger.InvalidRequest("Logged in user does not match URI seller ID", "uriSellerID", queriedSellerID)
 		failure_response.WrongSeller(ep.Context, "Logged in user does not match URI seller ID")
 		return false
 	}
@@ -152,11 +152,11 @@ func (ep *getSellerItemsEndpoint) extractItemSelectionFromQueryParameters() quer
 	}
 }
 
-func (ep *getSellerItemsEndpoint) fetchSellerItemsFromDatabase(queriedSellerId models.ID, itemSelection queries.ItemSelection) ([]*models.Item, bool) {
-	items, err := queries.GetSellerItems(ep.Database, queriedSellerId, itemSelection)
+func (ep *getSellerItemsEndpoint) fetchSellerItemsFromDatabase(queriedSellerID models.ID, itemSelection queries.ItemSelection) ([]*models.Item, bool) {
+	items, err := queries.GetSellerItems(ep.Database, queriedSellerID, itemSelection)
 
 	if err != nil {
-		ep.Logger.InternalError("Could not retrieve seller items", "error", err, "queriedSellerId", queriedSellerId)
+		ep.Logger.InternalError("Could not retrieve seller items", "error", err, "queriedSellerID", queriedSellerID)
 		failure_response.Unknown(ep.Context, "Could not retrieve seller items: "+err.Error())
 		return nil, false
 	}

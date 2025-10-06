@@ -17,22 +17,22 @@ import (
 func TestAddUserWithId(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		for _, password := range []string{"a", "xyz"} {
-			for _, userId := range []models.ID{1, 5} {
+			for _, userID := range []models.ID{1, 5} {
 				for _, roleId := range models.ListRoles() {
 					t.Run(fmt.Sprintf("With role id %d", roleId), func(t *testing.T) {
 						setup, db := NewDatabaseFixture(WithDefaultCategories)
 						defer setup.Close()
 
-						err := queries.AddUserWithID(db, userId, roleId, 0, nil, password)
+						err := queries.AddUserWithID(db, userID, roleId, 0, nil, password)
 						require.NoError(t, err)
 
-						userExists, err := queries.UserWithIDExists(db, userId)
+						userExists, err := queries.UserWithIDExists(db, userID)
 						require.NoError(t, err)
 						require.True(t, userExists)
 
-						actualRoleId, err := queries.AuthenticateUser(db, userId, password)
+						actualRoleID, err := queries.AuthenticateUser(db, userID, password)
 						require.NoError(t, err)
-						require.Equal(t, roleId, actualRoleId)
+						require.Equal(t, roleId, actualRoleID)
 					})
 				}
 			}
@@ -43,19 +43,19 @@ func TestAddUserWithId(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		userId := models.ID(1)
-		roleId := models.NewSellerRoleID()
+		userID := models.ID(1)
+		roleID := models.NewSellerRoleID()
 		password := "xyz"
 		createdAt := models.Timestamp(0)
 		var lastAccess *models.Timestamp = nil
 
 		{
-			err := queries.AddUserWithID(db, userId, roleId, createdAt, lastAccess, password)
+			err := queries.AddUserWithID(db, userID, roleID, createdAt, lastAccess, password)
 			require.NoError(t, err)
 		}
 
 		{
-			err := queries.AddUserWithID(db, userId, roleId, createdAt, lastAccess, password)
+			err := queries.AddUserWithID(db, userID, roleID, createdAt, lastAccess, password)
 			requireDatabaseWrappedError(t, err, dberr.ErrIDAlreadyInUse)
 		}
 	})
@@ -64,13 +64,13 @@ func TestAddUserWithId(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		userId := models.ID(1)
-		roleId := models.RoleID{ID: 999} // Assuming this ID does not exist in the database
+		userID := models.ID(1)
+		roleID := models.RoleID{ID: 999} // Assuming this ID does not exist in the database
 		password := "xyz"
 		createdAt := models.Timestamp(0)
 		var lastAccess *models.Timestamp = nil
 
-		err := queries.AddUserWithID(db, userId, roleId, createdAt, lastAccess, password)
+		err := queries.AddUserWithID(db, userID, roleID, createdAt, lastAccess, password)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchRole)
 	})
 }
