@@ -36,7 +36,7 @@ const (
 	CategoryName_Large              string = "Large Item"
 )
 
-func ListCategoryIds() []models.ID {
+func ListCategoryIDs() []models.ID {
 	return []models.ID{
 		CategoryId_Clothing50_56,
 		CategoryId_Clothing56_62,
