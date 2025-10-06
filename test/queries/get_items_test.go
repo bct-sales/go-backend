@@ -72,7 +72,8 @@ func TestGetItems(t *testing.T) {
 			items = slices.Concat(items, setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(true)))
 
 			actualItems := []*models.Item{}
-			err := queries.GetItems(db, queries.CollectTo(&actualItems), queries.AllItems, queries.AllRows())
+			query := queries.NewGetItemsQuery()
+			err := query.Execute(db, queries.CollectTo(&actualItems))
 			require.NoError(t, err)
 			require.Equal(t, 20, len(actualItems))
 
