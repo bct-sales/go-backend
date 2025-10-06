@@ -42,8 +42,8 @@ func TestAddItem(t *testing.T) {
 													setup.Seller(aux.WithUserID(1))
 													setup.Seller(aux.WithUserID(2))
 
-													itemID, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryID, sellerID, donation, charity, frozen, hidden)
-													require.NoError(t, err, `Failed to add item: %v`, err)
+													itemID, addItemErr := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryID, sellerID, donation, charity, frozen, hidden)
+													require.NoError(t, addItemErr, `Failed to add item: %v`, addItemErr)
 
 													{
 														itemExists, err := queries.ItemWithIDExists(db, itemID)
@@ -52,8 +52,9 @@ func TestAddItem(t *testing.T) {
 													}
 
 													items := []*models.Item{}
-													err = queries.GetItems(db, queries.CollectTo(&items), queries.AllItems, queries.AllRows())
-													require.NoError(t, err)
+													query := queries.NewGetItemsQuery()
+													queryErr := query.Execute(db, queries.CollectTo(&items))
+													require.NoError(t, queryErr)
 													require.Equal(t, 1, len(items))
 
 													item := items[0]
