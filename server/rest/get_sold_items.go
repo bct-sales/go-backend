@@ -11,7 +11,7 @@ import (
 	"net/http"
 )
 
-type GetSoldItemsEntry struct {
+type ListSoldItemsEntry struct {
 	SaleId          models.Id           `json:"saleId"`
 	CashierId       models.Id           `json:"cashierId"`
 	TransactionTime rest.DateTime       `json:"transactionTime"`
@@ -25,8 +25,8 @@ type GetSoldItemsEntry struct {
 	Charity         bool                `json:"charity"`
 }
 
-type GetSoldItemsSuccessResponse struct {
-	SoldItems []GetSoldItemsEntry `json:"items"`
+type ListSoldItemsSuccessResponse struct {
+	SoldItems []ListSoldItemsEntry `json:"items"`
 }
 
 type ListSoldItemsParameters struct{}
@@ -108,7 +108,7 @@ func (ep *listSoldItemsEndpoint) sendSuccessResponse(items []*queries.SoldItem) 
 func (ep *listSoldItemsEndpoint) sendResponseAsJSON(soldItems []*queries.SoldItem) {
 	convertedData := ep.convertData(soldItems)
 
-	response := GetSoldItemsSuccessResponse{
+	response := ListSoldItemsSuccessResponse{
 		SoldItems: convertedData,
 	}
 
@@ -125,9 +125,9 @@ func (ep *listSoldItemsEndpoint) sendResponseAsJSONFile(soldItems []*queries.Sol
 	ep.Context.IndentedJSON(http.StatusOK, convertedData)
 }
 
-func (ep *listSoldItemsEndpoint) convertData(soldItems []*queries.SoldItem) []GetSoldItemsEntry {
-	return algorithms.Map(soldItems, func(soldItem *queries.SoldItem) GetSoldItemsEntry {
-		return GetSoldItemsEntry{
+func (ep *listSoldItemsEndpoint) convertData(soldItems []*queries.SoldItem) []ListSoldItemsEntry {
+	return algorithms.Map(soldItems, func(soldItem *queries.SoldItem) ListSoldItemsEntry {
+		return ListSoldItemsEntry{
 			SaleId:          soldItem.SaleId,
 			CashierId:       soldItem.CashierId,
 			TransactionTime: rest.ConvertTimestampToDateTime(soldItem.TransactionTime),
