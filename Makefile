@@ -19,7 +19,7 @@ coverage:
 rest: build
 	go run . -v server --debug
 
-build: swagger
+build:
 	go build
 
 lint:
