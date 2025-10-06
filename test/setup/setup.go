@@ -112,8 +112,8 @@ func (s DatabaseFixture) Seller(options ...func(*aux.AddUserData)) *models.User 
 	return aux.AddUserToDatabase(s.Db, models.NewSellerRoleID(), options...)
 }
 
-func (s DatabaseFixture) Session(userId models.ID, options ...func(*aux.AddSessionData)) models.SessionID {
-	return aux.AddSessionToDatabase(s.Db, userId, s.Clock.Now(), options...)
+func (s DatabaseFixture) Session(userID models.ID, options ...func(*aux.AddSessionData)) models.SessionID {
+	return aux.AddSessionToDatabase(s.Db, userID, s.Clock.Now(), options...)
 }
 
 func (s DatabaseFixture) LoggedIn(user *models.User, options ...func(*aux.AddSessionData)) (*models.User, models.SessionID) {
@@ -137,13 +137,13 @@ func (s DatabaseFixture) Items(seller models.ID, count int, options ...func(*aux
 	return items
 }
 
-func (s DatabaseFixture) Sale(cashier models.ID, itemIds []models.ID, options ...func(*aux.AddSaleData)) *models.Sale {
+func (s DatabaseFixture) Sale(cashier models.ID, itemIDs []models.ID, options ...func(*aux.AddSaleData)) *models.Sale {
 	transaction, err := queries.NewTransactionalDatabaseQuerier(context.Background(), s.Db)
 	if err != nil {
 		panic(err)
 	}
 
-	sale := aux.AddSaleToDatabase(transaction, cashier, itemIds, options...)
+	sale := aux.AddSaleToDatabase(transaction, cashier, itemIDs, options...)
 
 	if err := transaction.Commit(); err != nil {
 		panic(err)
@@ -184,8 +184,8 @@ func (s DatabaseFixture) RequireFrozen(t *testing.T, saleID ...models.ID) {
 	}
 }
 
-func (s DatabaseFixture) RequireNotFrozen(t *testing.T, saleId ...models.ID) {
-	for _, id := range saleId {
+func (s DatabaseFixture) RequireNotFrozen(t *testing.T, saleID ...models.ID) {
+	for _, id := range saleID {
 		frozen, err := queries.IsItemFrozen(s.Db, id)
 		require.NoError(t, err)
 		require.False(t, frozen)
