@@ -36,13 +36,13 @@ func NewHideItemCommand() *cobra.Command {
 }
 
 func (c *hideItemCommand) execute(args []string) error {
-	itemIds, err := c.ParseItemIDs(args)
+	itemIDs, err := c.ParseItemIDs(args)
 	if err != nil {
 		return err
 	}
 
 	transactionErr := c.WithTransaction(func(transaction *queries.TransactionalDatabaseQuerier) error {
-		if err := queries.UpdateHiddenStatusOfItems(transaction, itemIds, true); err != nil {
+		if err := queries.UpdateHiddenStatusOfItems(transaction, itemIDs, true); err != nil {
 			c.PrintErrorf("Failed to hide items: %v\n", err)
 			return err
 		}

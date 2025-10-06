@@ -38,13 +38,13 @@ func NewShowItemCommand() *cobra.Command {
 
 func (c *showItemCommand) execute(args []string) error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		itemId, err := c.ParseItemID(args[0])
+		itemID, err := c.ParseItemID(args[0])
 		if err != nil {
 			c.PrintErrorf("Invalid item ID\n")
 			return err
 		}
 
-		err = c.printItem(db, itemId)
+		err = c.printItem(db, itemID)
 		if err != nil {
 			return err
 		}
@@ -53,15 +53,15 @@ func (c *showItemCommand) execute(args []string) error {
 	})
 }
 
-func (c *showItemCommand) printItem(db *sql.DB, itemId models.ID) error {
+func (c *showItemCommand) printItem(db *sql.DB, itemID models.ID) error {
 	categoryNameTable, err := c.GetCategoryNameTable(db)
 	if err != nil {
 		return err
 	}
 
-	item, err := queries.GetItemWithId(db, itemId)
+	item, err := queries.GetItemWithID(db, itemID)
 	if err != nil {
-		return fmt.Errorf("failed to get item with id %d: %w", itemId, err)
+		return fmt.Errorf("failed to get item with id %d: %w", itemID, err)
 	}
 
 	categoryName, ok := categoryNameTable[item.CategoryID]

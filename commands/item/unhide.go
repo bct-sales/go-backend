@@ -35,13 +35,13 @@ func NewUnhideItemCommand() *cobra.Command {
 }
 
 func (c *unhideItemCommand) execute(args []string) error {
-	itemIds, err := c.ParseItemIDs(args)
+	itemIDs, err := c.ParseItemIDs(args)
 	if err != nil {
 		return err
 	}
 
 	transactionErr := c.WithTransaction(func(transaction *queries.TransactionalDatabaseQuerier) error {
-		if err := queries.UpdateHiddenStatusOfItems(transaction, itemIds, false); err != nil {
+		if err := queries.UpdateHiddenStatusOfItems(transaction, itemIDs, false); err != nil {
 			c.PrintErrorf("Failed to unhide items: %v\n", err)
 			return err
 		}

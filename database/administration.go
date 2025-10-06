@@ -381,11 +381,11 @@ func populateRoleTable(db *sql.DB) error {
 				($3, $4),
 				($5, $6)
 		`,
-		models.AdminRoleId,
+		models.AdminRoleID,
 		models.AdminName,
-		models.SellerRoleId,
+		models.SellerRoleID,
 		models.SellerName,
-		models.CashierRoleId,
+		models.CashierRoleID,
 		models.CashierName,
 	)
 

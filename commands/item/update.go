@@ -14,10 +14,10 @@ import (
 
 type updateItemCommand struct {
 	common.Command
-	itemId       uint64 `exhaustruct:"optional"`
+	itemID       uint64 `exhaustruct:"optional"`
 	description  string `exhaustruct:"optional"`
 	priceInCents uint64 `exhaustruct:"optional"`
-	categoryId   uint64 `exhaustruct:"optional"`
+	categoryID   uint64 `exhaustruct:"optional"`
 }
 
 func NewUpdateItemCommand() *cobra.Command {
@@ -39,10 +39,10 @@ func NewUpdateItemCommand() *cobra.Command {
 		},
 	}
 
-	command.CobraCommand.Flags().Uint64Var(&command.itemId, "id", 0, "ID of the item to update")
+	command.CobraCommand.Flags().Uint64Var(&command.itemID, "id", 0, "ID of the item to update")
 	command.CobraCommand.Flags().StringVar(&command.description, "description", "", "New description for the item")
 	command.CobraCommand.Flags().Uint64Var(&command.priceInCents, "price", 0, "New price in cents for the item")
-	command.CobraCommand.Flags().Uint64Var(&command.categoryId, "category", 0, "New category ID for the item")
+	command.CobraCommand.Flags().Uint64Var(&command.categoryID, "category", 0, "New category ID for the item")
 	command.CobraCommand.Flags().Bool("donation", false, "Set item as a donation")
 	command.CobraCommand.Flags().Bool("no-donation", false, "Unset item as a donation")
 	command.CobraCommand.Flags().Bool("charity", false, "Set item as a charity item")
@@ -86,7 +86,7 @@ func (c *updateItemCommand) updateItem(db *queries.TransactionalDatabaseQuerier)
 	}
 
 	if c.CobraCommand.Flags().Changed("category") {
-		value := models.ID(c.categoryId)
+		value := models.ID(c.categoryID)
 		categoryId = &value
 	}
 
@@ -119,7 +119,7 @@ func (c *updateItemCommand) updateItem(db *queries.TransactionalDatabaseQuerier)
 		AddedAt:      nil,
 	}
 
-	err := queries.UpdateItem(db, models.ID(c.itemId), &itemUpdate)
+	err := queries.UpdateItem(db, models.ID(c.itemID), &itemUpdate)
 	if err != nil {
 		c.PrintErrorf("Failed to update item\n")
 		return err
@@ -130,14 +130,14 @@ func (c *updateItemCommand) updateItem(db *queries.TransactionalDatabaseQuerier)
 }
 
 func (c *updateItemCommand) showUpdatedItem(db *queries.TransactionalDatabaseQuerier) error {
-	itemId := models.ID(c.itemId)
+	itemId := models.ID(c.itemID)
 	categoryNameTable, err := c.GetCategoryNameTable(db)
 	if err != nil {
 		c.PrintErrorf("Failed to get category name table\n")
 		return err
 	}
 
-	item, err := queries.GetItemWithId(db, itemId)
+	item, err := queries.GetItemWithID(db, itemId)
 	if err != nil {
 		c.PrintErrorf("Failed to get item back from database\n")
 		return fmt.Errorf("failed to get item with id %d: %w", itemId, err)

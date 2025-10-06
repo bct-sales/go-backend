@@ -29,7 +29,7 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			})
 
 			for _, item := range items {
-				newItem, err := queries.GetItemWithId(db, item.ItemID)
+				newItem, err := queries.GetItemWithID(db, item.ItemID)
 				require.NoError(t, err)
 
 				require.Equal(t, item.CategoryID, newItem.CategoryID)
@@ -57,7 +57,7 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			})
 
 			for _, item := range items {
-				newItem, err := queries.GetItemWithId(db, item.ItemID)
+				newItem, err := queries.GetItemWithID(db, item.ItemID)
 				require.NoError(t, err)
 
 				require.Equal(t, item.CategoryID, newItem.CategoryID)
@@ -85,7 +85,7 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			})
 
 			for _, item := range items {
-				newItem, err := queries.GetItemWithId(db, item.ItemID)
+				newItem, err := queries.GetItemWithID(db, item.ItemID)
 				require.NoError(t, err)
 
 				require.Equal(t, item.CategoryID, newItem.CategoryID)
@@ -124,7 +124,7 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			})
 
 			for _, itemBefore := range itemsBefore {
-				itemAfter, err := queries.GetItemWithId(db, itemBefore.ItemID)
+				itemAfter, err := queries.GetItemWithID(db, itemBefore.ItemID)
 				require.NoError(t, err)
 
 				require.Equal(t, itemBefore.CategoryID, itemAfter.CategoryID)

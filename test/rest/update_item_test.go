@@ -37,7 +37,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
-			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemID)
+			actualItem, err := queries.GetItemWithID(setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -65,7 +65,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
-			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemID)
+			actualItem, err := queries.GetItemWithID(setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -92,7 +92,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
-			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemID)
+			actualItem, err := queries.GetItemWithID(setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -119,7 +119,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
-			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemID)
+			actualItem, err := queries.GetItemWithID(setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -148,7 +148,7 @@ func TestUpdateItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "item_frozen")
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
-			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemID)
+			actualItem, err := queries.GetItemWithID(setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -172,7 +172,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "invalid_price")
 
-			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemID)
+			actualItem, err := queries.GetItemWithID(setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -217,7 +217,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_seller")
 
-			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemID)
+			actualItem, err := queries.GetItemWithID(setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -242,7 +242,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
-			actualItem, err := queries.GetItemWithId(setup.Db, originalItem.ItemID)
+			actualItem, err := queries.GetItemWithID(setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem

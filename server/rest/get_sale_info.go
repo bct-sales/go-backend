@@ -55,7 +55,7 @@ func (endpoint *getSaleInformationEndpoint) execute() {
 		return
 	}
 
-	sale, err := queries.GetSaleWithId(endpoint.Database, saleId)
+	sale, err := queries.GetSaleWithID(endpoint.Database, saleId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchSale) {
 			logger.InvalidRequest("No such sale found", "saleId", saleId)

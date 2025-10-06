@@ -99,10 +99,10 @@ func (command *ListSoldItemsCommand) listSoldItemsInTableFormat(db *sql.DB) erro
 
 	rowCount := 0
 	addToTable := func(soldItem *queries.SoldItem) error {
-		saleIdStr := soldItem.SaleId.String()
-		cashierIdStr := soldItem.CashierId.String()
+		saleIDStr := soldItem.SaleId.String()
+		cashierIDStr := soldItem.CashierId.String()
 		transactionTimeStr := soldItem.TransactionTime.FormattedDateTime()
-		itemIdStr := soldItem.ItemId.String()
+		itemIDStr := soldItem.ItemID.String()
 		descriptionStr := soldItem.Description
 		priceStr := soldItem.PriceInCents.DecimalNotation()
 		itemCategoryStr, ok := categoryNameTable[soldItem.ItemCategoryId]
@@ -114,10 +114,10 @@ func (command *ListSoldItemsCommand) listSoldItemsInTableFormat(db *sql.DB) erro
 		charityStr := strconv.FormatBool(soldItem.Charity)
 
 		tableData = append(tableData, []string{
-			saleIdStr,
-			cashierIdStr,
+			saleIDStr,
+			cashierIDStr,
 			transactionTimeStr,
-			itemIdStr,
+			itemIDStr,
 			descriptionStr,
 			priceStr,
 			itemCategoryStr,

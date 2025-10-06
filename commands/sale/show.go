@@ -139,7 +139,7 @@ func (command *saleShowCommand) printSaleItems(saleItems []*models.Item, categor
 }
 
 func (command *saleShowCommand) getSaleInformation(db *sql.DB, saleId models.ID) (*models.Sale, error) {
-	sale, err := queries.GetSaleWithId(db, saleId)
+	sale, err := queries.GetSaleWithID(db, saleId)
 
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchSale) {

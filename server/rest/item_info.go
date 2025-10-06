@@ -95,7 +95,7 @@ func (ep *getItemInformationEndpoint) retrieveItemIdFromUri() (models.ID, bool) 
 }
 
 func (ep *getItemInformationEndpoint) retrieveItemFromDatabase(itemId models.ID) *models.Item {
-	item, err := queries.GetItemWithId(ep.Database, itemId)
+	item, err := queries.GetItemWithID(ep.Database, itemId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
 			ep.Logger.InvalidRequest("Attempt to access a non-existing item", "itemId", itemId)

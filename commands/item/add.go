@@ -114,11 +114,11 @@ func (c *addItemCommand) execute() error {
 	})
 }
 
-func (c *addItemCommand) printItem(db *sql.DB, itemId models.ID) error {
-	item, err := queries.GetItemWithId(db, itemId)
+func (c *addItemCommand) printItem(db *sql.DB, itemID models.ID) error {
+	item, err := queries.GetItemWithID(db, itemID)
 	if err != nil {
 		c.PrintErrorf("Failed to get item back from database\n")
-		return fmt.Errorf("failed to get item with id %d: %w", itemId, err)
+		return fmt.Errorf("failed to get item with id %d: %w", itemID, err)
 	}
 
 	categoryNameTable, err := c.GetCategoryNameTable(db)

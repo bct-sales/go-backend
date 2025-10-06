@@ -36,7 +36,7 @@ func TestGetSaleItems(t *testing.T) {
 	for index, actualItem := range actualItems {
 		require.Equal(t, itemIds[index], actualItem.ItemID)
 
-		expectedItem, err := queries.GetItemWithId(db, itemIds[index])
+		expectedItem, err := queries.GetItemWithID(db, itemIds[index])
 
 		require.NoError(t, err)
 		require.Equal(t, expectedItem, actualItem)

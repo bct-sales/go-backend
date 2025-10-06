@@ -38,13 +38,13 @@ func NewUnfreezeItemCommand() *cobra.Command {
 }
 
 func (c *unfreezeItemCommand) execute(args []string) error {
-	itemIds, err := c.ParseItemIDs(args)
+	itemIDs, err := c.ParseItemIDs(args)
 	if err != nil {
 		return err
 	}
 
 	transactionErr := c.WithTransaction(func(db *queries.TransactionalDatabaseQuerier) error {
-		if err := queries.UpdateFreezeStatusOfItems(db, itemIds, false); err != nil {
+		if err := queries.UpdateFreezeStatusOfItems(db, itemIDs, false); err != nil {
 			c.PrintErrorf("Failed to unfreeze items: %v\n", err)
 			return err
 		}

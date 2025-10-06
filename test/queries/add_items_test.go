@@ -63,7 +63,7 @@ func TestAddItems(t *testing.T) {
 			require.Len(t, itemIds, 1)
 
 			itemId := itemIds[0]
-			item, err := queries.GetItemWithId(db, itemId)
+			item, err := queries.GetItemWithID(db, itemId)
 			require.NoError(t, err)
 			require.Equal(t, itemId, item.ItemID)
 			require.Equal(t, addedAt, item.AddedAt)

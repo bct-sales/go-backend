@@ -68,17 +68,17 @@ func (c *addNewSaleCommand) execute() error {
 	})
 }
 
-func (c *addNewSaleCommand) printSale(db queries.DatabaseQuerier, saleId models.ID) error {
-	sale, err := queries.GetSaleWithId(db, saleId)
+func (c *addNewSaleCommand) printSale(db queries.DatabaseQuerier, saleID models.ID) error {
+	sale, err := queries.GetSaleWithID(db, saleID)
 	if err != nil {
 		c.PrintErrorf("Failed to get sale back from database\n")
-		return fmt.Errorf("failed to get sale with id %d: %w", saleId, err)
+		return fmt.Errorf("failed to get sale with id %d: %w", saleID, err)
 	}
 
-	saleItems, err := queries.GetSaleItems(db, saleId)
+	saleItems, err := queries.GetSaleItems(db, saleID)
 	if err != nil {
 		c.PrintErrorf("Failed to get items associated with sale\n")
-		return fmt.Errorf("failed to get items associated with sale %d: %w", saleId, err)
+		return fmt.Errorf("failed to get items associated with sale %d: %w", saleID, err)
 	}
 
 	tableData := pterm.TableData{

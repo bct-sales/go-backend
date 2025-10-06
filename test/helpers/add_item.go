@@ -145,7 +145,7 @@ func AddItemToDatabase(db *sql.DB, sellerId models.ID, options ...func(*AddItemD
 		panic(err)
 	}
 
-	item, err := queries.GetItemWithId(db, itemId)
+	item, err := queries.GetItemWithID(db, itemId)
 	if err != nil {
 		panic(err)
 	}

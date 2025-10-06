@@ -44,7 +44,7 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 		return
 	}
 
-	item, err := queries.GetItemWithId(db, itemId)
+	item, err := queries.GetItemWithID(db, itemId)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
 			logger.InvalidRequest("No such item", "itemId", itemId, "error", err)

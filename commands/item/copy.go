@@ -45,21 +45,21 @@ func NewCopyItemCommand() *cobra.Command {
 
 func (c *copyItemCommand) execute(args []string) error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		itemId, err := models.ParseID(args[0])
+		itemID, err := models.ParseID(args[0])
 		if err != nil {
 			c.PrintErrorf("Invalid item ID\n")
 			return err
 		}
 
-		item, err := queries.GetItemWithId(db, itemId)
+		item, err := queries.GetItemWithID(db, itemID)
 		if err != nil {
 			c.PrintErrorf("Failed to retrieve item with given ID\n")
-			return fmt.Errorf("failed to get item with ID %d: %w", itemId, err)
+			return fmt.Errorf("failed to get item with ID %d: %w", itemID, err)
 		}
 
 		timestamp := models.Now()
 
-		copyId, err := queries.AddItem(
+		copyID, err := queries.AddItem(
 			db,
 			timestamp,
 			item.Description,
@@ -75,7 +75,7 @@ func (c *copyItemCommand) execute(args []string) error {
 			return fmt.Errorf("failed to insert copy in database: %w", err)
 		}
 
-		if err := c.printItem(db, copyId); err != nil {
+		if err := c.printItem(db, copyID); err != nil {
 			return fmt.Errorf("failed to print copied item: %w", err)
 		}
 
@@ -83,11 +83,11 @@ func (c *copyItemCommand) execute(args []string) error {
 	})
 }
 
-func (c *copyItemCommand) printItem(db *sql.DB, itemId models.ID) error {
-	item, err := queries.GetItemWithId(db, itemId)
+func (c *copyItemCommand) printItem(db *sql.DB, itemID models.ID) error {
+	item, err := queries.GetItemWithID(db, itemID)
 	if err != nil {
 		c.PrintErrorf("Failed to get item back from database\n")
-		return fmt.Errorf("failed to get item with id %d: %w", itemId, err)
+		return fmt.Errorf("failed to get item with id %d: %w", itemID, err)
 	}
 
 	categoryNameTable, err := c.GetCategoryNameTable(db)

@@ -246,9 +246,9 @@ func (q *GetSalesQuery) orderClause() string {
 	}
 }
 
-// GetSaleWithId returns the sale with the given saleId.
+// GetSaleWithID returns the sale with the given saleId.
 // A ErrNoSuchSale is returned if no sale with the given saleId exists.
-func GetSaleWithId(db DatabaseQuerier, saleId models.ID) (r_result *models.Sale, r_err error) {
+func GetSaleWithID(db DatabaseQuerier, saleId models.ID) (r_result *models.Sale, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -1201,7 +1201,7 @@ type SoldItem struct {
 	SaleId          models.ID
 	CashierId       models.ID
 	TransactionTime models.Timestamp
-	ItemId          models.ID
+	ItemID          models.ID
 	AddedAt         models.Timestamp
 	Description     string
 	PriceInCents    models.MoneyInCents
@@ -1290,7 +1290,7 @@ func (q *GetSoldItemsQuery) Execute(db DatabaseQuerier) (r_result []*SoldItem, r
 			SaleId:          saleId,
 			CashierId:       cashierId,
 			TransactionTime: transactionTime,
-			ItemId:          itemId,
+			ItemID:          itemId,
 			AddedAt:         addedAt,
 			Description:     description,
 			PriceInCents:    priceInCents,

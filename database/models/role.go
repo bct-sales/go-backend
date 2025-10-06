@@ -6,9 +6,9 @@ import (
 )
 
 const (
-	AdminRoleId   ID     = 1
-	SellerRoleId  ID     = 2
-	CashierRoleId ID     = 3
+	AdminRoleID   ID     = 1
+	SellerRoleID  ID     = 2
+	CashierRoleID ID     = 3
 	AdminName     string = "admin"
 	SellerName    string = "seller"
 	CashierName   string = "cashier"
@@ -18,8 +18,8 @@ type RoleID struct {
 	ID
 }
 
-func NewRoleId(id ID) RoleID {
-	if id != AdminRoleId && id != SellerRoleId && id != CashierRoleId {
+func NewRoleID(id ID) RoleID {
+	if id != AdminRoleID && id != SellerRoleID && id != CashierRoleID {
 		panic(fmt.Sprintf("invalid role id: %d", id))
 	}
 
@@ -27,15 +27,15 @@ func NewRoleId(id ID) RoleID {
 }
 
 func NewAdminRoleID() RoleID {
-	return NewRoleId(AdminRoleId)
+	return NewRoleID(AdminRoleID)
 }
 
 func NewSellerRoleID() RoleID {
-	return NewRoleId(SellerRoleId)
+	return NewRoleID(SellerRoleID)
 }
 
 func NewCashierRoleID() RoleID {
-	return NewRoleId(CashierRoleId)
+	return NewRoleID(CashierRoleID)
 }
 
 func ListRoles() []RoleID {
@@ -48,11 +48,11 @@ func ListRoles() []RoleID {
 
 func (roleId RoleID) Name() string {
 	switch roleId.ID {
-	case AdminRoleId:
+	case AdminRoleID:
 		return AdminName
-	case SellerRoleId:
+	case SellerRoleID:
 		return SellerName
-	case CashierRoleId:
+	case CashierRoleID:
 		return CashierName
 	default:
 		panic(fmt.Sprintf("unknown role id: %d", roleId.ID))
@@ -62,26 +62,26 @@ func (roleId RoleID) Name() string {
 func ParseRole(role string) (RoleID, error) {
 	switch role {
 	case "admin":
-		return RoleID{ID: AdminRoleId}, nil
+		return RoleID{ID: AdminRoleID}, nil
 	case "seller":
-		return RoleID{ID: SellerRoleId}, nil
+		return RoleID{ID: SellerRoleID}, nil
 	case "cashier":
-		return RoleID{ID: CashierRoleId}, nil
+		return RoleID{ID: CashierRoleID}, nil
 	default:
 		return RoleID{}, fmt.Errorf("unknown role %s: %w", role, dberr.ErrNoSuchRole)
 	}
 }
 
-func (roleId RoleID) IsAdmin() bool {
-	return roleId.ID == AdminRoleId
+func (roleID RoleID) IsAdmin() bool {
+	return roleID.ID == AdminRoleID
 }
 
-func (roleId RoleID) IsSeller() bool {
-	return roleId.ID == SellerRoleId
+func (roleID RoleID) IsSeller() bool {
+	return roleID.ID == SellerRoleID
 }
 
-func (roleId RoleID) IsCashier() bool {
-	return roleId.ID == CashierRoleId
+func (roleID RoleID) IsCashier() bool {
+	return roleID.ID == CashierRoleID
 }
 
 type RoleVisitor[T any] interface {
@@ -92,11 +92,11 @@ type RoleVisitor[T any] interface {
 
 func VisitRole[T any](roleId RoleID, visitor RoleVisitor[T]) T {
 	switch roleId.ID {
-	case AdminRoleId:
+	case AdminRoleID:
 		return visitor.Admin()
-	case SellerRoleId:
+	case SellerRoleID:
 		return visitor.Seller()
-	case CashierRoleId:
+	case CashierRoleID:
 		return visitor.Cashier()
 	default:
 		panic(fmt.Sprintf("unknown role id: %d", roleId.ID))
@@ -104,5 +104,5 @@ func VisitRole[T any](roleId RoleID, visitor RoleVisitor[T]) T {
 }
 
 func (roleId RoleID) IsValid() bool {
-	return roleId.ID == AdminRoleId || roleId.ID == SellerRoleId || roleId.ID == CashierRoleId
+	return roleId.ID == AdminRoleID || roleId.ID == SellerRoleID || roleId.ID == CashierRoleID
 }

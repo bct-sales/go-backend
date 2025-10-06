@@ -23,7 +23,7 @@ func TestGetSaleWithId(t *testing.T) {
 		item := setup.Item(seller.UserId, aux.WithDummyData(1), aux.WithHidden(false))
 		sale := setup.Sale(cashier.UserId, []models.ID{item.ItemID})
 
-		actual, err := queries.GetSaleWithId(db, sale.SaleID)
+		actual, err := queries.GetSaleWithID(db, sale.SaleID)
 		require.NoError(t, err)
 		require.NotNil(t, actual)
 		require.Equal(t, sale, actual)
@@ -36,7 +36,7 @@ func TestGetSaleWithId(t *testing.T) {
 		saleId := models.ID(999)
 		setup.RequireNoSuchSales(t, saleId)
 
-		_, err := queries.GetSaleWithId(db, saleId)
+		_, err := queries.GetSaleWithID(db, saleId)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSale)
 	})
 }

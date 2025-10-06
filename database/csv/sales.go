@@ -23,7 +23,7 @@ func FormatSoldItemsAsCSV(soldItems []*queries.SoldItem, categoryNameTable map[m
 		saleIdStr := soldItem.SaleId.String()
 		cashierIdStr := soldItem.CashierId.String()
 		transactionTimeStr := soldItem.TransactionTime.FormattedDateTime()
-		itemIdStr := soldItem.ItemId.String()
+		itemIdStr := soldItem.ItemID.String()
 		descriptionStr := soldItem.Description
 		priceInCentsStr := soldItem.PriceInCents.String()
 		itemCategoryStr, ok := categoryNameTable[soldItem.ItemCategoryId]

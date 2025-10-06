@@ -38,7 +38,7 @@ func AddSaleToDatabase(db *queries.TransactionalDatabaseQuerier, cashierId model
 		panic(err)
 	}
 
-	sale, err := queries.GetSaleWithId(db, saleId)
+	sale, err := queries.GetSaleWithID(db, saleId)
 	if err != nil {
 		panic(err)
 	}

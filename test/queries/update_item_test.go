@@ -110,7 +110,7 @@ func TestUpdateItem(t *testing.T) {
 										require.NoError(t, err)
 									})
 
-									updatedItem, err := queries.GetItemWithId(db, item.ItemID)
+									updatedItem, err := queries.GetItemWithID(db, item.ItemID)
 									require.NoError(t, err)
 
 									require.Equal(t, item.ItemID, updatedItem.ItemID)
