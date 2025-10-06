@@ -300,8 +300,7 @@ func TestAddSellerItem(t *testing.T) {
 			charity := false
 
 			_, sessionID := setup.LoggedIn(setup.Seller())
-			nonexistentUserID := models.ID(1000)
-			setup.RequireNoSuchUsers(t, nonexistentUserID)
+			nonexistentUserID := setup.GenerateNonexistentUserID(t)
 
 			url := path.SellerItems(nonexistentUserID)
 			payload := rest.AddSellerItemPayload{

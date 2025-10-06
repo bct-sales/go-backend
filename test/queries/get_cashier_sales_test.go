@@ -98,12 +98,10 @@ func TestGetCashierSales(t *testing.T) {
 			items := setup.Items(seller.UserID, 100, aux.WithHidden(false))
 			setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
 			setup.Sale(cashier.UserID, []models.ID{items[1].ItemID})
-
-			cashierID := models.ID(9999)
-			setup.RequireNoSuchUsers(t, cashierID)
+			nonexistentCashierID := setup.GenerateNonexistentUserID(t)
 
 			callback := func(sales *models.SaleSummary) error { return nil }
-			err := queries.GetCashierSales(db, cashierID, callback, queries.OrderChronological, queries.AllRows())
+			err := queries.GetCashierSales(db, nonexistentCashierID, callback, queries.OrderChronological, queries.AllRows())
 
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})

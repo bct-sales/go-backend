@@ -42,8 +42,7 @@ func TestUpdateLastActivity(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			userID := models.ID(999)
-			setup.RequireNoSuchUsers(t, userID)
+			userID := setup.GenerateNonexistentUserID(t)
 
 			err := queries.UpdateLastActivity(db, userID, 1000)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)

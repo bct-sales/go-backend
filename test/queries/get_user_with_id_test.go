@@ -38,10 +38,9 @@ func TestGetUserWithID(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		userID := models.ID(999)
-		setup.RequireNoSuchUsers(t, userID)
+		nonexistentUserID := setup.GenerateNonexistentUserID(t)
 
-		_, err := queries.GetUserWithID(db, userID)
+		_, err := queries.GetUserWithID(db, nonexistentUserID)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 	})
 }

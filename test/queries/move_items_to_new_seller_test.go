@@ -153,8 +153,7 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			defer setup.Close()
 
 			newSeller := setup.Seller()
-			invalidSellerID := models.ID(999)
-			setup.RequireNoSuchUsers(t, invalidSellerID)
+			invalidSellerID := setup.GenerateNonexistentUserID(t)
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
 				err := queries.MoveItemsToNewSeller(db, invalidSellerID, newSeller.UserID)
@@ -167,8 +166,7 @@ func TestMoveItemsToNewSeller(t *testing.T) {
 			defer setup.Close()
 
 			oldSeller := setup.Seller()
-			invalidSellerID := models.ID(999)
-			setup.RequireNoSuchUsers(t, invalidSellerID)
+			invalidSellerID := setup.GenerateNonexistentUserID(t)
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
 				err := queries.MoveItemsToNewSeller(db, oldSeller.UserID, invalidSellerID)

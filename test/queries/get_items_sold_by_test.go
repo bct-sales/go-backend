@@ -162,9 +162,7 @@ func TestGetItemsSoldBy(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		cashier := setup.Cashier()
-		unknownCashierID := cashier.UserID + 1
-		setup.RequireNoSuchUsers(t, unknownCashierID)
+		unknownCashierID := setup.GenerateNonexistentUserID(t)
 
 		_, err := queries.GetItemsSoldBy(db, unknownCashierID)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)

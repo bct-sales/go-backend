@@ -70,8 +70,7 @@ func TestGetSalesWithCashier(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			unknownCashierID := models.ID(9999)
-			setup.RequireNoSuchUsers(t, unknownCashierID)
+			unknownCashierID := setup.GenerateNonexistentUserID(t)
 
 			_, err := queries.GetSalesWithCashier(db, unknownCashierID)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)

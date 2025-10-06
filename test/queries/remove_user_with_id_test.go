@@ -4,7 +4,6 @@ package queries
 
 import (
 	dberr "bctbackend/database/errors"
-	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	. "bctbackend/test/setup"
 	"testing"
@@ -51,8 +50,7 @@ func TestRemoveUserWithID(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			userID := models.ID(99999)
-			setup.RequireNoSuchUsers(t, userID)
+			userID := setup.GenerateNonexistentUserID(t)
 
 			err := queries.RemoveUserWithID(db, userID)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
