@@ -81,8 +81,7 @@ func TestAddSale(t *testing.T) {
 			cashier := setup.Cashier()
 			timestamp := models.Timestamp(0)
 
-			nonexistentItemID := models.ID(9999)
-			setup.RequireNoSuchItems(t, nonexistentItemID)
+			nonexistentItemID := setup.GenerateNonexistentItemID(t)
 
 			setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
 				_, err := queries.AddSale(transaction, cashier.UserID, timestamp, []models.ID{nonexistentItemID})
