@@ -4,7 +4,6 @@ package queries
 
 import (
 	dberr "bctbackend/database/errors"
-	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
@@ -101,8 +100,7 @@ func TestDoesSellerHaveFrozenItems(t *testing.T) {
 			defer setup.Close()
 
 			setup.Seller()
-			invalidSellerID := models.ID(999)
-			setup.RequireNoSuchUsers(t, invalidSellerID)
+			invalidSellerID := setup.GenerateNonexistentUserID(t)
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
 				_, err := queries.DoesSellerHaveFrozenItems(db, invalidSellerID)

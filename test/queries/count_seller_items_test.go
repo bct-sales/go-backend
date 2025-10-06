@@ -4,7 +4,6 @@ package queries
 
 import (
 	dberr "bctbackend/database/errors"
-	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
@@ -109,8 +108,7 @@ func TestCountSellerItems(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			nonExistentSellerID := models.ID(1000)
-			setup.RequireNoSuchUsers(t, nonExistentSellerID)
+			nonExistentSellerID := setup.GenerateNonexistentUserID(t)
 
 			_, err := queries.CountSellerItems(db, nonExistentSellerID, queries.IncludeAll, queries.IncludeAll)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)

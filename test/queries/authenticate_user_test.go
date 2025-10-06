@@ -35,13 +35,11 @@ func TestAuthentication(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		userID := models.ID(5)
+		nonexistentUserID := setup.GenerateNonexistentUserID(t)
 		password := "xyz"
 
-		setup.RequireNoSuchUsers(t, userID)
-
 		{
-			_, err := queries.AuthenticateUser(db, userID, password)
+			_, err := queries.AuthenticateUser(db, nonexistentUserID, password)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		}
 	})
