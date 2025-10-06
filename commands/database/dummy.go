@@ -280,7 +280,7 @@ func (c *dummyDatabaseCommand) addSellers(db *sql.DB) ([]models.ID, error) {
 			sellerCount := c.rng.IntN(10) + 1
 
 			for offset := 0; offset != sellerCount; offset++ {
-				userID := c.getSellerId(area, offset)
+				userID := c.getSellerID(area, offset)
 				roleID := models.NewSellerRoleID()
 				createdAt := models.Now()
 				var lastActivity *models.Timestamp = nil
@@ -299,7 +299,7 @@ func (c *dummyDatabaseCommand) addSellers(db *sql.DB) ([]models.ID, error) {
 	return sellerIDs, nil
 }
 
-func (c *dummyDatabaseCommand) getSellerId(zone int, offset int) models.ID {
+func (c *dummyDatabaseCommand) getSellerID(zone int, offset int) models.ID {
 	return models.ID(zone*100 + offset)
 }
 
