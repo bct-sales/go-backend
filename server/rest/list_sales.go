@@ -168,7 +168,7 @@ func (ep *getSalesEndpoint) getTotalSalesValue(transaction *queries.Transactiona
 }
 
 func (ep *getSalesEndpoint) ensureUserIsAdmin() bool {
-	if ep.RoleId != models.NewAdminRoleId() {
+	if ep.RoleId != models.NewAdminRoleID() {
 		ep.Logger.InvalidRequest("Unauthorized access to list all sales", "userId", ep.UserId, "roleId", ep.RoleId)
 		failure_response.WrongRole(ep.Context, "Only admins can list all items")
 		return false

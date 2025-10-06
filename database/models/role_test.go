@@ -10,7 +10,7 @@ func TestRoleParsing(t *testing.T) {
 	t.Run("admin", func(t *testing.T) {
 		roleId, err := ParseRole("admin")
 		require.NoError(t, err)
-		require.Equal(t, NewAdminRoleId(), roleId)
+		require.Equal(t, NewAdminRoleID(), roleId)
 	})
 
 	t.Run("seller", func(t *testing.T) {

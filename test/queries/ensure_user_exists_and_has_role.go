@@ -17,7 +17,7 @@ func TestEnsureUserExistsAndHasRole(t *testing.T) {
 	roleIds := []models.RoleId{
 		models.NewSellerRoleId(),
 		models.NewCashierRoleId(),
-		models.NewAdminRoleId(),
+		models.NewAdminRoleID(),
 	}
 
 	t.Run("Success", func(t *testing.T) {

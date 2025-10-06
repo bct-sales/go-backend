@@ -41,7 +41,7 @@ func TestListAllItems(t *testing.T) {
 	url := path.Items()
 
 	t.Run("Success", func(t *testing.T) {
-		for _, loggedInRole := range []models.RoleId{models.NewAdminRoleId(), models.NewCashierRoleId()} {
+		for _, loggedInRole := range []models.RoleId{models.NewAdminRoleID(), models.NewCashierRoleId()} {
 			testLabel := fmt.Sprintf("Logged in as %s", loggedInRole.Name())
 			t.Run(testLabel, func(t *testing.T) {
 				t.Run("No items", func(t *testing.T) {

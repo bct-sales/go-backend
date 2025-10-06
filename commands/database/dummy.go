@@ -234,7 +234,7 @@ func (c *dummyDatabaseCommand) addAdmin(db *sql.DB) (models.ID, error) {
 	c.Printf("Adding admin user\n")
 
 	id := models.ID(1)
-	roleId := models.NewAdminRoleId()
+	roleId := models.NewAdminRoleID()
 	createdAt := models.Now()
 	var lastActivity *models.Timestamp = nil
 	password := "abc"

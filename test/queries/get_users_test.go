@@ -51,7 +51,7 @@ func TestGetUsers(t *testing.T) {
 		lastActivity2 := models.Timestamp(50)
 		user2 := models.User{
 			UserId:       models.ID(2),
-			RoleId:       models.NewAdminRoleId(),
+			RoleId:       models.NewAdminRoleID(),
 			CreatedAt:    models.Timestamp(2),
 			LastActivity: &lastActivity2,
 			Password:     "abc",

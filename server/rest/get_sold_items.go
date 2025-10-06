@@ -59,7 +59,7 @@ func (ep *listSoldItemsEndpoint) execute() {
 }
 
 func (ep *listSoldItemsEndpoint) ensureUserHasCorrectRole() bool {
-	if ep.RoleId != models.NewAdminRoleId() {
+	if ep.RoleId != models.NewAdminRoleID() {
 		ep.Logger.InvalidRequest("Unauthorized access attempt to list sold items")
 		failure_response.WrongRole(ep.Context, "Only admins can list sold items")
 		return false

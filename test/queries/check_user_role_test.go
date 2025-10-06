@@ -26,7 +26,7 @@ func TestCheckUserRole(t *testing.T) {
 
 		for _, pair := range []pair{
 			{UserId: sellerId, RoleId: models.NewSellerRoleId()},
-			{UserId: adminId, RoleId: models.NewAdminRoleId()},
+			{UserId: adminId, RoleId: models.NewAdminRoleID()},
 			{UserId: cashierId, RoleId: models.NewCashierRoleId()},
 		} {
 			roleName := pair.RoleId.Name()
@@ -53,8 +53,8 @@ func TestCheckUserRole(t *testing.T) {
 		for _, pair := range []pair{
 			{UserId: adminId, RoleId: models.NewSellerRoleId()},
 			{UserId: cashierId, RoleId: models.NewSellerRoleId()},
-			{UserId: sellerId, RoleId: models.NewAdminRoleId()},
-			{UserId: cashierId, RoleId: models.NewAdminRoleId()},
+			{UserId: sellerId, RoleId: models.NewAdminRoleID()},
+			{UserId: cashierId, RoleId: models.NewAdminRoleID()},
 			{UserId: sellerId, RoleId: models.NewCashierRoleId()},
 			{UserId: adminId, RoleId: models.NewCashierRoleId()},
 		} {
@@ -80,7 +80,7 @@ func TestCheckUserRole(t *testing.T) {
 
 		invalidId := models.ID(9999)
 
-		err := queries.EnsureUserExistsAndHasRole(db, invalidId, models.NewAdminRoleId())
+		err := queries.EnsureUserExistsAndHasRole(db, invalidId, models.NewAdminRoleID())
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 	})
 }
