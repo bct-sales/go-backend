@@ -55,9 +55,9 @@ func TestGetCategoryCounts(t *testing.T) {
 
 					seller := setup.Seller()
 
-					for categoryId, count := range expectedCounts {
-						for i := 0; i < count; i++ {
-							setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categoryId), aux.WithHidden(false))
+					for categoryIC, count := range expectedCounts {
+						for range count {
+							setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categoryIC), aux.WithHidden(false))
 						}
 					}
 
