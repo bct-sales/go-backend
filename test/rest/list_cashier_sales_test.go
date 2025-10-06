@@ -37,7 +37,7 @@ func TestListCashierSales(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
-				actual := FromJson[rest.ListCashierSalesSuccessResponse](t, writer.Body.String())
+				actual := FromJSON[rest.ListCashierSalesSuccessResponse](t, writer.Body.String())
 				require.NotNil(t, actual)
 				require.Equal(t, len(sales), len(actual.Sales))
 				require.Equal(t, len(sales), actual.SaleCount)
@@ -58,7 +58,7 @@ func TestListCashierSales(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
-				actual := FromJson[rest.ListCashierSalesSuccessResponse](t, writer.Body.String())
+				actual := FromJSON[rest.ListCashierSalesSuccessResponse](t, writer.Body.String())
 				require.NotNil(t, actual)
 				require.Equal(t, len(sales)-1, len(actual.Sales))
 				require.Equal(t, sales[1].SaleID, actual.Sales[0].SaleID)
@@ -80,7 +80,7 @@ func TestListCashierSales(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
-				actual := FromJson[rest.ListCashierSalesSuccessResponse](t, writer.Body.String())
+				actual := FromJSON[rest.ListCashierSalesSuccessResponse](t, writer.Body.String())
 				require.NotNil(t, actual)
 				require.Equal(t, 1, len(actual.Sales))
 				require.Equal(t, sales[0].SaleID, actual.Sales[0].SaleID)
@@ -102,7 +102,7 @@ func TestListCashierSales(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
-				actual := FromJson[rest.ListCashierSalesSuccessResponse](t, writer.Body.String())
+				actual := FromJSON[rest.ListCashierSalesSuccessResponse](t, writer.Body.String())
 				require.NotNil(t, actual)
 				require.Equal(t, 3, len(actual.Sales))
 				require.Equal(t, sales[2].SaleID, actual.Sales[0].SaleID)
@@ -124,7 +124,7 @@ func TestListCashierSales(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
-				actual := FromJson[rest.ListCashierSalesSuccessResponse](t, writer.Body.String())
+				actual := FromJSON[rest.ListCashierSalesSuccessResponse](t, writer.Body.String())
 				require.NotNil(t, actual)
 				require.Equal(t, 3, len(actual.Sales))
 				require.Equal(t, sales[2].SaleID, actual.Sales[0].SaleID)
@@ -153,7 +153,7 @@ func TestListCashierSales(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			actual := FromJson[rest.ListCashierSalesSuccessResponse](t, writer.Body.String())
+			actual := FromJSON[rest.ListCashierSalesSuccessResponse](t, writer.Body.String())
 			require.NotNil(t, actual)
 			require.Equal(t, len(sales), len(actual.Sales))
 		})

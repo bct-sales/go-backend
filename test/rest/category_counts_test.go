@@ -35,7 +35,7 @@ func TestCategoryCounts(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				countMap := map[models.ID]int{}
 				expectedResponse := createSuccessResponse(countMap)
-				actualResponse := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
+				actualResponse := FromJSON[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 
 				require.Equal(t, len(expectedResponse.Categories), len(actualResponse.Categories))
 				for i := 0; i < len(expectedResponse.Categories); i++ {
@@ -62,7 +62,7 @@ func TestCategoryCounts(t *testing.T) {
 					countMap := map[models.ID]int{categoryID: 1}
 					expected := createSuccessResponse(countMap)
 
-					actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
+					actual := FromJSON[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 					require.Equal(t, expected, *actual)
 				})
 			}
@@ -82,7 +82,7 @@ func TestCategoryCounts(t *testing.T) {
 					countMap := map[models.ID]int{categoryID: 2}
 					expected := createSuccessResponse(countMap)
 
-					actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
+					actual := FromJSON[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 					require.Equal(t, expected, *actual)
 				})
 			}
@@ -106,7 +106,7 @@ func TestCategoryCounts(t *testing.T) {
 							countMap[categoryID2] += 1
 							expected := createSuccessResponse(countMap)
 
-							actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
+							actual := FromJSON[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 							require.NotNil(t, actual)
 							require.Equal(t, expected, *actual)
 						})
@@ -132,7 +132,7 @@ func TestCategoryCounts(t *testing.T) {
 				countMap := map[models.ID]int{category: 8}
 				expected := createSuccessResponse(countMap)
 
-				actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
+				actual := FromJSON[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 				require.NotNil(t, actual)
 				require.Equal(t, expected, *actual)
 			})
@@ -153,7 +153,7 @@ func TestCategoryCounts(t *testing.T) {
 				countMap := map[models.ID]int{category: 3}
 				expected := createSuccessResponse(countMap)
 
-				actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
+				actual := FromJSON[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 				require.NotNil(t, actual)
 				require.Equal(t, expected, *actual)
 			})
@@ -174,7 +174,7 @@ func TestCategoryCounts(t *testing.T) {
 				countMap := map[models.ID]int{category: 5}
 				expected := createSuccessResponse(countMap)
 
-				actual := FromJson[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
+				actual := FromJSON[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 				require.NotNil(t, actual)
 				require.Equal(t, expected, *actual)
 			})

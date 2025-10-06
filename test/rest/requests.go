@@ -20,7 +20,7 @@ const (
 func createRequest[T any](verb string, url *path.URL, payload *T, options ...func(*http.Request)) *http.Request {
 	var reader io.Reader
 	if payload != nil {
-		payloadJson := ToJson(payload)
+		payloadJson := ToJSON(payload)
 		reader = strings.NewReader(payloadJson)
 	}
 

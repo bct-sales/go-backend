@@ -36,7 +36,7 @@ func TestGetSaleInformation(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
-				response := FromJson[restapi.GetSaleInformationSuccessResponse](t, writer.Body.String())
+				response := FromJSON[restapi.GetSaleInformationSuccessResponse](t, writer.Body.String())
 				require.Equal(t, sale.SaleID, response.SaleID)
 				require.Equal(t, cashier.UserID, response.CashierID)
 				require.Equal(t, rest.ConvertTimestampToDateTime(transactionTime), response.TransactionTime)
@@ -69,7 +69,7 @@ func TestGetSaleInformation(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
-				response := FromJson[restapi.GetSaleInformationSuccessResponse](t, writer.Body.String())
+				response := FromJSON[restapi.GetSaleInformationSuccessResponse](t, writer.Body.String())
 				require.Equal(t, cashier.UserID, response.CashierID)
 				require.Equal(t, rest.ConvertTimestampToDateTime(transactionTime), response.TransactionTime)
 				require.Equal(t, itemCount, len(response.Items))
@@ -105,7 +105,7 @@ func TestGetSaleInformation(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
-				response := FromJson[restapi.GetSaleInformationSuccessResponse](t, writer.Body.String())
+				response := FromJSON[restapi.GetSaleInformationSuccessResponse](t, writer.Body.String())
 				require.Equal(t, cashier.UserID, response.CashierID)
 				require.Equal(t, rest.ConvertTimestampToDateTime(transactionTime), response.TransactionTime)
 				require.Equal(t, itemCount, len(response.Items))

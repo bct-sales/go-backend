@@ -39,7 +39,7 @@ func TestListCategories(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
-				actual := FromJson[GetCategoriesSuccessResponse](t, writer.Body.String())
+				actual := FromJSON[GetCategoriesSuccessResponse](t, writer.Body.String())
 				require.Len(t, actual.Categories, len(defaultCategoryNameTable))
 
 				for _, category := range actual.Categories {
@@ -58,7 +58,7 @@ func TestListCategories(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
-				actual := FromJson[GetCategoriesSuccessResponse](t, writer.Body.String())
+				actual := FromJSON[GetCategoriesSuccessResponse](t, writer.Body.String())
 
 				for _, category := range actual.Categories {
 					require.NotNil(t, category.Count)
@@ -79,7 +79,7 @@ func TestListCategories(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
-				actual := FromJson[GetCategoriesSuccessResponse](t, writer.Body.String())
+				actual := FromJSON[GetCategoriesSuccessResponse](t, writer.Body.String())
 
 				for _, category := range actual.Categories {
 					require.Nil(t, category.Count)
@@ -111,7 +111,7 @@ func TestListCategories(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
-				actual := FromJson[GetCategoriesSuccessResponse](t, writer.Body.String())
+				actual := FromJSON[GetCategoriesSuccessResponse](t, writer.Body.String())
 
 				for _, category := range actual.Categories {
 					require.Nil(t, category.Count)

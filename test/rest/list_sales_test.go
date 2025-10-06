@@ -37,7 +37,7 @@ func TestListAllSales(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			actual := FromJson[rest.ListSalesSuccessResponse](t, writer.Body.String())
+			actual := FromJSON[rest.ListSalesSuccessResponse](t, writer.Body.String())
 			expected := &rest.ListSalesSuccessResponse{
 				Sales: []*rest.ListSalesSaleData{
 					{
@@ -75,7 +75,7 @@ func TestListAllSales(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			actual := FromJson[rest.ListSalesSuccessResponse](t, writer.Body.String())
+			actual := FromJSON[rest.ListSalesSuccessResponse](t, writer.Body.String())
 			expected := &rest.ListSalesSuccessResponse{
 				Sales: []*rest.ListSalesSaleData{
 					{
@@ -120,7 +120,7 @@ func TestListAllSales(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			actual := FromJson[rest.ListSalesSuccessResponse](t, writer.Body.String())
+			actual := FromJSON[rest.ListSalesSuccessResponse](t, writer.Body.String())
 			expected := &rest.ListSalesSuccessResponse{
 				Sales: []*rest.ListSalesSaleData{
 					{
@@ -169,7 +169,7 @@ func TestListAllSales(t *testing.T) {
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code)
 
-					response := FromJson[rest.ListSalesSuccessResponse](t, writer.Body.String())
+					response := FromJSON[rest.ListSalesSuccessResponse](t, writer.Body.String())
 					expectedSaleCount := len(items) - k + 1
 					require.Len(t, response.Sales, expectedSaleCount)
 					require.Equal(t, 100, response.ItemCount)
@@ -199,7 +199,7 @@ func TestListAllSales(t *testing.T) {
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code)
 
-						response := FromJson[rest.ListSalesSuccessResponse](t, writer.Body.String())
+						response := FromJSON[rest.ListSalesSuccessResponse](t, writer.Body.String())
 						actualSales := response.Sales
 						expectedSales := sales[offset : offset+limit]
 						require.Len(t, actualSales, limit)
@@ -234,7 +234,7 @@ func TestListAllSales(t *testing.T) {
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code)
 
-						response := FromJson[rest.ListSalesSuccessResponse](t, writer.Body.String())
+						response := FromJSON[rest.ListSalesSuccessResponse](t, writer.Body.String())
 						actualSales := response.Sales
 						expectedSales := sales[:]
 						slices.Reverse(expectedSales)

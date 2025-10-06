@@ -34,7 +34,7 @@ func TestAddSale(t *testing.T) {
 		router.ServeHTTP(writer, request)
 		require.Equal(t, http.StatusCreated, writer.Code)
 
-		response := FromJson[rest.AddSaleSuccessResponse](t, writer.Body.String())
+		response := FromJSON[rest.AddSaleSuccessResponse](t, writer.Body.String())
 
 		sale, err := queries.GetSaleWithID(setup.Db, response.SaleID)
 		require.NoError(t, err)

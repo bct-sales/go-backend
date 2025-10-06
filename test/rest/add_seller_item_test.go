@@ -49,7 +49,7 @@ func TestAddSellerItem(t *testing.T) {
 										router.ServeHTTP(writer, request)
 
 										require.Equal(t, http.StatusCreated, writer.Code)
-										response := FromJson[rest.AddSellerItemResponse](t, writer.Body.String())
+										response := FromJSON[rest.AddSellerItemResponse](t, writer.Body.String())
 
 										itemsInDatabase := []*models.Item{}
 										err := queries.GetItems(setup.Db, queries.CollectTo(&itemsInDatabase), queries.AllItems, queries.AllRows())

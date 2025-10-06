@@ -59,7 +59,7 @@ func TestListAllItems(t *testing.T) {
 						TotalItemCount: 0,
 						TotalItemValue: models.MoneyInCents(0),
 					}
-					actual := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
+					actual := FromJSON[rest.GetItemsSuccessResponse](t, writer.Body.String())
 					require.Equal(t, expected, *actual)
 				})
 
@@ -82,7 +82,7 @@ func TestListAllItems(t *testing.T) {
 						TotalItemCount: 1,
 						TotalItemValue: item.PriceInCents,
 					}
-					actual := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
+					actual := FromJSON[rest.GetItemsSuccessResponse](t, writer.Body.String())
 					require.Equal(t, expected, *actual)
 				})
 
@@ -106,7 +106,7 @@ func TestListAllItems(t *testing.T) {
 						TotalItemCount: 2,
 						TotalItemValue: item1.PriceInCents + item2.PriceInCents,
 					}
-					actual := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
+					actual := FromJSON[rest.GetItemsSuccessResponse](t, writer.Body.String())
 					require.Equal(t, expected, *actual)
 				})
 
@@ -129,7 +129,7 @@ func TestListAllItems(t *testing.T) {
 						require.Equal(t, http.StatusOK, writer.Code)
 
 						expectedItems := items[:limit]
-						response := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
+						response := FromJSON[rest.GetItemsSuccessResponse](t, writer.Body.String())
 						actualItems := response.Items
 						require.Len(t, actualItems, limit)
 						require.Equal(t, itemCount, response.TotalItemCount)
@@ -160,7 +160,7 @@ func TestListAllItems(t *testing.T) {
 						require.Equal(t, http.StatusOK, writer.Code)
 
 						expectedItems := items[offset:]
-						response := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
+						response := FromJSON[rest.GetItemsSuccessResponse](t, writer.Body.String())
 						actualItems := response.Items
 						require.Len(t, actualItems, len(expectedItems))
 						require.Equal(t, itemCount, response.TotalItemCount)
@@ -192,7 +192,7 @@ func TestListAllItems(t *testing.T) {
 							require.Equal(t, http.StatusOK, writer.Code)
 
 							expectedItems := items[offset : offset+limit]
-							response := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
+							response := FromJSON[rest.GetItemsSuccessResponse](t, writer.Body.String())
 							actualItems := response.Items
 							require.Len(t, actualItems, len(expectedItems))
 							require.Equal(t, itemCount, response.TotalItemCount)
@@ -224,7 +224,7 @@ func TestListAllItems(t *testing.T) {
 					router.ServeHTTP(writer, request)
 
 					require.Equal(t, http.StatusOK, writer.Code)
-					response := FromJson[rest.GetItemsSuccessResponse](t, writer.Body.String())
+					response := FromJSON[rest.GetItemsSuccessResponse](t, writer.Body.String())
 					actualItems := response.Items
 
 					require.Len(t, actualItems, 2)

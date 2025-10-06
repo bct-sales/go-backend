@@ -32,7 +32,7 @@ func TestGetUserInformation(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
-				response := FromJson[restapi.GetAdminInformationByAdminSuccessResponse](t, writer.Body.String())
+				response := FromJSON[restapi.GetAdminInformationByAdminSuccessResponse](t, writer.Body.String())
 				require.Equal(t, "admin", response.Role)
 				require.Equal(t, admin.Password, response.Password)
 				require.Equal(t, rest.ConvertTimestampToDateTime(admin.CreatedAt), response.CreatedAt)
@@ -56,7 +56,7 @@ func TestGetUserInformation(t *testing.T) {
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
-						response := FromJson[restapi.GetSellerInformationByAdminSuccessResponse](t, writer.Body.String())
+						response := FromJSON[restapi.GetSellerInformationByAdminSuccessResponse](t, writer.Body.String())
 						require.Equal(t, "seller", response.Role)
 						require.Equal(t, seller.Password, response.Password)
 						require.Equal(t, rest.ConvertTimestampToDateTime(seller.CreatedAt), response.CreatedAt)
@@ -79,7 +79,7 @@ func TestGetUserInformation(t *testing.T) {
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
-					response := FromJson[restapi.GetCashierInformationByAdminSuccessResponse](t, writer.Body.String())
+					response := FromJSON[restapi.GetCashierInformationByAdminSuccessResponse](t, writer.Body.String())
 					require.Equal(t, "cashier", response.Role)
 					require.Equal(t, cashier.Password, response.Password)
 					require.Equal(t, rest.ConvertTimestampToDateTime(cashier.CreatedAt), response.CreatedAt)
@@ -102,7 +102,7 @@ func TestGetUserInformation(t *testing.T) {
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
-					response := FromJson[restapi.GetCashierInformationByAdminSuccessResponse](t, writer.Body.String())
+					response := FromJSON[restapi.GetCashierInformationByAdminSuccessResponse](t, writer.Body.String())
 					require.Equal(t, "cashier", response.Role)
 					require.Equal(t, cashier.Password, response.Password)
 					require.Equal(t, rest.ConvertTimestampToDateTime(cashier.CreatedAt), response.CreatedAt)
@@ -133,7 +133,7 @@ func TestGetUserInformation(t *testing.T) {
 							router.ServeHTTP(writer, request)
 							require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
-							response := FromJson[restapi.GetCashierInformationByAdminSuccessResponse](t, writer.Body.String())
+							response := FromJSON[restapi.GetCashierInformationByAdminSuccessResponse](t, writer.Body.String())
 							require.Equal(t, "cashier", response.Role)
 							require.Equal(t, cashier.Password, response.Password)
 							require.Equal(t, rest.ConvertTimestampToDateTime(cashier.CreatedAt), response.CreatedAt)
@@ -173,7 +173,7 @@ func TestGetUserInformation(t *testing.T) {
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
-						response := FromJson[restapi.GetSellerInformationBySellerSuccessResponse](t, writer.Body.String())
+						response := FromJSON[restapi.GetSellerInformationBySellerSuccessResponse](t, writer.Body.String())
 						require.Equal(t, unfrozenItemCount+frozenItemCount, response.ItemCount)
 						require.Equal(t, frozenItemCount, response.FrozenItemCount)
 					})
@@ -200,7 +200,7 @@ func TestGetUserInformation(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
-				response := FromJson[restapi.GetCashierInformationByCashierSuccessResponse](t, writer.Body.String())
+				response := FromJSON[restapi.GetCashierInformationByCashierSuccessResponse](t, writer.Body.String())
 
 				require.Len(t, *response.Sales, 2)
 

@@ -31,7 +31,7 @@ func TestListSoldItems(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			actual := FromJson[rest.ListSoldItemsSuccessResponse](t, writer.Body.String())
+			actual := FromJSON[rest.ListSoldItemsSuccessResponse](t, writer.Body.String())
 			expected := &rest.ListSoldItemsSuccessResponse{
 				SoldItems: []rest.ListSoldItemsEntry{},
 			}
@@ -54,7 +54,7 @@ func TestListSoldItems(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			actual := FromJson[rest.ListSoldItemsSuccessResponse](t, writer.Body.String())
+			actual := FromJSON[rest.ListSoldItemsSuccessResponse](t, writer.Body.String())
 			expected := &rest.ListSoldItemsSuccessResponse{
 				SoldItems: []rest.ListSoldItemsEntry{
 					{
@@ -92,7 +92,7 @@ func TestListSoldItems(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			actual := FromJson[rest.ListSoldItemsSuccessResponse](t, writer.Body.String())
+			actual := FromJSON[rest.ListSoldItemsSuccessResponse](t, writer.Body.String())
 			expected := &rest.ListSoldItemsSuccessResponse{
 				SoldItems: []rest.ListSoldItemsEntry{
 					{

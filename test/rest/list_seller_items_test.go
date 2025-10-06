@@ -51,7 +51,7 @@ func TestListSellerItems(t *testing.T) {
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code)
 
-						actual := FromJson[rest.GetSellerItemsSuccessResponse](t, writer.Body.String())
+						actual := FromJSON[rest.GetSellerItemsSuccessResponse](t, writer.Body.String())
 						require.NotNil(t, actual)
 						require.Equal(t, expectedItems, actual.Items)
 					})
@@ -88,7 +88,7 @@ func TestListSellerItems(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
-			actual := FromJson[rest.GetSellerItemsSuccessResponse](t, writer.Body.String())
+			actual := FromJSON[rest.GetSellerItemsSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expectedItems, actual.Items)
 		})
 	})

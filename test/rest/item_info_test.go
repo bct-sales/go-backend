@@ -43,7 +43,7 @@ func TestGetItemInformation(t *testing.T) {
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code)
 
-					response := FromJson[restapi.GetItemInformationSuccessResponse](t, writer.Body.String())
+					response := FromJSON[restapi.GetItemInformationSuccessResponse](t, writer.Body.String())
 					require.Equal(t, item.Description, response.Description)
 					require.Equal(t, item.PriceInCents, response.PriceInCents)
 					require.Equal(t, item.CategoryID, response.CategoryID)
@@ -73,7 +73,7 @@ func TestGetItemInformation(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			response := FromJson[restapi.GetItemInformationSuccessResponse](t, writer.Body.String())
+			response := FromJSON[restapi.GetItemInformationSuccessResponse](t, writer.Body.String())
 			require.Equal(t, item.Description, response.Description)
 			require.Equal(t, item.PriceInCents, response.PriceInCents)
 			require.Equal(t, item.CategoryID, response.CategoryID)
@@ -99,7 +99,7 @@ func TestGetItemInformation(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code)
 
-			response := FromJson[restapi.GetItemInformationSuccessResponse](t, writer.Body.String())
+			response := FromJSON[restapi.GetItemInformationSuccessResponse](t, writer.Body.String())
 			require.Equal(t, item.Description, response.Description)
 			require.Equal(t, item.PriceInCents, response.PriceInCents)
 			require.Equal(t, item.CategoryID, response.CategoryID)
