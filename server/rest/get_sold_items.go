@@ -108,7 +108,7 @@ func (ep *listSoldItemsEndpoint) sendResponseAsJSONFile(soldItems []*queries.Sol
 	convertedData := ep.convertData(soldItems)
 
 	ep.Context.Header("Content-Type", "application/json")
-	ep.Context.Header("Content-Disposition", "attachment; filename=\"items.json\"")
+	ep.Context.Header("Content-Disposition", "attachment; filename=\"sold-items.json\"")
 	ep.Context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
 	ep.Context.Header("Pragma", "no-cache")
 	ep.Context.IndentedJSON(http.StatusOK, convertedData)
@@ -141,7 +141,7 @@ func (ep *listSoldItemsEndpoint) sendResponseAsCSVFile(soldItems []*queries.Sold
 	}
 
 	ep.Context.Header("Content-Type", "text/csv")
-	ep.Context.Header("Content-Disposition", "attachment; filename=\"items.csv\"")
+	ep.Context.Header("Content-Disposition", "attachment; filename=\"sold-items.csv\"")
 	ep.Context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
 	ep.Context.Header("Pragma", "no-cache")
 
