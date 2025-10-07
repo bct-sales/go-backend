@@ -47,7 +47,7 @@ func TestListCategories(t *testing.T) {
 				}
 			})
 
-			t.Run("With counts", func(t *testing.T) {
+			t.Run("With counts, including all items", func(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
 
