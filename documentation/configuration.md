@@ -8,10 +8,6 @@ labelGeneration:
   barcode:                 # Size of bar code on labels
     width: 150
     height: 25
-  font:                    # Font to use on labels. Note: Arial is a better alternative
-    directory: "."
-    filename: "noto.ttf"
-    family: "Noto"
 server:
   port: 8000               # nginx takes care of routing 80 to 8000
   html: index.html

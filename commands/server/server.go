@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"path"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -217,11 +216,6 @@ func (c *ServerCommand) getLabelGenerationConfiguration() (*configuration.LabelG
 		errs = append(errs, err)
 	}
 
-	font, err := c.getLabelFontConfiguration()
-	if err != nil {
-		errs = append(errs, err)
-	}
-
 	if len(errs) > 0 {
 		return nil, fmt.Errorf("failed to get label generation configuration: %w", errors.Join(errs...))
 	}
@@ -229,49 +223,12 @@ func (c *ServerCommand) getLabelGenerationConfiguration() (*configuration.LabelG
 	labelGeneration := configuration.LabelGenerationConfiguration{
 		BarcodeWidth:  barcodeWidth,
 		BarcodeHeight: barcodeHeight,
-		Font:          font,
 	}
 
 	return &labelGeneration, nil
 }
 
-func (c *ServerCommand) getLabelFontConfiguration() (*configuration.FontConfiguration, error) {
-	errs := []error{}
-
-	fontDirectory, err := c.GetConfigurationString(common.ConfigKeyLabelFontDirectory)
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	fontFilename, err := c.GetConfigurationString(common.ConfigKeyLabelFontFilename)
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	fontFamily, err := c.GetConfigurationString(common.ConfigKeyLabelFontFamily)
-	if err != nil {
-		errs = append(errs, err)
-	}
-
-	if len(errs) > 0 {
-		return nil, fmt.Errorf("failed to get font configuration: %w", errors.Join(errs...))
-	}
-
-	fontConfiguration := configuration.FontConfiguration{
-		Directory: fontDirectory,
-		Filename:  fontFilename,
-		Family:    fontFamily,
-	}
-
-	return &fontConfiguration, nil
-}
-
 func (c *ServerCommand) ensureRequiredFilesExist(configuration *configuration.Configuration) error {
-	fontPath := path.Join(configuration.LabelGeneration.Font.Directory, configuration.LabelGeneration.Font.Filename)
-	if err := c.ensureFileExists(fontPath); err != nil {
-		return fmt.Errorf("failed while checking font file existence: %w", err)
-	}
-
 	if err := c.ensureFileExists(configuration.Server.HTMLPath); err != nil {
 		return fmt.Errorf("failed while checking for html file existence: %w", err)
 	}

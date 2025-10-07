@@ -11,15 +11,8 @@ type Configuration struct {
 }
 
 type LabelGenerationConfiguration struct {
-	BarcodeWidth  int                `json:"barcodeWidth"`
-	BarcodeHeight int                `json:"barcodeHeight"`
-	Font          *FontConfiguration `json:"font"`
-}
-
-type FontConfiguration struct {
-	Directory string `json:"directory"`
-	Filename  string `json:"filename"`
-	Family    string `json:"family"`
+	BarcodeWidth  int `json:"barcodeWidth"`
+	BarcodeHeight int `json:"barcodeHeight"`
 }
 
 func (configuration *Configuration) String() string {

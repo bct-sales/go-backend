@@ -45,10 +45,6 @@ func (c *initializeAllCommand) execute() error {
 		return err
 	}
 
-	if err := c.downloadFontFile(); err != nil {
-		return err
-	}
-
 	if err := c.createDatabaseFile(); err != nil {
 		return err
 	}

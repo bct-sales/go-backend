@@ -12,6 +12,7 @@ import (
 )
 
 const (
+	fontFamily        = "Arial"
 	charityImageName  = "charity"
 	donationImageName = "donation"
 )
@@ -38,9 +39,6 @@ type PdfBuilder struct {
 }
 
 type Configuration struct {
-	FontDirectory string
-	FontFilename  string
-	FontFamily    string
 	BarcodeWidth  int
 	BarcodeHeight int
 }
@@ -80,10 +78,11 @@ func (builder *PdfBuilder) WriteToBuffer() (*bytes.Buffer, error) {
 	return &buffer, nil
 }
 
-func newPdfGenerator(fontDirectory string) *fpdf.Fpdf {
+func newPdfGenerator() *fpdf.Fpdf {
 	orientation := "P"
 	unit := "mm"
 	paperSize := "A4" // should not be used, new pages will have an explicitly specified size
+	fontDirectory := "."
 
 	return fpdf.New(orientation, unit, paperSize, fontDirectory)
 }
@@ -96,7 +95,7 @@ func newPdfBuilder(
 
 	builder := PdfBuilder{
 		imageCache:    make(map[string]string),
-		pdf:           newPdfGenerator(configuration.FontDirectory),
+		pdf:           newPdfGenerator(),
 		layout:        layout,
 		gridWalker:    NewGridWalker(layout.columns, layout.rows),
 		labels:        labels,
@@ -290,17 +289,14 @@ func formatPriceAndSeller(priceInCents int, sellerID int) string {
 }
 
 func (builder *PdfBuilder) setFont() error {
-	fontFamily := builder.configuration.FontFamily
 	fontStyle := ""
-	fontFilename := builder.configuration.FontFilename
 
 	slog.Debug(
 		"Setting font",
 		slog.String("family", fontFamily),
 		slog.String("style", fontStyle),
-		slog.String("filename", fontFilename),
 	)
-	builder.pdf.AddUTF8Font(fontFamily, fontStyle, fontFilename)
+	builder.pdf.AddUTF8FontFromBytes(fontFamily, fontStyle, embeddedFont)
 	if err := builder.pdf.Error(); err != nil {
 		slog.Error("Failed to set font", slog.String("error", err.Error()))
 		return &PdfError{Message: "failed to add font", Wrapped: err}

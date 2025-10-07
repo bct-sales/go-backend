@@ -181,9 +181,6 @@ func (ep *generateLabelsEndpoint) createLabelDataFromItem(categoryNameTable map[
 
 func (ep *generateLabelsEndpoint) generatePdf(labelData []*pdf.LabelData, layoutSettings *pdf.LayoutSettings) *bytes.Buffer {
 	pdfConfiguration := pdf.Configuration{
-		FontDirectory: ep.Configuration.LabelGeneration.Font.Directory,
-		FontFilename:  ep.Configuration.LabelGeneration.Font.Filename,
-		FontFamily:    ep.Configuration.LabelGeneration.Font.Family,
 		BarcodeWidth:  ep.Configuration.LabelGeneration.BarcodeWidth,
 		BarcodeHeight: ep.Configuration.LabelGeneration.BarcodeHeight,
 	}
