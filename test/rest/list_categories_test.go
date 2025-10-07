@@ -19,7 +19,7 @@ type GetCategoriesSuccessResponse struct {
 	Categories []struct {
 		CategoryID   models.ID `json:"categoryId"`
 		CategoryName string    `json:"categoryName"`
-		Count        *int64    `json:"count,omitempty"`
+		Count        *int      `json:"count,omitempty"`
 	} `json:"categories"`
 }
 
@@ -62,7 +62,7 @@ func TestListCategories(t *testing.T) {
 
 				for _, category := range actual.Categories {
 					require.NotNil(t, category.Count)
-					require.Equal(t, int64(0), *category.Count)
+					require.Equal(t, 0, *category.Count)
 				}
 			})
 		})
