@@ -224,6 +224,62 @@ func CountItemsPerCategory(database DatabaseQuerier, itemSelection ItemSelection
 	return counts, nil
 }
 
+// CountSoldItemsPerCategory counts the number of sold items for each category.
+// Returns a map where the keys are category IDs and the values are the counts of sold items in that category.
+func CountSoldItemsPerCategory(database DatabaseQuerier) (r_counts map[models.ID]int, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
+	query := `
+		SELECT
+			item_categories.item_category_id, COUNT(sold_items.item_id)
+		FROM
+			item_categories
+		LEFT JOIN
+			(
+					sale_items
+				INNER JOIN
+					items
+				ON
+					sale_items.item_id = items.item_id
+			) as sold_items
+			ON
+				item_categories.item_category_id = sold_items.item_category_id
+		GROUP BY
+			item_categories.item_category_id
+	`
+
+	rows, err := database.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get category counts: %w", err)
+	}
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
+
+	counts := make(map[models.ID]int)
+
+	for rows.Next() {
+		var categoryID models.ID
+		var count int
+
+		err := rows.Scan(
+			&categoryID,
+			&count,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read row: %w", err)
+		}
+
+		counts[categoryID] = count
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
+	}
+
+	return counts, nil
+}
+
 // CategoryWithNameExists checks if there exists a category with the given name.
 func CategoryWithNameExists(db DatabaseQuerier, categoryName string) (r_result bool, r_err error) {
 	defer func() {
