@@ -18,8 +18,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func FromModel(item *models.Item) *rest.GetItemsItemData {
-	return &rest.GetItemsItemData{
+func FromModel(item *models.Item) *rest.ListItemsItemData {
+	return &rest.ListItemsItemData{
 		ItemID:       item.ItemID,
 		AddedAt:      shared.ConvertTimestampToDateTime(item.AddedAt),
 		Description:  item.Description,
@@ -54,12 +54,12 @@ func TestListAllItems(t *testing.T) {
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code)
 
-					expected := rest.GetItemsSuccessResponse{
-						Items:          []rest.GetItemsItemData{},
+					expected := rest.ListItemsSuccessResponse{
+						Items:          []rest.ListItemsItemData{},
 						TotalItemCount: 0,
 						TotalItemValue: models.MoneyInCents(0),
 					}
-					actual := FromJSON[rest.GetItemsSuccessResponse](t, writer.Body.String())
+					actual := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
 					require.Equal(t, expected, *actual)
 				})
 
@@ -77,12 +77,12 @@ func TestListAllItems(t *testing.T) {
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code)
 
-					expected := rest.GetItemsSuccessResponse{
-						Items:          []rest.GetItemsItemData{*FromModel(item)},
+					expected := rest.ListItemsSuccessResponse{
+						Items:          []rest.ListItemsItemData{*FromModel(item)},
 						TotalItemCount: 1,
 						TotalItemValue: item.PriceInCents,
 					}
-					actual := FromJSON[rest.GetItemsSuccessResponse](t, writer.Body.String())
+					actual := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
 					require.Equal(t, expected, *actual)
 				})
 
@@ -101,12 +101,12 @@ func TestListAllItems(t *testing.T) {
 
 					require.Equal(t, http.StatusOK, writer.Code)
 
-					expected := rest.GetItemsSuccessResponse{
-						Items:          []rest.GetItemsItemData{*FromModel(item1), *FromModel(item2)},
+					expected := rest.ListItemsSuccessResponse{
+						Items:          []rest.ListItemsItemData{*FromModel(item1), *FromModel(item2)},
 						TotalItemCount: 2,
 						TotalItemValue: item1.PriceInCents + item2.PriceInCents,
 					}
-					actual := FromJSON[rest.GetItemsSuccessResponse](t, writer.Body.String())
+					actual := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
 					require.Equal(t, expected, *actual)
 				})
 
@@ -129,7 +129,7 @@ func TestListAllItems(t *testing.T) {
 						require.Equal(t, http.StatusOK, writer.Code)
 
 						expectedItems := items[:limit]
-						response := FromJSON[rest.GetItemsSuccessResponse](t, writer.Body.String())
+						response := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
 						actualItems := response.Items
 						require.Len(t, actualItems, limit)
 						require.Equal(t, itemCount, response.TotalItemCount)
@@ -160,7 +160,7 @@ func TestListAllItems(t *testing.T) {
 						require.Equal(t, http.StatusOK, writer.Code)
 
 						expectedItems := items[offset:]
-						response := FromJSON[rest.GetItemsSuccessResponse](t, writer.Body.String())
+						response := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
 						actualItems := response.Items
 						require.Len(t, actualItems, len(expectedItems))
 						require.Equal(t, itemCount, response.TotalItemCount)
@@ -192,7 +192,7 @@ func TestListAllItems(t *testing.T) {
 							require.Equal(t, http.StatusOK, writer.Code)
 
 							expectedItems := items[offset : offset+limit]
-							response := FromJSON[rest.GetItemsSuccessResponse](t, writer.Body.String())
+							response := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
 							actualItems := response.Items
 							require.Len(t, actualItems, len(expectedItems))
 							require.Equal(t, itemCount, response.TotalItemCount)
@@ -224,7 +224,7 @@ func TestListAllItems(t *testing.T) {
 					router.ServeHTTP(writer, request)
 
 					require.Equal(t, http.StatusOK, writer.Code)
-					response := FromJSON[rest.GetItemsSuccessResponse](t, writer.Body.String())
+					response := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
 					actualItems := response.Items
 
 					require.Len(t, actualItems, 2)

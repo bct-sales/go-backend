@@ -12,7 +12,7 @@ import (
 	"strconv"
 )
 
-type GetItemsItemData struct {
+type ListItemsItemData struct {
 	ItemID       models.ID           `json:"itemId"`
 	AddedAt      rest.DateTime       `json:"addedAt"`
 	Description  string              `json:"description"`
@@ -24,14 +24,14 @@ type GetItemsItemData struct {
 	Frozen       bool                `json:"frozen"`
 }
 
-type GetItemsSuccessResponse struct {
-	Items          []GetItemsItemData  `json:"items"`
+type ListItemsSuccessResponse struct {
+	Items          []ListItemsItemData `json:"items"`
 	TotalItemCount int                 `json:"totalItemCount"`
 	TotalItemValue models.MoneyInCents `json:"totalItemValue"`
 }
 
-func ListAllItems(arguments *HandlerFunctionArguments) {
-	endpoint := &listAllItemsEndpoint{
+func ListItems(arguments *HandlerFunctionArguments) {
+	endpoint := &listItemsEndpoint{
 		Endpoint: Endpoint{
 			HandlerFunctionArguments: *arguments,
 		},
@@ -40,11 +40,11 @@ func ListAllItems(arguments *HandlerFunctionArguments) {
 	endpoint.execute()
 }
 
-type listAllItemsEndpoint struct {
+type listItemsEndpoint struct {
 	Endpoint
 }
 
-func (ep *listAllItemsEndpoint) execute() {
+func (ep *listItemsEndpoint) execute() {
 	if !ep.ensureUserHasCorrectRole() {
 		return
 	}
@@ -59,7 +59,7 @@ func (ep *listAllItemsEndpoint) execute() {
 	ep.sendSuccessResponse(items, itemSelection)
 }
 
-func (ep *listAllItemsEndpoint) buildSqlQuery() *queries.GetItemsQuery {
+func (ep *listItemsEndpoint) buildSqlQuery() *queries.GetItemsQuery {
 	query := queries.NewGetItemsQuery()
 
 	if !ep.processQueryParameters(query) {
@@ -69,7 +69,7 @@ func (ep *listAllItemsEndpoint) buildSqlQuery() *queries.GetItemsQuery {
 	return query
 }
 
-func (ep *listAllItemsEndpoint) processQueryParameters(query *queries.GetItemsQuery) bool {
+func (ep *listItemsEndpoint) processQueryParameters(query *queries.GetItemsQuery) bool {
 	if !ep.processItemSelectionQueryParameter(query) {
 		return false
 	}
@@ -85,7 +85,7 @@ func (ep *listAllItemsEndpoint) processQueryParameters(query *queries.GetItemsQu
 	return true
 }
 
-func (ep *listAllItemsEndpoint) processCategoryQueryParameter(sqlQuery *queries.GetItemsQuery) bool {
+func (ep *listItemsEndpoint) processCategoryQueryParameter(sqlQuery *queries.GetItemsQuery) bool {
 	parameterValue := ep.Context.Query("category")
 
 	if parameterValue != "" {
@@ -103,7 +103,7 @@ func (ep *listAllItemsEndpoint) processCategoryQueryParameter(sqlQuery *queries.
 	return true
 }
 
-func (ep *listAllItemsEndpoint) processItemSelectionQueryParameter(sqlQuery *queries.GetItemsQuery) bool {
+func (ep *listItemsEndpoint) processItemSelectionQueryParameter(sqlQuery *queries.GetItemsQuery) bool {
 	switch ep.Context.Query("items") {
 	case "all":
 		// NOP
@@ -118,7 +118,7 @@ func (ep *listAllItemsEndpoint) processItemSelectionQueryParameter(sqlQuery *que
 	return true
 }
 
-func (ep *listAllItemsEndpoint) processRangeQueryParameters(query *queries.GetItemsQuery) bool {
+func (ep *listItemsEndpoint) processRangeQueryParameters(query *queries.GetItemsQuery) bool {
 	optionalLimit, limitOk := ep.parseLimitQueryParameter()
 	if !limitOk {
 		return false
@@ -149,7 +149,7 @@ func (ep *listAllItemsEndpoint) processRangeQueryParameters(query *queries.GetIt
 	return true
 }
 
-func (ep *listAllItemsEndpoint) ensureUserHasCorrectRole() bool {
+func (ep *listItemsEndpoint) ensureUserHasCorrectRole() bool {
 	if ep.RoleID != models.NewAdminRoleID() && ep.RoleID != models.NewCashierRoleID() {
 		ep.Logger.InvalidRequest("Unauthorized access attempt to list all items")
 		failure_response.WrongRole(ep.Context, "Only admins and cashiers can list all items")
@@ -159,7 +159,7 @@ func (ep *listAllItemsEndpoint) ensureUserHasCorrectRole() bool {
 	return true
 }
 
-func (ep *listAllItemsEndpoint) parseItemSelectionQueryParameter() queries.ItemSelection {
+func (ep *listItemsEndpoint) parseItemSelectionQueryParameter() queries.ItemSelection {
 	switch ep.Context.Query("items") {
 	case "all":
 		return queries.AllItems
@@ -170,7 +170,7 @@ func (ep *listAllItemsEndpoint) parseItemSelectionQueryParameter() queries.ItemS
 	}
 }
 
-func (ep *listAllItemsEndpoint) fetchItemsFromDatabase() ([]*models.Item, bool) {
+func (ep *listItemsEndpoint) fetchItemsFromDatabase() ([]*models.Item, bool) {
 	var items []*models.Item
 
 	query := ep.buildSqlQuery()
@@ -183,7 +183,7 @@ func (ep *listAllItemsEndpoint) fetchItemsFromDatabase() ([]*models.Item, bool) 
 	return items, true
 }
 
-func (ep *listAllItemsEndpoint) sendSuccessResponse(items []*models.Item, itemSelection queries.ItemSelection) {
+func (ep *listItemsEndpoint) sendSuccessResponse(items []*models.Item, itemSelection queries.ItemSelection) {
 	formatHandler := formatHandlerAdapter{
 		handleDefaultFormatFunc: func() { ep.sendResponseAsJSON(items, itemSelection) },
 		handleJSONFormatFunc:    func() { ep.sendResponseAsJSONFile(items) },
@@ -192,7 +192,7 @@ func (ep *listAllItemsEndpoint) sendSuccessResponse(items []*models.Item, itemSe
 	ep.parseFormatQueryParameter(&formatHandler)
 }
 
-func (ep *listAllItemsEndpoint) sendResponseAsJSON(items []*models.Item, itemSelection queries.ItemSelection) {
+func (ep *listItemsEndpoint) sendResponseAsJSON(items []*models.Item, itemSelection queries.ItemSelection) {
 	itemsData := ep.convertData(items)
 
 	itemStatistics, err := queries.GetItemStatistics(ep.Database, itemSelection)
@@ -202,7 +202,7 @@ func (ep *listAllItemsEndpoint) sendResponseAsJSON(items []*models.Item, itemSel
 		return
 	}
 
-	response := GetItemsSuccessResponse{
+	response := ListItemsSuccessResponse{
 		Items:          itemsData,
 		TotalItemCount: itemStatistics.ItemCount,
 		TotalItemValue: itemStatistics.TotalValueInCents,
@@ -211,9 +211,9 @@ func (ep *listAllItemsEndpoint) sendResponseAsJSON(items []*models.Item, itemSel
 	ep.Context.IndentedJSON(http.StatusOK, response)
 }
 
-func (ep *listAllItemsEndpoint) convertData(items []*models.Item) []GetItemsItemData {
-	return algorithms.Map(items, func(item *models.Item) GetItemsItemData {
-		return GetItemsItemData{
+func (ep *listItemsEndpoint) convertData(items []*models.Item) []ListItemsItemData {
+	return algorithms.Map(items, func(item *models.Item) ListItemsItemData {
+		return ListItemsItemData{
 			ItemID:       item.ItemID,
 			AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
 			Description:  item.Description,
@@ -227,7 +227,7 @@ func (ep *listAllItemsEndpoint) convertData(items []*models.Item) []GetItemsItem
 	})
 }
 
-func (ep *listAllItemsEndpoint) sendResponseAsJSONFile(items []*models.Item) {
+func (ep *listItemsEndpoint) sendResponseAsJSONFile(items []*models.Item) {
 	convertedData := ep.convertData(items)
 
 	ep.Context.Header("Content-Type", "application/json")
@@ -237,7 +237,7 @@ func (ep *listAllItemsEndpoint) sendResponseAsJSONFile(items []*models.Item) {
 	ep.Context.IndentedJSON(http.StatusOK, convertedData)
 }
 
-func (ep *listAllItemsEndpoint) sendResponseAsCSVFile(items []*models.Item) {
+func (ep *listItemsEndpoint) sendResponseAsCSVFile(items []*models.Item) {
 	categoryNameTable, err := queries.GetCategoryNameTable(ep.Database)
 	if err != nil {
 		ep.Logger.InternalError("Failed to get category map", "error", err)
