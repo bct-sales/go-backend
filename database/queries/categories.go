@@ -220,6 +220,7 @@ func CountItemsPerCategory(database DatabaseQuerier, itemSelection ItemSelection
 	return counts, nil
 }
 
+// CategoryWithNameExists checks if there exists a category with the given name.
 func CategoryWithNameExists(db DatabaseQuerier, categoryName string) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
