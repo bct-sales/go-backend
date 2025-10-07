@@ -48,6 +48,10 @@ func (ep *listCategoriesEndpoint) execute() {
 		ep.listCategoriesWithCounts(queries.OnlyVisibleItems)
 		return
 
+	case "sold":
+		ep.listCategoriesWithSoldCounts()
+		return
+
 	default:
 		ep.listCategoriesWithoutCounts()
 		return
@@ -70,6 +74,60 @@ func (ep *listCategoriesEndpoint) listCategoriesWithCounts(itemSelection queries
 	if err != nil {
 		logger.InternalError("Failed to fetch category counts", "error", err)
 		failure_response.Unknown(context, "Failed to fetch category counts: "+err.Error())
+		return
+	}
+
+	categoryNameTable, err := queries.GetCategoryNameTable(db)
+	if err != nil {
+		logger.InternalError("Failed to fetch category name table", "error", err)
+		failure_response.Unknown(context, "Failed to fetch category table: "+err.Error())
+		return
+	}
+
+	response := ListCategoriesSuccessResponse{
+		Categories: []CategoryData{},
+	}
+
+	categoryIDs := slices.Collect(maps.Keys(categoryCounts))
+	slices.Sort(categoryIDs)
+
+	for _, categoryID := range categoryIDs {
+		categoryCount := categoryCounts[categoryID]
+		categoryName, ok := categoryNameTable[categoryID]
+		if !ok {
+			logger.InvalidRequest("Unknown category ID", "categoryID", categoryID)
+			failure_response.UnknownCategory(context, fmt.Sprintf("Unknown category ID %d", categoryID))
+			return
+		}
+
+		translatedCategoryCount := CategoryData{
+			CategoryID:   categoryID,
+			CategoryName: categoryName,
+			Count:        &categoryCount,
+		}
+
+		response.Categories = append(response.Categories, translatedCategoryCount)
+	}
+
+	context.IndentedJSON(http.StatusOK, response)
+}
+
+func (ep *listCategoriesEndpoint) listCategoriesWithSoldCounts() {
+	context := ep.Context
+	db := ep.Database
+	roleID := ep.RoleID
+	logger := ep.Logger
+
+	if !roleID.IsAdmin() {
+		logger.InvalidRequest("Unauthorized access to category counts")
+		failure_response.WrongRole(context, "Only admins can access category counts")
+		return
+	}
+
+	categoryCounts, err := queries.CountSoldItemsPerCategory(db)
+	if err != nil {
+		logger.InternalError("Failed to fetch category counts of sold items", "error", err)
+		failure_response.Unknown(context, "Failed to fetch sold item by category counts: "+err.Error())
 		return
 	}
 
