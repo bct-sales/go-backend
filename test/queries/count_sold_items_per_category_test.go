@@ -32,5 +32,27 @@ func TestCountSoldItemsPerCategory(t *testing.T) {
 			require.Equal(t, 0, actualCounts[categoryID1])
 			require.Equal(t, 0, actualCounts[categoryID2])
 		})
+
+		t.Run("One sold item", func(t *testing.T) {
+			setup, db := NewDatabaseFixture()
+			defer setup.Close()
+
+			categoryID1 := models.ID(1)
+			categoryID2 := models.ID(2)
+
+			seller := setup.Seller()
+			cashier := setup.Cashier()
+			setup.Category(categoryID1, "foo")
+			setup.Category(categoryID2, "bar")
+			setup.Items(seller.UserID, 10, aux.WithItemCategory(categoryID1), aux.WithHidden(false))
+			soldItem := setup.Item(seller.UserID, aux.WithHidden(false), aux.WithItemCategory(categoryID1))
+			setup.Sale(cashier.UserID, []models.ID{soldItem.ItemID})
+
+			actualCounts, err := queries.CountSoldItemsPerCategory(db)
+			require.NoError(t, err)
+			require.Equal(t, len(actualCounts), 2)
+			require.Equal(t, 1, actualCounts[categoryID1])
+			require.Equal(t, 0, actualCounts[categoryID2])
+		})
 	})
 }
