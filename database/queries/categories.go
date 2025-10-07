@@ -184,10 +184,14 @@ func CountItemsPerCategory(database DatabaseQuerier, itemSelection ItemSelection
 	itemsTable := ItemsTableFor(itemSelection)
 
 	query := fmt.Sprintf(`
-		SELECT item_categories.item_category_id, COUNT(i.item_id)
-		FROM item_categories
-		LEFT JOIN %s i ON item_categories.item_category_id = i.item_category_id
-		GROUP BY item_categories.item_category_id
+		SELECT
+			item_categories.item_category_id, COUNT(i.item_id)
+		FROM
+			item_categories
+		LEFT JOIN
+			%s i ON item_categories.item_category_id = i.item_category_id
+		GROUP BY
+			item_categories.item_category_id
 	`, itemsTable)
 
 	rows, err := database.Query(query)
