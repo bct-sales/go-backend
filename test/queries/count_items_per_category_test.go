@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetCategoryCounts(t *testing.T) {
+func TestCountItemsPerCategory(t *testing.T) {
 	defaultCategoryNameTable := aux.DefaultCategoryNameTable()
 
 	t.Run("Success", func(t *testing.T) {
