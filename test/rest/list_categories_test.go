@@ -65,6 +65,43 @@ func TestListCategories(t *testing.T) {
 					require.Equal(t, 0, *category.Count)
 				}
 			})
+
+			t.Run("With sold item counts", func(t *testing.T) {
+				setup, router, writer := NewRestFixture()
+				defer setup.Close()
+
+				categoryID1 := models.ID(1)
+				categoryID2 := models.ID(2)
+				categoryName1 := "foo"
+				categoryName2 := "bar"
+
+				_, sessionID := setup.LoggedIn(setup.Admin())
+				seller := setup.Seller()
+				cashier := setup.Cashier()
+				setup.Category(categoryID1, categoryName1)
+				setup.Category(categoryID2, categoryName2)
+				soldItem1 := setup.Item(seller.UserID, aux.WithHidden(false), aux.WithItemCategory(categoryID1))
+				soldItem2 := setup.Item(seller.UserID, aux.WithHidden(false), aux.WithItemCategory(categoryID1))
+				soldItem3 := setup.Item(seller.UserID, aux.WithHidden(false), aux.WithItemCategory(categoryID2))
+				setup.Sale(cashier.UserID, []models.ID{soldItem1.ItemID, soldItem2.ItemID})
+				setup.Sale(cashier.UserID, []models.ID{soldItem3.ItemID})
+
+				url := path.CategoriesWithSoldItemCounts()
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
+				router.ServeHTTP(writer, request)
+				require.Equal(t, http.StatusOK, writer.Code)
+
+				actual := FromJSON[GetCategoriesSuccessResponse](t, writer.Body.String())
+				require.Len(t, actual.Categories, 2)
+				require.Equal(t, categoryID1, actual.Categories[0].CategoryID)
+				require.Equal(t, categoryName1, actual.Categories[0].CategoryName)
+				require.NotNil(t, actual.Categories[0].Count)
+				require.Equal(t, 2, *actual.Categories[0].Count)
+				require.Equal(t, categoryID2, actual.Categories[1].CategoryID)
+				require.Equal(t, categoryName2, actual.Categories[1].CategoryName)
+				require.NotNil(t, actual.Categories[1].Count)
+				require.Equal(t, 1, *actual.Categories[1].Count)
+			})
 		})
 
 		t.Run("As seller", func(t *testing.T) {
