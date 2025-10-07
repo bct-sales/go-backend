@@ -7,7 +7,6 @@ import (
 	"bctbackend/server"
 	"bctbackend/server/configuration"
 	"database/sql"
-	"os"
 
 	gin "github.com/gin-gonic/gin"
 )
@@ -18,11 +17,6 @@ func CreateRestServer(db *sql.DB, clock *clock.ManualClock) *server.Server {
 		LabelGeneration: &configuration.LabelGenerationConfiguration{
 			BarcodeWidth:  150,
 			BarcodeHeight: 30,
-			Font: &configuration.FontConfiguration{
-				Directory: os.Getenv("BCT_FONT_DIR"),
-				Filename:  os.Getenv("BCT_FONT_FILE"),
-				Family:    os.Getenv("BCT_FONT_FAMILY"),
-			},
 		},
 		Server: &configuration.ServerConfiguration{
 			GinMode:                     gin.TestMode,
