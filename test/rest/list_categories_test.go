@@ -9,19 +9,12 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	path "bctbackend/server/paths"
+	"bctbackend/server/rest"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
 
 	"github.com/stretchr/testify/require"
 )
-
-type GetCategoriesSuccessResponse struct {
-	Categories []struct {
-		CategoryID   models.ID `json:"categoryId"`
-		CategoryName string    `json:"categoryName"`
-		Count        *int      `json:"count,omitempty"`
-	} `json:"categories"`
-}
 
 func TestListCategories(t *testing.T) {
 	defaultCategoryNameTable := aux.DefaultCategoryNameTable()
@@ -39,7 +32,7 @@ func TestListCategories(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
-				actual := FromJSON[GetCategoriesSuccessResponse](t, writer.Body.String())
+				actual := FromJSON[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 				require.Len(t, actual.Categories, len(defaultCategoryNameTable))
 
 				for _, category := range actual.Categories {
@@ -58,7 +51,7 @@ func TestListCategories(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
-				actual := FromJSON[GetCategoriesSuccessResponse](t, writer.Body.String())
+				actual := FromJSON[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 
 				for _, category := range actual.Categories {
 					require.NotNil(t, category.Count)
@@ -91,7 +84,7 @@ func TestListCategories(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
-				actual := FromJSON[GetCategoriesSuccessResponse](t, writer.Body.String())
+				actual := FromJSON[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 				require.Len(t, actual.Categories, 2)
 				require.Equal(t, categoryID1, actual.Categories[0].CategoryID)
 				require.Equal(t, categoryName1, actual.Categories[0].CategoryName)
@@ -116,7 +109,7 @@ func TestListCategories(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
-				actual := FromJSON[GetCategoriesSuccessResponse](t, writer.Body.String())
+				actual := FromJSON[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 
 				for _, category := range actual.Categories {
 					require.Nil(t, category.Count)
@@ -148,7 +141,7 @@ func TestListCategories(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
 
-				actual := FromJSON[GetCategoriesSuccessResponse](t, writer.Body.String())
+				actual := FromJSON[rest.ListCategoriesSuccessResponse](t, writer.Body.String())
 
 				for _, category := range actual.Categories {
 					require.Nil(t, category.Count)
