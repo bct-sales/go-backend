@@ -165,6 +165,10 @@ func CategoriesWithCounts(itemSelection queries.ItemSelection) *URL {
 	}
 }
 
+func CategoriesWithSoldItemCounts() *URL {
+	return Categories().AddQueryParameter("counts", "sold")
+}
+
 func SellerItemsStr(sellerID string) *URL {
 	return RESTRoot().AddPathSegment("sellers").AddPathSegment(sellerID).AddPathSegment("items")
 }
