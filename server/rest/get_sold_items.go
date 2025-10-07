@@ -68,17 +68,6 @@ func (ep *listSoldItemsEndpoint) ensureUserHasCorrectRole() bool {
 	return true
 }
 
-func (ep *listSoldItemsEndpoint) parseItemSelectionQueryParameter() queries.ItemSelection {
-	switch ep.Context.Query("items") {
-	case "all":
-		return queries.AllItems
-	case "hidden":
-		return queries.OnlyHiddenItems
-	default:
-		return queries.OnlyVisibleItems
-	}
-}
-
 func (ep *listSoldItemsEndpoint) fetchSoldItemsFromDatabase() ([]*queries.SoldItem, bool) {
 	query := ep.buildSqlQuery()
 	soldItems, err := query.Execute(ep.Database)
