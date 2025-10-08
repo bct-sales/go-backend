@@ -694,20 +694,20 @@ type ItemStatisticsResult struct {
 	TotalValueInCents models.MoneyInCents
 }
 
-// GetItemStatistics returns the number of items in the database and their total worth.
-// The itemSelection parameter allows specifying which items to count: only hidden, only visible or both.
-func GetItemStatistics(db DatabaseQuerier, itemSelection ItemSelection) (r_result *ItemStatisticsResult, r_err error) {
+type GetItemStatisticsQuery struct {
+	hidden *bool
+}
+
+func (q *GetItemStatisticsQuery) Execute(db DatabaseQuerier) (r_result *ItemStatisticsResult, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	query := fmt.Sprintf(`
-		SELECT
-			COUNT(item_id), COALESCE(SUM(price_in_cents), 0)
-		FROM
-			%s
-	`, ItemsTableFor(itemSelection))
-	row := db.QueryRow(query)
+	query, queryArguments, err := q.buildSQLQuery()
+	if err != nil {
+		return nil, fmt.Errorf("failed to build SQL query: %w", err)
+	}
+	row := db.QueryRow(query, queryArguments...)
 
 	var itemCount int
 	var totalValueInCents models.MoneyInCents
@@ -720,6 +720,48 @@ func GetItemStatistics(db DatabaseQuerier, itemSelection ItemSelection) (r_resul
 		TotalValueInCents: totalValueInCents,
 	}
 	return &result, nil
+}
+
+func (q *GetItemStatisticsQuery) buildSQLQuery() (string, []any, error) {
+	query := sq.Select("COUNT(item_id)", "COALESCE(SUM(price_in_cents), 0)").From("items")
+
+	if q.hidden != nil {
+		query = query.Where(sq.Eq{"hidden": *q.hidden})
+	}
+
+	queryString, queryArguments, err := query.ToSql()
+	if err != nil {
+		return "", nil, fmt.Errorf("failed to build SQL query: %w", err)
+	}
+
+	return queryString, queryArguments, nil
+}
+
+func (q *GetItemStatisticsQuery) WithHidden(value bool) {
+	q.hidden = &value
+}
+
+func NewGetItemStatisticsQuery() *GetItemStatisticsQuery {
+	query := GetItemStatisticsQuery{
+		hidden: nil,
+	}
+
+	return &query
+}
+
+// GetItemStatistics returns the number of items in the database and their total worth.
+// The itemSelection parameter allows specifying which items to count: only hidden, only visible or both.
+func GetItemStatistics(db DatabaseQuerier, itemSelection ItemSelection) (r_result *ItemStatisticsResult, r_err error) {
+	query := NewGetItemStatisticsQuery()
+
+	switch itemSelection {
+	case OnlyHiddenItems:
+		query.WithHidden(true)
+	case OnlyVisibleItems:
+		query.WithHidden(false)
+	}
+
+	return query.Execute(db)
 }
 
 // AddItem adds an item to the database.
