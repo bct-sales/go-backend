@@ -9,6 +9,8 @@ type Logger interface {
 	InvalidRequest(message string, args ...any)
 	InternalError(message string, args ...any)
 	Bug(message string, args ...any)
+
+	AddInformation(key string, value any)
 }
 
 type LoggerWrapper struct {
@@ -33,4 +35,8 @@ func (l *LoggerWrapper) InternalError(message string, args ...any) {
 
 func (l *LoggerWrapper) Bug(message string, args ...any) {
 	l.Logger.Error(message, args...)
+}
+
+func (l *LoggerWrapper) AddInformation(key string, value any) {
+	l.Logger = l.Logger.With(key, value)
 }
