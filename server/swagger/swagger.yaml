@@ -669,6 +669,95 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FailureResponse'
+  /api/v1/sales/items:
+    get:
+      tags:
+        - item
+        - admin
+      summary: List sold items
+      description: >
+        Returns a list of sold items.
+        This operation is reserved for admins.
+      operationId: ListSoldItems
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - saleId
+                        - cashierId
+                        - transactionTime
+                        - itemId
+                        - addedAt
+                        - description
+                        - priceInCents
+                        - itemCategory
+                        - sellerId
+                        - donation
+                        - charity
+                      properties:
+                        saleId:
+                          type: integer
+                          format: uint64
+                          example: 15
+                        cashierId:
+                          type: integer
+                          format: uint64
+                          example: 2
+                        transactionTime:
+                          $ref: '#/components/schemas/DateTime'
+                        itemId:
+                          type: integer
+                          format: uint64
+                          example: 10
+                        addedAt:
+                          $ref: '#/components/schemas/DateTime'
+                        description:
+                          type: string
+                        priceInCents:
+                          type: integer
+                        itemCategory:
+                          type: integer
+                          format: uint64
+                        sellerId:
+                          type: integer
+                          format: uint64
+                        donation:
+                          type: boolean
+                        charity:
+                          type: boolean
+        '400':
+          description: Failed to parse request body or query parameters
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '403':
+          description: >
+            Forbidden operation for the current user.
+            Only admins and cashiers are allowed to perform this operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailureResponse'
   /api/v1/seller/{sellerId}/items:
     get:
       tags:
