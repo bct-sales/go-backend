@@ -31,9 +31,9 @@ type ListItemsSuccessResponse struct {
 }
 
 type listItemsParameters struct {
-	category      *models.ID
-	rowRange      queries.RowSelection
-	itemSelection queries.ItemSelection
+	category *models.ID
+	rowRange queries.RowSelection
+	hidden   *bool
 }
 
 func ListItems(arguments *HandlerFunctionArguments) {
@@ -56,13 +56,16 @@ func (ep *listItemsEndpoint) execute() {
 	}
 
 	parameters := ep.parseParameters()
+	if parameters == nil {
+		return
+	}
 
 	items, itemsOk := ep.fetchItemsFromDatabase(parameters)
 	if !itemsOk {
 		return
 	}
 
-	ep.sendSuccessResponse(items, parameters.itemSelection)
+	ep.sendSuccessResponse(items, parameters)
 }
 
 func (ep *listItemsEndpoint) parseParameters() *listItemsParameters {
@@ -76,15 +79,15 @@ func (ep *listItemsEndpoint) parseParameters() *listItemsParameters {
 		return nil
 	}
 
-	itemSelection, itemSelectionOk := ep.parseItemSelectionQueryParameter()
-	if !itemSelectionOk {
+	hidden, hiddenOk := ep.parseHiddenQueryParameter()
+	if !hiddenOk {
 		return nil
 	}
 
 	return &listItemsParameters{
-		category:      category,
-		rowRange:      *rowRange,
-		itemSelection: itemSelection,
+		category: category,
+		rowRange: *rowRange,
+		hidden:   hidden,
 	}
 }
 
@@ -97,17 +100,8 @@ func (ep *listItemsEndpoint) buildSqlQuery(parameters *listItemsParameters) *que
 	}
 
 	// Filtering based on visibility
-	switch parameters.itemSelection {
-	case queries.AllItems:
-		// NOP
-	case queries.OnlyHiddenItems:
-		query.WithHidden(true)
-	case queries.OnlyVisibleItems:
-		query.WithHidden(false)
-	default:
-		ep.Logger.InvalidRequest("invalid item selection")
-		failure_response.InvalidUriParameters(ep.Context, "invalid item selection parameter")
-		return nil
+	if parameters.hidden != nil {
+		query.WithHidden(*parameters.hidden)
 	}
 
 	// Row range
@@ -135,23 +129,25 @@ func (ep *listItemsEndpoint) parseCategoryQueryParameter() (*models.ID, bool) {
 	return &categoryID, true
 }
 
-func (ep *listItemsEndpoint) parseItemSelectionQueryParameter() (queries.ItemSelection, bool) {
-	parameterValue := ep.Context.Query("items")
+func (ep *listItemsEndpoint) parseHiddenQueryParameter() (*bool, bool) {
+	parameterValue := ep.Context.Query("hidden")
 
 	switch parameterValue {
-	case "all":
-		return queries.AllItems, true
+	case "true":
+		var value = true
+		return &value, true
 
-	case "hidden":
-		return queries.OnlyHiddenItems, true
+	case "false":
+		var value = false
+		return &value, true
 
-	case "", "visible":
-		return queries.OnlyVisibleItems, true
+	case "":
+		return nil, true
 
 	default:
-		ep.Logger.InvalidRequest("invalid item selection")
-		failure_response.InvalidUriParameters(ep.Context, "invalid item selection parameter")
-		return 0, false
+		ep.Logger.InvalidRequest("invalid hidden query parameter value")
+		failure_response.InvalidUriParameters(ep.Context, "invalid hidden query parameter value")
+		return nil, false
 	}
 }
 
@@ -178,19 +174,23 @@ func (ep *listItemsEndpoint) fetchItemsFromDatabase(parameters *listItemsParamet
 	return items, true
 }
 
-func (ep *listItemsEndpoint) sendSuccessResponse(items []*models.Item, itemSelection queries.ItemSelection) {
+func (ep *listItemsEndpoint) sendSuccessResponse(items []*models.Item, parameters *listItemsParameters) {
 	formatHandler := formatHandlerAdapter{
-		handleDefaultFormatFunc: func() { ep.sendResponseAsJSON(items, itemSelection) },
+		handleDefaultFormatFunc: func() { ep.sendResponseAsJSON(items, parameters) },
 		handleJSONFormatFunc:    func() { ep.sendResponseAsJSONFile(items) },
 		handleCSVFormatFunc:     func() { ep.sendResponseAsCSVFile(items) },
 	}
 	ep.parseFormatQueryParameter(&formatHandler)
 }
 
-func (ep *listItemsEndpoint) sendResponseAsJSON(items []*models.Item, itemSelection queries.ItemSelection) {
+func (ep *listItemsEndpoint) sendResponseAsJSON(items []*models.Item, parameters *listItemsParameters) {
 	itemsData := ep.convertData(items)
 
-	itemStatistics, err := queries.GetItemStatistics(ep.Database, itemSelection)
+	query := queries.NewGetItemStatisticsQuery()
+	if parameters.hidden != nil {
+		query.WithHidden(*parameters.hidden)
+	}
+	itemStatistics, err := query.Execute(ep.Database)
 	if err != nil {
 		ep.Logger.InternalError("Failed to count items", "error", err)
 		failure_response.Unknown(ep.Context, "Failed to count items: "+err.Error())
