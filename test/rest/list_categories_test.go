@@ -147,7 +147,11 @@ func TestListCategories(t *testing.T) {
 					require.Nil(t, category.Count)
 				}
 			})
+		})
+	})
 
+	t.Run("Failure", func(t *testing.T) {
+		t.Run("As cashier", func(t *testing.T) {
 			t.Run("With counts", func(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
 				defer setup.Close()
