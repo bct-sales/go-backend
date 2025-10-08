@@ -284,27 +284,29 @@ func TestListAllItems(t *testing.T) {
 				})
 
 				t.Run("Filter on description", func(t *testing.T) {
-					setup, router, writer := NewRestFixture(WithDefaultCategories)
-					defer setup.Close()
+					t.Run("Searching for a", func(t *testing.T) {
+						setup, router, writer := NewRestFixture(WithDefaultCategories)
+						defer setup.Close()
 
-					_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
-					seller := setup.Seller()
-					setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("foo"))
-					setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("bar"))
-					setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("baz"))
-					setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("qux"))
+						_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
+						seller := setup.Seller()
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("foo"))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("bar"))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("baz"))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("qux"))
 
-					url := path.Items().AddQueryParameter("description", "a")
-					request := CreateGetRequest(url, WithSessionCookie(sessionID))
-					router.ServeHTTP(writer, request)
+						url := path.Items().AddQueryParameter("description", "a")
+						request := CreateGetRequest(url, WithSessionCookie(sessionID))
+						router.ServeHTTP(writer, request)
 
-					require.Equal(t, http.StatusOK, writer.Code)
-					response := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
-					actualItems := response.Items
+						require.Equal(t, http.StatusOK, writer.Code)
+						response := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
+						actualItems := response.Items
 
-					require.Len(t, actualItems, 2)
-					require.Equal(t, "bar", actualItems[0].Description)
-					require.Equal(t, "baz", actualItems[1].Description)
+						require.Len(t, actualItems, 2)
+						require.Equal(t, "bar", actualItems[0].Description)
+						require.Equal(t, "baz", actualItems[1].Description)
+					})
 				})
 			})
 		}
