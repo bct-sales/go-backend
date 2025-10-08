@@ -120,17 +120,14 @@ func AddSale(
 
 type GetSalesQuery struct {
 	minimalID    *models.ID // If set, only sales with an ID greater than or equal to this value are returned.
-	rowSelection *struct {
-		limit  int // Max number of sales to return
-		offset int // Determines the starting point for the query
-	}
-	order *string // Specifies the order in which to return the results
+	order        *string    // Specifies the order in which to return the results
+	rowSelection RowSelection
 }
 
 func NewGetSalesQuery() *GetSalesQuery {
 	return &GetSalesQuery{
 		minimalID:    nil,
-		rowSelection: nil,
+		rowSelection: RowSelection{},
 		order:        nil,
 	}
 }
@@ -140,11 +137,8 @@ func (q *GetSalesQuery) WithIDGreaterThanOrEqualTo(minimalID models.ID) *GetSale
 	return q
 }
 
-func (q *GetSalesQuery) WithRowSelection(limit int, offset int) *GetSalesQuery {
-	q.rowSelection = &struct {
-		limit  int
-		offset int
-	}{limit: limit, offset: offset}
+func (q *GetSalesQuery) WithRowSelection(limit uint64, offset uint64) *GetSalesQuery {
+	q.rowSelection = RowSelection{Limit: &limit, Offset: &offset}
 
 	return q
 }
@@ -178,7 +172,7 @@ func (q *GetSalesQuery) Execute(db DatabaseQuerier, receiver func(*models.SaleSu
 		`,
 		q.whereClause(),
 		q.orderClause(),
-		q.rowSelectionClause(),
+		q.rowSelection.SQL(),
 	)
 
 	queryArguments := slices.Concat(q.whereArguments())
@@ -229,13 +223,6 @@ func (q *GetSalesQuery) whereArguments() []any {
 		return nil
 	}
 	return []any{*q.minimalID}
-}
-
-func (q *GetSalesQuery) rowSelectionClause() string {
-	if q.rowSelection == nil {
-		return ""
-	}
-	return fmt.Sprintf("LIMIT %d OFFSET %d", q.rowSelection.limit, q.rowSelection.offset)
 }
 
 func (q *GetSalesQuery) orderClause() string {

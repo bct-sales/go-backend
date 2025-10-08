@@ -78,8 +78,8 @@ func TestGetSales(t *testing.T) {
 		})
 
 		t.Run("Get sales with limit and offset", func(t *testing.T) {
-			for _, limit := range []int{1, 2, 5, 10} {
-				for _, offset := range []int{0, 1, 2, 5, 10} {
+			for _, limit := range []uint64{1, 2, 5, 10} {
+				for _, offset := range []uint64{0, 1, 2, 5, 10} {
 					testLabel := fmt.Sprintf("limit = %d, offset = %d", limit, offset)
 					t.Run(testLabel, func(t *testing.T) {
 						setup, db := NewDatabaseFixture(WithDefaultCategories)
@@ -97,7 +97,7 @@ func TestGetSales(t *testing.T) {
 						actualSales := []*models.SaleSummary{}
 						err := queries.NewGetSalesQuery().WithRowSelection(limit, offset).Execute(db, queries.CollectTo(&actualSales))
 						require.NoError(t, err)
-						require.Len(t, actualSales, limit)
+						require.Len(t, actualSales, int(limit))
 
 						for index, actualSale := range actualSales {
 							require.Equal(t, cashier.UserID, actualSale.CashierID)
@@ -113,8 +113,8 @@ func TestGetSales(t *testing.T) {
 		})
 
 		t.Run("Get sales with limit and offset, anti chronologically", func(t *testing.T) {
-			for _, limit := range []int{1, 2, 5, 10} {
-				for _, offset := range []int{0, 1, 2, 5, 10} {
+			for _, limit := range []uint64{1, 2, 5, 10} {
+				for _, offset := range []uint64{0, 1, 2, 5, 10} {
 					testLabel := fmt.Sprintf("limit = %d, offset = %d", limit, offset)
 					t.Run(testLabel, func(t *testing.T) {
 						setup, db := NewDatabaseFixture(WithDefaultCategories)
@@ -137,7 +137,7 @@ func TestGetSales(t *testing.T) {
 						actualSales := []*models.SaleSummary{}
 						err := queries.NewGetSalesQuery().WithRowSelection(limit, offset).OrderedAntiChronologically().Execute(db, queries.CollectTo(&actualSales))
 						require.NoError(t, err)
-						require.Len(t, actualSales, limit)
+						require.Len(t, actualSales, int(limit))
 
 						for index, actualSale := range actualSales {
 							require.Equal(t, cashier.UserID, actualSale.CashierID)

@@ -115,8 +115,8 @@ func (ep *Endpoint) parseRowSelectionQueryParameters() *queries.RowSelection {
 	}
 
 	rowSelection := queries.RowSelection{
-		Limit:  convertUintToInt(limit),
-		Offset: convertUintToInt(offset),
+		Limit:  limit,
+		Offset: offset,
 	}
 
 	return &rowSelection

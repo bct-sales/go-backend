@@ -211,8 +211,8 @@ func (ep *getSalesEndpoint) buildQuery(queryParameters *getSalesQueryParameters)
 	}
 
 	if queryParameters.rowSelection != nil {
-		var limit int
-		var offset int
+		var limit uint64
+		var offset uint64
 
 		if queryParameters.rowSelection.Limit != nil {
 			limit = *queryParameters.rowSelection.Limit

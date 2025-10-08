@@ -2,7 +2,6 @@ package queries
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 )
 
@@ -16,31 +15,39 @@ func placeholderString(placeholderCount int) string {
 }
 
 type RowSelection struct {
-	Limit  *int
-	Offset *int
+	Limit  *uint64
+	Offset *uint64
 }
 
-func (p *RowSelection) SQL() string {
-	clause := "LIMIT "
+func (rowSelection *RowSelection) SQL() string {
+	// If neither field has been set, no extra SQL is necessary
+	if rowSelection.Limit == nil && rowSelection.Offset == nil {
+		return ""
+	}
 
-	if p.Limit != nil {
-		clause += strconv.FormatInt(int64(*p.Limit), 10)
+	var offset uint64
+	var limit uint64
+
+	if rowSelection.Limit == nil {
+		limit = 1000000
 	} else {
-		clause += "1000000"
+		limit = *rowSelection.Limit
 	}
 
-	if p.Offset != nil {
-		clause += fmt.Sprintf(" OFFSET %d", *p.Offset)
+	if rowSelection.Offset == nil {
+		offset = 0
+	} else {
+		offset = *rowSelection.Offset
 	}
 
-	return clause
+	return fmt.Sprintf("LIMIT %d OFFSET %d", limit, offset)
 }
 
 func AllRows() *RowSelection {
 	return &RowSelection{Limit: nil, Offset: nil}
 }
 
-func NewRowSelection(offset int, limit int) *RowSelection {
+func NewRowSelection(offset uint64, limit uint64) *RowSelection {
 	return &RowSelection{Limit: &limit, Offset: &offset}
 }
 
