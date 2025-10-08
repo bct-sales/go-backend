@@ -68,12 +68,6 @@ func (ep *Endpoint) parseOffsetQueryParameter() (*uint64, bool) {
 			return nil, false
 		}
 
-		if parsedOffset < 0 {
-			ep.Logger.InvalidRequest("Invalid offset parameter", "offset", offsetString)
-			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Offset must be 0 or greater")
-			return nil, false
-		}
-
 		return &parsedOffset, true
 	} else {
 		return nil, true
