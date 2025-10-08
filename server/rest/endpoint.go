@@ -122,15 +122,6 @@ func (ep *Endpoint) parseRowSelectionQueryParameters() *queries.RowSelection {
 	return &rowSelection
 }
 
-func convertUintToInt(x *uint64) *int {
-	if x != nil {
-		value := int(*x)
-		return &value
-	} else {
-		return nil
-	}
-}
-
 func (ep *Endpoint) parseOrderQueryParameter() (queries.Order, bool) {
 	if order, exists := ep.Context.GetQuery("order"); exists {
 		if order != "antichronological" {
