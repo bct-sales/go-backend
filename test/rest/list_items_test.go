@@ -308,6 +308,30 @@ func TestListAllItems(t *testing.T) {
 						require.Equal(t, "baz", actualItems[1].Description)
 					})
 
+					t.Run("Searching for space", func(t *testing.T) {
+						setup, router, writer := NewRestFixture(WithDefaultCategories)
+						defer setup.Close()
+
+						_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
+						seller := setup.Seller()
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("foo bar"))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("bar"))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("baz qux"))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("qux"))
+
+						url := path.Items().AddQueryParameter("description", " ")
+						request := CreateGetRequest(url, WithSessionCookie(sessionID))
+						router.ServeHTTP(writer, request)
+
+						require.Equal(t, http.StatusOK, writer.Code)
+						response := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
+						actualItems := response.Items
+
+						require.Len(t, actualItems, 2)
+						require.Equal(t, "foo bar", actualItems[0].Description)
+						require.Equal(t, "baz qux", actualItems[1].Description)
+					})
+
 					t.Run("Searching for &", func(t *testing.T) {
 						setup, router, writer := NewRestFixture(WithDefaultCategories)
 						defer setup.Close()
