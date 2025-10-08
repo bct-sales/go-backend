@@ -32,8 +32,8 @@ type ListItemsSuccessResponse struct {
 
 type listItemsParameters struct {
 	category *models.ID
-	rowRange queries.RowSelection
 	hidden   *bool
+	rowRange queries.RowSelection
 }
 
 func ListItems(arguments *HandlerFunctionArguments) {
