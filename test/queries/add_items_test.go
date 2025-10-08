@@ -25,7 +25,7 @@ func TestAddItems(t *testing.T) {
 			err := queries.AddItems(db, callback)
 			require.NoError(t, err)
 
-			itemStatistics, err := queries.GetItemStatistics(db, queries.AllItems)
+			itemStatistics, err := queries.NewGetItemStatisticsQuery().Execute(db)
 			require.NoError(t, err)
 			require.Equal(t, 0, itemStatistics.ItemCount)
 			require.Equal(t, models.MoneyInCents(0), itemStatistics.TotalValueInCents)
@@ -53,7 +53,7 @@ func TestAddItems(t *testing.T) {
 			err := queries.AddItems(db, callback)
 			require.NoError(t, err)
 
-			itemStatistics, err := queries.GetItemStatistics(db, queries.AllItems)
+			itemStatistics, err := queries.NewGetItemStatisticsQuery().Execute(db)
 			require.NoError(t, err)
 			require.Equal(t, 1, itemStatistics.ItemCount)
 			require.Equal(t, priceInCents, itemStatistics.TotalValueInCents)
@@ -105,7 +105,7 @@ func TestAddItems(t *testing.T) {
 			err := queries.AddItems(db, callback)
 			require.NoError(t, err)
 
-			itemStatistics, err := queries.GetItemStatistics(db, queries.AllItems)
+			itemStatistics, err := queries.NewGetItemStatisticsQuery().Execute(db)
 			require.NoError(t, err)
 			require.Equal(t, itemCount, itemStatistics.ItemCount)
 			require.Equal(t, totalPrice, itemStatistics.TotalValueInCents)
