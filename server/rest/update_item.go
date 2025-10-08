@@ -60,55 +60,7 @@ func (ep *updateItemEndpoint) execute() {
 		return
 	}
 
-	transaction, err := db.StartTransaction()
-	if err != nil {
-		logger.InternalError("Failed to begin transaction for item update", "itemID", itemID, "error", err)
-		failure_response.Unknown(context, err.Error())
-		return
-	}
-	defer transaction.RollbackIfNotCommitted()
-
-	itemUpdate := queries.ItemUpdate{
-		AddedAt:      nil,
-		Description:  payload.Description,
-		PriceInCents: payload.PriceInCents,
-		CategoryID:   payload.CategoryID,
-		Donation:     payload.Donation,
-		Charity:      payload.Charity,
-	}
-	if updateErr := queries.UpdateItem(transaction, itemID, &itemUpdate); updateErr != nil {
-		if errors.Is(updateErr, dberr.ErrNoSuchItem) {
-			logger.InternalError(
-				"Failed to update item",
-				"itemID", itemID,
-				"description", payload.Description,
-				"priceInCents", payload.PriceInCents,
-				"categoryID", payload.CategoryID,
-				"donation", payload.Donation,
-				"charity", payload.Charity,
-				"error", updateErr,
-			)
-			failure_response.UnknownItem(context, updateErr.Error())
-			return
-		}
-		if errors.Is(updateErr, dberr.ErrItemFrozen) {
-			logger.InvalidRequest("Cannot update frozen item", "itemID", itemID, "error", updateErr)
-			failure_response.CannotUpdateFrozenItem(context, updateErr.Error())
-			return
-		}
-		if errors.Is(updateErr, dberr.ErrInvalidPrice) {
-			logger.InvalidInput("Invalid price in item update", "itemID", itemID, "priceInCents", payload.PriceInCents, "error", updateErr)
-			failure_response.InvalidPrice(context, updateErr.Error())
-			return
-		}
-
-		logger.InternalError("Failed to update item", "itemID", itemID, "error", updateErr)
-		failure_response.Unknown(context, updateErr.Error())
-	}
-
-	if commitErr := transaction.Commit(); commitErr != nil {
-		logger.InternalError("Failed to commit transaction after item update", "itemID", itemID, "error", commitErr)
-		failure_response.Unknown(context, fmt.Sprintf("Failed to commit item update: %s", commitErr.Error()))
+	if !ep.performItemUpdate(item, payload) {
 		return
 	}
 
@@ -190,6 +142,67 @@ func (ep *updateItemEndpoint) isOperationAuthorized(item *models.Item) bool {
 	if !roleID.IsAdmin() && !roleID.IsSeller() {
 		logger.InvalidRequest("Unauthorized role for item update", "itemID", item.ItemID)
 		failure_response.WrongRole(context, "Must be seller or admin to update item")
+		return false
+	}
+
+	return true
+}
+
+func (ep *updateItemEndpoint) performItemUpdate(item *models.Item, payload *UpdateItemPayload) bool {
+	db := ep.Database
+	logger := ep.Logger
+	context := ep.Context
+	itemID := item.ItemID
+
+	transaction, err := db.StartTransaction()
+	if err != nil {
+		logger.InternalError("Failed to begin transaction for item update", "itemID", itemID, "error", err)
+		failure_response.Unknown(context, err.Error())
+		return false
+	}
+	defer transaction.RollbackIfNotCommitted()
+
+	itemUpdate := queries.ItemUpdate{
+		AddedAt:      nil,
+		Description:  payload.Description,
+		PriceInCents: payload.PriceInCents,
+		CategoryID:   payload.CategoryID,
+		Donation:     payload.Donation,
+		Charity:      payload.Charity,
+	}
+	if updateErr := queries.UpdateItem(transaction, itemID, &itemUpdate); updateErr != nil {
+		if errors.Is(updateErr, dberr.ErrNoSuchItem) {
+			logger.InternalError(
+				"Failed to update item",
+				"itemID", itemID,
+				"description", payload.Description,
+				"priceInCents", payload.PriceInCents,
+				"categoryID", payload.CategoryID,
+				"donation", payload.Donation,
+				"charity", payload.Charity,
+				"error", updateErr,
+			)
+			failure_response.UnknownItem(context, updateErr.Error())
+			return false
+		}
+		if errors.Is(updateErr, dberr.ErrItemFrozen) {
+			logger.InvalidRequest("Cannot update frozen item", "itemID", itemID, "error", updateErr)
+			failure_response.CannotUpdateFrozenItem(context, updateErr.Error())
+			return false
+		}
+		if errors.Is(updateErr, dberr.ErrInvalidPrice) {
+			logger.InvalidInput("Invalid price in item update", "itemID", itemID, "priceInCents", payload.PriceInCents, "error", updateErr)
+			failure_response.InvalidPrice(context, updateErr.Error())
+			return false
+		}
+
+		logger.InternalError("Failed to update item", "itemID", itemID, "error", updateErr)
+		failure_response.Unknown(context, updateErr.Error())
+	}
+
+	if commitErr := transaction.Commit(); commitErr != nil {
+		logger.InternalError("Failed to commit transaction after item update", "itemID", itemID, "error", commitErr)
+		failure_response.Unknown(context, fmt.Sprintf("Failed to commit item update: %s", commitErr.Error()))
 		return false
 	}
 
