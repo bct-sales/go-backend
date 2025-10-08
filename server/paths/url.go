@@ -2,6 +2,7 @@ package paths
 
 import (
 	"bctbackend/database/models"
+	"net/url"
 	"strconv"
 	"strings"
 )
@@ -76,4 +77,8 @@ func (u *URL) CategoryFilter(categoryID models.ID) *URL {
 
 func (u *URL) Hidden(value bool) *URL {
 	return u.AddQueryParameter("hidden", strconv.FormatBool(value))
+}
+
+func (u *URL) Description(description string) *URL {
+	return u.AddQueryParameter("description", url.QueryEscape(description))
 }
