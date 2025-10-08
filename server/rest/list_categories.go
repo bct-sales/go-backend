@@ -34,27 +34,80 @@ type listCategoriesEndpoint struct {
 	Endpoint
 }
 
+type listCategoriesCount int
+
+const (
+	listCategoriesWithNoCounts listCategoriesCount = iota
+	listCategoriesWithCountsOfVisibleItems
+	listCategoriesWithCountsOfHiddenItems
+	listCategoriesWithCountsOfAllItems
+	listCategoriesWithCountsOfSoldItems
+)
+
+type listCategoriesParameters struct {
+	counts listCategoriesCount
+}
+
 func (ep *listCategoriesEndpoint) execute() {
-	switch ep.Context.Query("counts") {
-	case "all":
+	parameters := ep.parseParameters()
+	if parameters == nil {
+		return
+	}
+
+	switch parameters.counts {
+	case listCategoriesWithCountsOfAllItems:
 		ep.listCategoriesWithCounts(queries.AllItems)
 		return
 
-	case "hidden":
+	case listCategoriesWithCountsOfHiddenItems:
 		ep.listCategoriesWithCounts(queries.OnlyHiddenItems)
 		return
 
-	case "visible":
+	case listCategoriesWithCountsOfVisibleItems:
 		ep.listCategoriesWithCounts(queries.OnlyVisibleItems)
 		return
 
-	case "sold":
+	case listCategoriesWithCountsOfSoldItems:
 		ep.listCategoriesWithSoldCounts()
 		return
 
-	default:
+	case listCategoriesWithNoCounts:
 		ep.listCategoriesWithoutCounts()
 		return
+	}
+}
+
+func (ep *listCategoriesEndpoint) parseParameters() *listCategoriesParameters {
+	counts, countsOk := ep.parseCountsQueryParameter()
+	if !countsOk {
+		return nil
+	}
+
+	parameters := listCategoriesParameters{
+		counts: counts,
+	}
+
+	return &parameters
+}
+
+func (ep *listCategoriesEndpoint) parseCountsQueryParameter() (listCategoriesCount, bool) {
+	parameterValue := ep.Context.Query("counts")
+
+	switch parameterValue {
+	case "":
+		return listCategoriesWithNoCounts, true
+	case "visible":
+		return listCategoriesWithCountsOfVisibleItems, true
+	case "hidden":
+		return listCategoriesWithCountsOfHiddenItems, true
+	case "all":
+		return listCategoriesWithCountsOfAllItems, true
+	case "sold":
+		return listCategoriesWithCountsOfSoldItems, true
+	default:
+		ep.Logger.InvalidInput("Unauthorized access to category counts")
+		failure_response.InvalidUriParameters(ep.Context, "invalid value for counts query parameter")
+		return 0, false
 	}
 }
 
