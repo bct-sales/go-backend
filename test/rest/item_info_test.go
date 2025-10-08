@@ -141,6 +141,25 @@ func TestGetItemInformation(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_seller")
 		})
 
+		t.Run("Accessing hidden item by cashier", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			// Logged in as cashier
+			_, sessionID := setup.LoggedIn(setup.Cashier())
+
+			// Create hidden item
+			seller := setup.Seller()
+			item := setup.Item(seller.UserID, aux.WithHidden(true))
+
+			url := path.Item(item.ItemID)
+			request := CreateGetRequest(url, WithSessionCookie(sessionID))
+			router.ServeHTTP(writer, request)
+
+			// Expect failure
+			RequireFailureType(t, writer, http.StatusForbidden, "hidden_item")
+		})
+
 		t.Run("Item does not exist", func(t *testing.T) {
 			setup, router, writer := NewRestFixture(WithDefaultCategories)
 			defer setup.Close()
