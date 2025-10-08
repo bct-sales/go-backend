@@ -17,19 +17,6 @@ type AddSaleSuccessResponse struct {
 	SaleID models.ID `json:"saleId"`
 }
 
-// @Summary Add a new sale
-// @Description Adds a new sale to the database. Only accessible to users with the cashier role.
-// @Tags sales
-// @Accept json
-// @Produce json
-// @Param AddSalePayload body AddSalePayload true "Payload containing item IDs"
-// @Success 201 {object} AddSaleSuccessResponse "Sale successfully added"
-// @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
-// @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
-// @Failure 403 {object} failure_response.FailureResponse "Only accessible to cashiers"
-// @Failure 404 {object} failure_response.FailureResponse "Unknown item in sale"
-// @Failure 500 {object} failure_response.FailureResponse "Internal server error"
-// @Router /sales [post]
 func AddSale(arguments *HandlerFunctionArguments) {
 	endpoint := addSaleEndpoint{
 		Endpoint: Endpoint{
