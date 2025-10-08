@@ -9,6 +9,7 @@ import (
 	"bctbackend/server/logger"
 	"context"
 	"database/sql"
+	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -129,6 +130,31 @@ func (ep *Endpoint) parseOrderQueryParameter() (queries.Order, bool) {
 	return queries.OrderChronological, true
 }
 
+// parseBooleanQueryParameter looks for a query parameter with the given key.
+// The value must be either true or false.
+// If the value is missing, nil is returned.
+func (ep *Endpoint) parseBooleanQueryParameter(key string) (*bool, bool) {
+	value := ep.Context.Query(key)
+
+	switch value {
+	case "true":
+		var value = true
+		return &value, true
+
+	case "false":
+		var value = false
+		return &value, true
+
+	case "":
+		return nil, true
+
+	default:
+		errorMessage := fmt.Sprintf("Invalid query parameter value for %s", key)
+		ep.Logger.InvalidInput(errorMessage)
+		failure_response.BadRequest(ep.Context, "invalid_uri_parameters", fmt.Sprintf("%s must be either true or false", key))
+		return nil, false
+	}
+}
 type formatHandler interface {
 	handleDefaultFormat()
 	handleCSVFormat()
