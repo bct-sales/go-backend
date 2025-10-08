@@ -190,6 +190,31 @@ func TestListCategories(t *testing.T) {
 				router.ServeHTTP(writer, request)
 				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 			})
+
+			t.Run("With sold item counts", func(t *testing.T) {
+				setup, router, writer := NewRestFixture()
+				defer setup.Close()
+
+				categoryID1 := models.ID(1)
+				categoryID2 := models.ID(2)
+				categoryName1 := "foo"
+				categoryName2 := "bar"
+
+				seller := setup.Seller()
+				cashier, sessionID := setup.LoggedIn(setup.Cashier())
+				setup.Category(categoryID1, categoryName1)
+				setup.Category(categoryID2, categoryName2)
+				soldItem1 := setup.Item(seller.UserID, aux.WithHidden(false), aux.WithItemCategory(categoryID1))
+				soldItem2 := setup.Item(seller.UserID, aux.WithHidden(false), aux.WithItemCategory(categoryID1))
+				soldItem3 := setup.Item(seller.UserID, aux.WithHidden(false), aux.WithItemCategory(categoryID2))
+				setup.Sale(cashier.UserID, []models.ID{soldItem1.ItemID, soldItem2.ItemID})
+				setup.Sale(cashier.UserID, []models.ID{soldItem3.ItemID})
+
+				url := path.CategoriesWithSoldItemCounts()
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
+				router.ServeHTTP(writer, request)
+				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
+			})
 		})
 	})
 }
