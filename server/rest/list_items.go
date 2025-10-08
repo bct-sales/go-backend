@@ -119,21 +119,20 @@ func (ep *listItemsEndpoint) buildSqlQuery(parameters *listItemsParameters) *que
 func (ep *listItemsEndpoint) parseCategoryQueryParameter() (*models.ID, bool) {
 	parameterValue := ep.Context.Query("category")
 
-	if parameterValue != "" {
-		value, err := strconv.ParseUint(parameterValue, 10, 64)
-
-		if err != nil {
-			ep.Logger.InvalidInput("Invalid category parameter", "category", parameterValue)
-			failure_response.InvalidUriParameters(ep.Context, "invalid category identifier")
-			return nil, false
-		}
-
-		categoryID := models.ID(value)
-		return &categoryID, true
+	// If no category query parameter is present, no filtering needs to occur
+	if parameterValue == "" {
+		return nil, true
 	}
 
-	// No category query parameter was present
-	return nil, true
+	value, err := strconv.ParseUint(parameterValue, 10, 64)
+	if err != nil {
+		ep.Logger.InvalidInput("Invalid category parameter", "category", parameterValue)
+		failure_response.InvalidUriParameters(ep.Context, "invalid category identifier")
+		return nil, false
+	}
+
+	categoryID := models.ID(value)
+	return &categoryID, true
 }
 
 func (ep *listItemsEndpoint) parseItemSelectionQueryParameter() (queries.ItemSelection, bool) {
