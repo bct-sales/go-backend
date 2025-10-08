@@ -111,9 +111,15 @@ func (ep *getItemInformationEndpoint) retrieveItemFromDatabase(itemID models.ID)
 }
 
 func (ep *getItemInformationEndpoint) ensureQueryAllowed(item *models.Item) bool {
-	if item.SellerID != ep.UserID && ep.RoleID.IsSeller() {
+	if ep.RoleID.IsSeller() && item.SellerID != ep.UserID {
 		ep.Logger.InvalidRequest("Blocked attempt to access item not owned by the seller", "itemID", item.ItemID, "itemUserID", item.SellerID)
 		failure_response.WrongSeller(ep.Context, "Only the owning seller can access this item")
+		return false
+	}
+
+	if ep.RoleID.IsCashier() && item.Hidden {
+		ep.Logger.InvalidRequest("Blocked attempt to access hidden item by cashier", "itemID", item.ItemID, "itemUserID", item.SellerID)
+		failure_response.ItemHidden(ep.Context, "Cashiers cannot see hidden items")
 		return false
 	}
 
