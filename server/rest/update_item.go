@@ -21,12 +21,26 @@ type UpdateItemData struct {
 type UpdateItemSuccessResponse struct {
 }
 
+type updateItemEndpoint struct {
+	Endpoint
+}
+
 func UpdateItem(arguments *HandlerFunctionArguments) {
-	context := arguments.Context
-	userID := arguments.UserID
-	roleID := arguments.RoleID
-	db := arguments.Database
-	logger := arguments.Logger
+	endpoint := &updateItemEndpoint{
+		Endpoint: Endpoint{
+			HandlerFunctionArguments: *arguments,
+		},
+	}
+
+	endpoint.execute()
+}
+
+func (ep *updateItemEndpoint) execute() {
+	context := ep.Context
+	userID := ep.UserID
+	roleID := ep.RoleID
+	db := ep.Database
+	logger := ep.Logger
 
 	var uriParameters struct {
 		ItemID string `binding:"required" uri:"id"`
