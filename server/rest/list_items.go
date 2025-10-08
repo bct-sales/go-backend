@@ -31,9 +31,10 @@ type ListItemsSuccessResponse struct {
 }
 
 type listItemsParameters struct {
-	category *models.ID
-	hidden   *bool
-	rowRange queries.RowSelection
+	category           *models.ID
+	hidden             *bool
+	descriptionPattern *string
+	rowRange           queries.RowSelection
 }
 
 func ListItems(arguments *HandlerFunctionArguments) {
@@ -84,10 +85,26 @@ func (ep *listItemsEndpoint) parseParameters() *listItemsParameters {
 		return nil
 	}
 
+	descriptionPattern, descriptionPatternOk := ep.parseDescriptionQueryParameter()
+	if !descriptionPatternOk {
+		return nil
+	}
+
 	return &listItemsParameters{
-		category: category,
-		rowRange: *rowRange,
-		hidden:   hidden,
+		category:           category,
+		rowRange:           *rowRange,
+		hidden:             hidden,
+		descriptionPattern: descriptionPattern,
+	}
+}
+
+func (ep *listItemsEndpoint) parseDescriptionQueryParameter() (*string, bool) {
+	parameterValue := ep.Context.Query("description")
+
+	if parameterValue == "" {
+		return nil, true
+	} else {
+		return &parameterValue, true
 	}
 }
 
@@ -102,6 +119,11 @@ func (ep *listItemsEndpoint) buildSqlQuery(parameters *listItemsParameters) *que
 	// Filtering based on visibility
 	if parameters.hidden != nil {
 		query.WithHidden(*parameters.hidden)
+	}
+
+	// Filtering based on description
+	if parameters.descriptionPattern != nil {
+		query.WithDescriptionPattern(*parameters.descriptionPattern)
 	}
 
 	// Row range
