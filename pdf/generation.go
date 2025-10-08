@@ -127,11 +127,11 @@ func (builder *PdfBuilder) addPage() error {
 }
 
 func (builder *PdfBuilder) registerImages() error {
-	if err := builder.registerImage(donationImageName, DonationImageBuffer()); err != nil {
+	if err := builder.registerImage(donationImageName, DonationImageAsBuffer()); err != nil {
 		return &PdfError{Message: "failed to register donation image", Wrapped: err}
 	}
 
-	if err := builder.registerImage(charityImageName, CharityImageBuffer()); err != nil {
+	if err := builder.registerImage(charityImageName, CharityImageAsBuffer()); err != nil {
 		return &PdfError{Message: "failed to register charity image", Wrapped: err}
 	}
 
