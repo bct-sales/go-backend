@@ -37,8 +37,6 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 
 func (ep *updateItemEndpoint) execute() {
 	context := ep.Context
-	userID := ep.UserID
-	roleID := ep.RoleID
 	db := ep.Database
 	logger := ep.Logger
 
@@ -58,15 +56,7 @@ func (ep *updateItemEndpoint) execute() {
 		return
 	}
 
-	if roleID.IsSeller() && item.SellerID != userID {
-		logger.InvalidRequest("Unauthorized item update attempt", "itemID", itemID, "ownerID", item.SellerID)
-		failure_response.WrongSeller(context, "Only the owner of the item can update it")
-		return
-	}
-
-	if !roleID.IsAdmin() && !roleID.IsSeller() {
-		logger.InvalidRequest("Unauthorized role for item update", "itemID", itemID)
-		failure_response.WrongRole(context, "Must be seller or admin to update item")
+	if !ep.isUpdateAuthorized(item) {
 		return
 	}
 
@@ -183,4 +173,25 @@ func (ep *updateItemEndpoint) parsePayload() (*UpdateItemPayload, bool) {
 	logger.AddInformation("payload", payload)
 
 	return &payload, true
+}
+
+func (ep *updateItemEndpoint) isUpdateAuthorized(item *models.Item) bool {
+	roleID := ep.RoleID
+	userID := ep.UserID
+	logger := ep.Logger
+	context := ep.Context
+
+	if roleID.IsSeller() && item.SellerID != userID {
+		logger.InvalidRequest("Unauthorized item update attempt", "itemID", item.ItemID, "ownerID", item.SellerID)
+		failure_response.WrongSeller(context, "Only the owner of the item can update it")
+		return false
+	}
+
+	if !roleID.IsAdmin() && !roleID.IsSeller() {
+		logger.InvalidRequest("Unauthorized role for item update", "itemID", item.ItemID)
+		failure_response.WrongRole(context, "Must be seller or admin to update item")
+		return false
+	}
+
+	return true
 }
