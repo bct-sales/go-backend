@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-type UpdateItemData struct {
+type UpdateItemPayload struct {
 	Description  *string              `json:"description"`
 	PriceInCents *models.MoneyInCents `json:"priceInCents"`
 	CategoryID   *models.ID           `json:"categoryId"`
@@ -47,16 +47,14 @@ func (ep *updateItemEndpoint) execute() {
 		return
 	}
 
-	item, err := queries.GetItemWithID(db, itemID)
-	if err != nil {
-		if errors.Is(err, dberr.ErrNoSuchItem) {
-			logger.InvalidRequest("No such item", "itemID", itemID, "error", err)
-			failure_response.UnknownItem(context, err.Error())
-			return
-		}
+	// Parse payload early so that if a failure occurs, the logs contain the request data
+	payload, payloadOk := ep.parsePayload()
+	if !payloadOk {
+		return
+	}
 
-		logger.InternalError("Could not retrieve item", "itemID", itemID, "error", err)
-		failure_response.Unknown(context, err.Error())
+	item, itemOk := ep.fetchItemFromDatabase(itemID)
+	if !itemOk {
 		return
 	}
 
@@ -69,13 +67,6 @@ func (ep *updateItemEndpoint) execute() {
 	if !roleID.IsAdmin() && !roleID.IsSeller() {
 		logger.InvalidRequest("Unauthorized role for item update", "itemID", itemID)
 		failure_response.WrongRole(context, "Must be seller or admin to update item")
-		return
-	}
-
-	var payload UpdateItemData
-	if err := context.ShouldBindJSON(&payload); err != nil {
-		logger.InvalidInput("Invalid update data", "error", err)
-		failure_response.InvalidRequest(context, err.Error())
 		return
 	}
 
@@ -155,4 +146,41 @@ func (ep *updateItemEndpoint) parseUriParameters() (models.ID, bool) {
 	}
 
 	return itemID, true
+}
+
+func (ep *updateItemEndpoint) fetchItemFromDatabase(itemID models.ID) (*models.Item, bool) {
+	db := ep.Database
+	logger := ep.Logger
+	context := ep.Context
+
+	item, err := queries.GetItemWithID(db, itemID)
+	if err != nil {
+		if errors.Is(err, dberr.ErrNoSuchItem) {
+			logger.InvalidRequest("No such item", "itemID", itemID, "error", err)
+			failure_response.UnknownItem(context, err.Error())
+			return nil, false
+		}
+
+		logger.InternalError("Could not retrieve item", "itemID", itemID, "error", err)
+		failure_response.Unknown(context, err.Error())
+		return nil, false
+	}
+
+	return item, true
+}
+
+func (ep *updateItemEndpoint) parsePayload() (*UpdateItemPayload, bool) {
+	context := ep.Context
+	logger := ep.Logger
+
+	var payload UpdateItemPayload
+	if err := context.ShouldBindJSON(&payload); err != nil {
+		logger.InvalidInput("Invalid update data", "error", err)
+		failure_response.InvalidRequest(context, err.Error())
+		return nil, false
+	}
+
+	logger.AddInformation("payload", payload)
+
+	return &payload, true
 }
