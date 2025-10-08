@@ -256,6 +256,8 @@ func (ep *generateLabelsEndpoint) parsePayload() *GenerateLabelsPayload {
 		return nil
 	}
 
+	ep.Logger.AddInformation("payload", payload)
+
 	return &payload
 }
 
