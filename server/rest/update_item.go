@@ -56,7 +56,7 @@ func (ep *updateItemEndpoint) execute() {
 		return
 	}
 
-	if !ep.isUpdateAuthorized(item) {
+	if !ep.isOperationAuthorized(item) {
 		return
 	}
 
@@ -175,7 +175,7 @@ func (ep *updateItemEndpoint) parsePayload() (*UpdateItemPayload, bool) {
 	return &payload, true
 }
 
-func (ep *updateItemEndpoint) isUpdateAuthorized(item *models.Item) bool {
+func (ep *updateItemEndpoint) isOperationAuthorized(item *models.Item) bool {
 	roleID := ep.RoleID
 	userID := ep.UserID
 	logger := ep.Logger
