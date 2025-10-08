@@ -8,6 +8,7 @@ import (
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
 	"bytes"
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -123,7 +124,7 @@ func (ep *listItemsEndpoint) buildSqlQuery(parameters *listItemsParameters) *que
 
 	// Filtering based on description
 	if parameters.descriptionPattern != nil {
-		query.WithDescriptionPattern(*parameters.descriptionPattern)
+		query.WithDescriptionPattern(fmt.Sprintf("%%%s%%", *parameters.descriptionPattern))
 	}
 
 	// Row range
