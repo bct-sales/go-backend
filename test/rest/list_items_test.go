@@ -341,9 +341,10 @@ func TestListAllItems(t *testing.T) {
 						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("foo & bar"))
 						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("bar"))
 						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("baz & qux"))
-						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("qux"))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("qux&"))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("qux qux"))
 
-						url := path.Items().AddQueryParameter("description", "&")
+						url := path.Items().Description("&")
 						request := CreateGetRequest(url, WithSessionCookie(sessionID))
 						router.ServeHTTP(writer, request)
 
@@ -351,9 +352,10 @@ func TestListAllItems(t *testing.T) {
 						response := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
 						actualItems := response.Items
 
-						require.Len(t, actualItems, 2)
+						require.Len(t, actualItems, 3)
 						require.Equal(t, "foo & bar", actualItems[0].Description)
 						require.Equal(t, "baz & qux", actualItems[1].Description)
+						require.Equal(t, "qux&", actualItems[2].Description)
 					})
 				})
 			})
