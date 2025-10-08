@@ -21,7 +21,7 @@ type HandlerFunctionArguments struct {
 	Database      Database
 	UserID        models.ID
 	RoleID        models.RoleID
-	Logger        logger.Logger
+	Logger        logger.Logger // This instance is unique to the request, meaning changes to the logger are localized
 }
 
 type HandlerFunction func(arguments *HandlerFunctionArguments)
