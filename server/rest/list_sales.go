@@ -119,7 +119,9 @@ func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSal
 }
 
 func (ep *getSalesEndpoint) getItemStatistics(transaction *queries.TransactionalDatabaseQuerier) *queries.ItemStatisticsResult {
-	itemCountResult, err := queries.GetItemStatistics(transaction, queries.OnlyVisibleItems)
+	query := queries.NewGetItemStatisticsQuery()
+	query.WithHidden(false)
+	itemCountResult, err := query.Execute(transaction)
 
 	if err != nil {
 		ep.Logger.InternalError("Failed to get item count", "error", err)
