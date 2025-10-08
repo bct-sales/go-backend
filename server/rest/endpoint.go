@@ -57,10 +57,10 @@ type Endpoint struct {
 // If it is missing, nil, true is returned.
 // If it is present and its value is a valid integer, the parsed integer and true are returned.
 // If it is present and its value is invalid, nil, false is returned.
-func (ep *Endpoint) parseOffsetQueryParameter() (*int, bool) {
+func (ep *Endpoint) parseOffsetQueryParameter() (*uint64, bool) {
 	offsetString := ep.Context.Query("offset")
 	if offsetString != "" {
-		parsedOffset, err := strconv.Atoi(offsetString)
+		parsedOffset, err := strconv.ParseUint(offsetString, 10, 64)
 
 		if err != nil {
 			ep.Logger.InvalidInput("Failed to parse offset", "error", err, "offset", offsetString)
@@ -80,10 +80,10 @@ func (ep *Endpoint) parseOffsetQueryParameter() (*int, bool) {
 	}
 }
 
-func (ep *Endpoint) parseLimitQueryParameter() (*int, bool) {
+func (ep *Endpoint) parseLimitQueryParameter() (*uint64, bool) {
 	limitString := ep.Context.Query("limit")
 	if limitString != "" {
-		parsedLimit, err := strconv.Atoi(limitString)
+		parsedLimit, err := strconv.ParseUint(limitString, 10, 64)
 
 		if err != nil {
 			ep.Logger.InvalidInput("Failed to parse limit", "error", err, "limit", limitString)
@@ -115,10 +115,20 @@ func (ep *Endpoint) parseRowSelectionQueryParameters() *queries.RowSelection {
 	}
 
 	rowSelection := queries.RowSelection{
-		Limit:  limit,
-		Offset: offset,
+		Limit:  convertUintToInt(limit),
+		Offset: convertUintToInt(offset),
 	}
+
 	return &rowSelection
+}
+
+func convertUintToInt(x *uint64) *int {
+	if x != nil {
+		value := int(*x)
+		return &value
+	} else {
+		return nil
+	}
 }
 
 func (ep *Endpoint) parseOrderQueryParameter() (queries.Order, bool) {

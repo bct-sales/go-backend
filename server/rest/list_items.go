@@ -30,6 +30,12 @@ type ListItemsSuccessResponse struct {
 	TotalItemValue models.MoneyInCents `json:"totalItemValue"`
 }
 
+type listItemsParameters struct {
+	category      *models.ID
+	rowRange      queries.RowSelection
+	itemSelection queries.ItemSelection
+}
+
 func ListItems(arguments *HandlerFunctionArguments) {
 	endpoint := &listItemsEndpoint{
 		Endpoint: Endpoint{
@@ -49,104 +55,105 @@ func (ep *listItemsEndpoint) execute() {
 		return
 	}
 
-	items, itemsOk := ep.fetchItemsFromDatabase()
+	parameters := ep.parseParameters()
+
+	items, itemsOk := ep.fetchItemsFromDatabase(parameters)
 	if !itemsOk {
 		return
 	}
 
-	// TODO Do not reparse the same parameters
-	itemSelection := ep.parseItemSelectionQueryParameter()
-	ep.sendSuccessResponse(items, itemSelection)
+	ep.sendSuccessResponse(items, parameters.itemSelection)
 }
 
-func (ep *listItemsEndpoint) buildSqlQuery() *queries.GetItemsQuery {
-	query := queries.NewGetItemsQuery()
-
-	if !ep.processQueryParameters(query) {
+func (ep *listItemsEndpoint) parseParameters() *listItemsParameters {
+	category, categoryOk := ep.parseCategoryQueryParameter()
+	if !categoryOk {
 		return nil
 	}
+
+	rowRange := ep.parseRowSelectionQueryParameters()
+	if rowRange == nil {
+		return nil
+	}
+
+	itemSelection, itemSelectionOk := ep.parseItemSelectionQueryParameter()
+	if !itemSelectionOk {
+		return nil
+	}
+
+	return &listItemsParameters{
+		category:      category,
+		rowRange:      *rowRange,
+		itemSelection: itemSelection,
+	}
+}
+
+func (ep *listItemsEndpoint) buildSqlQuery(parameters *listItemsParameters) *queries.GetItemsQuery {
+	query := queries.NewGetItemsQuery()
+
+	// Filtering based on category
+	if parameters.category != nil {
+		query.WithCategory(*parameters.category)
+	}
+
+	// Filtering based on visibility
+	switch parameters.itemSelection {
+	case queries.AllItems:
+		// NOP
+	case queries.OnlyHiddenItems:
+		query.WithHidden(true)
+	case queries.OnlyVisibleItems:
+		query.WithHidden(false)
+	default:
+		ep.Logger.InvalidRequest("invalid item selection")
+		failure_response.InvalidUriParameters(ep.Context, "invalid item selection parameter")
+		return nil
+	}
+
+	// Row range
+	query.WithRowRange(&parameters.rowRange)
 
 	return query
 }
 
-func (ep *listItemsEndpoint) processQueryParameters(query *queries.GetItemsQuery) bool {
-	if !ep.processItemSelectionQueryParameter(query) {
-		return false
-	}
-
-	if !ep.processRangeQueryParameters(query) {
-		return false
-	}
-
-	if !ep.processCategoryQueryParameter(query) {
-		return false
-	}
-
-	return true
-}
-
-func (ep *listItemsEndpoint) processCategoryQueryParameter(sqlQuery *queries.GetItemsQuery) bool {
+func (ep *listItemsEndpoint) parseCategoryQueryParameter() (*models.ID, bool) {
 	parameterValue := ep.Context.Query("category")
 
 	if parameterValue != "" {
-		categoryID, err := strconv.ParseUint(parameterValue, 10, 64)
+		value, err := strconv.ParseUint(parameterValue, 10, 64)
 
 		if err != nil {
 			ep.Logger.InvalidInput("Invalid category parameter", "category", parameterValue)
-			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Order must be 'antichronological'")
-			return false
+			failure_response.InvalidUriParameters(ep.Context, "invalid category identifier")
+			return nil, false
 		}
 
-		sqlQuery.WithCategory(models.ID(categoryID))
+		categoryID := models.ID(value)
+		return &categoryID, true
 	}
 
-	return true
+	// No category query parameter was present
+	return nil, true
 }
 
-func (ep *listItemsEndpoint) processItemSelectionQueryParameter(sqlQuery *queries.GetItemsQuery) bool {
-	switch ep.Context.Query("items") {
+func (ep *listItemsEndpoint) parseItemSelectionQueryParameter() (queries.ItemSelection, bool) {
+	parameterValue := ep.Context.Query("items")
+
+	switch parameterValue {
 	case "all":
-		// NOP
+		return queries.AllItems, true
+
 	case "hidden":
-		sqlQuery.WithHidden(true)
-	case "visible":
-		sqlQuery.WithHidden(false)
+		return queries.OnlyHiddenItems, true
+
+	case "", "visible":
+		return queries.OnlyVisibleItems, true
+
 	default:
-		sqlQuery.WithHidden(false)
+		ep.Logger.InvalidRequest("invalid item selection")
+		failure_response.InvalidUriParameters(ep.Context, "invalid item selection parameter")
+		return 0, false
 	}
-
-	return true
-}
-
-func (ep *listItemsEndpoint) processRangeQueryParameters(query *queries.GetItemsQuery) bool {
-	optionalLimit, limitOk := ep.parseLimitQueryParameter()
-	if !limitOk {
-		return false
-	}
-
-	optionalOffset, offsetOk := ep.parseOffsetQueryParameter()
-	if !offsetOk {
-		return false
-	}
-
-	var limit uint64
-	var offset uint64
-
-	if optionalLimit == nil {
-		limit = 1000000
-	} else {
-		limit = uint64(*optionalLimit)
-	}
-
-	if optionalOffset == nil {
-		offset = 0
-	} else {
-		offset = uint64(*optionalOffset)
-	}
-
-	query.WithLimitAndOffset(limit, offset)
-
-	return true
 }
 
 func (ep *listItemsEndpoint) ensureUserHasCorrectRole() bool {
@@ -159,21 +166,10 @@ func (ep *listItemsEndpoint) ensureUserHasCorrectRole() bool {
 	return true
 }
 
-func (ep *listItemsEndpoint) parseItemSelectionQueryParameter() queries.ItemSelection {
-	switch ep.Context.Query("items") {
-	case "all":
-		return queries.AllItems
-	case "hidden":
-		return queries.OnlyHiddenItems
-	default:
-		return queries.OnlyVisibleItems
-	}
-}
-
-func (ep *listItemsEndpoint) fetchItemsFromDatabase() ([]*models.Item, bool) {
+func (ep *listItemsEndpoint) fetchItemsFromDatabase(parameters *listItemsParameters) ([]*models.Item, bool) {
 	var items []*models.Item
 
-	query := ep.buildSqlQuery()
+	query := ep.buildSqlQuery(parameters)
 	if err := query.Execute(ep.Database, queries.CollectTo(&items)); err != nil {
 		ep.Logger.InternalError("Failed to get items", "error", err)
 		failure_response.Unknown(ep.Context, "Failed to get items: "+err.Error())

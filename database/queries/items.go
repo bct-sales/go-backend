@@ -45,6 +45,22 @@ func (q *GetItemsQuery) WithLimitAndOffset(limit uint64, offset uint64) {
 	q.offset = &offset
 }
 
+func (q *GetItemsQuery) WithRowRange(rowRange *RowSelection) {
+	if rowRange.Limit != nil {
+		limit := uint64(*rowRange.Limit)
+		q.limit = &limit
+	} else {
+		q.limit = nil
+	}
+
+	if rowRange.Offset != nil {
+		offset := uint64(*rowRange.Offset)
+		q.offset = &offset
+	} else {
+		q.offset = nil
+	}
+}
+
 func (q *GetItemsQuery) WithCategory(categoryID models.ID) {
 	q.categoryID = &categoryID
 }
