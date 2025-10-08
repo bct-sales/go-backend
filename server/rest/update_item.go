@@ -37,8 +37,6 @@ func UpdateItem(arguments *HandlerFunctionArguments) {
 
 func (ep *updateItemEndpoint) execute() {
 	context := ep.Context
-	db := ep.Database
-	logger := ep.Logger
 
 	itemID, uriParsedOk := ep.parseUriParameters()
 	if !uriParsedOk {
