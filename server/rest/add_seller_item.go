@@ -123,6 +123,8 @@ func (ep *addSellerItemEndpoint) parsePayload() *AddSellerItemPayload {
 		return nil
 	}
 
+	ep.Logger.AddInformation("payload", payload)
+
 	return &payload
 }
 
