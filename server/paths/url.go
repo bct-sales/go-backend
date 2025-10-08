@@ -73,3 +73,7 @@ func (u *URL) StartID(startID models.ID) *URL {
 func (u *URL) CategoryFilter(categoryID models.ID) *URL {
 	return u.WithQueryIDParameter("category", categoryID)
 }
+
+func (u *URL) Hidden(value bool) *URL {
+	return u.AddQueryParameter("hidden", strconv.FormatBool(value))
+}
