@@ -151,28 +151,6 @@ func (ep *listItemsEndpoint) parseCategoryQueryParameter() (*models.ID, bool) {
 	return &categoryID, true
 }
 
-func (ep *listItemsEndpoint) parseHiddenQueryParameter() (*bool, bool) {
-	parameterValue := ep.Context.Query("hidden")
-
-	switch parameterValue {
-	case "true":
-		var value = true
-		return &value, true
-
-	case "false":
-		var value = false
-		return &value, true
-
-	case "":
-		return nil, true
-
-	default:
-		ep.Logger.InvalidRequest("invalid hidden query parameter value")
-		failure_response.InvalidUriParameters(ep.Context, "invalid hidden query parameter value")
-		return nil, false
-	}
-}
-
 func (ep *listItemsEndpoint) ensureUserHasCorrectRole() bool {
 	if ep.RoleID != models.NewAdminRoleID() && ep.RoleID != models.NewCashierRoleID() {
 		ep.Logger.InvalidRequest("Unauthorized access attempt to list all items")
