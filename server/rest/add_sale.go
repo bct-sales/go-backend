@@ -32,22 +32,22 @@ type addSaleEndpoint struct {
 }
 
 func (ep *addSaleEndpoint) execute() {
-	transaction := ep.startTransaction()
-	if transaction == nil {
-		return
-	}
-	defer transaction.RollbackIfNotCommitted()
-
 	// Make sure user has the right role
 	if !ep.ensureUserIsCashier() {
 		return
 	}
 
-	// Fetch sale data
+	// Extract sale data from request
 	payload := ep.parseSaleData()
 	if payload == nil {
 		return
 	}
+
+	transaction := ep.startTransaction()
+	if transaction == nil {
+		return
+	}
+	defer transaction.RollbackIfNotCommitted()
 
 	saleID, saleAddedOk := ep.addSaleToDatabase(transaction, payload.Items)
 	if !saleAddedOk {
@@ -79,6 +79,8 @@ func (ep *addSaleEndpoint) parseSaleData() *AddSalePayload {
 		failure_response.InvalidRequest(ep.Context, "Failed to parse payload:"+err.Error())
 		return nil
 	}
+
+	ep.Logger.AddInformation("payload", payload)
 
 	return &payload
 }
