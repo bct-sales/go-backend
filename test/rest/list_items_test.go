@@ -110,6 +110,54 @@ func TestListAllItems(t *testing.T) {
 					require.Equal(t, expected, *actual)
 				})
 
+				t.Run("Only visible items", func(t *testing.T) {
+					setup, router, writer := NewRestFixture(WithDefaultCategories)
+					defer setup.Close()
+
+					_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
+					seller := setup.Seller()
+					item1 := setup.Item(seller.UserID, aux.WithPriceInCents(100), aux.WithHidden(false))
+					item2 := setup.Item(seller.UserID, aux.WithPriceInCents(200), aux.WithHidden(false))
+					setup.Item(seller.UserID, aux.WithPriceInCents(400), aux.WithHidden(true))
+
+					url := path.Items().Hidden(false)
+					request := CreateGetRequest(url, WithSessionCookie(sessionID))
+					router.ServeHTTP(writer, request)
+					require.Equal(t, http.StatusOK, writer.Code, writer.Body)
+
+					expected := rest.ListItemsSuccessResponse{
+						Items:          []rest.ListItemsItemData{*FromModel(item1), *FromModel(item2)},
+						TotalItemCount: 2,
+						TotalItemValue: item1.PriceInCents + item2.PriceInCents,
+					}
+					actual := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
+					require.Equal(t, expected, *actual)
+				})
+
+				t.Run("Only hidden items", func(t *testing.T) {
+					setup, router, writer := NewRestFixture(WithDefaultCategories)
+					defer setup.Close()
+
+					_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
+					seller := setup.Seller()
+					setup.Item(seller.UserID, aux.WithPriceInCents(100), aux.WithHidden(false))
+					setup.Item(seller.UserID, aux.WithPriceInCents(200), aux.WithHidden(false))
+					item3 := setup.Item(seller.UserID, aux.WithPriceInCents(400), aux.WithHidden(true))
+
+					url := path.Items().Hidden(true)
+					request := CreateGetRequest(url, WithSessionCookie(sessionID))
+					router.ServeHTTP(writer, request)
+					require.Equal(t, http.StatusOK, writer.Code, writer.Body)
+
+					expected := rest.ListItemsSuccessResponse{
+						Items:          []rest.ListItemsItemData{*FromModel(item3)},
+						TotalItemCount: 1,
+						TotalItemValue: item3.PriceInCents,
+					}
+					actual := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
+					require.Equal(t, expected, *actual)
+				})
+
 				t.Run("With row range", func(t *testing.T) {
 					for _, limit := range []int{1, 2, 10} {
 						testLabel := fmt.Sprintf("Limit %d", limit)
@@ -154,13 +202,13 @@ func TestListAllItems(t *testing.T) {
 							seller := setup.Seller()
 							items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
 
-							url := path.Items().Limit(limit).Offset(offset)
+							url := path.Items().Offset(offset)
 							request := CreateGetRequest(url, WithSessionCookie(sessionID))
 							router.ServeHTTP(writer, request)
 
 							require.Equal(t, http.StatusOK, writer.Code)
 
-							expectedItems := items[offset : offset+limit]
+							expectedItems := items[offset:]
 							response := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
 							actualItems := response.Items
 							require.Len(t, actualItems, len(expectedItems))
@@ -172,7 +220,40 @@ func TestListAllItems(t *testing.T) {
 							}
 						})
 					}
-				}
+
+					for _, limit := range []int{1, 2, 10, 25} {
+						for _, offset := range []int{0, 1, 2, 10, 25} {
+							testLabel := fmt.Sprintf("Offset %d, limit %d", offset, limit)
+							t.Run(testLabel, func(t *testing.T) {
+								setup, router, writer := NewRestFixture(WithDefaultCategories)
+								defer setup.Close()
+
+								itemCount := 100
+
+								_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
+								seller := setup.Seller()
+								items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
+
+								url := path.Items().Limit(limit).Offset(offset)
+								request := CreateGetRequest(url, WithSessionCookie(sessionID))
+								router.ServeHTTP(writer, request)
+
+								require.Equal(t, http.StatusOK, writer.Code)
+
+								expectedItems := items[offset : offset+limit]
+								response := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
+								actualItems := response.Items
+								require.Len(t, actualItems, len(expectedItems))
+								require.Equal(t, itemCount, response.TotalItemCount)
+								require.Equal(t, aux.ItemsTotalWorth(items), response.TotalItemValue)
+
+								for i := range len(expectedItems) - offset {
+									require.Equal(t, expectedItems[i].ItemID, actualItems[i].ItemID)
+								}
+							})
+						}
+					}
+				})
 
 				t.Run("Filter on category", func(t *testing.T) {
 					setup, router, writer := NewRestFixture()
