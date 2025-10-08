@@ -724,18 +724,24 @@ paths:
                           $ref: '#/components/schemas/DateTime'
                         description:
                           type: string
+                          example: "Adidas T-Shirt"
                         priceInCents:
                           type: integer
+                          example: 500
                         itemCategory:
                           type: integer
                           format: uint64
+                          example: 5
                         sellerId:
                           type: integer
                           format: uint64
+                          example: 132
                         donation:
                           type: boolean
+                          example: false
                         charity:
                           type: boolean
+                          example: false
         '400':
           description: Failed to parse request body or query parameters
         '401':
