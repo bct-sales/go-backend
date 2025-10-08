@@ -207,6 +207,27 @@ func TestGetItemsQuery(t *testing.T) {
 			require.Equal(t, item3.ItemID, actualItems[1].ItemID)
 			require.Equal(t, item5.ItemID, actualItems[2].ItemID)
 		})
+
+		t.Run("Get items with description containing an ampersand", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+			setup.Item(seller.UserID, aux.WithDescription("foo"), aux.WithHidden(false))
+			item2 := setup.Item(seller.UserID, aux.WithDescription("b&ar"), aux.WithHidden(false))
+			item3 := setup.Item(seller.UserID, aux.WithDescription("ba&z"), aux.WithHidden(false))
+			setup.Item(seller.UserID, aux.WithDescription("qux"), aux.WithHidden(false))
+			item5 := setup.Item(seller.UserID, aux.WithDescription("q u&x"), aux.WithHidden(false))
+
+			actualItems := []*models.Item{}
+			query := queries.NewGetItemsQuery()
+			query.WithDescriptionPattern("%&%")
+			require.NoError(t, query.Execute(db, queries.CollectTo(&actualItems)))
+			require.Equal(t, 3, len(actualItems))
+			require.Equal(t, item2.ItemID, actualItems[0].ItemID)
+			require.Equal(t, item3.ItemID, actualItems[1].ItemID)
+			require.Equal(t, item5.ItemID, actualItems[2].ItemID)
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
