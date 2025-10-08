@@ -155,3 +155,7 @@ func MissingItems(context *gin.Context, message string) {
 func InvalidLayout(context *gin.Context, message string) {
 	Forbidden(context, "invalid_layout", message)
 }
+
+func ItemHidden(context *gin.Context, message string) {
+	Forbidden(context, "hidden_item", message)
+}
