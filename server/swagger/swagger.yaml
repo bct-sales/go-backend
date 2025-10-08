@@ -1185,6 +1185,7 @@ paths:
               - all
               - hidden
               - visible
+              - sold
       responses:
         '200':
           description: Success
