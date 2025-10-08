@@ -115,18 +115,6 @@ func TestListCategories(t *testing.T) {
 					require.Nil(t, category.Count)
 				}
 			})
-
-			t.Run("With counts", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
-				defer setup.Close()
-
-				_, sessionID := setup.LoggedIn(setup.Seller())
-
-				url := path.CategoriesWithCounts(queries.AllItems)
-				request := CreateGetRequest(url, WithSessionCookie(sessionID))
-				router.ServeHTTP(writer, request)
-				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
-			})
 		})
 
 		t.Run("As cashier", func(t *testing.T) {
@@ -151,6 +139,20 @@ func TestListCategories(t *testing.T) {
 	})
 
 	t.Run("Failure", func(t *testing.T) {
+		t.Run("As seller", func(t *testing.T) {
+			t.Run("With counts", func(t *testing.T) {
+				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				defer setup.Close()
+
+				_, sessionID := setup.LoggedIn(setup.Seller())
+
+				url := path.CategoriesWithCounts(queries.AllItems)
+				request := CreateGetRequest(url, WithSessionCookie(sessionID))
+				router.ServeHTTP(writer, request)
+				RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
+			})
+		})
+
 		t.Run("As cashier", func(t *testing.T) {
 			t.Run("With counts", func(t *testing.T) {
 				setup, router, writer := NewRestFixture(WithDefaultCategories)
