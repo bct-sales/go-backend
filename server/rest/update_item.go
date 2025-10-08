@@ -42,19 +42,8 @@ func (ep *updateItemEndpoint) execute() {
 	db := ep.Database
 	logger := ep.Logger
 
-	var uriParameters struct {
-		ItemID string `binding:"required" uri:"id"`
-	}
-	if err := context.ShouldBindUri(&uriParameters); err != nil {
-		logger.InvalidInput("Invalid URI parameters", "error", err)
-		failure_response.InvalidRequest(context, err.Error())
-		return
-	}
-
-	itemID, err := models.ParseID(uriParameters.ItemID)
-	if err != nil {
-		logger.InvalidInput("Invalid item ID in URI", "itemID", uriParameters.ItemID, "error", err)
-		failure_response.InvalidItemID(context, err.Error())
+	itemID, uriParsedOk := ep.parseUriParameters()
+	if !uriParsedOk {
 		return
 	}
 
@@ -143,4 +132,27 @@ func (ep *updateItemEndpoint) execute() {
 	}
 
 	context.JSON(http.StatusNoContent, nil)
+}
+
+func (ep *updateItemEndpoint) parseUriParameters() (models.ID, bool) {
+	context := ep.Context
+	logger := ep.Logger
+
+	var uriParameters struct {
+		ItemID string `binding:"required" uri:"id"`
+	}
+	if err := context.ShouldBindUri(&uriParameters); err != nil {
+		logger.InvalidInput("Invalid URI parameters", "error", err)
+		failure_response.InvalidRequest(context, err.Error())
+		return 0, false
+	}
+
+	itemID, err := models.ParseID(uriParameters.ItemID)
+	if err != nil {
+		logger.InvalidInput("Invalid item ID in URI", "itemID", uriParameters.ItemID, "error", err)
+		failure_response.InvalidItemID(context, err.Error())
+		return 0, false
+	}
+
+	return itemID, true
 }
