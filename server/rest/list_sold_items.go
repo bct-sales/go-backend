@@ -26,7 +26,7 @@ type ListSoldItemsEntry struct {
 }
 
 type ListSoldItemsSuccessResponse struct {
-	SoldItems []ListSoldItemsEntry `json:"items"`
+	SoldItems []ListSoldItemsEntry `json:"soldItems"`
 }
 
 type ListSoldItemsParameters struct{}
