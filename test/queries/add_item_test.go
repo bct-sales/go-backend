@@ -100,7 +100,9 @@ func TestAddItem(t *testing.T) {
 			_, err := queries.AddItem(db, timestamp, description, priceInCents, itemCategoryID, sellerID, donation, charity, frozen, hidden)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 
-			itemStatistics, err := queries.GetItemStatistics(db, queries.OnlyVisibleItems)
+			query := queries.NewGetItemStatisticsQuery()
+			query.WithHidden(false)
+			itemStatistics, err := query.Execute(db)
 			require.NoError(t, err)
 			require.Equal(t, 0, itemStatistics.ItemCount)
 			require.Equal(t, models.MoneyInCents(0), itemStatistics.TotalValueInCents)
