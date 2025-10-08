@@ -155,6 +155,11 @@ func (ep *Endpoint) parseBooleanQueryParameter(key string) (*bool, bool) {
 		return nil, false
 	}
 }
+
+func (ep *Endpoint) parseHiddenQueryParameter() (*bool, bool) {
+	return ep.parseBooleanQueryParameter("hidden")
+}
+
 type formatHandler interface {
 	handleDefaultFormat()
 	handleCSVFormat()
