@@ -1342,6 +1342,33 @@ paths:
       description: >
         Retrieves information regarding a all sales made by a specified cashier.
       operationId: ListCashierSales
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            example: 20
+          description: Maximum number of sales to return
+          required: false
+        - in: query
+          name: offset
+          description: >
+            Index of sale to start listing at.
+          schema:
+            type: integer
+            minimum: 0
+            example: 140
+          required: false
+        - in: query
+          name: order
+          description: Order in which to return sales
+          schema:
+            type: string
+            enum:
+              - chronological
+              - antichronological
+          required: false
       responses:
         '200':
           description: Success
