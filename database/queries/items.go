@@ -12,9 +12,17 @@ import (
 	sq "github.com/Masterminds/squirrel"
 )
 
+type HiddenFilter struct {
+	hidden *bool
+}
+
+func (filter *HiddenFilter) WithHidden(value bool) {
+	filter.hidden = &value
+}
+
 type GetItemsQuery struct {
+	HiddenFilter
 	frozen             *bool
-	hidden             *bool
 	limit              *uint64
 	offset             *uint64
 	categoryID         *models.ID
@@ -23,8 +31,8 @@ type GetItemsQuery struct {
 
 func NewGetItemsQuery() *GetItemsQuery {
 	return &GetItemsQuery{
+		HiddenFilter:       HiddenFilter{hidden: nil},
 		frozen:             nil,
-		hidden:             nil,
 		limit:              nil,
 		offset:             nil,
 		categoryID:         nil,
@@ -34,10 +42,6 @@ func NewGetItemsQuery() *GetItemsQuery {
 
 func (q *GetItemsQuery) WithFrozen(value bool) {
 	q.frozen = &value
-}
-
-func (q *GetItemsQuery) WithHidden(value bool) {
-	q.hidden = &value
 }
 
 func (q *GetItemsQuery) WithLimitAndOffset(limit uint64, offset uint64) {
@@ -695,7 +699,7 @@ type ItemStatisticsResult struct {
 }
 
 type GetItemStatisticsQuery struct {
-	hidden *bool
+	HiddenFilter
 }
 
 func (q *GetItemStatisticsQuery) Execute(db DatabaseQuerier) (r_result *ItemStatisticsResult, r_err error) {
@@ -737,13 +741,9 @@ func (q *GetItemStatisticsQuery) buildSQLQuery() (string, []any, error) {
 	return queryString, queryArguments, nil
 }
 
-func (q *GetItemStatisticsQuery) WithHidden(value bool) {
-	q.hidden = &value
-}
-
 func NewGetItemStatisticsQuery() *GetItemStatisticsQuery {
 	query := GetItemStatisticsQuery{
-		hidden: nil,
+		HiddenFilter: HiddenFilter{hidden: nil},
 	}
 
 	return &query
