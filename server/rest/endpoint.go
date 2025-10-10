@@ -98,7 +98,7 @@ func (ep *Endpoint) parseLimitQueryParameter() (*uint64, bool) {
 	}
 }
 
-func (ep *Endpoint) parseRowSelectionQueryParameters() *queries.RowRange {
+func (ep *Endpoint) parseRowRangeQueryParameters() *queries.RowRange {
 	limit, limitOk := ep.parseLimitQueryParameter()
 	if !limitOk {
 		return nil

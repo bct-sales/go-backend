@@ -137,7 +137,7 @@ func (q *GetSalesQuery) WithIDGreaterThanOrEqualTo(minimalID models.ID) *GetSale
 	return q
 }
 
-func (q *GetSalesQuery) WithRowSelection(limit uint64, offset uint64) *GetSalesQuery {
+func (q *GetSalesQuery) WithRowRange(limit uint64, offset uint64) *GetSalesQuery {
 	q.rowSelection = RowRange{Limit: &limit, Offset: &offset}
 
 	return q

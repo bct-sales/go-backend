@@ -95,7 +95,7 @@ func TestGetSales(t *testing.T) {
 
 						expectedSales := sales[offset : offset+limit]
 						actualSales := []*models.SaleSummary{}
-						err := queries.NewGetSalesQuery().WithRowSelection(limit, offset).Execute(db, queries.CollectTo(&actualSales))
+						err := queries.NewGetSalesQuery().WithRowRange(limit, offset).Execute(db, queries.CollectTo(&actualSales))
 						require.NoError(t, err)
 						require.Len(t, actualSales, int(limit))
 
@@ -135,7 +135,7 @@ func TestGetSales(t *testing.T) {
 						slices.Reverse(expectedSales)
 						expectedSales = expectedSales[offset : offset+limit]
 						actualSales := []*models.SaleSummary{}
-						err := queries.NewGetSalesQuery().WithRowSelection(limit, offset).OrderedAntiChronologically().Execute(db, queries.CollectTo(&actualSales))
+						err := queries.NewGetSalesQuery().WithRowRange(limit, offset).OrderedAntiChronologically().Execute(db, queries.CollectTo(&actualSales))
 						require.NoError(t, err)
 						require.Len(t, actualSales, int(limit))
 

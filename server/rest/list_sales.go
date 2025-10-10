@@ -228,7 +228,7 @@ func (ep *getSalesEndpoint) buildQuery(queryParameters *getSalesQueryParameters)
 			offset = 0
 		}
 
-		query.WithRowSelection(limit, offset)
+		query.WithRowRange(limit, offset)
 	}
 
 	if queryParameters.orderedAntiChronologically {
@@ -244,7 +244,7 @@ func (ep *getSalesEndpoint) parseQueryParameters() (*getSalesQueryParameters, bo
 		return nil, false
 	}
 
-	rowSelection := ep.parseRowSelectionQueryParameters()
+	rowSelection := ep.parseRowRangeQueryParameters()
 	if rowSelection == nil {
 		return nil, false
 	}

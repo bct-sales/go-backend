@@ -76,7 +76,7 @@ func (ep *listItemsEndpoint) parseParameters() *listItemsParameters {
 		return nil
 	}
 
-	rowRange := ep.parseRowSelectionQueryParameters()
+	rowRange := ep.parseRowRangeQueryParameters()
 	if rowRange == nil {
 		return nil
 	}

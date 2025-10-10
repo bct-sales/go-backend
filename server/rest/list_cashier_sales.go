@@ -43,7 +43,7 @@ func (ep *listCashierSalesEndpoint) execute() {
 		return
 	}
 
-	rowSelection := ep.parseRowSelectionQueryParameters()
+	rowSelection := ep.parseRowRangeQueryParameters()
 	if rowSelection == nil {
 		return
 	}
