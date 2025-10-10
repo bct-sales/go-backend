@@ -107,21 +107,21 @@ func TestGetItemsQuery(t *testing.T) {
 			setup, db := NewDatabaseFixture(WithDefaultCategories)
 			defer setup.Close()
 
-			offset := 10
-			limit := 5
+			offset := uint64(10)
+			limit := uint64(5)
 
 			seller := setup.Seller()
 			items := setup.Items(seller.UserID, 20, aux.WithHidden(false))
 
 			actualItems := []*models.Item{}
 			query := queries.NewGetItemsQuery()
-			query.WithLimitAndOffset(uint64(limit), uint64(offset))
+			query.WithRowRange(&queries.RowRange{Limit: &limit, Offset: &offset})
 			err := query.Execute(db, queries.CollectTo(&actualItems))
 			require.NoError(t, err)
-			require.Equal(t, limit, len(actualItems))
+			require.Equal(t, int(limit), len(actualItems))
 
 			for index, actualItem := range actualItems {
-				require.Equal(t, items[index+offset], actualItem)
+				require.Equal(t, items[index+int(offset)], actualItem)
 			}
 		})
 

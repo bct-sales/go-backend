@@ -28,11 +28,18 @@ func (filter *FrozenFilter) WithFrozen(value bool) {
 	filter.frozen = &value
 }
 
+type RowRangeSelection struct {
+	RowRange
+}
+
+func (q *GetItemsQuery) WithRowRange(rowRange *RowRange) {
+	q.RowRange = *rowRange
+}
+
 type GetItemsQuery struct {
 	HiddenFilter
 	FrozenFilter
-	limit              *uint64
-	offset             *uint64
+	RowRangeSelection
 	categoryID         *models.ID
 	descriptionPattern *string
 }
@@ -41,31 +48,9 @@ func NewGetItemsQuery() *GetItemsQuery {
 	return &GetItemsQuery{
 		HiddenFilter:       HiddenFilter{hidden: nil},
 		FrozenFilter:       FrozenFilter{frozen: nil},
-		limit:              nil,
-		offset:             nil,
+		RowRangeSelection:  RowRangeSelection{RowRange: RowRange{Limit: nil, Offset: nil}},
 		categoryID:         nil,
 		descriptionPattern: nil,
-	}
-}
-
-func (q *GetItemsQuery) WithLimitAndOffset(limit uint64, offset uint64) {
-	q.limit = &limit
-	q.offset = &offset
-}
-
-func (q *GetItemsQuery) WithRowRange(rowRange *RowRange) {
-	if rowRange.Limit != nil {
-		limit := uint64(*rowRange.Limit)
-		q.limit = &limit
-	} else {
-		q.limit = nil
-	}
-
-	if rowRange.Offset != nil {
-		offset := uint64(*rowRange.Offset)
-		q.offset = &offset
-	} else {
-		q.offset = nil
 	}
 }
 
@@ -161,17 +146,17 @@ func (q *GetItemsQuery) buildSqlQuery() (string, []any, error) {
 		query = query.Where(sq.Eq{"hidden": *q.hidden})
 	}
 
-	if q.limit != nil {
-		query = query.Limit(*q.limit)
+	if q.RowRange.Limit != nil {
+		query = query.Limit(*q.RowRange.Limit)
 	}
 
-	if q.offset != nil {
+	if q.RowRange.Offset != nil {
 		// Offset without limit is not allowed
-		if q.limit == nil {
+		if q.RowRange.Limit == nil {
 			query = query.Limit(100000)
 		}
 
-		query = query.Offset(*q.offset)
+		query = query.Offset(*q.RowRange.Offset)
 	}
 
 	if q.categoryID != nil {
