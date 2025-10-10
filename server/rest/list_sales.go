@@ -32,7 +32,7 @@ type getSalesEndpoint struct {
 
 type getSalesQueryParameters struct {
 	startID                    *models.ID
-	rowSelection               *queries.RowSelection
+	rowSelection               *queries.RowRange
 	orderedAntiChronologically bool
 }
 

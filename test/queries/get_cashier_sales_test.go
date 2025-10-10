@@ -52,7 +52,7 @@ func TestGetCashierSales(t *testing.T) {
 			}
 
 			actual := []*models.SaleSummary{}
-			err := queries.GetCashierSales(db, cashier.UserID, queries.CollectTo(&actual), queries.OrderChronological, queries.NewRowSelection(2, 5))
+			err := queries.GetCashierSales(db, cashier.UserID, queries.CollectTo(&actual), queries.OrderChronological, queries.NewRowRange(2, 5))
 
 			require.NoError(t, err)
 			require.Len(t, actual, 5)

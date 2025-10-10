@@ -53,7 +53,7 @@ func (q *GetItemsQuery) WithLimitAndOffset(limit uint64, offset uint64) {
 	q.offset = &offset
 }
 
-func (q *GetItemsQuery) WithRowRange(rowRange *RowSelection) {
+func (q *GetItemsQuery) WithRowRange(rowRange *RowRange) {
 	if rowRange.Limit != nil {
 		limit := uint64(*rowRange.Limit)
 		q.limit = &limit

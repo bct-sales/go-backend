@@ -35,7 +35,7 @@ type listItemsParameters struct {
 	category           *models.ID
 	hidden             *bool
 	descriptionPattern *string
-	rowRange           queries.RowSelection
+	rowRange           queries.RowRange
 }
 
 func ListItems(arguments *HandlerFunctionArguments) {

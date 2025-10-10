@@ -137,7 +137,7 @@ func (ep *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.I
 	return false
 }
 
-func (ep *listCashierSalesEndpoint) getSaleSummariesFromDatabase(uriCashierID models.ID, order queries.Order, rowSelection *queries.RowSelection) ([]*models.SaleSummary, bool) {
+func (ep *listCashierSalesEndpoint) getSaleSummariesFromDatabase(uriCashierID models.ID, order queries.Order, rowSelection *queries.RowRange) ([]*models.SaleSummary, bool) {
 	var saleSummaries []*models.SaleSummary
 	if err := queries.GetCashierSales(ep.Database, uriCashierID, queries.CollectTo(&saleSummaries), order, rowSelection); err != nil {
 		ep.Logger.InternalError("Failed to retrieve cashier sales for user %d: %v", uriCashierID, err)

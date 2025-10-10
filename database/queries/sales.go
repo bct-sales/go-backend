@@ -121,13 +121,13 @@ func AddSale(
 type GetSalesQuery struct {
 	minimalID    *models.ID // If set, only sales with an ID greater than or equal to this value are returned.
 	order        *string    // Specifies the order in which to return the results
-	rowSelection RowSelection
+	rowSelection RowRange
 }
 
 func NewGetSalesQuery() *GetSalesQuery {
 	return &GetSalesQuery{
 		minimalID:    nil,
-		rowSelection: RowSelection{},
+		rowSelection: RowRange{},
 		order:        nil,
 	}
 }
@@ -138,7 +138,7 @@ func (q *GetSalesQuery) WithIDGreaterThanOrEqualTo(minimalID models.ID) *GetSale
 }
 
 func (q *GetSalesQuery) WithRowSelection(limit uint64, offset uint64) *GetSalesQuery {
-	q.rowSelection = RowSelection{Limit: &limit, Offset: &offset}
+	q.rowSelection = RowRange{Limit: &limit, Offset: &offset}
 
 	return q
 }
@@ -800,7 +800,7 @@ func RemoveAllSales(transaction *TransactionalDatabaseQuerier) (r_err error) {
 // GetCashierSales retrieves a list of sales made by a specified cashier.
 // If cashierID does not correspond to any user, ErrNoSuchUser is returned.
 // If cashierID does not correspond to a cashier, ErrWrongRole is returned.
-func GetCashierSales(db DatabaseQuerier, cashierID models.ID, receiver func(*models.SaleSummary) error, order Order, rowSelection *RowSelection) (r_err error) {
+func GetCashierSales(db DatabaseQuerier, cashierID models.ID, receiver func(*models.SaleSummary) error, order Order, rowSelection *RowRange) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()

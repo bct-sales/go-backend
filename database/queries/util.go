@@ -14,41 +14,41 @@ func placeholderString(placeholderCount int) string {
 	return strings.Join(placeholders, ", ")
 }
 
-type RowSelection struct {
+type RowRange struct {
 	Limit  *uint64
 	Offset *uint64
 }
 
-func (rowSelection *RowSelection) SQL() string {
+func (rowRange *RowRange) SQL() string {
 	// If neither field has been set, no extra SQL is necessary
-	if rowSelection.Limit == nil && rowSelection.Offset == nil {
+	if rowRange.Limit == nil && rowRange.Offset == nil {
 		return ""
 	}
 
 	var offset uint64
 	var limit uint64
 
-	if rowSelection.Limit == nil {
+	if rowRange.Limit == nil {
 		limit = 1000000
 	} else {
-		limit = *rowSelection.Limit
+		limit = *rowRange.Limit
 	}
 
-	if rowSelection.Offset == nil {
+	if rowRange.Offset == nil {
 		offset = 0
 	} else {
-		offset = *rowSelection.Offset
+		offset = *rowRange.Offset
 	}
 
 	return fmt.Sprintf("LIMIT %d OFFSET %d", limit, offset)
 }
 
-func AllRows() *RowSelection {
-	return &RowSelection{Limit: nil, Offset: nil}
+func AllRows() *RowRange {
+	return &RowRange{Limit: nil, Offset: nil}
 }
 
-func NewRowSelection(offset uint64, limit uint64) *RowSelection {
-	return &RowSelection{Limit: &limit, Offset: &offset}
+func NewRowRange(offset uint64, limit uint64) *RowRange {
+	return &RowRange{Limit: &limit, Offset: &offset}
 }
 
 type Order int
