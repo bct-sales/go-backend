@@ -20,9 +20,17 @@ func (filter *HiddenFilter) WithHidden(value bool) {
 	filter.hidden = &value
 }
 
+type FrozenFilter struct {
+	frozen *bool
+}
+
+func (filter *FrozenFilter) WithFrozen(value bool) {
+	filter.frozen = &value
+}
+
 type GetItemsQuery struct {
 	HiddenFilter
-	frozen             *bool
+	FrozenFilter
 	limit              *uint64
 	offset             *uint64
 	categoryID         *models.ID
@@ -32,16 +40,12 @@ type GetItemsQuery struct {
 func NewGetItemsQuery() *GetItemsQuery {
 	return &GetItemsQuery{
 		HiddenFilter:       HiddenFilter{hidden: nil},
-		frozen:             nil,
+		FrozenFilter:       FrozenFilter{frozen: nil},
 		limit:              nil,
 		offset:             nil,
 		categoryID:         nil,
 		descriptionPattern: nil,
 	}
-}
-
-func (q *GetItemsQuery) WithFrozen(value bool) {
-	q.frozen = &value
 }
 
 func (q *GetItemsQuery) WithLimitAndOffset(limit uint64, offset uint64) {
