@@ -79,6 +79,7 @@ func NewRootCommand() *cobra.Command {
 	rootCommand.AddCommand(initialize.NewInitializeCommand())
 	rootCommand.AddCommand(session.NewSessionCommand())
 	rootCommand.AddCommand(email.NewEmailCommand())
+	rootCommand.AddCommand(NewVersionCommand())
 
 	return &rootCommand
 }
