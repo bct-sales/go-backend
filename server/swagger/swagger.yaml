@@ -391,6 +391,7 @@ paths:
           schema:
             type: string
             enum:
+              - chronological
               - antichronological
           required: false
       responses:

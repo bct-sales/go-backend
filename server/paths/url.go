@@ -63,6 +63,10 @@ func (u *URL) Order(order string) *URL {
 	return u.AddQueryParameter("order", order)
 }
 
+func (u *URL) Chronologically() *URL {
+	return u.Order("chronological")
+}
+
 func (u *URL) AntiChronologically() *URL {
 	return u.Order("antichronological")
 }

@@ -118,16 +118,17 @@ func (ep *Endpoint) parseRowSelectionQueryParameters() *queries.RowSelection {
 }
 
 func (ep *Endpoint) parseOrderQueryParameter() (queries.Order, bool) {
-	if order, exists := ep.Context.GetQuery("order"); exists {
-		if order != "antichronological" {
-			ep.Logger.InvalidInput("Invalid order parameter", "order", order)
-			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Order must be 'antichronological'")
-			return 0, false
-		}
+	order := ep.Context.Query("order")
+	switch order {
+	case "", "chronological":
+		return queries.OrderChronological, true
+	case "antichronological":
 		return queries.OrderAntiChronological, true
+	default:
+		ep.Logger.InvalidInput("Invalid order parameter", "order", order)
+		failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Order must be either 'chronological' or 'antichronological'")
+		return 0, false
 	}
-
-	return queries.OrderChronological, true
 }
 
 // parseBooleanQueryParameter looks for a query parameter with the given key.
