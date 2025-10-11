@@ -55,9 +55,11 @@ func TestListAllItems(t *testing.T) {
 					require.Equal(t, http.StatusOK, writer.Code)
 
 					expected := rest.ListItemsSuccessResponse{
-						Items:          []rest.ListItemsItemData{},
-						TotalItemCount: 0,
-						TotalItemValue: models.MoneyInCents(0),
+						Items: []rest.ListItemsItemData{},
+						ListItemsStatistics: rest.ListItemsStatistics{
+							TotalItemCount: 0,
+							TotalItemValue: models.MoneyInCents(0),
+						},
 					}
 					actual := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
 					require.Equal(t, expected, *actual)
@@ -78,9 +80,11 @@ func TestListAllItems(t *testing.T) {
 					require.Equal(t, http.StatusOK, writer.Code)
 
 					expected := rest.ListItemsSuccessResponse{
-						Items:          []rest.ListItemsItemData{*FromModel(item)},
-						TotalItemCount: 1,
-						TotalItemValue: item.PriceInCents,
+						Items: []rest.ListItemsItemData{*FromModel(item)},
+						ListItemsStatistics: rest.ListItemsStatistics{
+							TotalItemCount: 1,
+							TotalItemValue: item.PriceInCents,
+						},
 					}
 					actual := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
 					require.Equal(t, expected, *actual)
@@ -102,9 +106,11 @@ func TestListAllItems(t *testing.T) {
 					require.Equal(t, http.StatusOK, writer.Code)
 
 					expected := rest.ListItemsSuccessResponse{
-						Items:          []rest.ListItemsItemData{*FromModel(item1), *FromModel(item2)},
-						TotalItemCount: 2,
-						TotalItemValue: item1.PriceInCents + item2.PriceInCents,
+						Items: []rest.ListItemsItemData{*FromModel(item1), *FromModel(item2)},
+						ListItemsStatistics: rest.ListItemsStatistics{
+							TotalItemCount: 2,
+							TotalItemValue: item1.PriceInCents + item2.PriceInCents,
+						},
 					}
 					actual := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
 					require.Equal(t, expected, *actual)
@@ -126,9 +132,11 @@ func TestListAllItems(t *testing.T) {
 					require.Equal(t, http.StatusOK, writer.Code, writer.Body)
 
 					expected := rest.ListItemsSuccessResponse{
-						Items:          []rest.ListItemsItemData{*FromModel(item1), *FromModel(item2)},
-						TotalItemCount: 2,
-						TotalItemValue: item1.PriceInCents + item2.PriceInCents,
+						Items: []rest.ListItemsItemData{*FromModel(item1), *FromModel(item2)},
+						ListItemsStatistics: rest.ListItemsStatistics{
+							TotalItemCount: 2,
+							TotalItemValue: item1.PriceInCents + item2.PriceInCents,
+						},
 					}
 					actual := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
 					require.Equal(t, expected, *actual)
@@ -150,9 +158,11 @@ func TestListAllItems(t *testing.T) {
 					require.Equal(t, http.StatusOK, writer.Code, writer.Body)
 
 					expected := rest.ListItemsSuccessResponse{
-						Items:          []rest.ListItemsItemData{*FromModel(item3)},
-						TotalItemCount: 1,
-						TotalItemValue: item3.PriceInCents,
+						Items: []rest.ListItemsItemData{*FromModel(item3)},
+						ListItemsStatistics: rest.ListItemsStatistics{
+							TotalItemCount: 1,
+							TotalItemValue: item3.PriceInCents,
+						},
 					}
 					actual := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
 					require.Equal(t, expected, *actual)
@@ -265,9 +275,9 @@ func TestListAllItems(t *testing.T) {
 
 					_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
 					seller := setup.Seller()
-					setup.Items(seller.UserID, 1, aux.WithHidden(false), aux.WithItemCategory(1))
-					setup.Items(seller.UserID, 2, aux.WithHidden(false), aux.WithItemCategory(2))
-					setup.Items(seller.UserID, 3, aux.WithHidden(false), aux.WithItemCategory(3))
+					setup.Items(seller.UserID, 1, aux.WithHidden(false), aux.WithItemCategory(1), aux.WithPriceInCents(50))
+					setup.Items(seller.UserID, 2, aux.WithHidden(false), aux.WithItemCategory(2), aux.WithPriceInCents(100))
+					setup.Items(seller.UserID, 3, aux.WithHidden(false), aux.WithItemCategory(3), aux.WithPriceInCents(200))
 
 					url := path.Items().CategoryFilter(2)
 					request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -275,12 +285,15 @@ func TestListAllItems(t *testing.T) {
 
 					require.Equal(t, http.StatusOK, writer.Code)
 					response := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
-					actualItems := response.Items
 
+					actualItems := response.Items
 					require.Len(t, actualItems, 2)
 					for _, actualItem := range actualItems {
 						require.Equal(t, models.ID(2), actualItem.CategoryID)
 					}
+
+					require.Equal(t, 2, response.TotalItemCount)
+					require.Equal(t, models.MoneyInCents(200), response.TotalItemValue)
 				})
 
 				t.Run("Filter on description", func(t *testing.T) {
@@ -290,10 +303,10 @@ func TestListAllItems(t *testing.T) {
 
 						_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
 						seller := setup.Seller()
-						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("foo"))
-						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("bar"))
-						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("baz"))
-						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("qux"))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("foo"), aux.WithPriceInCents(50))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("bar"), aux.WithPriceInCents(100))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("baz"), aux.WithPriceInCents(200))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("qux"), aux.WithPriceInCents(400))
 
 						url := path.Items().AddQueryParameter("description", "a")
 						request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -301,11 +314,14 @@ func TestListAllItems(t *testing.T) {
 
 						require.Equal(t, http.StatusOK, writer.Code)
 						response := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
-						actualItems := response.Items
 
+						actualItems := response.Items
 						require.Len(t, actualItems, 2)
 						require.Equal(t, "bar", actualItems[0].Description)
 						require.Equal(t, "baz", actualItems[1].Description)
+
+						require.Equal(t, 2, response.ListItemsStatistics.TotalItemCount)
+						require.Equal(t, models.MoneyInCents(100+200), response.ListItemsStatistics.TotalItemValue)
 					})
 
 					t.Run("Searching for space", func(t *testing.T) {
@@ -314,10 +330,10 @@ func TestListAllItems(t *testing.T) {
 
 						_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
 						seller := setup.Seller()
-						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("foo bar"))
-						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("bar"))
-						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("baz qux"))
-						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("qux"))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("foo bar"), aux.WithPriceInCents(50))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("bar"), aux.WithPriceInCents(100))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("baz qux"), aux.WithPriceInCents(200))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("qux"), aux.WithPriceInCents(400))
 
 						url := path.Items().AddQueryParameter("description", " ")
 						request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -325,11 +341,14 @@ func TestListAllItems(t *testing.T) {
 
 						require.Equal(t, http.StatusOK, writer.Code)
 						response := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
-						actualItems := response.Items
 
+						actualItems := response.Items
 						require.Len(t, actualItems, 2)
 						require.Equal(t, "foo bar", actualItems[0].Description)
 						require.Equal(t, "baz qux", actualItems[1].Description)
+
+						require.Equal(t, 2, response.ListItemsStatistics.TotalItemCount)
+						require.Equal(t, models.MoneyInCents(50+200), response.ListItemsStatistics.TotalItemValue)
 					})
 
 					t.Run("Searching for &", func(t *testing.T) {
@@ -338,11 +357,11 @@ func TestListAllItems(t *testing.T) {
 
 						_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
 						seller := setup.Seller()
-						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("foo & bar"))
-						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("bar"))
-						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("baz & qux"))
-						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("qux&"))
-						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("qux qux"))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("foo & bar"), aux.WithPriceInCents(50))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("bar"), aux.WithPriceInCents(100))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("baz & qux"), aux.WithPriceInCents(200))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("qux&"), aux.WithPriceInCents(400))
+						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("qux qux"), aux.WithPriceInCents(800))
 
 						url := path.Items().Description("&")
 						request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -350,12 +369,15 @@ func TestListAllItems(t *testing.T) {
 
 						require.Equal(t, http.StatusOK, writer.Code)
 						response := FromJSON[rest.ListItemsSuccessResponse](t, writer.Body.String())
-						actualItems := response.Items
 
+						actualItems := response.Items
 						require.Len(t, actualItems, 3)
 						require.Equal(t, "foo & bar", actualItems[0].Description)
 						require.Equal(t, "baz & qux", actualItems[1].Description)
 						require.Equal(t, "qux&", actualItems[2].Description)
+
+						require.Equal(t, 3, response.ListItemsStatistics.TotalItemCount)
+						require.Equal(t, models.MoneyInCents(50+200+400), response.ListItemsStatistics.TotalItemValue)
 					})
 				})
 			})
