@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCountItems(t *testing.T) {
+func TestGetItemStatisticsQuery(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Only visible items in count", func(t *testing.T) {
 			t.Run("No hidden items", func(t *testing.T) {
