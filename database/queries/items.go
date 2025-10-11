@@ -705,6 +705,7 @@ type ItemStatisticsResult struct {
 
 type GetItemStatisticsQuery struct {
 	HiddenFilter
+	DescriptionFilter
 }
 
 func (q *GetItemStatisticsQuery) Execute(db DatabaseQuerier) (r_result *ItemStatisticsResult, r_err error) {
@@ -738,6 +739,10 @@ func (q *GetItemStatisticsQuery) buildSQLQuery() (string, []any, error) {
 		query = query.Where(sq.Eq{"hidden": *q.hidden})
 	}
 
+	if q.descriptionPattern != nil {
+		query = query.Where(sq.Like{"description": fmt.Sprintf("%%%s%%", *q.descriptionPattern)})
+	}
+
 	queryString, queryArguments, err := query.ToSql()
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to build SQL query: %w", err)
@@ -748,7 +753,8 @@ func (q *GetItemStatisticsQuery) buildSQLQuery() (string, []any, error) {
 
 func NewGetItemStatisticsQuery() *GetItemStatisticsQuery {
 	query := GetItemStatisticsQuery{
-		HiddenFilter: HiddenFilter{hidden: nil},
+		HiddenFilter:      HiddenFilter{hidden: nil},
+		DescriptionFilter: DescriptionFilter{descriptionPattern: nil},
 	}
 
 	return &query
