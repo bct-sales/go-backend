@@ -102,5 +102,23 @@ func TestCountItems(t *testing.T) {
 			require.Equal(t, len(hiddenItems), actual.ItemCount)
 			require.Equal(t, aux.ItemsTotalWorth(hiddenItems), actual.TotalValueInCents)
 		})
+
+		t.Run("With description filter", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+			setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("abc"), aux.WithPriceInCents(1))
+			setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("bcd"), aux.WithPriceInCents(2))
+			setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("cde"), aux.WithPriceInCents(4))
+			setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("edf"), aux.WithPriceInCents(8))
+
+			query := queries.NewGetItemStatisticsQuery()
+			query.WithDescription("d")
+			actual, err := query.Execute(db)
+			require.NoError(t, err)
+			require.Equal(t, 3, actual.ItemCount)
+			require.Equal(t, models.MoneyInCents(2+4+8), actual.TotalValueInCents)
+		})
 	})
 }
