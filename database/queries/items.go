@@ -706,6 +706,17 @@ type ItemStatisticsResult struct {
 type GetItemStatisticsQuery struct {
 	HiddenFilter
 	DescriptionFilter
+	CategoryFilter
+}
+
+func NewGetItemStatisticsQuery() *GetItemStatisticsQuery {
+	query := GetItemStatisticsQuery{
+		HiddenFilter:      HiddenFilter{hidden: nil},
+		DescriptionFilter: DescriptionFilter{descriptionPattern: nil},
+		CategoryFilter:    CategoryFilter{categoryID: nil},
+	}
+
+	return &query
 }
 
 func (q *GetItemStatisticsQuery) Execute(db DatabaseQuerier) (r_result *ItemStatisticsResult, r_err error) {
@@ -743,21 +754,16 @@ func (q *GetItemStatisticsQuery) buildSQLQuery() (string, []any, error) {
 		query = query.Where(sq.Like{"description": fmt.Sprintf("%%%s%%", *q.descriptionPattern)})
 	}
 
+	if q.categoryID != nil {
+		query = query.Where(sq.Eq{"item_category_id": *q.categoryID})
+	}
+
 	queryString, queryArguments, err := query.ToSql()
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to build SQL query: %w", err)
 	}
 
 	return queryString, queryArguments, nil
-}
-
-func NewGetItemStatisticsQuery() *GetItemStatisticsQuery {
-	query := GetItemStatisticsQuery{
-		HiddenFilter:      HiddenFilter{hidden: nil},
-		DescriptionFilter: DescriptionFilter{descriptionPattern: nil},
-	}
-
-	return &query
 }
 
 // GetItemStatistics returns the number of items in the database and their total worth.
