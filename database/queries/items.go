@@ -44,12 +44,20 @@ func (filter *DescriptionFilter) WithDescription(pattern string) {
 	filter.descriptionPattern = &pattern
 }
 
+type CategoryFilter struct {
+	categoryID *models.ID
+}
+
+func (filter *CategoryFilter) WithCategory(categoryID models.ID) {
+	filter.categoryID = &categoryID
+}
+
 type GetItemsQuery struct {
 	HiddenFilter
 	FrozenFilter
 	RowRangeSelection
 	DescriptionFilter
-	categoryID *models.ID
+	CategoryFilter
 }
 
 func NewGetItemsQuery() *GetItemsQuery {
@@ -58,7 +66,7 @@ func NewGetItemsQuery() *GetItemsQuery {
 		FrozenFilter:      FrozenFilter{frozen: nil},
 		RowRangeSelection: RowRangeSelection{RowRange: RowRange{Limit: nil, Offset: nil}},
 		DescriptionFilter: DescriptionFilter{descriptionPattern: nil},
-		categoryID:        nil,
+		CategoryFilter:    CategoryFilter{categoryID: nil},
 	}
 }
 
