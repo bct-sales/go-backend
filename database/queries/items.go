@@ -36,21 +36,29 @@ func (q *GetItemsQuery) WithRowRange(rowRange *RowRange) {
 	q.RowRange = *rowRange
 }
 
+type DescriptionFilter struct {
+	descriptionPattern *string
+}
+
+func (filter *DescriptionFilter) WithDescription(pattern string) {
+	filter.descriptionPattern = &pattern
+}
+
 type GetItemsQuery struct {
 	HiddenFilter
 	FrozenFilter
 	RowRangeSelection
-	categoryID         *models.ID
-	descriptionPattern *string
+	DescriptionFilter
+	categoryID *models.ID
 }
 
 func NewGetItemsQuery() *GetItemsQuery {
 	return &GetItemsQuery{
-		HiddenFilter:       HiddenFilter{hidden: nil},
-		FrozenFilter:       FrozenFilter{frozen: nil},
-		RowRangeSelection:  RowRangeSelection{RowRange: RowRange{Limit: nil, Offset: nil}},
-		categoryID:         nil,
-		descriptionPattern: nil,
+		HiddenFilter:      HiddenFilter{hidden: nil},
+		FrozenFilter:      FrozenFilter{frozen: nil},
+		RowRangeSelection: RowRangeSelection{RowRange: RowRange{Limit: nil, Offset: nil}},
+		DescriptionFilter: DescriptionFilter{descriptionPattern: nil},
+		categoryID:        nil,
 	}
 }
 
