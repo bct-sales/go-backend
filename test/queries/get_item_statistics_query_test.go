@@ -108,17 +108,63 @@ func TestGetItemStatisticsQuery(t *testing.T) {
 			defer setup.Close()
 
 			seller := setup.Seller()
-			setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("abc"), aux.WithPriceInCents(1))
-			setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("bcd"), aux.WithPriceInCents(2))
-			setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("cde"), aux.WithPriceInCents(4))
-			setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("edf"), aux.WithPriceInCents(8))
+			setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("abc"), aux.WithPriceInCents(50))
+			setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("bcd"), aux.WithPriceInCents(100))
+			setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("cde"), aux.WithPriceInCents(200))
+			setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("edf"), aux.WithPriceInCents(400))
 
 			query := queries.NewGetItemStatisticsQuery()
 			query.WithDescription("d")
 			actual, err := query.Execute(db)
 			require.NoError(t, err)
 			require.Equal(t, 3, actual.ItemCount)
-			require.Equal(t, models.MoneyInCents(2+4+8), actual.TotalValueInCents)
+			require.Equal(t, models.MoneyInCents(100+200+400), actual.TotalValueInCents)
+		})
+
+		t.Run("With category filter", func(t *testing.T) {
+			t.Run("Two matching items", func(t *testing.T) {
+				setup, db := NewDatabaseFixture()
+				defer setup.Close()
+
+				setup.Category(1, "a")
+				setup.Category(2, "b")
+				setup.Category(3, "c")
+				setup.Category(4, "d")
+
+				seller := setup.Seller()
+				setup.Item(seller.UserID, aux.WithHidden(false), aux.WithItemCategory(1), aux.WithPriceInCents(50))
+				setup.Item(seller.UserID, aux.WithHidden(false), aux.WithItemCategory(2), aux.WithPriceInCents(100))
+				setup.Item(seller.UserID, aux.WithHidden(false), aux.WithItemCategory(2), aux.WithPriceInCents(200))
+				setup.Item(seller.UserID, aux.WithHidden(false), aux.WithItemCategory(3), aux.WithPriceInCents(400))
+
+				query := queries.NewGetItemStatisticsQuery()
+				query.WithCategory(2)
+				actual, err := query.Execute(db)
+				require.NoError(t, err)
+				require.Equal(t, 2, actual.ItemCount)
+				require.Equal(t, models.MoneyInCents(100+200), actual.TotalValueInCents)
+			})
+
+			t.Run("Four matching items", func(t *testing.T) {
+				setup, db := NewDatabaseFixture()
+				defer setup.Close()
+
+				setup.Category(1, "a")
+				setup.Category(2, "b")
+				setup.Category(3, "c")
+
+				seller := setup.Seller()
+				setup.Items(seller.UserID, 1, aux.WithHidden(false), aux.WithItemCategory(1), aux.WithPriceInCents(50))
+				setup.Items(seller.UserID, 4, aux.WithHidden(false), aux.WithItemCategory(2), aux.WithPriceInCents(100))
+				setup.Items(seller.UserID, 3, aux.WithHidden(false), aux.WithItemCategory(3), aux.WithPriceInCents(200))
+
+				query := queries.NewGetItemStatisticsQuery()
+				query.WithCategory(2)
+				actual, err := query.Execute(db)
+				require.NoError(t, err)
+				require.Equal(t, 4, actual.ItemCount)
+				require.Equal(t, models.MoneyInCents(4*100), actual.TotalValueInCents)
+			})
 		})
 	})
 }
