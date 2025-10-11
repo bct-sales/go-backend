@@ -25,10 +25,14 @@ type ListItemsItemData struct {
 	Frozen       bool                `json:"frozen"`
 }
 
-type ListItemsSuccessResponse struct {
-	Items          []ListItemsItemData `json:"items"`
+type ListItemsStatistics struct {
 	TotalItemCount int                 `json:"totalItemCount"`
 	TotalItemValue models.MoneyInCents `json:"totalItemValue"`
+}
+
+type ListItemsSuccessResponse struct {
+	ListItemsStatistics
+	Items []ListItemsItemData `json:"items"`
 }
 
 type listItemsParameters struct {
@@ -187,24 +191,47 @@ func (ep *listItemsEndpoint) sendSuccessResponse(items []*models.Item, parameter
 func (ep *listItemsEndpoint) sendResponseAsJSON(items []*models.Item, parameters *listItemsParameters) {
 	itemsData := ep.convertData(items)
 
-	query := queries.NewGetItemStatisticsQuery()
-	if parameters.hidden != nil {
-		query.WithHidden(*parameters.hidden)
-	}
-	itemStatistics, err := query.Execute(ep.Database)
-	if err != nil {
-		ep.Logger.InternalError("Failed to count items", "error", err)
-		failure_response.Unknown(ep.Context, "Failed to count items: "+err.Error())
+	itemStatistics, statsOk := ep.getItemStatistics(parameters)
+	if !statsOk {
 		return
 	}
 
 	response := ListItemsSuccessResponse{
-		Items:          itemsData,
+		Items:               itemsData,
+		ListItemsStatistics: *itemStatistics,
+	}
+
+	ep.Context.IndentedJSON(http.StatusOK, response)
+}
+
+func (ep *listItemsEndpoint) getItemStatistics(parameters *listItemsParameters) (*ListItemsStatistics, bool) {
+	query := queries.NewGetItemStatisticsQuery()
+
+	if parameters.hidden != nil {
+		query.WithHidden(*parameters.hidden)
+	}
+
+	if parameters.category != nil {
+		query.WithCategory(*parameters.category)
+	}
+
+	if parameters.descriptionPattern != nil {
+		query.WithDescription(*parameters.descriptionPattern)
+	}
+
+	itemStatistics, err := query.Execute(ep.Database)
+	if err != nil {
+		ep.Logger.InternalError("Failed to count items", "error", err)
+		failure_response.Unknown(ep.Context, "Failed to count items: "+err.Error())
+		return nil, false
+	}
+
+	result := ListItemsStatistics{
 		TotalItemCount: itemStatistics.ItemCount,
 		TotalItemValue: itemStatistics.TotalValueInCents,
 	}
 
-	ep.Context.IndentedJSON(http.StatusOK, response)
+	return &result, true
 }
 
 func (ep *listItemsEndpoint) convertData(items []*models.Item) []ListItemsItemData {
