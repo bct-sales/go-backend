@@ -26,7 +26,7 @@ func NewUpdateItemCommand() *cobra.Command {
 	command = &updateItemCommand{
 		Command: common.Command{
 			CobraCommand: &cobra.Command{
-				Use:   "update <item-id>",
+				Use:   "update",
 				Short: "Updates an item",
 				Long: heredoc.Doc(`
 					This command updates an existing item in the database.
@@ -40,13 +40,13 @@ func NewUpdateItemCommand() *cobra.Command {
 	}
 
 	command.CobraCommand.Flags().Uint64Var(&command.itemID, "id", 0, "ID of the item to update")
-	command.CobraCommand.Flags().StringVar(&command.description, "description", "", "New description for the item")
-	command.CobraCommand.Flags().Uint64Var(&command.priceInCents, "price", 0, "New price in cents for the item")
-	command.CobraCommand.Flags().Uint64Var(&command.categoryID, "category", 0, "New category ID for the item")
-	command.CobraCommand.Flags().Bool("donation", false, "Set item as a donation")
-	command.CobraCommand.Flags().Bool("no-donation", false, "Unset item as a donation")
-	command.CobraCommand.Flags().Bool("charity", false, "Set item as a charity item")
-	command.CobraCommand.Flags().Bool("no-charity", false, "Unset item as a charity item")
+	command.CobraCommand.Flags().StringVar(&command.description, "description", "", "New description for the item (optional)")
+	command.CobraCommand.Flags().Uint64Var(&command.priceInCents, "price", 0, "New price in cents for the item (optional)")
+	command.CobraCommand.Flags().Uint64Var(&command.categoryID, "category", 0, "New category ID for the item (optional)")
+	command.CobraCommand.Flags().Bool("donation", false, "Set item as a donation (optional)")
+	command.CobraCommand.Flags().Bool("no-donation", false, "Unset item as a donation (optional)")
+	command.CobraCommand.Flags().Bool("charity", false, "Set item as a charity item (optional)")
+	command.CobraCommand.Flags().Bool("no-charity", false, "Unset item as a charity item (optional)")
 
 	command.CobraCommand.MarkFlagRequired("id")
 	command.CobraCommand.MarkFlagsMutuallyExclusive("donation", "no-donation")
