@@ -96,14 +96,6 @@ func convertSaleToGetUserInformationSale(sale *models.Sale) *GetCashierInformati
 	}
 }
 
-// @Summary Get information about a user
-// @Description Get information about a user.
-// @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
-// @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
-// @Failure 403 {object} failure_response.FailureResponse "Only accessible to admins"
-// @Failure 404 {object} failure_response.FailureResponse "User not found"
-// @Failure 500 {object} failure_response.FailureResponse "Internal server error"
-// @Router /users/{id} [get]
 func GetUserInformation(arguments *HandlerFunctionArguments) {
 	endpoint := GetUserInformationEndpoint{
 		Endpoint: Endpoint{
