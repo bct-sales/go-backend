@@ -19,7 +19,7 @@ func NewURL() *URL {
 	}
 }
 
-func (u *URL) AddPathSegment(segment string) *URL {
+func (u *URL) WithExtraPathSegment(segment string) *URL {
 	u.pathSegments = append(u.pathSegments, segment)
 	return u
 }
