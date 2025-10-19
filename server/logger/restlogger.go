@@ -4,7 +4,8 @@ import (
 	"log/slog"
 )
 
-type Logger interface {
+// RestLogger is used by all REST endpoint to perform logging
+type RestLogger interface {
 	InvalidInput(message string, args ...any)
 	InvalidRequest(message string, args ...any)
 	InternalError(message string, args ...any)

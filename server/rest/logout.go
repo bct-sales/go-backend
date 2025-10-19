@@ -24,7 +24,7 @@ type LogoutPayload struct{}
 // @Description Logs out the user.
 // @Tags authentication
 // @Router /logout [post]
-func Logout(clock clock.Clock, logger logger.Logger, context *gin.Context, db *sql.DB, configuration *configuration.ServerConfiguration) {
+func Logout(clock clock.Clock, logger logger.RestLogger, context *gin.Context, db *sql.DB, configuration *configuration.ServerConfiguration) {
 	sessionIDString, err := context.Cookie(security.SessionCookieName)
 	if err != nil {
 		logger.InvalidRequest("Cannot logout without session ID", slog.String("error", err.Error()))

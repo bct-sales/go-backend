@@ -193,7 +193,7 @@ func (server *Server) defineStaticFilesRoutes(htmlPath string) {
 	})
 }
 
-func (server *Server) RawPOST(path *paths.URL, handler func(clock clock.Clock, logger logger.Logger, context *gin.Context, database *sql.DB, configuration *configuration.ServerConfiguration)) {
+func (server *Server) RawPOST(path *paths.URL, handler func(clock clock.Clock, logger logger.RestLogger, context *gin.Context, database *sql.DB, configuration *configuration.ServerConfiguration)) {
 	decoratedSlogger := server.loggerResources.logger.With(slog.String("handler", getFunctionName(handler)))
 	logger := logger.NewLoggerWrapper(decoratedSlogger)
 

@@ -39,7 +39,7 @@ type LoginSuccessResponse struct {
 // @Param username formData string true "username"
 // @Param password formData string true "password"
 // @Tags authentication
-func Login(clock clock.Clock, logger logger.Logger, context *gin.Context, db *sql.DB, configuration *configuration.ServerConfiguration) {
+func Login(clock clock.Clock, logger logger.RestLogger, context *gin.Context, db *sql.DB, configuration *configuration.ServerConfiguration) {
 	var loginRequest LoginRequest
 
 	if err := context.ShouldBind(&loginRequest); err != nil {
