@@ -284,6 +284,7 @@ func createItemTable(db *sql.DB) error {
 			charity             BOOLEAN NOT NULL,
 			frozen              BOOLEAN NOT NULL,
 			hidden              BOOLEAN NOT NULL,
+			large               BOOLEAN NOT NULL,
 
 			PRIMARY KEY (item_id),
 			CONSTRAINT items_foreign_key_user
