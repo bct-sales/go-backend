@@ -53,7 +53,7 @@ func TestListCashierSales(t *testing.T) {
 				items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
 				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
 
-				url := path.CashierSales(cashier.UserID).Offset(1)
+				url := path.CashierSales(cashier.UserID).AddOffset(1)
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
@@ -75,7 +75,7 @@ func TestListCashierSales(t *testing.T) {
 				items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
 				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
 
-				url := path.CashierSales(cashier.UserID).Limit(1)
+				url := path.CashierSales(cashier.UserID).AddLimit(1)
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
@@ -97,7 +97,7 @@ func TestListCashierSales(t *testing.T) {
 				items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
 				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
 
-				url := path.CashierSales(cashier.UserID).Limit(3).Offset(2)
+				url := path.CashierSales(cashier.UserID).AddLimit(3).AddOffset(2)
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)
@@ -119,7 +119,7 @@ func TestListCashierSales(t *testing.T) {
 				items := setup.Items(seller.UserID, 3, aux.WithHidden(false))
 				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
 
-				url := path.CashierSales(cashier.UserID).AntiChronologically()
+				url := path.CashierSales(cashier.UserID).AddAntiChronologicalOrder()
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))
 				router.ServeHTTP(writer, request)
 				require.Equal(t, http.StatusOK, writer.Code)

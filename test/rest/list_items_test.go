@@ -126,7 +126,7 @@ func TestListAllItems(t *testing.T) {
 					item2 := setup.Item(seller.UserID, aux.WithPriceInCents(200), aux.WithHidden(false))
 					setup.Item(seller.UserID, aux.WithPriceInCents(400), aux.WithHidden(true))
 
-					url := path.Items().Hidden(false)
+					url := path.Items().AddHidden(false)
 					request := CreateGetRequest(url, WithSessionCookie(sessionID))
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code, writer.Body)
@@ -152,7 +152,7 @@ func TestListAllItems(t *testing.T) {
 					setup.Item(seller.UserID, aux.WithPriceInCents(200), aux.WithHidden(false))
 					item3 := setup.Item(seller.UserID, aux.WithPriceInCents(400), aux.WithHidden(true))
 
-					url := path.Items().Hidden(true)
+					url := path.Items().AddHidden(true)
 					request := CreateGetRequest(url, WithSessionCookie(sessionID))
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code, writer.Body)
@@ -181,7 +181,7 @@ func TestListAllItems(t *testing.T) {
 							seller := setup.Seller()
 							items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
 
-							url := path.Items().Limit(limit)
+							url := path.Items().AddLimit(limit)
 							request := CreateGetRequest(url, WithSessionCookie(sessionID))
 							router.ServeHTTP(writer, request)
 
@@ -212,7 +212,7 @@ func TestListAllItems(t *testing.T) {
 							seller := setup.Seller()
 							items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
 
-							url := path.Items().Offset(offset)
+							url := path.Items().AddOffset(offset)
 							request := CreateGetRequest(url, WithSessionCookie(sessionID))
 							router.ServeHTTP(writer, request)
 
@@ -244,7 +244,7 @@ func TestListAllItems(t *testing.T) {
 								seller := setup.Seller()
 								items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
 
-								url := path.Items().Limit(limit).Offset(offset)
+								url := path.Items().AddLimit(limit).AddOffset(offset)
 								request := CreateGetRequest(url, WithSessionCookie(sessionID))
 								router.ServeHTTP(writer, request)
 
@@ -279,7 +279,7 @@ func TestListAllItems(t *testing.T) {
 					setup.Items(seller.UserID, 2, aux.WithHidden(false), aux.WithItemCategory(2), aux.WithPriceInCents(100))
 					setup.Items(seller.UserID, 3, aux.WithHidden(false), aux.WithItemCategory(3), aux.WithPriceInCents(200))
 
-					url := path.Items().CategoryFilter(2)
+					url := path.Items().AddCategoryFilter(2)
 					request := CreateGetRequest(url, WithSessionCookie(sessionID))
 					router.ServeHTTP(writer, request)
 
@@ -363,7 +363,7 @@ func TestListAllItems(t *testing.T) {
 						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("qux&"), aux.WithPriceInCents(400))
 						setup.Item(seller.UserID, aux.WithHidden(false), aux.WithDescription("qux qux"), aux.WithPriceInCents(800))
 
-						url := path.Items().Description("&")
+						url := path.Items().AddDescription("&")
 						request := CreateGetRequest(url, WithSessionCookie(sessionID))
 						router.ServeHTTP(writer, request)
 

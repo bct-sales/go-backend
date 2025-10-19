@@ -45,46 +45,46 @@ func (u *URL) String() string {
 	return path
 }
 
-func (u *URL) WithQueryIDParameter(key string, id models.ID) *URL {
+func (u *URL) AddQueryIDParameter(key string, id models.ID) *URL {
 	return u.AddQueryParameter(key, id.String())
 }
 
-func (u *URL) WithQueryIntParameter(key string, value int) *URL {
+func (u *URL) AddQueryIntParameter(key string, value int) *URL {
 	return u.AddQueryParameter(key, strconv.Itoa(value))
 }
 
-func (u *URL) Limit(limit int) *URL {
-	return u.WithQueryIntParameter("limit", limit)
+func (u *URL) AddLimit(limit int) *URL {
+	return u.AddQueryIntParameter("limit", limit)
 }
 
-func (u *URL) Offset(offset int) *URL {
-	return u.WithQueryIntParameter("offset", offset)
+func (u *URL) AddOffset(offset int) *URL {
+	return u.AddQueryIntParameter("offset", offset)
 }
 
-func (u *URL) Order(order string) *URL {
+func (u *URL) AddOrder(order string) *URL {
 	return u.AddQueryParameter("order", order)
 }
 
-func (u *URL) Chronologically() *URL {
-	return u.Order("chronological")
+func (u *URL) AddChronologicalOrder() *URL {
+	return u.AddOrder("chronological")
 }
 
-func (u *URL) AntiChronologically() *URL {
-	return u.Order("antichronological")
+func (u *URL) AddAntiChronologicalOrder() *URL {
+	return u.AddOrder("antichronological")
 }
 
-func (u *URL) StartID(startID models.ID) *URL {
-	return u.WithQueryIDParameter("startId", startID)
+func (u *URL) AddStartID(startID models.ID) *URL {
+	return u.AddQueryIDParameter("startId", startID)
 }
 
-func (u *URL) CategoryFilter(categoryID models.ID) *URL {
-	return u.WithQueryIDParameter("category", categoryID)
+func (u *URL) AddCategoryFilter(categoryID models.ID) *URL {
+	return u.AddQueryIDParameter("category", categoryID)
 }
 
-func (u *URL) Hidden(value bool) *URL {
+func (u *URL) AddHidden(value bool) *URL {
 	return u.AddQueryParameter("hidden", strconv.FormatBool(value))
 }
 
-func (u *URL) Description(description string) *URL {
+func (u *URL) AddDescription(description string) *URL {
 	return u.AddQueryParameter("description", url.QueryEscape(description))
 }

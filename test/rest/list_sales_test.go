@@ -164,7 +164,7 @@ func TestListAllSales(t *testing.T) {
 						setup.Sale(cashier.UserID, []models.ID{item.ItemID})
 					}
 
-					url := path.Sales().StartID(models.ID(k))
+					url := path.Sales().AddStartID(models.ID(k))
 					request := CreateGetRequest(url, WithSessionCookie(sessionID))
 					router.ServeHTTP(writer, request)
 					require.Equal(t, http.StatusOK, writer.Code)
@@ -194,7 +194,7 @@ func TestListAllSales(t *testing.T) {
 						items := setup.Items(seller.UserID, 100, aux.WithHidden(false))
 						sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
 
-						url := path.Sales().Limit(limit).Offset(offset)
+						url := path.Sales().AddLimit(limit).AddOffset(offset)
 						request := CreateGetRequest(url, WithSessionCookie(sessionID))
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code)
@@ -229,7 +229,7 @@ func TestListAllSales(t *testing.T) {
 						items := setup.Items(seller.UserID, 100, aux.WithHidden(false))
 						sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
 
-						url := path.Sales().Limit(limit).Offset(offset).AntiChronologically()
+						url := path.Sales().AddLimit(limit).AddOffset(offset).AddAntiChronologicalOrder()
 						request := CreateGetRequest(url, WithSessionCookie(sessionID))
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code)
