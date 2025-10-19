@@ -69,7 +69,7 @@ func (ep *listSoldItemsEndpoint) ensureUserHasCorrectRole() bool {
 }
 
 func (ep *listSoldItemsEndpoint) fetchSoldItemsFromDatabase() ([]*queries.SoldItem, bool) {
-	query := ep.buildSqlQuery()
+	query := ep.buildSQLQuery()
 	soldItems, err := query.Execute(ep.Database)
 
 	if err != nil {
@@ -81,7 +81,7 @@ func (ep *listSoldItemsEndpoint) fetchSoldItemsFromDatabase() ([]*queries.SoldIt
 	return soldItems, true
 }
 
-func (ep *listSoldItemsEndpoint) buildSqlQuery() *queries.GetSoldItemsQuery {
+func (ep *listSoldItemsEndpoint) buildSQLQuery() *queries.GetSoldItemsQuery {
 	return queries.NewGetSoldItemsQuery()
 }
 

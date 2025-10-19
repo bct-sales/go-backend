@@ -113,7 +113,7 @@ func (ep *listItemsEndpoint) parseDescriptionQueryParameter() (*string, bool) {
 	}
 }
 
-func (ep *listItemsEndpoint) buildSqlQuery(parameters *listItemsParameters) *queries.GetItemsQuery {
+func (ep *listItemsEndpoint) buildSQLQuery(parameters *listItemsParameters) *queries.GetItemsQuery {
 	query := queries.NewGetItemsQuery()
 
 	// Filtering based on category
@@ -169,7 +169,7 @@ func (ep *listItemsEndpoint) ensureUserHasCorrectRole() bool {
 func (ep *listItemsEndpoint) fetchItemsFromDatabase(parameters *listItemsParameters) ([]*models.Item, bool) {
 	var items []*models.Item
 
-	query := ep.buildSqlQuery(parameters)
+	query := ep.buildSQLQuery(parameters)
 	if err := query.Execute(ep.Database, queries.CollectTo(&items)); err != nil {
 		ep.Logger.InternalError("Failed to get items", "error", err)
 		failure_response.Unknown(ep.Context, "Failed to get items: "+err.Error())

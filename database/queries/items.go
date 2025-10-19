@@ -83,7 +83,7 @@ func (q *GetItemsQuery) Execute(db DatabaseQuerier, receiver func(*models.Item) 
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	queryString, queryArguments, err := q.buildSqlQuery()
+	queryString, queryArguments, err := q.buildSQLQuery()
 	if err != nil {
 		return err
 	}
@@ -149,7 +149,7 @@ func (q *GetItemsQuery) Execute(db DatabaseQuerier, receiver func(*models.Item) 
 	return nil
 }
 
-func (q *GetItemsQuery) buildSqlQuery() (string, []any, error) {
+func (q *GetItemsQuery) buildSQLQuery() (string, []any, error) {
 	query := sq.Select("item_id", "added_at", "description", "price_in_cents", "item_category_id", "seller_id", "donation", "charity", "frozen", "hidden")
 	query = query.From("items")
 	query = query.OrderBy("item_id ASC")
