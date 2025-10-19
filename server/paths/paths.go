@@ -93,27 +93,27 @@ func Root() *URL {
 }
 
 func RESTRoot() *URL {
-	return Root().WithExtraPathSegment("api").WithExtraPathSegment("v1")
+	return Root().AddPathSegment("api").AddPathSegment("v1")
 }
 
 func Login() *URL {
-	return RESTRoot().WithExtraPathSegment("login")
+	return RESTRoot().AddPathSegment("login")
 }
 
 func Logout() *URL {
-	return RESTRoot().WithExtraPathSegment("logout")
+	return RESTRoot().AddPathSegment("logout")
 }
 
 func Labels() *URL {
-	return RESTRoot().WithExtraPathSegment("labels")
+	return RESTRoot().AddPathSegment("labels")
 }
 
 func Users() *URL {
-	return RESTRoot().WithExtraPathSegment("users")
+	return RESTRoot().AddPathSegment("users")
 }
 
 func UserStr(userID string) *URL {
-	return Users().WithExtraPathSegment(userID)
+	return Users().AddPathSegment(userID)
 }
 
 func User(id models.ID) *URL {
@@ -121,11 +121,11 @@ func User(id models.ID) *URL {
 }
 
 func Sales() *URL {
-	return RESTRoot().WithExtraPathSegment("sales")
+	return RESTRoot().AddPathSegment("sales")
 }
 
 func SaleStr(saleID string) *URL {
-	return Sales().WithExtraPathSegment(saleID)
+	return Sales().AddPathSegment(saleID)
 }
 
 func Sale(id models.ID) *URL {
@@ -133,15 +133,15 @@ func Sale(id models.ID) *URL {
 }
 
 func SoldItems() *URL {
-	return Sales().WithExtraPathSegment("items")
+	return Sales().AddPathSegment("items")
 }
 
 func Items() *URL {
-	return RESTRoot().WithExtraPathSegment("items")
+	return RESTRoot().AddPathSegment("items")
 }
 
 func ItemStr(itemID string) *URL {
-	return Items().WithExtraPathSegment(itemID)
+	return Items().AddPathSegment(itemID)
 }
 
 func Item(id models.ID) *URL {
@@ -149,7 +149,7 @@ func Item(id models.ID) *URL {
 }
 
 func Categories() *URL {
-	return RESTRoot().WithExtraPathSegment("categories")
+	return RESTRoot().AddPathSegment("categories")
 }
 
 func CategoriesWithCounts(itemSelection queries.ItemSelection) *URL {
@@ -170,7 +170,7 @@ func CategoriesWithSoldItemCounts() *URL {
 }
 
 func SellerItemsStr(sellerID string) *URL {
-	return RESTRoot().WithExtraPathSegment("sellers").WithExtraPathSegment(sellerID).WithExtraPathSegment("items")
+	return RESTRoot().AddPathSegment("sellers").AddPathSegment(sellerID).AddPathSegment("items")
 }
 
 func SellerItems(sellerID models.ID) *URL {
@@ -178,7 +178,7 @@ func SellerItems(sellerID models.ID) *URL {
 }
 
 func CashierSalesStr(cashierID string) *URL {
-	return RESTRoot().WithExtraPathSegment("cashiers").WithExtraPathSegment(cashierID).WithExtraPathSegment("sales")
+	return RESTRoot().AddPathSegment("cashiers").AddPathSegment(cashierID).AddPathSegment("sales")
 }
 
 func CashierSales(cashierID models.ID) *URL {
@@ -186,5 +186,5 @@ func CashierSales(cashierID models.ID) *URL {
 }
 
 func Websocket() *URL {
-	return RESTRoot().WithExtraPathSegment("websocket")
+	return RESTRoot().AddPathSegment("websocket")
 }

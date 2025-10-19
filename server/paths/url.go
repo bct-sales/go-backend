@@ -19,9 +19,9 @@ func NewURL() *URL {
 	}
 }
 
-// WithExtraPathSegment updates the URL object by adding an extra segment to its path.
+// AddPathSegment updates the URL object by adding an extra segment to its path.
 // Returns the URL object so as to enable chaining.
-func (u *URL) WithExtraPathSegment(segment string) *URL {
+func (u *URL) AddPathSegment(segment string) *URL {
 	u.pathSegments = append(u.pathSegments, segment)
 	return u
 }
