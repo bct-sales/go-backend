@@ -1206,6 +1206,7 @@ type SoldItem struct {
 	SellerID        models.ID
 	Donation        bool
 	Charity         bool
+	Large           bool
 }
 
 type GetSoldItemsQuery struct{}
@@ -1234,7 +1235,8 @@ func (q *GetSoldItemsQuery) Execute(db DatabaseQuerier) (r_result []*SoldItem, r
 				item.item_category_id,
 				item.seller_id,
 				item.donation,
-				item.charity
+				item.charity,
+				item.large
 			FROM
 				sales sale
 			INNER JOIN
@@ -1265,6 +1267,7 @@ func (q *GetSoldItemsQuery) Execute(db DatabaseQuerier) (r_result []*SoldItem, r
 		var sellerID models.ID
 		var donation bool
 		var charity bool
+		var large bool
 
 		err := rows.Scan(
 			&saleID,
@@ -1278,6 +1281,7 @@ func (q *GetSoldItemsQuery) Execute(db DatabaseQuerier) (r_result []*SoldItem, r
 			&sellerID,
 			&donation,
 			&charity,
+			&large,
 		)
 		if err != nil {
 			return nil, err
@@ -1295,6 +1299,7 @@ func (q *GetSoldItemsQuery) Execute(db DatabaseQuerier) (r_result []*SoldItem, r
 			SellerID:        sellerID,
 			Donation:        donation,
 			Charity:         charity,
+			Large:           large,
 		}
 
 		soldItems = append(soldItems, &soldItem)
