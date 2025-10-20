@@ -327,7 +327,8 @@ func GetSaleItems(db DatabaseQuerier, saleID models.ID) (r_result []*models.Item
 				i.seller_id,
 				i.donation,
 				i.charity,
-				i.frozen
+				i.frozen,
+				i.large
 			FROM
 				sale_items si
 			INNER JOIN
@@ -354,7 +355,8 @@ func GetSaleItems(db DatabaseQuerier, saleID models.ID) (r_result []*models.Item
 		var charity bool
 		var frozen bool
 		var hidden bool
-		err := rows.Scan(&itemID, &addedAt, &description, &priceInCents, &categoryID, &sellerID, &donation, &charity, &frozen)
+		var large bool
+		err := rows.Scan(&itemID, &addedAt, &description, &priceInCents, &categoryID, &sellerID, &donation, &charity, &frozen, &large)
 		if err != nil {
 			return nil, err
 		}
@@ -370,6 +372,7 @@ func GetSaleItems(db DatabaseQuerier, saleID models.ID) (r_result []*models.Item
 			Charity:      charity,
 			Frozen:       frozen,
 			Hidden:       hidden,
+			Large:        large,
 		}
 		items = append(items, &item)
 	}
