@@ -77,7 +77,7 @@ func NewServer(clock clock.Clock, db *sql.DB, logger logging.Logger, configurati
 }
 
 func (server *Server) Shutdown() {
-	slog.Info("Shutting down server")
+	server.logger.Info("Shutting down server")
 
 	server.expiredSessionTicker.Stop()
 
@@ -85,7 +85,7 @@ func (server *Server) Shutdown() {
 		slog.Error("Failed to close database connection", slog.String("error", err.Error()))
 	}
 
-	slog.Info("Server shutdown complete")
+	server.logger.Info("Server shutdown complete")
 }
 
 func (server *Server) startPeriodicExpiredSessionPruner() {

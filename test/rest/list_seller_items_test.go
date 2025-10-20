@@ -25,7 +25,7 @@ func TestListSellerItems(t *testing.T) {
 					testLabel := fmt.Sprintf("SellerID: %d, ItemCount: %d", sellerID, itemCount)
 
 					t.Run(testLabel, func(t *testing.T) {
-						setup, router, writer := NewRestFixture(WithDefaultCategories)
+						setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 						defer setup.Close()
 
 						seller, sessionID := setup.LoggedIn(setup.Seller(aux.WithUserID(sellerID)))
@@ -60,7 +60,7 @@ func TestListSellerItems(t *testing.T) {
 		})
 
 		t.Run("As admin", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -95,7 +95,7 @@ func TestListSellerItems(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Not logged in", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -112,7 +112,7 @@ func TestListSellerItems(t *testing.T) {
 		})
 
 		t.Run("Seller accessing other seller's items", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			itemOwningSeller := setup.Seller()
@@ -130,7 +130,7 @@ func TestListSellerItems(t *testing.T) {
 		})
 
 		t.Run("As cashier", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			itemOwningSeller := setup.Seller()
@@ -148,7 +148,7 @@ func TestListSellerItems(t *testing.T) {
 		})
 
 		t.Run("Invalid seller id", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller, sessionID := setup.LoggedIn(setup.Seller())
@@ -165,7 +165,7 @@ func TestListSellerItems(t *testing.T) {
 		})
 
 		t.Run("Listing items of nonexisting seller", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionID := setup.LoggedIn(setup.Seller())
@@ -178,7 +178,7 @@ func TestListSellerItems(t *testing.T) {
 		})
 
 		t.Run("Listing items of nonseller", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			admin := setup.Admin()
@@ -191,7 +191,7 @@ func TestListSellerItems(t *testing.T) {
 		})
 
 		t.Run("Without cookie", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			admin := setup.Admin()
@@ -204,7 +204,7 @@ func TestListSellerItems(t *testing.T) {
 		})
 
 		t.Run("Cookie with dummy session id", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			admin := setup.Admin()

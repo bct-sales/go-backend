@@ -45,7 +45,7 @@ func TestListAllItems(t *testing.T) {
 			testLabel := fmt.Sprintf("Logged in as %s", loggedInRole.Name())
 			t.Run(testLabel, func(t *testing.T) {
 				t.Run("No items", func(t *testing.T) {
-					setup, router, writer := NewRestFixture(WithDefaultCategories)
+					setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
 					_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
@@ -66,7 +66,7 @@ func TestListAllItems(t *testing.T) {
 				})
 
 				t.Run("One item", func(t *testing.T) {
-					setup, router, writer := NewRestFixture(WithDefaultCategories)
+					setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
 					_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
@@ -91,7 +91,7 @@ func TestListAllItems(t *testing.T) {
 				})
 
 				t.Run("Two items", func(t *testing.T) {
-					setup, router, writer := NewRestFixture(WithDefaultCategories)
+					setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
 					_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
@@ -117,7 +117,7 @@ func TestListAllItems(t *testing.T) {
 				})
 
 				t.Run("Only visible items", func(t *testing.T) {
-					setup, router, writer := NewRestFixture(WithDefaultCategories)
+					setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
 					_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
@@ -143,7 +143,7 @@ func TestListAllItems(t *testing.T) {
 				})
 
 				t.Run("Only hidden items", func(t *testing.T) {
-					setup, router, writer := NewRestFixture(WithDefaultCategories)
+					setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
 					_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
@@ -172,7 +172,7 @@ func TestListAllItems(t *testing.T) {
 					for _, limit := range []int{1, 2, 10} {
 						testLabel := fmt.Sprintf("Limit %d", limit)
 						t.Run(testLabel, func(t *testing.T) {
-							setup, router, writer := NewRestFixture(WithDefaultCategories)
+							setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 							defer setup.Close()
 
 							itemCount := 100
@@ -203,7 +203,7 @@ func TestListAllItems(t *testing.T) {
 					for _, offset := range []int{0, 1, 2, 10} {
 						testLabel := fmt.Sprintf("Offset %d", offset)
 						t.Run(testLabel, func(t *testing.T) {
-							setup, router, writer := NewRestFixture(WithDefaultCategories)
+							setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 							defer setup.Close()
 
 							itemCount := 100
@@ -235,7 +235,7 @@ func TestListAllItems(t *testing.T) {
 						for _, offset := range []int{0, 1, 2, 10, 25} {
 							testLabel := fmt.Sprintf("Offset %d, limit %d", offset, limit)
 							t.Run(testLabel, func(t *testing.T) {
-								setup, router, writer := NewRestFixture(WithDefaultCategories)
+								setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 								defer setup.Close()
 
 								itemCount := 100
@@ -266,7 +266,7 @@ func TestListAllItems(t *testing.T) {
 				})
 
 				t.Run("Filter on category", func(t *testing.T) {
-					setup, router, writer := NewRestFixture()
+					setup, router, writer := NewRestFixture(t)
 					defer setup.Close()
 
 					setup.Category(1, "a")
@@ -298,7 +298,7 @@ func TestListAllItems(t *testing.T) {
 
 				t.Run("Filter on description", func(t *testing.T) {
 					t.Run("Searching for a", func(t *testing.T) {
-						setup, router, writer := NewRestFixture(WithDefaultCategories)
+						setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 						defer setup.Close()
 
 						_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
@@ -325,7 +325,7 @@ func TestListAllItems(t *testing.T) {
 					})
 
 					t.Run("Searching for space", func(t *testing.T) {
-						setup, router, writer := NewRestFixture(WithDefaultCategories)
+						setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 						defer setup.Close()
 
 						_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
@@ -352,7 +352,7 @@ func TestListAllItems(t *testing.T) {
 					})
 
 					t.Run("Searching for &", func(t *testing.T) {
-						setup, router, writer := NewRestFixture(WithDefaultCategories)
+						setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 						defer setup.Close()
 
 						_, sessionID := setup.LoggedIn(setup.User(loggedInRole))
@@ -386,7 +386,7 @@ func TestListAllItems(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("As seller", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionID := setup.LoggedIn(setup.Seller())
@@ -398,7 +398,7 @@ func TestListAllItems(t *testing.T) {
 		})
 
 		t.Run("No cookie", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			request := CreateGetRequest(url)
@@ -408,7 +408,7 @@ func TestListAllItems(t *testing.T) {
 		})
 
 		t.Run("Cookie with fake session id", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			request := CreateGetRequest(url, WithSessionCookie("fake_session_id"))
@@ -418,7 +418,7 @@ func TestListAllItems(t *testing.T) {
 		})
 
 		t.Run("Cookie without session id", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			request := CreateGetRequest(url, WithCookie("whatever", "whatever"))

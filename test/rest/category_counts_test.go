@@ -26,7 +26,7 @@ func TestCategoryCounts(t *testing.T) {
 			url := path.CategoriesWithCounts(queries.AllItems)
 
 			t.Run("Zero items", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionID := setup.LoggedIn(setup.Admin())
@@ -50,7 +50,7 @@ func TestCategoryCounts(t *testing.T) {
 
 			for categoryID, _ := range defaultCategoryNameTable {
 				t.Run("Single item", func(t *testing.T) {
-					setup, router, writer := NewRestFixture(WithDefaultCategories)
+					setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
 					_, sessionID := setup.LoggedIn(setup.Admin())
@@ -69,7 +69,7 @@ func TestCategoryCounts(t *testing.T) {
 
 			for categoryID := range defaultCategoryNameTable {
 				t.Run("Two items in same category", func(t *testing.T) {
-					setup, router, writer := NewRestFixture(WithDefaultCategories)
+					setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
 					_, sessionID := setup.LoggedIn(setup.Admin())
@@ -91,7 +91,7 @@ func TestCategoryCounts(t *testing.T) {
 				for categoryID2 := range defaultCategoryNameTable {
 					if categoryID1 != categoryID2 {
 						t.Run("Two items in different categories", func(t *testing.T) {
-							setup, router, writer := NewRestFixture(WithDefaultCategories)
+							setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 							defer setup.Close()
 
 							_, sessionID := setup.LoggedIn(setup.Admin())
@@ -117,7 +117,7 @@ func TestCategoryCounts(t *testing.T) {
 
 		t.Run("Hidden items involved", func(t *testing.T) {
 			t.Run("Count all items", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionID := setup.LoggedIn(setup.Admin())
@@ -138,7 +138,7 @@ func TestCategoryCounts(t *testing.T) {
 			})
 
 			t.Run("Count only hidden items", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionID := setup.LoggedIn(setup.Admin())
@@ -159,7 +159,7 @@ func TestCategoryCounts(t *testing.T) {
 			})
 
 			t.Run("Count only visible items", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionID := setup.LoggedIn(setup.Admin())
@@ -183,7 +183,7 @@ func TestCategoryCounts(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Not logged in", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			url := path.CategoriesWithCounts(queries.OnlyVisibleItems)
@@ -194,7 +194,7 @@ func TestCategoryCounts(t *testing.T) {
 		})
 
 		t.Run("Wrong role: cashier", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionID := setup.LoggedIn(setup.Cashier())
@@ -207,7 +207,7 @@ func TestCategoryCounts(t *testing.T) {
 		})
 
 		t.Run("Expired session", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionID := setup.LoggedIn(setup.Admin(), aux.WithExpiration(100))

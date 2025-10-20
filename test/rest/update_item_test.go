@@ -19,7 +19,7 @@ import (
 func TestUpdateItem(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Updating description", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller, sessionID := setup.LoggedIn(setup.Seller())
@@ -46,7 +46,7 @@ func TestUpdateItem(t *testing.T) {
 		})
 
 		t.Run("Updating as admin", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -74,7 +74,7 @@ func TestUpdateItem(t *testing.T) {
 		})
 
 		t.Run("Updating price", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller, sessionID := setup.LoggedIn(setup.Seller())
@@ -101,7 +101,7 @@ func TestUpdateItem(t *testing.T) {
 		})
 
 		t.Run("Updating charity and donation", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller, sessionID := setup.LoggedIn(setup.Seller())
@@ -131,7 +131,7 @@ func TestUpdateItem(t *testing.T) {
 
 	t.Run("Failures", func(t *testing.T) {
 		t.Run("Updating frozen item", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller, sessionID := setup.LoggedIn(setup.Seller())
@@ -156,7 +156,7 @@ func TestUpdateItem(t *testing.T) {
 		})
 
 		t.Run("Invalid price", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller, sessionID := setup.LoggedIn(setup.Seller())
@@ -180,7 +180,7 @@ func TestUpdateItem(t *testing.T) {
 		})
 
 		t.Run("Nonexisting item", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionID := setup.LoggedIn(setup.Seller())
@@ -199,7 +199,7 @@ func TestUpdateItem(t *testing.T) {
 		})
 
 		t.Run("Updating as wrong seller", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			ownerSeller := setup.Seller()
@@ -224,7 +224,7 @@ func TestUpdateItem(t *testing.T) {
 		})
 
 		t.Run("Updating as cashier", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			ownerSeller := setup.Seller()

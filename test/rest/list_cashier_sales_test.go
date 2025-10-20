@@ -20,7 +20,7 @@ func TestListCashierSales(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Cashier views own sales", func(t *testing.T) {
 			t.Run("All sales", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				seller := setup.Seller()
@@ -44,7 +44,7 @@ func TestListCashierSales(t *testing.T) {
 			})
 
 			t.Run("With offset", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				seller := setup.Seller()
@@ -66,7 +66,7 @@ func TestListCashierSales(t *testing.T) {
 			})
 
 			t.Run("With limit", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				seller := setup.Seller()
@@ -88,7 +88,7 @@ func TestListCashierSales(t *testing.T) {
 			})
 
 			t.Run("With limit and offset", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				seller := setup.Seller()
@@ -110,7 +110,7 @@ func TestListCashierSales(t *testing.T) {
 			})
 
 			t.Run("Anti chronologically", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				seller := setup.Seller()
@@ -135,7 +135,7 @@ func TestListCashierSales(t *testing.T) {
 		})
 
 		t.Run("Admin views sales", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionID := setup.LoggedIn(setup.Admin())
@@ -161,7 +161,7 @@ func TestListCashierSales(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Seller views sales", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller, sessionID := setup.LoggedIn(setup.Seller())
@@ -180,7 +180,7 @@ func TestListCashierSales(t *testing.T) {
 		})
 
 		t.Run("Other cashier views sales", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()

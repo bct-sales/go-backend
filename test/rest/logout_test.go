@@ -15,7 +15,7 @@ import (
 
 func TestLogout(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		setup, router, writer := NewRestFixture(WithDefaultCategories)
+		setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
 		_, sessionID := setup.LoggedIn(setup.Admin())
@@ -27,7 +27,7 @@ func TestLogout(t *testing.T) {
 	})
 
 	t.Run("Expired session", func(t *testing.T) {
-		setup, router, writer := NewRestFixture(WithDefaultCategories)
+		setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
 		_, sessionID := setup.LoggedIn(setup.Admin(), aux.WithExpiration(100))

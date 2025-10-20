@@ -22,7 +22,7 @@ func TestListCategories(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("As admin", func(t *testing.T) {
 			t.Run("Without counts", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionID := setup.LoggedIn(setup.Admin())
@@ -41,7 +41,7 @@ func TestListCategories(t *testing.T) {
 			})
 
 			t.Run("With counts, including all items", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionID := setup.LoggedIn(setup.Admin())
@@ -60,7 +60,7 @@ func TestListCategories(t *testing.T) {
 			})
 
 			t.Run("With sold item counts", func(t *testing.T) {
-				setup, router, writer := NewRestFixture()
+				setup, router, writer := NewRestFixture(t)
 				defer setup.Close()
 
 				categoryID1 := models.ID(1)
@@ -99,7 +99,7 @@ func TestListCategories(t *testing.T) {
 
 		t.Run("As seller", func(t *testing.T) {
 			t.Run("Without counts", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionID := setup.LoggedIn(setup.Seller())
@@ -119,7 +119,7 @@ func TestListCategories(t *testing.T) {
 
 		t.Run("As cashier", func(t *testing.T) {
 			t.Run("Without counts", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionID := setup.LoggedIn(setup.Cashier())
@@ -141,7 +141,7 @@ func TestListCategories(t *testing.T) {
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("As seller", func(t *testing.T) {
 			t.Run("With counts", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionID := setup.LoggedIn(setup.Seller())
@@ -153,7 +153,7 @@ func TestListCategories(t *testing.T) {
 			})
 
 			t.Run("With sold item counts", func(t *testing.T) {
-				setup, router, writer := NewRestFixture()
+				setup, router, writer := NewRestFixture(t)
 				defer setup.Close()
 
 				categoryID1 := models.ID(1)
@@ -180,7 +180,7 @@ func TestListCategories(t *testing.T) {
 
 		t.Run("As cashier", func(t *testing.T) {
 			t.Run("With counts", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionID := setup.LoggedIn(setup.Cashier())
@@ -192,7 +192,7 @@ func TestListCategories(t *testing.T) {
 			})
 
 			t.Run("With sold item counts", func(t *testing.T) {
-				setup, router, writer := NewRestFixture()
+				setup, router, writer := NewRestFixture(t)
 				defer setup.Close()
 
 				categoryID1 := models.ID(1)

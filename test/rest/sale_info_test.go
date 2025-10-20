@@ -20,7 +20,7 @@ func TestGetSaleInformation(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("As admin", func(t *testing.T) {
 			t.Run("Single item in sale", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionID := setup.LoggedIn(setup.Admin())
@@ -51,7 +51,7 @@ func TestGetSaleInformation(t *testing.T) {
 			})
 
 			t.Run("Five item in sale", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionID := setup.LoggedIn(setup.Admin())
@@ -88,7 +88,7 @@ func TestGetSaleInformation(t *testing.T) {
 
 		t.Run("As owning cashier", func(t *testing.T) {
 			t.Run("Five item in sale", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				seller := setup.Seller()
@@ -125,7 +125,7 @@ func TestGetSaleInformation(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Unknown sale", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionID := setup.LoggedIn(setup.Admin())
@@ -138,7 +138,7 @@ func TestGetSaleInformation(t *testing.T) {
 		})
 
 		t.Run("As seller", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller, sessionID := setup.LoggedIn(setup.Seller())
@@ -153,7 +153,7 @@ func TestGetSaleInformation(t *testing.T) {
 		})
 
 		t.Run("As other cashier", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()

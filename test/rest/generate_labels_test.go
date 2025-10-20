@@ -32,7 +32,7 @@ func TestGenerateLabels(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Single seller", func(t *testing.T) {
 			t.Run("Single item", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				seller, sessionID := setup.LoggedIn(setup.Seller())
@@ -49,7 +49,7 @@ func TestGenerateLabels(t *testing.T) {
 			})
 
 			t.Run("10 items", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				seller, sessionID := setup.LoggedIn(setup.Seller())
@@ -72,7 +72,7 @@ func TestGenerateLabels(t *testing.T) {
 		})
 
 		t.Run("Multiple sellers", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller, sessionID := setup.LoggedIn(setup.Seller())
@@ -100,7 +100,7 @@ func TestGenerateLabels(t *testing.T) {
 		})
 
 		t.Run("Frozen items", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller, sessionID := setup.LoggedIn(setup.Seller())
@@ -122,7 +122,7 @@ func TestGenerateLabels(t *testing.T) {
 		})
 
 		t.Run("Duplicate items", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller, sessionID := setup.LoggedIn(setup.Seller())
@@ -146,7 +146,7 @@ func TestGenerateLabels(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("No items listed", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller, sessionID := setup.LoggedIn(setup.Seller())
@@ -167,7 +167,7 @@ func TestGenerateLabels(t *testing.T) {
 		})
 
 		t.Run("Nonexistent item", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller, sessionID := setup.LoggedIn(setup.Seller())
@@ -189,7 +189,7 @@ func TestGenerateLabels(t *testing.T) {
 		})
 
 		t.Run("As nonowning seller", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			owningSeller := setup.Seller()
@@ -211,7 +211,7 @@ func TestGenerateLabels(t *testing.T) {
 		})
 
 		t.Run("As admin", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -233,7 +233,7 @@ func TestGenerateLabels(t *testing.T) {
 		})
 
 		t.Run("As cashier", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -255,7 +255,7 @@ func TestGenerateLabels(t *testing.T) {
 		})
 
 		t.Run("Without cookie", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller, _ := setup.LoggedIn(setup.Seller())
@@ -276,7 +276,7 @@ func TestGenerateLabels(t *testing.T) {
 		})
 
 		t.Run("Invalid session id", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller, _ := setup.LoggedIn(setup.Seller())
@@ -297,7 +297,7 @@ func TestGenerateLabels(t *testing.T) {
 		})
 
 		t.Run("Expired session", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller, sessionID := setup.LoggedIn(setup.Seller(), aux.WithExpiration(500))
@@ -547,7 +547,7 @@ func TestGenerateLabels(t *testing.T) {
 			for _, layout := range layouts {
 				testLabel := fmt.Sprintf("Layout %v", layout)
 				t.Run(testLabel, func(t *testing.T) {
-					setup, router, writer := NewRestFixture(WithDefaultCategories)
+					setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
 					seller, sessionID := setup.LoggedIn(setup.Seller())

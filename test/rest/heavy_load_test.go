@@ -19,7 +19,7 @@ import (
 
 func TestHeavyLoad(t *testing.T) {
 	t.Run("Updating many items at once", func(t *testing.T) {
-		setup, router, _ := NewRestFixture(WithDefaultCategories)
+		setup, router, _ := NewRestFixture(t, WithDefaultCategories)
 		defer func() {
 			setup.Close()
 		}()

@@ -22,7 +22,7 @@ import (
 func TestListAllSales(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Single sale", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionID := setup.LoggedIn(setup.Admin())
@@ -59,7 +59,7 @@ func TestListAllSales(t *testing.T) {
 		})
 
 		t.Run("Two sales", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionID := setup.LoggedIn(setup.Admin())
@@ -104,7 +104,7 @@ func TestListAllSales(t *testing.T) {
 		})
 
 		t.Run("Two sales with shared item", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionID := setup.LoggedIn(setup.Admin())
@@ -152,7 +152,7 @@ func TestListAllSales(t *testing.T) {
 			for _, k := range []int{1, 2, 5, 25} {
 				testLabel := fmt.Sprintf("k = %d", k)
 				t.Run(testLabel, func(t *testing.T) {
-					setup, router, writer := NewRestFixture(WithDefaultCategories)
+					setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
 					_, sessionID := setup.LoggedIn(setup.Admin())
@@ -185,7 +185,7 @@ func TestListAllSales(t *testing.T) {
 				for _, offset := range []int{0, 1, 2, 5, 10} {
 					testLabel := fmt.Sprintf("limit = %d, offset = %d", limit, offset)
 					t.Run(testLabel, func(t *testing.T) {
-						setup, router, writer := NewRestFixture(WithDefaultCategories)
+						setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 						defer setup.Close()
 
 						_, sessionID := setup.LoggedIn(setup.Admin())
@@ -220,7 +220,7 @@ func TestListAllSales(t *testing.T) {
 				for _, offset := range []int{0, 1, 2, 5, 10} {
 					testLabel := fmt.Sprintf("limit = %d, offset = %d", limit, offset)
 					t.Run(testLabel, func(t *testing.T) {
-						setup, router, writer := NewRestFixture(WithDefaultCategories)
+						setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 						defer setup.Close()
 
 						_, sessionID := setup.LoggedIn(setup.Admin())
@@ -255,7 +255,7 @@ func TestListAllSales(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("As seller", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller, sessionID := setup.LoggedIn(setup.Seller())
@@ -271,7 +271,7 @@ func TestListAllSales(t *testing.T) {
 		})
 
 		t.Run("As cashier", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -287,7 +287,7 @@ func TestListAllSales(t *testing.T) {
 		})
 
 		t.Run("No cookie", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -303,7 +303,7 @@ func TestListAllSales(t *testing.T) {
 		})
 
 		t.Run("Cookie with fake session id", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()
@@ -319,7 +319,7 @@ func TestListAllSales(t *testing.T) {
 		})
 
 		t.Run("Cookie without session id", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			seller := setup.Seller()

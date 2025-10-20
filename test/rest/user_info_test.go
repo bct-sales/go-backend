@@ -22,7 +22,7 @@ func TestGetUserInformation(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Logged in as admin", func(t *testing.T) {
 			t.Run("Information about admin", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				admin, sessionID := setup.LoggedIn(setup.Admin())
@@ -44,7 +44,7 @@ func TestGetUserInformation(t *testing.T) {
 					testLabel := fmt.Sprintf("Item count: %d", item_count)
 
 					t.Run(testLabel, func(t *testing.T) {
-						setup, router, writer := NewRestFixture(WithDefaultCategories)
+						setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 						defer setup.Close()
 
 						seller := setup.Seller()
@@ -68,7 +68,7 @@ func TestGetUserInformation(t *testing.T) {
 
 			t.Run("Information about cashier", func(t *testing.T) {
 				t.Run("Zero sales", func(t *testing.T) {
-					setup, router, writer := NewRestFixture(WithDefaultCategories)
+					setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
 					cashier := setup.Cashier()
@@ -87,7 +87,7 @@ func TestGetUserInformation(t *testing.T) {
 				})
 
 				t.Run("One sale", func(t *testing.T) {
-					setup, router, writer := NewRestFixture(WithDefaultCategories)
+					setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
 					seller := setup.Seller()
@@ -115,7 +115,7 @@ func TestGetUserInformation(t *testing.T) {
 						testLabel := fmt.Sprintf("Sale count: %d", saleCount)
 
 						t.Run(testLabel, func(t *testing.T) {
-							setup, router, writer := NewRestFixture(WithDefaultCategories)
+							setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 							defer setup.Close()
 
 							seller := setup.Seller()
@@ -150,7 +150,7 @@ func TestGetUserInformation(t *testing.T) {
 				for _, frozenItemCount := range []int{0, 1, 2, 5, 10} {
 					testLabel := fmt.Sprintf("Unfrozen item count: %d, Frozen item count: %d", unfrozenItemCount, frozenItemCount)
 					t.Run(testLabel, func(t *testing.T) {
-						setup, router, writer := NewRestFixture(WithDefaultCategories)
+						setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 						defer setup.Close()
 
 						seller, sessionID := setup.LoggedIn(setup.Seller())
@@ -183,7 +183,7 @@ func TestGetUserInformation(t *testing.T) {
 
 		t.Run("Logged in as cashier", func(t *testing.T) {
 			t.Run("Information about self", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				seller := setup.Seller()
@@ -215,7 +215,7 @@ func TestGetUserInformation(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("No cookie", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			cashier := setup.Cashier()
@@ -227,7 +227,7 @@ func TestGetUserInformation(t *testing.T) {
 		})
 
 		t.Run("Invalid session id", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			cashier := setup.Cashier()
@@ -239,7 +239,7 @@ func TestGetUserInformation(t *testing.T) {
 		})
 
 		t.Run("Cookie without session id", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			cashier := setup.Cashier()
@@ -251,7 +251,7 @@ func TestGetUserInformation(t *testing.T) {
 		})
 
 		t.Run("Invalid user id", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionID := setup.LoggedIn(setup.Admin())
@@ -263,7 +263,7 @@ func TestGetUserInformation(t *testing.T) {
 		})
 
 		t.Run("Nonexistent user id", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(WithDefaultCategories)
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			_, sessionID := setup.LoggedIn(setup.Admin())
@@ -277,7 +277,7 @@ func TestGetUserInformation(t *testing.T) {
 
 		t.Run("Unauthorized access", func(t *testing.T) {
 			t.Run("Seller querying information about other seller", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionID := setup.LoggedIn(setup.Seller())
@@ -290,7 +290,7 @@ func TestGetUserInformation(t *testing.T) {
 			})
 
 			t.Run("Seller querying information about cashier", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionID := setup.LoggedIn(setup.Seller())
@@ -303,7 +303,7 @@ func TestGetUserInformation(t *testing.T) {
 			})
 
 			t.Run("Seller querying information about admin", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionID := setup.LoggedIn(setup.Seller())
@@ -316,7 +316,7 @@ func TestGetUserInformation(t *testing.T) {
 			})
 
 			t.Run("Cashier querying information about seller", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionID := setup.LoggedIn(setup.Cashier())
@@ -329,7 +329,7 @@ func TestGetUserInformation(t *testing.T) {
 			})
 
 			t.Run("Cashier querying information about other cashier", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionID := setup.LoggedIn(setup.Cashier())
@@ -342,7 +342,7 @@ func TestGetUserInformation(t *testing.T) {
 			})
 
 			t.Run("Cashier querying information about admin", func(t *testing.T) {
-				setup, router, writer := NewRestFixture(WithDefaultCategories)
+				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
 				_, sessionID := setup.LoggedIn(setup.Cashier())

@@ -4,12 +4,14 @@ package setup
 
 import (
 	"context"
+	"maps"
 	"net/http/httptest"
 	"testing"
 
 	"bctbackend/clock"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/logging"
 	"bctbackend/server"
 	aux "bctbackend/test/helpers"
 	"database/sql"
@@ -59,16 +61,56 @@ type RestFixture struct {
 	Writer *httptest.ResponseRecorder
 }
 
-func initializeRestFixture(fixture *RestFixture, databaseOptions ...func(*DatabaseFixture)) {
+func initializeRestFixture(fixture *RestFixture, logger logging.Logger, databaseOptions ...func(*DatabaseFixture)) {
 	initializeDatabaseFixture(&fixture.DatabaseFixture, databaseOptions...)
-	server := aux.CreateRestServer(fixture.DatabaseFixture.Db, fixture.Clock)
+	server := aux.CreateRestServer(fixture.DatabaseFixture.Db, logger, fixture.Clock)
 	fixture.Server = server
 	fixture.Writer = httptest.NewRecorder()
 }
 
-func NewRestFixture(databaseOptions ...func(*DatabaseFixture)) (RestFixture, *server.Server, *httptest.ResponseRecorder) {
+type TestLogger struct {
+	t     *testing.T
+	extra map[string]any
+}
+
+func (logger *TestLogger) Debug(message string) {
+	logger.t.Logf("Debug: %s (%v)", message, logger.extra)
+}
+
+func (logger *TestLogger) Info(message string) {
+	logger.t.Logf("Info: %s (%v)", message, logger.extra)
+}
+
+func (logger *TestLogger) Warn(message string) {
+	logger.t.Logf("Warning: %s (%v)", message, logger.extra)
+}
+
+func (logger *TestLogger) Error(message string) {
+	logger.t.Logf("Error: %s (%v)", message, logger.extra)
+}
+
+func (logger *TestLogger) With(key string, value any) logging.Logger {
+	extraCopy := maps.Clone(logger.extra)
+	extraCopy[key] = value
+
+	return &TestLogger{
+		t:     logger.t,
+		extra: extraCopy,
+	}
+}
+
+func createTestLogger(t *testing.T) logging.Logger {
+	return &TestLogger{
+		t:     t,
+		extra: make(map[string]any),
+	}
+}
+
+func NewRestFixture(t *testing.T, databaseOptions ...func(*DatabaseFixture)) (RestFixture, *server.Server, *httptest.ResponseRecorder) {
+	logger := createTestLogger(t)
+
 	var fixture RestFixture
-	initializeRestFixture(&fixture, databaseOptions...)
+	initializeRestFixture(&fixture, logger, databaseOptions...)
 	return fixture, fixture.Server, fixture.Writer
 }
 
