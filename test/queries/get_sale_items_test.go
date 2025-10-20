@@ -15,29 +15,31 @@ import (
 
 func TestGetSaleItems(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
-		defer setup.Close()
+		t.Run("Multiple items", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
 
-		seller := setup.Seller()
-		cashier := setup.Cashier()
-		items := setup.Items(seller.UserID, 20, aux.WithHidden(false))
-		itemIDs := models.CollectItemIDs(items)
+			seller := setup.Seller()
+			cashier := setup.Cashier()
+			items := setup.Items(seller.UserID, 20, aux.WithHidden(false))
+			itemIDs := models.CollectItemIDs(items)
 
-		sale := setup.Sale(cashier.UserID, itemIDs)
+			sale := setup.Sale(cashier.UserID, itemIDs)
 
-		actualItems, err := queries.GetSaleItems(db, sale.SaleID)
-
-		require.NoError(t, err)
-		require.Len(t, actualItems, len(itemIDs))
-
-		for index, actualItem := range actualItems {
-			require.Equal(t, itemIDs[index], actualItem.ItemID)
-
-			expectedItem, err := queries.GetItemWithID(db, itemIDs[index])
+			actualItems, err := queries.GetSaleItems(db, sale.SaleID)
 
 			require.NoError(t, err)
-			require.Equal(t, expectedItem, actualItem)
-		}
+			require.Len(t, actualItems, len(itemIDs))
+
+			for index, actualItem := range actualItems {
+				require.Equal(t, itemIDs[index], actualItem.ItemID)
+
+				expectedItem, err := queries.GetItemWithID(db, itemIDs[index])
+
+				require.NoError(t, err)
+				require.Equal(t, expectedItem, actualItem)
+			}
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
