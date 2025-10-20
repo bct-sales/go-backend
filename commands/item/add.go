@@ -148,6 +148,7 @@ func (c *addItemCommand) printItem(db *sql.DB, itemID models.ID) error {
 		{"Added At", item.AddedAt.FormattedDateTime()},
 		{"Frozen", strconv.FormatBool(item.Frozen)},
 		{"Hidden", strconv.FormatBool(item.Hidden)},
+		{"Large", strconv.FormatBool(item.Large)},
 	}
 
 	err = pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()
