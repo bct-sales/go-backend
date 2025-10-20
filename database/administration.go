@@ -78,8 +78,12 @@ func CreateDatabase(path string) (*sql.DB, error) {
 func OpenDatabase(path string) (*sql.DB, error) {
 	slog.Debug("Checking existence of database file", slog.String("path", path))
 	if exists, err := algorithms.FileExists(path); err != nil || !exists {
+		if err != nil {
+			slog.Error("Failed to check for existence of database file", slog.String("path", path))
+			return nil, fmt.Errorf("failed to check existence of database file: %w", err)
+		}
 		slog.Debug("Database file not found", slog.String("path", path))
-		return nil, fmt.Errorf("failed to check existence of database file: %w", err)
+		return nil, fmt.Errorf("database file not found")
 	}
 
 	slog.Debug("Opening database file", slog.String("path", path))
