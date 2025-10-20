@@ -13,7 +13,7 @@ func FormatSoldItemsAsCSV(soldItems []*queries.SoldItem, categoryNameTable map[m
 	csvWriter := csv.NewWriter(writer)
 	defer csvWriter.Flush()
 
-	headers := []string{"sale_id", "cashier_id", "transaction_time", "item_id", "description", "price_in_cents", "item_category", "seller_id", "donation", "charity"}
+	headers := []string{"sale_id", "cashier_id", "transaction_time", "item_id", "description", "price_in_cents", "item_category", "seller_id", "donation", "charity", "large"}
 	err := csvWriter.Write(headers)
 	if err != nil {
 		return fmt.Errorf("failed to write headers: %w", err)
@@ -33,6 +33,7 @@ func FormatSoldItemsAsCSV(soldItems []*queries.SoldItem, categoryNameTable map[m
 		sellerIDStr := soldItem.SellerID.String()
 		donationStr := strconv.FormatBool(soldItem.Donation)
 		charityStr := strconv.FormatBool(soldItem.Charity)
+		largeStr := strconv.FormatBool(soldItem.Large)
 
 		err = csvWriter.Write([]string{
 			saleIDStr,
@@ -45,6 +46,7 @@ func FormatSoldItemsAsCSV(soldItems []*queries.SoldItem, categoryNameTable map[m
 			sellerIDStr,
 			donationStr,
 			charityStr,
+			largeStr,
 		})
 
 		if err != nil {
