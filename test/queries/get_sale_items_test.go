@@ -44,14 +44,9 @@ func TestGetSaleItems(t *testing.T) {
 		setup, db := NewDatabaseFixture(WithDefaultCategories)
 		defer setup.Close()
 
-		saleID := models.ID(1)
+		saleID := setup.GenerateNonexistentSaleID(t)
 
-		saleExists, err := queries.SaleWithIDExists(db, saleID)
-
-		require.NoError(t, err)
-		require.False(t, saleExists)
-
-		_, err = queries.GetSaleItems(db, saleID)
+		_, err := queries.GetSaleItems(db, saleID)
 
 		require.Error(t, err)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSale)
