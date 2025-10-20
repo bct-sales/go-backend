@@ -175,7 +175,7 @@ func (c *showUserCommand) printUserTable(user *models.User) error {
 
 func (c *showUserCommand) printItems(categoryNameTable map[models.ID]string, items []*models.Item) error {
 	tableData := pterm.TableData{
-		{"ID", "Description", "Price", "Category", "Seller", "Donation", "Charity", "Added At", "Frozen", "Hidden"},
+		{"ID", "Description", "Price", "Category", "Seller", "Donation", "Charity", "Large", "Added At", "Frozen", "Hidden"},
 	}
 
 	for _, item := range items {
@@ -193,6 +193,7 @@ func (c *showUserCommand) printItems(categoryNameTable map[models.ID]string, ite
 			item.SellerID.String(),
 			strconv.FormatBool(item.Donation),
 			strconv.FormatBool(item.Charity),
+			strconv.FormatBool(item.Large),
 			item.AddedAt.FormattedDateTime(),
 			strconv.FormatBool(item.Frozen),
 			strconv.FormatBool(item.Hidden),
