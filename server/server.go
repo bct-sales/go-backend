@@ -99,7 +99,7 @@ func (server *Server) startPeriodicExpiredSessionPruner() {
 
 	server.expiredSessionTicker = clock.NewTicker(pruneInterval, func() {
 		now := clock.Now()
-		slog.Info("Cleaning up expired sessions", slog.String("current_time", now.String()))
+		server.logger.With("current_time", now.String()).Info("Cleaning up expired sessions")
 		if err := queries.DeleteExpiredSessions(server.database, now); err != nil {
 			slog.Error("Failed to clean up expired sessions", slog.String("error", err.Error()))
 		}
