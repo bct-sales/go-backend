@@ -77,6 +77,7 @@ func (c *showItemCommand) printItem(db *sql.DB, itemID models.ID) error {
 		{"Seller", item.SellerID.String()},
 		{"Donation", strconv.FormatBool(item.Donation)},
 		{"Charity", strconv.FormatBool(item.Charity)},
+		{"Large", strconv.FormatBool(item.Large)},
 		{"Added At", item.AddedAt.FormattedDateTime()},
 		{"Hidden", strconv.FormatBool(item.Hidden)},
 		{"Frozen", strconv.FormatBool(item.Frozen)},
