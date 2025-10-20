@@ -14,48 +14,51 @@ import (
 )
 
 func TestGetSaleItems(t *testing.T) {
-	setup, db := NewDatabaseFixture(WithDefaultCategories)
-	defer setup.Close()
+	t.Run("Success", func(t *testing.T) {
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		defer setup.Close()
 
-	seller := setup.Seller()
-	cashier := setup.Cashier()
-	itemIDs := []models.ID{
-		setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)).ItemID,
-		setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false)).ItemID,
-		setup.Item(seller.UserID, aux.WithDummyData(3), aux.WithHidden(false)).ItemID,
-		setup.Item(seller.UserID, aux.WithDummyData(4), aux.WithHidden(false)).ItemID,
-	}
+		seller := setup.Seller()
+		cashier := setup.Cashier()
+		itemIDs := []models.ID{
+			setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)).ItemID,
+			setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false)).ItemID,
+			setup.Item(seller.UserID, aux.WithDummyData(3), aux.WithHidden(false)).ItemID,
+			setup.Item(seller.UserID, aux.WithDummyData(4), aux.WithHidden(false)).ItemID,
+			setup.Item(seller.UserID, aux.WithDummyData(5), aux.WithHidden(false)).ItemID,
+		}
 
-	sale := setup.Sale(cashier.UserID, itemIDs)
+		sale := setup.Sale(cashier.UserID, itemIDs)
 
-	actualItems, err := queries.GetSaleItems(db, sale.SaleID)
-
-	require.NoError(t, err)
-	require.Len(t, actualItems, len(itemIDs))
-
-	for index, actualItem := range actualItems {
-		require.Equal(t, itemIDs[index], actualItem.ItemID)
-
-		expectedItem, err := queries.GetItemWithID(db, itemIDs[index])
+		actualItems, err := queries.GetSaleItems(db, sale.SaleID)
 
 		require.NoError(t, err)
-		require.Equal(t, expectedItem, actualItem)
-	}
-}
+		require.Len(t, actualItems, len(itemIDs))
 
-func TestGetSaleItemsOfNonexistentSale(t *testing.T) {
-	setup, db := NewDatabaseFixture(WithDefaultCategories)
-	defer setup.Close()
+		for index, actualItem := range actualItems {
+			require.Equal(t, itemIDs[index], actualItem.ItemID)
 
-	saleID := models.ID(1)
+			expectedItem, err := queries.GetItemWithID(db, itemIDs[index])
 
-	saleExists, err := queries.SaleWithIDExists(db, saleID)
+			require.NoError(t, err)
+			require.Equal(t, expectedItem, actualItem)
+		}
+	})
 
-	require.NoError(t, err)
-	require.False(t, saleExists)
+	t.Run("Failure", func(t *testing.T) {
+		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		defer setup.Close()
 
-	_, err = queries.GetSaleItems(db, saleID)
+		saleID := models.ID(1)
 
-	require.Error(t, err)
-	requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSale)
+		saleExists, err := queries.SaleWithIDExists(db, saleID)
+
+		require.NoError(t, err)
+		require.False(t, saleExists)
+
+		_, err = queries.GetSaleItems(db, saleID)
+
+		require.Error(t, err)
+		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSale)
+	})
 }
