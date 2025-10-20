@@ -228,6 +228,33 @@ func TestGetItemsQuery(t *testing.T) {
 			require.Equal(t, item3.ItemID, actualItems[1].ItemID)
 			require.Equal(t, item5.ItemID, actualItems[2].ItemID)
 		})
+
+		t.Run("Get large items", func(t *testing.T) {
+			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			defer setup.Close()
+
+			seller := setup.Seller()
+			setup.Item(seller.UserID, aux.WithHidden(false), aux.WithLarge(false))
+			setup.Item(seller.UserID, aux.WithHidden(false), aux.WithLarge(false))
+			item1 := setup.Item(seller.UserID, aux.WithHidden(false), aux.WithLarge(true))
+			setup.Item(seller.UserID, aux.WithHidden(false), aux.WithLarge(false))
+			item2 := setup.Item(seller.UserID, aux.WithHidden(false), aux.WithLarge(true))
+			item3 := setup.Item(seller.UserID, aux.WithHidden(false), aux.WithLarge(true))
+			setup.Item(seller.UserID, aux.WithHidden(false), aux.WithLarge(false))
+			setup.Item(seller.UserID, aux.WithHidden(false), aux.WithLarge(false))
+			item4 := setup.Item(seller.UserID, aux.WithHidden(false), aux.WithLarge(true))
+
+			actualItems := []*models.Item{}
+			query := queries.NewGetItemsQuery()
+			query.WithLarge(true)
+			err := query.Execute(db, queries.CollectTo(&actualItems))
+			require.NoError(t, err)
+			require.Len(t, actualItems, 4)
+			require.Equal(t, item1.ItemID, actualItems[0].ItemID)
+			require.Equal(t, item2.ItemID, actualItems[1].ItemID)
+			require.Equal(t, item3.ItemID, actualItems[2].ItemID)
+			require.Equal(t, item4.ItemID, actualItems[3].ItemID)
+		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
