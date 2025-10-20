@@ -231,7 +231,7 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 	return func(context *gin.Context) {
 		sessionIDString, err := context.Cookie(security.SessionCookieName)
 		if err != nil {
-			slog.Error("Unauthorized: missing session ID")
+			server.logger.Error("Unauthorized: missing session ID")
 			failure_response.MissingSessionID(context, err.Error())
 			return
 		}
