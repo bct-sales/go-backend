@@ -52,12 +52,21 @@ func (filter *CategoryFilter) WithCategory(categoryID models.ID) {
 	filter.categoryID = &categoryID
 }
 
+type LargeFilter struct {
+	large *bool
+}
+
+func (filter *LargeFilter) WithLarge(value bool) {
+	filter.large = &value
+}
+
 type GetItemsQuery struct {
 	HiddenFilter
 	FrozenFilter
 	RowRangeSelection
 	DescriptionFilter
 	CategoryFilter
+	LargeFilter
 }
 
 func NewGetItemsQuery() *GetItemsQuery {
@@ -67,6 +76,7 @@ func NewGetItemsQuery() *GetItemsQuery {
 		RowRangeSelection: RowRangeSelection{RowRange: RowRange{Limit: nil, Offset: nil}},
 		DescriptionFilter: DescriptionFilter{descriptionPattern: nil},
 		CategoryFilter:    CategoryFilter{categoryID: nil},
+		LargeFilter:       LargeFilter{large: nil},
 	}
 }
 
@@ -184,6 +194,10 @@ func (q *GetItemsQuery) buildSQLQuery() (string, []any, error) {
 
 	if q.descriptionPattern != nil {
 		query = query.Where(sq.Like{"description": q.descriptionPattern})
+	}
+
+	if q.large != nil {
+		query = query.Where(sq.Eq{"large": *q.large})
 	}
 
 	queryString, queryArguments, err := query.ToSql()
