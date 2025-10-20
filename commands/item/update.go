@@ -18,6 +18,7 @@ type updateItemCommand struct {
 	description  string `exhaustruct:"optional"`
 	priceInCents uint64 `exhaustruct:"optional"`
 	categoryID   uint64 `exhaustruct:"optional"`
+	large        *bool  `exhaustruct:"optional"`
 }
 
 func NewUpdateItemCommand() *cobra.Command {
@@ -47,10 +48,13 @@ func NewUpdateItemCommand() *cobra.Command {
 	command.CobraCommand.Flags().Bool("no-donation", false, "Unset item as a donation (optional)")
 	command.CobraCommand.Flags().Bool("charity", false, "Set item as a charity item (optional)")
 	command.CobraCommand.Flags().Bool("no-charity", false, "Unset item as a charity item (optional)")
+	command.CobraCommand.Flags().Bool("large", false, "Make item large (optional)")
+	command.CobraCommand.Flags().Bool("no-large", false, "Make item not large (optional)")
 
 	command.CobraCommand.MarkFlagRequired("id")
 	command.CobraCommand.MarkFlagsMutuallyExclusive("donation", "no-donation")
 	command.CobraCommand.MarkFlagsMutuallyExclusive("charity", "no-charity")
+	command.CobraCommand.MarkFlagsMutuallyExclusive("large", "no-large")
 
 	return command.AsCobraCommand()
 }
@@ -75,6 +79,7 @@ func (c *updateItemCommand) updateItem(db *queries.TransactionalDatabaseQuerier)
 	var categoryID *models.ID
 	var donation *bool
 	var charity *bool
+	var large *bool
 
 	if c.CobraCommand.Flags().Changed("description") {
 		description = &c.description
@@ -110,12 +115,23 @@ func (c *updateItemCommand) updateItem(db *queries.TransactionalDatabaseQuerier)
 		charity = &value
 	}
 
+	if c.CobraCommand.Flags().Changed("large") {
+		value := true
+		large = &value
+	}
+
+	if c.CobraCommand.Flags().Changed("no-large") {
+		value := false
+		large = &value
+	}
+
 	itemUpdate := queries.ItemUpdate{
 		Description:  description,
 		PriceInCents: priceInCents,
 		CategoryID:   categoryID,
 		Charity:      charity,
 		Donation:     donation,
+		Large:        large,
 		AddedAt:      nil,
 	}
 
@@ -156,6 +172,7 @@ func (c *updateItemCommand) showUpdatedItem(db *queries.TransactionalDatabaseQue
 		{"Seller", item.SellerID.String()},
 		{"Donation", strconv.FormatBool(item.Donation)},
 		{"Charity", strconv.FormatBool(item.Charity)},
+		{"Large", strconv.FormatBool(item.Large)},
 		{"Added At", item.AddedAt.FormattedDateTime()},
 	}
 
