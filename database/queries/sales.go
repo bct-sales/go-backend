@@ -819,12 +819,22 @@ func GetCashierSales(db DatabaseQuerier, cashierID models.ID, receiver func(*mod
 
 	query := fmt.Sprintf(
 		`
-			SELECT sales.sale_id, sales.cashier_id, sales.transaction_time, COUNT(sale_items.item_id) AS item_count, SUM(items.price_in_cents) AS total_price
-			FROM sales
-			INNER JOIN sale_items ON sales.sale_id = sale_items.sale_id
-			INNER JOIN items ON sale_items.item_id = items.item_id
-			WHERE sales.cashier_id = ?
-			GROUP BY sales.sale_id
+			SELECT
+				sales.sale_id,
+				sales.cashier_id,
+				sales.transaction_time,
+				COUNT(sale_items.item_id) AS item_count,
+				SUM(items.price_in_cents) AS total_price
+			FROM
+				sales
+			INNER JOIN
+				sale_items ON sales.sale_id = sale_items.sale_id
+			INNER JOIN
+				items ON sale_items.item_id = items.item_id
+			WHERE
+				sales.cashier_id = ?
+			GROUP BY
+				sales.sale_id
 			%s
 			%s
 		`,
