@@ -241,13 +241,13 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 		sessionData, err := queries.GetSessionData(database, sessionID, now)
 
 		if errors.Is(err, dberr.ErrNoSuchSession) {
-			slog.Error("Session not found")
+			server.logger.Error("Session not found")
 			failure_response.NoSuchSession(context, err.Error())
 			return
 		}
 
 		if err != nil {
-			slog.Error("Failed to retrieve session from database", slog.String("error", err.Error()))
+			server.logger.With("error", err).Error("Failed to retrieve session from database")
 			failure_response.Unknown(context, "Failed to retrieve session from database: "+err.Error())
 			return
 		}
@@ -256,7 +256,7 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 		roleID := sessionData.RoleID
 
 		if err := queries.UpdateLastActivity(database, userID, now); err != nil {
-			slog.Error("Failed to update last activity", slog.String("error", err.Error()))
+			server.logger.With("error", err).Error("Failed to update last activity")
 			// Keep going, we don't want to block the request
 		}
 
