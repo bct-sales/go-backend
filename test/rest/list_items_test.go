@@ -439,5 +439,18 @@ func TestListAllItems(t *testing.T) {
 
 			require.Equal(t, http.StatusBadRequest, writer.Code)
 		})
+
+		t.Run("Invalid offset", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
+			defer setup.Close()
+
+			_, sessionID := setup.LoggedIn(setup.Admin())
+
+			url := path.Items().AddQueryIntParameter("offset", -1)
+			request := CreateGetRequest(url, WithSessionCookie(sessionID))
+			router.ServeHTTP(writer, request)
+
+			require.Equal(t, http.StatusBadRequest, writer.Code)
+		})
 	})
 }
