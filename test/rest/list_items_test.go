@@ -426,5 +426,18 @@ func TestListAllItems(t *testing.T) {
 
 			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
 		})
+
+		t.Run("Invalid limit", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
+			defer setup.Close()
+
+			_, sessionID := setup.LoggedIn(setup.Admin())
+
+			url := path.Items().AddQueryIntParameter("limit", -1)
+			request := CreateGetRequest(url, WithSessionCookie(sessionID))
+			router.ServeHTTP(writer, request)
+
+			require.Equal(t, http.StatusBadRequest, writer.Code)
+		})
 	})
 }
