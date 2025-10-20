@@ -4,15 +4,19 @@ import (
 	"bctbackend/algorithms"
 	"bctbackend/clock"
 	"bctbackend/commands/common"
+	"bctbackend/logging"
 	"bctbackend/server"
 	"bctbackend/server/configuration"
 	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 type ServerCommand struct {
@@ -58,8 +62,14 @@ func (c *ServerCommand) execute() error {
 
 	clock := clock.NewSystemClock()
 
+	logger, loggerErr := c.createLogger(configuration.Log)
+	if loggerErr != nil {
+		c.PrintErrorf("Failed to create logger\n")
+		return fmt.Errorf("failed to create logger: %w", err)
+	}
+
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		if err := server.StartServer(clock, db, configuration); err != nil {
+		if err := server.StartServer(clock, db, logger, configuration); err != nil {
 			c.PrintErrorf("Failed to start REST service\n")
 			return fmt.Errorf("failed to start REST service: %w", err)
 		}
@@ -84,6 +94,10 @@ func (c *ServerCommand) loadConfiguration() (*configuration.Configuration, error
 	serverConfiguration, err := c.getServerConfiguration()
 	if err != nil {
 		errs = append(errs, err)
+	}
+
+	if len(errs) > 0 {
+		return nil, errors.Join(errs...)
 	}
 
 	configuration := configuration.Configuration{
@@ -141,6 +155,30 @@ func (c *ServerCommand) getLogConfiguration() (*configuration.LogConfiguration, 
 		Compression:      logCompression,
 	}
 	return &logConfiguration, nil
+}
+
+func (c *ServerCommand) createLogger(configuration *configuration.LogConfiguration) (logging.Logger, error) {
+	var writer io.Writer
+
+	if configuration == nil {
+		writer = os.Stderr
+	} else {
+		//exhaustruct:ignore
+		loggerFile := lumberjack.Logger{
+			Filename:   configuration.File,
+			MaxSize:    configuration.MaxSizeMegabytes,
+			MaxBackups: configuration.MaxBackups,
+			MaxAge:     configuration.MaxAgeDays,
+			Compress:   configuration.Compression,
+		}
+
+		writer = io.MultiWriter(os.Stderr, &loggerFile)
+	}
+
+	slogger := slog.New(slog.NewJSONHandler(writer, nil))
+	logger := logging.NewSloggerWrapper(slogger)
+
+	return logger, nil
 }
 
 func (c *ServerCommand) getServerConfiguration() (*configuration.ServerConfiguration, error) {

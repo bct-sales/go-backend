@@ -1,43 +1,44 @@
 package logger
 
 import (
-	"log/slog"
+	"bctbackend/logging"
 )
 
 // RestLogger is used by all REST endpoint to perform logging
 type RestLogger interface {
-	InvalidInput(message string, args ...any)
-	InvalidRequest(message string, args ...any)
-	InternalError(message string, args ...any)
-	Bug(message string, args ...any)
+	InvalidInput(message string)
+	InvalidRequest(message string)
+	InternalError(message string)
+	Bug(message string)
 
-	AddInformation(key string, value any)
+	AddInformation(key string, value any) RestLogger
 }
 
 type LoggerWrapper struct {
-	Logger *slog.Logger
+	Logger logging.Logger
 }
 
-func NewLoggerWrapper(logger *slog.Logger) *LoggerWrapper {
+func NewLoggerWrapper(logger logging.Logger) RestLogger {
 	return &LoggerWrapper{Logger: logger}
 }
 
-func (l *LoggerWrapper) InvalidInput(message string, args ...any) {
-	l.Logger.Warn(message, args...)
+func (l *LoggerWrapper) InvalidInput(message string) {
+	l.Logger.Warn(message)
 }
 
-func (l *LoggerWrapper) InvalidRequest(message string, args ...any) {
-	l.Logger.Warn(message, args...)
+func (l *LoggerWrapper) InvalidRequest(message string) {
+	l.Logger.Warn(message)
 }
 
-func (l *LoggerWrapper) InternalError(message string, args ...any) {
-	l.Logger.Error(message, args...)
+func (l *LoggerWrapper) InternalError(message string) {
+	l.Logger.Error(message)
 }
 
-func (l *LoggerWrapper) Bug(message string, args ...any) {
-	l.Logger.Error(message, args...)
+func (l *LoggerWrapper) Bug(message string) {
+	l.Logger.Error(message)
 }
 
-func (l *LoggerWrapper) AddInformation(key string, value any) {
+func (l *LoggerWrapper) AddInformation(key string, value any) RestLogger {
 	l.Logger = l.Logger.With(key, value)
+	return l
 }

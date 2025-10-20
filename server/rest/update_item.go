@@ -73,17 +73,25 @@ func (ep *updateItemEndpoint) parseUriParameters() (models.ID, bool) {
 		ItemID string `binding:"required" uri:"id"`
 	}
 	if err := context.ShouldBindUri(&uriParameters); err != nil {
-		logger.InvalidInput("Invalid URI parameters", "error", err)
+		logger.AddInformation("error", err)
+		logger.InvalidInput("Invalid URI parameters")
+
 		failure_response.InvalidRequest(context, err.Error())
+
 		return 0, false
 	}
 
 	itemID, err := models.ParseID(uriParameters.ItemID)
 	if err != nil {
-		logger.InvalidInput("Invalid item ID in URI", "itemID", uriParameters.ItemID, "error", err)
+		logger.AddInformation("itemID", uriParameters.ItemID)
+		logger.AddInformation("error", err)
+		logger.InvalidInput("Invalid item ID in URI")
+
 		failure_response.InvalidItemID(context, err.Error())
 		return 0, false
 	}
+
+	logger.AddInformation("itemID", itemID)
 
 	return itemID, true
 }
@@ -95,13 +103,15 @@ func (ep *updateItemEndpoint) fetchItemFromDatabase(itemID models.ID) (*models.I
 
 	item, err := queries.GetItemWithID(db, itemID)
 	if err != nil {
+		logger.AddInformation("error", err)
+
 		if errors.Is(err, dberr.ErrNoSuchItem) {
-			logger.InvalidRequest("No such item", "itemID", itemID, "error", err)
+			logger.InvalidRequest("No such item")
 			failure_response.UnknownItem(context, err.Error())
 			return nil, false
 		}
 
-		logger.InternalError("Could not retrieve item", "itemID", itemID, "error", err)
+		logger.InternalError("Could not retrieve item")
 		failure_response.Unknown(context, err.Error())
 		return nil, false
 	}
@@ -115,8 +125,11 @@ func (ep *updateItemEndpoint) parsePayload() (*UpdateItemPayload, bool) {
 
 	var payload UpdateItemPayload
 	if err := context.ShouldBindJSON(&payload); err != nil {
-		logger.InvalidInput("Invalid update data", "error", err)
+		logger.AddInformation("error", err)
+		logger.InvalidInput("Invalid update data")
+
 		failure_response.InvalidRequest(context, err.Error())
+
 		return nil, false
 	}
 
@@ -132,13 +145,17 @@ func (ep *updateItemEndpoint) isOperationAuthorized(item *models.Item) bool {
 	context := ep.Context
 
 	if roleID.IsSeller() && item.SellerID != userID {
-		logger.InvalidRequest("Unauthorized item update attempt", "itemID", item.ItemID, "ownerID", item.SellerID)
+		logger.AddInformation("itemID", item.ItemID)
+		logger.AddInformation("ownerID", item.SellerID)
+		logger.InvalidRequest("Unauthorized item update attempt")
+
 		failure_response.WrongSeller(context, "Only the owner of the item can update it")
+
 		return false
 	}
 
 	if !roleID.IsAdmin() && !roleID.IsSeller() {
-		logger.InvalidRequest("Unauthorized role for item update", "itemID", item.ItemID)
+		logger.InvalidRequest("Unauthorized role for item update")
 		failure_response.WrongRole(context, "Must be seller or admin to update item")
 		return false
 	}
@@ -152,10 +169,13 @@ func (ep *updateItemEndpoint) performItemUpdate(item *models.Item, payload *Upda
 	context := ep.Context
 	itemID := item.ItemID
 
-	transaction, err := db.StartTransaction()
-	if err != nil {
-		logger.InternalError("Failed to begin transaction for item update", "itemID", itemID, "error", err)
-		failure_response.Unknown(context, err.Error())
+	transaction, transactionErr := db.StartTransaction()
+	if transactionErr != nil {
+		logger.AddInformation("error", transactionErr)
+		logger.InternalError("Failed to begin transaction for item update")
+
+		failure_response.Unknown(context, transactionErr.Error())
+
 		return false
 	}
 	defer transaction.RollbackIfNotCommitted()
@@ -169,37 +189,41 @@ func (ep *updateItemEndpoint) performItemUpdate(item *models.Item, payload *Upda
 		Charity:      payload.Charity,
 	}
 	if updateErr := queries.UpdateItem(transaction, itemID, &itemUpdate); updateErr != nil {
+		logger.AddInformation("error", updateErr)
+
 		if errors.Is(updateErr, dberr.ErrNoSuchItem) {
-			logger.InternalError(
-				"Failed to update item",
-				"itemID", itemID,
-				"description", payload.Description,
-				"priceInCents", payload.PriceInCents,
-				"categoryID", payload.CategoryID,
-				"donation", payload.Donation,
-				"charity", payload.Charity,
-				"error", updateErr,
-			)
+			logger.AddInformation("itemID", itemID)
+			logger.AddInformation("description", payload.Description)
+			logger.AddInformation("priceInCents", payload.PriceInCents)
+			logger.AddInformation("categoryID", payload.CategoryID)
+			logger.AddInformation("donation", payload.Donation)
+			logger.AddInformation("charity", payload.Charity)
+			logger.InternalError("Failed to update item")
+
 			failure_response.UnknownItem(context, updateErr.Error())
+
 			return false
 		}
 		if errors.Is(updateErr, dberr.ErrItemFrozen) {
-			logger.InvalidRequest("Cannot update frozen item", "itemID", itemID, "error", updateErr)
+			logger.InvalidRequest("Cannot update frozen item")
+
 			failure_response.CannotUpdateFrozenItem(context, updateErr.Error())
+
 			return false
 		}
 		if errors.Is(updateErr, dberr.ErrInvalidPrice) {
-			logger.InvalidInput("Invalid price in item update", "itemID", itemID, "priceInCents", payload.PriceInCents, "error", updateErr)
+			logger.InvalidInput("Invalid price in item update")
 			failure_response.InvalidPrice(context, updateErr.Error())
 			return false
 		}
 
-		logger.InternalError("Failed to update item", "itemID", itemID, "error", updateErr)
+		logger.InternalError("Failed to update item")
 		failure_response.Unknown(context, updateErr.Error())
 	}
 
 	if commitErr := transaction.Commit(); commitErr != nil {
-		logger.InternalError("Failed to commit transaction after item update", "itemID", itemID, "error", commitErr)
+		logger.AddInformation("error", commitErr)
+		logger.InternalError("Failed to commit transaction after item update")
 		failure_response.Unknown(context, fmt.Sprintf("Failed to commit item update: %s", commitErr.Error()))
 		return false
 	}

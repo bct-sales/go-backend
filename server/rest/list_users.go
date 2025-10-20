@@ -6,7 +6,6 @@ import (
 	rest "bctbackend/server/shared"
 	"bytes"
 	"encoding/csv"
-	"log/slog"
 	"net/http"
 	"strconv"
 )
@@ -54,11 +53,10 @@ func (ep *listUsersEndpoint) execute() {
 }
 
 func (ep *listUsersEndpoint) ensureUserIsAdmin() bool {
+	logger := ep.Logger
+
 	if !ep.RoleID.IsAdmin() {
-		ep.Logger.InvalidRequest(
-			"Non-admin attempted to list all items",
-			slog.Int64("user_id", ep.UserID.Int64()),
-			slog.Int64("role_id", ep.RoleID.Int64()))
+		logger.InvalidRequest("Non-admin attempted to list all items")
 
 		failure_response.WrongRole(ep.Context, "Only accessible to admins")
 
@@ -69,11 +67,15 @@ func (ep *listUsersEndpoint) ensureUserIsAdmin() bool {
 }
 
 func (ep *listUsersEndpoint) fetchUsersWithItemCountFromDatabase() ([]*queries.UserWithItemCount, bool) {
+	logger := ep.Logger
 	users := []*queries.UserWithItemCount{}
 
 	if err := queries.GetUsersWithItemCount(ep.Database, queries.OnlyVisibleItems, queries.CollectTo(&users)); err != nil {
-		ep.Logger.InternalError("Failed to fetch users", slog.String("error", err.Error()))
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to fetch users")
+
 		failure_response.Unknown(ep.Context, err.Error())
+
 		return nil, false
 	}
 
@@ -148,6 +150,7 @@ func (ep *listUsersEndpoint) sendSuccessResponseAsCSVFile(userData []GetUsersUse
 }
 
 func (ep *listUsersEndpoint) formatAsCSV(userData []GetUsersUserData) *string {
+	logger := ep.Logger
 	buffer := new(bytes.Buffer)
 	csvWriter := csv.NewWriter(buffer)
 
@@ -155,8 +158,11 @@ func (ep *listUsersEndpoint) formatAsCSV(userData []GetUsersUserData) *string {
 	headers := []string{"user_id", "role_id", "last_activity", "password", "item_count"}
 	err := csvWriter.Write(headers)
 	if err != nil {
-		ep.Logger.InternalError("Failed to write headers to CSV file", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to write headers to CSV file")
+
 		failure_response.Unknown(ep.Context, "Failed to write headers to CSV file: "+err.Error())
+
 		return nil
 	}
 
@@ -182,8 +188,11 @@ func (ep *listUsersEndpoint) formatAsCSV(userData []GetUsersUserData) *string {
 			itemCountString,
 		})
 		if err != nil {
-			ep.Logger.InternalError("Failed to write row to CSV file", "error", err)
+			logger.AddInformation("error", err)
+			logger.InternalError("Failed to write row to CSV file")
+
 			failure_response.Unknown(ep.Context, "Failed to write row to CSV file: "+err.Error())
+
 			return nil
 		}
 	}

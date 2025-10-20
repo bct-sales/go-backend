@@ -4,9 +4,12 @@ package helpers
 
 import (
 	"bctbackend/clock"
+	"bctbackend/logging"
 	"bctbackend/server"
 	"bctbackend/server/configuration"
 	"database/sql"
+	"log/slog"
+	"os"
 
 	gin "github.com/gin-gonic/gin"
 )
@@ -24,7 +27,9 @@ func CreateRestServer(db *sql.DB, clock *clock.ManualClock) *server.Server {
 		},
 	}
 
-	server, err := server.NewServer(clock, db, &configuration)
+	slogger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	logger := logging.NewSloggerWrapper(slogger)
+	server, err := server.NewServer(clock, db, logger, &configuration)
 	if err != nil {
 		panic("failed to create server")
 	}

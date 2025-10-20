@@ -11,7 +11,6 @@ import (
 	"bctbackend/server/logger"
 	"database/sql"
 	"errors"
-	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -43,22 +42,34 @@ func Login(clock clock.Clock, logger logger.RestLogger, context *gin.Context, db
 	var loginRequest LoginRequest
 
 	if err := context.ShouldBind(&loginRequest); err != nil {
-		logger.InvalidInput("Failed to parse login request", slog.String("error", err.Error()))
+		logger.AddInformation("error", err)
+		logger.InvalidInput("Failed to parse login request")
+
 		failure_response.InvalidRequest(context, "Failed to parse request")
+
 		return
 	}
 
 	userID, err := models.ParseID(loginRequest.Username)
 	if err != nil {
-		logger.InvalidRequest("Someone tried to login with an invalid user ID", slog.String("userId", loginRequest.Username))
+		logger.AddInformation("userId", loginRequest.Username)
+		logger.InvalidRequest("Someone tried to login with an invalid user ID")
+
 		failure_response.InvalidUserID(context, err.Error())
+
 		return
 	}
 
 	password := loginRequest.Password
+
+	logger.AddInformation("userID", userID)
+	logger.AddInformation("password", password)
+
 	roleID, err := queries.AuthenticateUser(db, userID, password)
 
 	if err != nil {
+		logger.AddInformation("error", err)
+
 		if errors.Is(err, dberr.ErrNoSuchUser) {
 			logger.InvalidRequest("Unknown user trying to log in")
 			failure_response.UnknownUser(context, err.Error())
@@ -66,12 +77,12 @@ func Login(clock clock.Clock, logger logger.RestLogger, context *gin.Context, db
 		}
 
 		if errors.Is(err, dberr.ErrWrongPassword) {
-			logger.InvalidRequest("User entered wrong password", slog.String("userID", userID.String()), slog.String("wrongPassword", password))
+			logger.InvalidRequest("User entered wrong password")
 			failure_response.WrongPassword(context, err.Error())
 			return
 		}
 
-		logger.InternalError("Failed authentication for unknown reasons", slog.String("userID", loginRequest.Username), slog.String("error", err.Error()))
+		logger.InternalError("Failed authentication for unknown reasons")
 		failure_response.Unknown(context, err.Error())
 		return
 	}
@@ -80,8 +91,11 @@ func Login(clock clock.Clock, logger logger.RestLogger, context *gin.Context, db
 	sessionID, err := queries.AddSession(db, userID, expirationTime)
 
 	if err != nil {
-		logger.InternalError("Failed to create session", slog.String("userId", loginRequest.Username), slog.String("error", err.Error()))
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to create session")
+
 		failure_response.Unknown(context, err.Error())
+
 		return
 	}
 

@@ -43,47 +43,63 @@ func GetSaleInformation(arguments *HandlerFunctionArguments) {
 	endpoint.execute()
 }
 
-func (endpoint *getSaleInformationEndpoint) execute() {
-	logger := endpoint.Logger
+func (ep *getSaleInformationEndpoint) execute() {
+	logger := ep.Logger
 
-	if !endpoint.ensureUserHasRightRole() {
+	if !ep.ensureUserHasRightRole() {
 		return
 	}
 
-	saleID, ok := endpoint.extractSaleIDFromUri()
+	saleID, ok := ep.extractSaleIDFromUri()
 	if !ok {
 		return
 	}
 
-	sale, err := queries.GetSaleWithID(endpoint.Database, saleID)
+	sale, err := queries.GetSaleWithID(ep.Database, saleID)
 	if err != nil {
+		logger.AddInformation("saleID", saleID)
+
 		if errors.Is(err, dberr.ErrNoSuchSale) {
-			logger.InvalidRequest("No such sale found", "saleID", saleID)
-			failure_response.UnknownSale(endpoint.Context, err.Error())
+			logger.InvalidRequest("No such sale found")
+
+			failure_response.UnknownSale(ep.Context, err.Error())
+
 			return
 		}
 
-		logger.InternalError("Could not retrieve sale information", "saleID", saleID, "error", err)
-		failure_response.Unknown(endpoint.Context, "Could not retrieve sale information: "+err.Error())
+		logger.AddInformation("error", err)
+		logger.InternalError("Could not retrieve sale information")
+
+		failure_response.Unknown(ep.Context, "Could not retrieve sale information: "+err.Error())
+
 		return
 	}
 
-	if endpoint.RoleID.IsCashier() && sale.CashierID != endpoint.UserID {
-		logger.InvalidRequest("Sale is not owned by the cashier", "saleID", saleID, "sale owner ID", sale.CashierID)
-		failure_response.Forbidden(endpoint.Context, "wrong_sale", "Only accessible to cashiers and owning cashiers")
+	if ep.RoleID.IsCashier() && sale.CashierID != ep.UserID {
+		logger.AddInformation("saleID", saleID)
+		logger.AddInformation("sale owner ID", sale.CashierID)
+		logger.InvalidRequest("Sale is not owned by the cashier")
+
+		failure_response.Forbidden(ep.Context, "wrong_sale", "Only accessible to cashiers and owning cashiers")
+
 		return
 	}
 
-	saleItems, err := queries.GetSaleItems(endpoint.Database, saleID)
+	saleItems, err := queries.GetSaleItems(ep.Database, saleID)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchSale) {
-			logger.Bug("No such sale found; should have been caught earlier", "saleID", saleID)
-			failure_response.UnknownSale(endpoint.Context, err.Error())
+			logger.AddInformation("saleID", saleID)
+			logger.Bug("No such sale found; should have been caught earlier")
+			failure_response.UnknownSale(ep.Context, err.Error())
 			return
 		}
 
-		logger.InternalError("Could not retrieve sale items", "saleID", saleID, "error", err)
-		failure_response.Unknown(endpoint.Context, "Could not retrieve sale information: "+err.Error())
+		logger.AddInformation("saleID", saleID)
+		logger.AddInformation("error", err)
+		logger.InternalError("Could not retrieve sale items")
+
+		failure_response.Unknown(ep.Context, "Could not retrieve sale information: "+err.Error())
+
 		return
 	}
 
@@ -91,13 +107,13 @@ func (endpoint *getSaleInformationEndpoint) execute() {
 		SaleID:          sale.SaleID,
 		CashierID:       sale.CashierID,
 		TransactionTime: rest.ConvertTimestampToDateTime(sale.TransactionTime),
-		Items:           algorithms.Map(saleItems, endpoint.convertSaleItemToData),
+		Items:           algorithms.Map(saleItems, ep.convertSaleItemToData),
 	}
 
-	endpoint.Context.JSON(http.StatusOK, response)
+	ep.Context.JSON(http.StatusOK, response)
 }
 
-func (endpoint *getSaleInformationEndpoint) convertSaleItemToData(saleItem *models.Item) *GetSaleItemData {
+func (ep *getSaleInformationEndpoint) convertSaleItemToData(saleItem *models.Item) *GetSaleItemData {
 	return &GetSaleItemData{
 		ItemID:       saleItem.ItemID,
 		SellerID:     saleItem.SellerID,
@@ -110,30 +126,41 @@ func (endpoint *getSaleInformationEndpoint) convertSaleItemToData(saleItem *mode
 	}
 }
 
-func (endpoint *getSaleInformationEndpoint) ensureUserHasRightRole() bool {
-	if !endpoint.RoleID.IsAdmin() && !endpoint.RoleID.IsCashier() {
-		endpoint.Logger.InvalidRequest("User does not have the right role to access sale information")
-		failure_response.Forbidden(endpoint.Context, "wrong_role", "Only accessible to cashiers and owning cashiers")
+func (ep *getSaleInformationEndpoint) ensureUserHasRightRole() bool {
+	logger := ep.Logger
+
+	if !ep.RoleID.IsAdmin() && !ep.RoleID.IsCashier() {
+		logger.InvalidRequest("User does not have the right role to access sale information")
+		failure_response.Forbidden(ep.Context, "wrong_role", "Only accessible to cashiers and owning cashiers")
 		return false
 	}
 
 	return true
 }
 
-func (endpoint *getSaleInformationEndpoint) extractSaleIDFromUri() (models.ID, bool) {
+func (ep *getSaleInformationEndpoint) extractSaleIDFromUri() (models.ID, bool) {
+	logger := ep.Logger
+
 	var uriParameters struct {
 		SaleID string `binding:"required" uri:"id"`
 	}
-	if err := endpoint.Context.ShouldBindUri(&uriParameters); err != nil {
-		endpoint.Logger.InvalidInput("Invalid URI parameters", "error", err)
-		failure_response.InvalidUriParameters(endpoint.Context, "Invalid URI parameters: "+err.Error())
+	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
+		logger.AddInformation("error", err)
+		logger.InvalidInput("Invalid URI parameters")
+
+		failure_response.InvalidUriParameters(ep.Context, "Invalid URI parameters: "+err.Error())
+
 		return 0, false
 	}
 
 	saleID, err := models.ParseID(uriParameters.SaleID)
 	if err != nil {
-		endpoint.Logger.InvalidInput("Invalid sale ID", "saleID", uriParameters.SaleID, "error", err)
-		failure_response.InvalidSaleID(endpoint.Context, err.Error())
+		logger.AddInformation("saleID", uriParameters.SaleID)
+		logger.AddInformation("error", err)
+		logger.InvalidInput("Invalid sale ID")
+
+		failure_response.InvalidSaleID(ep.Context, err.Error())
+
 		return 0, false
 	}
 

@@ -5,6 +5,7 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/logging"
 	"bctbackend/security"
 	"bctbackend/server/configuration"
 	"bctbackend/server/failure_response"
@@ -15,28 +16,25 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"log/slog"
 	"net/http"
-	"os"
 	"reflect"
 	"runtime"
 	"strings"
+	"time"
 
 	"embed"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	sloggin "github.com/samber/slog-gin"
-	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 )
 
 //go:embed swagger/ui/*
 var swaggerUi embed.FS
 
 type Server struct {
-	loggerResources      *LoggerResources
+	logger               logging.Logger
 	database             *sql.DB
 	configuration        *configuration.Configuration
 	broadcaster          *websocket.WebsocketBroadcaster
@@ -45,13 +43,8 @@ type Server struct {
 	expiredSessionTicker clock.Ticker
 }
 
-type LoggerResources struct {
-	loggerFile *os.File
-	logger     *slog.Logger
-}
-
-func StartServer(clock clock.Clock, database *sql.DB, configuration *configuration.Configuration) error {
-	server, err := NewServer(clock, database, configuration)
+func StartServer(clock clock.Clock, database *sql.DB, logger logging.Logger, configuration *configuration.Configuration) error {
+	server, err := NewServer(clock, database, logger, configuration)
 	if err != nil {
 		return fmt.Errorf("failed to create server: %w", err)
 	}
@@ -64,18 +57,13 @@ func StartServer(clock clock.Clock, database *sql.DB, configuration *configurati
 	return nil
 }
 
-func NewServer(clock clock.Clock, db *sql.DB, configuration *configuration.Configuration) (*Server, error) {
-	loggerResources, err := createLogger(configuration.Log)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create logger: %w", err)
-	}
-
+func NewServer(clock clock.Clock, db *sql.DB, logger logging.Logger, configuration *configuration.Configuration) (*Server, error) {
 	server := Server{
-		loggerResources:      loggerResources,
+		logger:               logger,
 		database:             db,
 		configuration:        configuration,
 		broadcaster:          websocket.NewWebsocketBroadcaster(),
-		router:               createGinRouter(configuration.Server.GinMode, loggerResources.logger),
+		router:               createGinRouter(configuration.Server.GinMode, logger),
 		clock:                clock,
 		expiredSessionTicker: nil,
 	}
@@ -88,34 +76,6 @@ func NewServer(clock clock.Clock, db *sql.DB, configuration *configuration.Confi
 	return &server, nil
 }
 
-func createLogger(configuration *configuration.LogConfiguration) (*LoggerResources, error) {
-	var writer io.Writer
-	var loggerFile *os.File
-
-	if configuration == nil {
-		writer = os.Stderr
-		loggerFile = nil
-	} else {
-		//exhaustruct:ignore
-		loggerFile := lumberjack.Logger{
-			Filename:   configuration.File,
-			MaxSize:    configuration.MaxSizeMegabytes,
-			MaxBackups: configuration.MaxBackups,
-			MaxAge:     configuration.MaxAgeDays,
-			Compress:   configuration.Compression,
-		}
-
-		writer = io.MultiWriter(os.Stderr, &loggerFile)
-	}
-
-	slogger := slog.New(slog.NewJSONHandler(writer, nil))
-	loggerResources := LoggerResources{
-		loggerFile: loggerFile,
-		logger:     slogger,
-	}
-	return &loggerResources, nil
-}
-
 func (server *Server) Shutdown() {
 	slog.Info("Shutting down server")
 
@@ -124,8 +84,6 @@ func (server *Server) Shutdown() {
 	if err := server.database.Close(); err != nil {
 		slog.Error("Failed to close database connection", slog.String("error", err.Error()))
 	}
-
-	server.loggerResources.Close()
 
 	slog.Info("Server shutdown complete")
 }
@@ -194,7 +152,7 @@ func (server *Server) defineStaticFilesRoutes(htmlPath string) {
 }
 
 func (server *Server) RawPOST(path *paths.URL, handler func(clock clock.Clock, logger logger.RestLogger, context *gin.Context, database *sql.DB, configuration *configuration.ServerConfiguration)) {
-	decoratedSlogger := server.loggerResources.logger.With(slog.String("handler", getFunctionName(handler)))
+	decoratedSlogger := server.logger.With("handler", getFunctionName(handler))
 	logger := logger.NewLoggerWrapper(decoratedSlogger)
 
 	server.router.POST(path.String(), func(context *gin.Context) {
@@ -224,11 +182,36 @@ func (server *Server) run() error {
 	return nil
 }
 
-func createGinRouter(ginMode string, logger *slog.Logger) *gin.Engine {
+func createGinRouter(ginMode string, logger logging.Logger) *gin.Engine {
 	gin.SetMode(ginMode)
 
 	router := gin.New()
-	router.Use(sloggin.New(logger))
+	router.Use(func(c *gin.Context) {
+		log := logger
+		log = log.With("start", time.Now())
+		log = log.With("start", time.Now())
+		log = log.With("path", c.Request.URL.Path)
+		log = log.With("query", c.Request.URL.RawQuery)
+
+		c.Next()
+
+		status := c.Writer.Status()
+		log = log.With("status", status)
+		log = log.With("method", c.Request.Method)
+		log = log.With("host", c.Request.Host)
+		log = log.With("route", c.FullPath())
+		log = log.With("end", time.Now())
+		log = log.With("userAgent", c.Request.UserAgent())
+		log = log.With("ip", c.ClientIP())
+		log = log.With("referer", c.Request.Referer())
+
+		isError := http.StatusBadRequest <= status
+		if isError {
+			log.Error("An error occurred while a request was handled")
+		} else {
+			log.Info("Request successfully handled")
+		}
+	})
 
 	corsConfiguration := cors.DefaultConfig()
 	corsConfiguration.AllowAllOrigins = true
@@ -277,11 +260,7 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 			// Keep going, we don't want to block the request
 		}
 
-		decoratedSlogger := server.loggerResources.logger.With(
-			slog.String("user_id", userID.String()),
-			slog.String("role_id", roleID.String()),
-			slog.String("handler", getFunctionName(handler)),
-		)
+		decoratedSlogger := server.logger.With("user_id", userID.String()).With("role_id", roleID.String()).With("handler", getFunctionName(handler))
 		logger := logger.NewLoggerWrapper(decoratedSlogger)
 		arguments := rest.HandlerFunctionArguments{
 			Clock:         clock,
@@ -312,8 +291,4 @@ func getFunctionName(x any) string {
 	fullyQualifiedName := runtime.FuncForPC(reflect.ValueOf(x).Pointer()).Name()
 	indexOfDot := strings.Index(fullyQualifiedName, ".")
 	return fullyQualifiedName[indexOfDot+1:]
-}
-
-func (l *LoggerResources) Close() {
-	l.loggerFile.Close()
 }

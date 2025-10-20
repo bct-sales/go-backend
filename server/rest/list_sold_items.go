@@ -59,8 +59,10 @@ func (ep *listSoldItemsEndpoint) execute() {
 }
 
 func (ep *listSoldItemsEndpoint) ensureUserHasCorrectRole() bool {
+	logger := ep.Logger
+
 	if ep.RoleID != models.NewAdminRoleID() {
-		ep.Logger.InvalidRequest("Unauthorized access attempt to list sold items")
+		logger.InvalidRequest("Unauthorized access attempt to list sold items")
 		failure_response.WrongRole(ep.Context, "Only admins can list sold items")
 		return false
 	}
@@ -69,12 +71,17 @@ func (ep *listSoldItemsEndpoint) ensureUserHasCorrectRole() bool {
 }
 
 func (ep *listSoldItemsEndpoint) fetchSoldItemsFromDatabase() ([]*queries.SoldItem, bool) {
+	logger := ep.Logger
+
 	query := ep.buildSQLQuery()
 	soldItems, err := query.Execute(ep.Database)
 
 	if err != nil {
-		ep.Logger.InternalError("Failed to get sold items", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to get sold items")
+
 		failure_response.Unknown(ep.Context, "Failed to get sold items: "+err.Error())
+
 		return nil, false
 	}
 
@@ -133,10 +140,15 @@ func (ep *listSoldItemsEndpoint) convertData(soldItems []*queries.SoldItem) []Li
 }
 
 func (ep *listSoldItemsEndpoint) sendResponseAsCSVFile(soldItems []*queries.SoldItem) {
+	logger := ep.Logger
+
 	categoryNameTable, err := queries.GetCategoryNameTable(ep.Database)
 	if err != nil {
-		ep.Logger.InternalError("Failed to get category map", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to get category map")
+
 		failure_response.Unknown(ep.Context, "Failed to get category map: "+err.Error())
+
 		return
 	}
 
@@ -147,8 +159,11 @@ func (ep *listSoldItemsEndpoint) sendResponseAsCSVFile(soldItems []*queries.Sold
 
 	buffer := new(bytes.Buffer)
 	if err := csv.FormatSoldItemsAsCSV(soldItems, categoryNameTable, buffer); err != nil {
-		ep.Logger.InternalError("Failed to format items as CSV", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to format items as CSV")
+
 		failure_response.Unknown(ep.Context, "Failed to format items as CSV: "+err.Error())
+		
 		return
 	}
 	string := buffer.String()

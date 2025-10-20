@@ -65,10 +65,15 @@ func (ep *getSalesEndpoint) execute(database Database) {
 }
 
 func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSalesQueryParameters) (*ListSalesSuccessResponse, bool) {
+	logger := ep.Logger
 	transaction, err := database.StartTransaction()
+
 	if err != nil {
-		ep.Logger.InternalError("Failed to create transaction", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to create transaction")
+
 		failure_response.Unknown(ep.Context, "Failed to create transaction: "+err.Error())
+
 		return nil, false
 	}
 	defer transaction.RollbackIfNotCommitted()
@@ -110,8 +115,11 @@ func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSal
 
 	if err := transaction.Commit(); err != nil {
 		// Unclear what to do, as only read operations were performed during the transaction
-		ep.Logger.InternalError("Failed to commit transaction", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to commit transaction")
+
 		failure_response.Unknown(ep.Context, "Failed to commit transaction: "+err.Error())
+
 		return nil, false
 	}
 
@@ -119,13 +127,17 @@ func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSal
 }
 
 func (ep *getSalesEndpoint) getItemStatistics(transaction *queries.TransactionalDatabaseQuerier) *queries.ItemStatisticsResult {
+	logger := ep.Logger
 	query := queries.NewGetItemStatisticsQuery()
 	query.WithHidden(false)
 	itemCountResult, err := query.Execute(transaction)
 
 	if err != nil {
-		ep.Logger.InternalError("Failed to get item count", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to get item count")
+
 		failure_response.Unknown(ep.Context, "Failed to get item count: "+err.Error())
+
 		return nil
 	}
 
@@ -133,11 +145,15 @@ func (ep *getSalesEndpoint) getItemStatistics(transaction *queries.Transactional
 }
 
 func (ep *getSalesEndpoint) countSoldItems(transaction *queries.TransactionalDatabaseQuerier) (int, int, bool) {
+	logger := ep.Logger
 	counts, err := queries.CountSoldItems(transaction)
 
 	if err != nil {
-		ep.Logger.InternalError("Failed to get sold item count", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to get sold item count")
+
 		failure_response.Unknown(ep.Context, "Failed to get sold item count: "+err.Error())
+
 		return 0, 0, false
 	}
 
@@ -145,11 +161,15 @@ func (ep *getSalesEndpoint) countSoldItems(transaction *queries.TransactionalDat
 }
 
 func (ep *getSalesEndpoint) countSales(transaction *queries.TransactionalDatabaseQuerier) (int, bool) {
+	logger := ep.Logger
 	saleCount, err := queries.CountSales(transaction)
 
 	if err != nil {
-		ep.Logger.InternalError("Failed to get sales count", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to get sales count")
+
 		failure_response.Unknown(ep.Context, "Failed to get sales count: "+err.Error())
+
 		return 0, false
 	}
 
@@ -157,11 +177,15 @@ func (ep *getSalesEndpoint) countSales(transaction *queries.TransactionalDatabas
 }
 
 func (ep *getSalesEndpoint) getTotalSalesValue(transaction *queries.TransactionalDatabaseQuerier) (models.MoneyInCents, bool) {
+	logger := ep.Logger
 	totalValue, err := queries.GetTotalSalesValue(transaction)
 
 	if err != nil {
-		ep.Logger.InternalError("Failed to get total sales value", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to get total sales value")
+
 		failure_response.Unknown(ep.Context, "Failed to get total sales value: "+err.Error())
+
 		return 0, false
 	}
 
@@ -170,9 +194,13 @@ func (ep *getSalesEndpoint) getTotalSalesValue(transaction *queries.Transactiona
 }
 
 func (ep *getSalesEndpoint) ensureUserIsAdmin() bool {
+	logger := ep.Logger
+
 	if ep.RoleID != models.NewAdminRoleID() {
-		ep.Logger.InvalidRequest("Unauthorized access to list all sales", "userID", ep.UserID, "roleID", ep.RoleID)
+		logger.InvalidRequest("Unauthorized access to list all sales")
+
 		failure_response.WrongRole(ep.Context, "Only admins can list all items")
+
 		return false
 	}
 
@@ -180,6 +208,7 @@ func (ep *getSalesEndpoint) ensureUserIsAdmin() bool {
 }
 
 func (ep *getSalesEndpoint) getSales(transaction *queries.TransactionalDatabaseQuerier, queryParameters *getSalesQueryParameters) ([]*ListSalesSaleData, bool) {
+	logger := ep.Logger
 	sales := make([]*ListSalesSaleData, 0, 25)
 	processSale := func(sale *models.SaleSummary) error {
 		saleData := ListSalesSaleData{
@@ -197,8 +226,11 @@ func (ep *getSalesEndpoint) getSales(transaction *queries.TransactionalDatabaseQ
 	query := ep.buildQuery(queryParameters)
 
 	if err := query.Execute(transaction, processSale); err != nil {
-		ep.Logger.InternalError("Failed to get sales", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to get sales")
+
 		failure_response.Unknown(ep.Context, "Failed to get sales: "+err.Error())
+
 		return nil, false
 	}
 
@@ -265,11 +297,16 @@ func (ep *getSalesEndpoint) parseQueryParameters() (*getSalesQueryParameters, bo
 }
 
 func (ep *getSalesEndpoint) parseStartID() (*models.ID, bool) {
+	logger := ep.Logger
 	if startIDStr, exists := ep.Context.GetQuery("startId"); exists {
 		startID, err := models.ParseID(startIDStr)
 		if err != nil {
-			ep.Logger.InvalidInput("Failed to parse startId parameter", "startId", startIDStr, "error", err)
+			logger.AddInformation("startId", startIDStr)
+			logger.AddInformation("error", err)
+			logger.InvalidInput("Failed to parse startId parameter")
+
 			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Invalid startId parameter: "+err.Error())
+
 			return nil, false
 		}
 		return &startID, true

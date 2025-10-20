@@ -59,15 +59,23 @@ type Endpoint struct {
 // If it is present and its value is a valid integer, the parsed integer and true are returned.
 // If it is present and its value is invalid, nil, false is returned.
 func (ep *Endpoint) parseOffsetQueryParameter() (*uint64, bool) {
+	logger := ep.Logger
 	offsetString := ep.Context.Query("offset")
+
 	if offsetString != "" {
 		parsedOffset, err := strconv.ParseUint(offsetString, 10, 64)
 
 		if err != nil {
-			ep.Logger.InvalidInput("Failed to parse offset", "error", err, "offset", offsetString)
+			logger.AddInformation("offset", offsetString)
+			logger.AddInformation("error", err)
+			logger.InvalidInput("Failed to parse offset")
+
 			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Failed to parse offset: "+err.Error())
+
 			return nil, false
 		}
+
+		logger.AddInformation("offset", parsedOffset)
 
 		return &parsedOffset, true
 	} else {
@@ -76,21 +84,32 @@ func (ep *Endpoint) parseOffsetQueryParameter() (*uint64, bool) {
 }
 
 func (ep *Endpoint) parseLimitQueryParameter() (*uint64, bool) {
+	logger := ep.Logger
 	limitString := ep.Context.Query("limit")
+
 	if limitString != "" {
 		parsedLimit, err := strconv.ParseUint(limitString, 10, 64)
 
 		if err != nil {
-			ep.Logger.InvalidInput("Failed to parse limit", "error", err, "limit", limitString)
+			logger.AddInformation("limit", limitString)
+			logger.AddInformation("error", err)
+			logger.InvalidInput("Failed to parse limit")
+
 			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Failed to parse limit: "+err.Error())
+
 			return nil, false
 		}
 
 		if parsedLimit < 1 {
-			ep.Logger.InvalidRequest("Invalid limit parameter", "limit", limitString)
+			logger.AddInformation("limit", limitString)
+			logger.InvalidRequest("Invalid limit parameter")
+
 			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Limit must be greater than 0")
+
 			return nil, false
 		}
+
+		logger.AddInformation("limit", parsedLimit)
 
 		return &parsedLimit, true
 	} else {
@@ -118,15 +137,20 @@ func (ep *Endpoint) parseRowRangeQueryParameters() *queries.RowRange {
 }
 
 func (ep *Endpoint) parseOrderQueryParameter() (queries.Order, bool) {
+	logger := ep.Logger
 	order := ep.Context.Query("order")
+
 	switch order {
 	case "", "chronological":
 		return queries.OrderChronological, true
 	case "antichronological":
 		return queries.OrderAntiChronological, true
 	default:
-		ep.Logger.InvalidInput("Invalid order parameter", "order", order)
+		logger.AddInformation("order", order)
+		logger.InvalidInput("Invalid order parameter")
+
 		failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Order must be either 'chronological' or 'antichronological'")
+
 		return 0, false
 	}
 }
@@ -135,6 +159,7 @@ func (ep *Endpoint) parseOrderQueryParameter() (queries.Order, bool) {
 // The value must be either true or false.
 // If the value is missing, nil is returned.
 func (ep *Endpoint) parseBooleanQueryParameter(key string) (*bool, bool) {
+	logger := ep.Logger
 	value := ep.Context.Query(key)
 
 	switch value {
@@ -150,9 +175,12 @@ func (ep *Endpoint) parseBooleanQueryParameter(key string) (*bool, bool) {
 		return nil, true
 
 	default:
-		errorMessage := fmt.Sprintf("Invalid query parameter value for %s", key)
-		ep.Logger.InvalidInput(errorMessage)
+		logger.AddInformation("query parameter key", key)
+		logger.AddInformation("query parameter value", value)
+		logger.InvalidInput("Invalid query parameter value")
+
 		failure_response.BadRequest(ep.Context, "invalid_uri_parameters", fmt.Sprintf("%s must be either true or false", key))
+
 		return nil, false
 	}
 }
@@ -168,6 +196,7 @@ type formatHandler interface {
 }
 
 func (ep *Endpoint) parseFormatQueryParameter(formatHandler formatHandler) {
+	logger := ep.Logger
 	requestedFormat := ep.Context.Query("format")
 
 	switch requestedFormat {
@@ -184,8 +213,11 @@ func (ep *Endpoint) parseFormatQueryParameter(formatHandler formatHandler) {
 		return
 
 	default:
-		ep.Logger.InvalidInput("Unknown format requested", "format", requestedFormat)
+		logger.AddInformation("format", requestedFormat)
+		logger.InvalidInput("Unknown format requested")
+
 		failure_response.Unknown(ep.Context, "Unknown format: "+requestedFormat)
+
 		return
 	}
 }

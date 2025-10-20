@@ -80,19 +80,28 @@ func (ep *listCashierSalesEndpoint) convertSaleSummaryToData(saleSummary *models
 // If the extraction or validation fails, it sends an appropriate error response.
 // False indicates failure, true indicates success.
 func (ep *listCashierSalesEndpoint) extractCashierIDFromUri() (models.ID, bool) {
+	logger := ep.Logger
 	var uriParameters struct {
 		CashierID string `binding:"required" uri:"id"`
 	}
+
 	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
-		ep.Logger.InvalidInput("Failed to bind URI parameters: %v", err)
+		logger.AddInformation("error", err)
+		logger.InvalidInput("Failed to bind URI parameters")
+
 		failure_response.InvalidUriParameters(ep.Context, err.Error())
+
 		return 0, false
 	}
 
 	uriUserID, err := models.ParseID(uriParameters.CashierID)
 	if err != nil {
-		ep.Logger.InvalidInput("Failed to parse cashier ID \"%s\" from URI: %v", uriParameters.CashierID, err)
+		logger.AddInformation("cashierID", uriParameters.CashierID)
+		logger.AddInformation("error", err)
+		logger.InvalidInput("Failed to parse cashier ID")
+
 		failure_response.InvalidUserID(ep.Context, err.Error())
+
 		return 0, false
 	}
 
@@ -104,15 +113,25 @@ func (ep *listCashierSalesEndpoint) extractCashierIDFromUri() (models.ID, bool) 
 }
 
 func (ep *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.ID) bool {
+	logger := ep.Logger
 	user, err := queries.GetUserWithID(ep.Database, ep.UserID)
+
 	if err != nil {
+		logger.AddInformation("error", err)
+
 		if errors.Is(err, dberr.ErrNoSuchUser) {
 			// This should not happen, as the userID is from the logged-in user
-			ep.Logger.Bug("Logged in user does not exist")
+			logger.Bug("Logged in user does not exist")
+
 			failure_response.Unknown(ep.Context, "Bug: logged in user does not exist")
+
 			return false
 		}
+
+		logger.InternalError("Could not find logged in user in database")
+
 		failure_response.Unknown(ep.Context, "Could not retrieve logged in user: "+err.Error())
+
 		return false
 	}
 
@@ -124,24 +143,32 @@ func (ep *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.I
 		loggedInUser := ep.UserID
 
 		if loggedInUser != queriedUser {
-			ep.Logger.InvalidRequest("User tried to access sales of cashier %d, but is not the owning cashier", queriedUser)
+			logger.InvalidRequest("User tried to access sales of other cashier")
+
 			failure_response.Forbidden(ep.Context, "wrong_role", "Only accessible to owning cashiers or admins")
+
 			return false
 		}
 
 		return true
 	}
 
-	ep.Logger.InvalidRequest("User tried to access sales of cashier %d, but is not a cashier or admin", queriedUser)
+	logger.InvalidRequest("Non-cashier tried to access sales")
+
 	failure_response.Forbidden(ep.Context, "wrong_role", "Only accessible to owning cashiers or admins")
+
 	return false
 }
 
 func (ep *listCashierSalesEndpoint) getSaleSummariesFromDatabase(uriCashierID models.ID, order queries.Order, rowSelection *queries.RowRange) ([]*models.SaleSummary, bool) {
+	logger := ep.Logger
 	var saleSummaries []*models.SaleSummary
+
 	if err := queries.GetCashierSales(ep.Database, uriCashierID, queries.CollectTo(&saleSummaries), order, rowSelection); err != nil {
-		ep.Logger.InternalError("Failed to retrieve cashier sales for user %d: %v", uriCashierID, err)
+		logger.InternalError("Failed to retrieve cashier sales for user")
+
 		failure_response.Unknown(ep.Context, "Could not retrieve cashier sales: "+err.Error())
+
 		return nil, false
 	}
 
@@ -159,10 +186,15 @@ func (ep *listCashierSalesEndpoint) sendSuccessResponse(saleCount int, saleSumma
 }
 
 func (ep *listCashierSalesEndpoint) getCashierSaleCount(uriCashierID models.ID) (int, bool) {
+	logger := ep.Logger
 	count, err := queries.CountCashierSales(ep.Database, uriCashierID)
+
 	if err != nil {
-		ep.Logger.InternalError("Failed to count cashier sales for user %d: %v", uriCashierID, err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to count cashier sales")
+
 		failure_response.Unknown(ep.Context, "Could not count cashier sales: "+err.Error())
+
 		return 0, false
 	}
 

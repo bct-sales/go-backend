@@ -3,7 +3,6 @@ package rest
 import (
 	"database/sql"
 	"errors"
-	"log/slog"
 	"net/http"
 
 	"bctbackend/clock"
@@ -27,8 +26,11 @@ type LogoutPayload struct{}
 func Logout(clock clock.Clock, logger logger.RestLogger, context *gin.Context, db *sql.DB, configuration *configuration.ServerConfiguration) {
 	sessionIDString, err := context.Cookie(security.SessionCookieName)
 	if err != nil {
-		logger.InvalidRequest("Cannot logout without session ID", slog.String("error", err.Error()))
+		logger.AddInformation("error", err)
+		logger.InvalidRequest("Cannot logout without session ID")
+
 		context.JSON(http.StatusOK, gin.H{"message": "Unauthorized: missing session ID"})
+
 		return
 	}
 
@@ -36,12 +38,14 @@ func Logout(clock clock.Clock, logger logger.RestLogger, context *gin.Context, d
 	err = queries.DeleteSession(db, sessionID)
 
 	if err != nil {
+		logger.AddInformation("error", err)
+
 		if errors.Is(err, dberr.ErrNoSuchSession) {
 			failure_response.NoSuchSession(context, "No such session - perhaps it has expired and was pruned")
 			return
 		}
 
-		logger.InternalError("Failed to delete session", slog.String("error", err.Error()))
+		logger.InternalError("Failed to delete session")
 		failure_response.Unknown(context, "Failed to delete session")
 		return
 	}

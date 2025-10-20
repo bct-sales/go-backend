@@ -125,15 +125,21 @@ func (ep *listCategoriesEndpoint) listCategoriesWithCounts(itemSelection queries
 
 	categoryCounts, err := queries.CountItemsPerCategory(db, itemSelection)
 	if err != nil {
-		logger.InternalError("Failed to fetch category counts", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to fetch category counts")
+
 		failure_response.Unknown(context, "Failed to fetch category counts: "+err.Error())
+
 		return
 	}
 
 	categoryNameTable, err := queries.GetCategoryNameTable(db)
 	if err != nil {
-		logger.InternalError("Failed to fetch category name table", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to fetch category name table")
+
 		failure_response.Unknown(context, "Failed to fetch category table: "+err.Error())
+
 		return
 	}
 
@@ -148,8 +154,11 @@ func (ep *listCategoriesEndpoint) listCategoriesWithCounts(itemSelection queries
 		categoryCount := categoryCounts[categoryID]
 		categoryName, ok := categoryNameTable[categoryID]
 		if !ok {
-			logger.InvalidRequest("Unknown category ID", "categoryID", categoryID)
+			logger.AddInformation("categoryID", categoryID)
+			logger.InvalidRequest("Unknown category")
+
 			failure_response.UnknownCategory(context, fmt.Sprintf("Unknown category ID %d", categoryID))
+
 			return
 		}
 
@@ -173,21 +182,29 @@ func (ep *listCategoriesEndpoint) listCategoriesWithSoldCounts() {
 
 	if !roleID.IsAdmin() {
 		logger.InvalidRequest("Unauthorized access to category counts")
+
 		failure_response.WrongRole(context, "Only admins can access category counts")
+
 		return
 	}
 
 	categoryCounts, err := queries.CountSoldItemsPerCategory(db)
 	if err != nil {
-		logger.InternalError("Failed to fetch category counts of sold items", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to fetch category counts of sold items")
+
 		failure_response.Unknown(context, "Failed to fetch sold item by category counts: "+err.Error())
+
 		return
 	}
 
 	categoryNameTable, err := queries.GetCategoryNameTable(db)
 	if err != nil {
-		logger.InternalError("Failed to fetch category name table", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to fetch category name table")
+
 		failure_response.Unknown(context, "Failed to fetch category table: "+err.Error())
+
 		return
 	}
 
@@ -202,8 +219,11 @@ func (ep *listCategoriesEndpoint) listCategoriesWithSoldCounts() {
 		categoryCount := categoryCounts[categoryID]
 		categoryName, ok := categoryNameTable[categoryID]
 		if !ok {
-			logger.InvalidRequest("Unknown category ID", "categoryID", categoryID)
+			logger.AddInformation("categoryID", categoryID)
+			logger.InvalidRequest("Unknown category ID")
+
 			failure_response.UnknownCategory(context, fmt.Sprintf("Unknown category ID %d", categoryID))
+
 			return
 		}
 
@@ -226,8 +246,11 @@ func (ep *listCategoriesEndpoint) listCategoriesWithoutCounts() {
 
 	categories, err := queries.GetCategories(db)
 	if err != nil {
-		logger.InternalError("Failed to fetch categories", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to fetch categories")
+
 		failure_response.Unknown(context, "Failed to fetch categories: "+err.Error())
+
 		return
 	}
 

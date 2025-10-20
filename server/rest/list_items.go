@@ -138,6 +138,7 @@ func (ep *listItemsEndpoint) buildSQLQuery(parameters *listItemsParameters) *que
 }
 
 func (ep *listItemsEndpoint) parseCategoryQueryParameter() (*models.ID, bool) {
+	logger := ep.Logger
 	parameterValue := ep.Context.Query("category")
 
 	// If no category query parameter is present, no filtering needs to occur
@@ -147,8 +148,11 @@ func (ep *listItemsEndpoint) parseCategoryQueryParameter() (*models.ID, bool) {
 
 	value, err := strconv.ParseUint(parameterValue, 10, 64)
 	if err != nil {
-		ep.Logger.InvalidInput("Invalid category parameter", "category", parameterValue)
+		logger.AddInformation("category", parameterValue)
+		logger.InvalidInput("Invalid category parameter")
+
 		failure_response.InvalidUriParameters(ep.Context, "invalid category identifier")
+
 		return nil, false
 	}
 
@@ -157,9 +161,13 @@ func (ep *listItemsEndpoint) parseCategoryQueryParameter() (*models.ID, bool) {
 }
 
 func (ep *listItemsEndpoint) ensureUserHasCorrectRole() bool {
+	logger := ep.Logger
+
 	if ep.RoleID != models.NewAdminRoleID() && ep.RoleID != models.NewCashierRoleID() {
-		ep.Logger.InvalidRequest("Unauthorized access attempt to list all items")
+		logger.InvalidRequest("Unauthorized access attempt to list all items")
+
 		failure_response.WrongRole(ep.Context, "Only admins and cashiers can list all items")
+
 		return false
 	}
 
@@ -167,12 +175,16 @@ func (ep *listItemsEndpoint) ensureUserHasCorrectRole() bool {
 }
 
 func (ep *listItemsEndpoint) fetchItemsFromDatabase(parameters *listItemsParameters) ([]*models.Item, bool) {
+	logger := ep.Logger
 	var items []*models.Item
 
 	query := ep.buildSQLQuery(parameters)
 	if err := query.Execute(ep.Database, queries.CollectTo(&items)); err != nil {
-		ep.Logger.InternalError("Failed to get items", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to get items")
+
 		failure_response.Unknown(ep.Context, "Failed to get items: "+err.Error())
+
 		return nil, false
 	}
 
@@ -205,6 +217,7 @@ func (ep *listItemsEndpoint) sendResponseAsJSON(items []*models.Item, parameters
 }
 
 func (ep *listItemsEndpoint) getItemStatistics(parameters *listItemsParameters) (*ListItemsStatistics, bool) {
+	logger := ep.Logger
 	query := queries.NewGetItemStatisticsQuery()
 
 	if parameters.hidden != nil {
@@ -221,8 +234,11 @@ func (ep *listItemsEndpoint) getItemStatistics(parameters *listItemsParameters) 
 
 	itemStatistics, err := query.Execute(ep.Database)
 	if err != nil {
-		ep.Logger.InternalError("Failed to count items", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to count items")
+
 		failure_response.Unknown(ep.Context, "Failed to count items: "+err.Error())
+
 		return nil, false
 	}
 
@@ -261,10 +277,15 @@ func (ep *listItemsEndpoint) sendResponseAsJSONFile(items []*models.Item) {
 }
 
 func (ep *listItemsEndpoint) sendResponseAsCSVFile(items []*models.Item) {
+	logger := ep.Logger
 	categoryNameTable, err := queries.GetCategoryNameTable(ep.Database)
+
 	if err != nil {
-		ep.Logger.InternalError("Failed to get category map", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to get category map")
+
 		failure_response.Unknown(ep.Context, "Failed to get category map: "+err.Error())
+
 		return
 	}
 
@@ -275,8 +296,11 @@ func (ep *listItemsEndpoint) sendResponseAsCSVFile(items []*models.Item) {
 
 	buffer := new(bytes.Buffer)
 	if err := csv.FormatItemsAsCSV(items, categoryNameTable, buffer); err != nil {
-		ep.Logger.InternalError("Failed to format items as CSV", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to format items as CSV")
+
 		failure_response.Unknown(ep.Context, "Failed to format items as CSV: "+err.Error())
+
 		return
 	}
 	string := buffer.String()

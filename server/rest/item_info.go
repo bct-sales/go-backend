@@ -74,52 +74,80 @@ func (ep *getItemInformationEndpoint) execute() {
 }
 
 func (ep *getItemInformationEndpoint) retrieveItemIDFromUri() (models.ID, bool) {
+	logger := ep.Logger
+
 	var uriParameters struct {
 		ItemID string `binding:"required" uri:"id"`
 	}
 
 	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
-		ep.Logger.InvalidInput("Failed to parse URI parameters", "error", err)
+		logger.AddInformation("error", err)
+		logger.InvalidInput("Failed to parse URI parameters")
+
 		failure_response.InvalidUriParameters(ep.Context, "Invalid URI parameters: "+err.Error())
+
 		return 0, false
 	}
 
 	itemID, err := models.ParseID(uriParameters.ItemID)
 	if err != nil {
-		ep.Logger.InvalidInput("Failed to parse item ID", "error", err, "itemID", uriParameters.ItemID)
+		logger.AddInformation("itemID", uriParameters.ItemID)
+		logger.AddInformation("error", err)
+		logger.InvalidInput("Failed to parse item ID")
+
 		failure_response.InvalidItemID(ep.Context, err.Error())
+
 		return 0, false
 	}
+
+	logger.AddInformation("itemID", itemID)
 
 	return itemID, true
 }
 
 func (ep *getItemInformationEndpoint) retrieveItemFromDatabase(itemID models.ID) *models.Item {
+	logger := ep.Logger
+
 	item, err := queries.GetItemWithID(ep.Database, itemID)
 	if err != nil {
+		logger.AddInformation("error", err)
+
 		if errors.Is(err, dberr.ErrNoSuchItem) {
-			ep.Logger.InvalidRequest("Attempt to access a non-existing item", "itemID", itemID)
+			logger.InvalidRequest("Attempt to access a non-existing item")
+
 			failure_response.UnknownItem(ep.Context, err.Error())
+
 			return nil
 		}
 
+		logger.InternalError("Failed to fetch item from database")
+
 		failure_response.Unknown(ep.Context, err.Error())
+
 		return nil
 	}
+
+	logger.AddInformation("item", item)
 
 	return item
 }
 
 func (ep *getItemInformationEndpoint) ensureQueryAllowed(item *models.Item) bool {
+	logger := ep.Logger
+
 	if ep.RoleID.IsSeller() && item.SellerID != ep.UserID {
-		ep.Logger.InvalidRequest("Blocked attempt to access item not owned by the seller", "itemID", item.ItemID, "itemUserID", item.SellerID)
+		logger.InvalidRequest("Blocked attempt to access item not owned by the seller")
+
 		failure_response.WrongSeller(ep.Context, "Only the owning seller can access this item")
+
 		return false
 	}
 
 	if ep.RoleID.IsCashier() && item.Hidden {
-		ep.Logger.InvalidRequest("Blocked attempt to access hidden item by cashier", "itemID", item.ItemID, "itemUserID", item.SellerID)
+		logger.InvalidRequest("Blocked attempt to access hidden item by cashier")
+
 		failure_response.ItemHidden(ep.Context, "Cashiers cannot see hidden items")
+
 		return false
 	}
 
@@ -127,16 +155,24 @@ func (ep *getItemInformationEndpoint) ensureQueryAllowed(item *models.Item) bool
 }
 
 func (ep *getItemInformationEndpoint) findSalesIncludingItem(itemID models.ID) ([]models.ID, bool) {
+	logger := ep.Logger
+
 	soldIn, err := queries.GetSalesWithItem(ep.Database, itemID)
 	if err != nil {
+		logger.AddInformation("error", err)
+
 		if errors.Is(err, dberr.ErrNoSuchItem) {
-			ep.Logger.Bug("Unknown item; should have been caught earlier", "itemID", itemID)
+			logger.Bug("Unknown item; should have been caught earlier")
+
 			failure_response.Unknown(ep.Context, "Bug: this should be caught by the previous query")
+
 			return nil, false
 		}
 
-		ep.Logger.InternalError("Failed to get sales for item", "error", err, "itemID", itemID)
+		logger.InternalError("Failed to get sales for item")
+
 		failure_response.Unknown(ep.Context, err.Error())
+
 		return nil, false
 	}
 

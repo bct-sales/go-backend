@@ -73,19 +73,29 @@ func (ep *addSellerItemEndpoint) ensureUserIsSeller() bool {
 }
 
 func (ep *addSellerItemEndpoint) parseURI() (models.ID, bool) {
+	logger := ep.Logger
+
 	var uriParameters struct {
 		SellerID string `binding:"required" uri:"id"`
 	}
 	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
-		ep.Logger.InvalidInput("Failed to parse URI parameters", "error", err, "uriParameters", uriParameters)
+		logger.AddInformation("error", err)
+		logger.AddInformation("uriParameters", uriParameters)
+		logger.InvalidInput("Failed to parse URI parameters")
+
 		failure_response.InvalidUriParameters(ep.Context, err.Error())
+
 		return 0, false
 	}
 
 	uriSellerID, err := models.ParseID(uriParameters.SellerID)
 	if err != nil {
-		ep.Logger.InvalidInput("Failed to parse seller ID from URI", "error", err, "sellerID", uriParameters.SellerID)
+		logger.AddInformation("sellerId", uriParameters.SellerID)
+		logger.AddInformation("error", err)
+		logger.InvalidInput("Failed to parse seller ID from URI")
+
 		failure_response.InvalidUserID(ep.Context, err.Error())
+
 		return 0, false
 	}
 
@@ -93,21 +103,35 @@ func (ep *addSellerItemEndpoint) parseURI() (models.ID, bool) {
 }
 
 func (ep *addSellerItemEndpoint) ensureValidity(uriSellerID models.ID) bool {
+	logger := ep.Logger
+
 	sellerExists, err := queries.UserWithIDExists(ep.Database, uriSellerID)
+
 	if err != nil {
-		ep.Logger.InternalError("Failed to check if seller exists", "error", err, "sellerID", uriSellerID)
+		logger.AddInformation("error", err)
+		logger.AddInformation("sellerId", uriSellerID)
+		logger.InternalError("Failed to check if seller exists")
+
 		failure_response.Unknown(ep.Context, err.Error())
+
 		return false
 	}
+
 	if !sellerExists {
-		ep.Logger.InvalidRequest("Blocked attempt to add item for non-existing seller", "sellerID", uriSellerID)
+		logger.AddInformation("sellerId", uriSellerID)
+		logger.InvalidRequest("Blocked attempt to add item for non-existing seller")
+
 		failure_response.UnknownUser(ep.Context, "Seller does not exist")
+
 		return false
 	}
 
 	if uriSellerID != ep.UserID {
-		ep.Logger.InvalidRequest("Blocked attempt to add item for different seller", "uriSellerID", uriSellerID)
+		logger.AddInformation("sellerId", uriSellerID)
+		ep.Logger.InvalidRequest("Blocked attempt to add item for different seller")
+
 		failure_response.WrongSeller(ep.Context, "Logged in user does not match URI seller ID")
+
 		return false
 	}
 
@@ -115,10 +139,13 @@ func (ep *addSellerItemEndpoint) ensureValidity(uriSellerID models.ID) bool {
 }
 
 func (ep *addSellerItemEndpoint) parsePayload() *AddSellerItemPayload {
-	var payload AddSellerItemPayload
+	logger := ep.Logger
 
+	var payload AddSellerItemPayload
 	if err := ep.Context.ShouldBindJSON(&payload); err != nil {
-		ep.Logger.InvalidInput("Failed to parse AddSellerItem payload", "error", err, "payload", payload)
+		logger.AddInformation("error", err)
+		ep.Logger.InvalidInput("Failed to parse AddSellerItem payload")
+
 		failure_response.InvalidRequest(ep.Context, err.Error())
 		return nil
 	}
@@ -129,37 +156,39 @@ func (ep *addSellerItemEndpoint) parsePayload() *AddSellerItemPayload {
 }
 
 func (ep *addSellerItemEndpoint) interpretDatabaseError(err error, payload *AddSellerItemPayload) {
+	logger := ep.Logger
+
 	if errors.Is(err, dberr.ErrNoSuchCategory) {
-		ep.Logger.InvalidRequest("Blocked attempt to add item with unknown category", "categoryID", payload.CategoryID)
+		logger.InvalidRequest("Blocked attempt to add item with unknown category")
 		failure_response.UnknownCategory(ep.Context, err.Error())
 		return
 	}
 
 	if errors.Is(err, dberr.ErrNoSuchUser) {
-		ep.Logger.InvalidRequest("Blocked attempt to add item for non-existing user", "userID", ep.UserID)
+		logger.InvalidRequest("Blocked attempt to add item for non-existing user")
 		failure_response.UnknownUser(ep.Context, err.Error())
 		return
 	}
 
 	if errors.Is(err, dberr.ErrWrongRole) {
-		ep.Logger.Bug("[BUG] Failed to add item to non-seller; this error should have been caught earlier")
+		logger.Bug("[BUG] Failed to add item to non-seller; this error should have been caught earlier")
 		failure_response.Unknown(ep.Context, "Bug: this error should not happen")
 		return
 	}
 
 	if errors.Is(err, dberr.ErrInvalidPrice) {
-		ep.Logger.InvalidRequest("Blocked attempt to add item with invalid price", "price", payload.Price)
+		logger.InvalidRequest("Blocked attempt to add item with invalid price")
 		failure_response.InvalidPrice(ep.Context, err.Error())
 		return
 	}
 
 	if errors.Is(err, dberr.ErrInvalidItemDescription) {
-		ep.Logger.InvalidRequest("Blocked attempt to add item with invalid description", "description", payload.Description)
+		logger.InvalidRequest("Blocked attempt to add item with invalid description")
 		failure_response.InvalidItemDescription(ep.Context, err.Error())
 		return
 	}
 
-	ep.Logger.InternalError("Failed to add seller item", "error", err)
+	ep.Logger.InternalError("Failed to add seller item")
 	failure_response.Unknown(ep.Context, err.Error())
 }
 

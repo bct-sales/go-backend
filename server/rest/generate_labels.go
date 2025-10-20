@@ -11,8 +11,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-
-	"log/slog"
 )
 
 type Insets struct {
@@ -106,23 +104,34 @@ func (ep *generateLabelsEndpoint) execute() {
 }
 
 func (ep *generateLabelsEndpoint) freezeItems(db Database, itemIDs []models.ID) bool {
+	logger := ep.Logger
 	transaction, err := db.StartTransaction()
+
 	if err != nil {
-		ep.Logger.InternalError("Failed to start transaction", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to start transaction")
+
 		failure_response.Unknown(ep.Context, "Failed to start transaction while freezing items: "+err.Error())
+
 		return false
 	}
 	defer transaction.RollbackIfNotCommitted()
 
 	if err := queries.UpdateFreezeStatusOfItems(transaction, itemIDs, true); err != nil {
-		ep.Logger.InternalError("Failed to freeze items", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to freeze items")
+
 		failure_response.Unknown(ep.Context, "Failed to freeze items: "+err.Error())
+
 		return false
 	}
 
 	if err := transaction.Commit(); err != nil {
-		ep.Logger.InternalError("Failed to commit transaction", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to commit transaction")
+
 		failure_response.Unknown(ep.Context, "Failed to commit transaction while freezing items: "+err.Error())
+
 		return false
 	}
 
@@ -130,26 +139,39 @@ func (ep *generateLabelsEndpoint) freezeItems(db Database, itemIDs []models.ID) 
 }
 
 func (ep *generateLabelsEndpoint) collectLabelData(db Database, itemTable map[models.ID]*models.Item, itemIDs []models.ID) []*pdf.LabelData {
+	logger := ep.Logger
+
 	createLabelData := func(itemID models.ID) (*pdf.LabelData, error) {
 		item, ok := itemTable[itemID]
 		if !ok {
-			ep.Logger.Bug("Bug: did not find item with id %s", itemID.String())
+			logger.AddInformation("itemID", itemID)
+			logger.Bug("Bug: did not find item")
+
 			return nil, fmt.Errorf("bug: item with id %d not found; should never occur: this error should have be caught earlier", itemID)
 		}
 
 		categoryNameTable, err := queries.GetCategoryNameTable(db)
 		if err != nil {
-			ep.Logger.InternalError("Unable to build category table", itemID.String())
+			logger.AddInformation("error", err)
+			logger.InternalError("Unable to build category table")
+
 			return nil, err
 		}
 
-		return ep.createLabelDataFromItem(categoryNameTable, item)
+		labelData, err := ep.createLabelDataFromItem(categoryNameTable, item)
+		if err != nil {
+			logger.AddInformation("itemID", itemID)
+			logger.AddInformation("error", err)
+			logger.InternalError("Unable to create label data for item")
+
+			return nil, err
+		}
+
+		return labelData, nil
 	}
 
 	labelData, err := algorithms.MapError(itemIDs, createLabelData)
 	if err != nil {
-		ep.Logger.InternalError("Failed to collect label data", "error", err)
-		failure_response.Unknown(ep.Context, "Failed to collect label data: "+err.Error())
 		return nil
 	}
 
@@ -157,11 +179,14 @@ func (ep *generateLabelsEndpoint) collectLabelData(db Database, itemTable map[mo
 }
 
 func (ep *generateLabelsEndpoint) createLabelDataFromItem(categoryNameTable map[models.ID]string, item *models.Item) (*pdf.LabelData, error) {
+	logger := ep.Logger
 	barcode := fmt.Sprintf("%dx", item.ItemID)
 
 	category, ok := categoryNameTable[item.CategoryID]
 	if !ok {
-		ep.Logger.Bug("Unknown category %s", item.CategoryID)
+		logger.AddInformation("categoryID", item.CategoryID)
+		logger.Bug("Unknown category")
+
 		return nil, fmt.Errorf("unknown category id: %v", item.CategoryID)
 	}
 
@@ -180,21 +205,30 @@ func (ep *generateLabelsEndpoint) createLabelDataFromItem(categoryNameTable map[
 }
 
 func (ep *generateLabelsEndpoint) generatePdf(labelData []*pdf.LabelData, layoutSettings *pdf.LayoutSettings) *bytes.Buffer {
+	logger := ep.Logger
+
 	pdfConfiguration := pdf.Configuration{
 		BarcodeWidth:  ep.Configuration.LabelGeneration.BarcodeWidth,
 		BarcodeHeight: ep.Configuration.LabelGeneration.BarcodeHeight,
 	}
 	builder, err := pdf.GeneratePdf(&pdfConfiguration, layoutSettings, labelData)
+
 	if err != nil {
-		slog.Error("Failed to generate PDF", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to generate PDF")
+
 		failure_response.InvalidRequest(ep.Context, "Failed to generate PDF: "+err.Error())
+
 		return nil
 	}
 
 	buffer, err := builder.WriteToBuffer()
 	if err != nil {
-		ep.Logger.InternalError("Failed to write PDF to buffer", "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to write PDF to buffer")
+
 		failure_response.InvalidRequest(ep.Context, "Failed to write PDF to buffer: "+err.Error())
+
 		return nil
 	}
 
@@ -202,6 +236,8 @@ func (ep *generateLabelsEndpoint) generatePdf(labelData []*pdf.LabelData, layout
 }
 
 func (ep *generateLabelsEndpoint) createLayoutSettings(payload *GenerateLabelsPayload) *pdf.LayoutSettings {
+	logger := ep.Logger
+
 	layoutSettings, err := pdf.NewLayoutSettings(
 		pdf.WithPaperSize(
 			payload.Layout.PaperWidth,
@@ -229,8 +265,11 @@ func (ep *generateLabelsEndpoint) createLayoutSettings(payload *GenerateLabelsPa
 		pdf.WithFontSize(payload.Layout.FontSize),
 	)
 	if err != nil {
-		ep.Logger.InvalidRequest("Invalid layout for label generation", "error", err)
+		logger.AddInformation("error", err)
+		logger.InvalidRequest("Invalid layout for label generation")
+
 		failure_response.InvalidLayout(ep.Context, "Invalid label layout: "+err.Error())
+
 		return nil
 	}
 
@@ -238,9 +277,14 @@ func (ep *generateLabelsEndpoint) createLayoutSettings(payload *GenerateLabelsPa
 }
 
 func (ep *generateLabelsEndpoint) ensureUserIsSeller() bool {
+	logger := ep.Logger
+
 	if !ep.RoleID.IsSeller() {
-		ep.Logger.InvalidRequest("Blocked attempt at generating labels by a user with the wrong role")
+		logger.AddInformation("roleID", ep.RoleID)
+		logger.InvalidRequest("Blocked attempt at generating labels by a user with the wrong role")
+
 		failure_response.WrongRole(ep.Context, "Only sellers can generate labels")
+
 		return false
 	}
 
@@ -248,11 +292,15 @@ func (ep *generateLabelsEndpoint) ensureUserIsSeller() bool {
 }
 
 func (ep *generateLabelsEndpoint) parsePayload() *GenerateLabelsPayload {
+	logger := ep.Logger
 	var payload GenerateLabelsPayload
 
 	if err := ep.Context.ShouldBindJSON(&payload); err != nil {
-		ep.Logger.InvalidInput("Failed to parse payload for GenerateLabels endpoint", "error", err)
+		logger.AddInformation("error", err)
+		logger.InvalidInput("Failed to parse payload for GenerateLabels endpoint")
+
 		failure_response.InvalidRequest(ep.Context, "Failed to parse payload:"+err.Error())
+
 		return nil
 	}
 
@@ -262,9 +310,14 @@ func (ep *generateLabelsEndpoint) parsePayload() *GenerateLabelsPayload {
 }
 
 func (ep *generateLabelsEndpoint) validatePayload(payload *GenerateLabelsPayload) bool {
+	logger := ep.Logger
+
 	if len(payload.ItemIDs) == 0 {
-		ep.Logger.InvalidRequest("Blocked attempt at generating labels for zero items", "userID", ep.UserID)
+		logger.AddInformation("userID", ep.UserID)
+		logger.InvalidRequest("Blocked attempt at generating labels for zero items")
+
 		failure_response.MissingItems(ep.Context, "No items provided")
+
 		return false
 	}
 
@@ -272,16 +325,25 @@ func (ep *generateLabelsEndpoint) validatePayload(payload *GenerateLabelsPayload
 }
 
 func (ep *generateLabelsEndpoint) retrieveItemsFromDatabase(itemIDs []models.ID) map[models.ID]*models.Item {
+	logger := ep.Logger
 	itemTable, err := queries.GetItemsWithIDs(ep.Database, itemIDs)
+
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {
-			ep.Logger.InvalidRequest("Blocked attempt at generating labels for non-existing items", "itemIDs", itemIDs, "userID", ep.UserID)
+			logger.AddInformation("itemIDs", itemIDs)
+			logger.AddInformation("userID", ep.UserID)
+			logger.InvalidRequest("Blocked attempt at generating labels for non-existing items")
+
 			failure_response.UnknownItem(ep.Context, err.Error())
+
 			return nil
 		}
 
-		ep.Logger.InternalError("Failed to fetch items: %s", err.Error())
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to fetch items")
+
 		failure_response.Unknown(ep.Context, "Failed to fetch items: "+err.Error())
+
 		return nil
 	}
 
@@ -289,10 +351,17 @@ func (ep *generateLabelsEndpoint) retrieveItemsFromDatabase(itemIDs []models.ID)
 }
 
 func (ep *generateLabelsEndpoint) checkItemOwnership(itemTable map[models.ID]*models.Item) bool {
+	logger := ep.Logger
+
 	for _, item := range itemTable {
 		if item.SellerID != ep.UserID {
-			ep.Logger.InvalidRequest("Blocked attempt at generating labels for items not owned by the seller", "logged in user ID", ep.UserID, "itemUserID", item.SellerID, "itemID", item.ItemID)
+			logger.AddInformation("logged in user", ep.UserID)
+			logger.AddInformation("item owner", item.SellerID)
+			logger.AddInformation("itemID", item.ItemID)
+			logger.InvalidRequest("Blocked attempt at generating labels for items not owned by the seller")
+
 			failure_response.WrongSeller(ep.Context, "labels can only be generated by the owning seller")
+
 			return false
 		}
 	}

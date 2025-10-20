@@ -136,12 +136,16 @@ func (ep *GetUserInformationEndpoint) execute() {
 }
 
 func (ep *GetUserInformationEndpoint) retrieveQueriedUserFromUri() (models.ID, error) {
+	logger := ep.Logger
+
 	// Retrieve id of user whose information is being requested
 	var uriParameters struct {
 		UserID string `binding:"required" uri:"id"`
 	}
 	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
-		ep.Logger.InvalidInput("Invalid URI parameters", "error", err)
+		logger.AddInformation("error", err)
+		logger.InvalidInput("Invalid URI parameters")
+
 		failure_response.InvalidUriParameters(ep.Context, "Invalid URI parameters: "+err.Error())
 		return 0, err
 	}
@@ -149,10 +153,16 @@ func (ep *GetUserInformationEndpoint) retrieveQueriedUserFromUri() (models.ID, e
 	// Parse user id
 	queriedUserID, err := models.ParseID(uriParameters.UserID)
 	if err != nil {
-		ep.Logger.InvalidInput("Invalid user ID", "error", err, "userID", uriParameters.UserID)
+		logger.AddInformation("error", err)
+		logger.AddInformation("userID", uriParameters.UserID)
+		logger.InvalidInput("Invalid user ID")
+
 		failure_response.InvalidUserID(ep.Context, err.Error())
+
 		return 0, err
 	}
+
+	logger.AddInformation("queriedUserID", queriedUserID)
 
 	return queriedUserID, nil
 }
@@ -165,13 +175,17 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserID mo
 	// Look up user in database
 	user, err := queries.GetUserWithID(db, queriedUserID)
 	if err != nil {
+		logger.AddInformation("error", err)
+
 		if errors.Is(err, dberr.ErrNoSuchUser) {
-			logger.InvalidRequest("User not found", "queriedUserID", queriedUserID)
+			logger.InvalidRequest("User not found")
+
 			failure_response.UnknownUser(context, err.Error())
+
 			return
 		}
 
-		logger.InternalError("Could not find user in database", "queriedUserID", queriedUserID, "error", err)
+		logger.InternalError("Could not find user in database")
 		failure_response.Unknown(context, err.Error())
 		return
 	}
@@ -193,20 +207,24 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserID mo
 	} else if user.RoleID.IsSeller() {
 		items, err := queries.GetSellerItemsWithSaleCounts(db, user.UserID)
 		if err != nil {
+			logger.AddInformation("error", err)
+
 			{
 				if errors.Is(err, dberr.ErrNoSuchUser) {
-					logger.Bug("User not found; should have been caught earlier", "queriedUserID", queriedUserID)
+					logger.Bug("User not found; should have been caught earlier")
+
 					failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
+
 					return
 				}
 			}
 			if errors.Is(err, dberr.ErrWrongRole) {
-				logger.Bug("User has the wrong role; should have been caught earlier", "queriedUserID", queriedUserID)
+				logger.Bug("User has the wrong role; should have been caught earlier")
 				failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
 				return
 			}
 
-			logger.InternalError("Failed to get seller items with sale counts", "queriedUserID", queriedUserID, "error", err)
+			logger.InternalError("Failed to get seller items with sale counts")
 			failure_response.Unknown(context, fmt.Errorf("failed to find information about seller: %w", err).Error())
 			return
 		}
@@ -223,19 +241,27 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserID mo
 	} else if user.RoleID.IsCashier() {
 		sales, err := queries.GetSalesWithCashier(db, user.UserID)
 		if err != nil {
+			logger.AddInformation("error", err)
+
 			if errors.Is(err, dberr.ErrNoSuchUser) {
-				logger.Bug("User not found; should have been caught earlier", "queriedUserID", queriedUserID)
+				logger.Bug("User not found; should have been caught earlier")
+
 				failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
+
 				return
 			}
 			if errors.Is(err, dberr.ErrWrongRole) {
-				logger.Bug("User has the wrong role; should have been caught earlier", "queriedUserID", queriedUserID)
+				logger.Bug("User has the wrong role; should have been caught earlier")
+
 				failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
+
 				return
 			}
 
-			logger.InternalError("Failed to get sales with cashier", "queriedUserID", queriedUserID, "error", err)
+			logger.InternalError("Failed to get sales with cashier")
+
 			failure_response.Unknown(context, err.Error())
+
 			return
 		}
 
@@ -249,7 +275,9 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserID mo
 		return
 	} else {
 		logger.Bug("Unhandled user role")
+
 		failure_response.Unknown(context, fmt.Sprintf("Bug: unhandled role %d", user.RoleID.Int64()))
+
 		return
 	}
 }
@@ -261,40 +289,52 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsSeller(queriedUserID m
 	userID := ep.UserID
 
 	if userID != queriedUserID {
-		logger.InvalidRequest("Seller attempted to access another user's information", "queriedUserID", queriedUserID)
+		logger.InvalidRequest("Seller attempted to access another user's information")
 		failure_response.WrongRole(context, "Only admins can access other users' information")
 		return
 	}
 
 	itemCount, err := queries.CountSellerItems(db, queriedUserID, queries.IncludeAll, queries.Exclude)
 	if err != nil {
+		logger.AddInformation("error", err)
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
-		logger.InternalError("Failed to count seller items", "queriedUserID", queriedUserID, "error", err)
+		logger.InternalError("Failed to count seller items")
+
 		failure_response.Unknown(context, err.Error())
+
 		return
 	}
 
 	frozenItemCount, err := queries.CountSellerItems(db, queriedUserID, queries.IncludeOnly, queries.IncludeAll)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
-		logger.InternalError("Failed to count frozen seller items", "queriedUserID", queriedUserID, "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to count frozen seller items")
+
 		failure_response.Unknown(context, err.Error())
+
 		return
 	}
 
 	hiddenItemCount, err := queries.CountSellerItems(db, queriedUserID, queries.IncludeAll, queries.IncludeOnly)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
-		logger.InternalError("Failed to count hidden seller items", "queriedUserID", queriedUserID, "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to count hidden seller items")
+
 		failure_response.Unknown(context, err.Error())
+
 		return
 	}
 
 	totalPrice, err := queries.GetSellerTotalValueOfAllItems(db, queriedUserID, queries.OnlyVisibleItems)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
-		logger.InternalError("Failed to get total price of seller items", "queriedUserID", queriedUserID, "error", err)
+		logger.AddInformation("error", err)
+		logger.InternalError("Failed to get total price of seller items")
+
 		failure_response.Unknown(context, err.Error())
+
 		return
 	}
 
@@ -315,32 +355,42 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsCashier(queriedUserID 
 	userID := ep.UserID
 
 	if userID != queriedUserID {
-		logger.InvalidRequest("Cashier attempted to access another user's information", "queriedUserID", queriedUserID)
+		logger.InvalidRequest("Cashier attempted to access another user's information")
+
 		failure_response.WrongRole(context, "Only admins can access users' information")
+
 		return
 	}
 
 	sales, err := queries.GetSalesWithCashier(db, queriedUserID)
 	if err != nil {
+		logger.AddInformation("error", err)
+
 		if errors.Is(err, dberr.ErrNoSuchUser) {
 			// This should never occur. At this point we know
 			// that userID == queriedUserID, and userID
 			// has been checked earlier.
-			logger.Bug("User not found; should have been caught earlier", "queriedUserID", queriedUserID)
+			logger.Bug("User not found; should have been caught earlier")
+
 			failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
+
 			return
 		}
 		if errors.Is(err, dberr.ErrWrongRole) {
 			// This should never occur. We previously were
 			// able to determine that userID refers to a cashier,
 			// and we know that userID == queriedUserID.
-			logger.Bug("User has the wrong role; should have been caught earlier", "queriedUserID", queriedUserID)
+			logger.Bug("User has the wrong role; should have been caught earlier")
+
 			failure_response.Unknown(context, "Bug: should have been caught earlier. "+err.Error())
+
 			return
 		}
 
-		logger.InternalError("Failed to get sales with cashier", "queriedUserID", queriedUserID, "error", err)
+		logger.InternalError("Failed to get sales with cashier")
+
 		failure_response.Unknown(context, err.Error())
+
 		return
 	}
 
