@@ -94,6 +94,7 @@ func (command *ListSoldItemsCommand) listSoldItemsInTableFormat(db *sql.DB) erro
 			"Seller ID",
 			"Donation",
 			"Charity",
+			"Large",
 		},
 	}
 
@@ -112,6 +113,7 @@ func (command *ListSoldItemsCommand) listSoldItemsInTableFormat(db *sql.DB) erro
 		sellerIDStr := soldItem.SellerID.String()
 		donationStr := strconv.FormatBool(soldItem.Donation)
 		charityStr := strconv.FormatBool(soldItem.Charity)
+		largeStr := strconv.FormatBool(soldItem.Large)
 
 		tableData = append(tableData, []string{
 			saleIDStr,
@@ -124,6 +126,7 @@ func (command *ListSoldItemsCommand) listSoldItemsInTableFormat(db *sql.DB) erro
 			sellerIDStr,
 			donationStr,
 			charityStr,
+			largeStr,
 		})
 
 		rowCount++
