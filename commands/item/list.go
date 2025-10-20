@@ -78,7 +78,7 @@ func (c *listItemsCommand) listItemsInTableFormat() error {
 			}
 
 			tableData := pterm.TableData{
-				{"ID", "Description", "Price", "Category", "Seller", "Donation", "Charity", "Added At", "Frozen", "Hidden"},
+				{"ID", "Description", "Price", "Category", "Seller", "Donation", "Charity", "Large", "Added At", "Frozen", "Hidden"},
 			}
 
 			for _, item := range items {
@@ -95,6 +95,7 @@ func (c *listItemsCommand) listItemsInTableFormat() error {
 					item.SellerID.String(),
 					strconv.FormatBool(item.Donation),
 					strconv.FormatBool(item.Charity),
+					strconv.FormatBool(item.Large),
 					item.AddedAt.FormattedDateTime(),
 					strconv.FormatBool(item.Frozen),
 					strconv.FormatBool(item.Hidden),
