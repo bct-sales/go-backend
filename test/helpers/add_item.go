@@ -131,6 +131,7 @@ func WithDummyData(k int) func(*AddItemData) {
 		itemCategory := defaultCategoryIDs[k%len(defaultCategoryIDs)]
 		donation := k%2 == 0
 		charity := k%3 == 0
+		large := k%4 == 0
 		frozen := k%2 == 0
 
 		data.AddedAt = &addedAt
@@ -140,6 +141,7 @@ func WithDummyData(k int) func(*AddItemData) {
 		data.Donation = &donation
 		data.Charity = &charity
 		data.Frozen = &frozen
+		data.Large = &large
 	}
 }
 
