@@ -27,7 +27,6 @@ func TestAddSale(t *testing.T) {
 
 				seller := setup.Seller()
 				cashier := setup.Cashier()
-
 				items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
 				itemIDs := models.CollectItemIDs(items)
 
