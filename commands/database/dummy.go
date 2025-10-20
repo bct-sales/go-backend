@@ -319,6 +319,7 @@ func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIDs []models.ID) ([]mo
 				charity := c.rng.IntN(20) == 0
 				frozen := c.rng.IntN(20) == 0
 				hidden := false
+				large := c.rng.IntN(20) == 0
 
 				addItem(
 					addedAt,
@@ -330,6 +331,7 @@ func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIDs []models.ID) ([]mo
 					charity,
 					frozen,
 					hidden,
+					large,
 				)
 			}
 		}

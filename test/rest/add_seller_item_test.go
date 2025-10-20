@@ -28,43 +28,47 @@ func TestAddSellerItem(t *testing.T) {
 					for categoryID := range defaultCategoryNameTable {
 						for _, donation := range []bool{true, false} {
 							for _, charity := range []bool{true, false} {
-								for _, delay := range []int{0, 100} {
-									t.Run(fmt.Sprintf("sellerID=%d price=%d description=%s categoryID=%d donation=%t charity=%t", sellerID, price, description, categoryID, donation, charity), func(t *testing.T) {
-										setup, router, writer := NewRestFixture(t, WithDefaultCategories)
-										defer setup.Close()
+								for _, large := range []bool{true, false} {
+									for _, delay := range []int{0, 100} {
+										t.Run(fmt.Sprintf("sellerID=%d price=%d description=%s categoryID=%d donation=%t charity=%t", sellerID, price, description, categoryID, donation, charity), func(t *testing.T) {
+											setup, router, writer := NewRestFixture(t, WithDefaultCategories)
+											defer setup.Close()
 
-										seller, sessionID := setup.LoggedIn(setup.Seller(aux.WithUserID(sellerID)), aux.WithExpiration(200))
+											seller, sessionID := setup.LoggedIn(setup.Seller(aux.WithUserID(sellerID)), aux.WithExpiration(200))
 
-										setup.Clock.Advance(models.Timestamp(delay))
+											setup.Clock.Advance(models.Timestamp(delay))
 
-										url := path.SellerItems(seller.UserID)
-										payload := rest.AddSellerItemPayload{
-											Price:       &price,
-											Description: &description,
-											CategoryID:  categoryID,
-											Donation:    &donation,
-											Charity:     &charity,
-										}
-										request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
-										router.ServeHTTP(writer, request)
+											url := path.SellerItems(seller.UserID)
+											payload := rest.AddSellerItemPayload{
+												Price:       &price,
+												Description: &description,
+												CategoryID:  categoryID,
+												Donation:    &donation,
+												Charity:     &charity,
+												Large:       &large,
+											}
+											request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
+											router.ServeHTTP(writer, request)
 
-										require.Equal(t, http.StatusCreated, writer.Code)
-										response := FromJSON[rest.AddSellerItemResponse](t, writer.Body.String())
+											require.Equal(t, http.StatusCreated, writer.Code)
+											response := FromJSON[rest.AddSellerItemResponse](t, writer.Body.String())
 
-										itemsInDatabase := []*models.Item{}
-										err := queries.NewGetItemsQuery().Execute(setup.Db, queries.CollectTo(&itemsInDatabase))
-										require.NoError(t, err)
-										require.Equal(t, 1, len(itemsInDatabase))
+											itemsInDatabase := []*models.Item{}
+											err := queries.NewGetItemsQuery().Execute(setup.Db, queries.CollectTo(&itemsInDatabase))
+											require.NoError(t, err)
+											require.Equal(t, 1, len(itemsInDatabase))
 
-										itemInDatabase := itemsInDatabase[0]
-										require.Equal(t, response.ItemID, itemInDatabase.ItemID)
-										require.Equal(t, seller.UserID, itemInDatabase.SellerID)
-										require.Equal(t, price, itemInDatabase.PriceInCents)
-										require.Equal(t, description, itemInDatabase.Description)
-										require.Equal(t, categoryID, itemInDatabase.CategoryID)
-										require.Equal(t, donation, itemInDatabase.Donation)
-										require.Equal(t, charity, itemInDatabase.Charity)
-									})
+											itemInDatabase := itemsInDatabase[0]
+											require.Equal(t, response.ItemID, itemInDatabase.ItemID)
+											require.Equal(t, seller.UserID, itemInDatabase.SellerID)
+											require.Equal(t, price, itemInDatabase.PriceInCents)
+											require.Equal(t, description, itemInDatabase.Description)
+											require.Equal(t, categoryID, itemInDatabase.CategoryID)
+											require.Equal(t, donation, itemInDatabase.Donation)
+											require.Equal(t, charity, itemInDatabase.Charity)
+											require.Equal(t, large, itemInDatabase.Large)
+										})
+									}
 								}
 							}
 						}
@@ -84,6 +88,7 @@ func TestAddSellerItem(t *testing.T) {
 			categoryID := aux.CategoryID_Clothing50_56
 			donation := false
 			charity := false
+			large := false
 
 			seller, sessionID := setup.LoggedIn(setup.Seller())
 
@@ -94,6 +99,7 @@ func TestAddSellerItem(t *testing.T) {
 				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
+				Large:       &large,
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
@@ -114,6 +120,7 @@ func TestAddSellerItem(t *testing.T) {
 			categoryID := aux.CategoryID_Shoes
 			donation := false
 			charity := false
+			large := false
 
 			seller, sessionID := setup.LoggedIn(setup.Seller())
 
@@ -124,6 +131,7 @@ func TestAddSellerItem(t *testing.T) {
 				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
+				Large:       &large,
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
@@ -144,6 +152,7 @@ func TestAddSellerItem(t *testing.T) {
 			categoryID := models.ID(1000)
 			donation := false
 			charity := false
+			large := false
 
 			require.NotContains(t, defaultCategoryNameTable, categoryID)
 
@@ -156,6 +165,7 @@ func TestAddSellerItem(t *testing.T) {
 				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
+				Large:       &large,
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
@@ -176,6 +186,7 @@ func TestAddSellerItem(t *testing.T) {
 			categoryID := aux.CategoryID_BabyChildEquipment
 			donation := false
 			charity := false
+			large := false
 
 			seller := setup.Seller()
 			_, sessionID := setup.LoggedIn(setup.Admin())
@@ -187,6 +198,7 @@ func TestAddSellerItem(t *testing.T) {
 				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
+				Large:       &large,
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
@@ -207,6 +219,7 @@ func TestAddSellerItem(t *testing.T) {
 			categoryID := aux.CategoryID_Clothing104_116
 			donation := false
 			charity := false
+			large := false
 
 			seller := setup.Seller()
 			_, sessionID := setup.LoggedIn(setup.Cashier())
@@ -217,6 +230,7 @@ func TestAddSellerItem(t *testing.T) {
 				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
+				Large:       &large,
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
@@ -237,6 +251,7 @@ func TestAddSellerItem(t *testing.T) {
 			categoryID := aux.CategoryID_BabyChildEquipment
 			donation := false
 			charity := false
+			large := false
 
 			_, sessionID := setup.LoggedIn(setup.Seller())
 
@@ -247,6 +262,7 @@ func TestAddSellerItem(t *testing.T) {
 				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
+				Large:       &large,
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
@@ -267,6 +283,7 @@ func TestAddSellerItem(t *testing.T) {
 			categoryID := aux.CategoryID_BabyChildEquipment
 			donation := false
 			charity := false
+			large := false
 
 			seller1 := setup.Seller()
 			_, sessionID := setup.LoggedIn(setup.Seller())
@@ -278,6 +295,7 @@ func TestAddSellerItem(t *testing.T) {
 				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
+				Large:       &large,
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
@@ -298,6 +316,7 @@ func TestAddSellerItem(t *testing.T) {
 			categoryID := aux.CategoryID_BabyChildEquipment
 			donation := false
 			charity := false
+			large := false
 
 			_, sessionID := setup.LoggedIn(setup.Seller())
 			nonexistentUserID := setup.GenerateNonexistentUserID(t)
@@ -309,6 +328,7 @@ func TestAddSellerItem(t *testing.T) {
 				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
+				Large:       &large,
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)
@@ -329,6 +349,7 @@ func TestAddSellerItem(t *testing.T) {
 			categoryID := aux.CategoryID_Clothing50_56
 			donation := false
 			charity := false
+			large := false
 
 			seller := setup.Seller()
 
@@ -339,6 +360,7 @@ func TestAddSellerItem(t *testing.T) {
 				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
+				Large:       &large,
 			}
 			request := CreatePostRequest(url, &payload)
 			router.ServeHTTP(writer, request)
@@ -359,6 +381,7 @@ func TestAddSellerItem(t *testing.T) {
 			categoryID := aux.CategoryID_Clothing50_56
 			donation := false
 			charity := false
+			large := false
 
 			seller := setup.Seller()
 			invalidSessionID := models.SessionID("xxx")
@@ -370,6 +393,7 @@ func TestAddSellerItem(t *testing.T) {
 				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
+				Large:       &large,
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(invalidSessionID))
 			router.ServeHTTP(writer, request)
@@ -390,6 +414,7 @@ func TestAddSellerItem(t *testing.T) {
 			categoryID := aux.CategoryID_Clothing50_56
 			donation := false
 			charity := false
+			large := false
 
 			seller, sessionID := setup.LoggedIn(setup.Seller(), aux.WithExpiration(100))
 
@@ -402,6 +427,7 @@ func TestAddSellerItem(t *testing.T) {
 				CategoryID:  categoryID,
 				Donation:    &donation,
 				Charity:     &charity,
+				Large:       &large,
 			}
 			request := CreatePostRequest(url, &payload, WithSessionCookie(sessionID))
 			router.ServeHTTP(writer, request)

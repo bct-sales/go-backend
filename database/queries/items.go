@@ -107,6 +107,7 @@ func (q *GetItemsQuery) Execute(db DatabaseQuerier, receiver func(*models.Item) 
 		var charity bool
 		var frozen bool
 		var hidden bool
+		var large bool
 		err = rows.Scan(
 			&itemID,
 			&addedAt,
@@ -118,6 +119,7 @@ func (q *GetItemsQuery) Execute(db DatabaseQuerier, receiver func(*models.Item) 
 			&charity,
 			&frozen,
 			&hidden,
+			&large,
 		)
 		if err != nil {
 			return fmt.Errorf("failed to scan row: %w", err)
@@ -134,6 +136,7 @@ func (q *GetItemsQuery) Execute(db DatabaseQuerier, receiver func(*models.Item) 
 			Charity:      charity,
 			Frozen:       frozen,
 			Hidden:       hidden,
+			Large:        large,
 		}
 
 		// If receiver returns error, abort enumeration
@@ -150,7 +153,7 @@ func (q *GetItemsQuery) Execute(db DatabaseQuerier, receiver func(*models.Item) 
 }
 
 func (q *GetItemsQuery) buildSQLQuery() (string, []any, error) {
-	query := sq.Select("item_id", "added_at", "description", "price_in_cents", "item_category_id", "seller_id", "donation", "charity", "frozen", "hidden")
+	query := sq.Select("item_id", "added_at", "description", "price_in_cents", "item_category_id", "seller_id", "donation", "charity", "frozen", "hidden", "large")
 	query = query.From("items")
 	query = query.OrderBy("item_id ASC")
 
@@ -256,7 +259,8 @@ func GetSellerItems(db DatabaseQuerier, sellerID models.ID, itemSelection ItemSe
 			donation,
 			charity,
 			frozen,
-			hidden
+			hidden,
+			large
 		FROM
 			%s
 		WHERE
@@ -284,6 +288,7 @@ func GetSellerItems(db DatabaseQuerier, sellerID models.ID, itemSelection ItemSe
 		var charity bool
 		var frozen bool
 		var hidden bool
+		var large bool
 
 		err = rows.Scan(
 			&id,
@@ -296,6 +301,7 @@ func GetSellerItems(db DatabaseQuerier, sellerID models.ID, itemSelection ItemSe
 			&charity,
 			&frozen,
 			&hidden,
+			&large,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read row: %w", err)
@@ -312,6 +318,7 @@ func GetSellerItems(db DatabaseQuerier, sellerID models.ID, itemSelection ItemSe
 			Charity:      charity,
 			Frozen:       frozen,
 			Hidden:       hidden,
+			Large:        large,
 		}
 		items = append(items, &item)
 	}
@@ -367,6 +374,7 @@ func GetItemsWithSaleCounts(db DatabaseQuerier, itemSelection ItemSelection, sel
 			charity,
 			frozen,
 			hidden,
+			large,
 			COALESCE(COUNT(sale_items.sale_id), 0) AS sale_count
 		FROM
 			%s i LEFT JOIN sale_items ON i.item_id = sale_items.item_id
@@ -397,9 +405,10 @@ func GetItemsWithSaleCounts(db DatabaseQuerier, itemSelection ItemSelection, sel
 		var charity bool
 		var frozen bool
 		var hidden bool
+		var large bool
 		var saleCount int
 
-		err = rows.Scan(&itemID, &addedAt, &description, &priceInCents, &itemCategoryID, &sellerID, &donation, &charity, &frozen, &hidden, &saleCount)
+		err = rows.Scan(&itemID, &addedAt, &description, &priceInCents, &itemCategoryID, &sellerID, &donation, &charity, &frozen, &hidden, &large, &saleCount)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read row: %w", err)
 		}
@@ -416,6 +425,7 @@ func GetItemsWithSaleCounts(db DatabaseQuerier, itemSelection ItemSelection, sel
 				Charity:      charity,
 				Frozen:       frozen,
 				Hidden:       hidden,
+				Large:        large,
 			},
 			SaleCount: saleCount,
 		}
@@ -459,6 +469,7 @@ func GetSellerItemsWithSaleCounts(db DatabaseQuerier, sellerID models.ID) (r_ite
 				charity,
 				frozen,
 				hidden,
+				large,
 				COALESCE(COUNT(sale_items.sale_id), 0) AS sale_count
 			FROM
 				items LEFT JOIN sale_items ON items.item_id = sale_items.item_id
@@ -490,6 +501,7 @@ func GetSellerItemsWithSaleCounts(db DatabaseQuerier, sellerID models.ID) (r_ite
 		var charity bool
 		var frozen bool
 		var hidden bool
+		var large bool
 		var saleCount int
 
 		err = rows.Scan(&itemID,
@@ -502,6 +514,7 @@ func GetSellerItemsWithSaleCounts(db DatabaseQuerier, sellerID models.ID) (r_ite
 			&charity,
 			&frozen,
 			&hidden,
+			&large,
 			&saleCount,
 		)
 		if err != nil {
@@ -520,6 +533,7 @@ func GetSellerItemsWithSaleCounts(db DatabaseQuerier, sellerID models.ID) (r_ite
 				Charity:      charity,
 				Frozen:       frozen,
 				Hidden:       hidden,
+				Large:        large,
 			},
 			SaleCount: saleCount,
 		}
@@ -551,7 +565,8 @@ func GetItemWithID(db DatabaseQuerier, itemID models.ID) (r_result *models.Item,
 			donation,
 			charity,
 			frozen,
-			hidden
+			hidden,
+			large
 		FROM
 			items
 		WHERE
@@ -567,6 +582,7 @@ func GetItemWithID(db DatabaseQuerier, itemID models.ID) (r_result *models.Item,
 	var charity bool
 	var frozen bool
 	var hidden bool
+	var large bool
 	err := row.Scan(
 		&addedAt,
 		&description,
@@ -577,6 +593,7 @@ func GetItemWithID(db DatabaseQuerier, itemID models.ID) (r_result *models.Item,
 		&charity,
 		&frozen,
 		&hidden,
+		&large,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -596,6 +613,7 @@ func GetItemWithID(db DatabaseQuerier, itemID models.ID) (r_result *models.Item,
 		Charity:      charity,
 		Frozen:       frozen,
 		Hidden:       hidden,
+		Large:        large,
 	}
 	return &item, nil
 }
@@ -622,7 +640,8 @@ func GetItemsWithIDs(db DatabaseQuerier, itemIDs []models.ID) (r_result map[mode
 			donation,
 			charity,
 			frozen,
-			hidden
+			hidden,
+			large
 		FROM
 			items
 		WHERE
@@ -647,6 +666,7 @@ func GetItemsWithIDs(db DatabaseQuerier, itemIDs []models.ID) (r_result map[mode
 		var charity bool
 		var frozen bool
 		var hidden bool
+		var large bool
 
 		err = rows.Scan(
 			&id,
@@ -659,6 +679,7 @@ func GetItemsWithIDs(db DatabaseQuerier, itemIDs []models.ID) (r_result map[mode
 			&charity,
 			&frozen,
 			&hidden,
+			&large,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read row: %w", err)
@@ -675,6 +696,7 @@ func GetItemsWithIDs(db DatabaseQuerier, itemIDs []models.ID) (r_result map[mode
 			Charity:      charity,
 			Frozen:       frozen,
 			Hidden:       hidden,
+			Large:        large,
 		}
 		items[id] = &item
 	}
@@ -798,7 +820,8 @@ func AddItem(
 	donation bool,
 	charity bool,
 	frozen bool,
-	hidden bool) (r_result models.ID, r_err error) {
+	hidden bool,
+	large bool) (r_result models.ID, r_err error) {
 
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -822,8 +845,8 @@ func AddItem(
 	// Insert the item into the database
 	result, err := db.Exec(
 		`
-			INSERT INTO items (added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+			INSERT INTO items (added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden, large)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		`,
 		addedAt,
 		description,
@@ -834,6 +857,7 @@ func AddItem(
 		charity,
 		frozen,
 		hidden,
+		large,
 	)
 	if err != nil {
 		categoryExists, err2 := CategoryWithIDExists(db, itemCategoryID)
@@ -1273,6 +1297,7 @@ type ItemUpdate struct {
 	CategoryID   *models.ID           // If nil, the CategoryID field is not updated.
 	Donation     *bool                // If nil, the Donation field is not updated.
 	Charity      *bool                // If nil, the Charity field is not updated.
+	Large        *bool                // If nil, the Large field is not updated
 }
 
 // UpdateItem updates the item with the given ID in the database.
@@ -1343,6 +1368,11 @@ func UpdateItem(db *TransactionalDatabaseQuerier, itemID models.ID, itemUpdate *
 		sqlValues = append(sqlValues, *itemUpdate.Charity)
 	}
 
+	if itemUpdate.Large != nil {
+		sqlUpdates = append(sqlUpdates, "large = ?")
+		sqlValues = append(sqlValues, *itemUpdate.Large)
+	}
+
 	if len(sqlUpdates) == 0 {
 		return nil
 	}
@@ -1357,7 +1387,7 @@ func UpdateItem(db *TransactionalDatabaseQuerier, itemID models.ID, itemUpdate *
 	return nil
 }
 
-type AddItemFunction func(addedAt models.Timestamp, description string, priceInCents models.MoneyInCents, itemCategoryID models.ID, sellerID models.ID, donation bool, charity bool, frozen bool, hidden bool)
+type AddItemFunction func(addedAt models.Timestamp, description string, priceInCents models.MoneyInCents, itemCategoryID models.ID, sellerID models.ID, donation bool, charity bool, frozen bool, hidden bool, large bool)
 
 type AddItemsCallback func(addItem AddItemFunction)
 
@@ -1369,11 +1399,11 @@ func AddItems(db DatabaseQuerier, callback AddItemsCallback) (r_err error) {
 
 	valuesString := []string{}
 	arguments := []any{}
-	tupleString := "(?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	tupleString := "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
-	add := func(addedAt models.Timestamp, description string, priceInCents models.MoneyInCents, itemCategoryID models.ID, sellerID models.ID, donation bool, charity bool, frozen bool, hidden bool) {
+	add := func(addedAt models.Timestamp, description string, priceInCents models.MoneyInCents, itemCategoryID models.ID, sellerID models.ID, donation bool, charity bool, frozen bool, hidden bool, large bool) {
 		valuesString = append(valuesString, tupleString)
-		arguments = append(arguments, addedAt, description, priceInCents, itemCategoryID, sellerID, donation, charity, frozen, hidden)
+		arguments = append(arguments, addedAt, description, priceInCents, itemCategoryID, sellerID, donation, charity, frozen, hidden, large)
 	}
 
 	callback(add)
@@ -1382,7 +1412,7 @@ func AddItems(db DatabaseQuerier, callback AddItemsCallback) (r_err error) {
 		return nil
 	}
 
-	query := `INSERT INTO items (added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden) VALUES ` + strings.Join(valuesString, ",")
+	query := `INSERT INTO items (added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden, large) VALUES ` + strings.Join(valuesString, ",")
 
 	if _, err := db.Exec(query, arguments...); err != nil {
 		return err

@@ -13,6 +13,7 @@ type Item struct {
 	Charity      bool
 	Frozen       bool
 	Hidden       bool
+	Large        bool
 }
 
 func IsValidItemDescription(description string) bool {

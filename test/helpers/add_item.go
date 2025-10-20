@@ -18,6 +18,7 @@ type AddItemData struct {
 	Charity      *bool
 	Frozen       *bool
 	Hidden       *bool
+	Large        *bool
 }
 
 func (data *AddItemData) FillWithDefaults() {
@@ -58,6 +59,11 @@ func (data *AddItemData) FillWithDefaults() {
 
 	if data.Hidden == nil {
 		panic("Hidden is nil")
+	}
+
+	if data.Large == nil {
+		large := false
+		data.Large = &large
 	}
 }
 
@@ -109,6 +115,12 @@ func WithHidden(hidden bool) func(*AddItemData) {
 	}
 }
 
+func WithLarge(large bool) func(*AddItemData) {
+	return func(data *AddItemData) {
+		data.Large = &large
+	}
+}
+
 func WithDummyData(k int) func(*AddItemData) {
 	defaultCategoryIDs := DefaultCategoryIDs()
 
@@ -140,7 +152,7 @@ func AddItemToDatabase(db *sql.DB, sellerID models.ID, options ...func(*AddItemD
 
 	data.FillWithDefaults()
 
-	itemID, err := queries.AddItem(db, *data.AddedAt, *data.Description, *data.PriceInCents, *data.ItemCategory, sellerID, *data.Donation, *data.Charity, *data.Frozen, *data.Hidden)
+	itemID, err := queries.AddItem(db, *data.AddedAt, *data.Description, *data.PriceInCents, *data.ItemCategory, sellerID, *data.Donation, *data.Charity, *data.Frozen, *data.Hidden, *data.Large)
 	if err != nil {
 		panic(err)
 	}

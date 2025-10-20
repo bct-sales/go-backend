@@ -15,6 +15,7 @@ type AddSellerItemPayload struct {
 	CategoryID  models.ID            `binding:"required" json:"categoryId"`
 	Donation    *bool                `binding:"required" json:"donation"` // needs to be a pointer to differentiate between false and not present
 	Charity     *bool                `binding:"required" json:"charity"`  // needs to be a pointer to differentiate between false and not present
+	Large       *bool                `binding:"required" json:"large"`    // needs to be a pointer to differentiate between false and not present
 }
 
 type AddSellerItemResponse struct {
@@ -205,6 +206,7 @@ func (ep *addSellerItemEndpoint) addItemToDatabase(payload *AddSellerItemPayload
 		*payload.Charity,
 		false,
 		false,
+		*payload.Large,
 	)
 
 	if err != nil {

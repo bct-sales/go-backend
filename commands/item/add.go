@@ -23,6 +23,7 @@ type addItemCommand struct {
 	sellerID     int    `exhaustruct:"optional"`
 	donation     bool   `exhaustruct:"optional"`
 	charity      bool   `exhaustruct:"optional"`
+	large        bool   `exhaustruct:"optional"`
 }
 
 func NewAddItemCommand() *cobra.Command {
@@ -52,6 +53,7 @@ func NewAddItemCommand() *cobra.Command {
 	command.CobraCommand.Flags().IntVar(&command.sellerID, "seller", 0, "ID of the seller of the item")
 	command.CobraCommand.Flags().BoolVar(&command.donation, "donation", false, "Whether the item is a donation")
 	command.CobraCommand.Flags().BoolVar(&command.charity, "charity", false, "Whether the item is for charity")
+	command.CobraCommand.Flags().BoolVar(&command.large, "large", false, "Whether the item is large")
 
 	if err := command.CobraCommand.MarkFlagRequired("description"); err != nil {
 		panic(fmt.Sprintf("failed to mark description flag as required: %v", err))
@@ -83,7 +85,9 @@ func (c *addItemCommand) execute() error {
 			c.donation,
 			c.charity,
 			false,
-			false)
+			false,
+			c.large,
+		)
 
 		if err != nil {
 			if errors.Is(err, dberr.ErrNoSuchCategory) {

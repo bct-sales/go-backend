@@ -69,7 +69,9 @@ func (c *copyItemCommand) execute(args []string) error {
 			item.Donation,
 			item.Charity,
 			false,
-			false)
+			false,
+			item.Large,
+		)
 		if err != nil {
 			c.PrintErrorf("Failed to copy item: %v\n", err)
 			return fmt.Errorf("failed to insert copy in database: %w", err)
@@ -113,6 +115,7 @@ func (c *copyItemCommand) printItem(db *sql.DB, itemID models.ID) error {
 		{"Added At", item.AddedAt.FormattedDateTime()},
 		{"Frozen", strconv.FormatBool(item.Frozen)},
 		{"Hidden", strconv.FormatBool(item.Hidden)},
+		{"Large", strconv.FormatBool(item.Large)},
 	}
 
 	err = pterm.DefaultTable.WithHasHeader().WithHeaderRowSeparator("-").WithData(tableData).Render()

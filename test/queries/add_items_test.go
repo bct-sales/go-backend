@@ -46,8 +46,9 @@ func TestAddItems(t *testing.T) {
 			charity := false
 			frozen := false
 			hidden := false
+			large := false
 			callback := func(addItem queries.AddItemFunction) {
-				addItem(addedAt, description, priceInCents, categoryID, sellerID, donation, charity, frozen, hidden)
+				addItem(addedAt, description, priceInCents, categoryID, sellerID, donation, charity, frozen, hidden, large)
 			}
 
 			err := queries.AddItems(db, callback)
@@ -96,8 +97,9 @@ func TestAddItems(t *testing.T) {
 					charity := i%3 == 0
 					frozen := false
 					hidden := false
+					large := false
 
-					addItem(addedAt, description, priceInCents, categoryID, sellerID, donation, charity, frozen, hidden)
+					addItem(addedAt, description, priceInCents, categoryID, sellerID, donation, charity, frozen, hidden, large)
 					totalPrice += priceInCents
 				}
 			}

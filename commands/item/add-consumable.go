@@ -71,6 +71,7 @@ func (c *addConsumableCommand) execute() error {
 			charity := false
 			frozen := false
 			hidden := false
+			large := false
 			priceInCents := c.priceInCents * quantity
 
 			addedItemID, err := queries.AddItem(
@@ -83,7 +84,9 @@ func (c *addConsumableCommand) execute() error {
 				donation,
 				charity,
 				frozen,
-				hidden)
+				hidden,
+				large,
+			)
 
 			if err != nil {
 				if errors.Is(err, dberr.ErrNoSuchCategory) {
