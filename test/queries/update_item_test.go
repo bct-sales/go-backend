@@ -21,6 +21,7 @@ func TestUpdateItem(t *testing.T) {
 		oldPriceInCents := models.MoneyInCents(1000)
 		oldCharity := false
 		oldDonation := false
+		oldLarge := false
 		oldCategory := aux.CategoryID_BabyChildEquipment
 
 		newAddedAt := models.Timestamp(2000)
@@ -28,6 +29,7 @@ func TestUpdateItem(t *testing.T) {
 		newPriceInCents := models.MoneyInCents(2000)
 		newCharity := true
 		newDonation := true
+		newLarge := true
 		newCategory := aux.CategoryID_Clothing140_152
 
 		for _, updateAddedAt := range []bool{false, true} {
@@ -36,93 +38,104 @@ func TestUpdateItem(t *testing.T) {
 					for _, updateCharity := range []bool{false, true} {
 						for _, updateDonation := range []bool{false, true} {
 							for _, updateCategory := range []bool{false, true} {
-								testLabel := fmt.Sprintf("updateAddedAt=%v, updateDescription=%v, updatePriceInCents=%v, updateCharity=%v, updateDonation=%v, updateCategory=%v",
-									updateAddedAt,
-									updateDescription,
-									updatePriceInCents,
-									updateCharity,
-									updateDonation,
-									updateCategory,
-								)
-								t.Run(testLabel, func(t *testing.T) {
-									setup, db := NewDatabaseFixture(WithDefaultCategories)
-									defer setup.Close()
-
-									seller := setup.Seller()
-
-									item := setup.Item(
-										seller.UserID,
-										aux.WithAddedAt(oldAddedAt),
-										aux.WithDescription(oldDescription),
-										aux.WithPriceInCents(oldPriceInCents),
-										aux.WithDonation(oldDonation),
-										aux.WithCharity(oldCharity),
-										aux.WithItemCategory(oldCategory),
-										aux.WithFrozen(false),
-										aux.WithHidden(false),
+								for _, updateLarge := range []bool{false, true} {
+									testLabel := fmt.Sprintf("updateAddedAt=%v, updateDescription=%v, updatePriceInCents=%v, updateCharity=%v, updateDonation=%v, updateCategory=%v, updateLarge=%v",
+										updateAddedAt,
+										updateDescription,
+										updatePriceInCents,
+										updateCharity,
+										updateDonation,
+										updateCategory,
+										updateLarge,
 									)
+									t.Run(testLabel, func(t *testing.T) {
+										setup, db := NewDatabaseFixture(WithDefaultCategories)
+										defer setup.Close()
 
-									var itemUpdate queries.ItemUpdate
-									expectedAddedAt := oldAddedAt
-									expectedDescription := oldDescription
-									expectedPriceInCents := oldPriceInCents
-									expectedCharity := oldCharity
-									expectedDonation := oldDonation
-									expectedCategory := oldCategory
+										seller := setup.Seller()
 
-									if updateAddedAt {
-										itemUpdate.AddedAt = &newAddedAt
-										expectedAddedAt = newAddedAt
-									}
-
-									if updateDescription {
-										itemUpdate.Description = &newDescription
-										expectedDescription = newDescription
-									}
-
-									if updatePriceInCents {
-										itemUpdate.PriceInCents = &newPriceInCents
-										expectedPriceInCents = newPriceInCents
-									}
-
-									if updateCharity {
-										itemUpdate.Charity = &newCharity
-										expectedCharity = newCharity
-									}
-
-									if updateDonation {
-										itemUpdate.Donation = &newDonation
-										expectedDonation = newDonation
-									}
-
-									if updateCategory {
-										itemUpdate.CategoryID = &newCategory
-										expectedCategory = newCategory
-									}
-
-									setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
-										err := queries.UpdateItem(
-											transaction,
-											item.ItemID,
-											&itemUpdate,
+										item := setup.Item(
+											seller.UserID,
+											aux.WithAddedAt(oldAddedAt),
+											aux.WithDescription(oldDescription),
+											aux.WithPriceInCents(oldPriceInCents),
+											aux.WithDonation(oldDonation),
+											aux.WithCharity(oldCharity),
+											aux.WithItemCategory(oldCategory),
+											aux.WithFrozen(false),
+											aux.WithHidden(false),
+											aux.WithLarge(false),
 										)
 
+										var itemUpdate queries.ItemUpdate
+										expectedAddedAt := oldAddedAt
+										expectedDescription := oldDescription
+										expectedPriceInCents := oldPriceInCents
+										expectedCharity := oldCharity
+										expectedDonation := oldDonation
+										expectedCategory := oldCategory
+										expectedLarge := oldLarge
+
+										if updateAddedAt {
+											itemUpdate.AddedAt = &newAddedAt
+											expectedAddedAt = newAddedAt
+										}
+
+										if updateDescription {
+											itemUpdate.Description = &newDescription
+											expectedDescription = newDescription
+										}
+
+										if updatePriceInCents {
+											itemUpdate.PriceInCents = &newPriceInCents
+											expectedPriceInCents = newPriceInCents
+										}
+
+										if updateCharity {
+											itemUpdate.Charity = &newCharity
+											expectedCharity = newCharity
+										}
+
+										if updateDonation {
+											itemUpdate.Donation = &newDonation
+											expectedDonation = newDonation
+										}
+
+										if updateCategory {
+											itemUpdate.CategoryID = &newCategory
+											expectedCategory = newCategory
+										}
+
+										if updateLarge {
+											itemUpdate.Large = &newLarge
+											expectedLarge = newLarge
+										}
+
+										setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
+											err := queries.UpdateItem(
+												transaction,
+												item.ItemID,
+												&itemUpdate,
+											)
+
+											require.NoError(t, err)
+										})
+
+										updatedItem, err := queries.GetItemWithID(db, item.ItemID)
 										require.NoError(t, err)
+
+										require.Equal(t, item.ItemID, updatedItem.ItemID)
+										require.Equal(t, seller.UserID, updatedItem.SellerID)
+										require.Equal(t, expectedAddedAt, updatedItem.AddedAt)
+										require.Equal(t, expectedDescription, updatedItem.Description)
+										require.Equal(t, expectedPriceInCents, updatedItem.PriceInCents)
+										require.Equal(t, expectedCharity, updatedItem.Charity)
+										require.Equal(t, expectedDonation, updatedItem.Donation)
+										require.Equal(t, expectedCategory, updatedItem.CategoryID)
+										require.Equal(t, expectedLarge, updatedItem.Large)
+										require.Equal(t, false, updatedItem.Frozen)
 									})
-
-									updatedItem, err := queries.GetItemWithID(db, item.ItemID)
-									require.NoError(t, err)
-
-									require.Equal(t, item.ItemID, updatedItem.ItemID)
-									require.Equal(t, seller.UserID, updatedItem.SellerID)
-									require.Equal(t, expectedAddedAt, updatedItem.AddedAt)
-									require.Equal(t, expectedDescription, updatedItem.Description)
-									require.Equal(t, expectedPriceInCents, updatedItem.PriceInCents)
-									require.Equal(t, expectedCharity, updatedItem.Charity)
-									require.Equal(t, expectedDonation, updatedItem.Donation)
-									require.Equal(t, expectedCategory, updatedItem.CategoryID)
-									require.Equal(t, false, updatedItem.Frozen)
-								})
+								}
 							}
 						}
 					}
