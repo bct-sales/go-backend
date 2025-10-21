@@ -7,6 +7,7 @@ import (
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -25,34 +26,39 @@ func TestGetSoldItemsQuery(t *testing.T) {
 		})
 
 		t.Run("Single item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
-			defer setup.Close()
+			for i := range 20 {
+				t.Run(fmt.Sprintf("i = %d", i), func(t *testing.T) {
+					setup, db := NewDatabaseFixture(WithDefaultCategories)
+					defer setup.Close()
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
-			item := setup.Item(seller.UserID, aux.WithHidden(false))
-			sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+					seller := setup.Seller()
+					cashier := setup.Cashier()
+					item := setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
+					sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
 
-			query := queries.NewGetSoldItemsQuery()
-			actualSoldItems, err := query.Execute(db)
-			require.NoError(t, err)
-			require.Len(t, actualSoldItems, 1)
+					query := queries.NewGetSoldItemsQuery()
+					actualSoldItems, err := query.Execute(db)
+					require.NoError(t, err)
+					require.Len(t, actualSoldItems, 1)
 
-			actualSoldItem := actualSoldItems[0]
-			expectedSoldItem := queries.SoldItem{
-				SaleID:          sale.SaleID,
-				CashierID:       sale.CashierID,
-				TransactionTime: sale.TransactionTime,
-				ItemID:          item.ItemID,
-				AddedAt:         item.AddedAt,
-				Description:     item.Description,
-				PriceInCents:    item.PriceInCents,
-				ItemCategoryID:  item.CategoryID,
-				SellerID:        item.SellerID,
-				Donation:        item.Donation,
-				Charity:         item.Charity,
+					actualSoldItem := actualSoldItems[0]
+					expectedSoldItem := queries.SoldItem{
+						SaleID:          sale.SaleID,
+						CashierID:       sale.CashierID,
+						TransactionTime: sale.TransactionTime,
+						ItemID:          item.ItemID,
+						AddedAt:         item.AddedAt,
+						Description:     item.Description,
+						PriceInCents:    item.PriceInCents,
+						ItemCategoryID:  item.CategoryID,
+						SellerID:        item.SellerID,
+						Donation:        item.Donation,
+						Charity:         item.Charity,
+						Large:           item.Large,
+					}
+					require.Equal(t, &expectedSoldItem, actualSoldItem)
+				})
 			}
-			require.Equal(t, &expectedSoldItem, actualSoldItem)
 		})
 
 		t.Run("One sold item, one unsold item", func(t *testing.T) {
