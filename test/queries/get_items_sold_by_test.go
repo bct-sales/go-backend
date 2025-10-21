@@ -8,6 +8,7 @@ import (
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -28,6 +29,25 @@ func TestGetItemsSoldBy(t *testing.T) {
 		items, err := queries.GetItemsSoldBy(db, cashier.UserID)
 		require.NoError(t, err)
 		require.Len(t, items, 0)
+	})
+
+	t.Run("Single item", func(t *testing.T) {
+		for i := range 20 {
+			t.Run(fmt.Sprintf("i = %d", i), func(t *testing.T) {
+				setup, db := NewDatabaseFixture(WithDefaultCategories)
+				defer setup.Close()
+
+				seller := setup.Seller()
+				cashier := setup.Cashier()
+				item := setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
+				setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+
+				items, err := queries.GetItemsSoldBy(db, cashier.UserID)
+				require.NoError(t, err)
+				require.Len(t, items, 1)
+				require.Equal(t, item, items[0])
+			})
+		}
 	})
 
 	t.Run("Items sold by different cashier", func(t *testing.T) {
