@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+
+	sq "github.com/Masterminds/squirrel"
 )
 
 // AddUserWithID adds a user to the database with a specific user ID.
@@ -466,36 +468,31 @@ func CountSellerItems(db DatabaseQuerier, sellerID models.ID, frozen GetSellerIt
 		return 0, fmt.Errorf("failed to get hidden item count of user %d: %w", sellerID, err)
 	}
 
-	whereCondition := "items.seller_id = $1"
+	query := sq.Select("COUNT(item_id)").From("items").Where(sq.Eq{"seller_id": sellerID})
 
 	switch frozen {
 	case IncludeAll:
 		// No additional condition needed, all items are included
 	case Exclude:
-		whereCondition += " AND items.frozen = false"
+		query = query.Where(sq.Eq{"frozen": false})
 	case IncludeOnly:
-		whereCondition += " AND items.frozen = true"
+		query = query.Where(sq.Eq{"frozen": true})
 	}
 
 	switch hidden {
 	case IncludeAll:
 		// No additional condition needed, all items are included
 	case Exclude:
-		whereCondition += " AND items.hidden = false"
+		query = query.Where(sq.Eq{"hidden": false})
 	case IncludeOnly:
-		whereCondition += " AND items.hidden = true"
+		query = query.Where(sq.Eq{"hidden": true})
 	}
 
-	query := fmt.Sprintf(
-		`
-			SELECT
-				COUNT(items.item_id)
-			FROM
-				items
-			WHERE
-				%s
-		`, whereCondition)
-	row := db.QueryRow(query, sellerID)
+	queryString, queryArguments, sqlErr := query.ToSql()
+	if sqlErr != nil {
+		return 0, fmt.Errorf("failed to build SQL query")
+	}
+	row := db.QueryRow(queryString, queryArguments...)
 
 	var itemCount int
 	err := row.Scan(&itemCount)
