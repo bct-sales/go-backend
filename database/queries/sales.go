@@ -981,6 +981,7 @@ func GetMultiplySoldItems(db DatabaseQuerier) (r_result []MultiplySoldItem, r_er
 				item.seller_id,
 				item.donation,
 				item.charity,
+				item.large,
 				item.frozen,
 				sale.sale_id,
 				sale.cashier_id,
@@ -1020,6 +1021,7 @@ func GetMultiplySoldItems(db DatabaseQuerier) (r_result []MultiplySoldItem, r_er
 			SellerID        models.ID
 			Donation        bool
 			Charity         bool
+			Large           bool
 			Frozen          bool
 			SaleID          models.ID
 			CashierID       models.ID
@@ -1034,6 +1036,7 @@ func GetMultiplySoldItems(db DatabaseQuerier) (r_result []MultiplySoldItem, r_er
 			&rowData.SellerID,
 			&rowData.Donation,
 			&rowData.Charity,
+			&rowData.Large,
 			&rowData.Frozen,
 			&rowData.SaleID,
 			&rowData.CashierID,
@@ -1066,6 +1069,7 @@ func GetMultiplySoldItems(db DatabaseQuerier) (r_result []MultiplySoldItem, r_er
 					Charity:      rowData.Charity,
 					Frozen:       rowData.Frozen,
 					Hidden:       false,
+					Large:        rowData.Large,
 				},
 				Sales: []models.Sale{sale},
 			}
