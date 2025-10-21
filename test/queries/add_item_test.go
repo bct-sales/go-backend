@@ -33,7 +33,7 @@ func TestAddItem(t *testing.T) {
 									for _, frozen := range []bool{false, true} {
 										for _, hidden := range []bool{false, true} {
 											for _, large := range []bool{false, true} {
-												test_name := fmt.Sprintf("timestamp = %d", timestamp)
+												test_name := fmt.Sprintf("timestamp = %d, priceInCents = %d, category = %d, seller = %d, donation = %v, frozen = %v, hidden = %v, large = %v", timestamp, priceInCents, itemCategoryID, sellerID, donation, frozen, hidden, large)
 
 												if !hidden || !frozen {
 													t.Run(test_name, func(t *testing.T) {
