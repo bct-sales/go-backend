@@ -7,6 +7,7 @@ import (
 	"bctbackend/database/queries"
 	aux "bctbackend/test/helpers"
 	. "bctbackend/test/setup"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -46,29 +47,33 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("Item sold twice", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
-		defer setup.Close()
+		for i := range 20 {
+			t.Run(fmt.Sprintf("i = %d", i), func(t *testing.T) {
+				setup, db := NewDatabaseFixture(WithDefaultCategories)
+				defer setup.Close()
 
-		seller := setup.Seller()
-		cashier := setup.Cashier()
+				seller := setup.Seller()
+				cashier := setup.Cashier()
 
-		items := []*models.Item{
-			setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)),
+				items := []*models.Item{
+					setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false)),
+				}
+
+				sale1 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
+				sale2 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
+
+				multiplySoldItems, err := queries.GetMultiplySoldItems(db)
+
+				require.NoError(t, err)
+				require.Len(t, multiplySoldItems, 1)
+
+				multiplySoldItem := multiplySoldItems[0]
+				require.Equal(t, *(items[0]), multiplySoldItem.Item)
+				require.Len(t, multiplySoldItem.Sales, 2)
+				require.Equal(t, sale1.SaleID, multiplySoldItem.Sales[0].SaleID)
+				require.Equal(t, sale2.SaleID, multiplySoldItem.Sales[1].SaleID)
+			})
 		}
-
-		sale1 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
-		sale2 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
-
-		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
-
-		require.NoError(t, err)
-		require.Len(t, multiplySoldItems, 1)
-
-		multiplySoldItem := multiplySoldItems[0]
-		require.Equal(t, *(items[0]), multiplySoldItem.Item)
-		require.Len(t, multiplySoldItem.Sales, 2)
-		require.Equal(t, sale1.SaleID, multiplySoldItem.Sales[0].SaleID)
-		require.Equal(t, sale2.SaleID, multiplySoldItem.Sales[1].SaleID)
 	})
 
 	t.Run("Item sold thrice", func(t *testing.T) {
