@@ -1090,6 +1090,7 @@ type SaleItemInformation struct {
 	Description    string
 	ItemCategoryID models.ID
 	PriceInCents   models.MoneyInCents
+	Large          bool
 	SellCount      int64
 }
 
@@ -1105,7 +1106,7 @@ func GetSaleItemInformation(
 
 	row := db.QueryRow(
 		`
-			SELECT seller_id, description, price_in_cents, item_category_id, COUNT(si.sale_id)
+			SELECT seller_id, description, price_in_cents, item_category_id, large, COUNT(si.sale_id)
 			FROM items i LEFT JOIN sale_items si ON i.item_id = si.item_id
 			GROUP BY i.item_id
 			HAVING i.item_id = ?
@@ -1116,12 +1117,14 @@ func GetSaleItemInformation(
 	var description string
 	var itemCategoryID models.ID
 	var priceInCents models.MoneyInCents
+	var large bool
 	var sellCount int64
 	err := row.Scan(
 		&sellerID,
 		&description,
 		&priceInCents,
 		&itemCategoryID,
+		&large,
 		&sellCount,
 	)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -1136,6 +1139,7 @@ func GetSaleItemInformation(
 		Description:    description,
 		ItemCategoryID: itemCategoryID,
 		PriceInCents:   priceInCents,
+		Large:          large,
 		SellCount:      sellCount,
 	}
 
