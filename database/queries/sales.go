@@ -444,6 +444,7 @@ func GetSoldItems(db DatabaseQuerier) (r_result []*models.Item, r_err error) {
 				i.seller_id,
 				i.donation,
 				i.charity,
+				i.large,
 				i.frozen
 			FROM
 				sale_items si
@@ -470,6 +471,7 @@ func GetSoldItems(db DatabaseQuerier) (r_result []*models.Item, r_err error) {
 		var sellerID models.ID
 		var donation bool
 		var charity bool
+		var large bool
 		var frozen bool
 		var hidden bool
 
@@ -482,6 +484,7 @@ func GetSoldItems(db DatabaseQuerier) (r_result []*models.Item, r_err error) {
 			&sellerID,
 			&donation,
 			&charity,
+			&large,
 			&frozen,
 		)
 		if err != nil {
@@ -499,6 +502,7 @@ func GetSoldItems(db DatabaseQuerier) (r_result []*models.Item, r_err error) {
 			Charity:      charity,
 			Frozen:       frozen,
 			Hidden:       hidden,
+			Large:        large,
 		}
 		items = append(items, &item)
 	}
