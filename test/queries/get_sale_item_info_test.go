@@ -17,28 +17,31 @@ import (
 func TestGetSaleItemInformation(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		for _, sellCount := range []int{0, 1, 2, 3, 10} {
-			label := fmt.Sprintf("Sell count = %d", sellCount)
+			for i := range 10 {
+				label := fmt.Sprintf("Sell count = %d, i = %d", sellCount, i)
 
-			t.Run(label, func(t *testing.T) {
-				setup, db := NewDatabaseFixture(WithDefaultCategories)
-				defer setup.Close()
+				t.Run(label, func(t *testing.T) {
+					setup, db := NewDatabaseFixture(WithDefaultCategories)
+					defer setup.Close()
 
-				seller := setup.Seller()
-				cashier := setup.Cashier()
-				item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+					seller := setup.Seller()
+					cashier := setup.Cashier()
+					item := setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
 
-				for i := 0; i < sellCount; i++ {
-					setup.Sale(cashier.UserID, []models.ID{item.ItemID})
-				}
+					for i := 0; i < sellCount; i++ {
+						setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+					}
 
-				itemInformation, err := queries.GetSaleItemInformation(db, item.ItemID)
-				require.NoError(t, err)
-				require.Equal(t, item.SellerID, itemInformation.SellerID)
-				require.Equal(t, item.Description, itemInformation.Description)
-				require.Equal(t, item.PriceInCents, itemInformation.PriceInCents)
-				require.Equal(t, item.CategoryID, itemInformation.ItemCategoryID)
-				require.Equal(t, itemInformation.SellCount, int64(sellCount))
-			})
+					itemInformation, err := queries.GetSaleItemInformation(db, item.ItemID)
+					require.NoError(t, err)
+					require.Equal(t, item.SellerID, itemInformation.SellerID)
+					require.Equal(t, item.Description, itemInformation.Description)
+					require.Equal(t, item.PriceInCents, itemInformation.PriceInCents)
+					require.Equal(t, item.CategoryID, itemInformation.ItemCategoryID)
+					require.Equal(t, item.Large, itemInformation.Large)
+					require.Equal(t, itemInformation.SellCount, int64(sellCount))
+				})
+			}
 		}
 	})
 
