@@ -27,17 +27,6 @@ type GetSellerItemsSuccessResponse struct {
 	Items []*GetSellerItemsItemData `json:"items"`
 }
 
-// @Summary Get seller's items
-// @Description Get a seller's items
-// @Param seller_id path int true "Seller ID"
-// @Produce json
-// @Success 200 {object} GetSellerItemsSuccessResponse "Items successfully fetched"
-// @Failure 400 {object} failure_response.FailureResponse "Failed to parse payload or URI"
-// @Failure 401 {object} failure_response.FailureResponse "Not authenticated"
-// @Failure 403 {object} failure_response.FailureResponse "Only accessible to owning sellers and admins"
-// @Failure 404 {object} failure_response.FailureResponse "No such user"
-// @Failure 500 {object} failure_response.FailureResponse "Failed to fetch items"
-// @Router /seller/{seller_id}/items [get]
 func GetSellerItems(arguments *HandlerFunctionArguments) {
 	endpoint := getSellerItemsEndpoint{
 		Endpoint: Endpoint{
