@@ -43,6 +43,7 @@ func TestListSellerItems(t *testing.T) {
 								Donation:     item.Donation,
 								Charity:      item.Charity,
 								Frozen:       item.Frozen,
+								Large:        item.Large,
 							})
 						}
 
@@ -80,6 +81,7 @@ func TestListSellerItems(t *testing.T) {
 					Donation:     item.Donation,
 					Charity:      item.Charity,
 					Frozen:       item.Frozen,
+					Large:        item.Large,
 				})
 			}
 
