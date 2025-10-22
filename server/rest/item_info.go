@@ -20,6 +20,7 @@ type GetItemInformationSuccessResponse struct {
 	Charity      *bool               `binding:"required" json:"charity"`
 	Donation     *bool               `binding:"required" json:"donation"`
 	Frozen       *bool               `binding:"required" json:"frozen"`
+	Large        *bool               `binding:"required" json:"large"`
 	SoldIn       *[]models.ID        `binding:"required" json:"soldIn"`
 }
 
@@ -67,6 +68,7 @@ func (ep *getItemInformationEndpoint) execute() {
 		Charity:      &item.Charity,
 		Donation:     &item.Donation,
 		Frozen:       &item.Frozen,
+		Large:        &item.Large,
 		SoldIn:       &salesIncludingItem,
 	}
 
