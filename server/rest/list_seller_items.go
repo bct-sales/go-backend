@@ -20,6 +20,7 @@ type GetSellerItemsItemData struct {
 	SellerID     models.ID           `binding:"required" json:"sellerId"`
 	Donation     bool                `binding:"required" json:"donation"`
 	Charity      bool                `binding:"required" json:"charity"`
+	Large        bool                `binding:"required" json:"large"`
 	Frozen       bool                `binding:"required" json:"frozen"`
 }
 
@@ -197,6 +198,7 @@ func (ep *getSellerItemsEndpoint) sendSuccessResponse(items []*models.Item) {
 			SellerID:     item.SellerID,
 			Donation:     item.Donation,
 			Charity:      item.Charity,
+			Large:        item.Large,
 			Frozen:       item.Frozen,
 		}
 	})}
