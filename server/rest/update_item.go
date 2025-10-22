@@ -16,6 +16,7 @@ type UpdateItemPayload struct {
 	CategoryID   *models.ID           `json:"categoryId"`
 	Donation     *bool                `json:"donation"`
 	Charity      *bool                `json:"charity"`
+	Large        *bool                `json:"large"`
 }
 
 type UpdateItemSuccessResponse struct {
@@ -187,6 +188,7 @@ func (ep *updateItemEndpoint) performItemUpdate(item *models.Item, payload *Upda
 		CategoryID:   payload.CategoryID,
 		Donation:     payload.Donation,
 		Charity:      payload.Charity,
+		Large:        payload.Large,
 	}
 	if updateErr := queries.UpdateItem(transaction, itemID, &itemUpdate); updateErr != nil {
 		logger.AddInformation("error", updateErr)
@@ -198,6 +200,7 @@ func (ep *updateItemEndpoint) performItemUpdate(item *models.Item, payload *Upda
 			logger.AddInformation("categoryID", payload.CategoryID)
 			logger.AddInformation("donation", payload.Donation)
 			logger.AddInformation("charity", payload.Charity)
+			logger.AddInformation("large", payload.Large)
 			logger.InternalError("Failed to update item")
 
 			failure_response.UnknownItem(context, updateErr.Error())
