@@ -127,6 +127,31 @@ func TestUpdateItem(t *testing.T) {
 			expectedItem.Charity = true
 			require.Equal(t, expectedItem, *actualItem)
 		})
+
+		t.Run("Updating largeness", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
+			defer setup.Close()
+
+			seller, sessionID := setup.LoggedIn(setup.Seller())
+			originalItem := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithLarge(false), aux.WithHidden(false))
+
+			url := path.Item(originalItem.ItemID)
+			payload := struct {
+				Large bool `json:"large"`
+			}{
+				Large: true,
+			}
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionID))
+			router.ServeHTTP(writer, request)
+			require.Equal(t, http.StatusNoContent, writer.Code)
+
+			actualItem, err := queries.GetItemWithID(setup.Db, originalItem.ItemID)
+			require.NoError(t, err)
+
+			expectedItem := *originalItem
+			expectedItem.Large = true
+			require.Equal(t, expectedItem, *actualItem)
+		})
 	})
 
 	t.Run("Failures", func(t *testing.T) {
