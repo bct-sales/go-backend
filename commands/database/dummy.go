@@ -47,6 +47,30 @@ var clothing = [...]string{
 	"gloves",
 }
 
+var maternityItems = [...]string{
+	"maternity dress",
+	"breastfeeding cardigan",
+	"maternity jeans",
+	"skirt overall denim",
+	"skin to skin t-shirt",
+}
+
+var equipment = [...]string{
+	"bottle warmer",
+	"activity table",
+	"case",
+	"chest",
+	"sleeping bag",
+	"nursing pillow",
+	"baby playmate",
+	"footmuff ",
+	"baby hear monitor",
+	"baby bath mat",
+	"bike bell",
+	"umbrella",
+	"car seat",
+}
+
 var clothingCategories = [...]models.ID{
 	common.CategoryID_Clothing50_56,
 	common.CategoryID_Clothing56_62,
@@ -362,14 +386,32 @@ func (c *dummyDatabaseCommand) generateChronologicalTimes(count int, minDelta in
 }
 
 func (c *dummyDatabaseCommand) generateRandomItemDescriptionAndCategory() (string, models.ID) {
-	switch c.rng.IntN(3) {
+	switch c.rng.IntN(13) {
 	case 0:
-		return c.generateRandomClothing()
-	case 1:
 		return c.generateRandomBooks()
-	default:
+	case 1:
 		return c.generateRandomToys()
+	case 2:
+		return c.generateRandomEquipment()
+	case 3:
+		return c.generateMaternityItem()
+	default:
+		return c.generateRandomClothing()
 	}
+}
+
+func (c *dummyDatabaseCommand) generateMaternityItem() (string, models.ID) {
+	description := pickRandom(c.rng, maternityItems[:])
+	categoryID := common.CategoryID_Maternity
+
+	return description, categoryID
+}
+
+func (c *dummyDatabaseCommand) generateRandomEquipment() (string, models.ID) {
+	description := pickRandom(c.rng, equipment[:])
+	categoryID := common.CategoryID_BabyChildEquipment
+
+	return description, categoryID
 }
 
 func (c *dummyDatabaseCommand) generateRandomColor() string {
