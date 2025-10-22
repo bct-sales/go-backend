@@ -50,6 +50,7 @@ type GetSellerInformationItemData struct {
 	CategoryID   models.ID           `binding:"required" json:"categoryId"`
 	Charity      *bool               `binding:"required" json:"charity"`
 	Donation     *bool               `binding:"required" json:"donation"`
+	Large        *bool               `binding:"required" json:"large"`
 	Frozen       *bool               `binding:"required" json:"frozen"`
 	SaleCount    *int                `binding:"required" json:"saleCount"`
 }
@@ -84,6 +85,7 @@ func convertItemToGetUserInformationItem(item *queries.ItemWithSaleCount) *GetSe
 		CategoryID:   item.CategoryID,
 		Charity:      &item.Charity,
 		Donation:     &item.Donation,
+		Large:        &item.Large,
 		Frozen:       &item.Frozen,
 		SaleCount:    &item.SaleCount,
 	}
