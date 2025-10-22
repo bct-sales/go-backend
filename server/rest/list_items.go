@@ -23,6 +23,7 @@ type ListItemsItemData struct {
 	Donation     bool                `json:"donation"`
 	Charity      bool                `json:"charity"`
 	Frozen       bool                `json:"frozen"`
+	Large        bool                `json:"large"`
 }
 
 type ListItemsStatistics struct {
@@ -262,6 +263,7 @@ func (ep *listItemsEndpoint) convertData(items []*models.Item) []ListItemsItemDa
 			Donation:     item.Donation,
 			Charity:      item.Charity,
 			Frozen:       item.Frozen,
+			Large:        item.Large,
 		}
 	})
 }
