@@ -29,6 +29,7 @@ func FromModel(item *models.Item) *rest.ListItemsItemData {
 		Donation:     item.Donation,
 		Charity:      item.Charity,
 		Frozen:       item.Frozen,
+		Large:        item.Large,
 	}
 }
 
