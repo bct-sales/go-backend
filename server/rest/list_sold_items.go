@@ -23,6 +23,7 @@ type ListSoldItemsEntry struct {
 	SellerID        models.ID           `json:"sellerId"`
 	Donation        bool                `json:"donation"`
 	Charity         bool                `json:"charity"`
+	Large           bool                `json:"large"`
 }
 
 type ListSoldItemsSuccessResponse struct {
@@ -135,6 +136,7 @@ func (ep *listSoldItemsEndpoint) convertData(soldItems []*queries.SoldItem) []Li
 			SellerID:        soldItem.SellerID,
 			Donation:        soldItem.Donation,
 			Charity:         soldItem.Charity,
+			Large:           soldItem.Large,
 		}
 	})
 }
@@ -163,7 +165,7 @@ func (ep *listSoldItemsEndpoint) sendResponseAsCSVFile(soldItems []*queries.Sold
 		logger.InternalError("Failed to format items as CSV")
 
 		failure_response.Unknown(ep.Context, "Failed to format items as CSV: "+err.Error())
-		
+
 		return
 	}
 	string := buffer.String()
