@@ -251,6 +251,7 @@ paths:
                             - categoryId
                             - charity
                             - donation
+                            - large
                             - frozen
                             - saleCount
                           properties:
@@ -272,6 +273,8 @@ paths:
                             charity:
                               type: boolean
                             donation:
+                              type: boolean
+                            large:
                               type: boolean
                             frozen:
                               type: boolean
@@ -606,6 +609,7 @@ paths:
                         - categoryId
                         - charity
                         - donation
+                        - large
                         - addedAt
                       properties:
                         itemId:
@@ -638,6 +642,10 @@ paths:
                         donation:
                           type: boolean
                           description: Whether proceeds will be donated to the BCT
+                          example: false
+                        large:
+                          type: boolean
+                          description: Whether the item is large
                           example: false
                         addedAt:
                           $ref: '#/components/schemas/DateTime'
@@ -706,6 +714,7 @@ paths:
                         - sellerId
                         - donation
                         - charity
+                        - large
                       properties:
                         saleId:
                           type: integer
@@ -743,6 +752,9 @@ paths:
                         charity:
                           type: boolean
                           example: false
+                        large:
+                          type: boolean
+                          example: false
         '400':
           description: Failed to parse request body or query parameters
         '401':
@@ -774,7 +786,7 @@ paths:
       description: >
         Returns a list of all items owner by a specified seller.
         Allowed only for admins and the seller.
-      operationId: GetSellerItems
+      operationId: ListSellerItems
       responses:
         '200':
           description: Success
@@ -797,6 +809,7 @@ paths:
                         - sellerId
                         - donation
                         - charity
+                        - large
                         - frozen
                       properties:
                         itemId:
@@ -823,6 +836,9 @@ paths:
                           type: boolean
                           example: false
                         charity:
+                          type: boolean
+                          example: false
+                        large:
                           type: boolean
                           example: false
                         frozen:
@@ -901,12 +917,17 @@ paths:
                   type: boolean
                   description: Whether the item will be donated to charity if unsold
                   example: false
+                large:
+                  type: boolean
+                  description: Whether the item is large
+                  example: false
               required:
                 - price
                 - description
                 - categoryId
                 - donation
                 - charity
+                - large
       responses:
         '201':
           description: Success
@@ -960,7 +981,7 @@ paths:
       description: >
         Returns a list of items.
         This operation is reserved for admins and cashiers.
-      operationId: ListAllItems
+      operationId: ListItems
       parameters:
         - in: query
           name: items
@@ -1042,6 +1063,7 @@ paths:
                         - sellerId
                         - donation
                         - charity
+                        - large
                         - frozen
                       properties:
                         itemId:
@@ -1063,6 +1085,8 @@ paths:
                         donation:
                           type: boolean
                         charity:
+                          type: boolean
+                        large:
                           type: boolean
                         frozen:
                           type: boolean
@@ -1133,6 +1157,9 @@ paths:
                   donation:
                     type: boolean
                     example: false
+                  large:
+                    type: boolean
+                    example: false
                   frozen:
                     type: boolean
                     example: false
@@ -1151,6 +1178,7 @@ paths:
                   - categoryId
                   - charity
                   - donation
+                  - large
                   - frozen
                   - soldIn
         '400':
@@ -1225,6 +1253,10 @@ paths:
                 charity:
                   type: boolean
                   description: If present, will be the new charity status of the item
+                  example: false
+                large:
+                  type: boolean
+                  description: If present, will be the new large status of the item
                   example: false
       responses:
         '204':
