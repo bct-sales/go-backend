@@ -69,6 +69,7 @@ func TestListSoldItems(t *testing.T) {
 						SellerID:        soldItem.SellerID,
 						Donation:        soldItem.Donation,
 						Charity:         soldItem.Charity,
+						Large:           soldItem.Large,
 					},
 				},
 			}
@@ -107,6 +108,7 @@ func TestListSoldItems(t *testing.T) {
 						SellerID:        items[0].SellerID,
 						Donation:        items[0].Donation,
 						Charity:         items[0].Charity,
+						Large:           items[0].Large,
 					},
 					{
 						SaleID:          sale1.SaleID,
@@ -120,6 +122,7 @@ func TestListSoldItems(t *testing.T) {
 						SellerID:        items[1].SellerID,
 						Donation:        items[1].Donation,
 						Charity:         items[1].Charity,
+						Large:           items[1].Large,
 					},
 					{
 						SaleID:          sale2.SaleID,
@@ -133,6 +136,7 @@ func TestListSoldItems(t *testing.T) {
 						SellerID:        items[0].SellerID,
 						Donation:        items[0].Donation,
 						Charity:         items[0].Charity,
+						Large:           items[0].Large,
 					},
 					{
 						SaleID:          sale2.SaleID,
@@ -146,6 +150,7 @@ func TestListSoldItems(t *testing.T) {
 						SellerID:        items[2].SellerID,
 						Donation:        items[2].Donation,
 						Charity:         items[2].Charity,
+						Large:           items[2].Large,
 					},
 				},
 			}
