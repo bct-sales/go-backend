@@ -26,6 +26,7 @@ type GetSaleItemData struct {
 	CategoryID   models.ID           `binding:"required" json:"categoryId"`
 	Charity      *bool               `binding:"required" json:"charity"`
 	Donation     *bool               `binding:"required" json:"donation"`
+	Large        *bool               `binding:"required" json:"large"`
 	AddedAt      rest.DateTime       `binding:"required" json:"addedAt"`
 }
 
@@ -122,6 +123,7 @@ func (ep *getSaleInformationEndpoint) convertSaleItemToData(saleItem *models.Ite
 		CategoryID:   saleItem.CategoryID,
 		Charity:      &saleItem.Charity,
 		Donation:     &saleItem.Donation,
+		Large:        &saleItem.Large,
 		AddedAt:      rest.ConvertTimestampToDateTime(saleItem.AddedAt),
 	}
 }
