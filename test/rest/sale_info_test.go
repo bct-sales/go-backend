@@ -48,6 +48,7 @@ func TestGetSaleInformation(t *testing.T) {
 				require.Equal(t, item.PriceInCents, response.Items[0].PriceInCents)
 				require.Equal(t, item.Charity, *response.Items[0].Charity)
 				require.Equal(t, item.Donation, *response.Items[0].Donation)
+				require.Equal(t, item.Large, *response.Items[0].Large)
 			})
 
 			t.Run("Five item in sale", func(t *testing.T) {
@@ -82,6 +83,7 @@ func TestGetSaleInformation(t *testing.T) {
 					require.Equal(t, item.PriceInCents, response.Items[i].PriceInCents)
 					require.Equal(t, item.Charity, *response.Items[i].Charity)
 					require.Equal(t, item.Donation, *response.Items[i].Donation)
+					require.Equal(t, item.Large, *response.Items[i].Large)
 				}
 			})
 		})
@@ -118,6 +120,7 @@ func TestGetSaleInformation(t *testing.T) {
 					require.Equal(t, item.PriceInCents, response.Items[i].PriceInCents)
 					require.Equal(t, item.Charity, *response.Items[i].Charity)
 					require.Equal(t, item.Donation, *response.Items[i].Donation)
+					require.Equal(t, item.Large, *response.Items[i].Large)
 				}
 			})
 		})
