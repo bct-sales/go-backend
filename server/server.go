@@ -129,7 +129,7 @@ func (server *Server) defineRESTEndpoints() {
 
 	server.GET(paths.Categories(), rest.ListCategories)
 
-	server.GET(paths.SellerItemsStr(":id"), rest.GetSellerItems)
+	server.GET(paths.SellerItemsStr(":id"), rest.ListSellerItems)
 	server.POST(paths.SellerItemsStr(":id"), rest.AddSellerItem)
 
 	server.POST(paths.Labels(), rest.GenerateLabels)

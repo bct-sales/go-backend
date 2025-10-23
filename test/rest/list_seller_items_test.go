@@ -30,10 +30,10 @@ func TestListSellerItems(t *testing.T) {
 
 						seller, sessionID := setup.LoggedIn(setup.Seller(aux.WithUserID(sellerID)))
 
-						expectedItems := []*rest.GetSellerItemsItemData{}
+						expectedItems := []*rest.ListSellerItemsItemData{}
 						for i := 0; i < itemCount; i++ {
 							item := setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
-							expectedItems = append(expectedItems, &rest.GetSellerItemsItemData{
+							expectedItems = append(expectedItems, &rest.ListSellerItemsItemData{
 								ItemID:       item.ItemID,
 								Description:  item.Description,
 								PriceInCents: item.PriceInCents,
@@ -52,7 +52,7 @@ func TestListSellerItems(t *testing.T) {
 						router.ServeHTTP(writer, request)
 						require.Equal(t, http.StatusOK, writer.Code)
 
-						actual := FromJSON[rest.GetSellerItemsSuccessResponse](t, writer.Body.String())
+						actual := FromJSON[rest.ListSellerItemsSuccessResponse](t, writer.Body.String())
 						require.NotNil(t, actual)
 						require.Equal(t, expectedItems, actual.Items)
 					})
@@ -68,10 +68,10 @@ func TestListSellerItems(t *testing.T) {
 			_, sessionID := setup.LoggedIn(setup.Admin())
 			itemCount := 10
 
-			expectedItems := []*rest.GetSellerItemsItemData{}
+			expectedItems := []*rest.ListSellerItemsItemData{}
 			for i := 0; i < itemCount; i++ {
 				item := setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
-				expectedItems = append(expectedItems, &rest.GetSellerItemsItemData{
+				expectedItems = append(expectedItems, &rest.ListSellerItemsItemData{
 					ItemID:       item.ItemID,
 					Description:  item.Description,
 					PriceInCents: item.PriceInCents,
@@ -90,7 +90,7 @@ func TestListSellerItems(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusOK, writer.Code, writer.Body.String())
 
-			actual := FromJSON[rest.GetSellerItemsSuccessResponse](t, writer.Body.String())
+			actual := FromJSON[rest.ListSellerItemsSuccessResponse](t, writer.Body.String())
 			require.Equal(t, expectedItems, actual.Items)
 		})
 	})

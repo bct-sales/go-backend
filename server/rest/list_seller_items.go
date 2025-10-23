@@ -11,7 +11,7 @@ import (
 	"net/http"
 )
 
-type GetSellerItemsItemData struct {
+type ListSellerItemsItemData struct {
 	ItemID       models.ID           `binding:"required" json:"itemId"`
 	AddedAt      rest.DateTime       `binding:"required" json:"addedAt"`
 	Description  string              `binding:"required" json:"description"`
@@ -24,12 +24,12 @@ type GetSellerItemsItemData struct {
 	Frozen       bool                `binding:"required" json:"frozen"`
 }
 
-type GetSellerItemsSuccessResponse struct {
-	Items []*GetSellerItemsItemData `json:"items"`
+type ListSellerItemsSuccessResponse struct {
+	Items []*ListSellerItemsItemData `json:"items"`
 }
 
-func GetSellerItems(arguments *HandlerFunctionArguments) {
-	endpoint := getSellerItemsEndpoint{
+func ListSellerItems(arguments *HandlerFunctionArguments) {
+	endpoint := listSellerItemsEndpoint{
 		Endpoint: Endpoint{
 			HandlerFunctionArguments: *arguments,
 		},
@@ -38,11 +38,11 @@ func GetSellerItems(arguments *HandlerFunctionArguments) {
 	endpoint.execute()
 }
 
-type getSellerItemsEndpoint struct {
+type listSellerItemsEndpoint struct {
 	Endpoint
 }
 
-func (ep *getSellerItemsEndpoint) execute() {
+func (ep *listSellerItemsEndpoint) execute() {
 	if !ep.ensureUserHasRightRole() {
 		return
 	}
@@ -69,7 +69,7 @@ func (ep *getSellerItemsEndpoint) execute() {
 	ep.sendSuccessResponse(items)
 }
 
-func (ep *getSellerItemsEndpoint) ensureUserHasRightRole() bool {
+func (ep *listSellerItemsEndpoint) ensureUserHasRightRole() bool {
 	logger := ep.Logger
 
 	if !ep.RoleID.IsSeller() && !ep.RoleID.IsAdmin() {
@@ -83,7 +83,7 @@ func (ep *getSellerItemsEndpoint) ensureUserHasRightRole() bool {
 	return true
 }
 
-func (ep *getSellerItemsEndpoint) extractSellerIDFromURI() (models.ID, bool) {
+func (ep *listSellerItemsEndpoint) extractSellerIDFromURI() (models.ID, bool) {
 	logger := ep.Logger
 	var uriParameters struct {
 		SellerID string `binding:"required" uri:"id"`
@@ -114,7 +114,7 @@ func (ep *getSellerItemsEndpoint) extractSellerIDFromURI() (models.ID, bool) {
 	return uriSellerID, true
 }
 
-func (ep *getSellerItemsEndpoint) ensureQueriedUserIsSeller(queriedSellerID models.ID) bool {
+func (ep *listSellerItemsEndpoint) ensureQueriedUserIsSeller(queriedSellerID models.ID) bool {
 	logger := ep.Logger
 
 	if err := queries.EnsureUserExistsAndHasRole(ep.Database, queriedSellerID, models.NewSellerRoleID()); err != nil {
@@ -146,7 +146,7 @@ func (ep *getSellerItemsEndpoint) ensureQueriedUserIsSeller(queriedSellerID mode
 	return true
 }
 
-func (ep *getSellerItemsEndpoint) ensureUserHasPermissions(queriedSellerID models.ID) bool {
+func (ep *listSellerItemsEndpoint) ensureUserHasPermissions(queriedSellerID models.ID) bool {
 	logger := ep.Logger
 
 	if ep.UserID != queriedSellerID && !ep.RoleID.IsAdmin() {
@@ -160,7 +160,7 @@ func (ep *getSellerItemsEndpoint) ensureUserHasPermissions(queriedSellerID model
 	return true
 }
 
-func (ep *getSellerItemsEndpoint) extractItemSelectionFromQueryParameters() queries.ItemSelection {
+func (ep *listSellerItemsEndpoint) extractItemSelectionFromQueryParameters() queries.ItemSelection {
 	switch ep.Context.Query("items") {
 	case "all":
 		return queries.AllItems
@@ -171,7 +171,7 @@ func (ep *getSellerItemsEndpoint) extractItemSelectionFromQueryParameters() quer
 	}
 }
 
-func (ep *getSellerItemsEndpoint) fetchSellerItemsFromDatabase(queriedSellerID models.ID, itemSelection queries.ItemSelection) ([]*models.Item, bool) {
+func (ep *listSellerItemsEndpoint) fetchSellerItemsFromDatabase(queriedSellerID models.ID, itemSelection queries.ItemSelection) ([]*models.Item, bool) {
 	logger := ep.Logger
 	items, err := queries.GetSellerItems(ep.Database, queriedSellerID, itemSelection)
 
@@ -187,9 +187,9 @@ func (ep *getSellerItemsEndpoint) fetchSellerItemsFromDatabase(queriedSellerID m
 	return items, true
 }
 
-func (ep *getSellerItemsEndpoint) sendSuccessResponse(items []*models.Item) {
-	successResponse := GetSellerItemsSuccessResponse{Items: algorithms.Map(items, func(item *models.Item) *GetSellerItemsItemData {
-		return &GetSellerItemsItemData{
+func (ep *listSellerItemsEndpoint) sendSuccessResponse(items []*models.Item) {
+	successResponse := ListSellerItemsSuccessResponse{Items: algorithms.Map(items, func(item *models.Item) *ListSellerItemsItemData {
+		return &ListSellerItemsItemData{
 			ItemID:       item.ItemID,
 			AddedAt:      rest.ConvertTimestampToDateTime(item.AddedAt),
 			Description:  item.Description,
