@@ -13,10 +13,10 @@ import (
 
 type moveItemsCommand struct {
 	common.Command
-	oldSeller    uint64
-	newSeller    uint64
-	forceFrozen  bool
-	forceReceive bool
+	oldSeller    uint64 `exhaustruct:"optional"`
+	newSeller    uint64 `exhaustruct:"optional"`
+	forceFrozen  bool   `exhaustruct:"optional"`
+	forceReceive bool   `exhaustruct:"optional"`
 }
 
 func NewMoveItemsCommand() *cobra.Command {

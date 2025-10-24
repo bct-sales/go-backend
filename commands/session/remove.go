@@ -12,9 +12,9 @@ import (
 
 type RemoveSessionCommand struct {
 	common.Command
-	sessionID string
-	userID    uint64
-	all       bool
+	sessionID string `exhaustruct:"optional"`
+	userID    uint64 `exhaustruct:"optional"`
+	all       bool   `exhaustruct:"optional"`
 }
 
 func NewRemoveSessionCommand() *cobra.Command {

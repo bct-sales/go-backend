@@ -127,7 +127,7 @@ type GetSalesQuery struct {
 func NewGetSalesQuery() *GetSalesQuery {
 	return &GetSalesQuery{
 		minimalID:    nil,
-		rowSelection: RowRange{},
+		rowSelection: RowRange{Limit: nil, Offset: nil},
 		order:        nil,
 	}
 }

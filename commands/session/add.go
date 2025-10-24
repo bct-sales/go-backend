@@ -14,8 +14,8 @@ import (
 
 type AddSessionCommand struct {
 	common.Command
-	userID     uint64
-	expiration string
+	userID     uint64 `exhaustruct:"optional"`
+	expiration string `exhaustruct:"optional"`
 }
 
 func NewAddSessionCommand() *cobra.Command {

@@ -12,7 +12,7 @@ import (
 
 type SetUserPasswordCommand struct {
 	common.Command
-	noInvalidateSessions bool
+	noInvalidateSessions bool `exhaustruct:"optional"`
 }
 
 func NewUserSetPasswordCommand() *cobra.Command {

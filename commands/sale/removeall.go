@@ -11,7 +11,7 @@ import (
 
 type removeAllSalesCommand struct {
 	common.Command
-	force bool
+	force bool `exhaustruct:"optional"`
 }
 
 func NewRemoveAllSalesCommand() *cobra.Command {
