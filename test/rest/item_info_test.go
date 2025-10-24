@@ -53,8 +53,42 @@ func TestGetItemInformation(t *testing.T) {
 					require.Equal(t, item.Donation, *response.Donation)
 					require.Equal(t, item.Charity, *response.Charity)
 					require.Equal(t, item.Frozen, *response.Frozen)
+					require.Equal(t, item.Large, *response.Large)
 					require.NotNil(t, response.SoldIn)
 					require.Equal(t, saleIDs, *response.SoldIn)
+				})
+			}
+		})
+
+		t.Run("Item field exhaustiveness", func(t *testing.T) {
+			for i := range 20 {
+				t.Run(fmt.Sprintf("i = %d", i), func(t *testing.T) {
+					setup, router, writer := NewRestFixture(t, WithDefaultCategories)
+					defer setup.Close()
+
+					seller := setup.Seller()
+					_, sessionID := setup.LoggedIn(setup.Admin())
+
+					item := setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
+
+					url := path.Item(item.ItemID)
+					request := CreateGetRequest(url, WithSessionCookie(sessionID))
+					router.ServeHTTP(writer, request)
+					require.Equal(t, http.StatusOK, writer.Code)
+
+					response := FromJSON[restapi.GetItemInformationSuccessResponse](t, writer.Body.String())
+					require.Equal(t, item.Description, response.Description)
+					require.Equal(t, item.PriceInCents, response.PriceInCents)
+					require.Equal(t, item.CategoryID, response.CategoryID)
+					require.Equal(t, item.SellerID, response.SellerID)
+					require.Equal(t, item.ItemID, response.ItemID)
+					require.Equal(t, rest.ConvertTimestampToDateTime(item.AddedAt), response.AddedAt)
+					require.Equal(t, item.Donation, *response.Donation)
+					require.Equal(t, item.Charity, *response.Charity)
+					require.Equal(t, item.Frozen, *response.Frozen)
+					require.Equal(t, item.Large, *response.Large)
+					require.NotNil(t, response.SoldIn)
+					require.Equal(t, []models.ID{}, *response.SoldIn)
 				})
 			}
 		})
@@ -83,6 +117,7 @@ func TestGetItemInformation(t *testing.T) {
 			require.Equal(t, item.Donation, *response.Donation)
 			require.Equal(t, item.Charity, *response.Charity)
 			require.Equal(t, item.Frozen, *response.Frozen)
+			require.Equal(t, item.Large, *response.Large)
 			require.NotNil(t, response.SoldIn)
 			require.Equal(t, []models.ID{}, *response.SoldIn)
 		})
@@ -109,6 +144,7 @@ func TestGetItemInformation(t *testing.T) {
 			require.Equal(t, item.Donation, *response.Donation)
 			require.Equal(t, item.Charity, *response.Charity)
 			require.Equal(t, item.Frozen, *response.Frozen)
+			require.Equal(t, item.Large, *response.Large)
 			require.NotNil(t, response.SoldIn)
 			require.Equal(t, []models.ID{}, *response.SoldIn)
 		})
