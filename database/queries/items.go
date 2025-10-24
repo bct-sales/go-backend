@@ -60,6 +60,14 @@ func (filter *LargeFilter) WithLarge(value bool) {
 	filter.large = &value
 }
 
+type ItemIDSelectionFilter struct {
+	itemIDs []models.ID
+}
+
+func (filter *ItemIDSelectionFilter) WithItemIDs(itemIDs []models.ID) {
+	filter.itemIDs = itemIDs
+}
+
 type GetItemsQuery struct {
 	HiddenFilter
 	FrozenFilter
@@ -67,16 +75,18 @@ type GetItemsQuery struct {
 	DescriptionFilter
 	CategoryFilter
 	LargeFilter
+	ItemIDSelectionFilter
 }
 
 func NewGetItemsQuery() *GetItemsQuery {
 	return &GetItemsQuery{
-		HiddenFilter:      HiddenFilter{hidden: nil},
-		FrozenFilter:      FrozenFilter{frozen: nil},
-		RowRangeSelection: RowRangeSelection{RowRange: RowRange{Limit: nil, Offset: nil}},
-		DescriptionFilter: DescriptionFilter{descriptionPattern: nil},
-		CategoryFilter:    CategoryFilter{categoryID: nil},
-		LargeFilter:       LargeFilter{large: nil},
+		HiddenFilter:          HiddenFilter{hidden: nil},
+		FrozenFilter:          FrozenFilter{frozen: nil},
+		RowRangeSelection:     RowRangeSelection{RowRange: RowRange{Limit: nil, Offset: nil}},
+		DescriptionFilter:     DescriptionFilter{descriptionPattern: nil},
+		CategoryFilter:        CategoryFilter{categoryID: nil},
+		LargeFilter:           LargeFilter{large: nil},
+		ItemIDSelectionFilter: ItemIDSelectionFilter{itemIDs: nil},
 	}
 }
 
@@ -198,6 +208,10 @@ func (q *GetItemsQuery) buildSQLQuery() (string, []any, error) {
 
 	if q.large != nil {
 		query = query.Where(sq.Eq{"large": *q.large})
+	}
+
+	if q.itemIDs != nil {
+		query = query.Where(sq.Eq{"item_id": q.itemIDs})
 	}
 
 	queryString, queryArguments, err := query.ToSql()
