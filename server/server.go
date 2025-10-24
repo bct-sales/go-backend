@@ -31,7 +31,7 @@ import (
 )
 
 //go:embed swagger/ui/*
-var swaggerUi embed.FS
+var swaggerUI embed.FS
 
 type Server struct {
 	logger               logging.Logger
@@ -113,7 +113,7 @@ func (server *Server) defineRESTEndpoints() {
 		slog.Info("Enabling Swagger documentation")
 		router.StaticFile("/swagger/swagger.yaml", "./server/swagger/swagger.yaml")
 
-		content, _ := fs.Sub(swaggerUi, "swagger/ui")
+		content, _ := fs.Sub(swaggerUI, "swagger/ui")
 		router.StaticFS("/swagger/ui", http.FS(content))
 	}
 
