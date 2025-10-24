@@ -812,6 +812,8 @@ func GetItemStatistics(db DatabaseQuerier, itemSelection ItemSelection) (r_resul
 		query.WithHidden(true)
 	case OnlyVisibleItems:
 		query.WithHidden(false)
+	case AllItems:
+		// NOP
 	}
 
 	return query.Execute(db)
