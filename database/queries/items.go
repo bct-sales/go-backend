@@ -655,83 +655,15 @@ func GetItemsWithIDs(db DatabaseQuerier, itemIDs []models.ID) (r_result map[mode
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	// Set up SQL query
-	// Note that this does not detect nonexistent items, we deal with that later
-	query := fmt.Sprintf(`
-		SELECT
-			item_id,
-			added_at,
-			description,
-			price_in_cents,
-			item_category_id,
-			seller_id,
-			donation,
-			charity,
-			frozen,
-			hidden,
-			large
-		FROM
-			items
-		WHERE
-			item_id IN (%s)
-	`, placeholderString(len(itemIDs)))
-	convertedItemIDs := algorithms.Map(itemIDs, func(id models.ID) any { return id })
-	rows, err := db.Query(query, convertedItemIDs...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to execute query to get items from database: %w", err)
-	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
-
 	items := make(map[models.ID]*models.Item)
-	for rows.Next() {
-		var id models.ID
-		var addedAt models.Timestamp
-		var description string
-		var priceInCents models.MoneyInCents
-		var itemCategoryID models.ID
-		var sellerID models.ID
-		var donation bool
-		var charity bool
-		var frozen bool
-		var hidden bool
-		var large bool
 
-		err = rows.Scan(
-			&id,
-			&addedAt,
-			&description,
-			&priceInCents,
-			&itemCategoryID,
-			&sellerID,
-			&donation,
-			&charity,
-			&frozen,
-			&hidden,
-			&large,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read row: %w", err)
-		}
+	query := NewGetItemsQuery()
+	query.WithItemIDs(itemIDs)
 
-		item := models.Item{
-			ItemID:       id,
-			AddedAt:      addedAt,
-			Description:  description,
-			PriceInCents: priceInCents,
-			CategoryID:   itemCategoryID,
-			SellerID:     sellerID,
-			Donation:     donation,
-			Charity:      charity,
-			Frozen:       frozen,
-			Hidden:       hidden,
-			Large:        large,
-		}
-		items[id] = &item
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
-	}
+	query.Execute(db, func(item *models.Item) error {
+		items[item.ItemID] = item
+		return nil
+	})
 
 	// Check if all requested items were found
 	if len(items) != len(itemIDs) {
