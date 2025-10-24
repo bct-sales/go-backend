@@ -802,23 +802,6 @@ func (q *GetItemStatisticsQuery) buildSQLQuery() (string, []any, error) {
 	return queryString, queryArguments, nil
 }
 
-// GetItemStatistics returns the number of items in the database and their total worth.
-// The itemSelection parameter allows specifying which items to count: only hidden, only visible or both.
-func GetItemStatistics(db DatabaseQuerier, itemSelection ItemSelection) (r_result *ItemStatisticsResult, r_err error) {
-	query := NewGetItemStatisticsQuery()
-
-	switch itemSelection {
-	case OnlyHiddenItems:
-		query.WithHidden(true)
-	case OnlyVisibleItems:
-		query.WithHidden(false)
-	case AllItems:
-		// NOP
-	}
-
-	return query.Execute(db)
-}
-
 // AddItem adds an item to the database.
 // The ID of the newly added item is returned.
 // An ErrNoSuchUser is returned if no user with the given sellerID exists.
