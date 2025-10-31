@@ -4,6 +4,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/ui/components/usersview"
 	"bctbackend/ui/pages"
+	"bctbackend/ui/util"
 	"database/sql"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -13,15 +14,20 @@ type Model struct {
 	database     *sql.DB
 	screenWidth  int
 	screenHeight int
-	users        []*models.User
+	users        *util.ObservableCell[[]*models.User]
 	usersView    *usersview.Model
 	mode         pages.Mode
 }
 
 func New(database *sql.DB) tea.Model {
+	usersView := usersview.New()
+	users := util.NewObservableCell[[]*models.User](nil)
+	users.AddObserver(func() { usersView.SetUsers(users.Get()) })
+
 	model := Model{
 		database:  database,
-		usersView: usersview.New(),
+		users:     users,
+		usersView: usersView,
 	}
 
 	model.mode = NewDefaultMode(&model)
@@ -42,8 +48,7 @@ func (m *Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		return m.onKeyPressed(message)
 
 	case usersFetchedMessage:
-		m.users = message.users
-		m.usersView.SetUsers(message.users)
+		m.users.Set(message.users)
 
 		return m, nil
 

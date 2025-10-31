@@ -30,7 +30,7 @@ func (mode *SetPasswordMode) HandleUserInput(message tea.KeyMsg) (tea.Model, tea
 	switch message.String() {
 	case "enter":
 		index := model.usersView.Selected()
-		updatedUser := model.users[index]
+		updatedUser := model.users.Get()[index]
 		password := mode.textInput.Value()
 
 		model.mode = NewDefaultMode(model)
