@@ -27,7 +27,7 @@ func (m *RootModel) Init() tea.Cmd {
 func (m *RootModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	switch message := message.(type) {
 	case tea.WindowSizeMsg:
-		m.onWindowResized(message)
+		return m.onWindowResized(message)
 
 	case tea.KeyMsg:
 		switch message.String() {
