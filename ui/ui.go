@@ -41,6 +41,9 @@ func (m *RootModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 
 // onWindowResized handles the tea.WindowSizeMsg message
 func (m *RootModel) onWindowResized(message tea.WindowSizeMsg) (tea.Model, tea.Cmd) {
+	m.screenWidth = message.Width
+	m.screenHeight = message.Height
+
 	return m, nil
 }
 
