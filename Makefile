@@ -1,4 +1,4 @@
-.PHONY: test
+.PHONY: test ui
 
 cleantest:
 	go clean -testcache
@@ -24,3 +24,6 @@ build:
 
 lint:
 	golangci-lint run | tee lint.txt
+
+ui:
+	go run . ui
