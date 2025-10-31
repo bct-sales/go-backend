@@ -2,6 +2,7 @@ package users
 
 import (
 	"bctbackend/ui/components/usersview"
+	"bctbackend/ui/pages"
 	"database/sql"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -12,13 +13,18 @@ type Model struct {
 	screenWidth  int
 	screenHeight int
 	usersView    *usersview.Model
+	mode         pages.Mode
 }
 
 func New(database *sql.DB) tea.Model {
-	return &Model{
+	model := Model{
 		database:  database,
 		usersView: usersview.New(),
 	}
+
+	model.mode = &DefaultMode{model: &model}
+
+	return &model
 }
 
 func (m *Model) Init() tea.Cmd {
@@ -51,29 +57,16 @@ func (m *Model) onWindowResized(message tea.WindowSizeMsg) (tea.Model, tea.Cmd) 
 	m.screenHeight = message.Height
 
 	m.usersView.SetWidth(m.screenWidth)
-	m.usersView.SetHeight(m.screenHeight)
+	m.usersView.SetHeight(m.screenHeight - 1)
 
 	return m, nil
 }
 
 // onKeyPressed handles the tea.KeyMsg message
 func (m *Model) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
-	switch message.String() {
-	case "q":
-		return m, tea.Quit
-
-	case "down":
-		m.usersView.MoveDown()
-		return m, nil
-
-	case "up":
-		m.usersView.MoveUp()
-		return m, nil
-	}
-
-	return m, nil
+	return m.mode.HandleUserInput(message)
 }
 
 func (m *Model) View() string {
-	return m.usersView.View()
+	return m.mode.View()
 }
