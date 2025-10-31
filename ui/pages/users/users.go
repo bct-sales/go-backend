@@ -53,7 +53,7 @@ func (m *Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case databaseErrorMessage:
-		return m, nil
+		return m, tea.Quit
 	}
 
 	return m, nil
