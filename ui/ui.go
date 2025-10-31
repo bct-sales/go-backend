@@ -50,6 +50,8 @@ func (m *RootModel) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "q":
 		return m, tea.Quit
 	}
+
+	return m, nil
 }
 
 func (m *RootModel) View() string {
