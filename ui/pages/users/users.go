@@ -2,7 +2,6 @@ package users
 
 import (
 	"bctbackend/database/models"
-	"bctbackend/database/queries"
 	"bctbackend/ui/components/usersview"
 	"database/sql"
 
@@ -25,23 +24,6 @@ func New(database *sql.DB) tea.Model {
 
 func (m *Model) Init() tea.Cmd {
 	return fetchUsers(m.database)
-}
-
-func fetchUsers(database *sql.DB) tea.Cmd {
-	return func() tea.Msg {
-		var users []*models.User
-
-		if err := queries.GetUsers(database, queries.CollectTo(&users)); err != nil {
-			return &databaseErrorMessage{
-				err:     err,
-				message: "failed to fetch users from database",
-			}
-		}
-
-		return usersFetchedMessage{
-			users: users,
-		}
-	}
 }
 
 func (m *Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
