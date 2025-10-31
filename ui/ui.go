@@ -3,12 +3,10 @@ package ui
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/ui/components/listview"
+	"bctbackend/ui/components/usersview"
 	"database/sql"
-	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 func Start(database *sql.DB) error {
@@ -25,15 +23,13 @@ type RootModel struct {
 	screenWidth  int
 	screenHeight int
 
-	usersView *listview.Model
-	status    string
+	usersView *usersview.Model
 }
 
 func newRootModel(database *sql.DB) tea.Model {
 	return &RootModel{
 		database:  database,
-		usersView: listview.New(&userList{}),
-		status:    "init",
+		usersView: usersview.New(),
 	}
 }
 
@@ -67,16 +63,11 @@ func (m *RootModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		return m.onKeyPressed(message)
 
 	case usersFetchedMessage:
-		m.usersView.SetList(&userList{
-			users: message.users,
-		})
-
-		m.status = "got users"
+		m.usersView.SetUsers(message.users)
 
 		return m, nil
 
 	case DatabaseErrorMessage:
-		m.status = message.message
 		return m, nil
 	}
 
@@ -89,7 +80,7 @@ func (m *RootModel) onWindowResized(message tea.WindowSizeMsg) (tea.Model, tea.C
 	m.screenHeight = message.Height
 
 	m.usersView.SetWidth(m.screenWidth)
-	m.usersView.SetHeight(m.screenHeight - 1)
+	m.usersView.SetHeight(m.screenHeight)
 
 	return m, nil
 }
@@ -113,9 +104,7 @@ func (m *RootModel) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m *RootModel) View() string {
-	usersView := m.usersView.View()
-	status := fmt.Sprintf("#Users: %d %s", m.usersView.GetList().Len(), m.status)
-	return lipgloss.JoinVertical(0, usersView, status)
+	return m.usersView.View()
 }
 
 type DatabaseErrorMessage struct {
@@ -125,22 +114,4 @@ type DatabaseErrorMessage struct {
 
 type usersFetchedMessage struct {
 	users []*models.User
-}
-
-type userList struct {
-	users []*models.User
-}
-
-func (list *userList) Len() int {
-	return len(list.users)
-}
-
-func (list *userList) Item(index int) string {
-	if index >= list.Len() {
-		panic("out of range")
-	}
-
-	user := list.users[index]
-
-	return fmt.Sprintf("[%4d] %s", user.UserID, user.RoleID.Name())
 }
