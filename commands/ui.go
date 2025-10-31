@@ -35,5 +35,5 @@ func NewUserInterfaceCommand() *cobra.Command {
 }
 
 func (c *UserInterfaceCommand) execute() error {
-	return ui.Start()
+	return c.WithOpenedDatabase(ui.Start)
 }
