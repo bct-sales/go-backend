@@ -1,6 +1,7 @@
 package users
 
 import (
+	"bctbackend/database/models"
 	"bctbackend/ui/components/usersview"
 	"bctbackend/ui/pages"
 	"database/sql"
@@ -12,6 +13,7 @@ type Model struct {
 	database     *sql.DB
 	screenWidth  int
 	screenHeight int
+	users        []*models.User
 	usersView    *usersview.Model
 	mode         pages.Mode
 }
@@ -22,7 +24,7 @@ func New(database *sql.DB) tea.Model {
 		usersView: usersview.New(),
 	}
 
-	model.mode = &DefaultMode{model: &model}
+	model.mode = NewDefaultMode(&model)
 
 	return &model
 }
@@ -40,6 +42,7 @@ func (m *Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		return m.onKeyPressed(message)
 
 	case usersFetchedMessage:
+		m.users = message.users
 		m.usersView.SetUsers(message.users)
 
 		return m, nil

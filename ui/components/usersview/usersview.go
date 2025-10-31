@@ -25,7 +25,7 @@ func (list *UserList) Item(index int) string {
 
 	user := list.users[index]
 
-	return fmt.Sprintf("[%4d] %s", user.UserID, user.RoleID.Name())
+	return fmt.Sprintf("[%4d] %s %s", user.UserID, user.RoleID.Name(), user.Password)
 }
 
 func New() *Model {
