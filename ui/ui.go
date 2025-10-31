@@ -22,8 +22,7 @@ type RootModel struct {
 	database     *sql.DB
 	screenWidth  int
 	screenHeight int
-
-	usersView *usersview.Model
+	usersView    *usersview.Model
 }
 
 func newRootModel(database *sql.DB) tea.Model {
