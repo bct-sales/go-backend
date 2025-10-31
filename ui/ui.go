@@ -30,10 +30,7 @@ func (m *RootModel) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		return m.onWindowResized(message)
 
 	case tea.KeyMsg:
-		switch message.String() {
-		case "q":
-			return m, tea.Quit
-		}
+		return m.onKeyPressed(message)
 	}
 
 	return m, nil
@@ -45,6 +42,14 @@ func (m *RootModel) onWindowResized(message tea.WindowSizeMsg) (tea.Model, tea.C
 	m.screenHeight = message.Height
 
 	return m, nil
+}
+
+// onKeyPressed handles the tea.KeyMsg message
+func (m *RootModel) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch message.String() {
+	case "q":
+		return m, tea.Quit
+	}
 }
 
 func (m *RootModel) View() string {
