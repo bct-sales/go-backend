@@ -1,7 +1,6 @@
 package users
 
 import (
-	"bctbackend/database/models"
 	"bctbackend/ui/components/usersview"
 	"database/sql"
 
@@ -77,13 +76,4 @@ func (m *Model) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 func (m *Model) View() string {
 	return m.usersView.View()
-}
-
-type databaseErrorMessage struct {
-	message string
-	err     error
-}
-
-type usersFetchedMessage struct {
-	users []*models.User
 }
