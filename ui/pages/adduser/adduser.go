@@ -60,5 +60,5 @@ func (m *Model) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m *Model) View() string {
-	return "Add User!"
+	return m.RenderTitle("Add User")
 }

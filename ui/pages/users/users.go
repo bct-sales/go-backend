@@ -80,8 +80,7 @@ func (m *Model) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m *Model) View() string {
-	titleStyle := lipgloss.NewStyle().Width(m.ScreenSize.Width).AlignHorizontal(lipgloss.Center).Background(lipgloss.Color("#AAAAFF"))
-	title := titleStyle.Render("Users")
+	title := m.RenderTitle("Users")
 	mainView := m.mode.View()
 
 	return lipgloss.JoinVertical(0, title, mainView)
