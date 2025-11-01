@@ -3,6 +3,7 @@ package users
 import (
 	"bctbackend/ui/components/statusbar"
 	"bctbackend/ui/pages"
+	"bctbackend/ui/pages/adduser"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -16,6 +17,7 @@ type DefaultMode struct {
 func NewDefaultMode(model *Model) pages.Mode {
 	statusBar := statusbar.New()
 	statusBar.AddKeyBinding("P", "Set password")
+	statusBar.AddKeyBinding("+", "Add user")
 
 	return &DefaultMode{
 		model:     model,
@@ -41,6 +43,9 @@ func (mode *DefaultMode) HandleUserInput(message tea.KeyMsg) (tea.Model, tea.Cmd
 	case "P":
 		model.mode = NewSetPasswordMode(model)
 		return model, nil
+
+	case "+":
+		return adduser.New(model.database, model.screenWidth, model.screenHeight), nil
 
 	default:
 		return model, nil
