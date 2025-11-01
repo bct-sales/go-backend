@@ -1,22 +1,21 @@
 package adduser
 
 import (
+	"bctbackend/ui/pages"
 	"database/sql"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 type Model struct {
-	database     *sql.DB
-	screenWidth  int
-	screenHeight int
+	database   *sql.DB
+	screenSize *pages.Size
 }
 
-func New(database *sql.DB, screenWidth int, screenHeight int) tea.Model {
+func New(database *sql.DB, screenSize *pages.Size) tea.Model {
 	model := Model{
-		database:     database,
-		screenWidth:  screenWidth,
-		screenHeight: screenHeight,
+		database:   database,
+		screenSize: screenSize,
 	}
 
 	return &model
@@ -40,8 +39,10 @@ func (m *Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 
 // onWindowResized handles the tea.WindowSizeMsg message
 func (m *Model) onWindowResized(message tea.WindowSizeMsg) (tea.Model, tea.Cmd) {
-	m.screenWidth = message.Width
-	m.screenHeight = message.Height
+	screenWidth := message.Width
+	screenHeight := message.Height
+
+	m.screenSize = pages.NewSize(screenWidth, screenHeight)
 
 	return m, nil
 }
