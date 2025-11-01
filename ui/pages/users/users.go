@@ -15,14 +15,14 @@ type Model struct {
 	database     *sql.DB
 	screenWidth  int
 	screenHeight int
-	users        *cell.ObservableCell[[]*models.User]
+	users        *cell.Observable[[]*models.User]
 	usersView    *usersview.Model
 	mode         pages.Mode
 }
 
 func New(database *sql.DB) tea.Model {
 	usersView := usersview.New()
-	users := cell.NewObservableCell[[]*models.User](nil)
+	users := cell.NewObservable[[]*models.User](nil)
 	users.AddObserver(func() { usersView.SetUsers(users.Get()) })
 
 	model := Model{

@@ -1,25 +1,25 @@
 package cell
 
-type ReadableCell[T any] interface {
+type Readable[T any] interface {
 	Get() T
 }
 
-type WritableCell[T any] interface {
+type Writable[T any] interface {
 	Set(value T)
 }
 
 type Cell[T any] interface {
-	ReadableCell[T]
-	WritableCell[T]
+	Readable[T]
+	Writable[T]
 }
 
-type ObservableCell[T any] struct {
+type Observable[T any] struct {
 	value     T
 	observers []func()
 }
 
-func NewObservableCell[T any](initialValue T) *ObservableCell[T] {
-	cell := ObservableCell[T]{
+func NewObservable[T any](initialValue T) *Observable[T] {
+	cell := Observable[T]{
 		value:     initialValue,
 		observers: nil,
 	}
@@ -27,11 +27,11 @@ func NewObservableCell[T any](initialValue T) *ObservableCell[T] {
 	return &cell
 }
 
-func (c *ObservableCell[T]) Get() T {
+func (c *Observable[T]) Get() T {
 	return c.value
 }
 
-func (c *ObservableCell[T]) Set(value T) {
+func (c *Observable[T]) Set(value T) {
 	c.value = value
 
 	for _, observer := range c.observers {
@@ -39,6 +39,6 @@ func (c *ObservableCell[T]) Set(value T) {
 	}
 }
 
-func (c *ObservableCell[T]) AddObserver(observer func()) {
+func (c *Observable[T]) AddObserver(observer func()) {
 	c.observers = append(c.observers, observer)
 }
