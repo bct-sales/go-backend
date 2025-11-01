@@ -12,23 +12,24 @@ import (
 )
 
 type Model struct {
-	database   *sql.DB
-	screenSize *pages.Size
-	users      *cell.Observable[[]*models.User]
-	usersView  *usersview.Model
-	mode       pages.Mode
+	pages.PageBase
+	users     *cell.Observable[[]*models.User]
+	usersView *usersview.Model
+	mode      pages.Mode
 }
 
-func New(database *sql.DB) tea.Model {
+func New(database *sql.DB, screenSize *pages.Size) tea.Model {
 	usersView := usersview.New()
 	users := cell.NewObservable[[]*models.User](nil)
 	users.AddObserver(func() { usersView.SetUsers(users.Get()) })
 
 	model := Model{
-		database:   database,
-		screenSize: pages.NewSize(0, 0),
-		users:      users,
-		usersView:  usersView,
+		users:     users,
+		usersView: usersView,
+		PageBase: pages.PageBase{
+			Database:   database,
+			ScreenSize: screenSize,
+		},
 	}
 
 	model.mode = NewDefaultMode(&model)
@@ -37,7 +38,7 @@ func New(database *sql.DB) tea.Model {
 }
 
 func (m *Model) Init() tea.Cmd {
-	return fetchUsers(m.database)
+	return fetchUsers(m.Database)
 }
 
 func (m *Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
@@ -65,7 +66,7 @@ func (m *Model) onWindowResized(message tea.WindowSizeMsg) (tea.Model, tea.Cmd) 
 	screenWidth := message.Width
 	screenHeight := message.Height
 
-	m.screenSize = pages.NewSize(screenWidth, screenHeight)
+	m.ScreenSize = pages.NewSize(screenWidth, screenHeight)
 
 	m.usersView.SetWidth(screenWidth)
 	m.usersView.SetHeight(screenHeight - 2)
@@ -79,7 +80,7 @@ func (m *Model) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m *Model) View() string {
-	titleStyle := lipgloss.NewStyle().Width(m.screenSize.Width).AlignHorizontal(lipgloss.Center).Background(lipgloss.Color("#AAAAFF"))
+	titleStyle := lipgloss.NewStyle().Width(m.ScreenSize.Width).AlignHorizontal(lipgloss.Center).Background(lipgloss.Color("#AAAAFF"))
 	title := titleStyle.Render("Users")
 	mainView := m.mode.View()
 

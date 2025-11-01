@@ -45,7 +45,7 @@ func (mode *DefaultMode) HandleUserInput(message tea.KeyMsg) (tea.Model, tea.Cmd
 		return model, nil
 
 	case "+":
-		return adduser.New(model.database, model.screenSize), nil
+		return adduser.New(model.Database, model.ScreenSize), nil
 
 	default:
 		return model, nil

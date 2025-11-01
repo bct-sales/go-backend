@@ -8,14 +8,15 @@ import (
 )
 
 type Model struct {
-	database   *sql.DB
-	screenSize *pages.Size
+	pages.PageBase
 }
 
 func New(database *sql.DB, screenSize *pages.Size) tea.Model {
 	model := Model{
-		database:   database,
-		screenSize: screenSize,
+		PageBase: pages.PageBase{
+			Database:   database,
+			ScreenSize: screenSize,
+		},
 	}
 
 	return &model
@@ -42,7 +43,7 @@ func (m *Model) onWindowResized(message tea.WindowSizeMsg) (tea.Model, tea.Cmd) 
 	screenWidth := message.Width
 	screenHeight := message.Height
 
-	m.screenSize = pages.NewSize(screenWidth, screenHeight)
+	m.ScreenSize = pages.NewSize(screenWidth, screenHeight)
 
 	return m, nil
 }

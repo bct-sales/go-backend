@@ -34,7 +34,7 @@ func (mode *SetPasswordMode) HandleUserInput(message tea.KeyMsg) (tea.Model, tea
 		password := mode.textInput.Value()
 
 		model.mode = NewDefaultMode(model)
-		return model, updateUserPassword(model.database, updatedUser.UserID, password)
+		return model, updateUserPassword(model.Database, updatedUser.UserID, password)
 
 	case "esc":
 		model.mode = NewDefaultMode(model)
