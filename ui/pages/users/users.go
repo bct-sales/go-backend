@@ -8,6 +8,7 @@ import (
 	"database/sql"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type Model struct {
@@ -65,7 +66,7 @@ func (m *Model) onWindowResized(message tea.WindowSizeMsg) (tea.Model, tea.Cmd) 
 	m.screenHeight = message.Height
 
 	m.usersView.SetWidth(m.screenWidth)
-	m.usersView.SetHeight(m.screenHeight - 1)
+	m.usersView.SetHeight(m.screenHeight - 2)
 
 	return m, nil
 }
@@ -76,5 +77,9 @@ func (m *Model) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 func (m *Model) View() string {
-	return m.mode.View()
+	titleStyle := lipgloss.NewStyle().Width(m.screenWidth).AlignHorizontal(lipgloss.Center).Background(lipgloss.Color("#AAAAFF"))
+	title := titleStyle.Render("Users")
+	mainView := m.mode.View()
+
+	return lipgloss.JoinVertical(0, title, mainView)
 }
