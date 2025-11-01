@@ -2,9 +2,9 @@ package users
 
 import (
 	"bctbackend/database/models"
+	"bctbackend/ui/cell"
 	"bctbackend/ui/components/usersview"
 	"bctbackend/ui/pages"
-	"bctbackend/ui/util"
 	"database/sql"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -15,14 +15,14 @@ type Model struct {
 	database     *sql.DB
 	screenWidth  int
 	screenHeight int
-	users        *util.ObservableCell[[]*models.User]
+	users        *cell.ObservableCell[[]*models.User]
 	usersView    *usersview.Model
 	mode         pages.Mode
 }
 
 func New(database *sql.DB) tea.Model {
 	usersView := usersview.New()
-	users := util.NewObservableCell[[]*models.User](nil)
+	users := cell.NewObservableCell[[]*models.User](nil)
 	users.AddObserver(func() { usersView.SetUsers(users.Get()) })
 
 	model := Model{

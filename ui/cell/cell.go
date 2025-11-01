@@ -1,4 +1,4 @@
-package util
+package cell
 
 type ReadableCell[T any] interface {
 	Get() T
