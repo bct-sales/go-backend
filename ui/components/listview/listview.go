@@ -102,10 +102,10 @@ func (m *Model) GetList() List {
 }
 
 func (m *Model) layoutUpdated() {
-	basicStyle := lipgloss.NewStyle().Width(m.width - 2)
+	basicStyle := lipgloss.NewStyle().Width(m.width)
 
 	m.unselectedStyle = basicStyle
-	m.selectedStyle = basicStyle.Background(lipgloss.Color("#AAAAFF"))
+	m.selectedStyle = basicStyle.Background(lipgloss.Color("#AAAAAA"))
 }
 
 func (m *Model) Selected() int {
