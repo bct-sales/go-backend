@@ -29,7 +29,12 @@ func (m *Model) View() string {
 
 	for _, binding := range m.keyBindings {
 		renderedBinding := m.renderKeyBinding(&binding)
-		parts = append(parts, renderedBinding)
+
+		if len(parts) == 0 {
+			parts = append(parts, renderedBinding)
+		} else {
+			parts = append(parts, " ", renderedBinding)
+		}
 	}
 
 	return lipgloss.JoinHorizontal(0, parts...)
