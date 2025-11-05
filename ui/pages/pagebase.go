@@ -16,3 +16,10 @@ func (p *PageBase) RenderTitle(title string) string {
 
 	return titleStyle.Render(title)
 }
+
+func (p *PageBase) AddStatusBar(mainView string, statusBar string) string {
+	mainViewHeight := lipgloss.Height(mainView)
+	remainingHeight := p.ScreenSize.Height - mainViewHeight
+	statusBarStyle := lipgloss.NewStyle().Height(remainingHeight).AlignVertical(lipgloss.Bottom)
+	return lipgloss.JoinVertical(0, mainView, statusBarStyle.Render(statusBar))
+}

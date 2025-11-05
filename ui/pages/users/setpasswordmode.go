@@ -5,7 +5,6 @@ import (
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 type SetPasswordMode struct {
@@ -48,13 +47,9 @@ func (mode *SetPasswordMode) HandleUserInput(message tea.KeyMsg) (tea.Model, tea
 }
 
 func (mode *SetPasswordMode) View() string {
-	model := mode.model
-	mainView := model.usersView.View()
-	statusBar := mode.RenderStatusBar()
-
-	return lipgloss.JoinVertical(0, mainView, statusBar)
+	return mode.model.usersView.View()
 }
 
-func (mode *SetPasswordMode) RenderStatusBar() string {
+func (mode *SetPasswordMode) StatusBar() string {
 	return mode.textInput.View()
 }

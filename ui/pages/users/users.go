@@ -83,5 +83,5 @@ func (m *Model) View() string {
 	title := m.RenderTitle("Users")
 	mainView := m.mode.View()
 
-	return lipgloss.JoinVertical(0, title, mainView)
+	return m.AddStatusBar(lipgloss.JoinVertical(0, title, mainView), m.mode.StatusBar())
 }

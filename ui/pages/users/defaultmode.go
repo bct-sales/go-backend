@@ -6,7 +6,6 @@ import (
 	"bctbackend/ui/pages/adduser"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 type DefaultMode struct {
@@ -58,13 +57,9 @@ func (mode *DefaultMode) HandleUserInput(message tea.KeyMsg) (tea.Model, tea.Cmd
 }
 
 func (mode *DefaultMode) View() string {
-	model := mode.model
-	mainView := model.usersView.View()
-	statusBar := mode.RenderStatusBar()
-
-	return lipgloss.JoinVertical(0, mainView, statusBar)
+	return mode.model.usersView.View()
 }
 
-func (mode *DefaultMode) RenderStatusBar() string {
+func (mode *DefaultMode) StatusBar() string {
 	return mode.statusBar.View()
 }
