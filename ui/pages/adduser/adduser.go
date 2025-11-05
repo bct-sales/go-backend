@@ -10,7 +10,7 @@ import (
 )
 
 type Model struct {
-	pages.PageBase
+	pages.Page
 	components Components
 	tabIndex   int
 	back       func() (tea.Model, tea.Cmd)
@@ -30,7 +30,7 @@ type Focusable interface {
 
 func New(database *sql.DB, screenSize *pages.Size, back func() (tea.Model, tea.Cmd)) tea.Model {
 	model := Model{
-		PageBase: pages.PageBase{
+		Page: pages.Page{
 			Database:   database,
 			ScreenSize: screenSize,
 		},

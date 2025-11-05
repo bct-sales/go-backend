@@ -12,7 +12,7 @@ import (
 )
 
 type Model struct {
-	pages.PageBase
+	pages.Page
 	users     *cell.Observable[[]*models.User]
 	usersView *usersview.Model
 	mode      pages.Mode
@@ -26,7 +26,7 @@ func New(database *sql.DB, screenSize *pages.Size) tea.Model {
 	model := Model{
 		users:     users,
 		usersView: usersView,
-		PageBase: pages.PageBase{
+		Page: pages.Page{
 			Database:   database,
 			ScreenSize: screenSize,
 		},
