@@ -48,33 +48,41 @@ func New(database *sql.DB, screenSize *pages.Size, back func() (tea.Model, tea.C
 		&model.components.role,
 		&model.components.password,
 	}
-	model.components.userID.Focus()
 
 	return &model
 }
 
 func (m *Model) Init() tea.Cmd {
-	return nil
+	return m.components.userID.Focus()
 }
 
 func (m *Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
+	var resultingModel tea.Model
+	resultingModel = m
+	resultingCommands := []tea.Cmd{}
+
 	switch message := message.(type) {
 	case tea.WindowSizeMsg:
-		return m.onWindowResized(message)
+		m, c := m.onWindowResized(message)
+		resultingModel = m
+		resultingCommands = append(resultingCommands, c)
 
 	case tea.KeyMsg:
-		return m.onKeyPressed(message)
+		m, c := m.onKeyPressed(message)
+		resultingModel = m
+		resultingCommands = append(resultingCommands, c)
 	}
 
 	updatedUserID, userIDCommand := m.components.userID.Update(message)
 	updatedRole, roleCommand := m.components.role.Update(message)
 	updatedPassword, passwordCommand := m.components.password.Update(message)
+	resultingCommands = append(resultingCommands, userIDCommand, roleCommand, passwordCommand)
 
 	m.components.userID = updatedUserID
 	m.components.role = updatedRole
 	m.components.password = updatedPassword
 
-	return m, tea.Batch(userIDCommand, roleCommand, passwordCommand)
+	return resultingModel, tea.Batch(resultingCommands...)
 }
 
 // onWindowResized handles the tea.WindowSizeMsg message

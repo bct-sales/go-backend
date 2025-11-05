@@ -48,7 +48,9 @@ func (mode *DefaultMode) HandleUserInput(message tea.KeyMsg) (tea.Model, tea.Cmd
 		back := func() (tea.Model, tea.Cmd) {
 			return model, nil
 		}
-		return adduser.New(model.Database, model.ScreenSize, back), nil
+		newModel := adduser.New(model.Database, model.ScreenSize, back)
+		cmd := newModel.Init()
+		return newModel, cmd
 
 	default:
 		return model, nil
