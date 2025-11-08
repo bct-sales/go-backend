@@ -11,7 +11,7 @@ import (
 
 type Page struct {
 	Database   *sql.DB
-	ScreenSize *Size
+	ScreenSize Size
 	Contents   PageContents
 }
 

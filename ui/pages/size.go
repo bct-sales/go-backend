@@ -5,6 +5,6 @@ type Size struct {
 	Height int
 }
 
-func NewSize(width int, height int) *Size {
-	return &Size{width, height}
+func NewSize(width int, height int) Size {
+	return Size{width, height}
 }
