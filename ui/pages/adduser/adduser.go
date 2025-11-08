@@ -44,6 +44,9 @@ func New(back tea.Cmd) *Model {
 		&model.components.password,
 	}
 
+	model.components.role.ShowSuggestions = true
+	model.components.role.SetSuggestions([]string{"Admin", "Seller", "Cashier"})
+
 	return &model
 }
 
