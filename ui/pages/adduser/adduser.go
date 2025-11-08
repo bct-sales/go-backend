@@ -38,34 +38,35 @@ func New(back tea.Cmd) Model {
 		back:     back,
 	}
 
+	model.components.userID.Focus()
+
 	return model
 }
 
 func (m Model) Init() tea.Cmd {
-	return m.components.userID.Focus()
+	return nil
 }
 
-func (m Model) Update(message tea.Msg) (pages.PageContents, tea.Cmd) {
-	resultingModel := m
+func (model Model) Update(message tea.Msg) (pages.PageContents, tea.Cmd) {
 	resultingCommands := []tea.Cmd{}
 
 	switch message := message.(type) {
 	case tea.KeyMsg:
-		m, c := m.onKeyPressed(message)
-		resultingModel = m
+		updated, c := model.onKeyPressed(message)
+		model = updated
 		resultingCommands = append(resultingCommands, c)
 	}
 
-	updatedUserID, userIDCommand := m.components.userID.Update(message)
-	updatedRole, roleCommand := m.components.role.Update(message)
-	updatedPassword, passwordCommand := m.components.password.Update(message)
+	updatedUserID, userIDCommand := model.components.userID.Update(message)
+	updatedRole, roleCommand := model.components.role.Update(message)
+	updatedPassword, passwordCommand := model.components.password.Update(message)
 	resultingCommands = append(resultingCommands, userIDCommand, roleCommand, passwordCommand)
 
-	m.components.userID = updatedUserID
-	m.components.role = updatedRole
-	m.components.password = updatedPassword
+	model.components.userID = updatedUserID
+	model.components.role = updatedRole
+	model.components.password = updatedPassword
 
-	return resultingModel, tea.Batch(resultingCommands...)
+	return model, tea.Batch(resultingCommands...)
 }
 
 // onKeyPressed handles the tea.KeyMsg message
