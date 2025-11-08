@@ -113,8 +113,11 @@ func (m *Model) moveFocusToNextComponent() tea.Cmd {
 func (m *Model) View() string {
 	return lipgloss.JoinVertical(
 		0,
+		"User ID",
 		m.components.userID.View(),
+		"Role",
 		m.components.role.View(),
+		"Password",
 		m.components.password.View(),
 	)
 }
