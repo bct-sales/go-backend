@@ -2,31 +2,26 @@ package users
 
 import (
 	"bctbackend/ui/components/statusbar"
-	"bctbackend/ui/pages"
 	"bctbackend/ui/pages/adduser"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 type DefaultMode struct {
-	model     *Model
 	statusBar *statusbar.Model
 }
 
-func NewDefaultMode(model *Model) pages.Mode {
+func NewDefaultMode() Mode {
 	statusBar := statusbar.New()
 	statusBar.AddKeyBinding("P", "Set password")
 	statusBar.AddKeyBinding("+", "Add user")
 
-	return &DefaultMode{
-		model:     model,
+	return DefaultMode{
 		statusBar: statusBar,
 	}
 }
 
-func (mode *DefaultMode) HandleUserInput(message tea.KeyMsg) (pages.PageContents, tea.Cmd) {
-	model := mode.model
-
+func (mode DefaultMode) HandleUserInput(model Model, message tea.KeyMsg) (Model, tea.Cmd) {
 	switch message.String() {
 	case "q":
 		return model, tea.Quit
@@ -36,29 +31,29 @@ func (mode *DefaultMode) HandleUserInput(message tea.KeyMsg) (pages.PageContents
 		return model, nil
 
 	case "up":
-		mode.model.usersView.MoveUp()
+		model.usersView.MoveUp()
 		return model, nil
 
 	case "P":
-		model.mode = NewSetPasswordMode(model)
+		model.mode = NewSetPasswordMode()
 		return model, nil
 
 	case "+":
 		back := func() tea.Msg {
-			return mode.model.RequestSwitchToPage(mode.model)()
+			return model.RequestSwitchToPage(model)()
 		}
 
-		return model, mode.model.RequestSwitchToPage(adduser.New(back))
+		return model, model.RequestSwitchToPage(adduser.New(back))
 
 	default:
 		return model, nil
 	}
 }
 
-func (mode *DefaultMode) View() string {
-	return mode.model.usersView.View()
+func (mode DefaultMode) View(model Model) string {
+	return model.usersView.View()
 }
 
-func (mode *DefaultMode) StatusBar() string {
+func (mode DefaultMode) StatusBar(model Model) string {
 	return mode.statusBar.View()
 }

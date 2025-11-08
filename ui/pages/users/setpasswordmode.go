@@ -3,7 +3,6 @@ package users
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/ui/pages"
 	"database/sql"
 	"log/slog"
 
@@ -16,31 +15,28 @@ type SetPasswordMode struct {
 	textInput textinput.Model
 }
 
-func NewSetPasswordMode(model *Model) pages.Mode {
+func NewSetPasswordMode() Mode {
 	textInput := textinput.New()
 	textInput.Focus()
 	textInput.Prompt = "Enter new password> "
 
 	return &SetPasswordMode{
-		model:     model,
 		textInput: textInput,
 	}
 }
 
-func (mode *SetPasswordMode) HandleUserInput(message tea.KeyMsg) (pages.PageContents, tea.Cmd) {
-	model := mode.model
-
+func (mode SetPasswordMode) HandleUserInput(model Model, message tea.KeyMsg) (Model, tea.Cmd) {
 	switch message.String() {
 	case "enter":
 		index := model.usersView.Selected()
 		updatedUser := model.users.Get()[index]
 		password := mode.textInput.Value()
 
-		model.mode = NewDefaultMode(model)
+		model.mode = NewDefaultMode()
 		return model, mode.requestUpdateUserPassword(updatedUser.UserID, password)
 
 	case "esc":
-		model.mode = NewDefaultMode(model)
+		model.mode = NewDefaultMode()
 		return model, nil
 
 	default:
@@ -50,11 +46,11 @@ func (mode *SetPasswordMode) HandleUserInput(message tea.KeyMsg) (pages.PageCont
 	}
 }
 
-func (mode *SetPasswordMode) View() string {
-	return mode.model.usersView.View()
+func (mode SetPasswordMode) View(model Model) string {
+	return model.usersView.View()
 }
 
-func (mode *SetPasswordMode) StatusBar() string {
+func (mode SetPasswordMode) StatusBar(model Model) string {
 	return mode.textInput.View()
 }
 

@@ -16,10 +16,10 @@ type Model struct {
 	pages.PageContentsBase
 	users     *cell.Observable[[]*models.User]
 	usersView *usersview.Model
-	mode      pages.Mode
+	mode      Mode
 }
 
-func New() *Model {
+func New() Model {
 	usersView := usersview.New()
 	users := cell.NewObservable[[]*models.User](nil)
 	users.AddObserver(func() { usersView.SetUsers(users.Get()) })
@@ -27,19 +27,18 @@ func New() *Model {
 	model := Model{
 		users:     users,
 		usersView: usersView,
+		mode:      NewDefaultMode(),
 	}
 
-	model.mode = NewDefaultMode(&model)
-
-	return &model
+	return model
 }
 
-func (m *Model) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	slog.Debug("Initializing users page")
 	return m.requestFetchUsers()
 }
 
-func (m *Model) requestFetchUsers() tea.Cmd {
+func (m Model) requestFetchUsers() tea.Cmd {
 	slog.Debug("Requested a user fetch")
 
 	return m.RequestDatabaseQuery(&fetchUsersQuery{})
@@ -64,7 +63,7 @@ func (q *fetchUsersQuery) Perform(database *sql.DB) tea.Msg {
 	}
 }
 
-func (m *Model) Update(message tea.Msg) (pages.PageContents, tea.Cmd) {
+func (m Model) Update(message tea.Msg) (pages.PageContents, tea.Cmd) {
 	switch message := message.(type) {
 	case tea.WindowSizeMsg:
 		m.onWindowResized(message)
@@ -84,7 +83,7 @@ func (m *Model) Update(message tea.Msg) (pages.PageContents, tea.Cmd) {
 	return m, nil
 }
 
-func (m *Model) onWindowResized(message tea.WindowSizeMsg) (pages.PageContents, tea.Cmd) {
+func (m Model) onWindowResized(message tea.WindowSizeMsg) (Model, tea.Cmd) {
 	screenWidth := message.Width
 	screenHeight := message.Height
 
@@ -97,18 +96,18 @@ func (m *Model) onWindowResized(message tea.WindowSizeMsg) (pages.PageContents, 
 }
 
 // onKeyPressed handles the tea.KeyMsg message
-func (m *Model) onKeyPressed(message tea.KeyMsg) (pages.PageContents, tea.Cmd) {
-	return m.mode.HandleUserInput(message)
+func (m Model) onKeyPressed(message tea.KeyMsg) (Model, tea.Cmd) {
+	return m.mode.HandleUserInput(m, message)
 }
 
-func (m *Model) View() string {
-	return m.mode.View()
+func (m Model) View() string {
+	return m.mode.View(m)
 }
 
-func (m *Model) StatusBar() string {
-	return m.mode.StatusBar()
+func (m Model) StatusBar() string {
+	return m.mode.StatusBar(m)
 }
 
-func (m *Model) Title() string {
+func (m Model) Title() string {
 	return m.RenderTitle("Users")
 }

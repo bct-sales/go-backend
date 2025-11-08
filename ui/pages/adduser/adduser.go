@@ -1,6 +1,7 @@
 package adduser
 
 import (
+	"bctbackend/ui/components/selector"
 	"bctbackend/ui/pages"
 
 	"github.com/charmbracelet/bubbles/textinput"
@@ -16,10 +17,9 @@ type Model struct {
 }
 
 type Components struct {
-	userID    textinput.Model
-	role      textinput.Model
-	password  textinput.Model
-	focusable []Focusable
+	userID   textinput.Model
+	role     selector.Model
+	password textinput.Model
 }
 
 type Focusable interface {
@@ -27,36 +27,26 @@ type Focusable interface {
 	Focus() tea.Cmd
 }
 
-func New(back tea.Cmd) *Model {
+func New(back tea.Cmd) Model {
 	model := Model{
 		components: Components{
 			userID:   textinput.New(),
-			role:     textinput.New(),
+			role:     selector.New([]string{"Admin", "Seller", "Cashier"}),
 			password: textinput.New(),
 		},
 		tabIndex: 0,
 		back:     back,
 	}
 
-	model.components.focusable = []Focusable{
-		&model.components.userID,
-		&model.components.role,
-		&model.components.password,
-	}
-
-	model.components.role.ShowSuggestions = true
-	model.components.role.SetSuggestions([]string{"Admin", "Seller", "Cashier"})
-
-	return &model
+	return model
 }
 
-func (m *Model) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	return m.components.userID.Focus()
 }
 
-func (m *Model) Update(message tea.Msg) (pages.PageContents, tea.Cmd) {
-	var resultingModel *Model
-	resultingModel = m
+func (m Model) Update(message tea.Msg) (pages.PageContents, tea.Cmd) {
+	resultingModel := m
 	resultingCommands := []tea.Cmd{}
 
 	switch message := message.(type) {
@@ -79,41 +69,56 @@ func (m *Model) Update(message tea.Msg) (pages.PageContents, tea.Cmd) {
 }
 
 // onKeyPressed handles the tea.KeyMsg message
-func (m *Model) onKeyPressed(message tea.KeyMsg) (*Model, tea.Cmd) {
+func (m Model) onKeyPressed(message tea.KeyMsg) (Model, tea.Cmd) {
 	switch message.String() {
 	case "esc":
 		return m, m.back
 
 	case "tab", "down":
-		cmd := m.moveFocusToNextComponent()
-		return m, cmd
+		return m.moveFocusToNextComponent()
 
 	case "shift+tab", "up":
-		cmd := m.moveFocusToPreviousComponent()
-		return m, cmd
+		return m.moveFocusToPreviousComponent()
 
 	default:
 		return m, nil
 	}
 }
 
-func (m *Model) moveFocusToPreviousComponent() tea.Cmd {
-	m.components.focusable[m.tabIndex].Blur()
-	m.tabIndex = (m.tabIndex - 1 + len(m.components.focusable)) % len(m.components.focusable)
-	cmd := m.components.focusable[m.tabIndex].Focus()
-
-	return cmd
+func (m *Model) getFocusable(index int) Focusable {
+	switch index {
+	case 0:
+		return &m.components.userID
+	case 1:
+		return &m.components.role
+	case 2:
+		return &m.components.password
+	default:
+		panic("invalid index")
+	}
 }
 
-func (m *Model) moveFocusToNextComponent() tea.Cmd {
-	m.components.focusable[m.tabIndex].Blur()
-	m.tabIndex = (m.tabIndex + 1) % len(m.components.focusable)
-	cmd := m.components.focusable[m.tabIndex].Focus()
-
-	return cmd
+func (m *Model) getFocusableCount() int {
+	return 3
 }
 
-func (m *Model) View() string {
+func (m Model) moveFocusToPreviousComponent() (Model, tea.Cmd) {
+	m.getFocusable(m.tabIndex).Blur()
+	m.tabIndex = (m.tabIndex - 1 + m.getFocusableCount()) % m.getFocusableCount()
+	cmd := m.getFocusable(m.tabIndex).Focus()
+
+	return m, cmd
+}
+
+func (m Model) moveFocusToNextComponent() (Model, tea.Cmd) {
+	m.getFocusable(m.tabIndex).Blur()
+	m.tabIndex = (m.tabIndex + 1) % m.getFocusableCount()
+	cmd := m.getFocusable(m.tabIndex).Focus()
+
+	return m, cmd
+}
+
+func (m Model) View() string {
 	return lipgloss.JoinVertical(
 		0,
 		"User ID",
@@ -125,10 +130,10 @@ func (m *Model) View() string {
 	)
 }
 
-func (m *Model) StatusBar() string {
+func (m Model) StatusBar() string {
 	return ""
 }
 
-func (m *Model) Title() string {
+func (m Model) Title() string {
 	return m.RenderTitle("Add User")
 }
