@@ -81,8 +81,12 @@ func (m *Model) onKeyPressed(message tea.KeyMsg) (*Model, tea.Cmd) {
 	case "esc":
 		return m, m.back
 
-	case "tab":
+	case "tab", "down":
 		cmd := m.moveFocusToNextComponent()
+		return m, cmd
+
+	case "shift+tab", "up":
+		cmd := m.moveFocusToPreviousComponent()
 		return m, cmd
 
 	default:
@@ -90,9 +94,17 @@ func (m *Model) onKeyPressed(message tea.KeyMsg) (*Model, tea.Cmd) {
 	}
 }
 
+func (m *Model) moveFocusToPreviousComponent() tea.Cmd {
+	m.components.focusable[m.tabIndex].Blur()
+	m.tabIndex = (m.tabIndex - 1 + len(m.components.focusable)) % len(m.components.focusable)
+	cmd := m.components.focusable[m.tabIndex].Focus()
+
+	return cmd
+}
+
 func (m *Model) moveFocusToNextComponent() tea.Cmd {
 	m.components.focusable[m.tabIndex].Blur()
-	m.tabIndex = (m.tabIndex + 1) % 3
+	m.tabIndex = (m.tabIndex + 1) % len(m.components.focusable)
 	cmd := m.components.focusable[m.tabIndex].Focus()
 
 	return cmd
