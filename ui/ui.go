@@ -13,7 +13,7 @@ import (
 )
 
 func Start(database *sql.DB) error {
-	logFile, err := os.Create("log.txt")
+	logFile, err := os.Create("ui.log")
 	if err != nil {
 		fmt.Println("Failed to create log")
 	}
