@@ -11,7 +11,6 @@ import (
 )
 
 type SetPasswordMode struct {
-	model     *Model
 	textInput textinput.Model
 }
 
@@ -33,7 +32,7 @@ func (mode SetPasswordMode) HandleUserInput(model Model, message tea.KeyMsg) (Mo
 		password := mode.textInput.Value()
 
 		model.mode = NewDefaultMode()
-		return model, mode.requestUpdateUserPassword(updatedUser.UserID, password)
+		return model, mode.requestUpdateUserPassword(model, updatedUser.UserID, password)
 
 	case "esc":
 		model.mode = NewDefaultMode()
@@ -42,6 +41,7 @@ func (mode SetPasswordMode) HandleUserInput(model Model, message tea.KeyMsg) (Mo
 	default:
 		updatedTextInput, command := mode.textInput.Update(message)
 		mode.textInput = updatedTextInput
+		model.mode = mode
 		return model, command
 	}
 }
@@ -54,11 +54,11 @@ func (mode SetPasswordMode) StatusBar(model Model) string {
 	return mode.textInput.View()
 }
 
-func (mode *SetPasswordMode) requestUpdateUserPassword(userID models.ID, password string) tea.Cmd {
+func (mode *SetPasswordMode) requestUpdateUserPassword(model Model, userID models.ID, password string) tea.Cmd {
 	slog.Debug("Creating request to update user password", slog.Int64("userID", userID.Int64()), slog.String("password", password))
 	query := updatePasswordQuery{userID, password}
 
-	return mode.model.RequestDatabaseQuery(&query)
+	return model.RequestDatabaseQuery(&query)
 }
 
 type updatePasswordQuery struct {
