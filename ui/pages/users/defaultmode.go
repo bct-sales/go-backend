@@ -45,10 +45,10 @@ func (mode *DefaultMode) HandleUserInput(message tea.KeyMsg) (pages.PageContents
 
 	case "+":
 		back := func() tea.Msg {
-			return mode.model.SwitchToPage(mode.model)
+			return mode.model.RequestSwitchToPage(mode.model)()
 		}
 
-		return model, mode.model.SwitchToPage(adduser.New(back))
+		return model, mode.model.RequestSwitchToPage(adduser.New(back))
 
 	default:
 		return model, nil

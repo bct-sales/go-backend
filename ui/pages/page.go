@@ -127,8 +127,9 @@ type databaseQueryRequestMessage struct {
 	query DatabaseQuery
 }
 
-func (pc *PageContentsBase) SwitchToPage(contents PageContents) tea.Cmd {
+func (pc *PageContentsBase) RequestSwitchToPage(contents PageContents) tea.Cmd {
 	return func() tea.Msg {
+		slog.Debug("Performing page switch request")
 		return switchToPageMessage{contents}
 	}
 }
