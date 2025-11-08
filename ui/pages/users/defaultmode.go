@@ -24,7 +24,7 @@ func NewDefaultMode(model *Model) pages.Mode {
 	}
 }
 
-func (mode *DefaultMode) HandleUserInput(message tea.KeyMsg) (tea.Model, tea.Cmd) {
+func (mode *DefaultMode) HandleUserInput(message tea.KeyMsg) (pages.PageContents, tea.Cmd) {
 	model := mode.model
 
 	switch message.String() {
@@ -44,12 +44,11 @@ func (mode *DefaultMode) HandleUserInput(message tea.KeyMsg) (tea.Model, tea.Cmd
 		return model, nil
 
 	case "+":
-		back := func() (tea.Model, tea.Cmd) {
-			return model, nil
+		back := func() tea.Msg {
+			return mode.model.SwitchToPage(mode.model)
 		}
-		newModel := adduser.New(model.Database, model.ScreenSize, back)
-		cmd := newModel.Init()
-		return newModel, cmd
+
+		return model, mode.model.SwitchToPage(adduser.New(back))
 
 	default:
 		return model, nil

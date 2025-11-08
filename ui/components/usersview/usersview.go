@@ -3,6 +3,7 @@ package usersview
 import (
 	"bctbackend/database/models"
 	"bctbackend/ui/components/listview"
+	"bctbackend/ui/pages"
 	"fmt"
 )
 
@@ -46,6 +47,11 @@ func (m *Model) SetWidth(width int) {
 
 func (m *Model) SetHeight(height int) {
 	m.view.SetHeight(height)
+}
+
+func (m *Model) SetSize(size pages.Size) {
+	m.SetWidth(size.Width)
+	m.SetHeight(size.Height)
 }
 
 func (m *Model) SetUsers(users []*models.User) {

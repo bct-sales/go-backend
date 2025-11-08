@@ -2,23 +2,24 @@ package users
 
 import (
 	"bctbackend/database/models"
+	"bctbackend/database/queries"
 	"bctbackend/ui/cell"
 	"bctbackend/ui/components/usersview"
 	"bctbackend/ui/pages"
 	"database/sql"
+	"log/slog"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 type Model struct {
-	pages.Page
+	pages.PageContentsBase
 	users     *cell.Observable[[]*models.User]
 	usersView *usersview.Model
 	mode      pages.Mode
 }
 
-func New(database *sql.DB, screenSize *pages.Size) tea.Model {
+func New() *Model {
 	usersView := usersview.New()
 	users := cell.NewObservable[[]*models.User](nil)
 	users.AddObserver(func() { usersView.SetUsers(users.Get()) })
@@ -26,10 +27,6 @@ func New(database *sql.DB, screenSize *pages.Size) tea.Model {
 	model := Model{
 		users:     users,
 		usersView: usersView,
-		Page: pages.Page{
-			Database:   database,
-			ScreenSize: screenSize,
-		},
 	}
 
 	model.mode = NewDefaultMode(&model)
@@ -38,13 +35,39 @@ func New(database *sql.DB, screenSize *pages.Size) tea.Model {
 }
 
 func (m *Model) Init() tea.Cmd {
-	return fetchUsers(m.Database)
+	slog.Debug("Initializing users page")
+	return m.requestFetchUsers()
 }
 
-func (m *Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
+func (m *Model) requestFetchUsers() tea.Cmd {
+	slog.Debug("Requested a user fetch")
+
+	return m.RequestDatabaseQuery(&fetchUsersQuery{})
+}
+
+type fetchUsersQuery struct{}
+
+func (q *fetchUsersQuery) Perform(database *sql.DB) tea.Msg {
+	slog.Debug("Performing user fetch")
+
+	var users []*models.User
+
+	if err := queries.GetUsers(database, queries.CollectTo(&users)); err != nil {
+		return &databaseErrorMessage{
+			err:     err,
+			message: "failed to fetch users from database",
+		}
+	}
+
+	return usersFetchedMessage{
+		users: users,
+	}
+}
+
+func (m *Model) Update(message tea.Msg) (pages.PageContents, tea.Cmd) {
 	switch message := message.(type) {
 	case tea.WindowSizeMsg:
-		return m.onWindowResized(message)
+		m.onWindowResized(message)
 
 	case tea.KeyMsg:
 		return m.onKeyPressed(message)
@@ -61,27 +84,31 @@ func (m *Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-// onWindowResized handles the tea.WindowSizeMsg message
-func (m *Model) onWindowResized(message tea.WindowSizeMsg) (tea.Model, tea.Cmd) {
+func (m *Model) onWindowResized(message tea.WindowSizeMsg) (pages.PageContents, tea.Cmd) {
 	screenWidth := message.Width
 	screenHeight := message.Height
 
-	m.ScreenSize = pages.NewSize(screenWidth, screenHeight)
-
-	m.usersView.SetWidth(screenWidth)
-	m.usersView.SetHeight(screenHeight - 2)
+	m.usersView.SetSize(pages.Size{
+		Width:  screenWidth,
+		Height: screenHeight - 2,
+	})
 
 	return m, nil
 }
 
 // onKeyPressed handles the tea.KeyMsg message
-func (m *Model) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
+func (m *Model) onKeyPressed(message tea.KeyMsg) (pages.PageContents, tea.Cmd) {
 	return m.mode.HandleUserInput(message)
 }
 
 func (m *Model) View() string {
-	title := m.RenderTitle("Users")
-	mainView := m.mode.View()
+	return m.mode.View()
+}
 
-	return m.AddStatusBar(lipgloss.JoinVertical(0, title, mainView), m.mode.StatusBar())
+func (m *Model) StatusBar() string {
+	return m.mode.StatusBar()
+}
+
+func (m *Model) Title() string {
+	return m.RenderTitle("Users")
 }
