@@ -46,10 +46,10 @@ func (list *UserList) RenderItem(index int, selected bool) string {
 	return rowStyle.Render(userView)
 }
 
-func New() *Model {
+func New() Model {
 	users := UserList{}
 
-	return &Model{
+	return Model{
 		view: listview.New(&users),
 	}
 }

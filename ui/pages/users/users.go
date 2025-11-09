@@ -15,7 +15,7 @@ import (
 type Model struct {
 	pages.Page
 	users     []*models.User
-	usersView *usersview.Model
+	usersView usersview.Model
 	mode      Mode
 }
 
