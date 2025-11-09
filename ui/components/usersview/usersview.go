@@ -4,7 +4,6 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/ui/components/listview"
 	"bctbackend/ui/pages"
-	"log/slog"
 
 	"github.com/charmbracelet/lipgloss"
 )
@@ -38,8 +37,6 @@ func (list *UserList) RenderItem(index int, selected bool) string {
 	roleView := roleStyle.Render(user.RoleID.Name())
 	passwordView := passwordStyle.Render(user.Password)
 	userView := lipgloss.JoinHorizontal(0, userIDView, roleView, " ", passwordView)
-
-	slog.Debug("Rendering item", slog.Int("screen width", list.screenWidth))
 
 	rowStyle := lipgloss.NewStyle().Width(list.screenWidth).AlignHorizontal(lipgloss.Center)
 	if selected {
