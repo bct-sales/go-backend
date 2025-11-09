@@ -10,7 +10,7 @@ import (
 )
 
 type Model struct {
-	view *listview.Model
+	view listview.Model
 }
 
 type UserList struct {

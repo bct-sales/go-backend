@@ -16,8 +16,8 @@ type Model struct {
 	selected   int
 }
 
-func New(list List) *Model {
-	return &Model{
+func New(list List) Model {
+	return Model{
 		list:       list,
 		height:     0,
 		firstShown: 0,
@@ -25,7 +25,7 @@ func New(list List) *Model {
 	}
 }
 
-func (m *Model) View() string {
+func (m Model) View() string {
 	if m.list == nil || m.list.Len() == 0 {
 		return ""
 	}
