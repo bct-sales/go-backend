@@ -6,27 +6,22 @@ import (
 
 type List interface {
 	Len() int
-	RenderItem(index int) string
+	RenderItem(index int, selected bool) string
 }
 
 type Model struct {
-	list            List
-	width           int
-	height          int
-	firstShown      int
-	selected        int
-	selectedStyle   lipgloss.Style
-	unselectedStyle lipgloss.Style
+	list       List
+	height     int
+	firstShown int
+	selected   int
 }
 
 func New(list List) *Model {
 	return &Model{
-		list:            list,
-		height:          0,
-		firstShown:      0,
-		selected:        0,
-		selectedStyle:   lipgloss.NewStyle(),
-		unselectedStyle: lipgloss.NewStyle(),
+		list:       list,
+		height:     0,
+		firstShown: 0,
+		selected:   0,
 	}
 }
 
@@ -70,27 +65,13 @@ func (m *Model) View() string {
 }
 
 func (m *Model) renderItem(index int) string {
-	item := m.list.RenderItem(index)
 	isItemSelected := index == m.selected
 
-	var style *lipgloss.Style
-	if isItemSelected {
-		style = &m.selectedStyle
-	} else {
-		style = &m.unselectedStyle
-	}
-
-	return style.Render(item)
-}
-
-func (m *Model) SetWidth(width int) {
-	m.width = width
-	m.layoutUpdated()
+	return m.list.RenderItem(index, isItemSelected)
 }
 
 func (m *Model) SetHeight(height int) {
 	m.height = height
-	m.layoutUpdated()
 }
 
 func (m *Model) SetList(list List) {
@@ -99,13 +80,6 @@ func (m *Model) SetList(list List) {
 
 func (m *Model) GetList() List {
 	return m.list
-}
-
-func (m *Model) layoutUpdated() {
-	basicStyle := lipgloss.NewStyle().Width(m.width)
-
-	m.unselectedStyle = basicStyle
-	m.selectedStyle = basicStyle.Background(lipgloss.Color("#AAAAAA"))
 }
 
 func (m *Model) Selected() int {
