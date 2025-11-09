@@ -4,17 +4,18 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/ui/components/listview"
 	"bctbackend/ui/pages"
-	"fmt"
 
 	"github.com/charmbracelet/lipgloss"
 )
 
 type Model struct {
-	view listview.Model
+	view  listview.Model
+	users []*models.User
 }
 
 type UserList struct {
-	users []*models.User
+	users       []*models.User
+	screenWidth int
 }
 
 func (list *UserList) Len() int {
@@ -26,8 +27,15 @@ func (list *UserList) RenderItem(index int, selected bool) string {
 		panic("out of range")
 	}
 
+	userIDStyle := lipgloss.NewStyle().Width(5).AlignHorizontal(lipgloss.Right)
+	roleStyle := lipgloss.NewStyle().Width(10).AlignHorizontal(lipgloss.Right)
+	passwordStyle := lipgloss.NewStyle().Width(20).AlignHorizontal(lipgloss.Left)
+
 	user := list.users[index]
-	userView := fmt.Sprintf("[%4d] %s %s", user.UserID, user.RoleID.Name(), user.Password)
+	userIDView := userIDStyle.Render(user.UserID.String())
+	roleView := roleStyle.Render(user.RoleID.Name())
+	passwordView := passwordStyle.Render(user.Password)
+	userView := lipgloss.JoinHorizontal(0, userIDView, roleView, " ", passwordView)
 
 	if selected {
 		style := lipgloss.NewStyle().Background(lipgloss.Color("#AAAAAA"))
