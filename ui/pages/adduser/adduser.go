@@ -10,10 +10,10 @@ import (
 )
 
 type Model struct {
-	pages.PageContentsBase
+	pages.Page
 	components Components
 	tabIndex   int
-	back       tea.Cmd
+	back       tea.Model
 }
 
 type Components struct {
@@ -27,7 +27,7 @@ type Focusable interface {
 	Focus() tea.Cmd
 }
 
-func New(back tea.Cmd) Model {
+func New(back tea.Model) Model {
 	model := Model{
 		components: Components{
 			userID:   textinput.New(),
@@ -47,33 +47,42 @@ func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-func (model Model) Update(message tea.Msg) (pages.PageContents, tea.Cmd) {
+func (model Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	resultingCommands := []tea.Cmd{}
+
+	{
+		m, cmd := model.components.userID.Update(message)
+		model.components.userID = m
+		resultingCommands = append(resultingCommands, cmd)
+	}
+
+	{
+		m, cmd := model.components.role.Update(message)
+		model.components.role = m
+		resultingCommands = append(resultingCommands, cmd)
+	}
+
+	{
+		m, cmd := model.components.password.Update(message)
+		model.components.password = m
+		resultingCommands = append(resultingCommands, cmd)
+	}
 
 	switch message := message.(type) {
 	case tea.KeyMsg:
 		updated, c := model.onKeyPressed(message)
-		model = updated
 		resultingCommands = append(resultingCommands, c)
+		return updated, tea.Batch(resultingCommands...)
 	}
-
-	updatedUserID, userIDCommand := model.components.userID.Update(message)
-	updatedRole, roleCommand := model.components.role.Update(message)
-	updatedPassword, passwordCommand := model.components.password.Update(message)
-	resultingCommands = append(resultingCommands, userIDCommand, roleCommand, passwordCommand)
-
-	model.components.userID = updatedUserID
-	model.components.role = updatedRole
-	model.components.password = updatedPassword
 
 	return model, tea.Batch(resultingCommands...)
 }
 
 // onKeyPressed handles the tea.KeyMsg message
-func (m Model) onKeyPressed(message tea.KeyMsg) (Model, tea.Cmd) {
+func (m Model) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch message.String() {
 	case "esc":
-		return m, m.back
+		return m.back, m.back.Init()
 
 	case "tab", "down":
 		return m.moveFocusToNextComponent()

@@ -7,24 +7,25 @@ import (
 	"bctbackend/ui/components/usersview"
 	"bctbackend/ui/pages"
 	"database/sql"
-	"log/slog"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type Model struct {
-	pages.PageContentsBase
+	pages.Page
 	users     *cell.Observable[[]*models.User]
 	usersView *usersview.Model
 	mode      Mode
 }
 
-func New() Model {
+func New(database *sql.DB) Model {
 	usersView := usersview.New()
 	users := cell.NewObservable[[]*models.User](nil)
 	users.AddObserver(func() { usersView.SetUsers(users.Get()) })
 
 	model := Model{
+		Page:      pages.New(database),
 		users:     users,
 		usersView: usersView,
 		mode:      NewDefaultMode(),
@@ -33,81 +34,73 @@ func New() Model {
 	return model
 }
 
-func (m Model) Init() tea.Cmd {
-	slog.Debug("Initializing users page")
-	return m.requestFetchUsers()
+func (model Model) Init() tea.Cmd {
+	return model.requestFetchUsers()
 }
 
-func (m Model) requestFetchUsers() tea.Cmd {
-	slog.Debug("Requested a user fetch")
+func (model Model) requestFetchUsers() tea.Cmd {
+	return func() tea.Msg {
+		var users []*models.User
 
-	return m.RequestDatabaseQuery(&fetchUsersQuery{})
-}
+		if err := queries.GetUsers(model.Database, queries.CollectTo(&users)); err != nil {
+			return &databaseErrorMessage{
+				err:     err,
+				message: "failed to fetch users from database",
+			}
+		}
 
-type fetchUsersQuery struct{}
-
-func (q *fetchUsersQuery) Perform(database *sql.DB) tea.Msg {
-	slog.Debug("Performing user fetch")
-
-	var users []*models.User
-
-	if err := queries.GetUsers(database, queries.CollectTo(&users)); err != nil {
-		return &databaseErrorMessage{
-			err:     err,
-			message: "failed to fetch users from database",
+		return usersFetchedMessage{
+			users: users,
 		}
 	}
-
-	return usersFetchedMessage{
-		users: users,
-	}
 }
 
-func (m Model) Update(message tea.Msg) (pages.PageContents, tea.Cmd) {
+func (model Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	switch message := message.(type) {
 	case tea.WindowSizeMsg:
-		m.onWindowResized(message)
+		model.onWindowResized(message)
 
 	case tea.KeyMsg:
-		return m.onKeyPressed(message)
+		return model.onKeyPressed(message)
 
 	case usersFetchedMessage:
-		m.users.Set(message.users)
+		model.users.Set(message.users)
 
-		return m, nil
+		return model, nil
 
 	case databaseErrorMessage:
-		return m, tea.Quit
+		return model, tea.Quit
 	}
 
-	return m, nil
+	return model, nil
 }
 
-func (m Model) onWindowResized(message tea.WindowSizeMsg) (Model, tea.Cmd) {
+func (model Model) onWindowResized(message tea.WindowSizeMsg) (Model, tea.Cmd) {
 	screenWidth := message.Width
 	screenHeight := message.Height
 
-	m.usersView.SetSize(pages.Size{
+	model.usersView.SetSize(pages.Size{
 		Width:  screenWidth,
 		Height: screenHeight - 2,
 	})
 
-	return m, nil
+	return model, nil
 }
 
 // onKeyPressed handles the tea.KeyMsg message
-func (m Model) onKeyPressed(message tea.KeyMsg) (Model, tea.Cmd) {
-	return m.mode.HandleUserInput(m, message)
+func (model Model) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
+	return model.mode.HandleUserInput(model, message)
 }
 
-func (m Model) View() string {
-	return m.mode.View(m)
-}
+func (model Model) View() string {
+	titleView := model.RenderTitle("Users")
+	mainView := model.mode.View(&model)
+	statusBarView := model.mode.StatusBar(&model)
 
-func (m Model) StatusBar() string {
-	return m.mode.StatusBar(m)
-}
+	titleViewHeight := lipgloss.Height(titleView)
+	statusBarHeight := lipgloss.Height(statusBarView)
+	remainingHeight := model.ScreenSize.Height - titleViewHeight - statusBarHeight
+	mainViewStyle := lipgloss.NewStyle().Height(remainingHeight)
 
-func (m Model) Title() string {
-	return m.RenderTitle("Users")
+	return lipgloss.JoinVertical(0, titleView, mainViewStyle.Render(mainView), statusBarView)
 }

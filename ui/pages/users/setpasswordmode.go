@@ -19,12 +19,12 @@ func NewSetPasswordMode() Mode {
 	textInput.Focus()
 	textInput.Prompt = "Enter new password> "
 
-	return &SetPasswordMode{
+	return SetPasswordMode{
 		textInput: textInput,
 	}
 }
 
-func (mode SetPasswordMode) HandleUserInput(model Model, message tea.KeyMsg) (Model, tea.Cmd) {
+func (mode SetPasswordMode) HandleUserInput(model Model, message tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch message.String() {
 	case "enter":
 		index := model.usersView.Selected()
@@ -32,7 +32,7 @@ func (mode SetPasswordMode) HandleUserInput(model Model, message tea.KeyMsg) (Mo
 		password := mode.textInput.Value()
 
 		model.mode = NewDefaultMode()
-		return model, mode.requestUpdateUserPassword(model, updatedUser.UserID, password)
+		return model, mode.requestUpdateUserPassword(model.Database, updatedUser.UserID, password)
 
 	case "esc":
 		model.mode = NewDefaultMode()
@@ -46,19 +46,39 @@ func (mode SetPasswordMode) HandleUserInput(model Model, message tea.KeyMsg) (Mo
 	}
 }
 
-func (mode SetPasswordMode) View(model Model) string {
+func (mode SetPasswordMode) View(model *Model) string {
 	return model.usersView.View()
 }
 
-func (mode SetPasswordMode) StatusBar(model Model) string {
+func (mode SetPasswordMode) StatusBar(model *Model) string {
 	return mode.textInput.View()
 }
 
-func (mode *SetPasswordMode) requestUpdateUserPassword(model Model, userID models.ID, password string) tea.Cmd {
-	slog.Debug("Creating request to update user password", slog.Int64("userID", userID.Int64()), slog.String("password", password))
-	query := updatePasswordQuery{userID, password}
+func (mode *SetPasswordMode) requestUpdateUserPassword(database *sql.DB, userID models.ID, password string) tea.Cmd {
+	return func() tea.Msg {
+		if err := queries.UpdateUserPassword(database, userID, password); err != nil {
+			slog.Error("Failed to update user password", slog.Any("error", err))
 
-	return model.RequestDatabaseQuery(&query)
+			return &databaseErrorMessage{
+				err:     err,
+				message: "failed to update user password",
+			}
+		}
+
+		var users []*models.User
+		if err := queries.GetUsers(database, queries.CollectTo(&users)); err != nil {
+			slog.Error("Failed to fetch updated user information", slog.Any("error", err))
+
+			return &databaseErrorMessage{
+				err:     err,
+				message: "failed to fetch users from database",
+			}
+		}
+
+		return usersFetchedMessage{
+			users: users,
+		}
+	}
 }
 
 type updatePasswordQuery struct {

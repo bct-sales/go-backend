@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"bctbackend/ui/pages"
 	"bctbackend/ui/pages/users"
 	"database/sql"
 	"fmt"
@@ -23,13 +22,9 @@ func Start(database *sql.DB) error {
 	slog.SetDefault(logger)
 	slog.Debug("Starting application")
 
-	initialPage := pages.Page{
-		Database:   database,
-		ScreenSize: pages.NewSize(0, 0),
-		Contents:   users.New(),
-	}
+	initialPage := users.New(database)
 
-	program := tea.NewProgram(&initialPage, tea.WithAltScreen())
+	program := tea.NewProgram(initialPage, tea.WithAltScreen())
 	if _, err := program.Run(); err != nil {
 		return err
 	}

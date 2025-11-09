@@ -21,7 +21,7 @@ func NewDefaultMode() Mode {
 	}
 }
 
-func (mode DefaultMode) HandleUserInput(model Model, message tea.KeyMsg) (Model, tea.Cmd) {
+func (mode DefaultMode) HandleUserInput(model Model, message tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch message.String() {
 	case "q":
 		return model, tea.Quit
@@ -39,21 +39,21 @@ func (mode DefaultMode) HandleUserInput(model Model, message tea.KeyMsg) (Model,
 		return model, nil
 
 	case "+":
-		back := func() tea.Msg {
-			return model.RequestSwitchToPage(model)()
-		}
-
-		return model, model.RequestSwitchToPage(adduser.New(back))
+		return mode.onAddUser(model)
 
 	default:
 		return model, nil
 	}
 }
 
-func (mode DefaultMode) View(model Model) string {
+func (mode DefaultMode) View(model *Model) string {
 	return model.usersView.View()
 }
 
-func (mode DefaultMode) StatusBar(model Model) string {
+func (mode DefaultMode) StatusBar(model *Model) string {
 	return mode.statusBar.View()
+}
+
+func (mode *DefaultMode) onAddUser(model Model) (tea.Model, tea.Cmd) {
+	return adduser.New(model), nil
 }
