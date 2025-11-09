@@ -3,10 +3,10 @@ package users
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
-	"bctbackend/ui/cell"
 	"bctbackend/ui/components/usersview"
 	"bctbackend/ui/pages"
 	"database/sql"
+	"log/slog"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -14,19 +14,17 @@ import (
 
 type Model struct {
 	pages.Page
-	users     *cell.Observable[[]*models.User]
+	users     []*models.User
 	usersView *usersview.Model
 	mode      Mode
 }
 
 func New(database *sql.DB) Model {
 	usersView := usersview.New()
-	users := cell.NewObservable[[]*models.User](nil)
-	users.AddObserver(func() { usersView.SetUsers(users.Get()) })
 
 	model := Model{
 		Page:      pages.New(database),
-		users:     users,
+		users:     nil,
 		usersView: usersView,
 		mode:      NewDefaultMode(),
 	}
@@ -58,13 +56,14 @@ func (model Model) requestFetchUsers() tea.Cmd {
 func (model Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	switch message := message.(type) {
 	case tea.WindowSizeMsg:
-		model.onWindowResized(message)
+		return model.onWindowResized(message), nil
 
 	case tea.KeyMsg:
 		return model.onKeyPressed(message)
 
 	case usersFetchedMessage:
-		model.users.Set(message.users)
+		model.users = message.users
+		model.usersView.SetUsers(model.users)
 
 		return model, nil
 
@@ -75,7 +74,9 @@ func (model Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	return model, nil
 }
 
-func (model Model) onWindowResized(message tea.WindowSizeMsg) (Model, tea.Cmd) {
+func (model Model) onWindowResized(message tea.WindowSizeMsg) tea.Model {
+	slog.Debug("Window resized", "message", message)
+
 	screenWidth := message.Width
 	screenHeight := message.Height
 
@@ -84,7 +85,7 @@ func (model Model) onWindowResized(message tea.WindowSizeMsg) (Model, tea.Cmd) {
 		Height: screenHeight - 2,
 	})
 
-	return model, nil
+	return model
 }
 
 // onKeyPressed handles the tea.KeyMsg message

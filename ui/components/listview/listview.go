@@ -1,6 +1,8 @@
 package listview
 
 import (
+	"log/slog"
+
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -33,6 +35,8 @@ func (m Model) View() string {
 	if m.firstShown > m.selected || m.selected >= m.list.Len() {
 		panic("bug detected")
 	}
+
+	slog.Debug("Rendering listview", "screen height", m.height)
 
 	index := m.firstShown
 	accumulatedHeight := 0

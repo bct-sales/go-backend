@@ -4,13 +4,15 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/ui/components/listview"
 	"bctbackend/ui/pages"
+	"log/slog"
 
 	"github.com/charmbracelet/lipgloss"
 )
 
 type Model struct {
-	view  listview.Model
-	users []*models.User
+	view       listview.Model
+	users      []*models.User
+	screenSize pages.Size
 }
 
 type UserList struct {
@@ -29,7 +31,7 @@ func (list *UserList) RenderItem(index int, selected bool) string {
 
 	userIDStyle := lipgloss.NewStyle().Width(5).AlignHorizontal(lipgloss.Right)
 	roleStyle := lipgloss.NewStyle().Width(10).AlignHorizontal(lipgloss.Right)
-	passwordStyle := lipgloss.NewStyle().Width(20).AlignHorizontal(lipgloss.Left)
+	passwordStyle := lipgloss.NewStyle().Width(10).AlignHorizontal(lipgloss.Left)
 
 	user := list.users[index]
 	userIDView := userIDStyle.Render(user.UserID.String())
@@ -37,12 +39,14 @@ func (list *UserList) RenderItem(index int, selected bool) string {
 	passwordView := passwordStyle.Render(user.Password)
 	userView := lipgloss.JoinHorizontal(0, userIDView, roleView, " ", passwordView)
 
+	slog.Debug("Rendering item", slog.Int("screen width", list.screenWidth))
+
+	rowStyle := lipgloss.NewStyle().Width(list.screenWidth).AlignHorizontal(lipgloss.Center)
 	if selected {
-		style := lipgloss.NewStyle().Background(lipgloss.Color("#AAAAAA"))
-		userView = style.Render(userView)
+		rowStyle = rowStyle.Background(lipgloss.Color("#AAAAAA"))
 	}
 
-	return userView
+	return rowStyle.Render(userView)
 }
 
 func New() *Model {
@@ -58,13 +62,20 @@ func (m *Model) View() string {
 }
 
 func (m *Model) SetSize(size pages.Size) {
+	m.screenSize = size
 	m.view.SetHeight(size.Height)
+	m.view.SetList(m.createUserListAdapter())
 }
 
 func (m *Model) SetUsers(users []*models.User) {
-	wrapper := UserList{users: users}
+	m.users = users
+	wrapper := m.createUserListAdapter()
 
-	m.view.SetList(&wrapper)
+	m.view.SetList(wrapper)
+}
+
+func (m *Model) createUserListAdapter() listview.List {
+	return &UserList{users: m.users, screenWidth: m.screenSize.Width}
 }
 
 func (m *Model) Selected() int {
