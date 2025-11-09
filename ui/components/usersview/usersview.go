@@ -38,7 +38,7 @@ func (list *UserList) RenderItem(index int, selected bool) string {
 	passwordView := passwordStyle.Render(user.Password)
 	userView := lipgloss.JoinHorizontal(0, userIDView, roleView, " ", passwordView)
 
-	rowStyle := lipgloss.NewStyle().Width(list.screenWidth).AlignHorizontal(lipgloss.Center)
+	rowStyle := lipgloss.NewStyle().Width(list.screenWidth)
 	if selected {
 		rowStyle = rowStyle.Background(lipgloss.Color("#AAAAAA"))
 	}
