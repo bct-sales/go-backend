@@ -19,7 +19,7 @@ func (list *UserList) Len() int {
 	return len(list.users)
 }
 
-func (list *UserList) Item(index int) string {
+func (list *UserList) RenderItem(index int) string {
 	if index >= list.Len() {
 		panic("out of range")
 	}

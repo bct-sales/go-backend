@@ -6,7 +6,7 @@ import (
 
 type List interface {
 	Len() int
-	Item(index int) string
+	RenderItem(index int) string
 }
 
 type Model struct {
@@ -70,7 +70,7 @@ func (m *Model) View() string {
 }
 
 func (m *Model) renderItem(index int) string {
-	item := m.list.Item(index)
+	item := m.list.RenderItem(index)
 	isItemSelected := index == m.selected
 
 	var style *lipgloss.Style
