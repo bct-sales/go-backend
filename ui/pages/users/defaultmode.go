@@ -4,6 +4,7 @@ import (
 	"bctbackend/ui/components/statusbar"
 	"bctbackend/ui/pages/adduser"
 
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -21,25 +22,58 @@ func NewDefaultMode() Mode {
 	}
 }
 
+type keyMap struct {
+	quit           key.Binding
+	setPassword    key.Binding
+	addUser        key.Binding
+	selectNext     key.Binding
+	selectPrevious key.Binding
+}
+
+var defaultKeyMap = keyMap{
+	quit: key.NewBinding(
+		key.WithKeys("q"),
+		key.WithHelp("q", "quit"),
+	),
+	setPassword: key.NewBinding(
+		key.WithKeys("P"),
+		key.WithHelp("P", "set password"),
+	),
+	addUser: key.NewBinding(
+		key.WithKeys("+"),
+		key.WithHelp("+", "add user"),
+	),
+	selectPrevious: key.NewBinding(
+		key.WithKeys("up"),
+		key.WithHelp("↑", "up"),
+	),
+	selectNext: key.NewBinding(
+		key.WithKeys("down"),
+		key.WithHelp("↓", "down"),
+	),
+}
+
 func (mode DefaultMode) HandleUserInput(model Model, message tea.KeyMsg) (tea.Model, tea.Cmd) {
-	switch message.String() {
-	case "q":
+	keyMap := defaultKeyMap
+
+	switch {
+	case key.Matches(message, keyMap.quit):
 		return model, tea.Quit
 
-	case "down":
-		model.usersView.MoveDown()
-		return model, nil
-
-	case "up":
-		model.usersView.MoveUp()
-		return model, nil
-
-	case "P":
+	case key.Matches(message, keyMap.setPassword):
 		model.mode = NewSetPasswordMode()
 		return model, nil
 
-	case "+":
+	case key.Matches(message, keyMap.addUser):
 		return mode.onAddUser(model)
+
+	case key.Matches(message, keyMap.selectNext):
+		model.usersView.MoveDown()
+		return model, nil
+
+	case key.Matches(message, keyMap.selectPrevious):
+		model.usersView.MoveUp()
+		return model, nil
 
 	default:
 		return model, nil
