@@ -49,15 +49,9 @@ func New(database *sql.DB, screenSize pages.Size, back func() (tea.Model, tea.Cm
 		back:     back,
 	}
 
-	model.components.userID.Validate = isValidUserID
 	model.components.userID.Focus()
 
 	return model
-}
-
-func isValidUserID(s string) error {
-	_, err := models.ParseID(s)
-	return err
 }
 
 func (m Model) Init() tea.Cmd {
