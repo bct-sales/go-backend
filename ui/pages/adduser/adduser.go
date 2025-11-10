@@ -3,8 +3,11 @@ package adduser
 import (
 	"bctbackend/algorithms"
 	"bctbackend/database/models"
+	"bctbackend/database/queries"
 	"bctbackend/ui/components/selector"
 	"bctbackend/ui/pages"
+	"database/sql"
+	"log/slog"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -15,7 +18,7 @@ type Model struct {
 	pages.Page
 	components Components
 	tabIndex   int
-	back       tea.Model
+	back       func() (tea.Model, tea.Cmd)
 }
 
 type Components struct {
@@ -29,10 +32,14 @@ type Focusable interface {
 	Focus() tea.Cmd
 }
 
-func New(back tea.Model) Model {
+func New(database *sql.DB, screenSize pages.Size, back func() (tea.Model, tea.Cmd)) Model {
 	roles := algorithms.Map(models.ListRoles(), func(roleID models.RoleID) RoleOption { return RoleOption{roleID} })
 
 	model := Model{
+		Page: pages.Page{
+			Database:   database,
+			ScreenSize: screenSize,
+		},
 		components: Components{
 			userID:   textinput.New(),
 			role:     selector.New(roles),
@@ -42,9 +49,15 @@ func New(back tea.Model) Model {
 		back:     back,
 	}
 
+	model.components.userID.Validate = isValidUserID
 	model.components.userID.Focus()
 
 	return model
+}
+
+func isValidUserID(s string) error {
+	_, err := models.ParseID(s)
+	return err
 }
 
 func (m Model) Init() tea.Cmd {
@@ -77,6 +90,9 @@ func (model Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		updated, c := model.onKeyPressed(message)
 		resultingCommands = append(resultingCommands, c)
 		return updated, tea.Batch(resultingCommands...)
+
+	case userAddedSuccessfullyMessage:
+		return model.back()
 	}
 
 	return model, tea.Batch(resultingCommands...)
@@ -85,7 +101,7 @@ func (model Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch message.String() {
 	case "esc":
-		return m.back, m.back.Init()
+		return m.back()
 
 	case "tab", "down":
 		return m.moveFocusToNextComponent()
@@ -155,9 +171,36 @@ func (m Model) Title() string {
 }
 
 func (m Model) onAddUser() (tea.Model, tea.Cmd) {
-	// command := func() tea.Msg {
-	// 	queries.AddUserWithID(m.Database, userID, roleID, )
-	// }
+	userID, err := models.ParseID(m.components.userID.Value())
+	if err != nil {
+		slog.Error("Invalid user identifier while adding user")
+		panic("invalid id")
+	}
 
-	return m.back, nil
+	roleID := m.components.role.GetSelected().roleId
+	password := m.components.password.Value()
+	createdAt := models.Now()
+
+	command := func() tea.Msg {
+		slog.Debug(
+			"Adding user",
+			slog.Int64("userID", userID.Int64()),
+			slog.String("role", roleID.Name()),
+			slog.String("password", password),
+			slog.String("createdAt", createdAt.FormattedDateTime()),
+		)
+
+		err := queries.AddUserWithID(m.Database, userID, roleID, createdAt, nil, password)
+
+		if err != nil {
+			slog.Error("Database error while adding new user", slog.Any("error", err))
+			panic("error occurred")
+		}
+
+		return userAddedSuccessfullyMessage{}
+	}
+
+	return m, command
 }
+
+type userAddedSuccessfullyMessage struct{}
