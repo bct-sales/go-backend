@@ -143,7 +143,7 @@ func (model Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) showErrorMessage(message string) (tea.Model, tea.Cmd) {
 	statusBar := textviewer.New()
 	statusBar.SetText(message)
-	statusBar.SetStyle(lipgloss.NewStyle().Background(lipgloss.Color("#FFAAAA")))
+	statusBar.SetStyle(lipgloss.NewStyle().Background(lipgloss.Color("#FF0000")).Width(m.ScreenSize.Width))
 	m.components.statusBar = statusBar
 	return m, statusBar.Init()
 }
