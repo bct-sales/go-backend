@@ -11,6 +11,7 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -33,6 +34,32 @@ type Components struct {
 type Focusable interface {
 	Blur()
 	Focus() tea.Cmd
+}
+
+type KeyBindings struct {
+	Cancel   key.Binding
+	AddUser  key.Binding
+	Next     key.Binding
+	Previous key.Binding
+}
+
+var DefaultKeyBindings = KeyBindings{
+	AddUser: key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", "add user"),
+	),
+	Next: key.NewBinding(
+		key.WithKeys("tab", "down"),
+		key.WithHelp("tab", "down"),
+	),
+	Previous: key.NewBinding(
+		key.WithKeys("shift+tab", "up"),
+		key.WithHelp("shift+tab", "up"),
+	),
+	Cancel: key.NewBinding(
+		key.WithKeys("esc"),
+		key.WithHelp("esc", "cancel"),
+	),
 }
 
 func New(database *sql.DB, screenSize pages.Size, back func() (tea.Model, tea.Cmd)) Model {
@@ -100,17 +127,19 @@ func (model Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
-	switch message.String() {
-	case "esc":
+	keyBindings := DefaultKeyBindings
+
+	switch {
+	case key.Matches(message, keyBindings.Cancel):
 		return m.back()
 
-	case "tab", "down":
+	case key.Matches(message, keyBindings.Next):
 		return m.moveFocusToNextComponent()
 
-	case "shift+tab", "up":
+	case key.Matches(message, keyBindings.Previous):
 		return m.moveFocusToPreviousComponent()
 
-	case "enter":
+	case key.Matches(message, keyBindings.AddUser):
 		return m.onAddUser()
 
 	default:
