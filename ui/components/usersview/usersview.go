@@ -8,6 +8,12 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+const (
+	userIDColumnWidth       = 5
+	roleColumnWidth         = 10
+	lastActivityColumnWidth = 30
+)
+
 type Model struct {
 	view       listview.Model
 	users      []*models.User
@@ -28,16 +34,17 @@ func (list *UserList) RenderItem(index int, selected bool) string {
 		panic("out of range")
 	}
 
-	userIDStyle := lipgloss.NewStyle().Width(5).AlignHorizontal(lipgloss.Right)
-	roleStyle := lipgloss.NewStyle().Width(10).AlignHorizontal(lipgloss.Right)
+	userIDStyle := lipgloss.NewStyle().Width(userIDColumnWidth).AlignHorizontal(lipgloss.Right)
+	roleStyle := lipgloss.NewStyle().Width(roleColumnWidth).AlignHorizontal(lipgloss.Right)
+	lastActivityStyle := lipgloss.NewStyle().Width(lastActivityColumnWidth).AlignHorizontal(lipgloss.Right)
 	passwordStyle := lipgloss.NewStyle().Width(10).AlignHorizontal(lipgloss.Left)
 
 	user := list.users[index]
 	userIDView := userIDStyle.Render(user.UserID.String())
 	roleView := roleStyle.Render(user.RoleID.Name())
 	passwordView := passwordStyle.Render(user.Password)
-	lastActivityView := list.renderLastActivity(user)
-	userView := lipgloss.JoinHorizontal(0, userIDView, roleView, " ", passwordView, " ", lastActivityView)
+	lastActivityView := lastActivityStyle.Render(list.renderLastActivity(user))
+	userView := lipgloss.JoinHorizontal(0, userIDView, roleView, " ", lastActivityView, " ", passwordView)
 
 	rowStyle := lipgloss.NewStyle().Width(list.screenWidth)
 	if selected {
@@ -48,7 +55,7 @@ func (list *UserList) RenderItem(index int, selected bool) string {
 }
 
 func (list *UserList) renderLastActivity(user *models.User) string {
-	lastActivityStyle := lipgloss.NewStyle()
+	lastActivityStyle := lipgloss.NewStyle().Width(lastActivityColumnWidth)
 
 	var lastActivityString string
 	if user.LastActivity != nil {
