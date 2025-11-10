@@ -85,7 +85,7 @@ func New() Model {
 	}
 }
 
-func (m *Model) View() string {
+func (m Model) View() string {
 	return m.view.View()
 }
 
