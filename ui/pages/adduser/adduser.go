@@ -78,7 +78,6 @@ func (model Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 	return model, tea.Batch(resultingCommands...)
 }
 
-// onKeyPressed handles the tea.KeyMsg message
 func (m Model) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch message.String() {
 	case "esc":

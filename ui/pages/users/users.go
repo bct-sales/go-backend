@@ -90,7 +90,6 @@ func (model Model) onWindowResized(message tea.WindowSizeMsg) tea.Model {
 	return model
 }
 
-// onKeyPressed handles the tea.KeyMsg message
 func (model Model) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return model.mode.HandleUserInput(model, message)
 }
