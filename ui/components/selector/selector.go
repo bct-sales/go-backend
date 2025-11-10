@@ -121,3 +121,7 @@ func (m *Model[T]) Focus() tea.Cmd {
 func (m *Model[T]) Blur() {
 	m.hasFocus = false
 }
+
+func (m *Model[T]) GetSelected() T {
+	return m.options[m.selectedIndex]
+}
