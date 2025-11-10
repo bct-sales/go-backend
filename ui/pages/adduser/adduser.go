@@ -2,11 +2,13 @@ package adduser
 
 import (
 	"bctbackend/algorithms"
+	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/ui/components/selector"
 	"bctbackend/ui/pages"
 	"database/sql"
+	"errors"
 	"log/slog"
 
 	"github.com/charmbracelet/bubbles/textinput"
@@ -16,9 +18,10 @@ import (
 
 type Model struct {
 	pages.Page
-	components Components
-	tabIndex   int
-	back       func() (tea.Model, tea.Cmd)
+	components   Components
+	tabIndex     int
+	back         func() (tea.Model, tea.Cmd)
+	errorMessage string
 }
 
 type Components struct {
@@ -85,8 +88,12 @@ func (model Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		resultingCommands = append(resultingCommands, c)
 		return updated, tea.Batch(resultingCommands...)
 
-	case userAddedSuccessfullyMessage:
+	case successMessage:
 		return model.back()
+
+	case failureMessage:
+		model.errorMessage = message.message
+		return model, nil
 	}
 
 	return model, tea.Batch(resultingCommands...)
@@ -145,7 +152,7 @@ func (m Model) moveFocusToNextComponent() (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return lipgloss.JoinVertical(
+	mainView := lipgloss.JoinVertical(
 		0,
 		"User ID",
 		m.components.userID.View(),
@@ -154,6 +161,23 @@ func (m Model) View() string {
 		"Password",
 		m.components.password.View(),
 	)
+
+	statusBar := m.renderStatusBar()
+
+	return lipgloss.JoinVertical(
+		0,
+		lipgloss.NewStyle().Height(m.ScreenSize.Height-1).Render(mainView),
+		statusBar,
+	)
+}
+
+func (m *Model) renderStatusBar() string {
+	if len(m.errorMessage) == 0 {
+		return ""
+	}
+
+	style := lipgloss.NewStyle().Background(lipgloss.Color("#FF0000")).Width(m.ScreenSize.Width)
+	return style.Render(m.errorMessage)
 }
 
 func (m Model) StatusBar() string {
@@ -168,7 +192,8 @@ func (m Model) onAddUser() (tea.Model, tea.Cmd) {
 	userID, err := models.ParseID(m.components.userID.Value())
 	if err != nil {
 		slog.Error("Invalid user identifier while adding user")
-		panic("invalid id")
+		m.errorMessage = "Invalid user id"
+		return m, nil
 	}
 
 	roleID := m.components.role.GetSelected().roleId
@@ -188,13 +213,22 @@ func (m Model) onAddUser() (tea.Model, tea.Cmd) {
 
 		if err != nil {
 			slog.Error("Database error while adding new user", slog.Any("error", err))
-			panic("error occurred")
+
+			if errors.Is(err, dberr.ErrIDAlreadyInUse) {
+				return failureMessage{"ID already in use"}
+			}
+
+			return failureMessage{"A database error occurred"}
 		}
 
-		return userAddedSuccessfullyMessage{}
+		return successMessage{}
 	}
 
 	return m, command
 }
 
-type userAddedSuccessfullyMessage struct{}
+type successMessage struct{}
+
+type failureMessage struct {
+	message string
+}
