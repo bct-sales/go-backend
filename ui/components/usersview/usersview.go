@@ -34,14 +34,13 @@ func (list *UserList) RenderItem(index int, selected bool) string {
 		panic("out of range")
 	}
 
-	lastActivityStyle := lipgloss.NewStyle().Width(lastActivityColumnWidth).AlignHorizontal(lipgloss.Right)
 	passwordStyle := lipgloss.NewStyle()
 
 	user := list.users[index]
 	userIDView := list.renderUserID(user.UserID)
 	roleView := list.renderRole(user.RoleID)
 	passwordView := passwordStyle.Render(user.Password)
-	lastActivityView := lastActivityStyle.Render(list.renderLastActivity(user.LastActivity))
+	lastActivityView := list.renderLastActivity(user.LastActivity)
 	userView := lipgloss.JoinHorizontal(0, userIDView, roleView, " ", lastActivityView, " ", passwordView)
 
 	rowStyle := lipgloss.NewStyle().Width(list.screenWidth)
