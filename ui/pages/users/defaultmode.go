@@ -1,7 +1,7 @@
 package users
 
 import (
-	"bctbackend/ui/components/statusbar"
+	"bctbackend/ui/components/kbviewer"
 	"bctbackend/ui/pages/adduser"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -9,13 +9,18 @@ import (
 )
 
 type DefaultMode struct {
-	statusBar *statusbar.Model
+	statusBar kbviewer.Model
 }
 
 func NewDefaultMode() Mode {
-	statusBar := statusbar.New()
-	statusBar.AddKeyBinding("P", "Set password")
-	statusBar.AddKeyBinding("+", "Add user")
+	keyBindings := defaultKeyMap
+
+	statusBar := kbviewer.New()
+	statusBar.AddKeyBindings(
+		keyBindings.addUser,
+		keyBindings.setPassword,
+		keyBindings.quit,
+	)
 
 	return DefaultMode{
 		statusBar: statusBar,
