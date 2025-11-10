@@ -42,7 +42,7 @@ func (list *UserList) RenderItem(index int, selected bool) string {
 	userIDView := list.renderUserID(user.UserID)
 	roleView := roleStyle.Render(user.RoleID.Name())
 	passwordView := passwordStyle.Render(user.Password)
-	lastActivityView := lastActivityStyle.Render(list.renderLastActivity(user))
+	lastActivityView := lastActivityStyle.Render(list.renderLastActivity(user.LastActivity))
 	userView := lipgloss.JoinHorizontal(0, userIDView, roleView, " ", lastActivityView, " ", passwordView)
 
 	rowStyle := lipgloss.NewStyle().Width(list.screenWidth)
@@ -58,12 +58,12 @@ func (list *UserList) renderUserID(userID models.ID) string {
 	return userIDStyle.Render(userID.String())
 }
 
-func (list *UserList) renderLastActivity(user *models.User) string {
+func (list *UserList) renderLastActivity(lastActivity *models.Timestamp) string {
 	lastActivityStyle := lipgloss.NewStyle().Width(lastActivityColumnWidth)
 
 	var lastActivityString string
-	if user.LastActivity != nil {
-		lastActivityString = user.LastActivity.FormattedDateTime()
+	if lastActivity != nil {
+		lastActivityString = lastActivity.FormattedDateTime()
 	} else {
 		lastActivityString = "N/A"
 	}
