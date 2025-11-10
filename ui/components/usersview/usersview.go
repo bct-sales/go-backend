@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	userIDColumnWidth       = 5
+	userIDColumnWidth       = 10
 	roleColumnWidth         = 10
 	lastActivityColumnWidth = 30
 )
@@ -39,7 +39,15 @@ func (list *UserList) RenderItem(index int, selected bool) string {
 	roleView := list.renderRole(user.RoleID)
 	passwordView := list.renderPassword(user.Password)
 	lastActivityView := list.renderLastActivity(user.LastActivity)
-	userView := lipgloss.JoinHorizontal(0, userIDView, roleView, " ", lastActivityView, " ", passwordView)
+	userView := lipgloss.JoinHorizontal(
+		0,
+		userIDView,
+		" ",
+		roleView,
+		" ",
+		lastActivityView,
+		" ",
+		passwordView)
 
 	rowStyle := lipgloss.NewStyle().Width(list.screenWidth)
 	if selected {
@@ -86,12 +94,28 @@ func New() Model {
 }
 
 func (m Model) View() string {
-	return m.view.View()
+	return lipgloss.JoinVertical(0, m.renderHeaders(), m.view.View())
+}
+
+func (m *Model) renderHeaders() string {
+	basicStyle := lipgloss.NewStyle()
+	headers := lipgloss.JoinHorizontal(
+		0,
+		basicStyle.Width(userIDColumnWidth).AlignHorizontal(lipgloss.Right).Render("User ID"),
+		" ",
+		basicStyle.Width(roleColumnWidth).AlignHorizontal(lipgloss.Right).Render("Role"),
+		" ",
+		basicStyle.Width(lastActivityColumnWidth).Render("Last Activity"),
+		" ",
+		basicStyle.Render("Password"),
+	)
+
+	return lipgloss.NewStyle().Width(m.screenSize.Width).Background(lipgloss.Color("#AAFFAA")).Render(headers)
 }
 
 func (m *Model) SetSize(size pages.Size) {
 	m.screenSize = size
-	m.view.SetHeight(size.Height)
+	m.view.SetHeight(size.Height - 1)
 	m.view.SetList(m.createUserListAdapter())
 }
 
