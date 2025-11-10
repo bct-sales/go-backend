@@ -80,6 +80,8 @@ func (model Model) onWindowResized(message tea.WindowSizeMsg) tea.Model {
 	screenWidth := message.Width
 	screenHeight := message.Height
 
+	model.ScreenSize = pages.Size{Width: screenWidth, Height: screenHeight}
+
 	model.usersView.SetSize(pages.Size{
 		Width:  screenWidth,
 		Height: screenHeight - 2,
