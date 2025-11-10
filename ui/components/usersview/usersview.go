@@ -50,22 +50,22 @@ func (list *UserList) RenderItem(index int, selected bool) string {
 }
 
 func (list *UserList) renderUserID(userID models.ID) string {
-	userIDStyle := lipgloss.NewStyle().Width(userIDColumnWidth).AlignHorizontal(lipgloss.Right)
-	return userIDStyle.Render(userID.String())
+	style := lipgloss.NewStyle().Width(userIDColumnWidth).AlignHorizontal(lipgloss.Right)
+	return style.Render(userID.String())
 }
 
 func (list *UserList) renderRole(role models.RoleID) string {
-	roleStyle := lipgloss.NewStyle().Width(roleColumnWidth).AlignHorizontal(lipgloss.Right)
-	return roleStyle.Render(role.Name())
+	style := lipgloss.NewStyle().Width(roleColumnWidth).AlignHorizontal(lipgloss.Right)
+	return style.Render(role.Name())
 }
 
 func (list *UserList) renderPassword(password string) string {
-	passwordStyle := lipgloss.NewStyle()
-	return passwordStyle.Render(password)
+	style := lipgloss.NewStyle()
+	return style.Render(password)
 }
 
 func (list *UserList) renderLastActivity(lastActivity *models.Timestamp) string {
-	lastActivityStyle := lipgloss.NewStyle().Width(lastActivityColumnWidth)
+	style := lipgloss.NewStyle().Width(lastActivityColumnWidth)
 
 	var lastActivityString string
 	if lastActivity != nil {
@@ -74,7 +74,7 @@ func (list *UserList) renderLastActivity(lastActivity *models.Timestamp) string 
 		lastActivityString = "N/A"
 	}
 
-	return lastActivityStyle.Render(lastActivityString)
+	return style.Render(lastActivityString)
 }
 
 func New() Model {
