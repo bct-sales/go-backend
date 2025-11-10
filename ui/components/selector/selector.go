@@ -27,7 +27,6 @@ func New[T Renderable](options []T) Model[T] {
 }
 
 func (m Model[T]) View() string {
-	slog.Debug("Viewing selector", slog.Int("selectedIndex", m.selectedIndex))
 	selectedOption := m.options[m.selectedIndex]
 	buttonStyle := m.getButtonStyle()
 
