@@ -152,6 +152,8 @@ func (m Model) moveFocusToNextComponent() (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
+	titleView := m.RenderTitle("Add User")
+
 	mainView := lipgloss.JoinVertical(
 		0,
 		"User ID",
@@ -166,7 +168,8 @@ func (m Model) View() string {
 
 	return lipgloss.JoinVertical(
 		0,
-		lipgloss.NewStyle().Height(m.ScreenSize.Height-1).Render(mainView),
+		titleView,
+		lipgloss.NewStyle().Height(m.ScreenSize.Height-2).Render(mainView),
 		statusBar,
 	)
 }
