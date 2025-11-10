@@ -27,3 +27,11 @@ func (m Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	return m.style.Render(m.text)
 }
+
+func (m *Model) SetText(text string) {
+	m.text = text
+}
+
+func (m *Model) SetStyle(style lipgloss.Style) {
+	m.style = style
+}
