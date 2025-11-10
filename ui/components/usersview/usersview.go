@@ -34,12 +34,10 @@ func (list *UserList) RenderItem(index int, selected bool) string {
 		panic("out of range")
 	}
 
-	passwordStyle := lipgloss.NewStyle()
-
 	user := list.users[index]
 	userIDView := list.renderUserID(user.UserID)
 	roleView := list.renderRole(user.RoleID)
-	passwordView := passwordStyle.Render(user.Password)
+	passwordView := list.renderPassword(user.Password)
 	lastActivityView := list.renderLastActivity(user.LastActivity)
 	userView := lipgloss.JoinHorizontal(0, userIDView, roleView, " ", lastActivityView, " ", passwordView)
 
@@ -59,6 +57,11 @@ func (list *UserList) renderUserID(userID models.ID) string {
 func (list *UserList) renderRole(role models.RoleID) string {
 	roleStyle := lipgloss.NewStyle().Width(roleColumnWidth).AlignHorizontal(lipgloss.Right)
 	return roleStyle.Render(role.Name())
+}
+
+func (list *UserList) renderPassword(password string) string {
+	passwordStyle := lipgloss.NewStyle()
+	return passwordStyle.Render(password)
 }
 
 func (list *UserList) renderLastActivity(lastActivity *models.Timestamp) string {
