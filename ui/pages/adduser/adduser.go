@@ -1,6 +1,8 @@
 package adduser
 
 import (
+	"bctbackend/algorithms"
+	"bctbackend/database/models"
 	"bctbackend/ui/components/selector"
 	"bctbackend/ui/pages"
 
@@ -18,7 +20,7 @@ type Model struct {
 
 type Components struct {
 	userID   textinput.Model
-	role     selector.Model
+	role     selector.Model[RoleOption]
 	password textinput.Model
 }
 
@@ -28,10 +30,12 @@ type Focusable interface {
 }
 
 func New(back tea.Model) Model {
+	roles := algorithms.Map(models.ListRoles(), func(roleID models.RoleID) RoleOption { return RoleOption{roleID} })
+
 	model := Model{
 		components: Components{
 			userID:   textinput.New(),
-			role:     selector.New([]string{"Admin", "Seller", "Cashier"}),
+			role:     selector.New(roles),
 			password: textinput.New(),
 		},
 		tabIndex: 0,
@@ -89,6 +93,9 @@ func (m Model) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case "shift+tab", "up":
 		return m.moveFocusToPreviousComponent()
 
+	case "enter":
+		return m.onAddUser()
+
 	default:
 		return m, nil
 	}
@@ -145,4 +152,12 @@ func (m Model) StatusBar() string {
 
 func (m Model) Title() string {
 	return m.RenderTitle("Add User")
+}
+
+func (m Model) onAddUser() (tea.Model, tea.Cmd) {
+	// command := func() tea.Msg {
+	// 	queries.AddUserWithID(m.Database, userID, roleID, )
+	// }
+
+	return m.back, nil
 }

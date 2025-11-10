@@ -8,21 +8,25 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type Model struct {
-	options       []string
+type Renderable interface {
+	Render() string
+}
+
+type Model[T Renderable] struct {
+	options       []T
 	selectedIndex int
 	hasFocus      bool
 }
 
-func New(options []string) Model {
-	return Model{
+func New[T Renderable](options []T) Model[T] {
+	return Model[T]{
 		options:       options,
 		selectedIndex: 0,
 		hasFocus:      false,
 	}
 }
 
-func (m Model) View() string {
+func (m Model[T]) View() string {
 	slog.Debug("Viewing selector", slog.Int("selectedIndex", m.selectedIndex))
 	selectedOption := m.options[m.selectedIndex]
 	buttonStyle := m.getButtonStyle()
@@ -30,16 +34,16 @@ func (m Model) View() string {
 	return lipgloss.JoinHorizontal(
 		0,
 		buttonStyle.Render("← "),
-		m.getOptionStyle().Render(selectedOption),
+		m.getOptionStyle().Render(selectedOption.Render()),
 		buttonStyle.Render(" →"),
 	)
 }
 
-func (m Model) getButtonStyle() lipgloss.Style {
+func (m Model[T]) getButtonStyle() lipgloss.Style {
 	return lipgloss.NewStyle().Background(lipgloss.Color("AAAAFF"))
 }
 
-func (m Model) getOptionStyle() lipgloss.Style {
+func (m Model[T]) getOptionStyle() lipgloss.Style {
 	style := lipgloss.NewStyle().Width(m.longestOptionLength() + 2).AlignHorizontal(lipgloss.Center)
 
 	if m.hasFocus {
@@ -49,19 +53,21 @@ func (m Model) getOptionStyle() lipgloss.Style {
 	return style
 }
 
-func (m *Model) longestOptionLength() int {
+func (m *Model[T]) longestOptionLength() int {
 	result := 0
 
 	for _, option := range m.options {
-		if len(option) > result {
-			result = len(option)
+		renderedOptionLength := len(option.Render())
+
+		if renderedOptionLength > result {
+			result = renderedOptionLength
 		}
 	}
 
 	return result
 }
 
-func (m Model) Update(message tea.Msg) (Model, tea.Cmd) {
+func (m Model[T]) Update(message tea.Msg) (Model[T], tea.Cmd) {
 	slog.Debug("Selector received message", slog.Any("message type", reflect.TypeOf(message)), slog.Any("message", message))
 
 	switch message := message.(type) {
@@ -73,7 +79,7 @@ func (m Model) Update(message tea.Msg) (Model, tea.Cmd) {
 	}
 }
 
-func (m Model) onKeyPressed(message tea.KeyMsg) (Model, tea.Cmd) {
+func (m Model[T]) onKeyPressed(message tea.KeyMsg) (Model[T], tea.Cmd) {
 	if m.hasFocus {
 		slog.Debug("Selector processes key message", slog.String("key", message.String()))
 
@@ -90,29 +96,29 @@ func (m Model) onKeyPressed(message tea.KeyMsg) (Model, tea.Cmd) {
 	}
 }
 
-func (m Model) selectPreviousOption() (Model, tea.Cmd) {
+func (m Model[T]) selectPreviousOption() (Model[T], tea.Cmd) {
 	newSelectedIndex := (m.selectedIndex - 1 + len(m.options)) % len(m.options)
 	slog.Debug("Selector: previous option", slog.Int("old selected index", m.selectedIndex), slog.Int("new selected index", newSelectedIndex))
 	m.selectedIndex = newSelectedIndex
 	return m, nil
 }
 
-func (m Model) selectNextOption() (Model, tea.Cmd) {
+func (m Model[T]) selectNextOption() (Model[T], tea.Cmd) {
 	newSelectedIndex := (m.selectedIndex + 1) % len(m.options)
 	slog.Debug("Selector: next option", slog.Int("old selected index", m.selectedIndex), slog.Int("new selected index", newSelectedIndex))
 	m.selectedIndex = newSelectedIndex
 	return m, nil
 }
 
-func (m Model) Init() tea.Cmd {
+func (m Model[T]) Init() tea.Cmd {
 	return nil
 }
 
-func (m *Model) Focus() tea.Cmd {
+func (m *Model[T]) Focus() tea.Cmd {
 	m.hasFocus = true
 	return nil
 }
 
-func (m *Model) Blur() {
+func (m *Model[T]) Blur() {
 	m.hasFocus = false
 }
