@@ -5,7 +5,9 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/ui/components/kbviewer"
 	"bctbackend/ui/components/selector"
+	"bctbackend/ui/components/textviewer"
 	"bctbackend/ui/pages"
 	"database/sql"
 	"errors"
@@ -19,16 +21,16 @@ import (
 
 type Model struct {
 	pages.Page
-	components   Components
-	tabIndex     int
-	back         func() (tea.Model, tea.Cmd)
-	errorMessage string
+	components Components
+	tabIndex   int
+	back       func() (tea.Model, tea.Cmd)
 }
 
 type Components struct {
-	userID   textinput.Model
-	role     selector.Model[RoleOption]
-	password textinput.Model
+	userID    textinput.Model
+	role      selector.Model[RoleOption]
+	password  textinput.Model
+	statusBar tea.Model
 }
 
 type Focusable interface {
@@ -80,8 +82,21 @@ func New(database *sql.DB, screenSize pages.Size, back func() (tea.Model, tea.Cm
 	}
 
 	model.components.userID.Focus()
+	model.components.statusBar = model.createKeyboardBindingViewer()
 
 	return model
+}
+
+func (m *Model) createKeyboardBindingViewer() tea.Model {
+	keyBindings := DefaultKeyBindings
+	viewer := kbviewer.New()
+
+	viewer.AddKeyBindings(
+		keyBindings.AddUser,
+		keyBindings.Cancel,
+	)
+
+	return viewer
 }
 
 func (m Model) Init() tea.Cmd {
@@ -119,11 +134,18 @@ func (model Model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		return model.back()
 
 	case failureMessage:
-		model.errorMessage = message.message
-		return model, nil
+		return model.showErrorMessage(message.message)
 	}
 
 	return model, tea.Batch(resultingCommands...)
+}
+
+func (m Model) showErrorMessage(message string) (tea.Model, tea.Cmd) {
+	statusBar := textviewer.New()
+	statusBar.SetText(message)
+	statusBar.SetStyle(lipgloss.NewStyle().Background(lipgloss.Color("#FFAAAA")))
+	m.components.statusBar = statusBar
+	return m, statusBar.Init()
 }
 
 func (m Model) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
@@ -193,7 +215,7 @@ func (m Model) View() string {
 		m.components.password.View(),
 	)
 
-	statusBar := m.renderStatusBar()
+	statusBar := m.components.statusBar.View()
 
 	return lipgloss.JoinVertical(
 		0,
@@ -201,15 +223,6 @@ func (m Model) View() string {
 		lipgloss.NewStyle().Height(m.ScreenSize.Height-2).Render(mainView),
 		statusBar,
 	)
-}
-
-func (m *Model) renderStatusBar() string {
-	if len(m.errorMessage) == 0 {
-		return ""
-	}
-
-	style := lipgloss.NewStyle().Background(lipgloss.Color("#FF0000")).Width(m.ScreenSize.Width)
-	return style.Render(m.errorMessage)
 }
 
 func (m Model) StatusBar() string {
@@ -224,8 +237,7 @@ func (m Model) onAddUser() (tea.Model, tea.Cmd) {
 	userID, err := models.ParseID(m.components.userID.Value())
 	if err != nil {
 		slog.Error("Invalid user identifier while adding user")
-		m.errorMessage = "Invalid user id"
-		return m, nil
+		return m.showErrorMessage("Invalid user identifier")
 	}
 
 	roleID := m.components.role.GetSelected().roleId
