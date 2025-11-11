@@ -8,6 +8,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type RemoveUserMode struct {
@@ -15,9 +16,12 @@ type RemoveUserMode struct {
 }
 
 func NewRemoveUserMode() RemoveUserMode {
+	style := lipgloss.NewStyle().Background(lipgloss.Color("#FF0000"))
 	textInput := textinput.New()
 	textInput.Focus()
-	textInput.Prompt = "Confirm user removal by typing yes> "
+	textInput.Prompt = "Confirm user removal by typing yes (or ESC to cancel)> "
+	textInput.PromptStyle = style
+	textInput.TextStyle = style
 
 	return RemoveUserMode{
 		textInput: textInput,
@@ -36,6 +40,9 @@ func (mode RemoveUserMode) HandleUserInput(model Model, message tea.KeyMsg) (tea
 			return model, mode.requestRemoveUser(model.Database, selectedUser.UserID)
 		}
 
+		mode.textInput.Prompt = "Wrong confirmation. Enter yes and press ESC> "
+		mode.textInput.SetValue("")
+		model.mode = mode
 		return model, nil
 
 	case "esc":
