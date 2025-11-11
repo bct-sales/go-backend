@@ -38,14 +38,14 @@ type Focusable interface {
 	Focus() tea.Cmd
 }
 
-type KeyBindings struct {
+type KeyMap struct {
 	Cancel   key.Binding
 	AddUser  key.Binding
 	Next     key.Binding
 	Previous key.Binding
 }
 
-var DefaultKeyBindings = KeyBindings{
+var DefaultKeyMap = KeyMap{
 	AddUser: key.NewBinding(
 		key.WithKeys("enter"),
 		key.WithHelp("enter", "add user"),
@@ -88,7 +88,7 @@ func New(database *sql.DB, screenSize pages.Size, back func() (tea.Model, tea.Cm
 }
 
 func (m *Model) createKeyboardBindingViewer() tea.Model {
-	keyBindings := DefaultKeyBindings
+	keyBindings := DefaultKeyMap
 	viewer := kbviewer.New()
 
 	viewer.AddKeyBindings(
@@ -149,7 +149,7 @@ func (m Model) showErrorMessage(message string) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) onKeyPressed(message tea.KeyMsg) (tea.Model, tea.Cmd) {
-	keyBindings := DefaultKeyBindings
+	keyBindings := DefaultKeyMap
 
 	switch {
 	case key.Matches(message, keyBindings.Cancel):
