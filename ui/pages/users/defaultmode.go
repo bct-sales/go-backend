@@ -13,7 +13,7 @@ type DefaultMode struct {
 }
 
 func NewDefaultMode() Mode {
-	keyBindings := defaultKeyMap
+	keyBindings := DefaultKeyMap
 
 	statusBar := kbviewer.New()
 	statusBar.AddKeyBindings(
@@ -27,7 +27,7 @@ func NewDefaultMode() Mode {
 	}
 }
 
-type keyMap struct {
+type KeyMap struct {
 	quit           key.Binding
 	setPassword    key.Binding
 	addUser        key.Binding
@@ -35,7 +35,7 @@ type keyMap struct {
 	selectPrevious key.Binding
 }
 
-var defaultKeyMap = keyMap{
+var DefaultKeyMap = KeyMap{
 	quit: key.NewBinding(
 		key.WithKeys("q"),
 		key.WithHelp("q", "quit"),
@@ -59,7 +59,7 @@ var defaultKeyMap = keyMap{
 }
 
 func (mode DefaultMode) HandleUserInput(model Model, message tea.KeyMsg) (tea.Model, tea.Cmd) {
-	keyMap := defaultKeyMap
+	keyMap := DefaultKeyMap
 
 	switch {
 	case key.Matches(message, keyMap.quit):
