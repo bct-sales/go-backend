@@ -3,6 +3,7 @@ package users
 import (
 	"bctbackend/ui/components/kbviewer"
 	"bctbackend/ui/pages/adduser"
+	"log/slog"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -18,6 +19,7 @@ func NewDefaultMode() Mode {
 	statusBar := kbviewer.New()
 	statusBar.AddKeyBindings(
 		keyBindings.addUser,
+		keyBindings.removeUser,
 		keyBindings.setPassword,
 		keyBindings.quit,
 	)
@@ -31,6 +33,7 @@ type KeyMap struct {
 	quit           key.Binding
 	setPassword    key.Binding
 	addUser        key.Binding
+	removeUser     key.Binding
 	selectNext     key.Binding
 	selectPrevious key.Binding
 }
@@ -48,6 +51,10 @@ var DefaultKeyMap = KeyMap{
 		key.WithKeys("+"),
 		key.WithHelp("+", "Add user"),
 	),
+	removeUser: key.NewBinding(
+		key.WithKeys("delete"),
+		key.WithHelp("del", "Remove user"),
+	),
 	selectPrevious: key.NewBinding(
 		key.WithKeys("up"),
 		key.WithHelp("↑", "up"),
@@ -59,6 +66,8 @@ var DefaultKeyMap = KeyMap{
 }
 
 func (mode DefaultMode) HandleUserInput(model Model, message tea.KeyMsg) (tea.Model, tea.Cmd) {
+	slog.Debug("Key pressed", slog.String("key", message.String()))
+
 	keyMap := DefaultKeyMap
 
 	switch {
@@ -78,6 +87,10 @@ func (mode DefaultMode) HandleUserInput(model Model, message tea.KeyMsg) (tea.Mo
 
 	case key.Matches(message, keyMap.selectPrevious):
 		model.usersView.MoveUp()
+		return model, nil
+
+	case key.Matches(message, keyMap.removeUser):
+		model.mode = NewRemoveUserMode()
 		return model, nil
 
 	default:
