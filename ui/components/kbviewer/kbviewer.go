@@ -45,11 +45,11 @@ func (m Model) View() string {
 }
 
 func (m *Model) renderKeyBinding(binding key.Binding) string {
-	keyStyle := lipgloss.NewStyle().Bold(true)
-	descriptionStyle := lipgloss.NewStyle()
+	keyStyle := lipgloss.NewStyle().Bold(true).Background(lipgloss.Color("#555555"))
+	descriptionStyle := lipgloss.NewStyle().Background(lipgloss.Color("#AAAAAA"))
 
 	key := keyStyle.Render(fmt.Sprintf("[%s]", binding.Help().Key))
-	description := descriptionStyle.Render(binding.Help().Desc)
+	description := descriptionStyle.Render(" " + binding.Help().Desc)
 
-	return lipgloss.JoinHorizontal(0, key, " ", description)
+	return lipgloss.JoinHorizontal(0, key, description)
 }
