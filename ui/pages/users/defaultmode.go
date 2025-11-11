@@ -42,11 +42,11 @@ var DefaultKeyMap = KeyMap{
 	),
 	setPassword: key.NewBinding(
 		key.WithKeys("P"),
-		key.WithHelp("P", "set password"),
+		key.WithHelp("P", "Set password"),
 	),
 	addUser: key.NewBinding(
 		key.WithKeys("+"),
-		key.WithHelp("+", "add user"),
+		key.WithHelp("+", "Add user"),
 	),
 	selectPrevious: key.NewBinding(
 		key.WithKeys("up"),
