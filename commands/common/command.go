@@ -36,8 +36,16 @@ type Command struct {
 	CobraCommand *cobra.Command
 }
 
+func (command *Command) PrintError(message string) {
+	fmt.Fprintf(command.CobraCommand.ErrOrStderr(), "%s", message)
+}
+
 func (command *Command) PrintErrorf(formatString string, args ...any) {
 	fmt.Fprintf(command.CobraCommand.ErrOrStderr(), formatString, args...)
+}
+
+func (command *Command) Print(message string) {
+	fmt.Fprintf(command.CobraCommand.OutOrStdout(), "%s", message)
 }
 
 func (command *Command) Printf(formatString string, args ...any) {

@@ -56,7 +56,7 @@ func (c *InitializeDatabaseCommand) execute() (r_err error) {
 
 	if err != nil {
 		if errors.Is(err, dberr.ErrDatabaseAlreadyExists) {
-			c.PrintErrorf(heredoc.Docf(
+			c.PrintError(heredoc.Docf(
 				`
 					Database file %s already exists.
 					To create a new database, either use a different path or delete the existing file.

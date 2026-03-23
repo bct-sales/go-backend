@@ -41,7 +41,7 @@ func NewRemoveAllSalesCommand() *cobra.Command {
 
 func (c *removeAllSalesCommand) execute() error {
 	if !c.force {
-		c.Printf(heredoc.Doc(`
+		c.Print(heredoc.Doc(`
 								This action is irreversible and will delete all sales from the database!
 								Please use --force to indicate you are aware of the consequences")
 							`))

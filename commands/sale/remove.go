@@ -55,7 +55,7 @@ func (c *removeSalesCommand) execute(args []string) error {
 	})
 
 	if transactionErr != nil {
-		c.PrintErrorf(heredoc.Doc(`
+		c.PrintError(heredoc.Doc(`
 			Row deletion took place inside transaction.
 			An error occurred, causing a rollback.
 			NONE of the sales was actually removed!
