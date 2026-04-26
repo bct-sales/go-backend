@@ -2,6 +2,7 @@ package queries
 
 import (
 	dberr "bctbackend/database/errors"
+	"bctbackend/database/meta"
 	models "bctbackend/database/models"
 	"database/sql"
 	"errors"
@@ -21,7 +22,7 @@ func AuthenticateUser(database DatabaseQuerier, userII models.ID, password strin
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	query, args, queryErr := squirrel.Select("role_id", "password").From("users").Where(squirrel.Eq{"user_id": userII}).ToSql()
+	query, args, queryErr := squirrel.Select(meta.User.RoleID, meta.User.Password).From(meta.User.Table).Where(squirrel.Eq{meta.User.UserID: userII}).ToSql()
 	if queryErr != nil {
 		return models.RoleID{}, queryErr
 	}
