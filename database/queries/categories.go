@@ -53,7 +53,7 @@ func AddCategoryWithID(db DatabaseQuerier, categoryID models.ID, categoryName st
 		return dberr.ErrInvalidCategoryName
 	}
 
-	query := squirrel.Insert("item_categories").Columns("item_category_id", "name").Values(categoryID, categoryName)
+	query := squirrel.Insert(meta.ItemCategory.Table).Columns(meta.ItemCategory.ItemCategoryID, meta.ItemCategory.Name).Values(categoryID, categoryName)
 	if _, err := query.RunWith(db).Exec(); err != nil {
 		inUse, err := CategoryWithIDExists(db, categoryID)
 		if err == nil && inUse {
