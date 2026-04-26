@@ -315,13 +315,8 @@ func RenameCategory(db DatabaseQuerier, categoryID models.ID, newCategoryName st
 		return dberr.ErrDuplicateCategoryName
 	}
 
-	query := `
-		UPDATE item_categories
-		SET name = ?
-		WHERE item_category_id = ?
-	`
-
-	if _, err := db.Exec(query, newCategoryName, categoryID); err != nil {
+	query := squirrel.Update(meta.ItemCategory.Table).Set(meta.ItemCategory.Name, newCategoryName).Where(squirrel.Eq{meta.ItemCategory.ItemCategoryID: categoryID})
+	if _, err := query.RunWith(db).Exec(); err != nil {
 		return fmt.Errorf("failed to update category name: %w", err)
 	}
 
