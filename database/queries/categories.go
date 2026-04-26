@@ -77,7 +77,7 @@ func CategoryWithIDExists(db DatabaseQuerier, categoryID models.ID) (r_result bo
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	query := squirrel.Select("1").From("item_categories").Where(squirrel.Eq{"item_category_id": categoryID})
+	query := squirrel.Select("1").From(meta.ItemCategory.Table).Where(squirrel.Eq{meta.ItemCategory.ItemCategoryID: categoryID})
 	row := query.RunWith(db).QueryRow()
 
 	var dummy int
