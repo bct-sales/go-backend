@@ -2,6 +2,7 @@ package queries
 
 import (
 	dberr "bctbackend/database/errors"
+	"bctbackend/database/meta"
 	models "bctbackend/database/models"
 	"database/sql"
 	"errors"
@@ -23,12 +24,8 @@ func AddCategory(db DatabaseQuerier, categoryName string) (r_result models.ID, r
 		return 0, dberr.ErrInvalidCategoryName
 	}
 
-	query := `
-		INSERT INTO item_categories (name)
-		VALUES ($1)
-		RETURNING item_category_id
-	`
-	result, err := db.Exec(query, categoryName)
+	query := squirrel.Insert(meta.ItemCategory.Table).Columns(meta.ItemCategory.Name).Values(categoryName).Suffix("RETURNING " + meta.ItemCategory.ItemCategoryID)
+	result, err := query.RunWith(db).Exec()
 	if err != nil {
 		if categoryExists, existenceErr := CategoryWithNameExists(db, categoryName); existenceErr == nil && categoryExists {
 			return 0, fmt.Errorf("failed to insert category: %w", dberr.ErrDuplicateCategoryName)
