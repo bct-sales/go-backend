@@ -100,7 +100,7 @@ func GetCategories(db DatabaseQuerier) (r_result []*models.ItemCategory, r_err e
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	query := squirrel.Select("item_category_id", "name").From("item_categories").OrderBy("item_category_id")
+	query := squirrel.Select(meta.ItemCategory.ItemCategoryID, meta.ItemCategory.Name).From(meta.ItemCategory.Table).OrderBy(meta.ItemCategory.ItemCategoryID)
 	rows, err := query.RunWith(db).Query()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get categories: %w", err)
