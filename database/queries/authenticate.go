@@ -6,6 +6,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
+	"github.com/Masterminds/squirrel"
 )
 
 // AuthenticateUser authenticates a user with the given user id and password.
@@ -19,13 +21,12 @@ func AuthenticateUser(database DatabaseQuerier, userII models.ID, password strin
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	row := database.QueryRow(
-		`
-			SELECT role_id, password
-			FROM users
-			where user_id = $1
-		`,
-		userII)
+	query, args, queryErr := squirrel.Select("role_id", "password").From("users").Where(squirrel.Eq{"user_id": userII}).ToSql()
+	if queryErr != nil {
+		return models.RoleID{}, queryErr
+	}
+
+	row := database.QueryRow(query, args...)
 
 	var roleID models.RoleID
 	var expectedPassword string
