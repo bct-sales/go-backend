@@ -6,6 +6,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
+	"github.com/Masterminds/squirrel"
 )
 
 // AddCategory adds a new category with the given name to the database.
@@ -54,21 +56,11 @@ func AddCategoryWithID(db DatabaseQuerier, categoryID models.ID, categoryName st
 		return dberr.ErrInvalidCategoryName
 	}
 
-	_, err := db.Exec(
-		`
-			INSERT INTO item_categories (item_category_id, name)
-			VALUES ($1, $2)
-			RETURNING item_category_id
-		`,
-		categoryID,
-		categoryName,
-	)
-	if err != nil {
-		{
-			inUse, err := CategoryWithIDExists(db, categoryID)
-			if err == nil && inUse {
-				return fmt.Errorf("failed to add category with id %d: %w", categoryID, dberr.ErrIDAlreadyInUse)
-			}
+	query := squirrel.Insert("item_categories").Columns("item_category_id", "name").Values(categoryID, categoryName)
+	if _, err := query.RunWith(db).Exec(); err != nil {
+		inUse, err := CategoryWithIDExists(db, categoryID)
+		if err == nil && inUse {
+			return fmt.Errorf("failed to add category with id %d: %w", categoryID, dberr.ErrIDAlreadyInUse)
 		}
 
 		if categoryExists, existenceErr := CategoryWithNameExists(db, categoryName); existenceErr == nil && categoryExists {
