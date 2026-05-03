@@ -452,7 +452,7 @@ func (c *dummyDatabaseCommand) generateRandomToys() (string, models.ID) {
 	return description, categoryID
 }
 
-func (c *dummyDatabaseCommand) addSales(db *sql.DB, cashierIDs []models.ID, itemIDs []models.ID) (r_err error) {
+func (c *dummyDatabaseCommand) addSales(db *sql.DB, cashierIDs []models.ID, itemIDs []models.ID) error {
 	c.Printf("Adding sales\n")
 
 	transaction, err := queries.NewTransactionalDatabaseQuerier(context.Background(), db)
