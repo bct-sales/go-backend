@@ -18,7 +18,7 @@ func GetDatabasePath() (string, error) {
 	return viper.GetString(ConfigKeyDatabase), nil
 }
 
-func WithOpenedDatabase(writer io.Writer, callback func(db *sql.DB) error) (r_err error) {
+func WithOpenedDatabase(writer io.Writer, callback func(db *sql.DB) error) (err error) {
 	databasePath, err := GetDatabasePath()
 	if err != nil {
 		fmt.Fprintf(writer, "Failed to get database path: %s\n", err.Error())
@@ -32,9 +32,9 @@ func WithOpenedDatabase(writer io.Writer, callback func(db *sql.DB) error) (r_er
 	}
 
 	defer func() {
-		if err := database.Close(); err != nil {
+		if errClose := database.Close(); errClose != nil {
 			fmt.Fprintf(writer, "Failed to close database %s\n", databasePath)
-			r_err = errors.Join(r_err, err)
+			err = errors.Join(err, errClose)
 		}
 	}()
 
