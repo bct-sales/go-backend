@@ -83,7 +83,7 @@ func (c *InitializeCommand) generateConfigurationFile() error {
 	return nil
 }
 
-func (c *InitializeCommand) downloadHTMLFile(overwrite bool) (r_err error) {
+func (c *InitializeCommand) downloadHTMLFile(overwrite bool) (err error) {
 	filename := "index.html"
 
 	if !overwrite {
@@ -103,9 +103,9 @@ func (c *InitializeCommand) downloadHTMLFile(overwrite bool) (r_err error) {
 		return err
 	}
 	defer func() {
-		if err := out.Close(); err != nil {
+		if errClose := out.Close(); errClose != nil {
 			c.PrintErrorf("Failed to close file %s\n", filename)
-			r_err = errors.Join(r_err, err)
+			err = errors.Join(err, errClose)
 		}
 	}()
 
@@ -115,9 +115,9 @@ func (c *InitializeCommand) downloadHTMLFile(overwrite bool) (r_err error) {
 		return err
 	}
 	defer func() {
-		if err := resp.Body.Close(); err != nil {
+		if errClose := resp.Body.Close(); errClose != nil {
 			c.PrintErrorf("Failed to close response body\n")
-			r_err = errors.Join(r_err, err)
+			err = errors.Join(err, errClose)
 		}
 	}()
 
