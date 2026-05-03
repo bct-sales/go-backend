@@ -52,23 +52,23 @@ func (command *Command) Printf(formatString string, args ...any) {
 	fmt.Fprintf(command.CobraCommand.OutOrStdout(), formatString, args...)
 }
 
-func (command *Command) WithOpenedDatabase(callback func(db *sql.DB) error) (r_err error) {
-	databasePath, err := GetDatabasePath()
-	if err != nil {
-		command.PrintErrorf("Failed to get database path: %s\n", err.Error())
-		return &ErrCommand{wrapped: err}
+func (command *Command) WithOpenedDatabase(callback func(db *sql.DB) error) (err error) {
+	databasePath, errGetPath := GetDatabasePath()
+	if errGetPath != nil {
+		command.PrintErrorf("Failed to get database path: %s\n", errGetPath.Error())
+		return &ErrCommand{wrapped: errGetPath}
 	}
 
-	database, err := database.OpenDatabase(databasePath)
-	if err != nil {
+	database, errOpenDatabase := database.OpenDatabase(databasePath)
+	if errOpenDatabase != nil {
 		command.PrintErrorf("Failed to open database %s\n", databasePath)
-		return &ErrCommand{wrapped: err}
+		return &ErrCommand{wrapped: errOpenDatabase}
 	}
 
 	defer func() {
-		if err := database.Close(); err != nil {
+		if errClose := database.Close(); errClose != nil {
 			command.PrintErrorf("Failed to close database %s\n", databasePath)
-			r_err = errors.Join(r_err, err)
+			err = errors.Join(err, errClose)
 		}
 	}()
 
@@ -76,7 +76,7 @@ func (command *Command) WithOpenedDatabase(callback func(db *sql.DB) error) (r_e
 }
 
 func (command *Command) WithTransaction(callback func(db *queries.TransactionalDatabaseQuerier) error) error {
-	return command.WithOpenedDatabase(func(db *sql.DB) (r_err error) {
+	return command.WithOpenedDatabase(func(db *sql.DB) error {
 		transaction, err := queries.NewTransactionalDatabaseQuerier(context.Background(), db)
 		if err != nil {
 			command.PrintErrorf("Failed to start transaction: %s\n", err.Error())
