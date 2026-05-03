@@ -2,7 +2,6 @@ package filters
 
 import (
 	"bctbackend/database/meta"
-	"bctbackend/database/models"
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
@@ -20,9 +19,9 @@ func NewDescriptionFilter(query *WhereClauses) Category {
 	}
 }
 
-func (filter *Category) WithDescriptionPattern(category models.ID) {
-	columnName := fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.ItemCategoryID)
-	clause := squirrel.Eq{columnName: category}
+func (filter *Category) WithDescriptionPattern(pattern string) {
+	columnName := fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.Description)
+	clause := squirrel.Like{columnName: pattern}
 
 	filter.storeClause(clause)
 }
