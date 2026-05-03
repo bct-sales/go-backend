@@ -9,18 +9,16 @@ import (
 )
 
 func CreateInMemoryDatabase() *sql.DB {
-	// In-memory database needs to be opened with a shared cache,
-	// otherwise each connection will see a different database.
-	// Different connections are automatically used
-	// when multiple tests access the same database in parallel (i.e., using goroutines).
 	db, error := sql.Open("sqlite", "file:memdb?mode=memory&cache=shared")
 	if error != nil {
 		panic(error)
 	}
 
-	// This can also be used to prevent having multiple in-memory databases.
-	// It also prevents deadlocks, so it's better not to have them for tests.
+	// Each connection has its own in memory DB.
+	// We want only one DB, so we force a single connection.
 	db.SetMaxOpenConns(1)
+	db.SetConnMaxLifetime(0)
+	db.SetMaxIdleConns(1)
 
 	db.Exec("PRAGMA foreign_keys = 1")
 
