@@ -26,7 +26,7 @@ type DatabaseFixture struct {
 }
 
 func initializeDatabaseFixture(fixture *DatabaseFixture, options ...func(*DatabaseFixture)) {
-	fixture.Db = aux.OpenInitializedDatabase()
+	fixture.Db = aux.CreateInitializedInMemoryDatabase()
 	fixture.Clock = clock.NewManualClock(0)
 
 	for _, option := range options {

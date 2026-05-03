@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-func OpenDatabase() *sql.DB {
+func CreateInMemoryDatabase() *sql.DB {
 	// In-memory database needs to be opened with a shared cache,
 	// otherwise each connection will see a different database.
 	// Different connections are automatically used
@@ -27,8 +27,8 @@ func OpenDatabase() *sql.DB {
 	return db
 }
 
-func OpenInitializedDatabase() *sql.DB {
-	db := OpenDatabase()
+func CreateInitializedInMemoryDatabase() *sql.DB {
+	db := CreateInMemoryDatabase()
 
 	if err := database.InitializeDatabase(db); err != nil {
 		log.Fatalf("failed to initialize database: %v", err)
