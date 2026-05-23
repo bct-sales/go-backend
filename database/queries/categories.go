@@ -264,14 +264,8 @@ func CategoryWithNameExists(db DatabaseQuerier, categoryName string) (r_result b
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	row := db.QueryRow(
-		`
-			SELECT 1
-			FROM item_categories
-			WHERE name = $1
-		`,
-		categoryName,
-	)
+	query := squirrel.Select("1").From(meta.ItemCategory.Table).Where(squirrel.Eq{meta.ItemCategory.Name: categoryName})
+	row := query.RunWith(db).QueryRow()
 
 	var dummy int
 	err := row.Scan(&dummy)
