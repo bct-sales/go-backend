@@ -6,9 +6,10 @@
 
 ## 依赖
 
-- Go: 1.17~1.23
+- Go: 1.18~1.26
+  - 注意：Go1.24.0 由于 [issue](https://github.com/golang/go/issues/71672) 不可用，请升级到更高 Go 版本，或添加编译选项 `--ldflags="-checklinkname=0"` 
 - OS: Linux / MacOS / Windows
-- CPU: AMD64 / ARM64（需要 Go1.20 以上）
+- CPU: AMD64 / (ARM64, 需要 Go1.20 以上）
 
 ## 接口
 
@@ -286,9 +287,9 @@ sub := root.Get("key3").Index(2).Int64() // == 3
 
 `ast.Searcher`提供了一些选项，以满足用户的不同需求:
 
-```
-opts:= ast.SearchOption{CopyReturn: true…}
-Val, err:= sonic。gettwithoptions (JSON, opts， "key")
+```go
+opts := ast.SearchOption{CopyReturn: true…}
+val, err := sonic.GetWithOptions(JSON, opts, "key")
 ```
 
 - CopyReturn
@@ -389,13 +390,13 @@ type Visitor interface {
 - `ConfigDefault`: sonic的默认配置 (`EscapeHTML=false`， `SortKeys=false`…) 保证性能同时兼顾安全性。
 - `ConfigStd`: 与 `encoding/json` 保证完全兼容的配置
 - `ConfigFastest`: 最快的配置(`NoQuoteTextMarshaler=true...`) 保证性能最优但是会缺少一些安全性检查（validate UTF8 等）
-Sonic **不**确保支持所有环境，由于开发高性能代码的困难。在不支持声音的环境中，实现将回落到 `encoding/json`。因此上述配置将全部等于`ConfigStd`。
+Sonic **不**确保支持所有环境，由于开发高性能代码的困难。在不支持sonic的环境中，实现将回落到 `encoding/json`。因此上述配置将全部等于`ConfigStd`。
 
 ## 注意事项
 
 ### 预热
 
-由于 Sonic 使用 [golang-asm](https://github.com/twitchyliquid64/golang-asm) 作为 JIT 汇编器，这个库并不适用于运行时编译，第一次运行一个大型模式可能会导致请求超时甚至进程内存溢出。为了更好地稳定性，我们建议在运行大型模式或在内存有限的应用中，在使用 `Marshal()/Unmarshal()` 前运行 `Pretouch()`。
+由于 Sonic 使用 [golang-asm](https://github.com/twitchyliquid64/golang-asm) 作为 JIT 汇编器，这个库并不适用于运行时编译，第一次运行一个大型模式可能会导致请求超时甚至进程内存溢出。为了更好地稳定性，我们建议在运行大型模式或在延迟敏感的应用中，在使用 `Marshal()/Unmarshal()` 前运行 `PretouchMany()`。
 
 ```go
 import (
@@ -405,17 +406,15 @@ import (
 )
 
 func init() {
-    var v HugeStruct
+    var v1 HugeStruct1
+    var v2 HugeStruct2
 
     // For most large types (nesting depth <= option.DefaultMaxInlineDepth)
-    err := sonic.Pretouch(reflect.TypeOf(v))
-
-    // with more CompileOption...
-    err := sonic.Pretouch(reflect.TypeOf(v),
+    sonic.PretouchMany([]reflect.Type{reflect.TypeOf(v1), reflect.TypeOf(v2)},
         // If the type is too deep nesting (nesting depth > option.DefaultMaxInlineDepth),
-        // you can set compile recursive loops in Pretouch for better stability in JIT.
+        // you can set more recursive loops in Pretouch for fully sufficient JIT.
         option.WithCompileRecursiveDepth(loop),
-        // For a large nested struct, try to set a smaller depth to reduce compiling time.
+        // For a large struct, try to set a smaller depth to reduce compiling time.
         option.WithCompileMaxInlineDepth(depth),
     )
 }
