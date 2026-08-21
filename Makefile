@@ -4,7 +4,7 @@ cleantest:
 	go clean -testcache
 
 test:
-	go test -tags=test ./...
+	go test -tags=test ./... | tee ./tests.log
 
 fftest:
 	go test -tags=test -failfast ./...
