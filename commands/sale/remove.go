@@ -19,7 +19,7 @@ func NewRemoveSalesCommand() *cobra.Command {
 		Command: common.Command{
 			CobraCommand: &cobra.Command{
 				Use:   "remove",
-				Short: "Removes all sales",
+				Short: "Removes specific sales",
 				Long: heredoc.Doc(`
 							This command remove the listed sales from the database.
 							Use with caution, as this action cannot be undone.
