@@ -298,7 +298,7 @@ Available Commands:
   add         Add a new sale
   items       List all sold items
   list        List all sales
-  remove      Removes a single sale
+  remove      Removes specific sales
   remove-all  Removes all sales
   show        Show a sale
 ```
