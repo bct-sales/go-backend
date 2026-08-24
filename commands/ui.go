@@ -19,9 +19,9 @@ func NewUserInterfaceCommand() *cobra.Command {
 		Command: common.Command{
 			CobraCommand: &cobra.Command{
 				Use:   "ui",
-				Short: "Start UI",
+				Short: "Start UI [work in progress]",
 				Long: heredoc.Doc(`
-						Starts UI.
+						Starts UI. Not finished, at all.
 					`),
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return command.execute()
