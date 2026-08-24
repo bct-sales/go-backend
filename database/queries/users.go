@@ -2,12 +2,14 @@ package queries
 
 import (
 	dberr "bctbackend/database/errors"
+	"bctbackend/database/meta"
 	models "bctbackend/database/models"
 	"database/sql"
 	"errors"
 	"fmt"
 	"strings"
 
+	"github.com/Masterminds/squirrel"
 	sq "github.com/Masterminds/squirrel"
 )
 
@@ -540,4 +542,29 @@ func GetSellerTotalValueOfAllItems(db DatabaseQuerier, sellerID models.ID, itemS
 	}
 
 	return totalPrice, nil
+}
+
+func CollectPasswords(db DatabaseQuerier) (r_result []string, r_err error) {
+	defer func() {
+		r_err = dberr.WrapError(r_err)
+	}()
+
+	query := squirrel.Select(meta.User.Password).From(meta.User.Table)
+	rows, err := query.RunWith(db).Query()
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch passwords from database: %w", err)
+	}
+	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
+
+	for rows.Next() {
+		var password string
+
+		if err := rows.Scan(&password); err != nil {
+			return nil, fmt.Errorf("failed to scan row while fetching password: %w", err)
+		}
+
+		r_result = append(r_result, password)
+	}
+
+	return r_result, nil
 }

@@ -81,6 +81,7 @@ func NewRootCommand() *cobra.Command {
 	rootCommand.AddCommand(email.NewEmailCommand())
 	rootCommand.AddCommand(NewVersionCommand())
 	rootCommand.AddCommand(NewUserInterfaceCommand())
+	rootCommand.AddCommand(NewGeneratePasswordCommand())
 
 	return &rootCommand
 }
