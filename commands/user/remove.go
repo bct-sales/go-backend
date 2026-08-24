@@ -53,7 +53,7 @@ func (c *RemoveUserCommand) execute(args []string) error {
 			return err
 		}
 
-		c.Printf("User removed successfully")
+		c.Printf("User removed successfully\n")
 
 		return nil
 	})
