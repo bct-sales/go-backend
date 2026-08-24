@@ -38,8 +38,12 @@ func NewUserAddCommand() *cobra.Command {
 	command.CobraCommand.Flags().StringVar(&command.role, "role", "", "Role of the user (admin, seller, cashier)")
 	command.CobraCommand.Flags().StringVar(&command.password, "password", "", "Password for the user")
 	command.CobraCommand.Flags().BoolVar(&command.generatePassword, "generate-password", false, "Generate password for the user")
-	command.CobraCommand.MarkFlagRequired("id")
-	command.CobraCommand.MarkFlagRequired("role")
+	if err := command.CobraCommand.MarkFlagRequired("id"); err != nil {
+		panic("failed to mark id as required")
+	}
+	if err := command.CobraCommand.MarkFlagRequired("role"); err != nil {
+		panic("failed to mark role as required")
+	}
 	command.CobraCommand.MarkFlagsOneRequired("password", "generate-password")
 	command.CobraCommand.MarkFlagsMutuallyExclusive("password", "generate-password")
 
