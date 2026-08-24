@@ -2,10 +2,12 @@
 
 Running the server requires four files:
 
-* The backend executable, named `bctbackend.exe` (Windows) or `bctbackend` (Linux)
-* The frontend HTML, named `index.html`
+* The backend executable, named `bctbackend.exe` (Windows) or `bctbackend` (Linux).
+* The frontend HTML, named `index.html`.
 * The database, named `bct.db`.
 * The configuration file, `bctconfig.yaml`.
+
+We now explain below how to create/download these files.
 
 ## Downloading the Backend
 
@@ -15,7 +17,7 @@ Download `bctbackend.exe` and place it in a directory of your choice.
 ## The Other Three Files
 
 `bctbackend.exe` takes care of providing the three other files.
-Simply execute
+In a shell, go to the directory containing `bctbackend.exe` and run
 
 ```bash
 $ ./bctbackend.exe init all
@@ -27,11 +29,12 @@ It will
 * Create an empty database (containing the necessary tables, but no data)
 * Create a configuration file with reasonable defaults
 
+All three files will be placed in the same directory, where they are expected.
+
 ## Updating the Configuration File
 
-In order for the software to run locally, a modification need to be made to the configuration file.
-Open `bctconfig.yaml`.
-You need to set `server.cookieDomain` to `"localhost"`.
+In order for the software to run locally, a modification needs to be made to the configuration file.
+Open `bctconfig.yaml` in a text editor and set `server.cookieDomain` to `"localhost"`.
 
 ```yaml
 ...
@@ -95,7 +98,7 @@ Use "bctbackend [command] --help" for more information about a command.
 ```
 
 This shows a list of commands.
-You can then zoom in a command and ask for further help:
+You can then zoom in on a command and ask for further help:
 
 ```bash
 $ ./bctbackend.exe init --help
@@ -111,11 +114,11 @@ Available Commands:
 [unimportant lines left out]
 ```
 
-Adding `--help` will always prevent the command from doing anything, so it's always safe to experiment with.
+Adding `--help` will always prevent the command from doing anything, so it's safe to experiment with.
 
 ## Adding an Admin
 
-All user functionality reside under the `user` command:
+All user functionality resides under the `user` command:
 
 ```bash
 $ ./bctbackend.exe user --help
@@ -153,14 +156,14 @@ Flags:
       --role string         Role of the user (admin, seller, cashier)
 ```
 
-This help tells us we can use
+This tells us we can use
 
 ```
 $ ./bctbackend.exe user add --id 1 --password admin --role admin
 ```
 
-This adds a user with id 1, password set to `admin`, and is given the role of an admin.
-If you go back to your browser, you should be able to log in with `1` and `admin`.
+This adds a user with id 1, password set to `admin`, and is given the role of admin.
+If you go back to your browser, you should be able to log in using `1` and `admin` as login and password.
 
 ## Adding a Seller
 
@@ -173,7 +176,7 @@ $ ./bctbackend.exe user add --id 100 --password abc --role seller
 In the browser, you should be able to see the user appear in the user list.
 You should also be able to log in as a seller using `100` and `abc`.
 
-If you don't want to come up with a password, you can also write
+If you don't want to need to come up with a password, you can also write
 
 ```bash
 $ ./bctbackend.exe user add --id 101 --generate-password --role seller
@@ -190,11 +193,11 @@ A specialized command has been provided for this specific use case:
 $ ./bctbackend.exe user add-sellers --zones 1-12 --per-zone 5
 ```
 
-This command will create create sellers `100`, `101`, `102`, `103`, `104`, `200`...`204`, `300`...`304`, ..., `1200`...`1204`, each with a random five letter word password.
+This command will create create sellers `100`, `101`, `102`, `103`, `104`, `200`...`204`, `300`...`304`, ..., `1200`...`1204`, each with a unique five letter word password.
 
 If it turns out you did not add sufficient sellers, you can always call this command again with higher numbers.
-However, note that it will only create sellers so that in the end, you end up with the requested amount of zones containing the requested number of sellers.
-More specifically,
+Note that it will only create sellers so that in the end, you end up with the requested amount of zones containing the requested number of sellers.
+More specifically, running the same command again
 
 ```bash
 $ ./bctbackend.exe user add-sellers --zones 1-12 --per-zone 5
@@ -207,7 +210,7 @@ If you call
 $ ./bctbackend.exe user add-sellers --zones 1-13 --per-zone 6
 ```
 
-then it will create sellers `105`, `205`, `305`, ..., `1205`, `1300`...`1305`.
+This will create sellers `105`, `205`, `305`, ..., `1205`, `1300`...`1305`.
 In other words, the command is safe to use to raise the number of zones/sellers up to a certain point.
 
 ## Listing Users from the Shell
@@ -235,14 +238,14 @@ $ ./bctbackend.exe user list --format csv > users.csv
 ## Backing Up the Database
 
 The entire database resides in a single file named `bct.db`.
-If the server is inactive, the database can be fully copied by copying the file.
-However, if the server is active, it is important to use the right command:
+If the server is inactive, the database can be fully copied simply by copying the file.
+However, if the server is active, it is important to use the following command:
 
 ```bash
 $ ./bctbackend.exe db backup bct-backup.db
 ```
 
-This creates a new database file named `bct-backup.db` to which all data is copied.
+This creates a new database file named `bct-backup.db` to which all data is copied in a manner that guarantees consistency.
 
 ## Restoring a Backup
 
@@ -257,4 +260,45 @@ Note that the dummy data will *replace* the existing contents of the database, s
 
 ```bash
 $ ./bctbackend.exe db dummy --overwrite
+```
+
+## Other Commands
+
+There are many other commands available, the most important ones being the item and sales ones:
+
+```bash
+$ ./bctbackend.exe item --help
+Commands to manage items in the BCT backend system.
+
+Usage:
+  bctbackend item [command]
+
+Available Commands:
+  add            Add an item
+  add-consumable Add a consumable item
+  copy           Copies an item
+  freeze         Freezes items
+  hide           Hides items
+  list           List all items
+  remove         Remove items
+  show           Show item info
+  unfreeze       Unfreezes items
+  unhide         Unhides a items
+  update         Updates an item
+```
+
+```bash
+$ ./bctbackend.exe sale --help
+Commands to manage sales in the BCT backend system.
+
+Usage:
+  bctbackend sale [command]
+
+Available Commands:
+  add         Add a new sale
+  items       List all sold items
+  list        List all sales
+  remove      Removes a single sale
+  remove-all  Removes all sales
+  show        Show a sale
 ```
