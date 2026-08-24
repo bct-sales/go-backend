@@ -1,4 +1,4 @@
-package user
+package dictionary
 
 var Passwords = []string{
 	"aback",

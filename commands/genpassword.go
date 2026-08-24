@@ -1,14 +1,9 @@
 package commands
 
 import (
-	"bctbackend/algorithms"
 	"bctbackend/commands/common"
-	"bctbackend/commands/user"
-	"bctbackend/database/queries"
 	"database/sql"
-	"errors"
 	"fmt"
-	"math/rand"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
@@ -40,30 +35,15 @@ func NewGeneratePasswordCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-var ErrOutOfPasswords = errors.New("out of passwords")
-
 func (c *generatePasswordCommand) execute() error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		passwords, err := queries.CollectPasswords(db)
+		password, err := common.FindUnusedPassword(db)
+
 		if err != nil {
 			return err
 		}
-		passwordSet := algorithms.NewSet(passwords...)
 
-		indices := algorithms.Range(0, len(passwords))
-		rand.Shuffle(len(indices), func(i, j int) {
-			indices[i], indices[j] = indices[j], indices[i]
-		})
-
-		for _, index := range indices {
-			candidatePassword := user.Passwords[index]
-
-			if !passwordSet.Contains(candidatePassword) {
-				fmt.Println(candidatePassword)
-				return nil
-			}
-		}
-
-		return ErrOutOfPasswords
+		fmt.Println(password)
+		return nil
 	})
 }

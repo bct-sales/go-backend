@@ -5,6 +5,7 @@ import (
 	"bctbackend/commands/common"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"bctbackend/dictionary"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -170,7 +171,7 @@ func (c *addSellersCommand) determineSellersToBeCreated(db *sql.DB, zones []int,
 
 func (c *addSellersCommand) createUniquePasswordList(seed uint64, usedPasswords algorithms.Set[string]) []string {
 	rng := rand.New(rand.NewSource(seed))
-	passwords := algorithms.Filter(Passwords, func(password string) bool { return !usedPasswords.Contains(password) })
+	passwords := algorithms.Filter(dictionary.Passwords, func(password string) bool { return !usedPasswords.Contains(password) })
 	rng.Shuffle(len(passwords), func(i, j int) {
 		passwords[i], passwords[j] = passwords[j], passwords[i]
 	})
