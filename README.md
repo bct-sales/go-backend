@@ -1,8 +1,14 @@
 # Overview
 
+## Server Configuration
+
 * [Installation](./documentation/installation.md)
 * [Configuration File](./documentation/configuration.md)
 * [Command Line Interface](./documentation/cli.md)
+
+## Guide for Testing
+
+* [Running locally](./documentation/running-locally.md)
 
 ## Technologies
 
