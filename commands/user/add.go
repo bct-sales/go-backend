@@ -6,6 +6,7 @@ import (
 	"bctbackend/database/queries"
 	"database/sql"
 
+	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
 )
 
@@ -25,7 +26,16 @@ func NewUserAddCommand() *cobra.Command {
 			CobraCommand: &cobra.Command{
 				Use:   "add",
 				Short: "Add a new user",
-				Long:  `This command adds a new user to the database.`,
+				Long: heredoc.Doc(`
+					This command adds a new user to the database.
+				`),
+				Example: heredoc.Doc(`
+					# Adds an admin
+					bctbackend user add --id 1 --role admin --password azer1234
+
+					# Adds a seller with an auto-generated password
+					bctbackend user add --id 100 --role seller --generate-password
+				`),
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return command.execute()
 				},
