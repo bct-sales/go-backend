@@ -11,9 +11,10 @@ import (
 
 type AddUserCommand struct {
 	common.Command
-	userID   int    `exhaustruct:"optional"`
-	role     string `exhaustruct:"optional"`
-	password string `exhaustruct:"optional"`
+	userID           int    `exhaustruct:"optional"`
+	role             string `exhaustruct:"optional"`
+	password         string `exhaustruct:"optional"`
+	generatePassword bool   `exhaustruct:"optional"`
 }
 
 func NewUserAddCommand() *cobra.Command {
@@ -36,9 +37,11 @@ func NewUserAddCommand() *cobra.Command {
 	command.CobraCommand.Flags().IntVar(&command.userID, "id", 0, "ID of the user to add")
 	command.CobraCommand.Flags().StringVar(&command.role, "role", "", "Role of the user (admin, seller, cashier)")
 	command.CobraCommand.Flags().StringVar(&command.password, "password", "", "Password for the user")
+	command.CobraCommand.Flags().BoolVar(&command.generatePassword, "generate-password", false, "Generate password for the user")
 	command.CobraCommand.MarkFlagRequired("id")
 	command.CobraCommand.MarkFlagRequired("role")
-	command.CobraCommand.MarkFlagRequired("password")
+	command.CobraCommand.MarkFlagsOneRequired("password", "generate-password")
+	command.CobraCommand.MarkFlagsMutuallyExclusive("password", "generate-password")
 
 	return command.AsCobraCommand()
 }
@@ -46,13 +49,23 @@ func NewUserAddCommand() *cobra.Command {
 func (c *AddUserCommand) execute() error {
 	role := c.role
 	userID := c.userID
-	password := c.password
 
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		roleID, err := models.ParseRole(role)
 		if err != nil {
 			c.PrintErrorf("Invalid role; should be admin, seller or cashier\n")
 			return err
+		}
+
+		var password string
+		if c.CobraCommand.Flags().Changed("password") {
+			password = c.password
+		} else if c.CobraCommand.Flags().Changed("generate-password") {
+			var err error
+			password, err = common.FindUnusedPassword(db)
+			if err != nil {
+				return err
+			}
 		}
 
 		timestamp := models.Now()
