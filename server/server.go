@@ -147,6 +147,7 @@ func (server *Server) defineWebsocketEndpoint() {
 
 func (server *Server) defineStaticFilesRoutes(htmlPath string) {
 	server.router.NoRoute(func(context *gin.Context) {
+		context.Header("Cache-Control", "no-cache")
 		context.File(htmlPath)
 	})
 }
