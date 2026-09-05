@@ -14,6 +14,9 @@ var charityImage []byte
 //go:embed donation.png
 var donationImage []byte
 
+//go:embed large-item.png
+var largeItemImage []byte
+
 func convertByteArrayToBuffer(data []byte) *bytes.Buffer {
 	return bytes.NewBuffer(data)
 }
@@ -24,4 +27,8 @@ func DonationImageAsBuffer() *bytes.Buffer {
 
 func CharityImageAsBuffer() *bytes.Buffer {
 	return convertByteArrayToBuffer(charityImage)
+}
+
+func LargeItemImageAsBuffer() *bytes.Buffer {
+	return convertByteArrayToBuffer(largeItemImage)
 }

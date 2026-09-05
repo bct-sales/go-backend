@@ -12,9 +12,10 @@ import (
 )
 
 const (
-	fontFamily        = "Arial"
-	charityImageName  = "charity"
-	donationImageName = "donation"
+	fontFamily         = "Arial"
+	charityImageName   = "charity"
+	donationImageName  = "donation"
+	largeItemImageName = "large-item"
 )
 
 type LabelData struct {
@@ -26,6 +27,7 @@ type LabelData struct {
 	SellerID     int
 	Charity      bool
 	Donation     bool
+	LargeItem    bool
 }
 
 type PdfBuilder struct {
@@ -135,6 +137,10 @@ func (builder *PdfBuilder) registerImages() error {
 		return &PdfError{Message: "failed to register charity image", Wrapped: err}
 	}
 
+	if err := builder.registerImage(largeItemImageName, LargeItemImageAsBuffer()); err != nil {
+		return &PdfError{Message: "failed to register charity image", Wrapped: err}
+	}
+
 	return nil
 }
 
@@ -216,9 +222,15 @@ func (builder *PdfBuilder) drawLabel(labelRectangle *Rectangle, labelData *Label
 		return &PdfError{Message: "failed to draw price and seller", Wrapped: err}
 	}
 
-	if labelData.Charity {
-		if err := builder.drawCharityImage(rectangle); err != nil {
-			return &PdfError{Message: "failed to draw charity image", Wrapped: err}
+	// if labelData.Charity {
+	// 	if err := builder.drawCharityImage(rectangle); err != nil {
+	// 		return &PdfError{Message: "failed to draw charity image", Wrapped: err}
+	// 	}
+	// }
+
+	if labelData.LargeItem {
+		if err := builder.drawLargeItemImage(rectangle); err != nil {
+			return &PdfError{Message: "failed to draw large item image", Wrapped: err}
 		}
 	}
 
@@ -260,6 +272,27 @@ func (builder *PdfBuilder) drawCharityImage(rectangle *Rectangle) error {
 
 	if err := builder.drawImage(charityImageName, x, y); err != nil {
 		return &PdfError{Message: "failed to draw charity image", Wrapped: err}
+	}
+
+	return nil
+}
+
+func (builder *PdfBuilder) drawLargeItemImage(rectangle *Rectangle) error {
+	largeItemImageWidth, _, err := builder.determineImageSize(charityImageName)
+	if err != nil {
+		return &PdfError{Message: "failed to determine charity image size", Wrapped: err}
+	}
+
+	donationImageWidth, _, err := builder.determineImageSize(donationImageName)
+	if err != nil {
+		return &PdfError{Message: "failed to determine donation image size", Wrapped: err}
+	}
+
+	x := rectangle.Right() - largeItemImageWidth - donationImageWidth - 4
+	y := rectangle.Top
+
+	if err := builder.drawImage(largeItemImageName, x, y); err != nil {
+		return &PdfError{Message: "failed to draw large item image", Wrapped: err}
 	}
 
 	return nil

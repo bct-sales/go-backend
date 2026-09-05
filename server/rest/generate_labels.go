@@ -199,6 +199,7 @@ func (ep *generateLabelsEndpoint) createLabelDataFromItem(categoryNameTable map[
 		SellerID:     int(item.SellerID),
 		Charity:      item.Charity,
 		Donation:     item.Donation,
+		LargeItem:    item.Large,
 	}
 
 	return labelData, nil
