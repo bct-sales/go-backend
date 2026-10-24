@@ -76,15 +76,7 @@ type GetItemsQuery struct {
 }
 
 func NewGetItemsQuery() *GetItemsQuery {
-	return &GetItemsQuery{
-		HiddenFilter:          HiddenFilter{hidden: nil},
-		FrozenFilter:          FrozenFilter{frozen: nil},
-		RowRangeSelection:     RowRangeSelection{RowRange: RowRange{Limit: nil, Offset: nil}},
-		DescriptionFilter:     DescriptionFilter{descriptionPattern: nil},
-		CategoryFilter:        CategoryFilter{categoryID: nil},
-		LargeFilter:           LargeFilter{large: nil},
-		ItemIDSelectionFilter: ItemIDSelectionFilter{itemIDs: nil},
-	}
+	return &GetItemsQuery{}
 }
 
 func (q *GetItemsQuery) WithCategory(categoryID models.ID) {
