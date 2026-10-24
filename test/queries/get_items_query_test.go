@@ -30,13 +30,13 @@ func TestListItemsQuery(t *testing.T) {
 
 						query := queries.ListItems()
 						query.WithHidden(false)
-						actualItems := []*models.Item{}
+						actualItems := []*queries.ListItemsQueryRow{}
 						err := query.Execute(db, queries.CollectTo(&actualItems))
 						require.NoError(t, err)
 						require.Equal(t, itemCount, len(actualItems))
 
 						for i, item := range items {
-							require.Equal(t, item, actualItems[i])
+							require.Equal(t, *item, actualItems[i].Item)
 						}
 					})
 				}
@@ -55,7 +55,7 @@ func TestListItemsQuery(t *testing.T) {
 						query := queries.ListItems()
 						query.WithHidden(false)
 
-						actualItems := []*models.Item{}
+						actualItems := []*queries.ListItemsQueryRow{}
 						err := query.Execute(db, queries.CollectTo(&actualItems))
 
 						require.NoError(t, err)
@@ -73,14 +73,14 @@ func TestListItemsQuery(t *testing.T) {
 			items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
 			items = slices.Concat(items, setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(true)))
 
-			actualItems := []*models.Item{}
+			rows := []*queries.ListItemsQueryRow{}
 			query := queries.ListItems()
-			err := query.Execute(db, queries.CollectTo(&actualItems))
+			err := query.Execute(db, queries.CollectTo(&rows))
 			require.NoError(t, err)
-			require.Equal(t, 20, len(actualItems))
+			require.Equal(t, 20, len(rows))
 
 			for i, item := range items {
-				require.Equal(t, item, actualItems[i])
+				require.Equal(t, *item, rows[i].Item)
 			}
 		})
 
@@ -92,15 +92,15 @@ func TestListItemsQuery(t *testing.T) {
 			setup.Items(seller.UserID, 10, aux.WithHidden(false))
 			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(true))
 
-			actualItems := []*models.Item{}
+			rows := []*queries.ListItemsQueryRow{}
 			query := queries.ListItems()
 			query.WithHidden(true)
-			err := query.Execute(db, queries.CollectTo(&actualItems))
+			err := query.Execute(db, queries.CollectTo(&rows))
 			require.NoError(t, err)
-			require.Equal(t, 10, len(actualItems))
+			require.Equal(t, 10, len(rows))
 
 			for i, item := range items {
-				require.Equal(t, item, actualItems[i])
+				require.Equal(t, *item, rows[i].Item)
 			}
 		})
 
@@ -139,33 +139,36 @@ func TestListItemsQuery(t *testing.T) {
 			items3 := setup.Items(seller.UserID, 3, aux.WithHidden(false), aux.WithItemCategory(3))
 
 			{
-				actualItems := []*models.Item{}
+				rows := []*queries.ListItemsQueryRow{}
 				query := queries.ListItems()
 				query.WithCategory(1)
-				err := query.Execute(db, queries.CollectTo(&actualItems))
+				err := query.Execute(db, queries.CollectTo(&rows))
 				require.NoError(t, err)
-				require.Len(t, actualItems, 1)
-				require.ElementsMatch(t, items1, actualItems)
+				require.Len(t, rows, 1)
+				require.Equal(t, *items1[0], rows[0].Item)
 			}
 
 			{
-				actualItems := []*models.Item{}
+				actualItems := []*queries.ListItemsQueryRow{}
 				query := queries.ListItems()
 				query.WithCategory(2)
 				err := query.Execute(db, queries.CollectTo(&actualItems))
 				require.NoError(t, err)
 				require.Len(t, actualItems, 2)
-				require.ElementsMatch(t, items2, actualItems)
+				require.Equal(t, *items2[0], actualItems[0].Item)
+				require.Equal(t, *items2[1], actualItems[1].Item)
 			}
 
 			{
-				actualItems := []*models.Item{}
+				actualItems := []*queries.ListItemsQueryRow{}
 				query := queries.ListItems()
 				query.WithCategory(3)
 				err := query.Execute(db, queries.CollectTo(&actualItems))
 				require.NoError(t, err)
 				require.Len(t, actualItems, 3)
-				require.ElementsMatch(t, items3, actualItems)
+				require.Equal(t, *items3[0], actualItems[0].Item)
+				require.Equal(t, *items3[1], actualItems[1].Item)
+				require.Equal(t, *items3[2], actualItems[2].Item)
 			}
 		})
 
@@ -179,10 +182,12 @@ func TestListItemsQuery(t *testing.T) {
 			item3 := setup.Item(seller.UserID, aux.WithDescription("baz"), aux.WithHidden(false))
 			setup.Item(seller.UserID, aux.WithDescription("qux"), aux.WithHidden(false))
 
-			actualItems := []*models.Item{}
 			query := queries.ListItems()
 			query.WithDescriptionPattern("%a%")
+
+			actualItems := []*queries.ListItemsQueryRow{}
 			require.NoError(t, query.Execute(db, queries.CollectTo(&actualItems)))
+
 			require.Equal(t, 2, len(actualItems))
 			require.Equal(t, item2.ItemID, actualItems[0].ItemID)
 			require.Equal(t, item3.ItemID, actualItems[1].ItemID)

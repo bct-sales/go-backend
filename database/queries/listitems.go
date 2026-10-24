@@ -10,13 +10,20 @@ import (
 	sq "github.com/Masterminds/squirrel"
 )
 
-type ListItemsQuery struct {
-	filters.LargeItem
-	filters.HiddenItem
-	filters.Category
+type (
+	ListItemsQuery struct {
+		filters.LargeItem
+		filters.HiddenItem
+		filters.Category
 
-	whereClauses *filters.WhereClauses
-}
+		whereClauses *filters.WhereClauses
+	}
+
+	ListItemsQueryRow struct {
+		models.Item
+		SaleCount int
+	}
+)
 
 func ListItems() *ListItemsQuery {
 	whereClauses := filters.NewWhereClauses()
@@ -31,20 +38,21 @@ func ListItems() *ListItemsQuery {
 	return &query
 }
 
-func (query *ListItemsQuery) Execute(db DatabaseQuerier, receiver func(*models.Item) error) (r_err error) {
+func (query *ListItemsQuery) Execute(db DatabaseQuerier, receiver func(*ListItemsQueryRow) error) (r_err error) {
 	sqlQuery := sq.Select(
-		meta.Item.ItemID,
-		meta.Item.AddedAt,
-		meta.Item.Description,
-		meta.Item.PriceInCents,
-		meta.Item.ItemCategoryID,
-		meta.Item.SellerID,
-		meta.Item.Donation,
-		meta.Item.Charity,
-		meta.Item.Frozen,
-		meta.Item.Hidden,
-		meta.Item.Large,
-	).From(meta.Item.Table)
+		fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.ItemID),
+		fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.AddedAt),
+		fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.Description),
+		fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.PriceInCents),
+		fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.ItemCategoryID),
+		fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.SellerID),
+		fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.Donation),
+		fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.Charity),
+		fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.Frozen),
+		fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.Hidden),
+		fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.Large),
+		fmt.Sprintf("COALESCE(COUNT(%s.%s), 0)", meta.SaleItem.Table, meta.SaleItem.SaleID),
+	).From(meta.Item.Table).LeftJoin(fmt.Sprintf("%s ON %s.%s = %s.%s", meta.SaleItem.Table, meta.SaleItem.Table, meta.SaleItem.ItemID, meta.Item.Table, meta.Item.ItemID)).GroupBy(fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.ItemID))
 
 	for _, whereClause := range query.whereClauses.Clauses {
 		sqlQuery = sqlQuery.Where(whereClause)
@@ -69,6 +77,7 @@ func (query *ListItemsQuery) Execute(db DatabaseQuerier, receiver func(*models.I
 		var frozen bool
 		var hidden bool
 		var large bool
+		var saleCount int
 
 		scanErr := rows.Scan(
 			&itemID,
@@ -82,23 +91,27 @@ func (query *ListItemsQuery) Execute(db DatabaseQuerier, receiver func(*models.I
 			&frozen,
 			&hidden,
 			&large,
+			&saleCount,
 		)
 		if scanErr != nil {
 			return fmt.Errorf("failed to scan row: %w", queryErr)
 		}
 
-		item := models.Item{
-			ItemID:       itemID,
-			AddedAt:      addedAt,
-			Description:  description,
-			PriceInCents: priceInCents,
-			CategoryID:   itemCategoryID,
-			SellerID:     sellerID,
-			Donation:     donation,
-			Charity:      charity,
-			Frozen:       frozen,
-			Hidden:       hidden,
-			Large:        large,
+		item := ListItemsQueryRow{
+			Item: models.Item{
+				ItemID:       itemID,
+				AddedAt:      addedAt,
+				Description:  description,
+				PriceInCents: priceInCents,
+				CategoryID:   itemCategoryID,
+				SellerID:     sellerID,
+				Donation:     donation,
+				Charity:      charity,
+				Frozen:       frozen,
+				Hidden:       hidden,
+				Large:        large,
+			},
+			SaleCount: saleCount,
 		}
 
 		// If receiver returns error, abort enumeration
