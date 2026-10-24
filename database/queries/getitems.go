@@ -2,6 +2,7 @@ package queries
 
 import (
 	dberr "bctbackend/database/errors"
+	"bctbackend/database/meta"
 	"bctbackend/database/models"
 	"errors"
 	"fmt"
@@ -162,9 +163,21 @@ func (q *GetItemsQuery) Execute(db DatabaseQuerier, receiver func(*models.Item) 
 }
 
 func (q *GetItemsQuery) buildSQLQuery() (string, []any, error) {
-	query := sq.Select("item_id", "added_at", "description", "price_in_cents", "item_category_id", "seller_id", "donation", "charity", "frozen", "hidden", "large")
-	query = query.From("items")
-	query = query.OrderBy("item_id ASC")
+	query := sq.Select(
+		meta.Item.ItemID,
+		meta.Item.AddedAt,
+		meta.Item.Description,
+		meta.Item.PriceInCents,
+		meta.Item.ItemCategoryID,
+		meta.Item.SellerID,
+		meta.Item.Donation,
+		meta.Item.Charity,
+		meta.Item.Frozen,
+		meta.Item.Hidden,
+		meta.Item.Large,
+	)
+	query = query.From(meta.Item.Table)
+	query = query.OrderBy(fmt.Sprintf("%s ASC", meta.Item.ItemID))
 
 	if q.frozen != nil {
 		query = query.Where(sq.Eq{"frozen": *q.frozen})
