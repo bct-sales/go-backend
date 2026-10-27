@@ -56,12 +56,19 @@ func (c *listItemsCommand) execute() error {
 	}
 }
 
+func (c *listItemsCommand) createQuery() *queries.GetItemsQuery {
+	query := queries.NewGetItemsQuery()
+
+	if !c.showHidden {
+		query.WithHidden(false)
+	}
+
+	return query
+}
+
 func (c *listItemsCommand) listItemsInTableFormat() error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		query := queries.NewGetItemsQuery()
-		if !c.showHidden {
-			query.WithHidden(false)
-		}
+		query := c.createQuery()
 
 		items := []*models.Item{}
 		if err := query.Execute(db, queries.CollectTo(&items)); err != nil {
@@ -118,10 +125,7 @@ func (c *listItemsCommand) listItemsInTableFormat() error {
 
 func (c *listItemsCommand) listItemsInCSVFormat() error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
-		query := queries.NewGetItemsQuery()
-		if !c.showHidden {
-			query.WithHidden(false)
-		}
+		query := c.createQuery()
 
 		items := []*models.Item{}
 		if err := query.Execute(db, queries.CollectTo(&items)); err != nil {
