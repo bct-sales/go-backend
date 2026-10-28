@@ -2,12 +2,13 @@ package item
 
 import (
 	"bctbackend/commands/common"
-	dbcsv "bctbackend/database/csv"
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"database/sql"
+	"encoding/csv"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 
@@ -56,8 +57,8 @@ func (c *listItemsCommand) execute() error {
 	}
 }
 
-func (c *listItemsCommand) createQuery() *queries.GetItemsQuery {
-	query := queries.NewGetItemsQuery()
+func (c *listItemsCommand) createQuery() *queries.ListItemsQuery {
+	query := queries.ListItems()
 
 	if !c.showHidden {
 		query.WithHidden(false)
@@ -70,7 +71,7 @@ func (c *listItemsCommand) listItemsInTableFormat() error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		query := c.createQuery()
 
-		items := []*models.Item{}
+		items := []*queries.ListItemsQueryRow{}
 		if err := query.Execute(db, queries.CollectTo(&items)); err != nil {
 			c.PrintErrorf("Error while getting items: %v\n", err)
 			return err
@@ -85,7 +86,7 @@ func (c *listItemsCommand) listItemsInTableFormat() error {
 			}
 
 			tableData := pterm.TableData{
-				{"ID", "Description", "Price", "Category", "Seller", "Donation", "Charity", "Large", "Added At", "Frozen", "Hidden"},
+				{"ID", "Description", "Price", "Category", "Seller", "Donation", "Charity", "Large", "Added At", "Frozen", "Hidden", "SaleCount"},
 			}
 
 			for _, item := range items {
@@ -106,6 +107,7 @@ func (c *listItemsCommand) listItemsInTableFormat() error {
 					item.AddedAt.FormattedDateTime(),
 					strconv.FormatBool(item.Frozen),
 					strconv.FormatBool(item.Hidden),
+					strconv.FormatInt(int64(item.SaleCount), 10),
 				})
 			}
 
@@ -127,7 +129,7 @@ func (c *listItemsCommand) listItemsInCSVFormat() error {
 	return c.WithOpenedDatabase(func(db *sql.DB) error {
 		query := c.createQuery()
 
-		items := []*models.Item{}
+		items := []*queries.ListItemsQueryRow{}
 		if err := query.Execute(db, queries.CollectTo(&items)); err != nil {
 			return fmt.Errorf("failed to get items: %w", err)
 		}
@@ -137,7 +139,7 @@ func (c *listItemsCommand) listItemsInCSVFormat() error {
 			return err
 		}
 
-		err = dbcsv.FormatItemsAsCSV(items, categoryNameTable, os.Stdout)
+		err = c.writeCSVFile(items, categoryNameTable, os.Stdout)
 		if err != nil {
 			c.PrintErrorf("Error while formatting items as CSV\n")
 			return fmt.Errorf("failed to format items as a CSV: %w", err)
@@ -145,4 +147,49 @@ func (c *listItemsCommand) listItemsInCSVFormat() error {
 
 		return nil
 	})
+}
+
+func (c *listItemsCommand) writeCSVFile(items []*queries.ListItemsQueryRow, categoryNameTable map[models.ID]string, writer io.Writer) error {
+	csvWriter := csv.NewWriter(writer)
+	defer csvWriter.Flush()
+
+	headers := []string{"item_id", "seller_id", "description", "category", "price_in_cents", "donation", "charity", "large", "sale_count"}
+	err := csvWriter.Write(headers)
+	if err != nil {
+		return fmt.Errorf("failed to write headers: %w", err)
+	}
+
+	for _, item := range items {
+		itemIDString := item.ItemID.String()
+		sellerIDString := item.SellerID.String()
+		priceString := item.PriceInCents.String()
+
+		categoryString, ok := categoryNameTable[item.CategoryID]
+		if !ok {
+			return fmt.Errorf("unknown category id: %v", item.CategoryID)
+		}
+
+		donationString := strconv.FormatBool(item.Donation)
+		charityString := strconv.FormatBool(item.Charity)
+		largeString := strconv.FormatBool(item.Large)
+		saleCount := strconv.FormatInt(int64(item.SaleCount), 10)
+
+		err = csvWriter.Write([]string{
+			itemIDString,
+			sellerIDString,
+			item.Description,
+			categoryString,
+			priceString,
+			donationString,
+			charityString,
+			largeString,
+			saleCount,
+		})
+
+		if err != nil {
+			return fmt.Errorf("failed to write row: %w", err)
+		}
+	}
+
+	return nil
 }
