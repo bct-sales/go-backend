@@ -75,7 +75,7 @@ func (command *Command) WithOpenedDatabase(ctx context.Context, callback func(ct
 	return callback(ctx, database)
 }
 
-func (command *Command) WithTransaction(ctx context.Context, callback func(db *queries.TransactionalDatabaseQuerier) error) error {
+func (command *Command) WithTransaction(ctx context.Context, callback func(ctx context.Context, db *queries.TransactionalDatabaseQuerier) error) error {
 	return command.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		transaction, err := queries.NewTransactionalDatabaseQuerier(ctx, db)
 		if err != nil {
@@ -84,7 +84,7 @@ func (command *Command) WithTransaction(ctx context.Context, callback func(db *q
 		}
 		defer transaction.RollbackIfNotCommitted()
 
-		if err := callback(transaction); err != nil {
+		if err := callback(ctx, transaction); err != nil {
 			return fmt.Errorf("transaction failed: %w", err)
 		}
 

@@ -61,7 +61,7 @@ func NewUpdateItemCommand() *cobra.Command {
 }
 
 func (c *updateItemCommand) execute(ctx context.Context, args []string) error {
-	return c.WithTransaction(ctx, func(db *queries.TransactionalDatabaseQuerier) error {
+	return c.WithTransaction(ctx, func(_ context.Context, db *queries.TransactionalDatabaseQuerier) error {
 		if err := c.updateItem(db); err != nil {
 			return err
 		}

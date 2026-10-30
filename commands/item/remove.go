@@ -42,7 +42,7 @@ func NewRemoveItemCommand() *cobra.Command {
 }
 
 func (c *RemoveItemCommand) execute(ctx context.Context, args []string) error {
-	err := c.WithTransaction(ctx, func(db *queries.TransactionalDatabaseQuerier) error {
+	err := c.WithTransaction(ctx, func(_ context.Context, db *queries.TransactionalDatabaseQuerier) error {
 		for _, arg := range args {
 			itemID, err := models.ParseID(arg)
 			if err != nil {

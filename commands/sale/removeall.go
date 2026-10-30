@@ -48,7 +48,7 @@ func (c *removeAllSalesCommand) execute(ctx context.Context) error {
 							`))
 		return nil
 	}
-	return c.WithTransaction(ctx, func(transaction *queries.TransactionalDatabaseQuerier) error {
+	return c.WithTransaction(ctx, func(_ context.Context, transaction *queries.TransactionalDatabaseQuerier) error {
 		err := queries.RemoveAllSales(transaction)
 		if err != nil {
 			c.PrintErrorf("Failed to remove all sales\n")

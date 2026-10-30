@@ -41,7 +41,7 @@ func (c *unhideItemCommand) execute(ctx context.Context, args []string) error {
 		return err
 	}
 
-	transactionErr := c.WithTransaction(ctx, func(transaction *queries.TransactionalDatabaseQuerier) error {
+	transactionErr := c.WithTransaction(ctx, func(_ context.Context, transaction *queries.TransactionalDatabaseQuerier) error {
 		if err := queries.UpdateHiddenStatusOfItems(transaction, itemIDs, false); err != nil {
 			c.PrintErrorf("Failed to unhide items: %v\n", err)
 			return err

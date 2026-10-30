@@ -42,7 +42,7 @@ func (c *removeSalesCommand) execute(ctx context.Context, args []string) error {
 		c.PrintErrorf("Failed to parse sale ids: %v", err)
 	}
 
-	transactionErr := c.WithTransaction(ctx, func(transaction *queries.TransactionalDatabaseQuerier) error {
+	transactionErr := c.WithTransaction(ctx, func(_ context.Context, transaction *queries.TransactionalDatabaseQuerier) error {
 		for _, saleID := range saleIDs {
 			c.Printf("Removing sale with id %s\n", saleID.String())
 			err := queries.RemoveSale(transaction, saleID)

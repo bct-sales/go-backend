@@ -51,7 +51,7 @@ func NewMoveItemsCommand() *cobra.Command {
 }
 
 func (c *moveItemsCommand) execute(ctx context.Context) error {
-	return c.WithTransaction(ctx, func(transaction *queries.TransactionalDatabaseQuerier) error {
+	return c.WithTransaction(ctx, func(_ context.Context, transaction *queries.TransactionalDatabaseQuerier) error {
 		oldSeller := models.ID(c.oldSeller)
 		newSeller := models.ID(c.newSeller)
 

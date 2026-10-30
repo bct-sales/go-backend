@@ -62,7 +62,7 @@ func NewAddConsumableCommand() *cobra.Command {
 }
 
 func (c *addConsumableCommand) execute(ctx context.Context) error {
-	return c.WithTransaction(ctx, func(db *queries.TransactionalDatabaseQuerier) error {
+	return c.WithTransaction(ctx, func(_ context.Context, db *queries.TransactionalDatabaseQuerier) error {
 		timestamp := models.Now()
 
 		for i := range 5 {

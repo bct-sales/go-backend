@@ -48,7 +48,7 @@ func NewSaleAddCommand() *cobra.Command {
 }
 
 func (c *addNewSaleCommand) execute(ctx context.Context) error {
-	return c.WithTransaction(ctx, func(db *queries.TransactionalDatabaseQuerier) error {
+	return c.WithTransaction(ctx, func(_ context.Context, db *queries.TransactionalDatabaseQuerier) error {
 		timestamp := models.Now()
 
 		itemIDs := algorithms.Map(c.rawItemIDs, func(id int64) models.ID { return models.ID(id) })

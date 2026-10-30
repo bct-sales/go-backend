@@ -43,7 +43,7 @@ func (c *freezeItemCommand) execute(ctx context.Context, args []string) error {
 		return err
 	}
 
-	transactionErr := c.WithTransaction(ctx, func(transaction *queries.TransactionalDatabaseQuerier) error {
+	transactionErr := c.WithTransaction(ctx, func(_ context.Context, transaction *queries.TransactionalDatabaseQuerier) error {
 		if err := queries.UpdateFreezeStatusOfItems(transaction, itemIDs, true); err != nil {
 			c.PrintErrorf("Failed to freeze items: %v\n", err)
 			return err
