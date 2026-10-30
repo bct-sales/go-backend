@@ -7,6 +7,7 @@ import (
 	"bctbackend/logging"
 	"bctbackend/server"
 	"bctbackend/server/configuration"
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -33,7 +34,7 @@ func NewServerCommand() *cobra.Command {
 				Short: "Start server",
 				Long:  `This command starts the backend server for the BCT application.`,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 				Args: cobra.NoArgs,
 			},
@@ -50,7 +51,7 @@ func NewServerCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *ServerCommand) execute() error {
+func (c *ServerCommand) execute(ctx context.Context) error {
 	configuration, err := c.loadConfiguration()
 	if err != nil {
 		return err
@@ -68,7 +69,7 @@ func (c *ServerCommand) execute() error {
 		return fmt.Errorf("failed to create logger: %w", err)
 	}
 
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		if err := server.StartServer(clock, db, logger, configuration); err != nil {
 			c.PrintErrorf("Failed to start REST service\n")
 			return fmt.Errorf("failed to start REST service: %w", err)

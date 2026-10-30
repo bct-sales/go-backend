@@ -5,6 +5,7 @@ import (
 	dbcsv "bctbackend/database/csv"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"fmt"
 	"os"
@@ -28,7 +29,7 @@ func NewUserListCommand() *cobra.Command {
 				Short: "List all users",
 				Long:  `This command lists all users in the database.`,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute(args)
+					return command.execute(cmd.Context(), args)
 				},
 				Args: cobra.NoArgs,
 			},
@@ -40,20 +41,20 @@ func NewUserListCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *ListUsersCommand) execute(args []string) error {
+func (c *ListUsersCommand) execute(ctx context.Context, args []string) error {
 	switch c.format {
 	case "table":
-		return c.listUsersInTableFormat()
+		return c.listUsersInTableFormat(ctx)
 	case "csv":
-		return c.listUsersInCSVFormat()
+		return c.listUsersInCSVFormat(ctx)
 	default:
 		c.PrintErrorf("Invalid format: %s\n", c.format)
 		return fmt.Errorf("unknown format: %s", c.format)
 	}
 }
 
-func (c *ListUsersCommand) listUsersInTableFormat() error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+func (c *ListUsersCommand) listUsersInTableFormat(ctx context.Context) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		users := []*models.User{}
 		if err := queries.GetUsers(db, queries.CollectTo(&users)); err != nil {
 			return fmt.Errorf("error while listing users: %w", err)
@@ -101,8 +102,8 @@ func (c *ListUsersCommand) listUsersInTableFormat() error {
 	})
 }
 
-func (c *ListUsersCommand) listUsersInCSVFormat() error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+func (c *ListUsersCommand) listUsersInCSVFormat(ctx context.Context) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		err := dbcsv.OutputUsers(db, os.Stdout)
 		if err != nil {
 			c.PrintErrorf("Failed to output users: %v\n", err)

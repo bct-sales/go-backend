@@ -6,6 +6,7 @@ import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
 	"bctbackend/dictionary"
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -47,7 +48,7 @@ func NewUserAddSellersCommand() *cobra.Command {
 					then 3 sellers will be added to zone 1 and 2 sellers will be added to zone 2.
 				`),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 				Args: cobra.NoArgs,
 			},
@@ -63,8 +64,8 @@ func NewUserAddSellersCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *addSellersCommand) execute() error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+func (c *addSellersCommand) execute(ctx context.Context) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		zones, err := parseZones(c.zonesString)
 		if err != nil {
 			c.PrintErrorf("failed to parse zones\n")

@@ -2,6 +2,7 @@ package common
 
 import (
 	"bctbackend/database"
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -18,7 +19,7 @@ func GetDatabasePath() (string, error) {
 	return viper.GetString(ConfigKeyDatabase), nil
 }
 
-func WithOpenedDatabase(writer io.Writer, callback func(db *sql.DB) error) (err error) {
+func WithOpenedDatabase(ctx context.Context, writer io.Writer, callback func(ctx context.Context, db *sql.DB) error) (err error) {
 	databasePath, err := GetDatabasePath()
 	if err != nil {
 		fmt.Fprintf(writer, "Failed to get database path: %s\n", err.Error())
@@ -38,5 +39,5 @@ func WithOpenedDatabase(writer io.Writer, callback func(db *sql.DB) error) (err 
 		}
 	}()
 
-	return callback(database)
+	return callback(ctx, database)
 }

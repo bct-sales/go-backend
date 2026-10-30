@@ -5,6 +5,7 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"errors"
 
 	"github.com/MakeNowJust/heredoc"
@@ -32,7 +33,7 @@ func NewMoveItemsCommand() *cobra.Command {
 					to newSeller.
 				`),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 				Args: cobra.NoArgs,
 			},
@@ -49,8 +50,8 @@ func NewMoveItemsCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *moveItemsCommand) execute() error {
-	return c.WithTransaction(func(transaction *queries.TransactionalDatabaseQuerier) error {
+func (c *moveItemsCommand) execute(ctx context.Context) error {
+	return c.WithTransaction(ctx, func(transaction *queries.TransactionalDatabaseQuerier) error {
 		oldSeller := models.ID(c.oldSeller)
 		newSeller := models.ID(c.newSeller)
 

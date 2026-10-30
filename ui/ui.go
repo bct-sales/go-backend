@@ -2,6 +2,7 @@ package ui
 
 import (
 	"bctbackend/ui/pages/users"
+	"context"
 	"database/sql"
 	"fmt"
 	"os"
@@ -11,7 +12,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func Start(database *sql.DB) error {
+func Start(ctx context.Context, database *sql.DB) error {
 	logFile, err := os.Create("ui.log")
 	if err != nil {
 		fmt.Println("Failed to create log")
@@ -24,7 +25,7 @@ func Start(database *sql.DB) error {
 
 	initialPage := users.New(database)
 
-	program := tea.NewProgram(initialPage, tea.WithAltScreen())
+	program := tea.NewProgram(initialPage, tea.WithAltScreen(), tea.WithContext(ctx))
 	if _, err := program.Run(); err != nil {
 		return err
 	}

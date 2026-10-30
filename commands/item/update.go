@@ -4,6 +4,7 @@ import (
 	"bctbackend/commands/common"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"fmt"
 	"strconv"
 
@@ -34,7 +35,7 @@ func NewUpdateItemCommand() *cobra.Command {
 			   `),
 				Args: cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute(args)
+					return command.execute(cmd.Context(), args)
 				},
 			},
 		},
@@ -59,8 +60,8 @@ func NewUpdateItemCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *updateItemCommand) execute(args []string) error {
-	return c.WithTransaction(func(db *queries.TransactionalDatabaseQuerier) error {
+func (c *updateItemCommand) execute(ctx context.Context, args []string) error {
+	return c.WithTransaction(ctx, func(db *queries.TransactionalDatabaseQuerier) error {
 		if err := c.updateItem(db); err != nil {
 			return err
 		}

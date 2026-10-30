@@ -4,6 +4,7 @@ import (
 	"bctbackend/commands/common"
 	dbcsv "bctbackend/database/csv"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"fmt"
 	"os"
@@ -28,7 +29,7 @@ func NewListSoldItemsCommand() *cobra.Command {
 				Short: "List all sold items",
 				Long:  `This command lists all sold items.`,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 				Args: cobra.NoArgs,
 			},
@@ -41,8 +42,8 @@ func NewListSoldItemsCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (command *ListSoldItemsCommand) execute() error {
-	return command.WithOpenedDatabase(func(db *sql.DB) error {
+func (command *ListSoldItemsCommand) execute(ctx context.Context) error {
+	return command.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		switch command.format {
 		case "table":
 			return command.listSoldItemsInTableFormat(db)

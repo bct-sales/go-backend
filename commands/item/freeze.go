@@ -3,6 +3,7 @@ package item
 import (
 	"bctbackend/commands/common"
 	"bctbackend/database/queries"
+	"context"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
@@ -27,7 +28,7 @@ func NewFreezeItemCommand() *cobra.Command {
 			   `),
 				Args: cobra.MinimumNArgs(1),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute(args)
+					return command.execute(cmd.Context(), args)
 				},
 			},
 		},
@@ -36,13 +37,13 @@ func NewFreezeItemCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *freezeItemCommand) execute(args []string) error {
+func (c *freezeItemCommand) execute(ctx context.Context, args []string) error {
 	itemIDs, err := c.ParseItemIDs(args)
 	if err != nil {
 		return err
 	}
 
-	transactionErr := c.WithTransaction(func(transaction *queries.TransactionalDatabaseQuerier) error {
+	transactionErr := c.WithTransaction(ctx, func(transaction *queries.TransactionalDatabaseQuerier) error {
 		if err := queries.UpdateFreezeStatusOfItems(transaction, itemIDs, true); err != nil {
 			c.PrintErrorf("Failed to freeze items: %v\n", err)
 			return err

@@ -182,7 +182,7 @@ func NewDatabaseDummyCommand() *cobra.Command {
 					WARNING: This will reset the database and remove all existing data.
 				`),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 				Args: cobra.NoArgs,
 			},
@@ -195,7 +195,7 @@ func NewDatabaseDummyCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *dummyDatabaseCommand) execute() error {
+func (c *dummyDatabaseCommand) execute(ctx context.Context) error {
 	c.rng = rand.New(rand.NewPCG(0, c.seed))
 
 	if !c.force {
@@ -203,7 +203,7 @@ func (c *dummyDatabaseCommand) execute() error {
 		return nil
 	}
 
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		c.Printf("Resetting database\n")
 		if err := database.ResetDatabase(db); err != nil {
 			return fmt.Errorf("failed to reset database: %w", err)
@@ -233,7 +233,7 @@ func (c *dummyDatabaseCommand) execute() error {
 			return err
 		}
 
-		if err := c.addSales(db, cashierIDs, itemIDs); err != nil {
+		if err := c.addSales(ctx, db, cashierIDs, itemIDs); err != nil {
 			return err
 		}
 
@@ -452,10 +452,10 @@ func (c *dummyDatabaseCommand) generateRandomToys() (string, models.ID) {
 	return description, categoryID
 }
 
-func (c *dummyDatabaseCommand) addSales(db *sql.DB, cashierIDs []models.ID, itemIDs []models.ID) error {
+func (c *dummyDatabaseCommand) addSales(ctx context.Context, db *sql.DB, cashierIDs []models.ID, itemIDs []models.ID) error {
 	c.Printf("Adding sales\n")
 
-	transaction, err := queries.NewTransactionalDatabaseQuerier(context.Background(), db)
+	transaction, err := queries.NewTransactionalDatabaseQuerier(ctx, db)
 	if err != nil {
 		return fmt.Errorf("failed to start transaction: %w", err)
 	}

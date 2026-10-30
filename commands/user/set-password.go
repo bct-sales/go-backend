@@ -4,6 +4,7 @@ import (
 	"bctbackend/commands/common"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"fmt"
 
@@ -26,7 +27,7 @@ func NewUserSetPasswordCommand() *cobra.Command {
 				Long:  `This command updates a user's password.`,
 				Args:  cobra.ExactArgs(2),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute(args)
+					return command.execute(cmd.Context(), args)
 				},
 			},
 		},
@@ -37,8 +38,8 @@ func NewUserSetPasswordCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *SetUserPasswordCommand) execute(args []string) error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+func (c *SetUserPasswordCommand) execute(ctx context.Context, args []string) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		userID, err := c.ParseUserID(args[0])
 		if err != nil {
 			return err

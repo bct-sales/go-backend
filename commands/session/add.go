@@ -4,6 +4,7 @@ import (
 	"bctbackend/commands/common"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"fmt"
 	"strconv"
@@ -33,7 +34,7 @@ func NewAddSessionCommand() *cobra.Command {
 					Only provided for debugging purposes, not very useful in other contexts.
 				`),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 				Args: cobra.NoArgs,
 			},
@@ -54,13 +55,13 @@ func NewAddSessionCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *AddSessionCommand) execute() error {
+func (c *AddSessionCommand) execute(ctx context.Context) error {
 	expiration, err := c.parseExpiration()
 	if err != nil {
 		return err
 	}
 
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		sessionID, err := queries.AddSession(db, models.ID(c.userID), expiration)
 		if err != nil {
 			return err

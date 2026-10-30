@@ -5,6 +5,7 @@ import (
 	"bctbackend/commands/common"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"fmt"
 
 	"github.com/pterm/pterm"
@@ -27,7 +28,7 @@ func NewSaleAddCommand() *cobra.Command {
 				Short: "Add a new sale",
 				Long:  `This command adds a new sale to the database.`,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 				Args: cobra.NoArgs,
 			},
@@ -46,8 +47,8 @@ func NewSaleAddCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *addNewSaleCommand) execute() error {
-	return c.WithTransaction(func(db *queries.TransactionalDatabaseQuerier) error {
+func (c *addNewSaleCommand) execute(ctx context.Context) error {
+	return c.WithTransaction(ctx, func(db *queries.TransactionalDatabaseQuerier) error {
 		timestamp := models.Now()
 
 		itemIDs := algorithms.Map(c.rawItemIDs, func(id int64) models.ID { return models.ID(id) })

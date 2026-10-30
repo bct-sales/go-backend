@@ -5,6 +5,7 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"encoding/csv"
 	"fmt"
@@ -32,7 +33,7 @@ func NewListItemsCommand() *cobra.Command {
 				Short: "List all items",
 				Long:  `This command lists all items in the database.`,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 				Args: cobra.NoArgs,
 			},
@@ -45,12 +46,12 @@ func NewListItemsCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *listItemsCommand) execute() error {
+func (c *listItemsCommand) execute(ctx context.Context) error {
 	switch c.format {
 	case "table":
-		return c.listItemsInTableFormat()
+		return c.listItemsInTableFormat(ctx)
 	case "csv":
-		return c.listItemsInCSVFormat()
+		return c.listItemsInCSVFormat(ctx)
 	default:
 		c.PrintErrorf("Invalid format: %s\n", c.format)
 		return fmt.Errorf("unknown format: %s", c.format)
@@ -67,8 +68,8 @@ func (c *listItemsCommand) createQuery() *queries.ListItemsQuery {
 	return query
 }
 
-func (c *listItemsCommand) listItemsInTableFormat() error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+func (c *listItemsCommand) listItemsInTableFormat(ctx context.Context) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		query := c.createQuery()
 
 		items := []*queries.ListItemsQueryRow{}
@@ -125,8 +126,8 @@ func (c *listItemsCommand) listItemsInTableFormat() error {
 	})
 }
 
-func (c *listItemsCommand) listItemsInCSVFormat() error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+func (c *listItemsCommand) listItemsInCSVFormat(ctx context.Context) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		query := c.createQuery()
 
 		items := []*queries.ListItemsQueryRow{}

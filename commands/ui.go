@@ -3,6 +3,7 @@ package commands
 import (
 	"bctbackend/commands/common"
 	"bctbackend/ui"
+	"context"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
@@ -24,7 +25,7 @@ func NewUserInterfaceCommand() *cobra.Command {
 						Starts UI. Not finished, at all.
 					`),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 				Args: cobra.NoArgs,
 			},
@@ -34,6 +35,6 @@ func NewUserInterfaceCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *UserInterfaceCommand) execute() error {
-	return c.WithOpenedDatabase(ui.Start)
+func (c *UserInterfaceCommand) execute(ctx context.Context) error {
+	return c.WithOpenedDatabase(ctx, ui.Start)
 }

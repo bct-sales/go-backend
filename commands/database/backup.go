@@ -2,6 +2,7 @@ package database
 
 import (
 	"bctbackend/commands/common"
+	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -27,7 +28,7 @@ func NewDatabaseBackupCommand() *cobra.Command {
 					This command makes a copy of the current database.
 				`),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute(args)
+					return command.execute(cmd.Context(), args)
 				},
 			},
 		},
@@ -36,10 +37,10 @@ func NewDatabaseBackupCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *backupDatabaseCommand) execute(args []string) error {
+func (c *backupDatabaseCommand) execute(ctx context.Context, args []string) error {
 	targetPath := c.determineDatabaseName(args)
 
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		if _, err := db.Exec("VACUUM INTO ?", targetPath); err != nil {
 			c.PrintErrorf("Failed to backup database\n")
 			return fmt.Errorf("failed to backup database %s: %w", targetPath, err)

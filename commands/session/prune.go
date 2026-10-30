@@ -4,6 +4,7 @@ import (
 	"bctbackend/commands/common"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 
 	"github.com/MakeNowJust/heredoc"
@@ -28,7 +29,7 @@ func NewPruneSessionsCommand() *cobra.Command {
 					other than slightly reducing the database's size.
 				`),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 				Args: cobra.NoArgs,
 			},
@@ -38,8 +39,8 @@ func NewPruneSessionsCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *PruneSessionsCommand) execute() error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+func (c *PruneSessionsCommand) execute(ctx context.Context) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		cutOff := models.Now()
 
 		if err := queries.DeleteExpiredSessions(db, cutOff); err != nil {

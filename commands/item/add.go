@@ -5,6 +5,7 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -40,7 +41,7 @@ func NewAddItemCommand() *cobra.Command {
 					Freezing/hiding needs to be done separately.
 				`),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 				Args: cobra.NoArgs,
 			},
@@ -71,8 +72,8 @@ func NewAddItemCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *addItemCommand) execute() error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+func (c *addItemCommand) execute(ctx context.Context) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		timestamp := models.Now()
 
 		addedItemID, err := queries.AddItem(

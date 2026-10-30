@@ -3,6 +3,7 @@ package sale
 import (
 	"bctbackend/commands/common"
 	"bctbackend/database/queries"
+	"context"
 	"fmt"
 
 	"github.com/MakeNowJust/heredoc"
@@ -27,7 +28,7 @@ func NewRemoveAllSalesCommand() *cobra.Command {
 							Use with caution, as this action cannot be undone.
 						`),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 				Args: cobra.NoArgs,
 			},
@@ -39,7 +40,7 @@ func NewRemoveAllSalesCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *removeAllSalesCommand) execute() error {
+func (c *removeAllSalesCommand) execute(ctx context.Context) error {
 	if !c.force {
 		c.Print(heredoc.Doc(`
 								This action is irreversible and will delete all sales from the database!
@@ -47,7 +48,7 @@ func (c *removeAllSalesCommand) execute() error {
 							`))
 		return nil
 	}
-	return c.WithTransaction(func(transaction *queries.TransactionalDatabaseQuerier) error {
+	return c.WithTransaction(ctx, func(transaction *queries.TransactionalDatabaseQuerier) error {
 		err := queries.RemoveAllSales(transaction)
 		if err != nil {
 			c.PrintErrorf("Failed to remove all sales\n")

@@ -4,6 +4,7 @@ import (
 	"bctbackend/commands/common"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"fmt"
 	"maps"
@@ -30,7 +31,7 @@ func NewCategoryCountCommand() *cobra.Command {
 				Long:  `This command the number of items in each category.`,
 				Args:  cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 			},
 		},
@@ -46,8 +47,8 @@ func NewCategoryCountCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *categoryCountCommand) execute() error {
-	return c.WithOpenedDatabase(func(database *sql.DB) error {
+func (c *categoryCountCommand) execute(ctx context.Context) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, database *sql.DB) error {
 		categoryCounts, err := c.getCategoryCounts(database)
 		if err != nil {
 			return err

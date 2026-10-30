@@ -4,6 +4,7 @@ import (
 	"bctbackend/commands/common"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
@@ -31,7 +32,7 @@ func NewRemoveItemCommand() *cobra.Command {
 			   `),
 				Args: cobra.MinimumNArgs(1),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute(args)
+					return command.execute(cmd.Context(), args)
 				},
 			},
 		},
@@ -40,8 +41,8 @@ func NewRemoveItemCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *RemoveItemCommand) execute(args []string) error {
-	err := c.WithTransaction(func(db *queries.TransactionalDatabaseQuerier) error {
+func (c *RemoveItemCommand) execute(ctx context.Context, args []string) error {
+	err := c.WithTransaction(ctx, func(db *queries.TransactionalDatabaseQuerier) error {
 		for _, arg := range args {
 			itemID, err := models.ParseID(arg)
 			if err != nil {

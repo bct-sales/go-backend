@@ -3,6 +3,7 @@ package sale
 import (
 	"bctbackend/commands/common"
 	"bctbackend/database/queries"
+	"context"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
@@ -25,7 +26,7 @@ func NewRemoveSalesCommand() *cobra.Command {
 							Use with caution, as this action cannot be undone.
 						`),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute(args)
+					return command.execute(cmd.Context(), args)
 				},
 				Args: cobra.MinimumNArgs(1),
 			},
@@ -35,13 +36,13 @@ func NewRemoveSalesCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *removeSalesCommand) execute(args []string) error {
+func (c *removeSalesCommand) execute(ctx context.Context, args []string) error {
 	saleIDs, err := c.ParseSaleIDs(args)
 	if err != nil {
 		c.PrintErrorf("Failed to parse sale ids: %v", err)
 	}
 
-	transactionErr := c.WithTransaction(func(transaction *queries.TransactionalDatabaseQuerier) error {
+	transactionErr := c.WithTransaction(ctx, func(transaction *queries.TransactionalDatabaseQuerier) error {
 		for _, saleID := range saleIDs {
 			c.Printf("Removing sale with id %s\n", saleID.String())
 			err := queries.RemoveSale(transaction, saleID)

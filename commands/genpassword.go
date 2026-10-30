@@ -2,6 +2,7 @@ package commands
 
 import (
 	"bctbackend/commands/common"
+	"context"
 	"database/sql"
 	"fmt"
 
@@ -25,7 +26,7 @@ func NewGeneratePasswordCommand() *cobra.Command {
 						Generates a password that has hitherto not been assigned to any user in the database.
 					`),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 				Args: cobra.NoArgs,
 			},
@@ -35,8 +36,8 @@ func NewGeneratePasswordCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *generatePasswordCommand) execute() error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+func (c *generatePasswordCommand) execute(ctx context.Context) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		password, err := common.FindUnusedPassword(db)
 
 		if err != nil {

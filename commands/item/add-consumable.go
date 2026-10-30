@@ -5,6 +5,7 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"errors"
 	"fmt"
 
@@ -32,7 +33,7 @@ func NewAddConsumableCommand() *cobra.Command {
 					Add a consumable item.
 				`),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 				Args: cobra.NoArgs,
 			},
@@ -60,8 +61,8 @@ func NewAddConsumableCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *addConsumableCommand) execute() error {
-	return c.WithTransaction(func(db *queries.TransactionalDatabaseQuerier) error {
+func (c *addConsumableCommand) execute(ctx context.Context) error {
+	return c.WithTransaction(ctx, func(db *queries.TransactionalDatabaseQuerier) error {
 		timestamp := models.Now()
 
 		for i := range 5 {

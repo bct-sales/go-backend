@@ -4,6 +4,7 @@ import (
 	"bctbackend/commands/common"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"fmt"
 	"strconv"
@@ -27,7 +28,7 @@ func NewShowItemCommand() *cobra.Command {
 				Long:  `This command shows detailed information about a specific item.`,
 				Args:  cobra.ExactArgs(1), // Expect exactly one argument (the item ID)
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute(args)
+					return command.execute(cmd.Context(), args)
 				},
 			},
 		},
@@ -36,8 +37,8 @@ func NewShowItemCommand() *cobra.Command {
 	return command.CobraCommand
 }
 
-func (c *showItemCommand) execute(args []string) error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+func (c *showItemCommand) execute(ctx context.Context, args []string) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		itemID, err := c.ParseItemID(args[0])
 		if err != nil {
 			c.PrintErrorf("Invalid item ID\n")

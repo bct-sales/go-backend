@@ -5,6 +5,7 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -28,7 +29,7 @@ func NewSaleShowCommand() *cobra.Command {
 				Long:  `This command shows the details of a specific sale by its ID.`,
 				Args:  cobra.ExactArgs(1),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.Execute(args)
+					return command.Execute(cmd.Context(), args)
 				},
 			},
 		},
@@ -37,8 +38,8 @@ func NewSaleShowCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (command *saleShowCommand) Execute(args []string) error {
-	return command.WithOpenedDatabase(func(db *sql.DB) error {
+func (command *saleShowCommand) Execute(ctx context.Context, args []string) error {
+	return command.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		saleID, err := command.parseSaleID(args[0])
 		if err != nil {
 			return err

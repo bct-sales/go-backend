@@ -5,6 +5,7 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"fmt"
 	"strconv"
@@ -33,7 +34,7 @@ func NewCopyItemCommand() *cobra.Command {
 					The new item will always be unfrozen and visible.
 				`),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute(args)
+					return command.execute(cmd.Context(), args)
 				},
 				Args: cobra.NoArgs,
 			},
@@ -43,8 +44,8 @@ func NewCopyItemCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *copyItemCommand) execute(args []string) error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+func (c *copyItemCommand) execute(ctx context.Context, args []string) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		itemID, err := models.ParseID(args[0])
 		if err != nil {
 			c.PrintErrorf("Invalid item ID\n")

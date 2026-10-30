@@ -4,6 +4,7 @@ import (
 	"bctbackend/commands/common"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"fmt"
 	"strconv"
@@ -26,7 +27,7 @@ func NewSaleListCommand() *cobra.Command {
 				Short: "List all sales",
 				Long:  `This command lists all sales in the database.`,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 				Args: cobra.NoArgs,
 			},
@@ -36,8 +37,8 @@ func NewSaleListCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (command *saleListCommand) execute() error {
-	return command.WithOpenedDatabase(func(db *sql.DB) error {
+func (command *saleListCommand) execute(ctx context.Context) error {
+	return command.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		saleCount := 0
 		tableData := pterm.TableData{
 			{"ID", "Cashier", "Transaction Time", "#Items", "Total"},

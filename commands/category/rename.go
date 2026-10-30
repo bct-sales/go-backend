@@ -4,6 +4,7 @@ import (
 	"bctbackend/commands/common"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"fmt"
 
@@ -30,7 +31,7 @@ func NewRenameCategoryCommand() *cobra.Command {
 						`),
 				Args: cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 			},
 		},
@@ -44,8 +45,8 @@ func NewRenameCategoryCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *renameCategoryCommand) execute() error {
-	return c.WithOpenedDatabase(func(database *sql.DB) error {
+func (c *renameCategoryCommand) execute(ctx context.Context) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, database *sql.DB) error {
 		if err := queries.RenameCategory(database, models.ID(c.id), c.newName); err != nil {
 			return fmt.Errorf("failed to rename category: %w", err)
 		}

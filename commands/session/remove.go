@@ -4,6 +4,7 @@ import (
 	"bctbackend/commands/common"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 
 	"github.com/MakeNowJust/heredoc"
@@ -29,7 +30,7 @@ func NewRemoveSessionCommand() *cobra.Command {
 					This command can be used to remove sessions from the database.
 				`),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 				Args: cobra.NoArgs,
 			},
@@ -46,32 +47,32 @@ func NewRemoveSessionCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *RemoveSessionCommand) execute() error {
+func (c *RemoveSessionCommand) execute(ctx context.Context) error {
 	if c.CobraCommand.Flags().Changed("session") {
-		return c.removeBySessionID(models.SessionID(c.sessionID))
+		return c.removeBySessionID(ctx, models.SessionID(c.sessionID))
 	} else if c.CobraCommand.Flags().Changed("user") {
-		return c.removeByUserID(models.ID(c.userID))
+		return c.removeByUserID(ctx, models.ID(c.userID))
 	} else if c.CobraCommand.Flags().Changed("all") {
-		return c.removeAll()
+		return c.removeAll(ctx)
 	} else {
 		panic("should not happen; cobra is supposed to keep this from happening")
 	}
 }
 
-func (c *RemoveSessionCommand) removeBySessionID(sessionID models.SessionID) error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+func (c *RemoveSessionCommand) removeBySessionID(ctx context.Context, sessionID models.SessionID) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		return queries.DeleteSession(db, sessionID)
 	})
 }
 
-func (c *RemoveSessionCommand) removeByUserID(userID models.ID) error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+func (c *RemoveSessionCommand) removeByUserID(ctx context.Context, userID models.ID) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		return queries.DeleteSessionWithUser(db, userID)
 	})
 }
 
-func (c *RemoveSessionCommand) removeAll() error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+func (c *RemoveSessionCommand) removeAll(ctx context.Context) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		return queries.DeleteAllSessions(db)
 	})
 }

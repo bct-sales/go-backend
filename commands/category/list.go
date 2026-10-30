@@ -3,6 +3,7 @@ package category
 import (
 	"bctbackend/commands/common"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"fmt"
 
@@ -25,7 +26,7 @@ func NewCategoryListCommand() *cobra.Command {
 				Long:  `This command lists all categories in the database.`,
 				Args:  cobra.NoArgs,
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 			},
 		},
@@ -34,8 +35,8 @@ func NewCategoryListCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *listCategoriesCommand) execute() error {
-	return c.WithOpenedDatabase(func(database *sql.DB) error {
+func (c *listCategoriesCommand) execute(ctx context.Context) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, database *sql.DB) error {
 		categories, err := queries.GetCategories(database)
 		if err != nil {
 			c.PrintErrorf("Failed to list categories\n")

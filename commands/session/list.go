@@ -3,6 +3,7 @@ package session
 import (
 	"bctbackend/commands/common"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"fmt"
 
@@ -29,7 +30,7 @@ func NewListSessionsCommand() *cobra.Command {
 					Use the prune command first to remove all expired sessions.
 				`),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 				Args: cobra.NoArgs,
 			},
@@ -39,8 +40,8 @@ func NewListSessionsCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *ListSessionsCommand) execute() error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+func (c *ListSessionsCommand) execute(ctx context.Context) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		sessions, err := queries.GetSessions(db)
 		if err != nil {
 			return fmt.Errorf("failed to fetch sessions from database: %w", err)

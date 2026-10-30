@@ -5,6 +5,7 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -29,7 +30,7 @@ func NewUserShowCommand() *cobra.Command {
 				Long:  `This command shows detailed information about a specified user.`,
 				Args:  cobra.ExactArgs(1),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute(args)
+					return command.execute(cmd.Context(), args)
 				},
 			},
 		},
@@ -38,8 +39,8 @@ func NewUserShowCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *showUserCommand) execute(args []string) error {
-	return c.WithOpenedDatabase(func(db *sql.DB) error {
+func (c *showUserCommand) execute(ctx context.Context, args []string) error {
+	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
 		// Parse the user ID from the first argument
 		userID, err := models.ParseID(args[0])
 		if err != nil {
