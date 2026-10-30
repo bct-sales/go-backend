@@ -3,7 +3,7 @@
 cleantest:
 	go clean -testcache
 
-test:
+test: sql
 	go test -tags=test ./... | tee ./tests.log
 
 fftest:
@@ -19,7 +19,7 @@ coverage:
 rest: build
 	go run . -v server --debug
 
-build:
+build: sql
 	go build
 
 lint:
@@ -27,3 +27,6 @@ lint:
 
 ui:
 	go run . ui
+
+sql:
+	sqlc generate
