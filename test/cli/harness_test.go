@@ -73,7 +73,7 @@ func TestMain(m *testing.M) {
 	binaryPath = filepath.Join(directory, executable)
 
 	build := exec.Command("go", "build", "-o", binaryPath, ".")
-	build.Dir = filepath.Join(mustGetWorkingDirectory(), "..")
+	build.Dir = filepath.Join(mustGetWorkingDirectory(), "..", "..")
 
 	if output, err := build.CombinedOutput(); err != nil {
 		panic("failed to build bctbackend binary: " + err.Error() + "\n" + string(output))
