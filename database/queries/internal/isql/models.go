@@ -6,10 +6,12 @@ package isql
 
 import (
 	"database/sql"
+
+	"bctbackend/database/models"
 )
 
 type Item struct {
-	ItemID         int64
+	ItemID         models.ID
 	AddedAt        int64
 	Description    string
 	PriceInCents   int64
@@ -23,17 +25,17 @@ type Item struct {
 }
 
 type ItemCategory struct {
-	ItemCategoryID int64
+	ItemCategoryID models.ID
 	Name           string
 }
 
 type Role struct {
-	RoleID int64
+	RoleID models.ID
 	Name   string
 }
 
 type Sale struct {
-	SaleID          int64
+	SaleID          models.ID
 	CashierID       int64
 	TransactionTime int64
 }
@@ -44,13 +46,13 @@ type SaleItem struct {
 }
 
 type Session struct {
-	SessionID      string
+	SessionID      models.ID
 	UserID         int64
 	ExpirationTime int64
 }
 
 type User struct {
-	UserID       int64
+	UserID       models.ID
 	RoleID       int64
 	CreatedAt    int64
 	LastActivity sql.NullInt64

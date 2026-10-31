@@ -7,3 +7,28 @@ sql:
       go:
         package: "isql"
         out: "database/queries/internal/isql"
+        overrides:
+          - column: "item_categories.item_category_id"
+            go_type:
+              import: "bctbackend/database/models"
+              type: "ID"
+          - column: "roles.role_id"
+            go_type:
+              import: "bctbackend/database/models"
+              type: "ID"
+          - column: "users.user_id"
+            go_type:
+              import: "bctbackend/database/models"
+              type: "ID"
+          - column: "items.item_id"
+            go_type:
+              import: "bctbackend/database/models"
+              type: "ID"
+          - column: "sales.sale_id"
+            go_type:
+              import: "bctbackend/database/models"
+              type: "ID"
+          - column: "sessions.session_id"
+            go_type:
+              import: "bctbackend/database/models"
+              type: "ID"

@@ -8,6 +8,8 @@ package isql
 import (
 	"context"
 	"database/sql"
+
+	"bctbackend/database/models"
 )
 
 const addUserWithID = `-- name: AddUserWithID :exec
@@ -16,7 +18,7 @@ VALUES (?, ?, ?, ?, ?)
 `
 
 type AddUserWithIDParams struct {
-	UserID       int64
+	UserID       models.ID
 	RoleID       int64
 	CreatedAt    int64
 	LastActivity sql.NullInt64
@@ -40,7 +42,7 @@ FROM users
 WHERE user_id = ?
 `
 
-func (q *Queries) GetUser(ctx context.Context, userID int64) (User, error) {
+func (q *Queries) GetUser(ctx context.Context, userID models.ID) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUser, userID)
 	var i User
 	err := row.Scan(
