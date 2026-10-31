@@ -5,5 +5,5 @@ sql:
     queries: "sqlc/queries"
     gen:
       go:
-        package: "sql"
-        out: "database/queries/internal"
+        package: "isql"
+        out: "database/queries/internal/isql"
