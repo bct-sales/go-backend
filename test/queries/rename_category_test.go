@@ -26,7 +26,7 @@ func TestRenameCategory(t *testing.T) {
 			err := queries.RenameCategory(t.Context(), db, categoryID, newName)
 			require.NoError(t, err)
 
-			categories, err := queries.GetCategories(t.Context(), db)
+			categories, err := queries.ListCategories(t.Context(), db)
 			require.NoError(t, err)
 
 			require.Len(t, categories, 1)
@@ -46,7 +46,7 @@ func TestRenameCategory(t *testing.T) {
 			err := queries.RenameCategory(t.Context(), db, 3, "bazzie")
 			require.NoError(t, err)
 
-			actualCategories, err := queries.GetCategories(t.Context(), db)
+			actualCategories, err := queries.ListCategories(t.Context(), db)
 			require.NoError(t, err)
 
 			require.Len(t, actualCategories, 4)

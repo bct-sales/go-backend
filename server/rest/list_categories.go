@@ -5,10 +5,11 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/server/failure_response"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"maps"
 	"net/http"
 	"slices"
+
+	"github.com/gin-gonic/gin"
 )
 
 type ListCategoriesSuccessResponse struct {
@@ -245,7 +246,7 @@ func (ep *listCategoriesEndpoint) listCategoriesWithoutCounts(context *gin.Conte
 	logger := ep.Logger
 	ctx := context.Request.Context()
 
-	categories, err := queries.GetCategories(ctx, db)
+	categories, err := queries.ListCategories(ctx, db)
 	if err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to fetch categories")

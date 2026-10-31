@@ -37,7 +37,7 @@ func NewCategoryListCommand() *cobra.Command {
 
 func (c *listCategoriesCommand) execute(ctx context.Context) error {
 	return c.WithOpenedDatabase(ctx, func(ctx context.Context, database *sql.DB) error {
-		categories, err := queries.GetCategories(ctx, database)
+		categories, err := queries.ListCategories(ctx, database)
 		if err != nil {
 			c.PrintErrorf("Failed to list categories\n")
 			return fmt.Errorf("failed to list categories: %w", err)

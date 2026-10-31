@@ -25,7 +25,7 @@ func TestGetSalesOverview(t *testing.T) {
 		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		categories, err := queries.GetCategories(t.Context(), db)
+		categories, err := queries.ListCategories(t.Context(), db)
 		require.NoError(t, err)
 
 		categorySaleTotals, err := queries.GetSalesOverview(t.Context(), db)
@@ -44,7 +44,7 @@ func TestGetSalesOverview(t *testing.T) {
 		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		categories, err := queries.GetCategories(t.Context(), db)
+		categories, err := queries.ListCategories(t.Context(), db)
 		require.NoError(t, err)
 
 		seller := setup.Seller(t)
@@ -66,7 +66,7 @@ func TestGetSalesOverview(t *testing.T) {
 		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		categories, err := queries.GetCategories(t.Context(), db)
+		categories, err := queries.ListCategories(t.Context(), db)
 		require.NoError(t, err)
 
 		totals := createTotalMap(categories)
@@ -94,7 +94,7 @@ func TestGetSalesOverview(t *testing.T) {
 		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		categories, err := queries.GetCategories(t.Context(), db)
+		categories, err := queries.ListCategories(t.Context(), db)
 		require.NoError(t, err)
 
 		totals := createTotalMap(categories)
@@ -124,7 +124,7 @@ func TestGetSalesOverview(t *testing.T) {
 		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		categories, err := queries.GetCategories(t.Context(), db)
+		categories, err := queries.ListCategories(t.Context(), db)
 		require.NoError(t, err)
 
 		totals := createTotalMap(categories)
@@ -154,7 +154,7 @@ func TestGetSalesOverview(t *testing.T) {
 		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		categories, err := queries.GetCategories(t.Context(), db)
+		categories, err := queries.ListCategories(t.Context(), db)
 		require.NoError(t, err)
 
 		totals := createTotalMap(categories)
@@ -185,7 +185,7 @@ func TestGetSalesOverview(t *testing.T) {
 		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		categories, err := queries.GetCategories(t.Context(), db)
+		categories, err := queries.ListCategories(t.Context(), db)
 		require.NoError(t, err)
 
 		totals := createTotalMap(categories)

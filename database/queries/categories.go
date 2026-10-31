@@ -1,10 +1,10 @@
 package queries
 
 import (
-	"context"
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/meta"
 	models "bctbackend/database/models"
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -94,9 +94,9 @@ func CategoryWithIDExists(ctx context.Context, db DatabaseQuerier, categoryID mo
 	return true, nil
 }
 
-// GetCategories retrieves all categories from the database.
+// ListCategories retrieves all categories from the database.
 // The categories are returned in ascending order by their ID.
-func GetCategories(ctx context.Context, db DatabaseQuerier) (r_result []*models.ItemCategory, r_err error) {
+func ListCategories(ctx context.Context, db DatabaseQuerier) (r_result []*models.ItemCategory, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -138,7 +138,7 @@ func GetCategoryNameTable(ctx context.Context, db DatabaseQuerier) (r_result map
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	categories, err := GetCategories(ctx, db)
+	categories, err := ListCategories(ctx, db)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get categories: %w", err)
 	}

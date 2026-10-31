@@ -19,7 +19,7 @@ func TestGetCategories(t *testing.T) {
 		setup.Category(t, 2, "Beta")
 		setup.Category(t, 3, "Gamma")
 
-		actualCategories, err := queries.GetCategories(t.Context(), db)
+		actualCategories, err := queries.ListCategories(t.Context(), db)
 		require.NoError(t, err)
 		require.Equal(t, 3, len(actualCategories))
 		require.Equal(t, "Alpha", actualCategories[0].Name)
@@ -35,7 +35,7 @@ func TestGetCategories(t *testing.T) {
 		setup.Category(t, 2, "Beta")
 		setup.Category(t, 1, "Gamma")
 
-		actualCategories, err := queries.GetCategories(t.Context(), db)
+		actualCategories, err := queries.ListCategories(t.Context(), db)
 		require.NoError(t, err)
 		require.Equal(t, 3, len(actualCategories))
 		require.Equal(t, "Gamma", actualCategories[0].Name)
