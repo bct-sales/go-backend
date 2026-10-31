@@ -1,9 +1,11 @@
 package queries
 
 import (
+	"bctbackend/algorithms"
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/meta"
 	models "bctbackend/database/models"
+	"bctbackend/database/queries/internal/isql"
 	"context"
 	"database/sql"
 	"errors"
@@ -101,34 +103,19 @@ func ListCategories(ctx context.Context, db DatabaseQuerier) (r_result []*models
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	query := squirrel.Select(meta.ItemCategory.ItemCategoryID, meta.ItemCategory.Name).From(meta.ItemCategory.Table).OrderBy(meta.ItemCategory.ItemCategoryID)
-	rows, err := query.RunWith(newSquirrelRunner(ctx, db)).QueryContext(ctx)
+	categories, err := isql.New(db).ListCategories(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get categories: %w", err)
+		return nil, err
 	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
-	categories := []*models.ItemCategory{}
-
-	for rows.Next() {
-		var category models.ItemCategory
-
-		err := rows.Scan(
-			&category.CategoryID,
-			&category.Name,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read row: %w", err)
+	result := algorithms.Map(categories, func(c isql.ItemCategory) *models.ItemCategory {
+		return &models.ItemCategory{
+			CategoryID: models.ID(c.ItemCategoryID),
+			Name:       c.Name,
 		}
+	})
 
-		categories = append(categories, &category)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
-	}
-
-	return categories, nil
+	return result, nil
 }
 
 // GetCategoryNameTable retrieves the IDs and names of all categories from the database.
