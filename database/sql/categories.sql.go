@@ -3,7 +3,7 @@
 //   sqlc v1.30.0
 // source: categories.sql
 
-package gensql
+package sql
 
 import (
 	"context"
