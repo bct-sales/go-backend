@@ -3,6 +3,7 @@ package users
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"log/slog"
 
@@ -32,7 +33,7 @@ func (mode SetPasswordMode) HandleUserInput(model Model, message tea.KeyMsg) (te
 		password := mode.textInput.Value()
 
 		model.mode = NewDefaultMode()
-		return model, mode.requestUpdateUserPassword(model.Database, updatedUser.UserID, password)
+		return model, mode.requestUpdateUserPassword(model.Context, model.Database, updatedUser.UserID, password)
 
 	case "esc":
 		model.mode = NewDefaultMode()
@@ -54,9 +55,9 @@ func (mode SetPasswordMode) StatusBar(model *Model) string {
 	return mode.textInput.View()
 }
 
-func (mode *SetPasswordMode) requestUpdateUserPassword(database *sql.DB, userID models.ID, password string) tea.Cmd {
+func (mode *SetPasswordMode) requestUpdateUserPassword(ctx context.Context, database *sql.DB, userID models.ID, password string) tea.Cmd {
 	return func() tea.Msg {
-		if err := queries.UpdateUserPassword(database, userID, password); err != nil {
+		if err := queries.UpdateUserPassword(ctx, database, userID, password); err != nil {
 			slog.Error("Failed to update user password", slog.Any("error", err))
 
 			return &databaseErrorMessage{
@@ -66,7 +67,7 @@ func (mode *SetPasswordMode) requestUpdateUserPassword(database *sql.DB, userID 
 		}
 
 		var users []*models.User
-		if err := queries.GetUsers(database, queries.CollectTo(&users)); err != nil {
+		if err := queries.GetUsers(ctx, database, queries.CollectTo(&users)); err != nil {
 			slog.Error("Failed to fetch updated user information", slog.Any("error", err))
 
 			return &databaseErrorMessage{

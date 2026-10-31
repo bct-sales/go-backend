@@ -41,8 +41,8 @@ func NewListSessionsCommand() *cobra.Command {
 }
 
 func (c *ListSessionsCommand) execute(ctx context.Context) error {
-	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
-		sessions, err := queries.GetSessions(db)
+	return c.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
+		sessions, err := queries.GetSessions(ctx, db)
 		if err != nil {
 			return fmt.Errorf("failed to fetch sessions from database: %w", err)
 		}

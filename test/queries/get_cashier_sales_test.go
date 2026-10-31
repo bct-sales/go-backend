@@ -16,20 +16,20 @@ import (
 func TestGetCashierSales(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("All sales", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
-			otherCashier := setup.Cashier()
-			items := setup.Items(seller.UserID, 100, aux.WithHidden(false))
+			seller := setup.Seller(t)
+			cashier := setup.Cashier(t)
+			otherCashier := setup.Cashier(t)
+			items := setup.Items(t, seller.UserID, 100, aux.WithHidden(false))
 
-			sale1 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
-			sale2 := setup.Sale(cashier.UserID, []models.ID{items[1].ItemID})
-			setup.Sale(otherCashier.UserID, []models.ID{items[2].ItemID})
+			sale1 := setup.Sale(t, cashier.UserID, []models.ID{items[0].ItemID})
+			sale2 := setup.Sale(t, cashier.UserID, []models.ID{items[1].ItemID})
+			setup.Sale(t, otherCashier.UserID, []models.ID{items[2].ItemID})
 
 			actual := []*models.SaleSummary{}
-			err := queries.GetCashierSales(db, cashier.UserID, queries.CollectTo(&actual), queries.OrderChronological, queries.AllRows())
+			err := queries.GetCashierSales(t.Context(), db, cashier.UserID, queries.CollectTo(&actual), queries.OrderChronological, queries.AllRows())
 
 			require.NoError(t, err)
 			require.Len(t, actual, 2)
@@ -38,21 +38,21 @@ func TestGetCashierSales(t *testing.T) {
 		})
 
 		t.Run("Using row selection", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
-			items := setup.Items(seller.UserID, 100, aux.WithHidden(false))
+			seller := setup.Seller(t)
+			cashier := setup.Cashier(t)
+			items := setup.Items(t, seller.UserID, 100, aux.WithHidden(false))
 
 			saleIDs := []models.ID{}
 			for _, item := range items {
-				sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+				sale := setup.Sale(t, cashier.UserID, []models.ID{item.ItemID})
 				saleIDs = append(saleIDs, sale.SaleID)
 			}
 
 			actual := []*models.SaleSummary{}
-			err := queries.GetCashierSales(db, cashier.UserID, queries.CollectTo(&actual), queries.OrderChronological, queries.NewRowRange(2, 5))
+			err := queries.GetCashierSales(t.Context(), db, cashier.UserID, queries.CollectTo(&actual), queries.OrderChronological, queries.NewRowRange(2, 5))
 
 			require.NoError(t, err)
 			require.Len(t, actual, 5)
@@ -64,21 +64,21 @@ func TestGetCashierSales(t *testing.T) {
 		})
 
 		t.Run("Anti chronologically", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
-			items := setup.Items(seller.UserID, 3, aux.WithHidden(false))
+			seller := setup.Seller(t)
+			cashier := setup.Cashier(t)
+			items := setup.Items(t, seller.UserID, 3, aux.WithHidden(false))
 
 			saleIDs := []models.ID{}
 			for _, item := range items {
-				sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+				sale := setup.Sale(t, cashier.UserID, []models.ID{item.ItemID})
 				saleIDs = append(saleIDs, sale.SaleID)
 			}
 
 			actual := []*models.SaleSummary{}
-			err := queries.GetCashierSales(db, cashier.UserID, queries.CollectTo(&actual), queries.OrderAntiChronological, queries.AllRows())
+			err := queries.GetCashierSales(t.Context(), db, cashier.UserID, queries.CollectTo(&actual), queries.OrderAntiChronological, queries.AllRows())
 
 			require.NoError(t, err)
 			require.Len(t, actual, 3)
@@ -90,51 +90,51 @@ func TestGetCashierSales(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Nonexistent user", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
-			items := setup.Items(seller.UserID, 100, aux.WithHidden(false))
-			setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
-			setup.Sale(cashier.UserID, []models.ID{items[1].ItemID})
+			seller := setup.Seller(t)
+			cashier := setup.Cashier(t)
+			items := setup.Items(t, seller.UserID, 100, aux.WithHidden(false))
+			setup.Sale(t, cashier.UserID, []models.ID{items[0].ItemID})
+			setup.Sale(t, cashier.UserID, []models.ID{items[1].ItemID})
 			nonexistentCashierID := setup.GenerateNonexistentUserID(t)
 
 			callback := func(sales *models.SaleSummary) error { return nil }
-			err := queries.GetCashierSales(db, nonexistentCashierID, callback, queries.OrderChronological, queries.AllRows())
+			err := queries.GetCashierSales(t.Context(), db, nonexistentCashierID, callback, queries.OrderChronological, queries.AllRows())
 
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 
 		t.Run("Admin", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
-			admin := setup.Admin()
-			items := setup.Items(seller.UserID, 100, aux.WithHidden(false))
-			setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
-			setup.Sale(cashier.UserID, []models.ID{items[1].ItemID})
+			seller := setup.Seller(t)
+			cashier := setup.Cashier(t)
+			admin := setup.Admin(t)
+			items := setup.Items(t, seller.UserID, 100, aux.WithHidden(false))
+			setup.Sale(t, cashier.UserID, []models.ID{items[0].ItemID})
+			setup.Sale(t, cashier.UserID, []models.ID{items[1].ItemID})
 
 			callback := func(sales *models.SaleSummary) error { return nil }
-			err := queries.GetCashierSales(db, admin.UserID, callback, queries.OrderChronological, queries.AllRows())
+			err := queries.GetCashierSales(t.Context(), db, admin.UserID, callback, queries.OrderChronological, queries.AllRows())
 
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 
 		t.Run("Seller", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
-			items := setup.Items(seller.UserID, 100, aux.WithHidden(false))
-			setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
-			setup.Sale(cashier.UserID, []models.ID{items[1].ItemID})
+			seller := setup.Seller(t)
+			cashier := setup.Cashier(t)
+			items := setup.Items(t, seller.UserID, 100, aux.WithHidden(false))
+			setup.Sale(t, cashier.UserID, []models.ID{items[0].ItemID})
+			setup.Sale(t, cashier.UserID, []models.ID{items[1].ItemID})
 
 			callback := func(sales *models.SaleSummary) error { return nil }
-			err := queries.GetCashierSales(db, seller.UserID, callback, queries.OrderChronological, queries.AllRows())
+			err := queries.GetCashierSales(t.Context(), db, seller.UserID, callback, queries.OrderChronological, queries.AllRows())
 
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})

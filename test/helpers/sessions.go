@@ -5,6 +5,7 @@ package helpers
 import (
 	models "bctbackend/database/models"
 	queries "bctbackend/database/queries"
+	"context"
 	"database/sql"
 )
 
@@ -18,7 +19,7 @@ func WithExpiration(secondsBeforeExpiration int64) func(*AddSessionData) {
 	}
 }
 
-func AddSessionToDatabase(db *sql.DB, userID models.ID, currentTime models.Timestamp, options ...func(*AddSessionData)) models.SessionID {
+func AddSessionToDatabase(ctx context.Context, db *sql.DB, userID models.ID, currentTime models.Timestamp, options ...func(*AddSessionData)) models.SessionID {
 	data := &AddSessionData{
 		secondsBeforeExpiration: 3600,
 	}
@@ -28,7 +29,7 @@ func AddSessionToDatabase(db *sql.DB, userID models.ID, currentTime models.Times
 	}
 
 	expirationTime := currentTime + models.Timestamp(data.secondsBeforeExpiration)
-	sessionID, err := queries.AddSession(db, userID, expirationTime)
+	sessionID, err := queries.AddSession(ctx, db, userID, expirationTime)
 
 	if err != nil {
 		panic(err)

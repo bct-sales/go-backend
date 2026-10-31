@@ -23,9 +23,9 @@ func TestAddSale(t *testing.T) {
 		setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		seller := setup.Seller()
-		cashier, sessionID := setup.LoggedIn(setup.Cashier())
-		item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+		seller := setup.Seller(t)
+		cashier, sessionID := setup.LoggedIn(t, setup.Cashier(t))
+		item := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 		payload := rest.AddSalePayload{
 			Items: []models.ID{item.ItemID},
@@ -36,11 +36,11 @@ func TestAddSale(t *testing.T) {
 
 		response := FromJSON[rest.AddSaleSuccessResponse](t, writer.Body.String())
 
-		sale, err := queries.GetSaleWithID(setup.Db, response.SaleID)
+		sale, err := queries.GetSaleWithID(t.Context(), setup.Db, response.SaleID)
 		require.NoError(t, err)
 		require.Equal(t, cashier.UserID, sale.CashierID)
 
-		saleItems, err := queries.GetSaleItems(setup.Db, sale.SaleID)
+		saleItems, err := queries.GetSaleItems(t.Context(), setup.Db, sale.SaleID)
 		require.NoError(t, err)
 		require.Len(t, saleItems, 1)
 		require.Equal(t, item.ItemID, saleItems[0].ItemID)
@@ -51,8 +51,8 @@ func TestAddSale(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionID := setup.LoggedIn(setup.Seller())
-			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			seller, sessionID := setup.LoggedIn(t, setup.Seller(t))
+			item := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest.AddSalePayload{
 				Items: []models.ID{item.ItemID},
@@ -62,7 +62,7 @@ func TestAddSale(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
 			sales := []*models.SaleSummary{}
-			err := queries.NewGetSalesQuery().Execute(setup.Db, queries.CollectTo(&sales))
+			err := queries.NewGetSalesQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&sales))
 			require.NoError(t, err)
 			require.Empty(t, sales)
 		})
@@ -71,9 +71,9 @@ func TestAddSale(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionID := setup.LoggedIn(setup.Admin())
-			seller := setup.Seller()
-			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			_, sessionID := setup.LoggedIn(t, setup.Admin(t))
+			seller := setup.Seller(t)
+			item := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 			payload := rest.AddSalePayload{
 				Items: []models.ID{item.ItemID},
 			}
@@ -82,7 +82,7 @@ func TestAddSale(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
 			sales := []*models.SaleSummary{}
-			err := queries.NewGetSalesQuery().Execute(setup.Db, queries.CollectTo(&sales))
+			err := queries.NewGetSalesQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&sales))
 			require.NoError(t, err)
 			require.Empty(t, sales)
 		})
@@ -91,7 +91,7 @@ func TestAddSale(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionID := setup.LoggedIn(setup.Cashier())
+			_, sessionID := setup.LoggedIn(t, setup.Cashier(t))
 			payload := rest.AddSalePayload{
 				Items: []models.ID{},
 			}
@@ -100,7 +100,7 @@ func TestAddSale(t *testing.T) {
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
 			sales := []*models.SaleSummary{}
-			err := queries.NewGetSalesQuery().Execute(setup.Db, queries.CollectTo(&sales))
+			err := queries.NewGetSalesQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&sales))
 			require.NoError(t, err)
 			require.Empty(t, sales)
 		})
@@ -109,7 +109,7 @@ func TestAddSale(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionID := setup.LoggedIn(setup.Cashier())
+			_, sessionID := setup.LoggedIn(t, setup.Cashier(t))
 			nonexistentItemID := setup.GenerateNonexistentItemID(t)
 
 			payload := rest.AddSalePayload{
@@ -120,7 +120,7 @@ func TestAddSale(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_item")
 
 			sales := []*models.SaleSummary{}
-			err := queries.NewGetSalesQuery().Execute(setup.Db, queries.CollectTo(&sales))
+			err := queries.NewGetSalesQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&sales))
 			require.NoError(t, err)
 			require.Empty(t, sales)
 		})
@@ -129,9 +129,9 @@ func TestAddSale(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionID := setup.LoggedIn(setup.Cashier())
-			seller := setup.Seller()
-			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			_, sessionID := setup.LoggedIn(t, setup.Cashier(t))
+			seller := setup.Seller(t)
+			item := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest.AddSalePayload{
 				Items: []models.ID{item.ItemID, item.ItemID},
@@ -141,7 +141,7 @@ func TestAddSale(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "duplicate_item_in_sale")
 
 			sales := []*models.SaleSummary{}
-			err := queries.NewGetSalesQuery().Execute(setup.Db, queries.CollectTo(&sales))
+			err := queries.NewGetSalesQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&sales))
 			require.NoError(t, err)
 			require.Empty(t, sales)
 		})
@@ -150,8 +150,8 @@ func TestAddSale(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			seller := setup.Seller(t)
+			item := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest.AddSalePayload{
 				Items: []models.ID{item.ItemID},
@@ -165,8 +165,8 @@ func TestAddSale(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			seller := setup.Seller(t)
+			item := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			payload := rest.AddSalePayload{
 				Items: []models.ID{item.ItemID},
@@ -180,8 +180,8 @@ func TestAddSale(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionID := setup.LoggedIn(setup.Seller(), aux.WithExpiration(10))
-			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			seller, sessionID := setup.LoggedIn(t, setup.Seller(t), aux.WithExpiration(10))
+			item := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			// Advance time to ensure session is expired
 			setup.Clock.Advance(10)
@@ -194,7 +194,7 @@ func TestAddSale(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
 
 			sales := []*models.SaleSummary{}
-			err := queries.NewGetSalesQuery().Execute(setup.Db, queries.CollectTo(&sales))
+			err := queries.NewGetSalesQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&sales))
 			require.NoError(t, err)
 			require.Empty(t, sales)
 		})

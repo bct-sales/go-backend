@@ -22,10 +22,10 @@ func TestUpdateItem(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionID := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(t, setup.Seller(t))
 			originalDescription := "old description"
 			newDescription := "new description"
-			originalItem := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithDescription(originalDescription), aux.WithHidden(false))
+			originalItem := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithDescription(originalDescription), aux.WithHidden(false))
 
 			url := path.Item(originalItem.ItemID)
 			payload := struct {
@@ -37,7 +37,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
-			actualItem, err := queries.GetItemWithID(setup.Db, originalItem.ItemID)
+			actualItem, err := queries.GetItemWithID(t.Context(), setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -49,11 +49,11 @@ func TestUpdateItem(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			_, sessionID := setup.LoggedIn(setup.Admin())
+			seller := setup.Seller(t)
+			_, sessionID := setup.LoggedIn(t, setup.Admin(t))
 			originalDescription := "old description"
 			newDescription := "new description"
-			originalItem := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithDescription(originalDescription), aux.WithHidden(false))
+			originalItem := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithDescription(originalDescription), aux.WithHidden(false))
 
 			url := path.Item(originalItem.ItemID)
 			payload := struct {
@@ -65,7 +65,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
-			actualItem, err := queries.GetItemWithID(setup.Db, originalItem.ItemID)
+			actualItem, err := queries.GetItemWithID(t.Context(), setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -77,10 +77,10 @@ func TestUpdateItem(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionID := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(t, setup.Seller(t))
 			originalPrice := 100
 			newPrice := 200
-			originalItem := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithPriceInCents(models.MoneyInCents(originalPrice)), aux.WithHidden(false))
+			originalItem := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithPriceInCents(models.MoneyInCents(originalPrice)), aux.WithHidden(false))
 
 			url := path.Item(originalItem.ItemID)
 			payload := struct {
@@ -92,7 +92,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
-			actualItem, err := queries.GetItemWithID(setup.Db, originalItem.ItemID)
+			actualItem, err := queries.GetItemWithID(t.Context(), setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -104,8 +104,8 @@ func TestUpdateItem(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionID := setup.LoggedIn(setup.Seller())
-			originalItem := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithCharity(false), aux.WithDonation(false), aux.WithHidden(false))
+			seller, sessionID := setup.LoggedIn(t, setup.Seller(t))
+			originalItem := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithCharity(false), aux.WithDonation(false), aux.WithHidden(false))
 
 			url := path.Item(originalItem.ItemID)
 			payload := struct {
@@ -119,7 +119,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
-			actualItem, err := queries.GetItemWithID(setup.Db, originalItem.ItemID)
+			actualItem, err := queries.GetItemWithID(t.Context(), setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -132,8 +132,8 @@ func TestUpdateItem(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionID := setup.LoggedIn(setup.Seller())
-			originalItem := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithLarge(false), aux.WithHidden(false))
+			seller, sessionID := setup.LoggedIn(t, setup.Seller(t))
+			originalItem := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithLarge(false), aux.WithHidden(false))
 
 			url := path.Item(originalItem.ItemID)
 			payload := struct {
@@ -145,7 +145,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			require.Equal(t, http.StatusNoContent, writer.Code)
 
-			actualItem, err := queries.GetItemWithID(setup.Db, originalItem.ItemID)
+			actualItem, err := queries.GetItemWithID(t.Context(), setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -159,8 +159,8 @@ func TestUpdateItem(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionID := setup.LoggedIn(setup.Seller())
-			originalItem := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithFrozen(true), aux.WithHidden(false))
+			seller, sessionID := setup.LoggedIn(t, setup.Seller(t))
+			originalItem := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithFrozen(true), aux.WithHidden(false))
 
 			url := path.Item(originalItem.ItemID)
 			payload := struct {
@@ -173,7 +173,7 @@ func TestUpdateItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "item_frozen")
 			require.Equal(t, http.StatusForbidden, writer.Code)
 
-			actualItem, err := queries.GetItemWithID(setup.Db, originalItem.ItemID)
+			actualItem, err := queries.GetItemWithID(t.Context(), setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -184,8 +184,8 @@ func TestUpdateItem(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionID := setup.LoggedIn(setup.Seller())
-			originalItem := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			seller, sessionID := setup.LoggedIn(t, setup.Seller(t))
+			originalItem := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			url := path.Item(originalItem.ItemID)
 			payload := struct {
@@ -197,7 +197,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "invalid_price")
 
-			actualItem, err := queries.GetItemWithID(setup.Db, originalItem.ItemID)
+			actualItem, err := queries.GetItemWithID(t.Context(), setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -208,7 +208,7 @@ func TestUpdateItem(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionID := setup.LoggedIn(setup.Seller())
+			_, sessionID := setup.LoggedIn(t, setup.Seller(t))
 
 			nonexistingItemID := setup.GenerateNonexistentItemID(t)
 			url := path.Item(nonexistingItemID)
@@ -227,9 +227,9 @@ func TestUpdateItem(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			ownerSeller := setup.Seller()
-			_, sessionID := setup.LoggedIn(setup.Seller())
-			originalItem := setup.Item(ownerSeller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			ownerSeller := setup.Seller(t)
+			_, sessionID := setup.LoggedIn(t, setup.Seller(t))
+			originalItem := setup.Item(t, ownerSeller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			url := path.Item(originalItem.ItemID)
 			payload := struct {
@@ -241,7 +241,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_seller")
 
-			actualItem, err := queries.GetItemWithID(setup.Db, originalItem.ItemID)
+			actualItem, err := queries.GetItemWithID(t.Context(), setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem
@@ -252,9 +252,9 @@ func TestUpdateItem(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			ownerSeller := setup.Seller()
-			_, sessionID := setup.LoggedIn(setup.Cashier())
-			originalItem := setup.Item(ownerSeller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			ownerSeller := setup.Seller(t)
+			_, sessionID := setup.LoggedIn(t, setup.Cashier(t))
+			originalItem := setup.Item(t, ownerSeller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			url := path.Item(originalItem.ItemID)
 			payload := struct {
@@ -266,7 +266,7 @@ func TestUpdateItem(t *testing.T) {
 			router.ServeHTTP(writer, request)
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
-			actualItem, err := queries.GetItemWithID(setup.Db, originalItem.ItemID)
+			actualItem, err := queries.GetItemWithID(t.Context(), setup.Db, originalItem.ItemID)
 			require.NoError(t, err)
 
 			expectedItem := *originalItem

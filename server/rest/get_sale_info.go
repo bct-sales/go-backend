@@ -46,6 +46,7 @@ func GetSaleInformation(arguments *HandlerFunctionArguments) {
 
 func (ep *getSaleInformationEndpoint) execute() {
 	logger := ep.Logger
+	ctx := ep.Context.Request.Context()
 
 	if !ep.ensureUserHasRightRole() {
 		return
@@ -56,7 +57,7 @@ func (ep *getSaleInformationEndpoint) execute() {
 		return
 	}
 
-	sale, err := queries.GetSaleWithID(ep.Database, saleID)
+	sale, err := queries.GetSaleWithID(ctx, ep.Database, saleID)
 	if err != nil {
 		logger.AddInformation("saleID", saleID)
 
@@ -86,7 +87,7 @@ func (ep *getSaleInformationEndpoint) execute() {
 		return
 	}
 
-	saleItems, err := queries.GetSaleItems(ep.Database, saleID)
+	saleItems, err := queries.GetSaleItems(ctx, ep.Database, saleID)
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchSale) {
 			logger.AddInformation("saleID", saleID)

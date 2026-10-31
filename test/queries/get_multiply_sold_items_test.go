@@ -15,32 +15,32 @@ import (
 
 func TestGetMultiplySoldItems(t *testing.T) {
 	t.Run("No sales", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		seller := setup.Seller()
-		setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+		seller := setup.Seller(t)
+		setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
-		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
+		multiplySoldItems, err := queries.GetMultiplySoldItems(t.Context(), db)
 
 		require.NoError(t, err)
 		require.Len(t, multiplySoldItems, 0)
 	})
 
 	t.Run("No multiply sold items", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		seller := setup.Seller()
-		cashier := setup.Cashier()
+		seller := setup.Seller(t)
+		cashier := setup.Cashier(t)
 
 		itemIDs := []models.ID{
-			setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)).ItemID,
+			setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)).ItemID,
 		}
 
-		setup.Sale(cashier.UserID, []models.ID{itemIDs[0]})
+		setup.Sale(t, cashier.UserID, []models.ID{itemIDs[0]})
 
-		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
+		multiplySoldItems, err := queries.GetMultiplySoldItems(t.Context(), db)
 
 		require.NoError(t, err)
 		require.Len(t, multiplySoldItems, 0)
@@ -49,20 +49,20 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	t.Run("Item sold twice", func(t *testing.T) {
 		for i := range 20 {
 			t.Run(fmt.Sprintf("i = %d", i), func(t *testing.T) {
-				setup, db := NewDatabaseFixture(WithDefaultCategories)
+				setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				seller := setup.Seller()
-				cashier := setup.Cashier()
+				seller := setup.Seller(t)
+				cashier := setup.Cashier(t)
 
 				items := []*models.Item{
-					setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false)),
+					setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithHidden(false)),
 				}
 
-				sale1 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
-				sale2 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
+				sale1 := setup.Sale(t, cashier.UserID, []models.ID{items[0].ItemID})
+				sale2 := setup.Sale(t, cashier.UserID, []models.ID{items[0].ItemID})
 
-				multiplySoldItems, err := queries.GetMultiplySoldItems(db)
+				multiplySoldItems, err := queries.GetMultiplySoldItems(t.Context(), db)
 
 				require.NoError(t, err)
 				require.Len(t, multiplySoldItems, 1)
@@ -77,21 +77,21 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("Item sold thrice", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		seller := setup.Seller()
-		cashier := setup.Cashier()
+		seller := setup.Seller(t)
+		cashier := setup.Cashier(t)
 
 		items := []*models.Item{
-			setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)),
+			setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)),
 		}
 
-		sale1 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
-		sale2 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
-		sale3 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
+		sale1 := setup.Sale(t, cashier.UserID, []models.ID{items[0].ItemID})
+		sale2 := setup.Sale(t, cashier.UserID, []models.ID{items[0].ItemID})
+		sale3 := setup.Sale(t, cashier.UserID, []models.ID{items[0].ItemID})
 
-		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
+		multiplySoldItems, err := queries.GetMultiplySoldItems(t.Context(), db)
 
 		require.NoError(t, err)
 		require.Len(t, multiplySoldItems, 1)
@@ -105,21 +105,21 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("Two items sold twice", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		seller := setup.Seller()
-		cashier := setup.Cashier()
+		seller := setup.Seller(t)
+		cashier := setup.Cashier(t)
 
 		items := []*models.Item{
-			setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)),
-			setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false)),
+			setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)),
+			setup.Item(t, seller.UserID, aux.WithDummyData(2), aux.WithHidden(false)),
 		}
 
-		sale1 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
-		sale2 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
+		sale1 := setup.Sale(t, cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
+		sale2 := setup.Sale(t, cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
 
-		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
+		multiplySoldItems, err := queries.GetMultiplySoldItems(t.Context(), db)
 
 		require.NoError(t, err)
 		require.Len(t, multiplySoldItems, 2)
@@ -136,23 +136,23 @@ func TestGetMultiplySoldItems(t *testing.T) {
 	})
 
 	t.Run("Sales [1], [1, 2], [1, 2, 3]", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		seller := setup.Seller()
-		cashier := setup.Cashier()
+		seller := setup.Seller(t)
+		cashier := setup.Cashier(t)
 
 		items := []*models.Item{
-			setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)),
-			setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false)),
-			setup.Item(seller.UserID, aux.WithDummyData(3), aux.WithHidden(false)),
+			setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false)),
+			setup.Item(t, seller.UserID, aux.WithDummyData(2), aux.WithHidden(false)),
+			setup.Item(t, seller.UserID, aux.WithDummyData(3), aux.WithHidden(false)),
 		}
 
-		sale1 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID})
-		sale2 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
-		sale3 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID, items[2].ItemID})
+		sale1 := setup.Sale(t, cashier.UserID, []models.ID{items[0].ItemID})
+		sale2 := setup.Sale(t, cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
+		sale3 := setup.Sale(t, cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID, items[2].ItemID})
 
-		multiplySoldItems, err := queries.GetMultiplySoldItems(db)
+		multiplySoldItems, err := queries.GetMultiplySoldItems(t.Context(), db)
 
 		require.NoError(t, err)
 		require.Len(t, multiplySoldItems, 2)

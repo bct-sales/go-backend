@@ -15,68 +15,68 @@ import (
 func TestGetSoldItems(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("No items in existence", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			soldItems, err := queries.GetSoldItems(db)
+			soldItems, err := queries.GetSoldItems(t.Context(), db)
 			require.NoError(t, err)
 			require.Empty(t, soldItems)
 		})
 
 		t.Run("Single unsold item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			seller := setup.Seller(t)
+			setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
-			soldItems, err := queries.GetSoldItems(db)
+			soldItems, err := queries.GetSoldItems(t.Context(), db)
 			require.NoError(t, err)
 			require.Empty(t, soldItems)
 		})
 
 		t.Run("Single sold item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
-			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
-			setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+			seller := setup.Seller(t)
+			cashier := setup.Cashier(t)
+			item := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			setup.Sale(t, cashier.UserID, []models.ID{item.ItemID})
 
-			soldItems, err := queries.GetSoldItems(db)
+			soldItems, err := queries.GetSoldItems(t.Context(), db)
 			require.NoError(t, err)
 			require.Len(t, soldItems, 1)
 			require.Equal(t, item, soldItems[0])
 		})
 
 		t.Run("Doubly sold item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
-			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
-			setup.Sale(cashier.UserID, []models.ID{item.ItemID})
-			setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+			seller := setup.Seller(t)
+			cashier := setup.Cashier(t)
+			item := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			setup.Sale(t, cashier.UserID, []models.ID{item.ItemID})
+			setup.Sale(t, cashier.UserID, []models.ID{item.ItemID})
 
-			soldItems, err := queries.GetSoldItems(db)
+			soldItems, err := queries.GetSoldItems(t.Context(), db)
 			require.NoError(t, err)
 			require.Len(t, soldItems, 1)
 			require.Equal(t, item, soldItems[0])
 		})
 
 		t.Run("Two sold items in single sale", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
-			item1 := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
-			item2 := setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false))
-			setup.Sale(cashier.UserID, []models.ID{item1.ItemID, item2.ItemID})
+			seller := setup.Seller(t)
+			cashier := setup.Cashier(t)
+			item1 := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			item2 := setup.Item(t, seller.UserID, aux.WithDummyData(2), aux.WithHidden(false))
+			setup.Sale(t, cashier.UserID, []models.ID{item1.ItemID, item2.ItemID})
 
-			soldItems, err := queries.GetSoldItems(db)
+			soldItems, err := queries.GetSoldItems(t.Context(), db)
 			require.NoError(t, err)
 			require.Len(t, soldItems, 2)
 			require.Equal(t, item1, soldItems[0])
@@ -84,17 +84,17 @@ func TestGetSoldItems(t *testing.T) {
 		})
 
 		t.Run("Two sold items in separate sales", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
-			item1 := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
-			item2 := setup.Item(seller.UserID, aux.WithDummyData(2), aux.WithHidden(false))
-			setup.Sale(cashier.UserID, []models.ID{item1.ItemID}, aux.WithTransactionTime(models.Timestamp(100)))
-			setup.Sale(cashier.UserID, []models.ID{item2.ItemID}, aux.WithTransactionTime(models.Timestamp(200)))
+			seller := setup.Seller(t)
+			cashier := setup.Cashier(t)
+			item1 := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			item2 := setup.Item(t, seller.UserID, aux.WithDummyData(2), aux.WithHidden(false))
+			setup.Sale(t, cashier.UserID, []models.ID{item1.ItemID}, aux.WithTransactionTime(models.Timestamp(100)))
+			setup.Sale(t, cashier.UserID, []models.ID{item2.ItemID}, aux.WithTransactionTime(models.Timestamp(200)))
 
-			soldItems, err := queries.GetSoldItems(db)
+			soldItems, err := queries.GetSoldItems(t.Context(), db)
 			require.NoError(t, err)
 			require.Len(t, soldItems, 2)
 			require.Equal(t, item1, soldItems[1])

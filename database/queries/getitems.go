@@ -1,6 +1,7 @@
 package queries
 
 import (
+	"context"
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/meta"
 	"bctbackend/database/models"
@@ -88,7 +89,7 @@ func (q *GetItemsQuery) WithDescriptionPattern(descriptionSubstring string) {
 	q.descriptionPattern = &descriptionSubstring
 }
 
-func (q *GetItemsQuery) Execute(db DatabaseQuerier, receiver func(*models.Item) error) (r_err error) {
+func (q *GetItemsQuery) Execute(ctx context.Context, db DatabaseQuerier, receiver func(*models.Item) error) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -99,7 +100,7 @@ func (q *GetItemsQuery) Execute(db DatabaseQuerier, receiver func(*models.Item) 
 	}
 
 	// Perform query
-	rows, err := db.Query(queryString, queryArguments...)
+	rows, err := db.QueryContext(ctx, queryString, queryArguments...)
 	if err != nil {
 		return fmt.Errorf("failed to execute query %s to look up items in database: %w", queryString, err)
 	}

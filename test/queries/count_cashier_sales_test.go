@@ -16,36 +16,36 @@ import (
 func TestCountCashierSales(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Multiple sales, single cashier", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
+			seller := setup.Seller(t)
+			cashier := setup.Cashier(t)
 
-			items := setup.Items(seller.UserID, 5, aux.WithHidden(false))
-			setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
-			setup.Sale(cashier.UserID, []models.ID{items[2].ItemID, items[3].ItemID})
-			setup.Sale(cashier.UserID, []models.ID{items[4].ItemID})
+			items := setup.Items(t, seller.UserID, 5, aux.WithHidden(false))
+			setup.Sale(t, cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
+			setup.Sale(t, cashier.UserID, []models.ID{items[2].ItemID, items[3].ItemID})
+			setup.Sale(t, cashier.UserID, []models.ID{items[4].ItemID})
 
-			count, err := queries.CountCashierSales(db, cashier.UserID)
+			count, err := queries.CountCashierSales(t.Context(), db, cashier.UserID)
 			require.NoError(t, err)
 			require.Equal(t, 3, count)
 		})
 
 		t.Run("Multiple sales, multiple cashiers", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
-			cashier2 := setup.Cashier()
+			seller := setup.Seller(t)
+			cashier := setup.Cashier(t)
+			cashier2 := setup.Cashier(t)
 
-			items := setup.Items(seller.UserID, 5, aux.WithHidden(false))
-			setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
-			setup.Sale(cashier.UserID, []models.ID{items[2].ItemID, items[3].ItemID})
-			setup.Sale(cashier2.UserID, []models.ID{items[4].ItemID})
+			items := setup.Items(t, seller.UserID, 5, aux.WithHidden(false))
+			setup.Sale(t, cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID})
+			setup.Sale(t, cashier.UserID, []models.ID{items[2].ItemID, items[3].ItemID})
+			setup.Sale(t, cashier2.UserID, []models.ID{items[4].ItemID})
 
-			count, err := queries.CountCashierSales(db, cashier.UserID)
+			count, err := queries.CountCashierSales(t.Context(), db, cashier.UserID)
 			require.NoError(t, err)
 			require.Equal(t, 2, count)
 		})
@@ -53,22 +53,22 @@ func TestCountCashierSales(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Nonexistent cashier", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			nonexistentCashierID := setup.GenerateNonexistentUserID(t)
 
-			_, err := queries.CountCashierSales(db, nonexistentCashierID)
+			_, err := queries.CountCashierSales(t.Context(), db, nonexistentCashierID)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 
 		t.Run("Not a cashier", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			noncashier := setup.Seller()
+			noncashier := setup.Seller(t)
 
-			_, err := queries.CountCashierSales(db, noncashier.UserID)
+			_, err := queries.CountCashierSales(t.Context(), db, noncashier.UserID)
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 	})

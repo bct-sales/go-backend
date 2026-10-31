@@ -16,17 +16,17 @@ import (
 func TestRenameCategory(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Only one category in existence", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(t)
 			defer setup.Close()
 
 			categoryID := models.ID(1)
 			newName := "bar"
-			setup.Category(categoryID, "foo")
+			setup.Category(t, categoryID, "foo")
 
-			err := queries.RenameCategory(db, categoryID, newName)
+			err := queries.RenameCategory(t.Context(), db, categoryID, newName)
 			require.NoError(t, err)
 
-			categories, err := queries.GetCategories(db)
+			categories, err := queries.GetCategories(t.Context(), db)
 			require.NoError(t, err)
 
 			require.Len(t, categories, 1)
@@ -35,18 +35,18 @@ func TestRenameCategory(t *testing.T) {
 		})
 
 		t.Run("Multiple categories in existence", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(t)
 			defer setup.Close()
 
-			setup.Category(1, "foo")
-			setup.Category(2, "bar")
-			setup.Category(3, "baz")
-			setup.Category(4, "qux")
+			setup.Category(t, 1, "foo")
+			setup.Category(t, 2, "bar")
+			setup.Category(t, 3, "baz")
+			setup.Category(t, 4, "qux")
 
-			err := queries.RenameCategory(db, 3, "bazzie")
+			err := queries.RenameCategory(t.Context(), db, 3, "bazzie")
 			require.NoError(t, err)
 
-			actualCategories, err := queries.GetCategories(db)
+			actualCategories, err := queries.GetCategories(t.Context(), db)
 			require.NoError(t, err)
 
 			require.Len(t, actualCategories, 4)
@@ -63,31 +63,31 @@ func TestRenameCategory(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Invalid name", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(t)
 			defer setup.Close()
 
-			setup.Category(1, "foo")
+			setup.Category(t, 1, "foo")
 
-			err := queries.RenameCategory(db, 1, "")
+			err := queries.RenameCategory(t.Context(), db, 1, "")
 			requireDatabaseWrappedError(t, err, dberr.ErrInvalidCategoryName)
 		})
 
 		t.Run("Duplicate name", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(t)
 			defer setup.Close()
 
-			setup.Category(1, "foo")
-			setup.Category(2, "bar")
+			setup.Category(t, 1, "foo")
+			setup.Category(t, 2, "bar")
 
-			err := queries.RenameCategory(db, 2, "foo")
+			err := queries.RenameCategory(t.Context(), db, 2, "foo")
 			requireDatabaseWrappedError(t, err, dberr.ErrDuplicateCategoryName)
 		})
 
 		t.Run("Nonexistent category id", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(t)
 			defer setup.Close()
 
-			err := queries.RenameCategory(db, 1, "foo")
+			err := queries.RenameCategory(t.Context(), db, 1, "foo")
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchCategory)
 		})
 	})

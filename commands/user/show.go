@@ -40,7 +40,7 @@ func NewUserShowCommand() *cobra.Command {
 }
 
 func (c *showUserCommand) execute(ctx context.Context, args []string) error {
-	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
+	return c.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
 		// Parse the user ID from the first argument
 		userID, err := models.ParseID(args[0])
 		if err != nil {
@@ -49,7 +49,7 @@ func (c *showUserCommand) execute(ctx context.Context, args []string) error {
 		}
 
 		// Fetch user information from the database
-		user, err := queries.GetUserWithID(db, userID)
+		user, err := queries.GetUserWithID(ctx, db, userID)
 		if err != nil {
 			if errors.Is(err, dberr.ErrNoSuchUser) {
 				c.PrintErrorf("User with ID %d does not exist.\n", userID)
@@ -61,11 +61,12 @@ func (c *showUserCommand) execute(ctx context.Context, args []string) error {
 		}
 
 		// Display user information based on their role
-		return models.VisitRole(user.RoleID, &showUser{command: c, database: db, user: user})
+		return models.VisitRole(user.RoleID, &showUser{ctx: ctx, command: c, database: db, user: user})
 	})
 }
 
 type showUser struct {
+	ctx      context.Context
 	command  *showUserCommand
 	database *sql.DB
 	user     *models.User
@@ -76,11 +77,11 @@ func (s *showUser) Admin() error {
 }
 
 func (s *showUser) Seller() error {
-	return s.command.showSeller(s.database, s.user)
+	return s.command.showSeller(s.ctx, s.database, s.user)
 }
 
 func (s *showUser) Cashier() error {
-	return s.command.showCashier(s.database, s.user)
+	return s.command.showCashier(s.ctx, s.database, s.user)
 }
 
 func (c *showUserCommand) showAdmin(user *models.User) error {
@@ -93,20 +94,20 @@ func (c *showUserCommand) showAdmin(user *models.User) error {
 	return nil
 }
 
-func (c *showUserCommand) showSeller(db *sql.DB, user *models.User) error {
+func (c *showUserCommand) showSeller(ctx context.Context, db *sql.DB, user *models.User) error {
 	pterm.DefaultSection.Println("User Data")
 
 	if err := c.printUserTable(user); err != nil {
 		return err
 	}
 
-	sellerItems, err := queries.GetSellerItems(db, user.UserID, queries.AllItems)
+	sellerItems, err := queries.GetSellerItems(ctx, db, user.UserID, queries.AllItems)
 	if err != nil {
 		c.PrintErrorf("Failed to get seller items\n")
 		return err
 	}
 
-	categoryNameTable, err := c.GetCategoryNameTable(db)
+	categoryNameTable, err := c.GetCategoryNameTable(ctx, db)
 	if err != nil {
 		return err
 	}
@@ -121,19 +122,19 @@ func (c *showUserCommand) showSeller(db *sql.DB, user *models.User) error {
 	return nil
 }
 
-func (c *showUserCommand) showCashier(db *sql.DB, user *models.User) error {
+func (c *showUserCommand) showCashier(ctx context.Context, db *sql.DB, user *models.User) error {
 	pterm.DefaultSection.Println("User Data")
 	if err := c.printUserTable(user); err != nil {
 		return err
 	}
 
-	soldItems, err := queries.GetItemsSoldBy(db, user.UserID)
+	soldItems, err := queries.GetItemsSoldBy(ctx, db, user.UserID)
 	if err != nil {
 		c.PrintErrorf("Failed to get items sold by cashier\n")
 		return err
 	}
 
-	categoryNameTable, err := queries.GetCategoryNameTable(db)
+	categoryNameTable, err := queries.GetCategoryNameTable(ctx, db)
 	if err != nil {
 		c.PrintErrorf("Failed to get category names\n")
 		return err

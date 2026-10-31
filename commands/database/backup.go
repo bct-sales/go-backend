@@ -40,7 +40,7 @@ func NewDatabaseBackupCommand() *cobra.Command {
 func (c *backupDatabaseCommand) execute(ctx context.Context, args []string) error {
 	targetPath := c.determineDatabaseName(args)
 
-	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
+	return c.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
 		if _, err := db.Exec("VACUUM INTO ?", targetPath); err != nil {
 			c.PrintErrorf("Failed to backup database\n")
 			return fmt.Errorf("failed to backup database %s: %w", targetPath, err)

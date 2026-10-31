@@ -69,11 +69,11 @@ func (c *listItemsCommand) createQuery() *queries.ListItemsQuery {
 }
 
 func (c *listItemsCommand) listItemsInTableFormat(ctx context.Context) error {
-	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
+	return c.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
 		query := c.createQuery()
 
 		items := []*queries.ListItemsQueryRow{}
-		if err := query.Execute(db, queries.CollectTo(&items)); err != nil {
+		if err := query.Execute(ctx, db, queries.CollectTo(&items)); err != nil {
 			c.PrintErrorf("Error while getting items: %v\n", err)
 			return err
 		}
@@ -81,7 +81,7 @@ func (c *listItemsCommand) listItemsInTableFormat(ctx context.Context) error {
 		itemCount := len(items)
 
 		if itemCount > 0 {
-			categoryNameTable, err := c.GetCategoryNameTable(db)
+			categoryNameTable, err := c.GetCategoryNameTable(ctx, db)
 			if err != nil {
 				return err
 			}
@@ -127,15 +127,15 @@ func (c *listItemsCommand) listItemsInTableFormat(ctx context.Context) error {
 }
 
 func (c *listItemsCommand) listItemsInCSVFormat(ctx context.Context) error {
-	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
+	return c.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
 		query := c.createQuery()
 
 		items := []*queries.ListItemsQueryRow{}
-		if err := query.Execute(db, queries.CollectTo(&items)); err != nil {
+		if err := query.Execute(ctx, db, queries.CollectTo(&items)); err != nil {
 			return fmt.Errorf("failed to get items: %w", err)
 		}
 
-		categoryNameTable, err := c.GetCategoryNameTable(db)
+		categoryNameTable, err := c.GetCategoryNameTable(ctx, db)
 		if err != nil {
 			return err
 		}

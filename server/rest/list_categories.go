@@ -116,6 +116,7 @@ func (ep *listCategoriesEndpoint) listCategoriesWithCounts(itemSelection queries
 	db := ep.Database
 	roleID := ep.RoleID
 	logger := ep.Logger
+	ctx := context.Request.Context()
 
 	if !roleID.IsAdmin() {
 		logger.InvalidRequest("Unauthorized access to category counts")
@@ -123,7 +124,7 @@ func (ep *listCategoriesEndpoint) listCategoriesWithCounts(itemSelection queries
 		return
 	}
 
-	categoryCounts, err := queries.CountItemsPerCategory(db, itemSelection)
+	categoryCounts, err := queries.CountItemsPerCategory(ctx, db, itemSelection)
 	if err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to fetch category counts")
@@ -133,7 +134,7 @@ func (ep *listCategoriesEndpoint) listCategoriesWithCounts(itemSelection queries
 		return
 	}
 
-	categoryNameTable, err := queries.GetCategoryNameTable(db)
+	categoryNameTable, err := queries.GetCategoryNameTable(ctx, db)
 	if err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to fetch category name table")
@@ -179,6 +180,7 @@ func (ep *listCategoriesEndpoint) listCategoriesWithSoldCounts() {
 	db := ep.Database
 	roleID := ep.RoleID
 	logger := ep.Logger
+	ctx := context.Request.Context()
 
 	if !roleID.IsAdmin() {
 		logger.InvalidRequest("Unauthorized access to category counts")
@@ -188,7 +190,7 @@ func (ep *listCategoriesEndpoint) listCategoriesWithSoldCounts() {
 		return
 	}
 
-	categoryCounts, err := queries.CountSoldItemsPerCategory(db)
+	categoryCounts, err := queries.CountSoldItemsPerCategory(ctx, db)
 	if err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to fetch category counts of sold items")
@@ -198,7 +200,7 @@ func (ep *listCategoriesEndpoint) listCategoriesWithSoldCounts() {
 		return
 	}
 
-	categoryNameTable, err := queries.GetCategoryNameTable(db)
+	categoryNameTable, err := queries.GetCategoryNameTable(ctx, db)
 	if err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to fetch category name table")
@@ -243,8 +245,9 @@ func (ep *listCategoriesEndpoint) listCategoriesWithoutCounts() {
 	context := ep.Context
 	db := ep.Database
 	logger := ep.Logger
+	ctx := context.Request.Context()
 
-	categories, err := queries.GetCategories(db)
+	categories, err := queries.GetCategories(ctx, db)
 	if err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to fetch categories")

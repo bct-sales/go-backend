@@ -34,7 +34,7 @@ func TestAddSellerItem(t *testing.T) {
 											setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 											defer setup.Close()
 
-											seller, sessionID := setup.LoggedIn(setup.Seller(aux.WithUserID(sellerID)), aux.WithExpiration(200))
+											seller, sessionID := setup.LoggedIn(t, setup.Seller(t, aux.WithUserID(sellerID)), aux.WithExpiration(200))
 
 											setup.Clock.Advance(models.Timestamp(delay))
 
@@ -54,7 +54,7 @@ func TestAddSellerItem(t *testing.T) {
 											response := FromJSON[rest.AddSellerItemResponse](t, writer.Body.String())
 
 											itemsInDatabase := []*models.Item{}
-											err := queries.NewGetItemsQuery().Execute(setup.Db, queries.CollectTo(&itemsInDatabase))
+											err := queries.NewGetItemsQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&itemsInDatabase))
 											require.NoError(t, err)
 											require.Equal(t, 1, len(itemsInDatabase))
 
@@ -90,7 +90,7 @@ func TestAddSellerItem(t *testing.T) {
 			charity := false
 			large := false
 
-			seller, sessionID := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(t, setup.Seller(t))
 
 			url := path.SellerItems(seller.UserID)
 			payload := rest.AddSellerItemPayload{
@@ -106,7 +106,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "invalid_price")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.NewGetItemsQuery().Execute(setup.Db, queries.CollectTo(&itemsInDatabase))
+			err := queries.NewGetItemsQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -122,7 +122,7 @@ func TestAddSellerItem(t *testing.T) {
 			charity := false
 			large := false
 
-			seller, sessionID := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(t, setup.Seller(t))
 
 			url := path.SellerItems(seller.UserID)
 			payload := rest.AddSellerItemPayload{
@@ -138,7 +138,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "invalid_item_description")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.NewGetItemsQuery().Execute(setup.Db, queries.CollectTo(&itemsInDatabase))
+			err := queries.NewGetItemsQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -156,7 +156,7 @@ func TestAddSellerItem(t *testing.T) {
 
 			require.NotContains(t, defaultCategoryNameTable, categoryID)
 
-			seller, sessionID := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(t, setup.Seller(t))
 
 			url := path.SellerItems(seller.UserID)
 			payload := rest.AddSellerItemPayload{
@@ -172,7 +172,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_category")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.NewGetItemsQuery().Execute(setup.Db, queries.CollectTo(&itemsInDatabase))
+			err := queries.NewGetItemsQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -188,8 +188,8 @@ func TestAddSellerItem(t *testing.T) {
 			charity := false
 			large := false
 
-			seller := setup.Seller()
-			_, sessionID := setup.LoggedIn(setup.Admin())
+			seller := setup.Seller(t)
+			_, sessionID := setup.LoggedIn(t, setup.Admin(t))
 
 			url := path.SellerItems(seller.UserID)
 			payload := rest.AddSellerItemPayload{
@@ -205,7 +205,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.NewGetItemsQuery().Execute(setup.Db, queries.CollectTo(&itemsInDatabase))
+			err := queries.NewGetItemsQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -221,8 +221,8 @@ func TestAddSellerItem(t *testing.T) {
 			charity := false
 			large := false
 
-			seller := setup.Seller()
-			_, sessionID := setup.LoggedIn(setup.Cashier())
+			seller := setup.Seller(t)
+			_, sessionID := setup.LoggedIn(t, setup.Cashier(t))
 			url := path.SellerItems(seller.UserID)
 			payload := rest.AddSellerItemPayload{
 				Price:       &price,
@@ -237,7 +237,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.NewGetItemsQuery().Execute(setup.Db, queries.CollectTo(&itemsInDatabase))
+			err := queries.NewGetItemsQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -253,7 +253,7 @@ func TestAddSellerItem(t *testing.T) {
 			charity := false
 			large := false
 
-			_, sessionID := setup.LoggedIn(setup.Seller())
+			_, sessionID := setup.LoggedIn(t, setup.Seller(t))
 
 			url := path.SellerItemsStr("a")
 			payload := rest.AddSellerItemPayload{
@@ -269,7 +269,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusBadRequest, "invalid_user_id")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.NewGetItemsQuery().Execute(setup.Db, queries.CollectTo(&itemsInDatabase))
+			err := queries.NewGetItemsQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -285,8 +285,8 @@ func TestAddSellerItem(t *testing.T) {
 			charity := false
 			large := false
 
-			seller1 := setup.Seller()
-			_, sessionID := setup.LoggedIn(setup.Seller())
+			seller1 := setup.Seller(t)
+			_, sessionID := setup.LoggedIn(t, setup.Seller(t))
 
 			url := path.SellerItems(seller1.UserID)
 			payload := rest.AddSellerItemPayload{
@@ -302,7 +302,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusForbidden, "wrong_seller")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.NewGetItemsQuery().Execute(setup.Db, queries.CollectTo(&itemsInDatabase))
+			err := queries.NewGetItemsQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -318,7 +318,7 @@ func TestAddSellerItem(t *testing.T) {
 			charity := false
 			large := false
 
-			_, sessionID := setup.LoggedIn(setup.Seller())
+			_, sessionID := setup.LoggedIn(t, setup.Seller(t))
 			nonexistentUserID := setup.GenerateNonexistentUserID(t)
 
 			url := path.SellerItems(nonexistentUserID)
@@ -335,7 +335,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusNotFound, "no_such_user")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.NewGetItemsQuery().Execute(setup.Db, queries.CollectTo(&itemsInDatabase))
+			err := queries.NewGetItemsQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -351,7 +351,7 @@ func TestAddSellerItem(t *testing.T) {
 			charity := false
 			large := false
 
-			seller := setup.Seller()
+			seller := setup.Seller(t)
 
 			url := path.SellerItems(seller.UserID)
 			payload := rest.AddSellerItemPayload{
@@ -367,7 +367,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusUnauthorized, "missing_session_id")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.NewGetItemsQuery().Execute(setup.Db, queries.CollectTo(&itemsInDatabase))
+			err := queries.NewGetItemsQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -383,7 +383,7 @@ func TestAddSellerItem(t *testing.T) {
 			charity := false
 			large := false
 
-			seller := setup.Seller()
+			seller := setup.Seller(t)
 			invalidSessionID := models.SessionID("xxx")
 
 			url := path.SellerItems(seller.UserID)
@@ -400,7 +400,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.NewGetItemsQuery().Execute(setup.Db, queries.CollectTo(&itemsInDatabase))
+			err := queries.NewGetItemsQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})
@@ -416,7 +416,7 @@ func TestAddSellerItem(t *testing.T) {
 			charity := false
 			large := false
 
-			seller, sessionID := setup.LoggedIn(setup.Seller(), aux.WithExpiration(100))
+			seller, sessionID := setup.LoggedIn(t, setup.Seller(t), aux.WithExpiration(100))
 
 			setup.Clock.Advance(100) // Advance time to ensure session is expired
 
@@ -434,7 +434,7 @@ func TestAddSellerItem(t *testing.T) {
 			RequireFailureType(t, writer, http.StatusUnauthorized, "no_such_session")
 
 			itemsInDatabase := []*models.Item{}
-			err := queries.NewGetItemsQuery().Execute(setup.Db, queries.CollectTo(&itemsInDatabase))
+			err := queries.NewGetItemsQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&itemsInDatabase))
 			require.NoError(t, err)
 			require.Equal(t, 0, len(itemsInDatabase))
 		})

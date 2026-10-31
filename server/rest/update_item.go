@@ -98,11 +98,12 @@ func (ep *updateItemEndpoint) parseUriParameters() (models.ID, bool) {
 }
 
 func (ep *updateItemEndpoint) fetchItemFromDatabase(itemID models.ID) (*models.Item, bool) {
+	ctx := ep.Context.Request.Context()
 	db := ep.Database
 	logger := ep.Logger
 	context := ep.Context
 
-	item, err := queries.GetItemWithID(db, itemID)
+	item, err := queries.GetItemWithID(ctx, db, itemID)
 	if err != nil {
 		logger.AddInformation("error", err)
 
@@ -165,12 +166,13 @@ func (ep *updateItemEndpoint) isOperationAuthorized(item *models.Item) bool {
 }
 
 func (ep *updateItemEndpoint) performItemUpdate(item *models.Item, payload *UpdateItemPayload) bool {
+	ctx := ep.Context.Request.Context()
 	db := ep.Database
 	logger := ep.Logger
 	context := ep.Context
 	itemID := item.ItemID
 
-	transaction, transactionErr := db.StartTransaction()
+	transaction, transactionErr := db.StartTransaction(ctx)
 	if transactionErr != nil {
 		logger.AddInformation("error", transactionErr)
 		logger.InternalError("Failed to begin transaction for item update")
@@ -190,7 +192,7 @@ func (ep *updateItemEndpoint) performItemUpdate(item *models.Item, payload *Upda
 		Charity:      payload.Charity,
 		Large:        payload.Large,
 	}
-	if updateErr := queries.UpdateItem(transaction, itemID, &itemUpdate); updateErr != nil {
+	if updateErr := queries.UpdateItem(ctx, transaction, itemID, &itemUpdate); updateErr != nil {
 		logger.AddInformation("error", updateErr)
 
 		if errors.Is(updateErr, dberr.ErrNoSuchItem) {

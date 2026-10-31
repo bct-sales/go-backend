@@ -5,6 +5,7 @@ package helpers
 import (
 	models "bctbackend/database/models"
 	queries "bctbackend/database/queries"
+	"context"
 	"database/sql"
 )
 
@@ -58,7 +59,7 @@ func WithLastActivity(lastActivity models.Timestamp) func(*AddUserData) {
 	}
 }
 
-func AddUserToDatabase(db *sql.DB, roleID models.RoleID, options ...func(*AddUserData)) *models.User {
+func AddUserToDatabase(ctx context.Context, db *sql.DB, roleID models.RoleID, options ...func(*AddUserData)) *models.User {
 	data := AddUserData{
 		RoleID: roleID,
 	}
@@ -72,7 +73,7 @@ func AddUserToDatabase(db *sql.DB, roleID models.RoleID, options ...func(*AddUse
 	var userID models.ID
 	if data.UserID == nil {
 		var err error
-		userID, err = queries.AddUser(db, roleID, *data.CreatedAt, data.LastActivity, *data.Password)
+		userID, err = queries.AddUser(ctx, db, roleID, *data.CreatedAt, data.LastActivity, *data.Password)
 
 		if err != nil {
 			panic(err)
@@ -80,14 +81,14 @@ func AddUserToDatabase(db *sql.DB, roleID models.RoleID, options ...func(*AddUse
 	} else {
 		userID = *data.UserID
 		var err error
-		err = queries.AddUserWithID(db, userID, roleID, *data.CreatedAt, data.LastActivity, *data.Password)
+		err = queries.AddUserWithID(ctx, db, userID, roleID, *data.CreatedAt, data.LastActivity, *data.Password)
 
 		if err != nil {
 			panic(err)
 		}
 	}
 
-	user, err := queries.GetUserWithID(db, userID)
+	user, err := queries.GetUserWithID(ctx, db, userID)
 	if err != nil {
 		panic(err)
 	}

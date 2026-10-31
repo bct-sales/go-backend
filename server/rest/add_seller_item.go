@@ -105,8 +105,9 @@ func (ep *addSellerItemEndpoint) parseURI() (models.ID, bool) {
 
 func (ep *addSellerItemEndpoint) ensureValidity(uriSellerID models.ID) bool {
 	logger := ep.Logger
+	ctx := ep.Context.Request.Context()
 
-	sellerExists, err := queries.UserWithIDExists(ep.Database, uriSellerID)
+	sellerExists, err := queries.UserWithIDExists(ctx, ep.Database, uriSellerID)
 
 	if err != nil {
 		logger.AddInformation("error", err)
@@ -194,8 +195,10 @@ func (ep *addSellerItemEndpoint) interpretDatabaseError(err error, payload *AddS
 }
 
 func (ep *addSellerItemEndpoint) addItemToDatabase(payload *AddSellerItemPayload) (models.ID, bool) {
+	ctx := ep.Context.Request.Context()
 	timestamp := ep.Clock.Now()
 	itemID, err := queries.AddItem(
+		ctx,
 		ep.Database,
 		timestamp,
 		*payload.Description,

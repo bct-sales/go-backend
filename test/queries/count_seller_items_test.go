@@ -19,13 +19,13 @@ func TestCountSellerItems(t *testing.T) {
 			for _, itemCount := range []int{0, 1, 2, 10, 100} {
 				testLabel := fmt.Sprintf("Seller with %d items", itemCount)
 				t.Run(testLabel, func(t *testing.T) {
-					setup, db := NewDatabaseFixture(WithDefaultCategories)
+					setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
-					seller := setup.Seller()
-					setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
+					seller := setup.Seller(t)
+					setup.Items(t, seller.UserID, itemCount, aux.WithHidden(false))
 
-					actual, err := queries.CountSellerItems(db, seller.UserID, queries.IncludeAll, queries.IncludeAll)
+					actual, err := queries.CountSellerItems(t.Context(), db, seller.UserID, queries.IncludeAll, queries.IncludeAll)
 					require.NoError(t, err)
 					require.Equal(t, itemCount, actual)
 				})
@@ -36,15 +36,15 @@ func TestCountSellerItems(t *testing.T) {
 			for _, itemCount := range []int{0, 1, 2, 10, 100} {
 				testLabel := fmt.Sprintf("Seller with %d items", itemCount)
 				t.Run(testLabel, func(t *testing.T) {
-					setup, db := NewDatabaseFixture(WithDefaultCategories)
+					setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
-					seller := setup.Seller()
-					otherSeller := setup.Seller()
-					setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
-					setup.Items(otherSeller.UserID, itemCount, aux.WithHidden(false))
+					seller := setup.Seller(t)
+					otherSeller := setup.Seller(t)
+					setup.Items(t, seller.UserID, itemCount, aux.WithHidden(false))
+					setup.Items(t, otherSeller.UserID, itemCount, aux.WithHidden(false))
 
-					actual, err := queries.CountSellerItems(db, seller.UserID, queries.IncludeAll, queries.IncludeAll)
+					actual, err := queries.CountSellerItems(t.Context(), db, seller.UserID, queries.IncludeAll, queries.IncludeAll)
 					require.NoError(t, err)
 					require.Equal(t, itemCount, actual)
 				})
@@ -70,15 +70,15 @@ func TestCountSellerItems(t *testing.T) {
 				{queries.IncludeAll, queries.IncludeOnly, hiddenCount},
 			} {
 				t.Run(fmt.Sprintf("Frozen: %v, Hidden: %v", testCase.frozen, testCase.hidden), func(t *testing.T) {
-					setup, db := NewDatabaseFixture(WithDefaultCategories)
+					setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
-					seller := setup.Seller()
-					setup.Items(seller.UserID, baseCount, aux.WithFrozen(false), aux.WithHidden(false))
-					setup.Items(seller.UserID, frozenCount, aux.WithFrozen(true), aux.WithHidden(false))
-					setup.Items(seller.UserID, hiddenCount, aux.WithFrozen(false), aux.WithHidden(true))
+					seller := setup.Seller(t)
+					setup.Items(t, seller.UserID, baseCount, aux.WithFrozen(false), aux.WithHidden(false))
+					setup.Items(t, seller.UserID, frozenCount, aux.WithFrozen(true), aux.WithHidden(false))
+					setup.Items(t, seller.UserID, hiddenCount, aux.WithFrozen(false), aux.WithHidden(true))
 
-					actual, err := queries.CountSellerItems(db, seller.UserID, testCase.frozen, testCase.hidden)
+					actual, err := queries.CountSellerItems(t.Context(), db, seller.UserID, testCase.frozen, testCase.hidden)
 					require.NoError(t, err)
 					require.Equal(t, testCase.expected, actual)
 				})
@@ -86,18 +86,18 @@ func TestCountSellerItems(t *testing.T) {
 		})
 
 		t.Run("Counting hidden items", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
+			seller := setup.Seller(t)
 			baseCount := 4
 			frozenCount := 8
 			hiddenCount := 16
-			setup.Items(seller.UserID, baseCount, aux.WithFrozen(false), aux.WithHidden(false))
-			setup.Items(seller.UserID, frozenCount, aux.WithFrozen(true), aux.WithHidden(false))
-			setup.Items(seller.UserID, hiddenCount, aux.WithFrozen(false), aux.WithHidden(true))
+			setup.Items(t, seller.UserID, baseCount, aux.WithFrozen(false), aux.WithHidden(false))
+			setup.Items(t, seller.UserID, frozenCount, aux.WithFrozen(true), aux.WithHidden(false))
+			setup.Items(t, seller.UserID, hiddenCount, aux.WithFrozen(false), aux.WithHidden(true))
 
-			actual, err := queries.CountSellerItems(db, seller.UserID, queries.IncludeAll, queries.IncludeAll)
+			actual, err := queries.CountSellerItems(t.Context(), db, seller.UserID, queries.IncludeAll, queries.IncludeAll)
 			require.NoError(t, err)
 			require.Equal(t, baseCount+frozenCount+hiddenCount, actual)
 		})
@@ -105,32 +105,32 @@ func TestCountSellerItems(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("No such user", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			nonExistentSellerID := setup.GenerateNonexistentUserID(t)
 
-			_, err := queries.CountSellerItems(db, nonExistentSellerID, queries.IncludeAll, queries.IncludeAll)
+			_, err := queries.CountSellerItems(t.Context(), db, nonExistentSellerID, queries.IncludeAll, queries.IncludeAll)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 
 		t.Run("Count items of cashier", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			cashier := setup.Cashier()
+			cashier := setup.Cashier(t)
 
-			_, err := queries.CountSellerItems(db, cashier.UserID, queries.IncludeAll, queries.IncludeAll)
+			_, err := queries.CountSellerItems(t.Context(), db, cashier.UserID, queries.IncludeAll, queries.IncludeAll)
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 
 		t.Run("Count items of admin", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			admin := setup.Admin()
+			admin := setup.Admin(t)
 
-			_, err := queries.CountSellerItems(db, admin.UserID, queries.IncludeAll, queries.IncludeAll)
+			_, err := queries.CountSellerItems(t.Context(), db, admin.UserID, queries.IncludeAll, queries.IncludeAll)
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 	})

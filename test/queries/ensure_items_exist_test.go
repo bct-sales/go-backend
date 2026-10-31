@@ -16,40 +16,40 @@ import (
 func TestEnsureItemsExist(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Visible items", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
+			seller := setup.Seller(t)
+			items := setup.Items(t, seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 			itemIDs := models.CollectItemIDs(items)
 
-			err := queries.EnsureItemsExist(db, itemIDs)
+			err := queries.EnsureItemsExist(t.Context(), db, itemIDs)
 			require.NoError(t, err)
 		})
 
 		t.Run("Hidden items", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(true))
+			seller := setup.Seller(t)
+			items := setup.Items(t, seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(true))
 			itemIDs := models.CollectItemIDs(items)
 
-			err := queries.EnsureItemsExist(db, itemIDs)
+			err := queries.EnsureItemsExist(t.Context(), db, itemIDs)
 			require.NoError(t, err)
 		})
 	})
 
 	t.Run("Failure", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		seller := setup.Seller()
-		items := setup.Items(seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
+		seller := setup.Seller(t)
+		items := setup.Items(t, seller.UserID, 10, aux.WithFrozen(false), aux.WithHidden(false))
 		nonexistentItemID := setup.GenerateNonexistentItemID(t)
 		itemIDs := append(models.CollectItemIDs(items), nonexistentItemID)
 
-		err := queries.EnsureItemsExist(db, itemIDs)
+		err := queries.EnsureItemsExist(t.Context(), db, itemIDs)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 	})
 }

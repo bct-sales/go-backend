@@ -12,25 +12,25 @@ import (
 )
 
 func TestUpdatePassword(t *testing.T) {
-	setup, db := NewDatabaseFixture(WithDefaultCategories)
+	setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 	defer setup.Close()
 
 	password1 := "xyz"
 	password2 := "abc"
 	newPassword1 := "123"
 
-	user1ID, err := queries.AddUser(db, models.NewSellerRoleID(), 0, nil, password1)
+	user1ID, err := queries.AddUser(t.Context(), db, models.NewSellerRoleID(), 0, nil, password1)
 	require.NoError(t, err)
 
-	user2ID, err := queries.AddUser(db, models.NewSellerRoleID(), 0, nil, password2)
+	user2ID, err := queries.AddUser(t.Context(), db, models.NewSellerRoleID(), 0, nil, password2)
 	require.NoError(t, err)
 
-	err = queries.UpdateUserPassword(db, user1ID, newPassword1)
+	err = queries.UpdateUserPassword(t.Context(), db, user1ID, newPassword1)
 	require.NoError(t, err)
 
-	_, err = queries.AuthenticateUser(db, user1ID, newPassword1)
+	_, err = queries.AuthenticateUser(t.Context(), db, user1ID, newPassword1)
 	require.NoError(t, err)
 
-	_, err = queries.AuthenticateUser(db, user2ID, password2)
+	_, err = queries.AuthenticateUser(t.Context(), db, user2ID, password2)
 	require.NoError(t, err)
 }

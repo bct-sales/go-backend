@@ -20,14 +20,14 @@ func TestGetUsersWithItemCount(t *testing.T) {
 			for _, itemCount := range itemCounts {
 				testLabel := fmt.Sprintf("ItemCount: %d", itemCount)
 				t.Run(testLabel, func(t *testing.T) {
-					setup, db := NewDatabaseFixture(WithDefaultCategories)
+					setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
-					seller := setup.Seller()
-					setup.Items(seller.UserID, itemCount, aux.WithHidden(false))
+					seller := setup.Seller(t)
+					setup.Items(t, seller.UserID, itemCount, aux.WithHidden(false))
 
 					actual := []*queries.UserWithItemCount{}
-					err := queries.GetUsersWithItemCount(db, queries.AllItems, queries.CollectTo(&actual))
+					err := queries.GetUsersWithItemCount(t.Context(), db, queries.AllItems, queries.CollectTo(&actual))
 					require.NoError(t, err)
 					require.Len(t, actual, 1)
 					expected := &queries.UserWithItemCount{
@@ -40,18 +40,18 @@ func TestGetUsersWithItemCount(t *testing.T) {
 		})
 
 		t.Run("Multiple sellers", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller1 := setup.Seller()
-			seller2 := setup.Seller()
-			seller3 := setup.Seller()
-			setup.Items(seller1.UserID, 0, aux.WithHidden(false))
-			setup.Items(seller2.UserID, 5, aux.WithHidden(false))
-			setup.Items(seller3.UserID, 15, aux.WithHidden(false))
+			seller1 := setup.Seller(t)
+			seller2 := setup.Seller(t)
+			seller3 := setup.Seller(t)
+			setup.Items(t, seller1.UserID, 0, aux.WithHidden(false))
+			setup.Items(t, seller2.UserID, 5, aux.WithHidden(false))
+			setup.Items(t, seller3.UserID, 15, aux.WithHidden(false))
 
 			actual := []*queries.UserWithItemCount{}
-			err := queries.GetUsersWithItemCount(db, queries.AllItems, queries.CollectTo(&actual))
+			err := queries.GetUsersWithItemCount(t.Context(), db, queries.AllItems, queries.CollectTo(&actual))
 			require.NoError(t, err)
 			require.Len(t, actual, 3)
 			expected := []*queries.UserWithItemCount{
@@ -73,21 +73,21 @@ func TestGetUsersWithItemCount(t *testing.T) {
 
 		t.Run("Hidden items", func(t *testing.T) {
 			t.Run("Exclude hidden items", func(t *testing.T) {
-				setup, db := NewDatabaseFixture(WithDefaultCategories)
+				setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				seller1 := setup.Seller()
-				seller2 := setup.Seller()
-				seller3 := setup.Seller()
-				setup.Items(seller1.UserID, 0, aux.WithFrozen(false), aux.WithHidden(false))
-				setup.Items(seller1.UserID, 3, aux.WithFrozen(false), aux.WithHidden(true))
-				setup.Items(seller2.UserID, 5, aux.WithFrozen(false), aux.WithHidden(false))
-				setup.Items(seller2.UserID, 5, aux.WithFrozen(false), aux.WithHidden(true))
-				setup.Items(seller3.UserID, 15, aux.WithFrozen(false), aux.WithHidden(false))
-				setup.Items(seller3.UserID, 4, aux.WithFrozen(false), aux.WithHidden(true))
+				seller1 := setup.Seller(t)
+				seller2 := setup.Seller(t)
+				seller3 := setup.Seller(t)
+				setup.Items(t, seller1.UserID, 0, aux.WithFrozen(false), aux.WithHidden(false))
+				setup.Items(t, seller1.UserID, 3, aux.WithFrozen(false), aux.WithHidden(true))
+				setup.Items(t, seller2.UserID, 5, aux.WithFrozen(false), aux.WithHidden(false))
+				setup.Items(t, seller2.UserID, 5, aux.WithFrozen(false), aux.WithHidden(true))
+				setup.Items(t, seller3.UserID, 15, aux.WithFrozen(false), aux.WithHidden(false))
+				setup.Items(t, seller3.UserID, 4, aux.WithFrozen(false), aux.WithHidden(true))
 
 				actual := []*queries.UserWithItemCount{}
-				err := queries.GetUsersWithItemCount(db, queries.OnlyVisibleItems, queries.CollectTo(&actual))
+				err := queries.GetUsersWithItemCount(t.Context(), db, queries.OnlyVisibleItems, queries.CollectTo(&actual))
 				require.NoError(t, err)
 				require.Len(t, actual, 3)
 				expected := []*queries.UserWithItemCount{
@@ -108,21 +108,21 @@ func TestGetUsersWithItemCount(t *testing.T) {
 			})
 
 			t.Run("Include hidden items", func(t *testing.T) {
-				setup, db := NewDatabaseFixture(WithDefaultCategories)
+				setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				seller1 := setup.Seller()
-				seller2 := setup.Seller()
-				seller3 := setup.Seller()
-				setup.Items(seller1.UserID, 0, aux.WithFrozen(false), aux.WithHidden(false))
-				setup.Items(seller1.UserID, 3, aux.WithFrozen(false), aux.WithHidden(true))
-				setup.Items(seller2.UserID, 5, aux.WithFrozen(false), aux.WithHidden(false))
-				setup.Items(seller2.UserID, 5, aux.WithFrozen(false), aux.WithHidden(true))
-				setup.Items(seller3.UserID, 15, aux.WithFrozen(false), aux.WithHidden(false))
-				setup.Items(seller3.UserID, 4, aux.WithFrozen(false), aux.WithHidden(true))
+				seller1 := setup.Seller(t)
+				seller2 := setup.Seller(t)
+				seller3 := setup.Seller(t)
+				setup.Items(t, seller1.UserID, 0, aux.WithFrozen(false), aux.WithHidden(false))
+				setup.Items(t, seller1.UserID, 3, aux.WithFrozen(false), aux.WithHidden(true))
+				setup.Items(t, seller2.UserID, 5, aux.WithFrozen(false), aux.WithHidden(false))
+				setup.Items(t, seller2.UserID, 5, aux.WithFrozen(false), aux.WithHidden(true))
+				setup.Items(t, seller3.UserID, 15, aux.WithFrozen(false), aux.WithHidden(false))
+				setup.Items(t, seller3.UserID, 4, aux.WithFrozen(false), aux.WithHidden(true))
 
 				actual := []*queries.UserWithItemCount{}
-				err := queries.GetUsersWithItemCount(db, queries.AllItems, queries.CollectTo(&actual))
+				err := queries.GetUsersWithItemCount(t.Context(), db, queries.AllItems, queries.CollectTo(&actual))
 				require.NoError(t, err)
 				require.Len(t, actual, 3)
 				expected := []*queries.UserWithItemCount{
@@ -143,21 +143,21 @@ func TestGetUsersWithItemCount(t *testing.T) {
 			})
 
 			t.Run("Only hidden items", func(t *testing.T) {
-				setup, db := NewDatabaseFixture(WithDefaultCategories)
+				setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				seller1 := setup.Seller()
-				seller2 := setup.Seller()
-				seller3 := setup.Seller()
-				setup.Items(seller1.UserID, 0, aux.WithFrozen(false), aux.WithHidden(false))
-				setup.Items(seller1.UserID, 3, aux.WithFrozen(false), aux.WithHidden(true))
-				setup.Items(seller2.UserID, 5, aux.WithFrozen(false), aux.WithHidden(false))
-				setup.Items(seller2.UserID, 5, aux.WithFrozen(false), aux.WithHidden(true))
-				setup.Items(seller3.UserID, 15, aux.WithFrozen(false), aux.WithHidden(false))
-				setup.Items(seller3.UserID, 4, aux.WithFrozen(false), aux.WithHidden(true))
+				seller1 := setup.Seller(t)
+				seller2 := setup.Seller(t)
+				seller3 := setup.Seller(t)
+				setup.Items(t, seller1.UserID, 0, aux.WithFrozen(false), aux.WithHidden(false))
+				setup.Items(t, seller1.UserID, 3, aux.WithFrozen(false), aux.WithHidden(true))
+				setup.Items(t, seller2.UserID, 5, aux.WithFrozen(false), aux.WithHidden(false))
+				setup.Items(t, seller2.UserID, 5, aux.WithFrozen(false), aux.WithHidden(true))
+				setup.Items(t, seller3.UserID, 15, aux.WithFrozen(false), aux.WithHidden(false))
+				setup.Items(t, seller3.UserID, 4, aux.WithFrozen(false), aux.WithHidden(true))
 
 				actual := []*queries.UserWithItemCount{}
-				err := queries.GetUsersWithItemCount(db, queries.OnlyHiddenItems, queries.CollectTo(&actual))
+				err := queries.GetUsersWithItemCount(t.Context(), db, queries.OnlyHiddenItems, queries.CollectTo(&actual))
 				require.NoError(t, err)
 				require.Len(t, actual, 3)
 				expected := []*queries.UserWithItemCount{

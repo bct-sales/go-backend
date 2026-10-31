@@ -39,23 +39,23 @@ func NewSaleShowCommand() *cobra.Command {
 }
 
 func (command *saleShowCommand) Execute(ctx context.Context, args []string) error {
-	return command.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
+	return command.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
 		saleID, err := command.parseSaleID(args[0])
 		if err != nil {
 			return err
 		}
 
-		sale, err := command.getSaleInformation(db, saleID)
+		sale, err := command.getSaleInformation(ctx, db, saleID)
 		if err != nil {
 			return err
 		}
 
-		saleItems, err := command.getSaleItems(db, saleID)
+		saleItems, err := command.getSaleItems(ctx, db, saleID)
 		if err != nil {
 			return err
 		}
 
-		categoryNameTable, err := command.getCategoryNameTable(db)
+		categoryNameTable, err := command.getCategoryNameTable(ctx, db)
 		if err != nil {
 			return err
 		}
@@ -83,8 +83,8 @@ func (command *saleShowCommand) parseSaleID(str string) (models.ID, error) {
 	return saleID, nil
 }
 
-func (command *saleShowCommand) getSaleItems(db *sql.DB, saleID models.ID) ([]*models.Item, error) {
-	saleItems, err := queries.GetSaleItems(db, saleID)
+func (command *saleShowCommand) getSaleItems(ctx context.Context, db *sql.DB, saleID models.ID) ([]*models.Item, error) {
+	saleItems, err := queries.GetSaleItems(ctx, db, saleID)
 
 	if err != nil {
 		command.PrintErrorf("An error occurred while getting the sale items: %v\n", err)
@@ -94,8 +94,8 @@ func (command *saleShowCommand) getSaleItems(db *sql.DB, saleID models.ID) ([]*m
 	return saleItems, nil
 }
 
-func (command *saleShowCommand) getCategoryNameTable(db *sql.DB) (map[models.ID]string, error) {
-	categoryNameTable, err := queries.GetCategoryNameTable(db)
+func (command *saleShowCommand) getCategoryNameTable(ctx context.Context, db *sql.DB) (map[models.ID]string, error) {
+	categoryNameTable, err := queries.GetCategoryNameTable(ctx, db)
 
 	if err != nil {
 		command.PrintErrorf("An error occurred while fetching categories: %v\n", err)
@@ -139,8 +139,8 @@ func (command *saleShowCommand) printSaleItems(saleItems []*models.Item, categor
 	return nil
 }
 
-func (command *saleShowCommand) getSaleInformation(db *sql.DB, saleID models.ID) (*models.Sale, error) {
-	sale, err := queries.GetSaleWithID(db, saleID)
+func (command *saleShowCommand) getSaleInformation(ctx context.Context, db *sql.DB, saleID models.ID) (*models.Sale, error) {
+	sale, err := queries.GetSaleWithID(ctx, db, saleID)
 
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchSale) {

@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"context"
 	"database/sql"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -8,12 +9,14 @@ import (
 )
 
 type Page struct {
+	Context    context.Context
 	Database   *sql.DB
 	ScreenSize Size
 }
 
-func New(database *sql.DB) Page {
+func New(ctx context.Context, database *sql.DB) Page {
 	return Page{
+		Context:    ctx,
 		Database:   database,
 		ScreenSize: NewSize(0, 0),
 	}

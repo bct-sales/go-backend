@@ -73,10 +73,11 @@ func NewAddItemCommand() *cobra.Command {
 }
 
 func (c *addItemCommand) execute(ctx context.Context) error {
-	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
+	return c.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
 		timestamp := models.Now()
 
 		addedItemID, err := queries.AddItem(
+			ctx,
 			db,
 			timestamp,
 			c.description,
@@ -110,7 +111,7 @@ func (c *addItemCommand) execute(ctx context.Context) error {
 		}
 		c.Printf("Item %d added successfully", addedItemID.Int64())
 
-		err = c.printItem(db, addedItemID)
+		err = c.printItem(ctx, db, addedItemID)
 		if err != nil {
 			return nil // Don't return an error in this case, as the item is already added to the database.
 		}
@@ -119,14 +120,14 @@ func (c *addItemCommand) execute(ctx context.Context) error {
 	})
 }
 
-func (c *addItemCommand) printItem(db *sql.DB, itemID models.ID) error {
-	item, err := queries.GetItemWithID(db, itemID)
+func (c *addItemCommand) printItem(ctx context.Context, db *sql.DB, itemID models.ID) error {
+	item, err := queries.GetItemWithID(ctx, db, itemID)
 	if err != nil {
 		c.PrintErrorf("Failed to get item back from database\n")
 		return fmt.Errorf("failed to get item with id %d: %w", itemID, err)
 	}
 
-	categoryNameTable, err := c.GetCategoryNameTable(db)
+	categoryNameTable, err := c.GetCategoryNameTable(ctx, db)
 	if err != nil {
 		return err
 	}

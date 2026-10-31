@@ -1,6 +1,7 @@
 package queries
 
 import (
+	"context"
 	"bctbackend/database/meta"
 	"bctbackend/database/models"
 	"bctbackend/database/queries/filters"
@@ -38,7 +39,7 @@ func ListItems() *ListItemsQuery {
 	return &query
 }
 
-func (query *ListItemsQuery) Execute(db DatabaseQuerier, receiver func(*ListItemsQueryRow) error) (r_err error) {
+func (query *ListItemsQuery) Execute(ctx context.Context, db DatabaseQuerier, receiver func(*ListItemsQueryRow) error) (r_err error) {
 	sqlQuery := sq.Select(
 		fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.ItemID),
 		fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.AddedAt),
@@ -58,7 +59,7 @@ func (query *ListItemsQuery) Execute(db DatabaseQuerier, receiver func(*ListItem
 		sqlQuery = sqlQuery.Where(whereClause)
 	}
 
-	rows, queryErr := sqlQuery.RunWith(db).Query()
+	rows, queryErr := sqlQuery.RunWith(newSquirrelRunner(ctx, db)).QueryContext(ctx)
 	if queryErr != nil {
 		return fmt.Errorf("failed to list items in database: %w", queryErr)
 	}

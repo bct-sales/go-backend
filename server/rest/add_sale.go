@@ -125,9 +125,11 @@ func (ep *addSaleEndpoint) interpretDatabaseError(err error) {
 }
 
 func (ep *addSaleEndpoint) addSaleToDatabase(transaction *queries.TransactionalDatabaseQuerier, itemIDs []models.ID) (models.ID, bool) {
+	ctx := ep.Context.Request.Context()
 	timestamp := ep.Clock.Now()
 
 	saleID, err := queries.AddSale(
+		ctx,
 		transaction,
 		ep.UserID,
 		timestamp,
@@ -143,7 +145,8 @@ func (ep *addSaleEndpoint) addSaleToDatabase(transaction *queries.TransactionalD
 
 func (ep *addSaleEndpoint) startTransaction() *queries.TransactionalDatabaseQuerier {
 	logger := ep.Logger
-	transaction, err := ep.Database.StartTransaction()
+	ctx := ep.Context.Request.Context()
+	transaction, err := ep.Database.StartTransaction(ctx)
 
 	if err != nil {
 		logger.AddInformation("error", err)

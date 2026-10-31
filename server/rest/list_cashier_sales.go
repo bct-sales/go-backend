@@ -114,7 +114,8 @@ func (ep *listCashierSalesEndpoint) extractCashierIDFromUri() (models.ID, bool) 
 
 func (ep *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.ID) bool {
 	logger := ep.Logger
-	user, err := queries.GetUserWithID(ep.Database, ep.UserID)
+	ctx := ep.Context.Request.Context()
+	user, err := queries.GetUserWithID(ctx, ep.Database, ep.UserID)
 
 	if err != nil {
 		logger.AddInformation("error", err)
@@ -162,9 +163,10 @@ func (ep *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.I
 
 func (ep *listCashierSalesEndpoint) getSaleSummariesFromDatabase(uriCashierID models.ID, order queries.Order, rowSelection *queries.RowRange) ([]*models.SaleSummary, bool) {
 	logger := ep.Logger
+	ctx := ep.Context.Request.Context()
 	var saleSummaries []*models.SaleSummary
 
-	if err := queries.GetCashierSales(ep.Database, uriCashierID, queries.CollectTo(&saleSummaries), order, rowSelection); err != nil {
+	if err := queries.GetCashierSales(ctx, ep.Database, uriCashierID, queries.CollectTo(&saleSummaries), order, rowSelection); err != nil {
 		logger.InternalError("Failed to retrieve cashier sales for user")
 
 		failure_response.Unknown(ep.Context, "Could not retrieve cashier sales: "+err.Error())
@@ -187,7 +189,8 @@ func (ep *listCashierSalesEndpoint) sendSuccessResponse(saleCount int, saleSumma
 
 func (ep *listCashierSalesEndpoint) getCashierSaleCount(uriCashierID models.ID) (int, bool) {
 	logger := ep.Logger
-	count, err := queries.CountCashierSales(ep.Database, uriCashierID)
+	ctx := ep.Context.Request.Context()
+	count, err := queries.CountCashierSales(ctx, ep.Database, uriCashierID)
 
 	if err != nil {
 		logger.AddInformation("error", err)

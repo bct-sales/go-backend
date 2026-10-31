@@ -109,8 +109,9 @@ func (ep *getItemInformationEndpoint) retrieveItemIDFromUri() (models.ID, bool) 
 
 func (ep *getItemInformationEndpoint) retrieveItemFromDatabase(itemID models.ID) *models.Item {
 	logger := ep.Logger
+	ctx := ep.Context.Request.Context()
 
-	item, err := queries.GetItemWithID(ep.Database, itemID)
+	item, err := queries.GetItemWithID(ctx, ep.Database, itemID)
 	if err != nil {
 		logger.AddInformation("error", err)
 
@@ -158,8 +159,9 @@ func (ep *getItemInformationEndpoint) ensureQueryAllowed(item *models.Item) bool
 
 func (ep *getItemInformationEndpoint) findSalesIncludingItem(itemID models.ID) ([]models.ID, bool) {
 	logger := ep.Logger
+	ctx := ep.Context.Request.Context()
 
-	soldIn, err := queries.GetSalesWithItem(ep.Database, itemID)
+	soldIn, err := queries.GetSalesWithItem(ctx, ep.Database, itemID)
 	if err != nil {
 		logger.AddInformation("error", err)
 

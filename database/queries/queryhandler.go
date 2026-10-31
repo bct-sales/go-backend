@@ -5,53 +5,63 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+
+	"github.com/Masterminds/squirrel"
 )
 
 type DatabaseQuerier interface {
-	Exec(query string, args ...any) (sql.Result, error)
-	Query(query string, args ...any) (*sql.Rows, error)
-	QueryRow(query string, args ...any) *sql.Row
+	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
+	PrepareContext(ctx context.Context, query string) (*sql.Stmt, error)
+	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
+	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
 }
 
-type ContextDatabaseQuerier struct {
-	Database *sql.DB
-	Context  context.Context
+// squirrelRunner adapts a DatabaseQuerier to squirrel's RunWith, which requires
+// the legacy context-less Exec and Query methods. The ctx-less methods forward to
+// the querier's ctx methods with the context given here; prefer calling the
+// Context-suffixed execution methods (e.g. .ExecContext(ctx)) on the runner.
+type squirrelRunner struct {
+	ctx     context.Context
+	querier DatabaseQuerier
 }
 
-func NewContextDatabaseQuerier(database *sql.DB, ctx context.Context) *ContextDatabaseQuerier {
-	return &ContextDatabaseQuerier{
-		Database: database,
-		Context:  ctx,
-	}
+func newSquirrelRunner(ctx context.Context, querier DatabaseQuerier) squirrelRunner {
+	return squirrelRunner{ctx: ctx, querier: querier}
 }
 
-func (c *ContextDatabaseQuerier) Exec(query string, args ...any) (sql.Result, error) {
-	return c.Database.ExecContext(c.Context, query, args...)
+func (r squirrelRunner) Exec(query string, args ...any) (sql.Result, error) {
+	return r.querier.ExecContext(r.ctx, query, args...)
 }
 
-func (c *ContextDatabaseQuerier) Query(query string, args ...any) (*sql.Rows, error) {
-	return c.Database.QueryContext(c.Context, query, args...)
+func (r squirrelRunner) Query(query string, args ...any) (*sql.Rows, error) {
+	return r.querier.QueryContext(r.ctx, query, args...)
 }
 
-func (c *ContextDatabaseQuerier) QueryRow(query string, args ...any) *sql.Row {
-	return c.Database.QueryRowContext(c.Context, query, args...)
+func (r squirrelRunner) ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error) {
+	return r.querier.ExecContext(ctx, query, args...)
+}
+
+func (r squirrelRunner) QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
+	return r.querier.QueryContext(ctx, query, args...)
+}
+
+func (r squirrelRunner) QueryRowContext(ctx context.Context, query string, args ...any) squirrel.RowScanner {
+	return r.querier.QueryRowContext(ctx, query, args...)
 }
 
 type TransactionalDatabaseQuerier struct {
 	transaction *sql.Tx
-	context     context.Context
 	committed   bool
 }
 
-func NewTransactionalDatabaseQuerier(context context.Context, db *sql.DB) (*TransactionalDatabaseQuerier, error) {
-	transaction, err := db.BeginTx(context, nil)
+func NewTransactionalDatabaseQuerier(ctx context.Context, db *sql.DB) (*TransactionalDatabaseQuerier, error) {
+	transaction, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to start new transaction: %w", err)
 	}
 
 	querier := TransactionalDatabaseQuerier{
 		transaction: transaction,
-		context:     context,
 		committed:   false,
 	}
 	return &querier, nil
@@ -78,32 +88,40 @@ func (t *TransactionalDatabaseQuerier) RollbackIfNotCommitted() {
 	}
 }
 
-func (t *TransactionalDatabaseQuerier) Exec(query string, args ...any) (sql.Result, error) {
+func (t *TransactionalDatabaseQuerier) PrepareContext(ctx context.Context, query string) (*sql.Stmt, error) {
 	if t.committed {
-		slog.Warn("Exec called on already committed transaction")
+		slog.Warn("PrepareContext called on already committed transaction")
 	}
 
-	return t.transaction.ExecContext(t.context, query, args...)
+	return t.transaction.PrepareContext(ctx, query)
 }
 
-func (t *TransactionalDatabaseQuerier) Query(query string, args ...any) (*sql.Rows, error) {
+func (t *TransactionalDatabaseQuerier) ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error) {
 	if t.committed {
-		slog.Warn("Query called on already committed transaction")
+		slog.Warn("ExecContext called on already committed transaction")
 	}
 
-	return t.transaction.QueryContext(t.context, query, args...)
+	return t.transaction.ExecContext(ctx, query, args...)
 }
 
-func (t *TransactionalDatabaseQuerier) QueryRow(query string, args ...any) *sql.Row {
+func (t *TransactionalDatabaseQuerier) QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
 	if t.committed {
-		slog.Warn("QueryRow called on already committed transaction")
+		slog.Warn("QueryContext called on already committed transaction")
 	}
 
-	return t.transaction.QueryRowContext(t.context, query, args...)
+	return t.transaction.QueryContext(ctx, query, args...)
 }
 
-func WithTransaction[T any](context context.Context, db *sql.DB, fn func(transaction *TransactionalDatabaseQuerier) (T, error)) (T, error) {
-	transaction, err := NewTransactionalDatabaseQuerier(context, db)
+func (t *TransactionalDatabaseQuerier) QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row {
+	if t.committed {
+		slog.Warn("QueryRowContext called on already committed transaction")
+	}
+
+	return t.transaction.QueryRowContext(ctx, query, args...)
+}
+
+func WithTransaction[T any](ctx context.Context, db *sql.DB, fn func(transaction *TransactionalDatabaseQuerier) (T, error)) (T, error) {
+	transaction, err := NewTransactionalDatabaseQuerier(ctx, db)
 	if err != nil {
 		var dummy T
 		return dummy, err

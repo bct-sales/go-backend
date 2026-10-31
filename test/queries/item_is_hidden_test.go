@@ -19,13 +19,13 @@ func TestItemIsHidden(t *testing.T) {
 		for _, hidden := range []bool{true, false} {
 			testLabel := fmt.Sprintf("Hidden %t", hidden)
 			t.Run(testLabel, func(t *testing.T) {
-				setup, db := NewDatabaseFixture(WithDefaultCategories)
+				setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				seller := setup.Seller()
-				item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithFrozen(false), aux.WithHidden(hidden))
+				seller := setup.Seller(t)
+				item := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithFrozen(false), aux.WithHidden(hidden))
 
-				actual, err := queries.IsItemHidden(db, item.ItemID)
+				actual, err := queries.IsItemHidden(t.Context(), db, item.ItemID)
 				require.NoError(t, err)
 				require.Equal(t, hidden, actual)
 			})
@@ -34,12 +34,12 @@ func TestItemIsHidden(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Nonexistent item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			invalidID := models.ID(1)
 
-			_, err := queries.IsItemHidden(db, invalidID)
+			_, err := queries.IsItemHidden(t.Context(), db, invalidID)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 		})
 	})

@@ -61,12 +61,12 @@ func NewUpdateItemCommand() *cobra.Command {
 }
 
 func (c *updateItemCommand) execute(ctx context.Context, args []string) error {
-	return c.WithTransaction(ctx, func(_ context.Context, db *queries.TransactionalDatabaseQuerier) error {
-		if err := c.updateItem(db); err != nil {
+	return c.WithTransaction(ctx, func(ctx context.Context, db *queries.TransactionalDatabaseQuerier) error {
+		if err := c.updateItem(ctx, db); err != nil {
 			return err
 		}
 
-		if err := c.showUpdatedItem(db); err != nil {
+		if err := c.showUpdatedItem(ctx, db); err != nil {
 			return err
 		}
 
@@ -74,7 +74,7 @@ func (c *updateItemCommand) execute(ctx context.Context, args []string) error {
 	})
 }
 
-func (c *updateItemCommand) updateItem(db *queries.TransactionalDatabaseQuerier) error {
+func (c *updateItemCommand) updateItem(ctx context.Context, db *queries.TransactionalDatabaseQuerier) error {
 	var description *string
 	var priceInCents *models.MoneyInCents
 	var categoryID *models.ID
@@ -136,7 +136,7 @@ func (c *updateItemCommand) updateItem(db *queries.TransactionalDatabaseQuerier)
 		AddedAt:      nil,
 	}
 
-	err := queries.UpdateItem(db, models.ID(c.itemID), &itemUpdate)
+	err := queries.UpdateItem(ctx, db, models.ID(c.itemID), &itemUpdate)
 	if err != nil {
 		c.PrintErrorf("Failed to update item\n")
 		return err
@@ -146,15 +146,15 @@ func (c *updateItemCommand) updateItem(db *queries.TransactionalDatabaseQuerier)
 	return nil
 }
 
-func (c *updateItemCommand) showUpdatedItem(db *queries.TransactionalDatabaseQuerier) error {
+func (c *updateItemCommand) showUpdatedItem(ctx context.Context, db *queries.TransactionalDatabaseQuerier) error {
 	itemID := models.ID(c.itemID)
-	categoryNameTable, err := c.GetCategoryNameTable(db)
+	categoryNameTable, err := c.GetCategoryNameTable(ctx, db)
 	if err != nil {
 		c.PrintErrorf("Failed to get category name table\n")
 		return err
 	}
 
-	item, err := queries.GetItemWithID(db, itemID)
+	item, err := queries.GetItemWithID(ctx, db, itemID)
 	if err != nil {
 		c.PrintErrorf("Failed to get item back from database\n")
 		return fmt.Errorf("failed to get item with id %d: %w", itemID, err)

@@ -23,7 +23,7 @@ func TestLogin(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
+			seller := setup.Seller(t)
 
 			form := url.Values{}
 			form.Add("username", seller.UserID.String())
@@ -55,7 +55,7 @@ func TestLogin(t *testing.T) {
 			}
 			require.True(t, found, "Expected session_id cookie to be set")
 
-			sessionData, err := queries.GetSessionByID(setup.Db, sessionID)
+			sessionData, err := queries.GetSessionByID(t.Context(), setup.Db, sessionID)
 			require.NoError(t, err)
 			require.Equal(t, seller.UserID, sessionData.UserID)
 		})
@@ -64,7 +64,7 @@ func TestLogin(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			admin := setup.Admin()
+			admin := setup.Admin(t)
 
 			form := url.Values{}
 			form.Add("username", admin.UserID.String())
@@ -96,7 +96,7 @@ func TestLogin(t *testing.T) {
 			}
 			require.True(t, found, "Expected session_id cookie to be set")
 
-			sessionData, err := queries.GetSessionByID(setup.Db, sessionID)
+			sessionData, err := queries.GetSessionByID(t.Context(), setup.Db, sessionID)
 			require.NoError(t, err)
 			require.Equal(t, admin.UserID, sessionData.UserID)
 		})
@@ -105,7 +105,7 @@ func TestLogin(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			cashier := setup.Cashier()
+			cashier := setup.Cashier(t)
 
 			form := url.Values{}
 			form.Add("username", cashier.UserID.String())
@@ -137,7 +137,7 @@ func TestLogin(t *testing.T) {
 			}
 			require.True(t, found, "Expected session_id cookie to be set")
 
-			sessionData, err := queries.GetSessionByID(setup.Db, sessionID)
+			sessionData, err := queries.GetSessionByID(t.Context(), setup.Db, sessionID)
 			require.NoError(t, err)
 			require.Equal(t, cashier.UserID, sessionData.UserID)
 		})
@@ -168,7 +168,7 @@ func TestLogin(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
+			seller := setup.Seller(t)
 			userID := seller.UserID
 			password := "wrong password"
 
@@ -191,7 +191,7 @@ func TestLogin(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			cashier := setup.Cashier()
+			cashier := setup.Cashier(t)
 
 			form := url.Values{}
 			form.Add("password", cashier.Password)
@@ -209,7 +209,7 @@ func TestLogin(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			cashier := setup.Cashier()
+			cashier := setup.Cashier(t)
 
 			form := url.Values{}
 			form.Add("username", cashier.UserID.String())

@@ -32,16 +32,16 @@ func TestGetItemsWithIDs(t *testing.T) {
 		for _, selection := range selections {
 			testLabel := fmt.Sprintf("Selection: %v", selection)
 			t.Run(testLabel, func(t *testing.T) {
-				setup, db := NewDatabaseFixture(WithDefaultCategories)
+				setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				seller := setup.Seller()
+				seller := setup.Seller(t)
 
 				for i := 0; i != 10; i++ {
-					setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
+					setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
 				}
 
-				actual, err := queries.GetItemsWithIDs(db, selection)
+				actual, err := queries.GetItemsWithIDs(t.Context(), db, selection)
 				require.NoError(t, err)
 
 				require.Equal(t, algorithms.NewSet(selection...).Len(), len(actual))
@@ -63,16 +63,16 @@ func TestGetItemsWithIDs(t *testing.T) {
 			for _, selection := range selections {
 				testLabel := fmt.Sprintf("Selection: %v", selection)
 				t.Run(testLabel, func(t *testing.T) {
-					setup, db := NewDatabaseFixture(WithDefaultCategories)
+					setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
-					seller := setup.Seller()
+					seller := setup.Seller(t)
 
 					for i := 0; i != 10; i++ {
-						setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
+						setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
 					}
 
-					actual, err := queries.GetItemsWithIDs(db, selection)
+					actual, err := queries.GetItemsWithIDs(t.Context(), db, selection)
 					require.Nil(t, actual)
 					requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 				})

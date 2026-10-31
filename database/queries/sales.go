@@ -2,6 +2,7 @@ package queries
 
 import (
 	"bctbackend/algorithms"
+	"context"
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"database/sql"
@@ -16,23 +17,23 @@ type addSaleQuery struct {
 	ItemIDs         []models.ID
 }
 
-func (q *addSaleQuery) execute(db *TransactionalDatabaseQuerier) (r_result models.ID, r_err error) {
-	if err := q.ensureInputsValidity(db); err != nil {
+func (q *addSaleQuery) execute(ctx context.Context, db *TransactionalDatabaseQuerier) (r_result models.ID, r_err error) {
+	if err := q.ensureInputsValidity(ctx, db); err != nil {
 		return 0, err
 	}
 
 	// Check if all items exist
-	if err := EnsureItemsExist(db, q.ItemIDs); err != nil {
+	if err := EnsureItemsExist(ctx, db, q.ItemIDs); err != nil {
 		return 0, fmt.Errorf("failed to add sale: %w", dberr.ErrNoSuchItem)
 	}
 
 	// Check if any of the items are hidden
-	if err := EnsureNoHiddenItems(db, q.ItemIDs); err != nil {
+	if err := EnsureNoHiddenItems(ctx, db, q.ItemIDs); err != nil {
 		return 0, err
 	}
 
 	// Create sale
-	result, err := db.Exec(
+	result, err := db.ExecContext(ctx,
 		`
 			INSERT INTO sales(cashier_id, transaction_time)
 			VALUES (?, ?)
@@ -51,7 +52,7 @@ func (q *addSaleQuery) execute(db *TransactionalDatabaseQuerier) (r_result model
 
 	// Add items to sale
 	for _, itemID := range q.ItemIDs {
-		_, err := db.Exec(
+		_, err := db.ExecContext(ctx,
 			`
 				INSERT INTO sale_items(sale_id, item_id)
 				VALUES (?, ?)
@@ -68,7 +69,7 @@ func (q *addSaleQuery) execute(db *TransactionalDatabaseQuerier) (r_result model
 	return models.ID(saleID), nil
 }
 
-func (q *addSaleQuery) ensureInputsValidity(db DatabaseQuerier) error {
+func (q *addSaleQuery) ensureInputsValidity(ctx context.Context, db DatabaseQuerier) error {
 	// Ensure there is at least one item in the sale.
 	if len(q.ItemIDs) == 0 {
 		return dberr.ErrSaleMissingItems
@@ -82,7 +83,7 @@ func (q *addSaleQuery) ensureInputsValidity(db DatabaseQuerier) error {
 	}
 
 	// Ensure the user exists and is a cashier
-	cashier, err := GetUserWithID(db, q.CashierID)
+	cashier, err := GetUserWithID(ctx, db, q.CashierID)
 	if err != nil {
 		return err
 	}
@@ -100,6 +101,7 @@ func (q *addSaleQuery) ensureInputsValidity(db DatabaseQuerier) error {
 // A ErrSaleRequiresCashier is returned if the cashierID does not correspond to a cashier.
 // A ErrDuplicateItemInSale is returned if itemIDs contains duplicate item IDs.
 func AddSale(
+	ctx context.Context,
 	db *TransactionalDatabaseQuerier,
 	cashierID models.ID,
 	transactionTime models.Timestamp,
@@ -115,7 +117,7 @@ func AddSale(
 		ItemIDs:         itemIDs,
 	}
 
-	return query.execute(db)
+	return query.execute(ctx, db)
 }
 
 type GetSalesQuery struct {
@@ -149,7 +151,7 @@ func (q *GetSalesQuery) OrderedAntiChronologically() *GetSalesQuery {
 	return q
 }
 
-func (q *GetSalesQuery) Execute(db DatabaseQuerier, receiver func(*models.SaleSummary) error) (r_err error) {
+func (q *GetSalesQuery) Execute(ctx context.Context, db DatabaseQuerier, receiver func(*models.SaleSummary) error) (r_err error) {
 	query := fmt.Sprintf(
 		`
 			SELECT
@@ -176,7 +178,7 @@ func (q *GetSalesQuery) Execute(db DatabaseQuerier, receiver func(*models.SaleSu
 	)
 
 	queryArguments := slices.Concat(q.whereArguments())
-	rows, err := db.Query(query, queryArguments...)
+	rows, err := db.QueryContext(ctx, query, queryArguments...)
 	if err != nil {
 		return err
 	}
@@ -235,14 +237,14 @@ func (q *GetSalesQuery) orderClause() string {
 
 // GetSaleWithID returns the sale with the given saleID.
 // A ErrNoSuchSale is returned if no sale with the given saleID exists.
-func GetSaleWithID(db DatabaseQuerier, saleID models.ID) (r_result *models.Sale, r_err error) {
+func GetSaleWithID(ctx context.Context, db DatabaseQuerier, saleID models.ID) (r_result *models.Sale, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
 	var cashierID models.ID
 	var transactionTime models.Timestamp
-	err := db.QueryRow(
+	err := db.QueryRowContext(ctx,
 		`
 			SELECT
 				cashier_id,
@@ -271,14 +273,14 @@ func GetSaleWithID(db DatabaseQuerier, saleID models.ID) (r_result *models.Sale,
 
 // SaleWithIDExists checks whether a sale with the given saleID exists in the database.
 // Returns true if the sale exists, false otherwise.
-func SaleWithIDExists(db DatabaseQuerier, saleID models.ID) (r_result bool, r_err error) {
+func SaleWithIDExists(ctx context.Context, db DatabaseQuerier, saleID models.ID) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
 	var exists int64
 
-	err := db.QueryRow(
+	err := db.QueryRowContext(ctx,
 		`
 			SELECT
 				1
@@ -303,12 +305,12 @@ func SaleWithIDExists(db DatabaseQuerier, saleID models.ID) (r_result bool, r_er
 
 // GetSaleItems lists all items associated with a specified sale.
 // Returns ErrNoSuchSale if the sale does not exist.
-func GetSaleItems(db DatabaseQuerier, saleID models.ID) (r_result []*models.Item, r_err error) {
+func GetSaleItems(ctx context.Context, db DatabaseQuerier, saleID models.ID) (r_result []*models.Item, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	saleExists, err := SaleWithIDExists(db, saleID)
+	saleExists, err := SaleWithIDExists(ctx, db, saleID)
 	if err != nil {
 		return nil, err
 	}
@@ -316,7 +318,7 @@ func GetSaleItems(db DatabaseQuerier, saleID models.ID) (r_result []*models.Item
 		return nil, fmt.Errorf("failed to get items of sale %d: %w", saleID, dberr.ErrNoSuchSale)
 	}
 
-	rows, err := db.Query(
+	rows, err := db.QueryContext(ctx,
 		`
 			SELECT
 				i.item_id,
@@ -387,12 +389,12 @@ func GetSaleItems(db DatabaseQuerier, saleID models.ID) (r_result []*models.Item
 // RemoveSale removes the sale with the given saleID from the database.
 // Returns ErrNoSuchSale if no such sale exists.
 // This function should be use with care.
-func RemoveSale(transaction *TransactionalDatabaseQuerier, saleID models.ID) (r_err error) {
+func RemoveSale(ctx context.Context, transaction *TransactionalDatabaseQuerier, saleID models.ID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	saleExists, err := SaleWithIDExists(transaction, saleID)
+	saleExists, err := SaleWithIDExists(ctx, transaction, saleID)
 	if err != nil {
 		return err
 	}
@@ -400,7 +402,7 @@ func RemoveSale(transaction *TransactionalDatabaseQuerier, saleID models.ID) (r_
 		return fmt.Errorf("failed to remove sale %d: %w", saleID, dberr.ErrNoSuchSale)
 	}
 
-	_, err = transaction.Exec(
+	_, err = transaction.ExecContext(ctx,
 		`
 			DELETE FROM sale_items
 			WHERE sale_id = ?
@@ -412,7 +414,7 @@ func RemoveSale(transaction *TransactionalDatabaseQuerier, saleID models.ID) (r_
 		return err
 	}
 
-	_, err = transaction.Exec(
+	_, err = transaction.ExecContext(ctx,
 		`
 			DELETE FROM sales
 			WHERE sale_id = ?
@@ -428,12 +430,12 @@ func RemoveSale(transaction *TransactionalDatabaseQuerier, saleID models.ID) (r_
 
 // GetSoldItems returns a list of all items that have been sold.
 // The items are ordered by transaction time (most recent first) and item ID (lowest first).
-func GetSoldItems(db DatabaseQuerier) (r_result []*models.Item, r_err error) {
+func GetSoldItems(ctx context.Context, db DatabaseQuerier) (r_result []*models.Item, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	rows, err := db.Query(
+	rows, err := db.QueryContext(ctx,
 		`
 			SELECT DISTINCT
 				i.item_id,
@@ -516,7 +518,7 @@ func GetSoldItems(db DatabaseQuerier) (r_result []*models.Item, r_err error) {
 
 // CountSoldItems returns the total number of items that have been sold.
 // Two counts are returned: one where each item is counted only once, and one where each item is counted for each sale it was involved in.
-func CountSoldItems(db DatabaseQuerier) (r_result *struct {
+func CountSoldItems(ctx context.Context, db DatabaseQuerier) (r_result *struct {
 	Distinct         int
 	IncludeMultiples int
 }, r_err error) {
@@ -526,7 +528,7 @@ func CountSoldItems(db DatabaseQuerier) (r_result *struct {
 
 	var totalCount int
 	var distinctCount int
-	err := db.QueryRow(
+	err := db.QueryRowContext(ctx,
 		`
 			SELECT
 				COUNT(si.item_id),
@@ -552,7 +554,7 @@ func CountSoldItems(db DatabaseQuerier) (r_result *struct {
 
 // HasAnyBeenSold checks if any one of the given item was involved in one or more sales.
 // Does not check if items exist.
-func HasAnyBeenSold(db DatabaseQuerier, itemIDs []models.ID) (r_result bool, r_err error) {
+func HasAnyBeenSold(ctx context.Context, db DatabaseQuerier, itemIDs []models.ID) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -569,7 +571,7 @@ func HasAnyBeenSold(db DatabaseQuerier, itemIDs []models.ID) (r_result bool, r_e
 	`, placeholderString(len(itemIDs)))
 	convertedItemIDs := algorithms.Map(itemIDs, func(id models.ID) any { return id })
 
-	rows, err := db.Query(query, convertedItemIDs...)
+	rows, err := db.QueryContext(ctx, query, convertedItemIDs...)
 	if err != nil {
 		return false, err
 	}
@@ -589,16 +591,16 @@ func HasAnyBeenSold(db DatabaseQuerier, itemIDs []models.ID) (r_result bool, r_e
 
 // GetItemsSoldBy returns a list of all items sold by a specified cashier.
 // The items are ordered by transaction time (most recent first) and item ID (lowest first).
-func GetItemsSoldBy(db DatabaseQuerier, cashierID models.ID) (r_result []*models.Item, r_err error) {
+func GetItemsSoldBy(ctx context.Context, db DatabaseQuerier, cashierID models.ID) (r_result []*models.Item, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if err := EnsureUserExistsAndHasRole(db, cashierID, models.NewCashierRoleID()); err != nil {
+	if err := EnsureUserExistsAndHasRole(ctx, db, cashierID, models.NewCashierRoleID()); err != nil {
 		return nil, err
 	}
 
-	rows, err := db.Query(
+	rows, err := db.QueryContext(ctx,
 		`
 			SELECT
 				i.item_id,
@@ -677,12 +679,12 @@ func GetItemsSoldBy(db DatabaseQuerier, cashierID models.ID) (r_result []*models
 
 // GetSalesWithItem returns a list of the ids of all sales that include a specified item.
 // The ids are returned in ascending order.
-func GetSalesWithItem(db DatabaseQuerier, itemID models.ID) (r_result []models.ID, r_err error) {
+func GetSalesWithItem(ctx context.Context, db DatabaseQuerier, itemID models.ID) (r_result []models.ID, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if itemExists, err := ItemWithIDExists(db, itemID); err != nil || !itemExists {
+	if itemExists, err := ItemWithIDExists(ctx, db, itemID); err != nil || !itemExists {
 		if !itemExists {
 			return nil, fmt.Errorf("failed to get sales with item %d: %w", itemID, dberr.ErrNoSuchItem)
 		}
@@ -690,7 +692,7 @@ func GetSalesWithItem(db DatabaseQuerier, itemID models.ID) (r_result []models.I
 		return nil, err
 	}
 
-	rows, err := db.Query(
+	rows, err := db.QueryContext(ctx,
 		`
 			SELECT sale_id
 			FROM sale_items
@@ -728,16 +730,16 @@ func GetSalesWithItem(db DatabaseQuerier, itemID models.ID) (r_result []models.I
 // The sales are ordered by transaction time (chronologically) and sale ID (lowest first).
 // Returns ErrNoSuchUser if the cashierID does not correspond to any user.
 // Returns ErrWrongRole if the cashierID does not correspond to a cashier.
-func GetSalesWithCashier(db DatabaseQuerier, cashierID models.ID) (r_result []*models.Sale, r_err error) {
+func GetSalesWithCashier(ctx context.Context, db DatabaseQuerier, cashierID models.ID) (r_result []*models.Sale, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if err := EnsureUserExistsAndHasRole(db, cashierID, models.NewCashierRoleID()); err != nil {
+	if err := EnsureUserExistsAndHasRole(ctx, db, cashierID, models.NewCashierRoleID()); err != nil {
 		return nil, err
 	}
 
-	rows, err := db.Query(
+	rows, err := db.QueryContext(ctx,
 		`
 			SELECT cashier_id, sale_id, transaction_time
 			FROM sales
@@ -777,13 +779,13 @@ func GetSalesWithCashier(db DatabaseQuerier, cashierID models.ID) (r_result []*m
 }
 
 // RemoveAllSales removes all sales from the database.
-func RemoveAllSales(transaction *TransactionalDatabaseQuerier) (r_err error) {
+func RemoveAllSales(ctx context.Context, transaction *TransactionalDatabaseQuerier) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
 	{
-		_, err := transaction.Exec(
+		_, err := transaction.ExecContext(ctx,
 			`
 			DELETE FROM sale_items
 		`,
@@ -794,7 +796,7 @@ func RemoveAllSales(transaction *TransactionalDatabaseQuerier) (r_err error) {
 	}
 
 	{
-		_, err := transaction.Exec(
+		_, err := transaction.ExecContext(ctx,
 			`
 			DELETE FROM sales
 		`,
@@ -810,12 +812,12 @@ func RemoveAllSales(transaction *TransactionalDatabaseQuerier) (r_err error) {
 // GetCashierSales retrieves a list of sales made by a specified cashier.
 // If cashierID does not correspond to any user, ErrNoSuchUser is returned.
 // If cashierID does not correspond to a cashier, ErrWrongRole is returned.
-func GetCashierSales(db DatabaseQuerier, cashierID models.ID, receiver func(*models.SaleSummary) error, order Order, rowSelection *RowRange) (r_err error) {
+func GetCashierSales(ctx context.Context, db DatabaseQuerier, cashierID models.ID, receiver func(*models.SaleSummary) error, order Order, rowSelection *RowRange) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if err := EnsureUserExistsAndHasRole(db, cashierID, models.NewCashierRoleID()); err != nil {
+	if err := EnsureUserExistsAndHasRole(ctx, db, cashierID, models.NewCashierRoleID()); err != nil {
 		return err
 	}
 
@@ -851,7 +853,7 @@ func GetCashierSales(db DatabaseQuerier, cashierID models.ID, receiver func(*mod
 		orderClause,
 		rowSelection.SQL(),
 	)
-	rows, err := db.Query(query, cashierID)
+	rows, err := db.QueryContext(ctx, query, cashierID)
 	if err != nil {
 		return err
 	}
@@ -887,13 +889,13 @@ func GetCashierSales(db DatabaseQuerier, cashierID models.ID, receiver func(*mod
 }
 
 // CountSales returns the total number of sales in the database.
-func CountSales(db DatabaseQuerier) (r_result int, r_err error) {
+func CountSales(ctx context.Context, db DatabaseQuerier) (r_result int, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
 	var count int
-	err := db.QueryRow(
+	err := db.QueryRowContext(ctx,
 		`
 			SELECT COUNT(*)
 			FROM sales
@@ -908,17 +910,17 @@ func CountSales(db DatabaseQuerier) (r_result int, r_err error) {
 }
 
 // CountCashierSales returns the total number of sales made by the specified cashier.
-func CountCashierSales(db DatabaseQuerier, cashierID models.ID) (r_result int, r_err error) {
+func CountCashierSales(ctx context.Context, db DatabaseQuerier, cashierID models.ID) (r_result int, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if err := EnsureUserExistsAndHasRole(db, cashierID, models.NewCashierRoleID()); err != nil {
+	if err := EnsureUserExistsAndHasRole(ctx, db, cashierID, models.NewCashierRoleID()); err != nil {
 		return 0, err
 	}
 
 	var count int
-	err := db.QueryRow(
+	err := db.QueryRowContext(ctx,
 		`
 			SELECT COUNT(*)
 			FROM sales
@@ -937,13 +939,13 @@ func CountCashierSales(db DatabaseQuerier, cashierID models.ID) (r_result int, r
 // GetTotalSalesValue returns the total value of all sales in the database.
 // The value is calculated as the sum of the prices of all items sold.
 // If an item was sold multiple times, its price is counted each time.
-func GetTotalSalesValue(db DatabaseQuerier) (r_result models.MoneyInCents, r_err error) {
+func GetTotalSalesValue(ctx context.Context, db DatabaseQuerier) (r_result models.MoneyInCents, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
 	var totalValue models.MoneyInCents
-	err := db.QueryRow(
+	err := db.QueryRowContext(ctx,
 		`
 			SELECT
 				COALESCE(SUM(items.price_in_cents), 0) as total
@@ -969,12 +971,12 @@ type MultiplySoldItem struct {
 }
 
 // GetMultiplySoldItems retrieves all items that have been sold multiple times.
-func GetMultiplySoldItems(db DatabaseQuerier) (r_result []MultiplySoldItem, r_err error) {
+func GetMultiplySoldItems(ctx context.Context, db DatabaseQuerier) (r_result []MultiplySoldItem, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	rows, err := db.Query(
+	rows, err := db.QueryContext(ctx,
 		`
 			SELECT
 				item.item_id,
@@ -1101,6 +1103,7 @@ type SaleItemInformation struct {
 // GetSaleItemInformation retrieves information about a sale item.
 // If the item is not found, it returns an ErrNoSuchItem.
 func GetSaleItemInformation(
+	ctx context.Context,
 	db DatabaseQuerier,
 	itemID models.ID) (r_result *SaleItemInformation, r_err error) {
 
@@ -1108,7 +1111,7 @@ func GetSaleItemInformation(
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	row := db.QueryRow(
+	row := db.QueryRowContext(ctx,
 		`
 			SELECT seller_id, description, price_in_cents, item_category_id, large, COUNT(si.sale_id)
 			FROM items i LEFT JOIN sale_items si ON i.item_id = si.item_id
@@ -1158,12 +1161,12 @@ type CategorySaleTotal struct {
 
 // GetSalesOverview retrieves the total sales for each item category.
 // Multiply sold items are counted as many times.
-func GetSalesOverview(db DatabaseQuerier) (r_result []CategorySaleTotal, r_err error) {
+func GetSalesOverview(ctx context.Context, db DatabaseQuerier) (r_result []CategorySaleTotal, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	rows, err := db.Query(
+	rows, err := db.QueryContext(ctx,
 		`
 			SELECT item_categories.item_category_id, item_categories.name, SUM(COALESCE(i.price_in_cents, 0))
 			FROM item_categories
@@ -1235,12 +1238,12 @@ func NewGetSoldItemsQuery() *GetSoldItemsQuery {
 	return &query
 }
 
-func (q *GetSoldItemsQuery) Execute(db DatabaseQuerier) (r_result []*SoldItem, r_err error) {
+func (q *GetSoldItemsQuery) Execute(ctx context.Context, db DatabaseQuerier) (r_result []*SoldItem, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	rows, err := db.Query(
+	rows, err := db.QueryContext(ctx,
 		`
 			SELECT
 				sale.sale_id,

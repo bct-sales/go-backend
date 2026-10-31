@@ -49,12 +49,12 @@ func TestUpdateItem(t *testing.T) {
 										updateLarge,
 									)
 									t.Run(testLabel, func(t *testing.T) {
-										setup, db := NewDatabaseFixture(WithDefaultCategories)
+										setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 										defer setup.Close()
 
-										seller := setup.Seller()
+										seller := setup.Seller(t)
 
-										item := setup.Item(
+										item := setup.Item(t,
 											seller.UserID,
 											aux.WithAddedAt(oldAddedAt),
 											aux.WithDescription(oldDescription),
@@ -113,6 +113,7 @@ func TestUpdateItem(t *testing.T) {
 
 										setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
 											err := queries.UpdateItem(
+												t.Context(),
 												transaction,
 												item.ItemID,
 												&itemUpdate,
@@ -121,7 +122,7 @@ func TestUpdateItem(t *testing.T) {
 											require.NoError(t, err)
 										})
 
-										updatedItem, err := queries.GetItemWithID(db, item.ItemID)
+										updatedItem, err := queries.GetItemWithID(t.Context(), db, item.ItemID)
 										require.NoError(t, err)
 
 										require.Equal(t, item.ItemID, updatedItem.ItemID)
@@ -146,25 +147,25 @@ func TestUpdateItem(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Nonexistent item", func(t *testing.T) {
-			setup, _ := NewDatabaseFixture(WithDefaultCategories)
+			setup, _ := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			itemID := models.ID(1)
 			itemUpdate := queries.ItemUpdate{}
 
 			setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
-				err := queries.UpdateItem(transaction, itemID, &itemUpdate)
+				err := queries.UpdateItem(t.Context(), transaction, itemID, &itemUpdate)
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 			})
 		})
 
 		t.Run("Frozen item", func(t *testing.T) {
-			setup, _ := NewDatabaseFixture(WithDefaultCategories)
+			setup, _ := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
+			seller := setup.Seller(t)
 
-			item := setup.Item(
+			item := setup.Item(t,
 				seller.UserID,
 				aux.WithFrozen(true),
 				aux.WithHidden(false),
@@ -173,18 +174,18 @@ func TestUpdateItem(t *testing.T) {
 			itemUpdate := queries.ItemUpdate{}
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.UpdateItem(db, item.ItemID, &itemUpdate)
+				err := queries.UpdateItem(t.Context(), db, item.ItemID, &itemUpdate)
 				requireDatabaseWrappedError(t, err, dberr.ErrItemFrozen)
 			})
 		})
 
 		t.Run("Hidden item", func(t *testing.T) {
-			setup, _ := NewDatabaseFixture(WithDefaultCategories)
+			setup, _ := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
+			seller := setup.Seller(t)
 
-			item := setup.Item(
+			item := setup.Item(t,
 				seller.UserID,
 				aux.WithFrozen(false),
 				aux.WithHidden(true),
@@ -193,18 +194,18 @@ func TestUpdateItem(t *testing.T) {
 			itemUpdate := queries.ItemUpdate{}
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.UpdateItem(db, item.ItemID, &itemUpdate)
+				err := queries.UpdateItem(t.Context(), db, item.ItemID, &itemUpdate)
 				requireDatabaseWrappedError(t, err, dberr.ErrItemHidden)
 			})
 		})
 
 		t.Run("Invalid price", func(t *testing.T) {
-			setup, _ := NewDatabaseFixture(WithDefaultCategories)
+			setup, _ := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
+			seller := setup.Seller(t)
 
-			item := setup.Item(
+			item := setup.Item(t,
 				seller.UserID,
 				aux.WithFrozen(false),
 				aux.WithHidden(false),
@@ -216,7 +217,7 @@ func TestUpdateItem(t *testing.T) {
 			}
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.UpdateItem(db, item.ItemID, &itemUpdate)
+				err := queries.UpdateItem(t.Context(), db, item.ItemID, &itemUpdate)
 				requireDatabaseWrappedError(t, err, dberr.ErrInvalidPrice)
 			})
 		})

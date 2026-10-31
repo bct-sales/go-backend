@@ -30,23 +30,23 @@ func TestUpdateHiddenStatusOfItems(t *testing.T) {
 		for _, selection := range selections {
 			testLabel := fmt.Sprintf("Selection: %v", selection)
 			t.Run(testLabel, func(t *testing.T) {
-				setup, db := NewDatabaseFixture(WithDefaultCategories)
+				setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				seller := setup.Seller()
+				seller := setup.Seller(t)
 
 				itemIDs := []models.ID{}
 				for i := 0; i != 10; i++ {
-					itemIDs = append(itemIDs, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false), aux.WithFrozen(false)).ItemID)
+					itemIDs = append(itemIDs, setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithHidden(false), aux.WithFrozen(false)).ItemID)
 				}
 
 				setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
-					err := queries.UpdateHiddenStatusOfItems(transaction, selection, true)
+					err := queries.UpdateHiddenStatusOfItems(t.Context(), transaction, selection, true)
 					require.NoError(t, err)
 				})
 
 				for _, itemID := range itemIDs {
-					isHidden, err := queries.IsItemHidden(db, itemID)
+					isHidden, err := queries.IsItemHidden(t.Context(), db, itemID)
 					expectedHidden := slices.Contains(selection, itemID)
 					assert.NoError(t, err)
 					assert.Equal(t, expectedHidden, isHidden, "item %d should have hidden=%v", itemID, expectedHidden)
@@ -57,34 +57,34 @@ func TestUpdateHiddenStatusOfItems(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("No such item", func(t *testing.T) {
-			setup, _ := NewDatabaseFixture(WithDefaultCategories)
+			setup, _ := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
-				err := queries.UpdateHiddenStatusOfItems(transaction, []models.ID{1}, true)
+				err := queries.UpdateHiddenStatusOfItems(t.Context(), transaction, []models.ID{1}, true)
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 			})
 		})
 
 		t.Run("Cannot hide frozen item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
+			seller := setup.Seller(t)
 
 			itemIDs := []models.ID{}
 			for i := 0; i != 10; i++ {
-				itemIDs = append(itemIDs, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false), aux.WithFrozen(false)).ItemID)
+				itemIDs = append(itemIDs, setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithHidden(false), aux.WithFrozen(false)).ItemID)
 			}
-			itemIDs = append(itemIDs, setup.Item(seller.UserID, aux.WithDummyData(10), aux.WithHidden(false), aux.WithFrozen(true)).ItemID)
+			itemIDs = append(itemIDs, setup.Item(t, seller.UserID, aux.WithDummyData(10), aux.WithHidden(false), aux.WithFrozen(true)).ItemID)
 
 			setup.WithTransaction(t, func(transaction *queries.TransactionalDatabaseQuerier) {
-				err := queries.UpdateHiddenStatusOfItems(transaction, itemIDs, true)
+				err := queries.UpdateHiddenStatusOfItems(t.Context(), transaction, itemIDs, true)
 				requireDatabaseWrappedError(t, err, dberr.ErrItemFrozen)
 			})
 
 			for _, itemID := range itemIDs {
-				isHidden, err := queries.IsItemHidden(db, itemID)
+				isHidden, err := queries.IsItemHidden(t.Context(), db, itemID)
 				assert.NoError(t, err)
 				assert.Equal(t, false, isHidden, "item with id %d should not be hidden", itemID)
 			}

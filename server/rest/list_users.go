@@ -68,9 +68,10 @@ func (ep *listUsersEndpoint) ensureUserIsAdmin() bool {
 
 func (ep *listUsersEndpoint) fetchUsersWithItemCountFromDatabase() ([]*queries.UserWithItemCount, bool) {
 	logger := ep.Logger
+	ctx := ep.Context.Request.Context()
 	users := []*queries.UserWithItemCount{}
 
-	if err := queries.GetUsersWithItemCount(ep.Database, queries.OnlyVisibleItems, queries.CollectTo(&users)); err != nil {
+	if err := queries.GetUsersWithItemCount(ctx, ep.Database, queries.OnlyVisibleItems, queries.CollectTo(&users)); err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to fetch users")
 

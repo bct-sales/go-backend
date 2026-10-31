@@ -25,12 +25,12 @@ func TestEnsureUserExistsAndHasRole(t *testing.T) {
 			testLabel := roleID.String()
 
 			t.Run(testLabel, func(t *testing.T) {
-				setup, db := NewDatabaseFixture(WithDefaultCategories)
+				setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				user := setup.User(roleID)
+				user := setup.User(t, roleID)
 
-				err := queries.EnsureUserExistsAndHasRole(db, user.UserID, roleID)
+				err := queries.EnsureUserExistsAndHasRole(t.Context(), db, user.UserID, roleID)
 				require.NoError(t, err)
 			})
 		}
@@ -43,12 +43,12 @@ func TestEnsureUserExistsAndHasRole(t *testing.T) {
 					if expectedRoleID != actualRoleID {
 						testLabel := fmt.Sprintf("Expected role: %s, actual role: %s", expectedRoleID, actualRoleID)
 						t.Run(testLabel, func(t *testing.T) {
-							setup, db := NewDatabaseFixture(WithDefaultCategories)
+							setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 							defer setup.Close()
 
-							user := setup.User(actualRoleID)
+							user := setup.User(t, actualRoleID)
 
-							err := queries.EnsureUserExistsAndHasRole(db, user.UserID, expectedRoleID)
+							err := queries.EnsureUserExistsAndHasRole(t.Context(), db, user.UserID, expectedRoleID)
 							requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 						})
 					}
@@ -57,12 +57,12 @@ func TestEnsureUserExistsAndHasRole(t *testing.T) {
 		})
 
 		t.Run("User does not exist", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			nonexistentUserID := setup.GenerateNonexistentUserID(t)
 
-			err := queries.EnsureUserExistsAndHasRole(db, nonexistentUserID, models.NewSellerRoleID())
+			err := queries.EnsureUserExistsAndHasRole(t.Context(), db, nonexistentUserID, models.NewSellerRoleID())
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 	})

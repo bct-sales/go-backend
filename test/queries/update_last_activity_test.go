@@ -20,14 +20,14 @@ func TestUpdateLastActivity(t *testing.T) {
 			for _, lastActivity := range []models.Timestamp{500, 1000, 2000} {
 				testLabel := fmt.Sprintf("Role: %s, LastActivity: %d", roleID, lastActivity)
 				t.Run(testLabel, func(t *testing.T) {
-					setup, db := NewDatabaseFixture(WithDefaultCategories)
+					setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
-					seller := setup.User(roleID, aux.WithNoLastActivity())
+					seller := setup.User(t, roleID, aux.WithNoLastActivity())
 
-					queries.UpdateLastActivity(db, seller.UserID, lastActivity)
+					queries.UpdateLastActivity(t.Context(), db, seller.UserID, lastActivity)
 
-					userData, err := queries.GetUserWithID(db, seller.UserID)
+					userData, err := queries.GetUserWithID(t.Context(), db, seller.UserID)
 					require.NoError(t, err)
 					require.NotNil(t, userData)
 					require.NotNil(t, userData.LastActivity)
@@ -39,12 +39,12 @@ func TestUpdateLastActivity(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Nonexistent user", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			userID := setup.GenerateNonexistentUserID(t)
 
-			err := queries.UpdateLastActivity(db, userID, 1000)
+			err := queries.UpdateLastActivity(t.Context(), db, userID, 1000)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 	})

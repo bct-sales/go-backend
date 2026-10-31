@@ -172,10 +172,11 @@ func (ep *GetUserInformationEndpoint) retrieveQueriedUserFromUri() (models.ID, e
 func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserID models.ID) {
 	logger := ep.Logger
 	context := ep.Context
+	ctx := context.Request.Context()
 	db := ep.Database
 
 	// Look up user in database
-	user, err := queries.GetUserWithID(db, queriedUserID)
+	user, err := queries.GetUserWithID(ctx, db, queriedUserID)
 	if err != nil {
 		logger.AddInformation("error", err)
 
@@ -207,7 +208,7 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserID mo
 		context.JSON(http.StatusOK, response)
 		return
 	} else if user.RoleID.IsSeller() {
-		items, err := queries.GetSellerItemsWithSaleCounts(db, user.UserID)
+		items, err := queries.GetSellerItemsWithSaleCounts(ctx, db, user.UserID)
 		if err != nil {
 			logger.AddInformation("error", err)
 
@@ -241,7 +242,7 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserID mo
 		context.JSON(http.StatusOK, response)
 		return
 	} else if user.RoleID.IsCashier() {
-		sales, err := queries.GetSalesWithCashier(db, user.UserID)
+		sales, err := queries.GetSalesWithCashier(ctx, db, user.UserID)
 		if err != nil {
 			logger.AddInformation("error", err)
 
@@ -287,6 +288,7 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserID mo
 func (ep *GetUserInformationEndpoint) getUserInformationAsSeller(queriedUserID models.ID) {
 	logger := ep.Logger
 	context := ep.Context
+	ctx := context.Request.Context()
 	db := ep.Database
 	userID := ep.UserID
 
@@ -296,7 +298,7 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsSeller(queriedUserID m
 		return
 	}
 
-	itemCount, err := queries.CountSellerItems(db, queriedUserID, queries.IncludeAll, queries.Exclude)
+	itemCount, err := queries.CountSellerItems(ctx, db, queriedUserID, queries.IncludeAll, queries.Exclude)
 	if err != nil {
 		logger.AddInformation("error", err)
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
@@ -307,7 +309,7 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsSeller(queriedUserID m
 		return
 	}
 
-	frozenItemCount, err := queries.CountSellerItems(db, queriedUserID, queries.IncludeOnly, queries.IncludeAll)
+	frozenItemCount, err := queries.CountSellerItems(ctx, db, queriedUserID, queries.IncludeOnly, queries.IncludeAll)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
 		logger.AddInformation("error", err)
@@ -318,7 +320,7 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsSeller(queriedUserID m
 		return
 	}
 
-	hiddenItemCount, err := queries.CountSellerItems(db, queriedUserID, queries.IncludeAll, queries.IncludeOnly)
+	hiddenItemCount, err := queries.CountSellerItems(ctx, db, queriedUserID, queries.IncludeAll, queries.IncludeOnly)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
 		logger.AddInformation("error", err)
@@ -329,7 +331,7 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsSeller(queriedUserID m
 		return
 	}
 
-	totalPrice, err := queries.GetSellerTotalValueOfAllItems(db, queriedUserID, queries.OnlyVisibleItems)
+	totalPrice, err := queries.GetSellerTotalValueOfAllItems(ctx, db, queriedUserID, queries.OnlyVisibleItems)
 	if err != nil {
 		// At this point, we know that the user exists and is a seller, so no errors should ever occur
 		logger.AddInformation("error", err)
@@ -353,6 +355,7 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsSeller(queriedUserID m
 func (ep *GetUserInformationEndpoint) getUserInformationAsCashier(queriedUserID models.ID) {
 	logger := ep.Logger
 	context := ep.Context
+	ctx := context.Request.Context()
 	db := ep.Database
 	userID := ep.UserID
 
@@ -364,7 +367,7 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsCashier(queriedUserID 
 		return
 	}
 
-	sales, err := queries.GetSalesWithCashier(db, queriedUserID)
+	sales, err := queries.GetSalesWithCashier(ctx, db, queriedUserID)
 	if err != nil {
 		logger.AddInformation("error", err)
 

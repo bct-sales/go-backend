@@ -23,7 +23,7 @@ func Start(ctx context.Context, database *sql.DB) error {
 	slog.SetDefault(logger)
 	slog.Debug("Starting application")
 
-	initialPage := users.New(database)
+	initialPage := users.New(ctx, database)
 
 	program := tea.NewProgram(initialPage, tea.WithAltScreen(), tea.WithContext(ctx))
 	if _, err := program.Run(); err != nil {

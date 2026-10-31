@@ -35,7 +35,7 @@ func Logout(clock clock.Clock, logger logger.RestLogger, context *gin.Context, d
 	}
 
 	sessionID := models.SessionID(sessionIDString)
-	err = queries.DeleteSession(db, sessionID)
+	err = queries.DeleteSession(context.Request.Context(), db, sessionID)
 
 	if err != nil {
 		logger.AddInformation("error", err)

@@ -6,6 +6,7 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"errors"
 
 	"github.com/MakeNowJust/heredoc"
@@ -33,7 +34,7 @@ func NewDatabaseInitCommand() *cobra.Command {
 					or delete the existing database.
 				`),
 				RunE: func(cmd *cobra.Command, args []string) error {
-					return command.execute()
+					return command.execute(cmd.Context())
 				},
 				Args: cobra.NoArgs,
 			},
@@ -45,7 +46,7 @@ func NewDatabaseInitCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *InitializeDatabaseCommand) execute() (err error) {
+func (c *InitializeDatabaseCommand) execute(ctx context.Context) (err error) {
 	databasePath, err := common.GetDatabasePath()
 	if err != nil {
 		c.PrintErrorf("Failed to get database path: %s\n", err.Error())
@@ -83,7 +84,7 @@ func (c *InitializeDatabaseCommand) execute() (err error) {
 
 	if !c.noCategories {
 		err := common.GenerateDefaultCategories(func(id models.ID, name string) error {
-			return queries.AddCategoryWithID(database, id, name)
+			return queries.AddCategoryWithID(ctx, database, id, name)
 		})
 
 		if err != nil {

@@ -21,18 +21,18 @@ func TestGetSaleItemInformation(t *testing.T) {
 				label := fmt.Sprintf("Sell count = %d, i = %d", sellCount, i)
 
 				t.Run(label, func(t *testing.T) {
-					setup, db := NewDatabaseFixture(WithDefaultCategories)
+					setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
-					seller := setup.Seller()
-					cashier := setup.Cashier()
-					item := setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
+					seller := setup.Seller(t)
+					cashier := setup.Cashier(t)
+					item := setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
 
 					for i := 0; i < sellCount; i++ {
-						setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+						setup.Sale(t, cashier.UserID, []models.ID{item.ItemID})
 					}
 
-					itemInformation, err := queries.GetSaleItemInformation(db, item.ItemID)
+					itemInformation, err := queries.GetSaleItemInformation(t.Context(), db, item.ItemID)
 					require.NoError(t, err)
 					require.Equal(t, item.SellerID, itemInformation.SellerID)
 					require.Equal(t, item.Description, itemInformation.Description)
@@ -47,12 +47,12 @@ func TestGetSaleItemInformation(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Nonexistent item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			nonexistentItemID := setup.GenerateNonexistentItemID(t)
 
-			_, err := queries.GetSaleItemInformation(db, nonexistentItemID)
+			_, err := queries.GetSaleItemInformation(t.Context(), db, nonexistentItemID)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 		})
 	})

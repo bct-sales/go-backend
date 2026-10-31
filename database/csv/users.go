@@ -3,13 +3,14 @@ package csv
 import (
 	models "bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"encoding/csv"
 	"fmt"
 	"io"
 )
 
-func OutputUsers(db *sql.DB, writer io.Writer) error {
+func OutputUsers(ctx context.Context, db *sql.DB, writer io.Writer) error {
 	csvWriter := csv.NewWriter(writer)
 	defer csvWriter.Flush()
 
@@ -43,7 +44,7 @@ func OutputUsers(db *sql.DB, writer io.Writer) error {
 		return nil
 	}
 
-	if err := queries.GetUsers(db, writeRow); err != nil {
+	if err := queries.GetUsers(ctx, db, writeRow); err != nil {
 		return fmt.Errorf("failed to write users to file: %w", err)
 	}
 

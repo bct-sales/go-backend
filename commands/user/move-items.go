@@ -51,7 +51,7 @@ func NewMoveItemsCommand() *cobra.Command {
 }
 
 func (c *moveItemsCommand) execute(ctx context.Context) error {
-	return c.WithTransaction(ctx, func(_ context.Context, transaction *queries.TransactionalDatabaseQuerier) error {
+	return c.WithTransaction(ctx, func(ctx context.Context, transaction *queries.TransactionalDatabaseQuerier) error {
 		oldSeller := models.ID(c.oldSeller)
 		newSeller := models.ID(c.newSeller)
 
@@ -61,7 +61,7 @@ func (c *moveItemsCommand) execute(ctx context.Context) error {
 		}
 
 		// Check if donating seller exists and is indeed a seller
-		if err := queries.EnsureUserExistsAndHasRole(transaction, oldSeller, models.NewSellerRoleID()); err != nil {
+		if err := queries.EnsureUserExistsAndHasRole(ctx, transaction, oldSeller, models.NewSellerRoleID()); err != nil {
 			if errors.Is(err, dberr.ErrNoSuchUser) {
 				c.PrintErrorf("User %s does not exist\n", oldSeller.String())
 				return err
@@ -77,7 +77,7 @@ func (c *moveItemsCommand) execute(ctx context.Context) error {
 		}
 
 		// Check if receiving seller exists and is indeed a seller
-		if err := queries.EnsureUserExistsAndHasRole(transaction, newSeller, models.NewSellerRoleID()); err != nil {
+		if err := queries.EnsureUserExistsAndHasRole(ctx, transaction, newSeller, models.NewSellerRoleID()); err != nil {
 			if errors.Is(err, dberr.ErrNoSuchUser) {
 				c.PrintErrorf("User %s does not exist\n", newSeller.String())
 				return err
@@ -93,7 +93,7 @@ func (c *moveItemsCommand) execute(ctx context.Context) error {
 		}
 
 		// Check if any of the items is frozen
-		hasFrozen, hasFrozenError := queries.DoesSellerHaveFrozenItems(transaction, oldSeller)
+		hasFrozen, hasFrozenError := queries.DoesSellerHaveFrozenItems(ctx, transaction, oldSeller)
 		if hasFrozenError != nil {
 			c.PrintErrorf("An error occurred while checking for frozen items: %v\n", hasFrozenError)
 			return hasFrozenError
@@ -104,7 +104,7 @@ func (c *moveItemsCommand) execute(ctx context.Context) error {
 		}
 
 		// Check if the donating seller has items
-		oldSellerItemCount, oldSellerItemCountError := queries.CountSellerItems(transaction, oldSeller, queries.IncludeAll, queries.IncludeAll)
+		oldSellerItemCount, oldSellerItemCountError := queries.CountSellerItems(ctx, transaction, oldSeller, queries.IncludeAll, queries.IncludeAll)
 		if oldSellerItemCountError != nil {
 			c.PrintErrorf("An error occurred while counting the donating seller's items: %v\n", oldSellerItemCountError)
 			return oldSellerItemCountError
@@ -115,7 +115,7 @@ func (c *moveItemsCommand) execute(ctx context.Context) error {
 		}
 
 		// Check if the receiving seller already has items
-		newSellerItemCount, newSellerItemCountError := queries.CountSellerItems(transaction, newSeller, queries.IncludeAll, queries.IncludeAll)
+		newSellerItemCount, newSellerItemCountError := queries.CountSellerItems(ctx, transaction, newSeller, queries.IncludeAll, queries.IncludeAll)
 		if newSellerItemCountError != nil {
 			c.PrintErrorf("An error occurred while counting the receiving seller's items: %v\n", newSellerItemCountError)
 			return newSellerItemCountError
@@ -126,7 +126,7 @@ func (c *moveItemsCommand) execute(ctx context.Context) error {
 		}
 
 		// Perform move
-		if err := queries.MoveItemsToNewSeller(transaction, oldSeller, newSeller); err != nil {
+		if err := queries.MoveItemsToNewSeller(ctx, transaction, oldSeller, newSeller); err != nil {
 			c.PrintErrorf("Error moving items from seller %s to seller %s: %v\n", oldSeller.String(), newSeller.String(), err)
 			return err
 		}

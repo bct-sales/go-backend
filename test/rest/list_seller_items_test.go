@@ -28,11 +28,11 @@ func TestListSellerItems(t *testing.T) {
 						setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 						defer setup.Close()
 
-						seller, sessionID := setup.LoggedIn(setup.Seller(aux.WithUserID(sellerID)))
+						seller, sessionID := setup.LoggedIn(t, setup.Seller(t, aux.WithUserID(sellerID)))
 
 						expectedItems := []*rest.ListSellerItemsItemData{}
 						for i := 0; i < itemCount; i++ {
-							item := setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
+							item := setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
 							expectedItems = append(expectedItems, &rest.ListSellerItemsItemData{
 								ItemID:       item.ItemID,
 								Description:  item.Description,
@@ -64,13 +64,13 @@ func TestListSellerItems(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			_, sessionID := setup.LoggedIn(setup.Admin())
+			seller := setup.Seller(t)
+			_, sessionID := setup.LoggedIn(t, setup.Admin(t))
 			itemCount := 10
 
 			expectedItems := []*rest.ListSellerItemsItemData{}
 			for i := 0; i < itemCount; i++ {
-				item := setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
+				item := setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
 				expectedItems = append(expectedItems, &rest.ListSellerItemsItemData{
 					ItemID:       item.ItemID,
 					Description:  item.Description,
@@ -100,11 +100,11 @@ func TestListSellerItems(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
+			seller := setup.Seller(t)
 			itemCount := 10
 
 			for i := 0; i < itemCount; i++ {
-				setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
+				setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
 			}
 
 			url := path.SellerItems(seller.UserID)
@@ -117,12 +117,12 @@ func TestListSellerItems(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			itemOwningSeller := setup.Seller()
-			_, sessionID := setup.LoggedIn(setup.Seller())
+			itemOwningSeller := setup.Seller(t)
+			_, sessionID := setup.LoggedIn(t, setup.Seller(t))
 			itemCount := 10
 
 			for i := 0; i < itemCount; i++ {
-				setup.Item(itemOwningSeller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
+				setup.Item(t, itemOwningSeller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
 			}
 
 			url := path.SellerItems(itemOwningSeller.UserID)
@@ -135,12 +135,12 @@ func TestListSellerItems(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			itemOwningSeller := setup.Seller()
-			_, sessionID := setup.LoggedIn(setup.Cashier())
+			itemOwningSeller := setup.Seller(t)
+			_, sessionID := setup.LoggedIn(t, setup.Cashier(t))
 			itemCount := 10
 
 			for i := 0; i < itemCount; i++ {
-				setup.Item(itemOwningSeller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
+				setup.Item(t, itemOwningSeller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
 			}
 
 			url := path.SellerItems(itemOwningSeller.UserID)
@@ -153,11 +153,11 @@ func TestListSellerItems(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionID := setup.LoggedIn(setup.Seller())
+			seller, sessionID := setup.LoggedIn(t, setup.Seller(t))
 			itemCount := 10
 
 			for i := 0; i < itemCount; i++ {
-				setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
+				setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithHidden(false))
 			}
 
 			url := path.SellerItemsStr("xxx")
@@ -170,7 +170,7 @@ func TestListSellerItems(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionID := setup.LoggedIn(setup.Seller())
+			_, sessionID := setup.LoggedIn(t, setup.Seller(t))
 			nonexistentSellerID := setup.GenerateNonexistentUserID(t)
 
 			url := path.SellerItems(nonexistentSellerID)
@@ -183,8 +183,8 @@ func TestListSellerItems(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			admin := setup.Admin()
-			_, sessionID := setup.LoggedIn(setup.Seller())
+			admin := setup.Admin(t)
+			_, sessionID := setup.LoggedIn(t, setup.Seller(t))
 
 			url := path.SellerItems(admin.UserID)
 			request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -196,8 +196,8 @@ func TestListSellerItems(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			admin := setup.Admin()
-			setup.LoggedIn(setup.Seller())
+			admin := setup.Admin(t)
+			setup.LoggedIn(t, setup.Seller(t))
 
 			url := path.SellerItems(admin.UserID)
 			request := CreateGetRequest(url)
@@ -209,8 +209,8 @@ func TestListSellerItems(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			admin := setup.Admin()
-			setup.LoggedIn(setup.Seller())
+			admin := setup.Admin(t)
+			setup.LoggedIn(t, setup.Seller(t))
 
 			url := path.SellerItems(admin.UserID)
 			request := CreateGetRequest(url, WithSessionCookie("dummy_session_id"))

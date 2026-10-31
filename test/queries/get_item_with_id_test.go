@@ -15,24 +15,24 @@ import (
 
 func TestGetItemWithID(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		seller := setup.Seller()
-		item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+		seller := setup.Seller(t)
+		item := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
-		actual, err := queries.GetItemWithID(db, item.ItemID)
+		actual, err := queries.GetItemWithID(t.Context(), db, item.ItemID)
 		require.NoError(t, err)
 		require.Equal(t, item, actual)
 	})
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Nonexisting item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			itemID := models.ID(1)
-			_, err := queries.GetItemWithID(db, itemID)
+			_, err := queries.GetItemWithID(t.Context(), db, itemID)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 		})
 	})

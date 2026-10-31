@@ -116,8 +116,9 @@ func (ep *listSellerItemsEndpoint) extractSellerIDFromURI() (models.ID, bool) {
 
 func (ep *listSellerItemsEndpoint) ensureQueriedUserIsSeller(queriedSellerID models.ID) bool {
 	logger := ep.Logger
+	ctx := ep.Context.Request.Context()
 
-	if err := queries.EnsureUserExistsAndHasRole(ep.Database, queriedSellerID, models.NewSellerRoleID()); err != nil {
+	if err := queries.EnsureUserExistsAndHasRole(ctx, ep.Database, queriedSellerID, models.NewSellerRoleID()); err != nil {
 		logger.AddInformation("error", err)
 
 		if errors.Is(err, dberr.ErrNoSuchUser) {
@@ -173,7 +174,8 @@ func (ep *listSellerItemsEndpoint) extractItemSelectionFromQueryParameters() que
 
 func (ep *listSellerItemsEndpoint) fetchSellerItemsFromDatabase(queriedSellerID models.ID, itemSelection queries.ItemSelection) ([]*models.Item, bool) {
 	logger := ep.Logger
-	items, err := queries.GetSellerItems(ep.Database, queriedSellerID, itemSelection)
+	ctx := ep.Context.Request.Context()
+	items, err := queries.GetSellerItems(ctx, ep.Database, queriedSellerID, itemSelection)
 
 	if err != nil {
 		logger.AddInformation("error", err)

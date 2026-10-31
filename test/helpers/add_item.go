@@ -5,6 +5,7 @@ package helpers
 import (
 	models "bctbackend/database/models"
 	queries "bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"strconv"
 )
@@ -145,7 +146,7 @@ func WithDummyData(k int) func(*AddItemData) {
 	}
 }
 
-func AddItemToDatabase(db *sql.DB, sellerID models.ID, options ...func(*AddItemData)) *models.Item {
+func AddItemToDatabase(ctx context.Context, db *sql.DB, sellerID models.ID, options ...func(*AddItemData)) *models.Item {
 	data := AddItemData{}
 
 	for _, option := range options {
@@ -154,12 +155,12 @@ func AddItemToDatabase(db *sql.DB, sellerID models.ID, options ...func(*AddItemD
 
 	data.FillWithDefaults()
 
-	itemID, err := queries.AddItem(db, *data.AddedAt, *data.Description, *data.PriceInCents, *data.ItemCategory, sellerID, *data.Donation, *data.Charity, *data.Frozen, *data.Hidden, *data.Large)
+	itemID, err := queries.AddItem(ctx, db, *data.AddedAt, *data.Description, *data.PriceInCents, *data.ItemCategory, sellerID, *data.Donation, *data.Charity, *data.Frozen, *data.Hidden, *data.Large)
 	if err != nil {
 		panic(err)
 	}
 
-	item, err := queries.GetItemWithID(db, itemID)
+	item, err := queries.GetItemWithID(ctx, db, itemID)
 	if err != nil {
 		panic(err)
 	}

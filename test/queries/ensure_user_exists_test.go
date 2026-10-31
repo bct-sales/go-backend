@@ -13,22 +13,22 @@ import (
 
 func TestEnsureUserExists(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		user := setup.Seller()
+		user := setup.Seller(t)
 
-		err := queries.EnsureUserExists(db, user.UserID)
+		err := queries.EnsureUserExists(t.Context(), db, user.UserID)
 		require.NoError(t, err)
 	})
 
 	t.Run("Failure", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
 		nonexistentUserID := setup.GenerateNonexistentUserID(t)
 
-		err := queries.EnsureUserExists(db, nonexistentUserID)
+		err := queries.EnsureUserExists(t.Context(), db, nonexistentUserID)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 	})
 }

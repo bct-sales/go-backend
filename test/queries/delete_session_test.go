@@ -14,27 +14,27 @@ import (
 
 func TestDeleteSession(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		user := setup.Admin()
+		user := setup.Admin(t)
 		expirationTime := models.Timestamp(0)
-		sessionID, err := queries.AddSession(db, user.UserID, expirationTime)
+		sessionID, err := queries.AddSession(t.Context(), db, user.UserID, expirationTime)
 		require.NoError(t, err)
 
-		err = queries.DeleteSession(db, sessionID)
+		err = queries.DeleteSession(t.Context(), db, sessionID)
 		require.NoError(t, err)
 
-		_, err = queries.GetSessionByID(db, sessionID)
+		_, err = queries.GetSessionByID(t.Context(), db, sessionID)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSession)
 	})
 
 	t.Run("Failure", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
 		nonexistentSessionID := models.SessionID("nonexistent-session-id")
-		err := queries.DeleteSession(db, nonexistentSessionID)
+		err := queries.DeleteSession(t.Context(), db, nonexistentSessionID)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSession)
 	})
 }

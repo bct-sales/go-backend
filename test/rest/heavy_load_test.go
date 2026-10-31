@@ -24,9 +24,9 @@ func TestHeavyLoad(t *testing.T) {
 			setup.Close()
 		}()
 
-		seller, sessionID := setup.LoggedIn(setup.Seller())
+		seller, sessionID := setup.LoggedIn(t, setup.Seller(t))
 		itemCount := 100
-		items := setup.Items(seller.UserID, itemCount, aux.WithHidden(false), aux.WithFrozen(false))
+		items := setup.Items(t, seller.UserID, itemCount, aux.WithHidden(false), aux.WithFrozen(false))
 
 		waitGroup := sync.WaitGroup{}
 
@@ -58,7 +58,7 @@ func TestHeavyLoad(t *testing.T) {
 		waitGroup.Wait()
 
 		newItems := []*models.Item{}
-		err := queries.NewGetItemsQuery().Execute(setup.Db, queries.CollectTo(&newItems))
+		err := queries.NewGetItemsQuery().Execute(t.Context(), setup.Db, queries.CollectTo(&newItems))
 		require.NoError(t, err)
 		require.Len(t, newItems, itemCount)
 

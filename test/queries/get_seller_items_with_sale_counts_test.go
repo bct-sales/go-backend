@@ -16,24 +16,24 @@ import (
 func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Zero items", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
+			seller := setup.Seller(t)
 
-			items, err := queries.GetSellerItemsWithSaleCounts(db, seller.UserID)
+			items, err := queries.GetSellerItemsWithSaleCounts(t.Context(), db, seller.UserID)
 			require.NoError(t, err)
 			require.Equal(t, 0, len(items))
 		})
 
 		t.Run("One item in zero sales", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			seller := setup.Seller(t)
+			item := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
-			items, err := queries.GetSellerItemsWithSaleCounts(db, seller.UserID)
+			items, err := queries.GetSellerItemsWithSaleCounts(t.Context(), db, seller.UserID)
 			require.NoError(t, err)
 			require.Equal(t, 1, len(items))
 			require.Equal(t, item.ItemID, items[0].ItemID)
@@ -49,15 +49,15 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 		})
 
 		t.Run("One item in one sale", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
-			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
-			setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+			seller := setup.Seller(t)
+			cashier := setup.Cashier(t)
+			item := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			setup.Sale(t, cashier.UserID, []models.ID{item.ItemID})
 
-			items, err := queries.GetSellerItemsWithSaleCounts(db, seller.UserID)
+			items, err := queries.GetSellerItemsWithSaleCounts(t.Context(), db, seller.UserID)
 			require.NoError(t, err)
 			require.Equal(t, 1, len(items))
 			require.Equal(t, item.ItemID, items[0].ItemID)
@@ -65,16 +65,16 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 		})
 
 		t.Run("One item in two sales", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
-			item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
-			setup.Sale(cashier.UserID, []models.ID{item.ItemID})
-			setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+			seller := setup.Seller(t)
+			cashier := setup.Cashier(t)
+			item := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+			setup.Sale(t, cashier.UserID, []models.ID{item.ItemID})
+			setup.Sale(t, cashier.UserID, []models.ID{item.ItemID})
 
-			items, err := queries.GetSellerItemsWithSaleCounts(db, seller.UserID)
+			items, err := queries.GetSellerItemsWithSaleCounts(t.Context(), db, seller.UserID)
 			require.NoError(t, err)
 			require.Equal(t, 1, len(items))
 			require.Equal(t, item.ItemID, items[0].ItemID)
@@ -84,12 +84,12 @@ func TestGetSellerItemsWithSaleCounts(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Nonexistent seller", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			invalidSellerID := setup.GenerateNonexistentUserID(t)
 
-			_, err := queries.GetSellerItemsWithSaleCounts(db, invalidSellerID)
+			_, err := queries.GetSellerItemsWithSaleCounts(t.Context(), db, invalidSellerID)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 	})

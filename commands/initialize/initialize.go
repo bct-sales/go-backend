@@ -7,6 +7,7 @@ import (
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -135,7 +136,7 @@ func (c *InitializeCommand) downloadHTMLFile(overwrite bool) (err error) {
 	return nil
 }
 
-func (c *InitializeCommand) createDatabaseFile() (r_err error) {
+func (c *InitializeCommand) createDatabaseFile(ctx context.Context) (r_err error) {
 	databasePath := "bct.db"
 	db, err := database.CreateDatabase(databasePath)
 
@@ -165,7 +166,7 @@ func (c *InitializeCommand) createDatabaseFile() (r_err error) {
 
 	{
 		err := common.GenerateDefaultCategories(func(id models.ID, name string) error {
-			return queries.AddCategoryWithID(db, id, name)
+			return queries.AddCategoryWithID(ctx, db, id, name)
 		})
 
 		if err != nil {

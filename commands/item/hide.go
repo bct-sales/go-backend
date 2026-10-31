@@ -42,8 +42,8 @@ func (c *hideItemCommand) execute(ctx context.Context, args []string) error {
 		return err
 	}
 
-	transactionErr := c.WithTransaction(ctx, func(_ context.Context, transaction *queries.TransactionalDatabaseQuerier) error {
-		if err := queries.UpdateHiddenStatusOfItems(transaction, itemIDs, true); err != nil {
+	transactionErr := c.WithTransaction(ctx, func(ctx context.Context, transaction *queries.TransactionalDatabaseQuerier) error {
+		if err := queries.UpdateHiddenStatusOfItems(ctx, transaction, itemIDs, true); err != nil {
 			c.PrintErrorf("Failed to hide items: %v\n", err)
 			return err
 		}

@@ -73,9 +73,10 @@ func (ep *listSoldItemsEndpoint) ensureUserHasCorrectRole() bool {
 
 func (ep *listSoldItemsEndpoint) fetchSoldItemsFromDatabase() ([]*queries.SoldItem, bool) {
 	logger := ep.Logger
+	ctx := ep.Context.Request.Context()
 
 	query := ep.buildSQLQuery()
-	soldItems, err := query.Execute(ep.Database)
+	soldItems, err := query.Execute(ctx, ep.Database)
 
 	if err != nil {
 		logger.AddInformation("error", err)
@@ -143,8 +144,9 @@ func (ep *listSoldItemsEndpoint) convertData(soldItems []*queries.SoldItem) []Li
 
 func (ep *listSoldItemsEndpoint) sendResponseAsCSVFile(soldItems []*queries.SoldItem) {
 	logger := ep.Logger
+	ctx := ep.Context.Request.Context()
 
-	categoryNameTable, err := queries.GetCategoryNameTable(ep.Database)
+	categoryNameTable, err := queries.GetCategoryNameTable(ctx, ep.Database)
 	if err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to get category map")

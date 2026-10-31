@@ -60,19 +60,19 @@ func (c *RemoveSessionCommand) execute(ctx context.Context) error {
 }
 
 func (c *RemoveSessionCommand) removeBySessionID(ctx context.Context, sessionID models.SessionID) error {
-	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
-		return queries.DeleteSession(db, sessionID)
+	return c.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
+		return queries.DeleteSession(ctx, db, sessionID)
 	})
 }
 
 func (c *RemoveSessionCommand) removeByUserID(ctx context.Context, userID models.ID) error {
-	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
-		return queries.DeleteSessionWithUser(db, userID)
+	return c.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
+		return queries.DeleteSessionWithUser(ctx, db, userID)
 	})
 }
 
 func (c *RemoveSessionCommand) removeAll(ctx context.Context) error {
-	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
-		return queries.DeleteAllSessions(db)
+	return c.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
+		return queries.DeleteAllSessions(ctx, db)
 	})
 }

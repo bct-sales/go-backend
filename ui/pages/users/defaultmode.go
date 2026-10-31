@@ -111,5 +111,5 @@ func (mode *DefaultMode) onAddUser(model Model) (tea.Model, tea.Cmd) {
 		return model, model.requestFetchUsers()
 	}
 
-	return adduser.New(model.Database, model.ScreenSize, back), nil
+	return adduser.New(model.Context, model.Database, model.ScreenSize, back), nil
 }

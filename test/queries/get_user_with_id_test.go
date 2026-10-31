@@ -15,7 +15,7 @@ import (
 
 func TestGetUserWithID(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
 		lastActivity := models.Timestamp(2)
@@ -27,20 +27,20 @@ func TestGetUserWithID(t *testing.T) {
 			LastActivity: &lastActivity,
 		}
 
-		user.UserID = setup.User(user.RoleID, aux.WithCreatedAt(user.CreatedAt), aux.WithLastActivity(*user.LastActivity), aux.WithPassword(user.Password)).UserID
+		user.UserID = setup.User(t, user.RoleID, aux.WithCreatedAt(user.CreatedAt), aux.WithLastActivity(*user.LastActivity), aux.WithPassword(user.Password)).UserID
 
-		actual, err := queries.GetUserWithID(db, user.UserID)
+		actual, err := queries.GetUserWithID(t.Context(), db, user.UserID)
 		require.NoError(t, err)
 		require.Equal(t, user, *actual)
 	})
 
 	t.Run("Failure", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
 		nonexistentUserID := setup.GenerateNonexistentUserID(t)
 
-		_, err := queries.GetUserWithID(db, nonexistentUserID)
+		_, err := queries.GetUserWithID(t.Context(), db, nonexistentUserID)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 	})
 }

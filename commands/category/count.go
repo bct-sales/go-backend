@@ -48,13 +48,13 @@ func NewCategoryCountCommand() *cobra.Command {
 }
 
 func (c *categoryCountCommand) execute(ctx context.Context) error {
-	return c.WithOpenedDatabase(ctx, func(_ context.Context, database *sql.DB) error {
-		categoryCounts, err := c.getCategoryCounts(database)
+	return c.WithOpenedDatabase(ctx, func(ctx context.Context, database *sql.DB) error {
+		categoryCounts, err := c.getCategoryCounts(ctx, database)
 		if err != nil {
 			return err
 		}
 
-		categoryNameTable, err := c.GetCategoryNameTable(database)
+		categoryNameTable, err := c.GetCategoryNameTable(ctx, database)
 		if err != nil {
 			return err
 		}
@@ -67,7 +67,7 @@ func (c *categoryCountCommand) execute(ctx context.Context) error {
 	})
 }
 
-func (c *categoryCountCommand) getCategoryCounts(database *sql.DB) (map[models.ID]int, error) {
+func (c *categoryCountCommand) getCategoryCounts(ctx context.Context, database *sql.DB) (map[models.ID]int, error) {
 	var itemSelection queries.ItemSelection
 
 	if c.includeHidden {
@@ -76,7 +76,7 @@ func (c *categoryCountCommand) getCategoryCounts(database *sql.DB) (map[models.I
 		itemSelection = queries.OnlyVisibleItems
 	}
 
-	categoryCounts, err := queries.CountItemsPerCategory(database, itemSelection)
+	categoryCounts, err := queries.CountItemsPerCategory(ctx, database, itemSelection)
 
 	if err != nil {
 		c.PrintErrorf("Failed to get category counts\n")

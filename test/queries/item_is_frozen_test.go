@@ -18,13 +18,13 @@ func TestItemIsFrozen(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		for _, frozen := range []bool{true, false} {
 			t.Run("Frozen "+strconv.FormatBool(frozen), func(t *testing.T) {
-				setup, db := NewDatabaseFixture(WithDefaultCategories)
+				setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				seller := setup.Seller()
-				item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithFrozen(frozen), aux.WithHidden(false))
+				seller := setup.Seller(t)
+				item := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithFrozen(frozen), aux.WithHidden(false))
 
-				actual, err := queries.IsItemFrozen(db, item.ItemID)
+				actual, err := queries.IsItemFrozen(t.Context(), db, item.ItemID)
 				require.NoError(t, err)
 				require.Equal(t, frozen, actual)
 			})
@@ -33,12 +33,12 @@ func TestItemIsFrozen(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("No such item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			invalidID := models.ID(1)
 
-			_, err := queries.IsItemFrozen(db, invalidID)
+			_, err := queries.IsItemFrozen(t.Context(), db, invalidID)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 		})
 	})

@@ -65,7 +65,7 @@ func (c *AddUserCommand) execute(ctx context.Context) error {
 	role := c.role
 	userID := c.userID
 
-	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
+	return c.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
 		roleID, err := models.ParseRole(role)
 		if err != nil {
 			c.PrintErrorf("Invalid role; should be admin, seller or cashier\n")
@@ -77,7 +77,7 @@ func (c *AddUserCommand) execute(ctx context.Context) error {
 			password = c.password
 		} else if c.CobraCommand.Flags().Changed("generate-password") {
 			var err error
-			password, err = common.FindUnusedPassword(db)
+			password, err = common.FindUnusedPassword(ctx, db)
 			if err != nil {
 				return err
 			}
@@ -86,7 +86,7 @@ func (c *AddUserCommand) execute(ctx context.Context) error {
 		timestamp := models.Now()
 		var lastActivity *models.Timestamp = nil
 
-		if err := queries.AddUserWithID(db, models.ID(userID), roleID, timestamp, lastActivity, password); err != nil {
+		if err := queries.AddUserWithID(ctx, db, models.ID(userID), roleID, timestamp, lastActivity, password); err != nil {
 			c.PrintErrorf("Failed to add user\n")
 			return err
 		}

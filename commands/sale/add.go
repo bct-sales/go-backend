@@ -48,11 +48,11 @@ func NewSaleAddCommand() *cobra.Command {
 }
 
 func (c *addNewSaleCommand) execute(ctx context.Context) error {
-	return c.WithTransaction(ctx, func(_ context.Context, db *queries.TransactionalDatabaseQuerier) error {
+	return c.WithTransaction(ctx, func(ctx context.Context, db *queries.TransactionalDatabaseQuerier) error {
 		timestamp := models.Now()
 
 		itemIDs := algorithms.Map(c.rawItemIDs, func(id int64) models.ID { return models.ID(id) })
-		saleID, err := queries.AddSale(db, models.ID(c.rawCashierID), timestamp, itemIDs)
+		saleID, err := queries.AddSale(ctx, db, models.ID(c.rawCashierID), timestamp, itemIDs)
 
 		if err != nil {
 			return fmt.Errorf("failed to add sale: %w", err)
@@ -60,7 +60,7 @@ func (c *addNewSaleCommand) execute(ctx context.Context) error {
 
 		c.Printf("Sale added successfully\n")
 
-		err = c.printSale(db, saleID)
+		err = c.printSale(ctx, db, saleID)
 		if err != nil {
 			return nil // Don't return an error in this case, as the sale is already added to the database.
 		}
@@ -69,14 +69,14 @@ func (c *addNewSaleCommand) execute(ctx context.Context) error {
 	})
 }
 
-func (c *addNewSaleCommand) printSale(db queries.DatabaseQuerier, saleID models.ID) error {
-	sale, err := queries.GetSaleWithID(db, saleID)
+func (c *addNewSaleCommand) printSale(ctx context.Context, db queries.DatabaseQuerier, saleID models.ID) error {
+	sale, err := queries.GetSaleWithID(ctx, db, saleID)
 	if err != nil {
 		c.PrintErrorf("Failed to get sale back from database\n")
 		return fmt.Errorf("failed to get sale with id %d: %w", saleID, err)
 	}
 
-	saleItems, err := queries.GetSaleItems(db, saleID)
+	saleItems, err := queries.GetSaleItems(ctx, db, saleID)
 	if err != nil {
 		c.PrintErrorf("Failed to get items associated with sale\n")
 		return fmt.Errorf("failed to get items associated with sale %d: %w", saleID, err)

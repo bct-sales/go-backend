@@ -177,10 +177,11 @@ func (ep *listItemsEndpoint) ensureUserHasCorrectRole() bool {
 
 func (ep *listItemsEndpoint) fetchItemsFromDatabase(parameters *listItemsParameters) ([]*models.Item, bool) {
 	logger := ep.Logger
+	ctx := ep.Context.Request.Context()
 	var items []*models.Item
 
 	query := ep.buildSQLQuery(parameters)
-	if err := query.Execute(ep.Database, queries.CollectTo(&items)); err != nil {
+	if err := query.Execute(ctx, ep.Database, queries.CollectTo(&items)); err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to get items")
 
@@ -219,6 +220,7 @@ func (ep *listItemsEndpoint) sendResponseAsJSON(items []*models.Item, parameters
 
 func (ep *listItemsEndpoint) getItemStatistics(parameters *listItemsParameters) (*ListItemsStatistics, bool) {
 	logger := ep.Logger
+	ctx := ep.Context.Request.Context()
 	query := queries.NewGetItemStatisticsQuery()
 
 	if parameters.hidden != nil {
@@ -233,7 +235,7 @@ func (ep *listItemsEndpoint) getItemStatistics(parameters *listItemsParameters) 
 		query.WithDescription(*parameters.descriptionPattern)
 	}
 
-	itemStatistics, err := query.Execute(ep.Database)
+	itemStatistics, err := query.Execute(ctx, ep.Database)
 	if err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to count items")
@@ -280,7 +282,8 @@ func (ep *listItemsEndpoint) sendResponseAsJSONFile(items []*models.Item) {
 
 func (ep *listItemsEndpoint) sendResponseAsCSVFile(items []*models.Item) {
 	logger := ep.Logger
-	categoryNameTable, err := queries.GetCategoryNameTable(ep.Database)
+	ctx := ep.Context.Request.Context()
+	categoryNameTable, err := queries.GetCategoryNameTable(ctx, ep.Database)
 
 	if err != nil {
 		logger.AddInformation("error", err)

@@ -69,7 +69,7 @@ func (c *ServerCommand) execute(ctx context.Context) error {
 		return fmt.Errorf("failed to create logger: %w", err)
 	}
 
-	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
+	return c.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
 		if err := server.StartServer(clock, db, logger, configuration); err != nil {
 			c.PrintErrorf("Failed to start REST service\n")
 			return fmt.Errorf("failed to start REST service: %w", err)

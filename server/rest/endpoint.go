@@ -30,24 +30,21 @@ type HandlerFunction func(arguments *HandlerFunctionArguments)
 type Database interface {
 	queries.DatabaseQuerier
 
-	StartTransaction() (*queries.TransactionalDatabaseQuerier, error)
+	StartTransaction(ctx context.Context) (*queries.TransactionalDatabaseQuerier, error)
 }
 
 type DatabaseWrapper struct {
-	queries.ContextDatabaseQuerier
+	*sql.DB
 }
 
-func NewDatabaseWrapper(ctx context.Context, db *sql.DB) *DatabaseWrapper {
+func NewDatabaseWrapper(db *sql.DB) *DatabaseWrapper {
 	return &DatabaseWrapper{
-		ContextDatabaseQuerier: queries.ContextDatabaseQuerier{
-			Database: db,
-			Context:  ctx,
-		},
+		DB: db,
 	}
 }
 
-func (w *DatabaseWrapper) StartTransaction() (*queries.TransactionalDatabaseQuerier, error) {
-	return queries.NewTransactionalDatabaseQuerier(w.Context, w.Database)
+func (w *DatabaseWrapper) StartTransaction(ctx context.Context) (*queries.TransactionalDatabaseQuerier, error) {
+	return queries.NewTransactionalDatabaseQuerier(ctx, w.DB)
 }
 
 type Endpoint struct {

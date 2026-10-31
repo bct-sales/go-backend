@@ -203,32 +203,32 @@ func (c *dummyDatabaseCommand) execute(ctx context.Context) error {
 		return nil
 	}
 
-	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
+	return c.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
 		c.Printf("Resetting database\n")
 		if err := database.ResetDatabase(db); err != nil {
 			return fmt.Errorf("failed to reset database: %w", err)
 		}
 
-		if err := c.addCategories(db); err != nil {
+		if err := c.addCategories(ctx, db); err != nil {
 			return err
 		}
 
-		_, err := c.addAdmin(db)
+		_, err := c.addAdmin(ctx, db)
 		if err != nil {
 			return err
 		}
 
-		cashierIDs, err := c.addCashiers(db)
+		cashierIDs, err := c.addCashiers(ctx, db)
 		if err != nil {
 			return err
 		}
 
-		sellerIDs, err := c.addSellers(db)
+		sellerIDs, err := c.addSellers(ctx, db)
 		if err != nil {
 			return err
 		}
 
-		itemIDs, err := c.addItems(db, sellerIDs)
+		itemIDs, err := c.addItems(ctx, db, sellerIDs)
 		if err != nil {
 			return err
 		}
@@ -241,11 +241,11 @@ func (c *dummyDatabaseCommand) execute(ctx context.Context) error {
 	})
 }
 
-func (c *dummyDatabaseCommand) addCategories(db *sql.DB) error {
+func (c *dummyDatabaseCommand) addCategories(ctx context.Context, db *sql.DB) error {
 	c.Printf("Adding categories\n")
 
 	addCategory := func(id models.ID, name string) error {
-		return queries.AddCategoryWithID(db, id, name)
+		return queries.AddCategoryWithID(ctx, db, id, name)
 	}
 
 	if err := common.GenerateDefaultCategories(addCategory); err != nil {
@@ -254,7 +254,7 @@ func (c *dummyDatabaseCommand) addCategories(db *sql.DB) error {
 	return nil
 }
 
-func (c *dummyDatabaseCommand) addAdmin(db *sql.DB) (models.ID, error) {
+func (c *dummyDatabaseCommand) addAdmin(ctx context.Context, db *sql.DB) (models.ID, error) {
 	c.Printf("Adding admin user\n")
 
 	id := models.ID(1)
@@ -263,14 +263,14 @@ func (c *dummyDatabaseCommand) addAdmin(db *sql.DB) (models.ID, error) {
 	var lastActivity *models.Timestamp = nil
 	password := "abc"
 
-	if err := queries.AddUserWithID(db, id, roleID, createdAt, lastActivity, password); err != nil {
+	if err := queries.AddUserWithID(ctx, db, id, roleID, createdAt, lastActivity, password); err != nil {
 		return 0, fmt.Errorf("failed to add admin: %w", err)
 	}
 
 	return id, nil
 }
 
-func (c *dummyDatabaseCommand) addCashiers(db *sql.DB) ([]models.ID, error) {
+func (c *dummyDatabaseCommand) addCashiers(ctx context.Context, db *sql.DB) ([]models.ID, error) {
 	c.Printf("Adding cashier users\n")
 
 	cashierCount := c.rng.IntN(10) + 1
@@ -282,7 +282,7 @@ func (c *dummyDatabaseCommand) addCashiers(db *sql.DB) ([]models.ID, error) {
 		var lastActivity *models.Timestamp = nil
 		password := "abc"
 
-		cashierID, err := queries.AddUser(db, roleID, createdAt, lastActivity, password)
+		cashierID, err := queries.AddUser(ctx, db, roleID, createdAt, lastActivity, password)
 
 		if err != nil {
 			return nil, fmt.Errorf("failed to add cashier: %w", err)
@@ -294,7 +294,7 @@ func (c *dummyDatabaseCommand) addCashiers(db *sql.DB) ([]models.ID, error) {
 	return cashierIDs, nil
 }
 
-func (c *dummyDatabaseCommand) addSellers(db *sql.DB) ([]models.ID, error) {
+func (c *dummyDatabaseCommand) addSellers(ctx context.Context, db *sql.DB) ([]models.ID, error) {
 	c.Printf("Adding sellers\n")
 
 	sellerIDs := make([]models.ID, 0, zoneCount*10)
@@ -316,7 +316,7 @@ func (c *dummyDatabaseCommand) addSellers(db *sql.DB) ([]models.ID, error) {
 			}
 		}
 	}
-	if err := queries.AddUsers(db, addSellers); err != nil {
+	if err := queries.AddUsers(ctx, db, addSellers); err != nil {
 		return nil, fmt.Errorf("failed to add sellers: %w", err)
 	}
 
@@ -327,10 +327,10 @@ func (c *dummyDatabaseCommand) getSellerID(zone int, offset int) models.ID {
 	return models.ID(zone*100 + offset)
 }
 
-func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIDs []models.ID) ([]models.ID, error) {
+func (c *dummyDatabaseCommand) addItems(ctx context.Context, db *sql.DB, sellerIDs []models.ID) ([]models.ID, error) {
 	c.Printf("Adding items\n")
 
-	err := queries.AddItems(db, func(addItem queries.AddItemFunction) {
+	err := queries.AddItems(ctx, db, func(addItem queries.AddItemFunction) {
 		for _, sellerID := range sellerIDs {
 			itemCount := c.rng.IntN(50) + 5
 
@@ -365,7 +365,7 @@ func (c *dummyDatabaseCommand) addItems(db *sql.DB, sellerIDs []models.ID) ([]mo
 		return nil, fmt.Errorf("failed to add items: %w", err)
 	}
 
-	itemIDs, err := queries.GetItemIDs(db)
+	itemIDs, err := queries.GetItemIDs(ctx, db)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get item IDs: %w", err)
 	}
@@ -474,7 +474,7 @@ func (c *dummyDatabaseCommand) addSales(ctx context.Context, db *sql.DB, cashier
 			itemIDs[i], itemIDs[j] = itemIDs[j], itemIDs[i]
 		})
 		saleItems := itemIDs[:itemCount]
-		_, err := queries.AddSale(transaction, cashierID, transactionTime, saleItems)
+		_, err := queries.AddSale(ctx, transaction, cashierID, transactionTime, saleItems)
 
 		if err != nil {
 			return fmt.Errorf("failed to add sale: %w", err)

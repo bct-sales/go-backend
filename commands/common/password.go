@@ -4,14 +4,15 @@ import (
 	"bctbackend/algorithms"
 	"bctbackend/database/queries"
 	"bctbackend/dictionary"
+	"context"
 	"errors"
 	"math/rand/v2"
 )
 
 var ErrOutOfPasswords = errors.New("out of passwords")
 
-func FindUnusedPassword(db queries.DatabaseQuerier) (string, error) {
-	passwords, err := queries.CollectPasswords(db)
+func FindUnusedPassword(ctx context.Context, db queries.DatabaseQuerier) (string, error) {
+	passwords, err := queries.CollectPasswords(ctx, db)
 	if err != nil {
 		return "", err
 	}

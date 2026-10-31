@@ -18,7 +18,7 @@ func TestLogout(t *testing.T) {
 		setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		_, sessionID := setup.LoggedIn(setup.Admin())
+		_, sessionID := setup.LoggedIn(t, setup.Admin(t))
 
 		url := path.Logout()
 		request := CreatePostRequest(url, &rest.LogoutPayload{}, WithSessionCookie(sessionID))
@@ -30,7 +30,7 @@ func TestLogout(t *testing.T) {
 		setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		_, sessionID := setup.LoggedIn(setup.Admin(), aux.WithExpiration(100))
+		_, sessionID := setup.LoggedIn(t, setup.Admin(t), aux.WithExpiration(100))
 
 		setup.Clock.Advance(200)
 

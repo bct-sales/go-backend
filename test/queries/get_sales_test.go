@@ -18,27 +18,27 @@ import (
 func TestGetSales(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Get all sales", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
+			seller := setup.Seller(t)
+			cashier := setup.Cashier(t)
 
-			items := setup.Items(seller.UserID, 100, aux.WithHidden(false))
+			items := setup.Items(t, seller.UserID, 100, aux.WithHidden(false))
 
 			for _, item := range items {
-				setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+				setup.Sale(t, cashier.UserID, []models.ID{item.ItemID})
 			}
 
 			actualSales := []*models.SaleSummary{}
-			err := queries.NewGetSalesQuery().Execute(db, queries.CollectTo(&actualSales))
+			err := queries.NewGetSalesQuery().Execute(t.Context(), db, queries.CollectTo(&actualSales))
 			require.NoError(t, err)
 			require.Len(t, actualSales, len(items))
 
 			for _, actualSale := range actualSales {
 				require.Equal(t, cashier.UserID, actualSale.CashierID)
 
-				saleItems, err := queries.GetSaleItems(db, actualSale.SaleID)
+				saleItems, err := queries.GetSaleItems(t.Context(), db, actualSale.SaleID)
 				require.NoError(t, err)
 				require.Equal(t, 1, len(saleItems))
 			}
@@ -48,28 +48,28 @@ func TestGetSales(t *testing.T) {
 			for k := range 10 {
 				testLabel := fmt.Sprintf("k = %d", k)
 				t.Run(testLabel, func(t *testing.T) {
-					setup, db := NewDatabaseFixture(WithDefaultCategories)
+					setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
-					seller := setup.Seller()
-					cashier := setup.Cashier()
+					seller := setup.Seller(t)
+					cashier := setup.Cashier(t)
 
-					items := setup.Items(seller.UserID, 100, aux.WithHidden(false))
+					items := setup.Items(t, seller.UserID, 100, aux.WithHidden(false))
 
 					saleIDs := make([]models.ID, len(items))
 					for _, item := range items {
-						setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+						setup.Sale(t, cashier.UserID, []models.ID{item.ItemID})
 					}
 
 					actualSales := []*models.SaleSummary{}
-					err := queries.NewGetSalesQuery().WithIDGreaterThanOrEqualTo(models.ID(k+1)).Execute(db, queries.CollectTo(&actualSales))
+					err := queries.NewGetSalesQuery().WithIDGreaterThanOrEqualTo(models.ID(k+1)).Execute(t.Context(), db, queries.CollectTo(&actualSales))
 					require.NoError(t, err)
 					require.Len(t, actualSales, len(saleIDs)-k)
 
 					for _, actualSale := range actualSales {
 						require.Equal(t, cashier.UserID, actualSale.CashierID)
 
-						saleItems, err := queries.GetSaleItems(db, actualSale.SaleID)
+						saleItems, err := queries.GetSaleItems(t.Context(), db, actualSale.SaleID)
 						require.NoError(t, err)
 						require.Equal(t, 1, len(saleItems))
 					}
@@ -82,27 +82,27 @@ func TestGetSales(t *testing.T) {
 				for _, offset := range []uint64{0, 1, 2, 5, 10} {
 					testLabel := fmt.Sprintf("limit = %d, offset = %d", limit, offset)
 					t.Run(testLabel, func(t *testing.T) {
-						setup, db := NewDatabaseFixture(WithDefaultCategories)
+						setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 						defer setup.Close()
 
-						seller := setup.Seller()
-						cashier := setup.Cashier()
+						seller := setup.Seller(t)
+						cashier := setup.Cashier(t)
 
-						items := setup.Items(seller.UserID, 100, aux.WithHidden(false))
+						items := setup.Items(t, seller.UserID, 100, aux.WithHidden(false))
 						sales := algorithms.Map(items, func(item *models.Item) *models.Sale {
-							return setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+							return setup.Sale(t, cashier.UserID, []models.ID{item.ItemID})
 						})
 
 						expectedSales := sales[offset : offset+limit]
 						actualSales := []*models.SaleSummary{}
-						err := queries.NewGetSalesQuery().WithRowRange(limit, offset).Execute(db, queries.CollectTo(&actualSales))
+						err := queries.NewGetSalesQuery().WithRowRange(limit, offset).Execute(t.Context(), db, queries.CollectTo(&actualSales))
 						require.NoError(t, err)
 						require.Len(t, actualSales, int(limit))
 
 						for index, actualSale := range actualSales {
 							require.Equal(t, cashier.UserID, actualSale.CashierID)
 
-							saleItems, err := queries.GetSaleItems(db, actualSale.SaleID)
+							saleItems, err := queries.GetSaleItems(t.Context(), db, actualSale.SaleID)
 							require.NoError(t, err)
 							require.Equal(t, 1, len(saleItems))
 							require.Equal(t, expectedSales[index].SaleID, actualSale.SaleID)
@@ -117,17 +117,17 @@ func TestGetSales(t *testing.T) {
 				for _, offset := range []uint64{0, 1, 2, 5, 10} {
 					testLabel := fmt.Sprintf("limit = %d, offset = %d", limit, offset)
 					t.Run(testLabel, func(t *testing.T) {
-						setup, db := NewDatabaseFixture(WithDefaultCategories)
+						setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 						defer setup.Close()
 
-						seller := setup.Seller()
-						cashier := setup.Cashier()
+						seller := setup.Seller(t)
+						cashier := setup.Cashier(t)
 
-						items := setup.Items(seller.UserID, 100, aux.WithHidden(false))
+						items := setup.Items(t, seller.UserID, 100, aux.WithHidden(false))
 
 						sales := []*models.Sale{}
 						for index, item := range items {
-							sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID}, aux.WithTransactionTime(models.Timestamp(index)))
+							sale := setup.Sale(t, cashier.UserID, []models.ID{item.ItemID}, aux.WithTransactionTime(models.Timestamp(index)))
 							sales = append(sales, sale)
 						}
 
@@ -135,14 +135,14 @@ func TestGetSales(t *testing.T) {
 						slices.Reverse(expectedSales)
 						expectedSales = expectedSales[offset : offset+limit]
 						actualSales := []*models.SaleSummary{}
-						err := queries.NewGetSalesQuery().WithRowRange(limit, offset).OrderedAntiChronologically().Execute(db, queries.CollectTo(&actualSales))
+						err := queries.NewGetSalesQuery().WithRowRange(limit, offset).OrderedAntiChronologically().Execute(t.Context(), db, queries.CollectTo(&actualSales))
 						require.NoError(t, err)
 						require.Len(t, actualSales, int(limit))
 
 						for index, actualSale := range actualSales {
 							require.Equal(t, cashier.UserID, actualSale.CashierID)
 
-							saleItems, err := queries.GetSaleItems(db, actualSale.SaleID)
+							saleItems, err := queries.GetSaleItems(t.Context(), db, actualSale.SaleID)
 							require.NoError(t, err)
 							require.Equal(t, 1, len(saleItems))
 							require.Equal(t, expectedSales[index].SaleID, actualSale.SaleID)

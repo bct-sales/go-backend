@@ -16,17 +16,17 @@ import (
 func TestGetSaleItems(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Multiple items", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
-			items := setup.Items(seller.UserID, 20, aux.WithHidden(false))
+			seller := setup.Seller(t)
+			cashier := setup.Cashier(t)
+			items := setup.Items(t, seller.UserID, 20, aux.WithHidden(false))
 			itemIDs := models.CollectItemIDs(items)
 
-			sale := setup.Sale(cashier.UserID, itemIDs)
+			sale := setup.Sale(t, cashier.UserID, itemIDs)
 
-			actualItems, err := queries.GetSaleItems(db, sale.SaleID)
+			actualItems, err := queries.GetSaleItems(t.Context(), db, sale.SaleID)
 
 			require.NoError(t, err)
 			require.Len(t, actualItems, len(itemIDs))
@@ -34,7 +34,7 @@ func TestGetSaleItems(t *testing.T) {
 			for index, actualItem := range actualItems {
 				require.Equal(t, itemIDs[index], actualItem.ItemID)
 
-				expectedItem, err := queries.GetItemWithID(db, itemIDs[index])
+				expectedItem, err := queries.GetItemWithID(t.Context(), db, itemIDs[index])
 
 				require.NoError(t, err)
 				require.Equal(t, expectedItem, actualItem)
@@ -43,12 +43,12 @@ func TestGetSaleItems(t *testing.T) {
 	})
 
 	t.Run("Failure", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
 		saleID := setup.GenerateNonexistentSaleID(t)
 
-		_, err := queries.GetSaleItems(db, saleID)
+		_, err := queries.GetSaleItems(t.Context(), db, saleID)
 
 		require.Error(t, err)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSale)

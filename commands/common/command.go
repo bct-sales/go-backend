@@ -76,7 +76,7 @@ func (command *Command) WithOpenedDatabase(ctx context.Context, callback func(ct
 }
 
 func (command *Command) WithTransaction(ctx context.Context, callback func(ctx context.Context, db *queries.TransactionalDatabaseQuerier) error) error {
-	return command.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
+	return command.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
 		transaction, err := queries.NewTransactionalDatabaseQuerier(ctx, db)
 		if err != nil {
 			command.PrintErrorf("Failed to start transaction: %s\n", err.Error())
@@ -135,8 +135,8 @@ func (command *Command) parseID(str string, idType string) (models.ID, error) {
 	return id, nil
 }
 
-func (command *Command) GetCategoryNameTable(db queries.DatabaseQuerier) (map[models.ID]string, error) {
-	categoryNameTable, err := queries.GetCategoryNameTable(db)
+func (command *Command) GetCategoryNameTable(ctx context.Context, db queries.DatabaseQuerier) (map[models.ID]string, error) {
+	categoryNameTable, err := queries.GetCategoryNameTable(ctx, db)
 
 	if err != nil {
 		command.PrintErrorf("Failed to get category name table: %v\n", err)

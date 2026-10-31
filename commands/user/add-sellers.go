@@ -65,14 +65,14 @@ func NewUserAddSellersCommand() *cobra.Command {
 }
 
 func (c *addSellersCommand) execute(ctx context.Context) error {
-	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
+	return c.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
 		zones, err := parseZones(c.zonesString)
 		if err != nil {
 			c.PrintErrorf("failed to parse zones\n")
 			return err
 		}
 
-		sellersToBeCreated, err := c.determineSellersToBeCreated(db, zones, c.sellersPerZone)
+		sellersToBeCreated, err := c.determineSellersToBeCreated(ctx, db, zones, c.sellersPerZone)
 		if err != nil {
 			return nil
 		}
@@ -88,7 +88,7 @@ func (c *addSellersCommand) execute(ctx context.Context) error {
 				)
 			}
 		}
-		if err := queries.AddUsers(db, callback); err != nil {
+		if err := queries.AddUsers(ctx, db, callback); err != nil {
 			c.PrintErrorf("failed to add sellers\n")
 			return fmt.Errorf("failed to add sellers: %w", err)
 		}
@@ -104,10 +104,10 @@ type sellerCreationData struct {
 	password string
 }
 
-func (c *addSellersCommand) collectExistingUserIDs(db *sql.DB) (*algorithms.Set[models.ID], error) {
+func (c *addSellersCommand) collectExistingUserIDs(ctx context.Context, db *sql.DB) (*algorithms.Set[models.ID], error) {
 	result := algorithms.NewSet[models.ID]()
 
-	err := queries.GetUsers(db, func(user *models.User) error {
+	err := queries.GetUsers(ctx, db, func(user *models.User) error {
 		result.Add(user.UserID)
 		return nil
 	})
@@ -118,10 +118,10 @@ func (c *addSellersCommand) collectExistingUserIDs(db *sql.DB) (*algorithms.Set[
 	return &result, nil
 }
 
-func (c *addSellersCommand) collectExistingPasswords(db *sql.DB) (*algorithms.Set[string], error) {
+func (c *addSellersCommand) collectExistingPasswords(ctx context.Context, db *sql.DB) (*algorithms.Set[string], error) {
 	result := algorithms.NewSet[string]()
 
-	err := queries.GetUsers(db, func(user *models.User) error {
+	err := queries.GetUsers(ctx, db, func(user *models.User) error {
 		result.Add(user.Password)
 		return nil
 	})
@@ -132,13 +132,13 @@ func (c *addSellersCommand) collectExistingPasswords(db *sql.DB) (*algorithms.Se
 	return &result, nil
 }
 
-func (c *addSellersCommand) determineSellersToBeCreated(db *sql.DB, zones []int, sellersPerZone int) ([]*sellerCreationData, error) {
-	existingSellers, err := c.collectExistingUserIDs(db)
+func (c *addSellersCommand) determineSellersToBeCreated(ctx context.Context, db *sql.DB, zones []int, sellersPerZone int) ([]*sellerCreationData, error) {
+	existingSellers, err := c.collectExistingUserIDs(ctx, db)
 	if err != nil {
 		return nil, err
 	}
 
-	usedPasswords, err := c.collectExistingPasswords(db)
+	usedPasswords, err := c.collectExistingPasswords(ctx, db)
 	if err != nil {
 		return nil, err
 	}

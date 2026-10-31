@@ -30,23 +30,23 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 		for _, selection := range selections {
 			testLabel := fmt.Sprintf("Selection: %v", selection)
 			t.Run(testLabel, func(t *testing.T) {
-				setup, db := NewDatabaseFixture(WithDefaultCategories)
+				setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				seller := setup.Seller()
+				seller := setup.Seller(t)
 
 				itemIDs := []models.ID{}
 				for i := 0; i != 10; i++ {
-					itemIDs = append(itemIDs, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
+					itemIDs = append(itemIDs, setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
 				}
 
 				setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-					err := queries.UpdateFreezeStatusOfItems(db, selection, true)
+					err := queries.UpdateFreezeStatusOfItems(t.Context(), db, selection, true)
 					require.NoError(t, err)
 				})
 
 				for _, itemID := range itemIDs {
-					isFrozen, err := queries.IsItemFrozen(db, itemID)
+					isFrozen, err := queries.IsItemFrozen(t.Context(), db, itemID)
 					expectedFrozen := slices.Contains(selection, itemID)
 					assert.NoError(t, err)
 					assert.Equal(t, expectedFrozen, isFrozen, "item [%d] should have frozen=%v", itemID, expectedFrozen)
@@ -57,34 +57,34 @@ func TestUpdateFreezeStatusOfItems(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("No such item", func(t *testing.T) {
-			setup, _ := NewDatabaseFixture(WithDefaultCategories)
+			setup, _ := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.UpdateFreezeStatusOfItems(db, []models.ID{1}, true)
+				err := queries.UpdateFreezeStatusOfItems(t.Context(), db, []models.ID{1}, true)
 				requireDatabaseWrappedError(t, err, dberr.ErrNoSuchItem)
 			})
 		})
 
 		t.Run("Cannot freeze hidden item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
+			seller := setup.Seller(t)
 
 			itemIDs := []models.ID{}
 			for i := 0; i != 10; i++ {
-				itemIDs = append(itemIDs, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
+				itemIDs = append(itemIDs, setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
 			}
-			itemIDs = append(itemIDs, setup.Item(seller.UserID, aux.WithDummyData(10), aux.WithFrozen(false), aux.WithHidden(true)).ItemID)
+			itemIDs = append(itemIDs, setup.Item(t, seller.UserID, aux.WithDummyData(10), aux.WithFrozen(false), aux.WithHidden(true)).ItemID)
 
 			setup.WithTransaction(t, func(db *queries.TransactionalDatabaseQuerier) {
-				err := queries.UpdateFreezeStatusOfItems(db, itemIDs, true)
+				err := queries.UpdateFreezeStatusOfItems(t.Context(), db, itemIDs, true)
 				requireDatabaseWrappedError(t, err, dberr.ErrItemHidden)
 			})
 
 			for _, itemID := range itemIDs {
-				isFrozen, err := queries.IsItemFrozen(db, itemID)
+				isFrozen, err := queries.IsItemFrozen(t.Context(), db, itemID)
 				assert.NoError(t, err)
 				assert.Equal(t, false, isFrozen, "item with id %d should not be frozen", itemID)
 			}

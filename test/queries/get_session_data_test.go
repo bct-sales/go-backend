@@ -19,11 +19,11 @@ func TestGetSessionData(t *testing.T) {
 			testLabel := roleID.Name()
 
 			t.Run(testLabel, func(t *testing.T) {
-				setup, db := NewDatabaseFixture(WithDefaultCategories)
+				setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				seller, sessionID := setup.LoggedIn(setup.User(roleID), aux.WithExpiration(100))
-				sessionData, err := queries.GetSessionData(db, sessionID, setup.Clock.Now())
+				seller, sessionID := setup.LoggedIn(t, setup.User(t, roleID), aux.WithExpiration(100))
+				sessionData, err := queries.GetSessionData(t.Context(), db, sessionID, setup.Clock.Now())
 				expectedExpirationTime := setup.Clock.Now() + models.Timestamp(100)
 
 				require.NoError(t, err)
@@ -37,25 +37,25 @@ func TestGetSessionData(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Invalid session ID", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			invalidSessionID := models.SessionID("invalid-session-id")
-			_, err := queries.GetSessionData(db, invalidSessionID, setup.Clock.Now())
+			_, err := queries.GetSessionData(t.Context(), db, invalidSessionID, setup.Clock.Now())
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSession)
 		})
 
 		t.Run("Expired session", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			sessionID := setup.Session(seller.UserID, aux.WithExpiration(10))
+			seller := setup.Seller(t)
+			sessionID := setup.Session(t, seller.UserID, aux.WithExpiration(10))
 
 			// Advance time to ensure session is expired
 			setup.Clock.Advance(11)
 
-			_, err := queries.GetSessionData(db, sessionID, setup.Clock.Now())
+			_, err := queries.GetSessionData(t.Context(), db, sessionID, setup.Clock.Now())
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchSession)
 		})
 	})

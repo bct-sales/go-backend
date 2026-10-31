@@ -9,6 +9,7 @@ import (
 	"bctbackend/ui/components/selector"
 	"bctbackend/ui/components/textviewer"
 	"bctbackend/ui/pages"
+	"context"
 	"database/sql"
 	"errors"
 	"log/slog"
@@ -64,11 +65,12 @@ var DefaultKeyMap = KeyMap{
 	),
 }
 
-func New(database *sql.DB, screenSize pages.Size, back func() (tea.Model, tea.Cmd)) Model {
+func New(ctx context.Context, database *sql.DB, screenSize pages.Size, back func() (tea.Model, tea.Cmd)) Model {
 	roles := algorithms.Map(models.ListRoles(), func(roleID models.RoleID) RoleOption { return RoleOption{roleID} })
 
 	model := Model{
 		Page: pages.Page{
+			Context:    ctx,
 			Database:   database,
 			ScreenSize: screenSize,
 		},
@@ -253,7 +255,7 @@ func (m Model) onAddUser() (tea.Model, tea.Cmd) {
 			slog.String("createdAt", createdAt.FormattedDateTime()),
 		)
 
-		err := queries.AddUserWithID(m.Database, userID, roleID, createdAt, nil, password)
+		err := queries.AddUserWithID(m.Context, m.Database, userID, roleID, createdAt, nil, password)
 
 		if err != nil {
 			slog.Error("Database error while adding new user", slog.Any("error", err))

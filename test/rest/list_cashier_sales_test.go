@@ -23,14 +23,14 @@ func TestListCashierSales(t *testing.T) {
 				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				seller := setup.Seller()
-				cashier, sessionID := setup.LoggedIn(setup.Cashier())
-				cashier2 := setup.Cashier()
+				seller := setup.Seller(t)
+				cashier, sessionID := setup.LoggedIn(t, setup.Cashier(t))
+				cashier2 := setup.Cashier(t)
 
-				items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
-				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
-				items2 := setup.Items(seller.UserID, 20, aux.WithHidden(false))
-				algorithms.Map(items2, func(item *models.Item) *models.Sale { return setup.Sale(cashier2.UserID, []models.ID{item.ItemID}) })
+				items := setup.Items(t, seller.UserID, 10, aux.WithHidden(false))
+				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(t, cashier.UserID, []models.ID{item.ItemID}) })
+				items2 := setup.Items(t, seller.UserID, 20, aux.WithHidden(false))
+				algorithms.Map(items2, func(item *models.Item) *models.Sale { return setup.Sale(t, cashier2.UserID, []models.ID{item.ItemID}) })
 
 				url := path.CashierSales(cashier.UserID)
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -47,11 +47,11 @@ func TestListCashierSales(t *testing.T) {
 				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				seller := setup.Seller()
-				cashier, sessionID := setup.LoggedIn(setup.Cashier())
+				seller := setup.Seller(t)
+				cashier, sessionID := setup.LoggedIn(t, setup.Cashier(t))
 
-				items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
-				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
+				items := setup.Items(t, seller.UserID, 10, aux.WithHidden(false))
+				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(t, cashier.UserID, []models.ID{item.ItemID}) })
 
 				url := path.CashierSales(cashier.UserID).AddOffset(1)
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -69,11 +69,11 @@ func TestListCashierSales(t *testing.T) {
 				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				seller := setup.Seller()
-				cashier, sessionID := setup.LoggedIn(setup.Cashier())
+				seller := setup.Seller(t)
+				cashier, sessionID := setup.LoggedIn(t, setup.Cashier(t))
 
-				items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
-				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
+				items := setup.Items(t, seller.UserID, 10, aux.WithHidden(false))
+				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(t, cashier.UserID, []models.ID{item.ItemID}) })
 
 				url := path.CashierSales(cashier.UserID).AddLimit(1)
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -91,11 +91,11 @@ func TestListCashierSales(t *testing.T) {
 				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				seller := setup.Seller()
-				cashier, sessionID := setup.LoggedIn(setup.Cashier())
+				seller := setup.Seller(t)
+				cashier, sessionID := setup.LoggedIn(t, setup.Cashier(t))
 
-				items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
-				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
+				items := setup.Items(t, seller.UserID, 10, aux.WithHidden(false))
+				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(t, cashier.UserID, []models.ID{item.ItemID}) })
 
 				url := path.CashierSales(cashier.UserID).AddLimit(3).AddOffset(2)
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -113,11 +113,11 @@ func TestListCashierSales(t *testing.T) {
 				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				seller := setup.Seller()
-				cashier, sessionID := setup.LoggedIn(setup.Cashier())
+				seller := setup.Seller(t)
+				cashier, sessionID := setup.LoggedIn(t, setup.Cashier(t))
 
-				items := setup.Items(seller.UserID, 3, aux.WithHidden(false))
-				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
+				items := setup.Items(t, seller.UserID, 3, aux.WithHidden(false))
+				sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(t, cashier.UserID, []models.ID{item.ItemID}) })
 
 				url := path.CashierSales(cashier.UserID).AddAntiChronologicalOrder()
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -138,15 +138,15 @@ func TestListCashierSales(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionID := setup.LoggedIn(setup.Admin())
-			seller := setup.Seller()
-			cashier := setup.Cashier()
-			cashier2 := setup.Cashier()
+			_, sessionID := setup.LoggedIn(t, setup.Admin(t))
+			seller := setup.Seller(t)
+			cashier := setup.Cashier(t)
+			cashier2 := setup.Cashier(t)
 
-			items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
-			sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
-			items2 := setup.Items(seller.UserID, 20, aux.WithHidden(false))
-			algorithms.Map(items2, func(item *models.Item) *models.Sale { return setup.Sale(cashier2.UserID, []models.ID{item.ItemID}) })
+			items := setup.Items(t, seller.UserID, 10, aux.WithHidden(false))
+			sales := algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(t, cashier.UserID, []models.ID{item.ItemID}) })
+			items2 := setup.Items(t, seller.UserID, 20, aux.WithHidden(false))
+			algorithms.Map(items2, func(item *models.Item) *models.Sale { return setup.Sale(t, cashier2.UserID, []models.ID{item.ItemID}) })
 
 			url := path.CashierSales(cashier.UserID)
 			request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -164,14 +164,14 @@ func TestListCashierSales(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller, sessionID := setup.LoggedIn(setup.Seller())
-			cashier := setup.Cashier()
-			cashier2 := setup.Cashier()
+			seller, sessionID := setup.LoggedIn(t, setup.Seller(t))
+			cashier := setup.Cashier(t)
+			cashier2 := setup.Cashier(t)
 
-			items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
-			algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
-			items2 := setup.Items(seller.UserID, 20, aux.WithHidden(false))
-			algorithms.Map(items2, func(item *models.Item) *models.Sale { return setup.Sale(cashier2.UserID, []models.ID{item.ItemID}) })
+			items := setup.Items(t, seller.UserID, 10, aux.WithHidden(false))
+			algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(t, cashier.UserID, []models.ID{item.ItemID}) })
+			items2 := setup.Items(t, seller.UserID, 20, aux.WithHidden(false))
+			algorithms.Map(items2, func(item *models.Item) *models.Sale { return setup.Sale(t, cashier2.UserID, []models.ID{item.ItemID}) })
 
 			url := path.CashierSales(cashier.UserID)
 			request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -183,14 +183,14 @@ func TestListCashierSales(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			cashier := setup.Cashier()
-			cashier2, sessionID := setup.LoggedIn(setup.Cashier())
+			seller := setup.Seller(t)
+			cashier := setup.Cashier(t)
+			cashier2, sessionID := setup.LoggedIn(t, setup.Cashier(t))
 
-			items := setup.Items(seller.UserID, 10, aux.WithHidden(false))
-			algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(cashier.UserID, []models.ID{item.ItemID}) })
-			items2 := setup.Items(seller.UserID, 20, aux.WithHidden(false))
-			algorithms.Map(items2, func(item *models.Item) *models.Sale { return setup.Sale(cashier2.UserID, []models.ID{item.ItemID}) })
+			items := setup.Items(t, seller.UserID, 10, aux.WithHidden(false))
+			algorithms.Map(items, func(item *models.Item) *models.Sale { return setup.Sale(t, cashier.UserID, []models.ID{item.ItemID}) })
+			items2 := setup.Items(t, seller.UserID, 20, aux.WithHidden(false))
+			algorithms.Map(items2, func(item *models.Item) *models.Sale { return setup.Sale(t, cashier2.UserID, []models.ID{item.ItemID}) })
 
 			url := path.CashierSales(cashier.UserID)
 			request := CreateGetRequest(url, WithSessionCookie(sessionID))

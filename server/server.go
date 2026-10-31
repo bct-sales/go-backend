@@ -13,6 +13,7 @@ import (
 	"bctbackend/server/paths"
 	"bctbackend/server/rest"
 	"bctbackend/server/websocket"
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -100,7 +101,10 @@ func (server *Server) startPeriodicExpiredSessionPruner() {
 	server.expiredSessionTicker = clock.NewTicker(pruneInterval, func() {
 		now := clock.Now()
 		server.logger.With("current_time", now.String()).Info("Cleaning up expired sessions")
-		if err := queries.DeleteExpiredSessions(server.database, now); err != nil {
+		// TODO: This background job has no request context available; the ticker callback
+		// receives none and the server entry points do not take a context. context.Background()
+		// is used until the ticker API is context-aware.
+		if err := queries.DeleteExpiredSessions(context.Background(), server.database, now); err != nil {
 			slog.Error("Failed to clean up expired sessions", slog.String("error", err.Error()))
 		}
 	})
@@ -239,7 +243,7 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 
 		now := clock.Now()
 		sessionID := models.SessionID(sessionIDString)
-		sessionData, err := queries.GetSessionData(database, sessionID, now)
+		sessionData, err := queries.GetSessionData(context.Request.Context(), database, sessionID, now)
 
 		if errors.Is(err, dberr.ErrNoSuchSession) {
 			server.logger.Error("Session not found")
@@ -256,7 +260,7 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 		userID := sessionData.UserID
 		roleID := sessionData.RoleID
 
-		if err := queries.UpdateLastActivity(database, userID, now); err != nil {
+		if err := queries.UpdateLastActivity(context.Request.Context(), database, userID, now); err != nil {
 			server.logger.With("error", err).Error("Failed to update last activity")
 			// Keep going, we don't want to block the request
 		}
@@ -267,7 +271,7 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 			Clock:         clock,
 			Context:       context,
 			Configuration: configuration,
-			Database:      rest.NewDatabaseWrapper(context, database),
+			Database:      rest.NewDatabaseWrapper(database),
 			UserID:        userID,
 			RoleID:        roleID,
 			Logger:        logger,

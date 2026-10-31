@@ -32,14 +32,14 @@ func TestCheckUserRole(t *testing.T) {
 			roleName := pair.RoleID.Name()
 
 			t.Run(roleName, func(t *testing.T) {
-				setup, db := NewDatabaseFixture(WithDefaultCategories)
+				setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				setup.Cashier(aux.WithUserID(cashierID))
-				setup.Admin(aux.WithUserID(adminID))
-				setup.Seller(aux.WithUserID(sellerID))
+				setup.Cashier(t, aux.WithUserID(cashierID))
+				setup.Admin(t, aux.WithUserID(adminID))
+				setup.Seller(t, aux.WithUserID(sellerID))
 
-				err := queries.EnsureUserExistsAndHasRole(db, pair.UserID, pair.RoleID)
+				err := queries.EnsureUserExistsAndHasRole(t.Context(), db, pair.UserID, pair.RoleID)
 				require.NoError(t, err)
 			})
 		}
@@ -61,26 +61,26 @@ func TestCheckUserRole(t *testing.T) {
 			roleName := pair.RoleID.Name()
 
 			t.Run(roleName, func(t *testing.T) {
-				setup, db := NewDatabaseFixture(WithDefaultCategories)
+				setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				setup.Cashier(aux.WithUserID(cashierID))
-				setup.Admin(aux.WithUserID(adminID))
-				setup.Seller(aux.WithUserID(sellerID))
+				setup.Cashier(t, aux.WithUserID(cashierID))
+				setup.Admin(t, aux.WithUserID(adminID))
+				setup.Seller(t, aux.WithUserID(sellerID))
 
-				err := queries.EnsureUserExistsAndHasRole(db, pair.UserID, pair.RoleID)
+				err := queries.EnsureUserExistsAndHasRole(t.Context(), db, pair.UserID, pair.RoleID)
 				requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 			})
 		}
 	})
 
 	t.Run("Check non-existing user", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
 		invalidID := models.ID(9999)
 
-		err := queries.EnsureUserExistsAndHasRole(db, invalidID, models.NewAdminRoleID())
+		err := queries.EnsureUserExistsAndHasRole(t.Context(), db, invalidID, models.NewAdminRoleID())
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 	})
 }

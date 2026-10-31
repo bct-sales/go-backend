@@ -17,25 +17,25 @@ import (
 func TestAddItems(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("Add zero items", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
 			callback := func(addItem queries.AddItemFunction) {}
 
-			err := queries.AddItems(db, callback)
+			err := queries.AddItems(t.Context(), db, callback)
 			require.NoError(t, err)
 
-			itemStatistics, err := queries.NewGetItemStatisticsQuery().Execute(db)
+			itemStatistics, err := queries.NewGetItemStatisticsQuery().Execute(t.Context(), db)
 			require.NoError(t, err)
 			require.Equal(t, 0, itemStatistics.ItemCount)
 			require.Equal(t, models.MoneyInCents(0), itemStatistics.TotalValueInCents)
 		})
 
 		t.Run("Add single item", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
+			seller := setup.Seller(t)
 
 			addedAt := models.Timestamp(100)
 			description := "Black T-Shirt"
@@ -51,20 +51,20 @@ func TestAddItems(t *testing.T) {
 				addItem(addedAt, description, priceInCents, categoryID, sellerID, donation, charity, frozen, hidden, large)
 			}
 
-			err := queries.AddItems(db, callback)
+			err := queries.AddItems(t.Context(), db, callback)
 			require.NoError(t, err)
 
-			itemStatistics, err := queries.NewGetItemStatisticsQuery().Execute(db)
+			itemStatistics, err := queries.NewGetItemStatisticsQuery().Execute(t.Context(), db)
 			require.NoError(t, err)
 			require.Equal(t, 1, itemStatistics.ItemCount)
 			require.Equal(t, priceInCents, itemStatistics.TotalValueInCents)
 
-			itemIDs, err := queries.GetItemIDs(db)
+			itemIDs, err := queries.GetItemIDs(t.Context(), db)
 			require.NoError(t, err)
 			require.Len(t, itemIDs, 1)
 
 			itemID := itemIDs[0]
-			item, err := queries.GetItemWithID(db, itemID)
+			item, err := queries.GetItemWithID(t.Context(), db, itemID)
 			require.NoError(t, err)
 			require.Equal(t, itemID, item.ItemID)
 			require.Equal(t, addedAt, item.AddedAt)
@@ -79,10 +79,10 @@ func TestAddItems(t *testing.T) {
 		})
 
 		t.Run("Add multiple items", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
+			seller := setup.Seller(t)
 
 			itemCount := 15
 			totalPrice := models.MoneyInCents(0)
@@ -104,10 +104,10 @@ func TestAddItems(t *testing.T) {
 				}
 			}
 
-			err := queries.AddItems(db, callback)
+			err := queries.AddItems(t.Context(), db, callback)
 			require.NoError(t, err)
 
-			itemStatistics, err := queries.NewGetItemStatisticsQuery().Execute(db)
+			itemStatistics, err := queries.NewGetItemStatisticsQuery().Execute(t.Context(), db)
 			require.NoError(t, err)
 			require.Equal(t, itemCount, itemStatistics.ItemCount)
 			require.Equal(t, totalPrice, itemStatistics.TotalValueInCents)

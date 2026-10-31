@@ -20,17 +20,17 @@ func TestAddUserWithID(t *testing.T) {
 			for _, userID := range []models.ID{1, 5} {
 				for _, roleID := range models.ListRoles() {
 					t.Run(fmt.Sprintf("With role id %d", roleID), func(t *testing.T) {
-						setup, db := NewDatabaseFixture(WithDefaultCategories)
+						setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 						defer setup.Close()
 
-						err := queries.AddUserWithID(db, userID, roleID, 0, nil, password)
+						err := queries.AddUserWithID(t.Context(), db, userID, roleID, 0, nil, password)
 						require.NoError(t, err)
 
-						userExists, err := queries.UserWithIDExists(db, userID)
+						userExists, err := queries.UserWithIDExists(t.Context(), db, userID)
 						require.NoError(t, err)
 						require.True(t, userExists)
 
-						actualRoleID, err := queries.AuthenticateUser(db, userID, password)
+						actualRoleID, err := queries.AuthenticateUser(t.Context(), db, userID, password)
 						require.NoError(t, err)
 						require.Equal(t, roleID, actualRoleID)
 					})
@@ -40,7 +40,7 @@ func TestAddUserWithID(t *testing.T) {
 	})
 
 	t.Run("Fail due to existing user id", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
 		userID := models.ID(1)
@@ -50,18 +50,18 @@ func TestAddUserWithID(t *testing.T) {
 		var lastAccess *models.Timestamp = nil
 
 		{
-			err := queries.AddUserWithID(db, userID, roleID, createdAt, lastAccess, password)
+			err := queries.AddUserWithID(t.Context(), db, userID, roleID, createdAt, lastAccess, password)
 			require.NoError(t, err)
 		}
 
 		{
-			err := queries.AddUserWithID(db, userID, roleID, createdAt, lastAccess, password)
+			err := queries.AddUserWithID(t.Context(), db, userID, roleID, createdAt, lastAccess, password)
 			requireDatabaseWrappedError(t, err, dberr.ErrIDAlreadyInUse)
 		}
 	})
 
 	t.Run("Fail due to invalid role id", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
 		userID := models.ID(1)
@@ -70,7 +70,7 @@ func TestAddUserWithID(t *testing.T) {
 		createdAt := models.Timestamp(0)
 		var lastAccess *models.Timestamp = nil
 
-		err := queries.AddUserWithID(db, userID, roleID, createdAt, lastAccess, password)
+		err := queries.AddUserWithID(t.Context(), db, userID, roleID, createdAt, lastAccess, password)
 		requireDatabaseWrappedError(t, err, dberr.ErrNoSuchRole)
 	})
 }

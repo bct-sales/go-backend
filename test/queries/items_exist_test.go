@@ -30,17 +30,17 @@ func TestCheckItemsExistence(t *testing.T) {
 			for _, selection := range selections {
 				testLabel := fmt.Sprintf("Selection: %v", selection)
 				t.Run(testLabel, func(t *testing.T) {
-					setup, db := NewDatabaseFixture(WithDefaultCategories)
+					setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
-					seller := setup.Seller()
+					seller := setup.Seller(t)
 
 					itemIDs := []models.ID{}
 					for i := 0; i != 10; i++ {
-						itemIDs = append(itemIDs, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
+						itemIDs = append(itemIDs, setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
 					}
 
-					actual, err := queries.ItemsExist(db, selection)
+					actual, err := queries.ItemsExist(t.Context(), db, selection)
 					require.NoError(t, err)
 					require.True(t, actual)
 				})
@@ -55,17 +55,17 @@ func TestCheckItemsExistence(t *testing.T) {
 			for _, selection := range selections {
 				testLabel := fmt.Sprintf("Selection: %v", selection)
 				t.Run(testLabel, func(t *testing.T) {
-					setup, db := NewDatabaseFixture(WithDefaultCategories)
+					setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
-					seller := setup.Seller()
+					seller := setup.Seller(t)
 
 					itemIDs := []models.ID{}
 					for i := 0; i != 10; i++ {
-						itemIDs = append(itemIDs, setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
+						itemIDs = append(itemIDs, setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithHidden(false)).ItemID)
 					}
 
-					actual, err := queries.ItemsExist(db, selection)
+					actual, err := queries.ItemsExist(t.Context(), db, selection)
 					require.NoError(t, err)
 					require.False(t, actual)
 				})

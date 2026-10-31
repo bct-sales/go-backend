@@ -17,49 +17,49 @@ import (
 func TestPartitionItemsByFrozenStatus(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("All items are visible, no nonexistent items in list", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			frozenItems := setup.Items(seller.UserID, 10, aux.WithFrozen(true), aux.WithHidden(false))
-			unfrozenItems := setup.Items(seller.UserID, 5, aux.WithFrozen(false), aux.WithHidden(false))
+			seller := setup.Seller(t)
+			frozenItems := setup.Items(t, seller.UserID, 10, aux.WithFrozen(true), aux.WithHidden(false))
+			unfrozenItems := setup.Items(t, seller.UserID, 5, aux.WithFrozen(false), aux.WithHidden(false))
 			allItems := slices.Concat(
 				algorithms.Map(frozenItems, func(i *models.Item) models.ID { return i.ItemID }),
 				algorithms.Map(unfrozenItems, func(i *models.Item) models.ID { return i.ItemID }))
 
-			actualUnfrozen, actualFrozen, err := queries.PartitionItemsByFrozenStatus(db, allItems)
+			actualUnfrozen, actualFrozen, err := queries.PartitionItemsByFrozenStatus(t.Context(), db, allItems)
 			require.NoError(t, err)
 			require.Equal(t, len(frozenItems), actualFrozen.Len())
 			require.Equal(t, len(unfrozenItems), actualUnfrozen.Len())
 		})
 
 		t.Run("Some unfrozen items are hidden, no nonexistent items in list", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			frozenItems := setup.Items(seller.UserID, 10, aux.WithFrozen(true), aux.WithHidden(false))
-			unfrozenVisibleItems := setup.Items(seller.UserID, 5, aux.WithFrozen(false), aux.WithHidden(false))
-			unfrozenHiddenItems := setup.Items(seller.UserID, 5, aux.WithFrozen(false), aux.WithHidden(true))
+			seller := setup.Seller(t)
+			frozenItems := setup.Items(t, seller.UserID, 10, aux.WithFrozen(true), aux.WithHidden(false))
+			unfrozenVisibleItems := setup.Items(t, seller.UserID, 5, aux.WithFrozen(false), aux.WithHidden(false))
+			unfrozenHiddenItems := setup.Items(t, seller.UserID, 5, aux.WithFrozen(false), aux.WithHidden(true))
 			allItems := slices.Concat(
 				algorithms.Map(frozenItems, func(i *models.Item) models.ID { return i.ItemID }),
 				algorithms.Map(unfrozenVisibleItems, func(i *models.Item) models.ID { return i.ItemID }),
 				algorithms.Map(unfrozenHiddenItems, func(i *models.Item) models.ID { return i.ItemID }),
 			)
 
-			actualUnfrozen, actualFrozen, err := queries.PartitionItemsByFrozenStatus(db, allItems)
+			actualUnfrozen, actualFrozen, err := queries.PartitionItemsByFrozenStatus(t.Context(), db, allItems)
 			require.NoError(t, err)
 			require.Equal(t, len(frozenItems), actualFrozen.Len())
 			require.Equal(t, len(unfrozenVisibleItems)+len(unfrozenHiddenItems), actualUnfrozen.Len())
 		})
 
 		t.Run("All items are visible, nonexistent items in the list", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			frozenItems := setup.Items(seller.UserID, 10, aux.WithFrozen(true), aux.WithHidden(false))
-			unfrozenItems := setup.Items(seller.UserID, 5, aux.WithFrozen(false), aux.WithHidden(false))
+			seller := setup.Seller(t)
+			frozenItems := setup.Items(t, seller.UserID, 10, aux.WithFrozen(true), aux.WithHidden(false))
+			unfrozenItems := setup.Items(t, seller.UserID, 5, aux.WithFrozen(false), aux.WithHidden(false))
 			nonexistentItems := []models.ID{
 				setup.GenerateNonexistentItemID(t),
 				setup.GenerateNonexistentItemID(t),
@@ -70,7 +70,7 @@ func TestPartitionItemsByFrozenStatus(t *testing.T) {
 				algorithms.Map(unfrozenItems, func(i *models.Item) models.ID { return i.ItemID }),
 				nonexistentItems)
 
-			actualUnfrozen, actualFrozen, err := queries.PartitionItemsByFrozenStatus(db, allItems)
+			actualUnfrozen, actualFrozen, err := queries.PartitionItemsByFrozenStatus(t.Context(), db, allItems)
 			require.NoError(t, err)
 			require.Equal(t, len(frozenItems), actualFrozen.Len())
 			require.Equal(t, len(unfrozenItems), actualUnfrozen.Len())

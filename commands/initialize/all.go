@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"bctbackend/commands/common"
+	"context"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
@@ -25,7 +26,7 @@ func NewInitializeAllCommand() *cobra.Command {
 						Does not overwrite existing files.
 					`),
 					RunE: func(cmd *cobra.Command, args []string) error {
-						return command.execute()
+						return command.execute(cmd.Context())
 					},
 					Args: cobra.NoArgs,
 				},
@@ -36,7 +37,7 @@ func NewInitializeAllCommand() *cobra.Command {
 	return command.AsCobraCommand()
 }
 
-func (c *initializeAllCommand) execute() error {
+func (c *initializeAllCommand) execute(ctx context.Context) error {
 	if err := c.generateConfigurationFile(); err != nil {
 		return err
 	}
@@ -45,7 +46,7 @@ func (c *initializeAllCommand) execute() error {
 		return err
 	}
 
-	if err := c.createDatabaseFile(); err != nil {
+	if err := c.createDatabaseFile(ctx); err != nil {
 		return err
 	}
 

@@ -18,21 +18,21 @@ import (
 func TestGetItemsWithSaleCounts(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		t.Run("All items from all sellers, zero sales", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller1 := setup.Seller()
-			seller2 := setup.Seller()
-			seller3 := setup.Seller()
-			visibleItems1 := setup.Items(seller1.UserID, 1, aux.WithHidden(false), aux.WithFrozen(false))
-			hiddenItems1 := setup.Items(seller1.UserID, 2, aux.WithHidden(true), aux.WithFrozen(false))
-			visibleItems2 := setup.Items(seller2.UserID, 4, aux.WithHidden(false), aux.WithFrozen(false))
-			hiddenItems2 := setup.Items(seller2.UserID, 8, aux.WithHidden(true), aux.WithFrozen(false))
-			visibleItems3 := setup.Items(seller3.UserID, 16, aux.WithHidden(false), aux.WithFrozen(false))
-			hiddenItems3 := setup.Items(seller3.UserID, 32, aux.WithHidden(true), aux.WithFrozen(false))
+			seller1 := setup.Seller(t)
+			seller2 := setup.Seller(t)
+			seller3 := setup.Seller(t)
+			visibleItems1 := setup.Items(t, seller1.UserID, 1, aux.WithHidden(false), aux.WithFrozen(false))
+			hiddenItems1 := setup.Items(t, seller1.UserID, 2, aux.WithHidden(true), aux.WithFrozen(false))
+			visibleItems2 := setup.Items(t, seller2.UserID, 4, aux.WithHidden(false), aux.WithFrozen(false))
+			hiddenItems2 := setup.Items(t, seller2.UserID, 8, aux.WithHidden(true), aux.WithFrozen(false))
+			visibleItems3 := setup.Items(t, seller3.UserID, 16, aux.WithHidden(false), aux.WithFrozen(false))
+			hiddenItems3 := setup.Items(t, seller3.UserID, 32, aux.WithHidden(true), aux.WithFrozen(false))
 
 			expectedItems := slices.Concat(visibleItems1, visibleItems2, visibleItems3, hiddenItems1, hiddenItems2, hiddenItems3)
-			actualItems, err := queries.GetItemsWithSaleCounts(db, queries.AllItems, nil)
+			actualItems, err := queries.GetItemsWithSaleCounts(t.Context(), db, queries.AllItems, nil)
 			require.NoError(t, err)
 			require.Equal(t, len(expectedItems), len(actualItems))
 
@@ -45,22 +45,22 @@ func TestGetItemsWithSaleCounts(t *testing.T) {
 		})
 
 		t.Run("All items from seller 1, zero sales", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller1 := setup.Seller()
-			seller2 := setup.Seller()
-			seller3 := setup.Seller()
-			visibleItems1 := setup.Items(seller1.UserID, 1, aux.WithHidden(false), aux.WithFrozen(false))
-			hiddenItems1 := setup.Items(seller1.UserID, 2, aux.WithHidden(true), aux.WithFrozen(false))
-			setup.Items(seller2.UserID, 4, aux.WithHidden(false), aux.WithFrozen(false))
-			setup.Items(seller2.UserID, 8, aux.WithHidden(true), aux.WithFrozen(false))
-			setup.Items(seller3.UserID, 16, aux.WithHidden(false), aux.WithFrozen(false))
-			setup.Items(seller3.UserID, 32, aux.WithHidden(true), aux.WithFrozen(false))
+			seller1 := setup.Seller(t)
+			seller2 := setup.Seller(t)
+			seller3 := setup.Seller(t)
+			visibleItems1 := setup.Items(t, seller1.UserID, 1, aux.WithHidden(false), aux.WithFrozen(false))
+			hiddenItems1 := setup.Items(t, seller1.UserID, 2, aux.WithHidden(true), aux.WithFrozen(false))
+			setup.Items(t, seller2.UserID, 4, aux.WithHidden(false), aux.WithFrozen(false))
+			setup.Items(t, seller2.UserID, 8, aux.WithHidden(true), aux.WithFrozen(false))
+			setup.Items(t, seller3.UserID, 16, aux.WithHidden(false), aux.WithFrozen(false))
+			setup.Items(t, seller3.UserID, 32, aux.WithHidden(true), aux.WithFrozen(false))
 
 			expectedItems := slices.Concat(visibleItems1, hiddenItems1)
 			sellerID := models.ID(1)
-			actualItems, err := queries.GetItemsWithSaleCounts(db, queries.AllItems, &sellerID)
+			actualItems, err := queries.GetItemsWithSaleCounts(t.Context(), db, queries.AllItems, &sellerID)
 			require.NoError(t, err)
 			require.Equal(t, len(expectedItems), len(actualItems))
 
@@ -73,22 +73,22 @@ func TestGetItemsWithSaleCounts(t *testing.T) {
 		})
 
 		t.Run("All items from seller 2, zero sales", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller1 := setup.Seller()
-			seller2 := setup.Seller()
-			seller3 := setup.Seller()
-			setup.Items(seller1.UserID, 1, aux.WithHidden(false), aux.WithFrozen(false))
-			setup.Items(seller1.UserID, 2, aux.WithHidden(true), aux.WithFrozen(false))
-			visibleItems2 := setup.Items(seller2.UserID, 4, aux.WithHidden(false), aux.WithFrozen(false))
-			hiddenItems2 := setup.Items(seller2.UserID, 8, aux.WithHidden(true), aux.WithFrozen(false))
-			setup.Items(seller3.UserID, 16, aux.WithHidden(false), aux.WithFrozen(false))
-			setup.Items(seller3.UserID, 32, aux.WithHidden(true), aux.WithFrozen(false))
+			seller1 := setup.Seller(t)
+			seller2 := setup.Seller(t)
+			seller3 := setup.Seller(t)
+			setup.Items(t, seller1.UserID, 1, aux.WithHidden(false), aux.WithFrozen(false))
+			setup.Items(t, seller1.UserID, 2, aux.WithHidden(true), aux.WithFrozen(false))
+			visibleItems2 := setup.Items(t, seller2.UserID, 4, aux.WithHidden(false), aux.WithFrozen(false))
+			hiddenItems2 := setup.Items(t, seller2.UserID, 8, aux.WithHidden(true), aux.WithFrozen(false))
+			setup.Items(t, seller3.UserID, 16, aux.WithHidden(false), aux.WithFrozen(false))
+			setup.Items(t, seller3.UserID, 32, aux.WithHidden(true), aux.WithFrozen(false))
 
 			expectedItems := slices.Concat(visibleItems2, hiddenItems2)
 			sellerID := models.ID(2)
-			actualItems, err := queries.GetItemsWithSaleCounts(db, queries.AllItems, &sellerID)
+			actualItems, err := queries.GetItemsWithSaleCounts(t.Context(), db, queries.AllItems, &sellerID)
 			require.NoError(t, err)
 			require.Equal(t, len(expectedItems), len(actualItems))
 
@@ -101,21 +101,21 @@ func TestGetItemsWithSaleCounts(t *testing.T) {
 		})
 
 		t.Run("All visible items from all sellers, zero sales", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller1 := setup.Seller()
-			seller2 := setup.Seller()
-			seller3 := setup.Seller()
-			visibleItems1 := setup.Items(seller1.UserID, 1, aux.WithHidden(false), aux.WithFrozen(false))
-			setup.Items(seller1.UserID, 2, aux.WithHidden(true), aux.WithFrozen(false))
-			visibleItems2 := setup.Items(seller2.UserID, 4, aux.WithHidden(false), aux.WithFrozen(false))
-			setup.Items(seller2.UserID, 8, aux.WithHidden(true), aux.WithFrozen(false))
-			visibleItems3 := setup.Items(seller3.UserID, 16, aux.WithHidden(false), aux.WithFrozen(false))
-			setup.Items(seller3.UserID, 32, aux.WithHidden(true), aux.WithFrozen(false))
+			seller1 := setup.Seller(t)
+			seller2 := setup.Seller(t)
+			seller3 := setup.Seller(t)
+			visibleItems1 := setup.Items(t, seller1.UserID, 1, aux.WithHidden(false), aux.WithFrozen(false))
+			setup.Items(t, seller1.UserID, 2, aux.WithHidden(true), aux.WithFrozen(false))
+			visibleItems2 := setup.Items(t, seller2.UserID, 4, aux.WithHidden(false), aux.WithFrozen(false))
+			setup.Items(t, seller2.UserID, 8, aux.WithHidden(true), aux.WithFrozen(false))
+			visibleItems3 := setup.Items(t, seller3.UserID, 16, aux.WithHidden(false), aux.WithFrozen(false))
+			setup.Items(t, seller3.UserID, 32, aux.WithHidden(true), aux.WithFrozen(false))
 
 			expectedItems := slices.Concat(visibleItems1, visibleItems2, visibleItems3)
-			actualItems, err := queries.GetItemsWithSaleCounts(db, queries.OnlyVisibleItems, nil)
+			actualItems, err := queries.GetItemsWithSaleCounts(t.Context(), db, queries.OnlyVisibleItems, nil)
 			require.NoError(t, err)
 			require.Equal(t, len(expectedItems), len(actualItems))
 
@@ -128,21 +128,21 @@ func TestGetItemsWithSaleCounts(t *testing.T) {
 		})
 
 		t.Run("All hidden items from all sellers, zero sales", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller1 := setup.Seller()
-			seller2 := setup.Seller()
-			seller3 := setup.Seller()
-			setup.Items(seller1.UserID, 1, aux.WithHidden(false), aux.WithFrozen(false))
-			hiddenItems1 := setup.Items(seller1.UserID, 2, aux.WithHidden(true), aux.WithFrozen(false))
-			setup.Items(seller2.UserID, 4, aux.WithHidden(false), aux.WithFrozen(false))
-			hiddenItems2 := setup.Items(seller2.UserID, 8, aux.WithHidden(true), aux.WithFrozen(false))
-			setup.Items(seller3.UserID, 16, aux.WithHidden(false), aux.WithFrozen(false))
-			hiddenItems3 := setup.Items(seller3.UserID, 32, aux.WithHidden(true), aux.WithFrozen(false))
+			seller1 := setup.Seller(t)
+			seller2 := setup.Seller(t)
+			seller3 := setup.Seller(t)
+			setup.Items(t, seller1.UserID, 1, aux.WithHidden(false), aux.WithFrozen(false))
+			hiddenItems1 := setup.Items(t, seller1.UserID, 2, aux.WithHidden(true), aux.WithFrozen(false))
+			setup.Items(t, seller2.UserID, 4, aux.WithHidden(false), aux.WithFrozen(false))
+			hiddenItems2 := setup.Items(t, seller2.UserID, 8, aux.WithHidden(true), aux.WithFrozen(false))
+			setup.Items(t, seller3.UserID, 16, aux.WithHidden(false), aux.WithFrozen(false))
+			hiddenItems3 := setup.Items(t, seller3.UserID, 32, aux.WithHidden(true), aux.WithFrozen(false))
 
 			expectedItems := slices.Concat(hiddenItems1, hiddenItems2, hiddenItems3)
-			actualItems, err := queries.GetItemsWithSaleCounts(db, queries.OnlyHiddenItems, nil)
+			actualItems, err := queries.GetItemsWithSaleCounts(t.Context(), db, queries.OnlyHiddenItems, nil)
 			require.NoError(t, err)
 			require.Equal(t, len(expectedItems), len(actualItems))
 
@@ -155,25 +155,25 @@ func TestGetItemsWithSaleCounts(t *testing.T) {
 		})
 
 		t.Run("With sales", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller1 := setup.Seller()
-			seller2 := setup.Seller()
-			seller3 := setup.Seller()
-			items1 := setup.Items(seller1.UserID, 1, aux.WithHidden(false), aux.WithFrozen(false))
-			items2 := setup.Items(seller2.UserID, 4, aux.WithHidden(false), aux.WithFrozen(false))
-			items3 := setup.Items(seller3.UserID, 16, aux.WithHidden(false), aux.WithFrozen(false))
+			seller1 := setup.Seller(t)
+			seller2 := setup.Seller(t)
+			seller3 := setup.Seller(t)
+			items1 := setup.Items(t, seller1.UserID, 1, aux.WithHidden(false), aux.WithFrozen(false))
+			items2 := setup.Items(t, seller2.UserID, 4, aux.WithHidden(false), aux.WithFrozen(false))
+			items3 := setup.Items(t, seller3.UserID, 16, aux.WithHidden(false), aux.WithFrozen(false))
 			allItems := slices.Concat(items1, items2, items3)
 
-			cashier := setup.Cashier()
+			cashier := setup.Cashier(t)
 			for _, item := range allItems {
 				for range item.ItemID.Int64() {
-					setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+					setup.Sale(t, cashier.UserID, []models.ID{item.ItemID})
 				}
 			}
 
-			actualItems, err := queries.GetItemsWithSaleCounts(db, queries.AllItems, nil)
+			actualItems, err := queries.GetItemsWithSaleCounts(t.Context(), db, queries.AllItems, nil)
 			require.NoError(t, err)
 			require.Equal(t, len(allItems), len(actualItems))
 
@@ -190,27 +190,27 @@ func TestGetItemsWithSaleCounts(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Invalid seller id", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			setup.Items(seller.UserID, 4, aux.WithHidden(false), aux.WithFrozen(false))
+			seller := setup.Seller(t)
+			setup.Items(t, seller.UserID, 4, aux.WithHidden(false), aux.WithFrozen(false))
 
 			invalidSellerID := setup.GenerateNonexistentUserID(t)
 
-			_, err := queries.GetItemsWithSaleCounts(db, queries.AllItems, &invalidSellerID)
+			_, err := queries.GetItemsWithSaleCounts(t.Context(), db, queries.AllItems, &invalidSellerID)
 			requireDatabaseWrappedError(t, err, dberr.ErrNoSuchUser)
 		})
 
 		t.Run("Seller is not a seller", func(t *testing.T) {
-			setup, db := NewDatabaseFixture(WithDefaultCategories)
+			setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			seller := setup.Seller()
-			admin := setup.Admin()
-			setup.Items(seller.UserID, 4, aux.WithHidden(false), aux.WithFrozen(false))
+			seller := setup.Seller(t)
+			admin := setup.Admin(t)
+			setup.Items(t, seller.UserID, 4, aux.WithHidden(false), aux.WithFrozen(false))
 
-			_, err := queries.GetItemsWithSaleCounts(db, queries.AllItems, &admin.UserID)
+			_, err := queries.GetItemsWithSaleCounts(t.Context(), db, queries.AllItems, &admin.UserID)
 			requireDatabaseWrappedError(t, err, dberr.ErrWrongRole)
 		})
 	})

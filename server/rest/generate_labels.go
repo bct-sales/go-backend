@@ -105,7 +105,8 @@ func (ep *generateLabelsEndpoint) execute() {
 
 func (ep *generateLabelsEndpoint) freezeItems(db Database, itemIDs []models.ID) bool {
 	logger := ep.Logger
-	transaction, err := db.StartTransaction()
+	ctx := ep.Context.Request.Context()
+	transaction, err := db.StartTransaction(ctx)
 
 	if err != nil {
 		logger.AddInformation("error", err)
@@ -117,7 +118,7 @@ func (ep *generateLabelsEndpoint) freezeItems(db Database, itemIDs []models.ID) 
 	}
 	defer transaction.RollbackIfNotCommitted()
 
-	if err := queries.UpdateFreezeStatusOfItems(transaction, itemIDs, true); err != nil {
+	if err := queries.UpdateFreezeStatusOfItems(ctx, transaction, itemIDs, true); err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to freeze items")
 
@@ -140,6 +141,7 @@ func (ep *generateLabelsEndpoint) freezeItems(db Database, itemIDs []models.ID) 
 
 func (ep *generateLabelsEndpoint) collectLabelData(db Database, itemTable map[models.ID]*models.Item, itemIDs []models.ID) []*pdf.LabelData {
 	logger := ep.Logger
+	ctx := ep.Context.Request.Context()
 
 	createLabelData := func(itemID models.ID) (*pdf.LabelData, error) {
 		item, ok := itemTable[itemID]
@@ -150,7 +152,7 @@ func (ep *generateLabelsEndpoint) collectLabelData(db Database, itemTable map[mo
 			return nil, fmt.Errorf("bug: item with id %d not found; should never occur: this error should have be caught earlier", itemID)
 		}
 
-		categoryNameTable, err := queries.GetCategoryNameTable(db)
+		categoryNameTable, err := queries.GetCategoryNameTable(ctx, db)
 		if err != nil {
 			logger.AddInformation("error", err)
 			logger.InternalError("Unable to build category table")
@@ -327,7 +329,8 @@ func (ep *generateLabelsEndpoint) validatePayload(payload *GenerateLabelsPayload
 
 func (ep *generateLabelsEndpoint) retrieveItemsFromDatabase(itemIDs []models.ID) map[models.ID]*models.Item {
 	logger := ep.Logger
-	itemTable, err := queries.GetItemsWithIDs(ep.Database, itemIDs)
+	ctx := ep.Context.Request.Context()
+	itemTable, err := queries.GetItemsWithIDs(ctx, ep.Database, itemIDs)
 
 	if err != nil {
 		if errors.Is(err, dberr.ErrNoSuchItem) {

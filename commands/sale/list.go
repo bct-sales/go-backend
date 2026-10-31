@@ -38,7 +38,7 @@ func NewSaleListCommand() *cobra.Command {
 }
 
 func (command *saleListCommand) execute(ctx context.Context) error {
-	return command.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
+	return command.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
 		saleCount := 0
 		tableData := pterm.TableData{
 			{"ID", "Cashier", "Transaction Time", "#Items", "Total"},
@@ -64,7 +64,7 @@ func (command *saleListCommand) execute(ctx context.Context) error {
 			return nil
 		}
 
-		if err := queries.NewGetSalesQuery().Execute(db, addToTable); err != nil {
+		if err := queries.NewGetSalesQuery().Execute(ctx, db, addToTable); err != nil {
 			command.PrintErrorf("Error while listing sales\n")
 			return fmt.Errorf("error while listing sales: %w", err)
 		}

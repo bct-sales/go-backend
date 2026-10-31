@@ -5,6 +5,7 @@ package helpers
 import (
 	models "bctbackend/database/models"
 	queries "bctbackend/database/queries"
+	"context"
 )
 
 type AddSaleData struct {
@@ -24,7 +25,7 @@ func (data *AddSaleData) FillWithDefaults() {
 	}
 }
 
-func AddSaleToDatabase(db *queries.TransactionalDatabaseQuerier, cashierID models.ID, itemIDs []models.ID, options ...func(*AddSaleData)) *models.Sale {
+func AddSaleToDatabase(ctx context.Context, db *queries.TransactionalDatabaseQuerier, cashierID models.ID, itemIDs []models.ID, options ...func(*AddSaleData)) *models.Sale {
 	data := AddSaleData{}
 
 	for _, option := range options {
@@ -33,12 +34,12 @@ func AddSaleToDatabase(db *queries.TransactionalDatabaseQuerier, cashierID model
 
 	data.FillWithDefaults()
 
-	saleID, err := queries.AddSale(db, cashierID, *data.TransactionTime, itemIDs)
+	saleID, err := queries.AddSale(ctx, db, cashierID, *data.TransactionTime, itemIDs)
 	if err != nil {
 		panic(err)
 	}
 
-	sale, err := queries.GetSaleWithID(db, saleID)
+	sale, err := queries.GetSaleWithID(ctx, db, saleID)
 	if err != nil {
 		panic(err)
 	}

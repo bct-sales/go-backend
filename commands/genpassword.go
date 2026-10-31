@@ -37,8 +37,8 @@ func NewGeneratePasswordCommand() *cobra.Command {
 }
 
 func (c *generatePasswordCommand) execute(ctx context.Context) error {
-	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
-		password, err := common.FindUnusedPassword(db)
+	return c.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
+		password, err := common.FindUnusedPassword(ctx, db)
 
 		if err != nil {
 			return err

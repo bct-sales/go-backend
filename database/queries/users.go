@@ -1,6 +1,7 @@
 package queries
 
 import (
+	"context"
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/meta"
 	models "bctbackend/database/models"
@@ -17,6 +18,7 @@ import (
 // An ErrUserIDAlreadyInUse is returned if the user ID is already in use.
 // An ErrNoSuchRole is returned if the role ID is invalid.
 func AddUserWithID(
+	ctx context.Context,
 	database DatabaseQuerier,
 	userID models.ID,
 	roleID models.RoleID,
@@ -32,7 +34,7 @@ func AddUserWithID(
 		return fmt.Errorf("invalid role id %d: %w", roleID.ID, dberr.ErrNoSuchRole)
 	}
 
-	_, err := database.Exec(
+	_, err := database.ExecContext(ctx,
 		`
 			INSERT INTO users (user_id, role_id, created_at, last_activity, password)
 			VALUES ($1, $2, $3, $4, $5)
@@ -45,7 +47,7 @@ func AddUserWithID(
 	)
 
 	if err != nil {
-		userExists, err := UserWithIDExists(database, userID)
+		userExists, err := UserWithIDExists(ctx, database, userID)
 		if err != nil {
 			return err
 		}
@@ -60,6 +62,7 @@ func AddUserWithID(
 }
 
 func AddUser(
+	ctx context.Context,
 	db DatabaseQuerier,
 	roleID models.RoleID,
 	createdAt models.Timestamp,
@@ -74,7 +77,7 @@ func AddUser(
 		return 0, fmt.Errorf("invalid role id %d: %w", roleID.ID, dberr.ErrNoSuchRole)
 	}
 
-	result, err := db.Exec(
+	result, err := db.ExecContext(ctx,
 		`
 			INSERT INTO users (role_id, created_at, last_activity, password)
 			VALUES ($1, $2, $3, $4)
@@ -99,7 +102,7 @@ func AddUser(
 
 type AddUsersCallback func(addUser func(userID models.ID, roleID models.RoleID, createdAt models.Timestamp, lastActivity *models.Timestamp, password string))
 
-func AddUsers(database DatabaseQuerier, callback AddUsersCallback) (r_err error) {
+func AddUsers(ctx context.Context, database DatabaseQuerier, callback AddUsersCallback) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -121,19 +124,19 @@ func AddUsers(database DatabaseQuerier, callback AddUsersCallback) (r_err error)
 
 	query := `INSERT INTO users (user_id, role_id, created_at, last_activity, password) VALUES ` + strings.Join(valuesString, ",")
 
-	if _, err := database.Exec(query, arguments...); err != nil {
+	if _, err := database.ExecContext(ctx, query, arguments...); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func UserWithIDExists(db DatabaseQuerier, userID models.ID) (r_result bool, r_err error) {
+func UserWithIDExists(ctx context.Context, db DatabaseQuerier, userID models.ID) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	row := db.QueryRow(
+	row := db.QueryRowContext(ctx,
 		`
 			SELECT
 				1
@@ -161,12 +164,12 @@ func UserWithIDExists(db DatabaseQuerier, userID models.ID) (r_result bool, r_er
 
 // GetUserWithID retrieves a user from the database by their user ID.
 // An ErrNoSuchUser is returned if the user does not exist.
-func GetUserWithID(db DatabaseQuerier, userID models.ID) (r_result *models.User, r_err error) {
+func GetUserWithID(ctx context.Context, db DatabaseQuerier, userID models.ID) (r_result *models.User, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	row := db.QueryRow(
+	row := db.QueryRowContext(ctx,
 		`
 			SELECT
 				role_id,
@@ -199,12 +202,12 @@ func GetUserWithID(db DatabaseQuerier, userID models.ID) (r_result *models.User,
 }
 
 // GetUsers retrieves all users from the database.
-func GetUsers(db DatabaseQuerier, receiver func(*models.User) error) (r_err error) {
+func GetUsers(ctx context.Context, db DatabaseQuerier, receiver func(*models.User) error) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	rows, err := db.Query(
+	rows, err := db.QueryContext(ctx,
 		`
 			SELECT
 				user_id,
@@ -256,7 +259,7 @@ type UserWithItemCount struct {
 	ItemCount int
 }
 
-func GetUsersWithItemCount(db DatabaseQuerier, itemSelection ItemSelection, receiver func(*UserWithItemCount) error) (r_err error) {
+func GetUsersWithItemCount(ctx context.Context, db DatabaseQuerier, itemSelection ItemSelection, receiver func(*UserWithItemCount) error) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -279,7 +282,7 @@ func GetUsersWithItemCount(db DatabaseQuerier, itemSelection ItemSelection, rece
 				users.user_id
 		`,
 		ItemsTableFor(itemSelection))
-	rows, err := db.Query(query)
+	rows, err := db.QueryContext(ctx, query)
 
 	if err != nil {
 		return err
@@ -322,12 +325,12 @@ func GetUsersWithItemCount(db DatabaseQuerier, itemSelection ItemSelection, rece
 
 // UpdateUserPassword updates the password of a user in the database by their user ID.
 // An ErrNoSuchUser is returned if the user does not exist.
-func UpdateUserPassword(database DatabaseQuerier, userID models.ID, password string) (r_err error) {
+func UpdateUserPassword(ctx context.Context, database DatabaseQuerier, userID models.ID, password string) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	userExists, err := UserWithIDExists(database, userID)
+	userExists, err := UserWithIDExists(ctx, database, userID)
 	if err != nil {
 		return err
 	}
@@ -335,7 +338,7 @@ func UpdateUserPassword(database DatabaseQuerier, userID models.ID, password str
 		return fmt.Errorf("failed to update password of user %d: %w", userID, dberr.ErrNoSuchUser)
 	}
 
-	_, err = database.Exec(
+	_, err = database.ExecContext(ctx,
 		`
 			UPDATE users
 			SET password = $1
@@ -350,12 +353,12 @@ func UpdateUserPassword(database DatabaseQuerier, userID models.ID, password str
 
 // EnsureUserExists checks if a user exists in the database by their user ID.
 // An ErrNoSuchUser is returned if the user does not exist.
-func EnsureUserExists(db DatabaseQuerier, userID models.ID) (r_err error) {
+func EnsureUserExists(ctx context.Context, db DatabaseQuerier, userID models.ID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	userExists, err := UserWithIDExists(db, userID)
+	userExists, err := UserWithIDExists(ctx, db, userID)
 	if err != nil {
 		return fmt.Errorf("failed to ensure user %d exists: %w", userID, err)
 	}
@@ -368,12 +371,12 @@ func EnsureUserExists(db DatabaseQuerier, userID models.ID) (r_err error) {
 // EnsureUserExistsAndHasRole checks if a user has a specific role.
 // An ErrNoSuchUser is returned if the user does not exist.
 // An ErrWrongRole is returned if the user has a different role.
-func EnsureUserExistsAndHasRole(db DatabaseQuerier, userID models.ID, expectedRoleID models.RoleID) (r_err error) {
+func EnsureUserExistsAndHasRole(ctx context.Context, db DatabaseQuerier, userID models.ID, expectedRoleID models.RoleID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	user, err := GetUserWithID(db, userID)
+	user, err := GetUserWithID(ctx, db, userID)
 
 	if err != nil {
 		return err
@@ -390,13 +393,13 @@ func EnsureUserExistsAndHasRole(db DatabaseQuerier, userID models.ID, expectedRo
 // An ErrNoSuchUser is returned if the user does not exist.
 // An error is returned if the user cannot be removed, e.g., because items or sales are
 // associated with the user.
-func RemoveUserWithID(db DatabaseQuerier, userID models.ID) (r_err error) {
+func RemoveUserWithID(ctx context.Context, db DatabaseQuerier, userID models.ID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
 	{
-		userExist, err := UserWithIDExists(db, userID)
+		userExist, err := UserWithIDExists(ctx, db, userID)
 		if err != nil {
 			return err
 		}
@@ -405,7 +408,7 @@ func RemoveUserWithID(db DatabaseQuerier, userID models.ID) (r_err error) {
 		}
 	}
 
-	_, err := db.Exec(
+	_, err := db.ExecContext(ctx,
 		`
 			DELETE FROM users
 			WHERE user_id = $1
@@ -418,13 +421,13 @@ func RemoveUserWithID(db DatabaseQuerier, userID models.ID) (r_err error) {
 
 // UpdateLastActivity updates the last activity timestamp of a user in the database by their user ID.
 // An ErrNoSuchUser is returned if the user does not exist.
-func UpdateLastActivity(db DatabaseQuerier, userID models.ID, lastActivity models.Timestamp) (r_err error) {
+func UpdateLastActivity(ctx context.Context, db DatabaseQuerier, userID models.ID, lastActivity models.Timestamp) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
 	{
-		userExist, err := UserWithIDExists(db, userID)
+		userExist, err := UserWithIDExists(ctx, db, userID)
 		if err != nil {
 			return err
 		}
@@ -433,7 +436,7 @@ func UpdateLastActivity(db DatabaseQuerier, userID models.ID, lastActivity model
 		}
 	}
 
-	_, err := db.Exec(
+	_, err := db.ExecContext(ctx,
 		`
 			UPDATE users
 			SET last_activity = $1
@@ -461,12 +464,12 @@ const (
 // For example, if frozen equals IncludeAll, both frozen and unfrozen items are included.
 // If frozen equals Exclude, only unfrozen items are included.
 // If frozen equals IncludeOnly, only frozen items are included.
-func CountSellerItems(db DatabaseQuerier, sellerID models.ID, frozen GetSellerItemCountFlag, hidden GetSellerItemCountFlag) (r_result int, r_err error) {
+func CountSellerItems(ctx context.Context, db DatabaseQuerier, sellerID models.ID, frozen GetSellerItemCountFlag, hidden GetSellerItemCountFlag) (r_result int, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if err := EnsureUserExistsAndHasRole(db, sellerID, models.NewSellerRoleID()); err != nil {
+	if err := EnsureUserExistsAndHasRole(ctx, db, sellerID, models.NewSellerRoleID()); err != nil {
 		return 0, fmt.Errorf("failed to get hidden item count of user %d: %w", sellerID, err)
 	}
 
@@ -494,7 +497,7 @@ func CountSellerItems(db DatabaseQuerier, sellerID models.ID, frozen GetSellerIt
 	if sqlErr != nil {
 		return 0, fmt.Errorf("failed to build SQL query")
 	}
-	row := db.QueryRow(queryString, queryArguments...)
+	row := db.QueryRowContext(ctx, queryString, queryArguments...)
 
 	var itemCount int
 	err := row.Scan(&itemCount)
@@ -510,13 +513,13 @@ func CountSellerItems(db DatabaseQuerier, sellerID models.ID, frozen GetSellerIt
 // Note that whether an item has been sold does not matter.
 // An ErrNoSuchUser is returned if the user does not exist.
 // An ErrWrongRole is returned if the user with the given id is not a seller.
-func GetSellerTotalValueOfAllItems(db DatabaseQuerier, sellerID models.ID, itemSelection ItemSelection) (r_result models.MoneyInCents, r_err error) {
+func GetSellerTotalValueOfAllItems(ctx context.Context, db DatabaseQuerier, sellerID models.ID, itemSelection ItemSelection) (r_result models.MoneyInCents, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
 	// Ensure the user exists and is a seller
-	if err := EnsureUserExistsAndHasRole(db, sellerID, models.NewSellerRoleID()); err != nil {
+	if err := EnsureUserExistsAndHasRole(ctx, db, sellerID, models.NewSellerRoleID()); err != nil {
 		return 0, fmt.Errorf("failed to get total price of all items of user %d: %w", sellerID, err)
 	}
 
@@ -532,7 +535,7 @@ func GetSellerTotalValueOfAllItems(db DatabaseQuerier, sellerID models.ID, itemS
 		`,
 		itemTable,
 	)
-	row := db.QueryRow(query, sellerID)
+	row := db.QueryRowContext(ctx, query, sellerID)
 
 	var totalPrice models.MoneyInCents
 	err := row.Scan(&totalPrice)
@@ -544,13 +547,13 @@ func GetSellerTotalValueOfAllItems(db DatabaseQuerier, sellerID models.ID, itemS
 	return totalPrice, nil
 }
 
-func CollectPasswords(db DatabaseQuerier) (r_result []string, r_err error) {
+func CollectPasswords(ctx context.Context, db DatabaseQuerier) (r_result []string, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
 	query := squirrel.Select(meta.User.Password).From(meta.User.Table)
-	rows, err := query.RunWith(db).Query()
+	rows, err := query.RunWith(newSquirrelRunner(ctx, db)).QueryContext(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch passwords from database: %w", err)
 	}

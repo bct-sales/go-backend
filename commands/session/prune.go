@@ -40,10 +40,10 @@ func NewPruneSessionsCommand() *cobra.Command {
 }
 
 func (c *PruneSessionsCommand) execute(ctx context.Context) error {
-	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
+	return c.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
 		cutOff := models.Now()
 
-		if err := queries.DeleteExpiredSessions(db, cutOff); err != nil {
+		if err := queries.DeleteExpiredSessions(ctx, db, cutOff); err != nil {
 			return err
 		}
 

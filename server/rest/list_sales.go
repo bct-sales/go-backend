@@ -66,7 +66,8 @@ func (ep *getSalesEndpoint) execute(database Database) {
 
 func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSalesQueryParameters) (*ListSalesSuccessResponse, bool) {
 	logger := ep.Logger
-	transaction, err := database.StartTransaction()
+	ctx := ep.Context.Request.Context()
+	transaction, err := database.StartTransaction(ctx)
 
 	if err != nil {
 		logger.AddInformation("error", err)
@@ -128,9 +129,10 @@ func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSal
 
 func (ep *getSalesEndpoint) getItemStatistics(transaction *queries.TransactionalDatabaseQuerier) *queries.ItemStatisticsResult {
 	logger := ep.Logger
+	ctx := ep.Context.Request.Context()
 	query := queries.NewGetItemStatisticsQuery()
 	query.WithHidden(false)
-	itemCountResult, err := query.Execute(transaction)
+	itemCountResult, err := query.Execute(ctx, transaction)
 
 	if err != nil {
 		logger.AddInformation("error", err)
@@ -146,7 +148,8 @@ func (ep *getSalesEndpoint) getItemStatistics(transaction *queries.Transactional
 
 func (ep *getSalesEndpoint) countSoldItems(transaction *queries.TransactionalDatabaseQuerier) (int, int, bool) {
 	logger := ep.Logger
-	counts, err := queries.CountSoldItems(transaction)
+	ctx := ep.Context.Request.Context()
+	counts, err := queries.CountSoldItems(ctx, transaction)
 
 	if err != nil {
 		logger.AddInformation("error", err)
@@ -162,7 +165,8 @@ func (ep *getSalesEndpoint) countSoldItems(transaction *queries.TransactionalDat
 
 func (ep *getSalesEndpoint) countSales(transaction *queries.TransactionalDatabaseQuerier) (int, bool) {
 	logger := ep.Logger
-	saleCount, err := queries.CountSales(transaction)
+	ctx := ep.Context.Request.Context()
+	saleCount, err := queries.CountSales(ctx, transaction)
 
 	if err != nil {
 		logger.AddInformation("error", err)
@@ -178,7 +182,8 @@ func (ep *getSalesEndpoint) countSales(transaction *queries.TransactionalDatabas
 
 func (ep *getSalesEndpoint) getTotalSalesValue(transaction *queries.TransactionalDatabaseQuerier) (models.MoneyInCents, bool) {
 	logger := ep.Logger
-	totalValue, err := queries.GetTotalSalesValue(transaction)
+	ctx := ep.Context.Request.Context()
+	totalValue, err := queries.GetTotalSalesValue(ctx, transaction)
 
 	if err != nil {
 		logger.AddInformation("error", err)
@@ -209,6 +214,7 @@ func (ep *getSalesEndpoint) ensureUserIsAdmin() bool {
 
 func (ep *getSalesEndpoint) getSales(transaction *queries.TransactionalDatabaseQuerier, queryParameters *getSalesQueryParameters) ([]*ListSalesSaleData, bool) {
 	logger := ep.Logger
+	ctx := ep.Context.Request.Context()
 	sales := make([]*ListSalesSaleData, 0, 25)
 	processSale := func(sale *models.SaleSummary) error {
 		saleData := ListSalesSaleData{
@@ -225,7 +231,7 @@ func (ep *getSalesEndpoint) getSales(transaction *queries.TransactionalDatabaseQ
 
 	query := ep.buildQuery(queryParameters)
 
-	if err := query.Execute(transaction, processSale); err != nil {
+	if err := query.Execute(ctx, transaction, processSale); err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to get sales")
 

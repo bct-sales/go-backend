@@ -50,18 +50,18 @@ func TestCountItemsPerCategory(t *testing.T) {
 				testLabel := fmt.Sprintf("Count table: %v", expectedCounts)
 
 				t.Run(testLabel, func(t *testing.T) {
-					setup, db := NewDatabaseFixture(WithDefaultCategories)
+					setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
-					seller := setup.Seller()
+					seller := setup.Seller(t)
 
 					for categoryIC, count := range expectedCounts {
 						for range count {
-							setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categoryIC), aux.WithHidden(false))
+							setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categoryIC), aux.WithHidden(false))
 						}
 					}
 
-					actualCounts, err := queries.CountItemsPerCategory(db, queries.AllItems)
+					actualCounts, err := queries.CountItemsPerCategory(t.Context(), db, queries.AllItems)
 					require.NoError(t, err)
 					require.Equal(t, len(defaultCategoryNameTable), len(actualCounts))
 
@@ -109,20 +109,20 @@ func TestCountItemsPerCategory(t *testing.T) {
 				for _, expectedCounts := range countTables {
 					testLabel := fmt.Sprintf("Count table %v", expectedCounts)
 					t.Run(testLabel, func(t *testing.T) {
-						setup, db := NewDatabaseFixture(WithDefaultCategories)
+						setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 						defer setup.Close()
 
-						seller := setup.Seller()
+						seller := setup.Seller(t)
 
 						for categoryID, count := range expectedCounts {
 							for i := range count {
-								setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithItemCategory(categoryID), aux.WithFrozen(false), aux.WithHidden(false))
-								setup.Item(seller.UserID, aux.WithDummyData(2*i), aux.WithItemCategory(categoryID), aux.WithFrozen(false), aux.WithHidden(true))
-								setup.Item(seller.UserID, aux.WithDummyData(3*i), aux.WithItemCategory(categoryID), aux.WithFrozen(false), aux.WithHidden(true))
+								setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithItemCategory(categoryID), aux.WithFrozen(false), aux.WithHidden(false))
+								setup.Item(t, seller.UserID, aux.WithDummyData(2*i), aux.WithItemCategory(categoryID), aux.WithFrozen(false), aux.WithHidden(true))
+								setup.Item(t, seller.UserID, aux.WithDummyData(3*i), aux.WithItemCategory(categoryID), aux.WithFrozen(false), aux.WithHidden(true))
 							}
 						}
 
-						actualCounts, err := queries.CountItemsPerCategory(db, queries.OnlyVisibleItems)
+						actualCounts, err := queries.CountItemsPerCategory(t.Context(), db, queries.OnlyVisibleItems)
 						require.NoError(t, err)
 						require.Equal(t, len(defaultCategoryNameTable), len(actualCounts))
 
@@ -169,20 +169,20 @@ func TestCountItemsPerCategory(t *testing.T) {
 				for _, expectedCounts := range countTables {
 					testLabel := fmt.Sprintf("Count table %v", expectedCounts)
 					t.Run(testLabel, func(t *testing.T) {
-						setup, db := NewDatabaseFixture(WithDefaultCategories)
+						setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 						defer setup.Close()
 
-						seller := setup.Seller()
+						seller := setup.Seller(t)
 
 						for categoryID, count := range expectedCounts {
 							for i := 0; i < count; i++ {
-								setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithItemCategory(categoryID), aux.WithFrozen(false), aux.WithHidden(false))
-								setup.Item(seller.UserID, aux.WithDummyData(2*i), aux.WithItemCategory(categoryID), aux.WithFrozen(false), aux.WithHidden(true))
-								setup.Item(seller.UserID, aux.WithDummyData(3*i), aux.WithItemCategory(categoryID), aux.WithFrozen(false), aux.WithHidden(true))
+								setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithItemCategory(categoryID), aux.WithFrozen(false), aux.WithHidden(false))
+								setup.Item(t, seller.UserID, aux.WithDummyData(2*i), aux.WithItemCategory(categoryID), aux.WithFrozen(false), aux.WithHidden(true))
+								setup.Item(t, seller.UserID, aux.WithDummyData(3*i), aux.WithItemCategory(categoryID), aux.WithFrozen(false), aux.WithHidden(true))
 							}
 						}
 
-						actualCounts, err := queries.CountItemsPerCategory(db, queries.OnlyHiddenItems)
+						actualCounts, err := queries.CountItemsPerCategory(t.Context(), db, queries.OnlyHiddenItems)
 						require.NoError(t, err)
 						require.Equal(t, len(defaultCategoryNameTable), len(actualCounts))
 
@@ -229,20 +229,20 @@ func TestCountItemsPerCategory(t *testing.T) {
 				for _, expectedCounts := range countTables {
 					testLabel := fmt.Sprintf("Count table %v", expectedCounts)
 					t.Run(testLabel, func(t *testing.T) {
-						setup, db := NewDatabaseFixture(WithDefaultCategories)
+						setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 						defer setup.Close()
 
-						seller := setup.Seller()
+						seller := setup.Seller(t)
 
 						for categoryID, count := range expectedCounts {
 							for i := 0; i < count; i++ {
-								setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithItemCategory(categoryID), aux.WithFrozen(false), aux.WithHidden(false))
-								setup.Item(seller.UserID, aux.WithDummyData(2*i), aux.WithItemCategory(categoryID), aux.WithFrozen(false), aux.WithHidden(true))
-								setup.Item(seller.UserID, aux.WithDummyData(3*i), aux.WithItemCategory(categoryID), aux.WithFrozen(false), aux.WithHidden(true))
+								setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithItemCategory(categoryID), aux.WithFrozen(false), aux.WithHidden(false))
+								setup.Item(t, seller.UserID, aux.WithDummyData(2*i), aux.WithItemCategory(categoryID), aux.WithFrozen(false), aux.WithHidden(true))
+								setup.Item(t, seller.UserID, aux.WithDummyData(3*i), aux.WithItemCategory(categoryID), aux.WithFrozen(false), aux.WithHidden(true))
 							}
 						}
 
-						actualCounts, err := queries.CountItemsPerCategory(db, queries.AllItems)
+						actualCounts, err := queries.CountItemsPerCategory(t.Context(), db, queries.AllItems)
 						require.NoError(t, err)
 						require.Equal(t, len(defaultCategoryNameTable), len(actualCounts))
 

@@ -5,6 +5,7 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/ui/components/usersview"
 	"bctbackend/ui/pages"
+	"context"
 	"database/sql"
 	"log/slog"
 
@@ -19,11 +20,11 @@ type Model struct {
 	mode      Mode
 }
 
-func New(database *sql.DB) Model {
+func New(ctx context.Context, database *sql.DB) Model {
 	usersView := usersview.New()
 
 	model := Model{
-		Page:      pages.New(database),
+		Page:      pages.New(ctx, database),
 		users:     nil,
 		usersView: usersView,
 		mode:      NewDefaultMode(),
@@ -40,7 +41,7 @@ func (model Model) requestFetchUsers() tea.Cmd {
 	return func() tea.Msg {
 		var users []*models.User
 
-		if err := queries.GetUsers(model.Database, queries.CollectTo(&users)); err != nil {
+		if err := queries.GetUsers(model.Context, model.Database, queries.CollectTo(&users)); err != nil {
 			return &databaseErrorMessage{
 				err:     err,
 				message: "failed to fetch users from database",

@@ -13,7 +13,7 @@ import (
 
 func TestGetUsers(t *testing.T) {
 	t.Run("Single user", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
 		password := "xyz"
@@ -22,10 +22,10 @@ func TestGetUsers(t *testing.T) {
 		createdAt := models.Timestamp(1)
 		lastActivity := models.Timestamp(2)
 
-		queries.AddUserWithID(db, userID, roleID, createdAt, &lastActivity, password)
+		queries.AddUserWithID(t.Context(), db, userID, roleID, createdAt, &lastActivity, password)
 
 		users := []*models.User{}
-		err := queries.GetUsers(db, queries.CollectTo(&users))
+		err := queries.GetUsers(t.Context(), db, queries.CollectTo(&users))
 		require.NoError(t, err)
 		require.Len(t, users, 1)
 		require.Equal(t, userID, users[0].UserID)
@@ -37,7 +37,7 @@ func TestGetUsers(t *testing.T) {
 	})
 
 	t.Run("Two users", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
 		user1 := models.User{
@@ -57,11 +57,11 @@ func TestGetUsers(t *testing.T) {
 			Password:     "abc",
 		}
 
-		queries.AddUserWithID(db, user1.UserID, user1.RoleID, user1.CreatedAt, user1.LastActivity, user1.Password)
-		queries.AddUserWithID(db, user2.UserID, user2.RoleID, user2.CreatedAt, user2.LastActivity, user2.Password)
+		queries.AddUserWithID(t.Context(), db, user1.UserID, user1.RoleID, user1.CreatedAt, user1.LastActivity, user1.Password)
+		queries.AddUserWithID(t.Context(), db, user2.UserID, user2.RoleID, user2.CreatedAt, user2.LastActivity, user2.Password)
 
 		users := []*models.User{}
-		err := queries.GetUsers(db, queries.CollectTo(&users))
+		err := queries.GetUsers(t.Context(), db, queries.CollectTo(&users))
 		require.NoError(t, err)
 		require.Len(t, users, 2)
 		require.Equal(t, user1, *users[0])

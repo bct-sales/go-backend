@@ -54,9 +54,9 @@ func (c *ListUsersCommand) execute(ctx context.Context, args []string) error {
 }
 
 func (c *ListUsersCommand) listUsersInTableFormat(ctx context.Context) error {
-	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
+	return c.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
 		users := []*models.User{}
-		if err := queries.GetUsers(db, queries.CollectTo(&users)); err != nil {
+		if err := queries.GetUsers(ctx, db, queries.CollectTo(&users)); err != nil {
 			return fmt.Errorf("error while listing users: %w", err)
 		}
 
@@ -103,8 +103,8 @@ func (c *ListUsersCommand) listUsersInTableFormat(ctx context.Context) error {
 }
 
 func (c *ListUsersCommand) listUsersInCSVFormat(ctx context.Context) error {
-	return c.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
-		err := dbcsv.OutputUsers(db, os.Stdout)
+	return c.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
+		err := dbcsv.OutputUsers(ctx, db, os.Stdout)
 		if err != nil {
 			c.PrintErrorf("Failed to output users: %v\n", err)
 			return fmt.Errorf("failed to output users: %w", err)

@@ -3,6 +3,7 @@ package users
 import (
 	"bctbackend/database/models"
 	"bctbackend/database/queries"
+	"context"
 	"database/sql"
 	"log/slog"
 
@@ -37,7 +38,7 @@ func (mode RemoveUserMode) HandleUserInput(model Model, message tea.KeyMsg) (tea
 
 		if confirmation == "yes" {
 			model.mode = NewDefaultMode()
-			return model, mode.requestRemoveUser(model.Database, selectedUser.UserID)
+			return model, mode.requestRemoveUser(model.Context, model.Database, selectedUser.UserID)
 		}
 
 		mode.textInput.Prompt = "Wrong confirmation. Enter yes and press ESC> "
@@ -65,9 +66,9 @@ func (mode RemoveUserMode) StatusBar(model *Model) string {
 	return mode.textInput.View()
 }
 
-func (mode *RemoveUserMode) requestRemoveUser(database *sql.DB, userID models.ID) tea.Cmd {
+func (mode *RemoveUserMode) requestRemoveUser(ctx context.Context, database *sql.DB, userID models.ID) tea.Cmd {
 	return func() tea.Msg {
-		if err := queries.RemoveUserWithID(database, userID); err != nil {
+		if err := queries.RemoveUserWithID(ctx, database, userID); err != nil {
 			slog.Error("Failed to remove user", slog.Any("error", err))
 
 			return &databaseErrorMessage{
@@ -77,7 +78,7 @@ func (mode *RemoveUserMode) requestRemoveUser(database *sql.DB, userID models.ID
 		}
 
 		var users []*models.User
-		if err := queries.GetUsers(database, queries.CollectTo(&users)); err != nil {
+		if err := queries.GetUsers(ctx, database, queries.CollectTo(&users)); err != nil {
 			slog.Error("Failed to fetch updated user information", slog.Any("error", err))
 
 			return &databaseErrorMessage{

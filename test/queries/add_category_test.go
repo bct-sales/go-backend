@@ -16,18 +16,18 @@ func TestAddCategory(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		// Note the lack of WithDefaultCategories here
 		// We want to start with a clean slate
-		setup, db := NewDatabaseFixture()
+		setup, db := NewDatabaseFixture(t)
 		defer setup.Close()
 
 		categoryName := "Test Category"
-		id, err := queries.AddCategory(db, categoryName)
+		id, err := queries.AddCategory(t.Context(), db, categoryName)
 		require.NoError(t, err, `Failed to add category: %v`, err)
 
-		categoryExists, err := queries.CategoryWithIDExists(db, id)
+		categoryExists, err := queries.CategoryWithIDExists(t.Context(), db, id)
 		require.True(t, categoryExists)
 		require.NoError(t, err)
 
-		table, err := queries.GetCategoryNameTable(db)
+		table, err := queries.GetCategoryNameTable(t.Context(), db)
 		require.NoError(t, err)
 		actual, ok := table[id]
 		require.True(t, ok)
@@ -36,23 +36,23 @@ func TestAddCategory(t *testing.T) {
 
 	t.Run("Failure", func(t *testing.T) {
 		t.Run("Invalid name", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(t)
 			defer setup.Close()
 
 			categoryName := ""
-			_, err := queries.AddCategory(db, categoryName)
+			_, err := queries.AddCategory(t.Context(), db, categoryName)
 			requireDatabaseWrappedError(t, err, dberr.ErrInvalidCategoryName)
 		})
 
 		t.Run("Duplicate name", func(t *testing.T) {
-			setup, db := NewDatabaseFixture()
+			setup, db := NewDatabaseFixture(t)
 			defer setup.Close()
 
 			categoryName := "Test Category"
-			_, err := queries.AddCategory(db, categoryName)
+			_, err := queries.AddCategory(t.Context(), db, categoryName)
 			require.NoError(t, err, `Failed to add category: %v`, err)
 
-			_, err = queries.AddCategory(db, categoryName)
+			_, err = queries.AddCategory(t.Context(), db, categoryName)
 			requireDatabaseWrappedError(t, err, dberr.ErrDuplicateCategoryName)
 		})
 	})

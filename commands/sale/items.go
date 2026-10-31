@@ -43,12 +43,12 @@ func NewListSoldItemsCommand() *cobra.Command {
 }
 
 func (command *ListSoldItemsCommand) execute(ctx context.Context) error {
-	return command.WithOpenedDatabase(ctx, func(_ context.Context, db *sql.DB) error {
+	return command.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
 		switch command.format {
 		case "table":
-			return command.listSoldItemsInTableFormat(db)
+			return command.listSoldItemsInTableFormat(ctx, db)
 		case "csv":
-			return command.listSoldItemsInCSVFormat(db)
+			return command.listSoldItemsInCSVFormat(ctx, db)
 		default:
 			command.PrintErrorf("Invalid format: %s\n", command.format)
 			return fmt.Errorf("unknown format: %s", command.format)
@@ -56,13 +56,13 @@ func (command *ListSoldItemsCommand) execute(ctx context.Context) error {
 	})
 }
 
-func (command *ListSoldItemsCommand) listSoldItemsInCSVFormat(db *sql.DB) error {
-	categoryNameTable, err := command.GetCategoryNameTable(db)
+func (command *ListSoldItemsCommand) listSoldItemsInCSVFormat(ctx context.Context, db *sql.DB) error {
+	categoryNameTable, err := command.GetCategoryNameTable(ctx, db)
 	if err != nil {
 		return err
 	}
 
-	soldItems, err := queries.NewGetSoldItemsQuery().Execute(db)
+	soldItems, err := queries.NewGetSoldItemsQuery().Execute(ctx, db)
 	if err != nil {
 		command.PrintErrorf("Error while listing sales\n")
 		return fmt.Errorf("error while listing sales: %w", err)
@@ -77,8 +77,8 @@ func (command *ListSoldItemsCommand) listSoldItemsInCSVFormat(db *sql.DB) error 
 	return nil
 }
 
-func (command *ListSoldItemsCommand) listSoldItemsInTableFormat(db *sql.DB) error {
-	categoryNameTable, err := command.GetCategoryNameTable(db)
+func (command *ListSoldItemsCommand) listSoldItemsInTableFormat(ctx context.Context, db *sql.DB) error {
+	categoryNameTable, err := command.GetCategoryNameTable(ctx, db)
 	if err != nil {
 		return err
 	}
@@ -135,7 +135,7 @@ func (command *ListSoldItemsCommand) listSoldItemsInTableFormat(db *sql.DB) erro
 		return nil
 	}
 
-	soldItems, err := queries.NewGetSoldItemsQuery().Execute(db)
+	soldItems, err := queries.NewGetSoldItemsQuery().Execute(ctx, db)
 	if err != nil {
 		command.PrintErrorf("Error while listing sold items\n")
 		return fmt.Errorf("error while listing sold items: %w", err)

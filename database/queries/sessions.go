@@ -1,6 +1,7 @@
 package queries
 
 import (
+	"context"
 	dberr "bctbackend/database/errors"
 	models "bctbackend/database/models"
 	"bctbackend/security"
@@ -10,6 +11,7 @@ import (
 )
 
 func AddSession(
+	ctx context.Context,
 	db DatabaseQuerier,
 	userID models.ID,
 	expirationTime models.Timestamp) (r_result models.SessionID, r_err error) {
@@ -18,13 +20,13 @@ func AddSession(
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if err := EnsureUserExists(db, userID); err != nil {
+	if err := EnsureUserExists(ctx, db, userID); err != nil {
 		return "", fmt.Errorf("failed to add session: %w", err)
 	}
 
 	sessionID := security.GenerateUniqueSessionID()
 
-	_, err := db.Exec(
+	_, err := db.ExecContext(ctx,
 		`
 			INSERT INTO sessions (session_id, user_id, expiration_time)
 			VALUES (?, ?, ?)
@@ -41,12 +43,12 @@ func AddSession(
 	return sessionID, nil
 }
 
-func GetSessionByID(db DatabaseQuerier, sessionID models.SessionID) (r_result *models.Session, r_err error) {
+func GetSessionByID(ctx context.Context, db DatabaseQuerier, sessionID models.SessionID) (r_result *models.Session, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	row := db.QueryRow(
+	row := db.QueryRowContext(ctx,
 		`
 			SELECT
 				user_id,
@@ -85,12 +87,12 @@ type SessionData struct {
 // GetSessionData returns information about the given session.
 // The function only returns valid session data if the session has not expired.
 // ErrNoSuchSession is returned if no unexpired session is found with the given sessionID.
-func GetSessionData(db DatabaseQuerier, sessionID models.SessionID, currentTime models.Timestamp) (r_result *SessionData, r_err error) {
+func GetSessionData(ctx context.Context, db DatabaseQuerier, sessionID models.SessionID, currentTime models.Timestamp) (r_result *SessionData, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	row := db.QueryRow(
+	row := db.QueryRowContext(ctx,
 		`
 			SELECT
 				users.user_id, role_id, expiration_time
@@ -123,12 +125,12 @@ func GetSessionData(db DatabaseQuerier, sessionID models.SessionID, currentTime 
 	return &sessionData, nil
 }
 
-func GetSessions(db DatabaseQuerier) (r_result []models.Session, r_err error) {
+func GetSessions(ctx context.Context, db DatabaseQuerier) (r_result []models.Session, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	rows, err := db.Query(
+	rows, err := db.QueryContext(ctx,
 		`
 			SELECT
 				session_id,
@@ -170,12 +172,12 @@ func GetSessions(db DatabaseQuerier) (r_result []models.Session, r_err error) {
 	return sessions, nil
 }
 
-func DeleteSession(db DatabaseQuerier, sessionID models.SessionID) (r_err error) {
+func DeleteSession(ctx context.Context, db DatabaseQuerier, sessionID models.SessionID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	result, err := db.Exec(
+	result, err := db.ExecContext(ctx,
 		`
 			DELETE FROM sessions
 			WHERE session_id = ?
@@ -197,12 +199,12 @@ func DeleteSession(db DatabaseQuerier, sessionID models.SessionID) (r_err error)
 	return nil
 }
 
-func DeleteSessionWithUser(db DatabaseQuerier, userID models.ID) (r_err error) {
+func DeleteSessionWithUser(ctx context.Context, db DatabaseQuerier, userID models.ID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	_, err := db.Exec(
+	_, err := db.ExecContext(ctx,
 		`
 			DELETE FROM sessions
 			WHERE user_id = ?
@@ -216,7 +218,7 @@ func DeleteSessionWithUser(db DatabaseQuerier, userID models.ID) (r_err error) {
 	return nil
 }
 
-func DeleteExpiredSessions(db DatabaseQuerier, cutOff models.Timestamp) (r_err error) {
+func DeleteExpiredSessions(ctx context.Context, db DatabaseQuerier, cutOff models.Timestamp) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -225,7 +227,7 @@ func DeleteExpiredSessions(db DatabaseQuerier, cutOff models.Timestamp) (r_err e
 		DELETE FROM sessions
 		WHERE expiration_time < ?
 	`
-	_, err := db.Exec(query, cutOff)
+	_, err := db.ExecContext(ctx, query, cutOff)
 
 	if err != nil {
 		return fmt.Errorf("failed to delete expired sessions: %w", err)
@@ -234,7 +236,7 @@ func DeleteExpiredSessions(db DatabaseQuerier, cutOff models.Timestamp) (r_err e
 	return nil
 }
 
-func DeleteAllSessions(db DatabaseQuerier) (r_err error) {
+func DeleteAllSessions(ctx context.Context, db DatabaseQuerier) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -242,7 +244,7 @@ func DeleteAllSessions(db DatabaseQuerier) (r_err error) {
 	query := `
 		DELETE FROM sessions
 	`
-	_, err := db.Exec(query)
+	_, err := db.ExecContext(ctx, query)
 
 	if err != nil {
 		return fmt.Errorf("failed to delete sessions: %w", err)
@@ -251,12 +253,12 @@ func DeleteAllSessions(db DatabaseQuerier) (r_err error) {
 	return nil
 }
 
-func GetTables(db DatabaseQuerier) (r_result []string, r_err error) {
+func GetTables(ctx context.Context, db DatabaseQuerier) (r_result []string, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	rows, err := db.Query(
+	rows, err := db.QueryContext(ctx,
 		`
 			SELECT
 				name

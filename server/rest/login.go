@@ -65,7 +65,7 @@ func Login(clock clock.Clock, logger logger.RestLogger, context *gin.Context, db
 	logger.AddInformation("userID", userID)
 	logger.AddInformation("password", password)
 
-	roleID, err := queries.AuthenticateUser(db, userID, password)
+	roleID, err := queries.AuthenticateUser(context.Request.Context(), db, userID, password)
 
 	if err != nil {
 		logger.AddInformation("error", err)
@@ -88,7 +88,7 @@ func Login(clock clock.Clock, logger logger.RestLogger, context *gin.Context, db
 	}
 
 	expirationTime := clock.Now() + security.SessionDurationInSeconds
-	sessionID, err := queries.AddSession(db, userID, expirationTime)
+	sessionID, err := queries.AddSession(context.Request.Context(), db, userID, expirationTime)
 
 	if err != nil {
 		logger.AddInformation("error", err)

@@ -25,7 +25,7 @@ func TestGetUserInformation(t *testing.T) {
 				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				admin, sessionID := setup.LoggedIn(setup.Admin())
+				admin, sessionID := setup.LoggedIn(t, setup.Admin(t))
 
 				url := path.User(admin.UserID)
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -47,10 +47,10 @@ func TestGetUserInformation(t *testing.T) {
 						setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 						defer setup.Close()
 
-						seller := setup.Seller()
-						_, sessionID := setup.LoggedIn(setup.Admin())
+						seller := setup.Seller(t)
+						_, sessionID := setup.LoggedIn(t, setup.Admin(t))
 
-						setup.Items(seller.UserID, item_count, aux.WithHidden(false))
+						setup.Items(t, seller.UserID, item_count, aux.WithHidden(false))
 						url := path.User(seller.UserID)
 						request := CreateGetRequest(url, WithSessionCookie(sessionID))
 						router.ServeHTTP(writer, request)
@@ -71,8 +71,8 @@ func TestGetUserInformation(t *testing.T) {
 					setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
-					cashier := setup.Cashier()
-					_, sessionID := setup.LoggedIn(setup.Admin())
+					cashier := setup.Cashier(t)
+					_, sessionID := setup.LoggedIn(t, setup.Admin(t))
 
 					url := path.User(cashier.UserID)
 					request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -90,12 +90,12 @@ func TestGetUserInformation(t *testing.T) {
 					setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 					defer setup.Close()
 
-					seller := setup.Seller()
-					cashier := setup.Cashier()
-					_, sessionID := setup.LoggedIn(setup.Admin())
+					seller := setup.Seller(t)
+					cashier := setup.Cashier(t)
+					_, sessionID := setup.LoggedIn(t, setup.Admin(t))
 
-					item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
-					sale := setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+					item := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+					sale := setup.Sale(t, cashier.UserID, []models.ID{item.ItemID})
 
 					url := path.User(cashier.UserID)
 					request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -118,13 +118,13 @@ func TestGetUserInformation(t *testing.T) {
 							setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 							defer setup.Close()
 
-							seller := setup.Seller()
-							cashier := setup.Cashier()
-							_, sessionID := setup.LoggedIn(setup.Admin())
+							seller := setup.Seller(t)
+							cashier := setup.Cashier(t)
+							_, sessionID := setup.LoggedIn(t, setup.Admin(t))
 
 							algorithms.RepeatWithError(saleCount, func() error {
-								item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
-								setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+								item := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+								setup.Sale(t, cashier.UserID, []models.ID{item.ItemID})
 								return nil
 							})
 
@@ -153,18 +153,18 @@ func TestGetUserInformation(t *testing.T) {
 						setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 						defer setup.Close()
 
-						seller, sessionID := setup.LoggedIn(setup.Seller())
+						seller, sessionID := setup.LoggedIn(t, setup.Seller(t))
 						expectedTotal := models.MoneyInCents(0)
 
 						for i := 0; i != unfrozenItemCount; i++ {
 							price := models.MoneyInCents((i + 1) * 50)
-							setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithPriceInCents(price), aux.WithHidden(false))
+							setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithFrozen(false), aux.WithPriceInCents(price), aux.WithHidden(false))
 							expectedTotal += price
 						}
 
 						for i := 0; i != frozenItemCount; i++ {
 							price := models.MoneyInCents((i + 1) * 50)
-							setup.Item(seller.UserID, aux.WithDummyData(i), aux.WithFrozen(true), aux.WithPriceInCents(price), aux.WithHidden(false))
+							setup.Item(t, seller.UserID, aux.WithDummyData(i), aux.WithFrozen(true), aux.WithPriceInCents(price), aux.WithHidden(false))
 							expectedTotal += price
 						}
 
@@ -186,14 +186,14 @@ func TestGetUserInformation(t *testing.T) {
 				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				seller := setup.Seller()
-				cashier, sessionID := setup.LoggedIn(setup.Cashier())
+				seller := setup.Seller(t)
+				cashier, sessionID := setup.LoggedIn(t, setup.Cashier(t))
 
-				items := setup.Items(seller.UserID, 5, aux.WithDummyData(1), aux.WithHidden(false))
+				items := setup.Items(t, seller.UserID, 5, aux.WithDummyData(1), aux.WithHidden(false))
 				sale1TransactionTime := models.Timestamp(1000)
 				sale2TransactionTime := models.Timestamp(4000)
-				sale1 := setup.Sale(cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID}, aux.WithTransactionTime(sale1TransactionTime))
-				sale2 := setup.Sale(cashier.UserID, []models.ID{items[2].ItemID, items[3].ItemID}, aux.WithTransactionTime(sale2TransactionTime))
+				sale1 := setup.Sale(t, cashier.UserID, []models.ID{items[0].ItemID, items[1].ItemID}, aux.WithTransactionTime(sale1TransactionTime))
+				sale2 := setup.Sale(t, cashier.UserID, []models.ID{items[2].ItemID, items[3].ItemID}, aux.WithTransactionTime(sale2TransactionTime))
 
 				url := path.User(cashier.UserID)
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -218,7 +218,7 @@ func TestGetUserInformation(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			cashier := setup.Cashier()
+			cashier := setup.Cashier(t)
 
 			url := path.User(cashier.UserID)
 			request := CreateGetRequest(url)
@@ -230,7 +230,7 @@ func TestGetUserInformation(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			cashier := setup.Cashier()
+			cashier := setup.Cashier(t)
 
 			url := path.User(cashier.UserID)
 			request := CreateGetRequest(url, WithSessionCookie("xxx"))
@@ -242,7 +242,7 @@ func TestGetUserInformation(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			cashier := setup.Cashier()
+			cashier := setup.Cashier(t)
 
 			url := path.User(cashier.UserID)
 			request := CreateGetRequest(url, WithCookie("whatever", "xxx"))
@@ -254,7 +254,7 @@ func TestGetUserInformation(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionID := setup.LoggedIn(setup.Admin())
+			_, sessionID := setup.LoggedIn(t, setup.Admin(t))
 
 			url := path.UserStr("invalid")
 			request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -266,7 +266,7 @@ func TestGetUserInformation(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
 
-			_, sessionID := setup.LoggedIn(setup.Admin())
+			_, sessionID := setup.LoggedIn(t, setup.Admin(t))
 			nonexistentUserID := setup.GenerateNonexistentUserID(t)
 
 			url := path.User(nonexistentUserID)
@@ -280,8 +280,8 @@ func TestGetUserInformation(t *testing.T) {
 				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionID := setup.LoggedIn(setup.Seller())
-				otherSeller := setup.Seller()
+				_, sessionID := setup.LoggedIn(t, setup.Seller(t))
+				otherSeller := setup.Seller(t)
 
 				url := path.User(otherSeller.UserID)
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -293,8 +293,8 @@ func TestGetUserInformation(t *testing.T) {
 				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionID := setup.LoggedIn(setup.Seller())
-				cashier := setup.Cashier()
+				_, sessionID := setup.LoggedIn(t, setup.Seller(t))
+				cashier := setup.Cashier(t)
 
 				url := path.User(cashier.UserID)
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -306,8 +306,8 @@ func TestGetUserInformation(t *testing.T) {
 				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionID := setup.LoggedIn(setup.Seller())
-				admin := setup.Admin()
+				_, sessionID := setup.LoggedIn(t, setup.Seller(t))
+				admin := setup.Admin(t)
 
 				url := path.User(admin.UserID)
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -319,8 +319,8 @@ func TestGetUserInformation(t *testing.T) {
 				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionID := setup.LoggedIn(setup.Cashier())
-				seller := setup.Seller()
+				_, sessionID := setup.LoggedIn(t, setup.Cashier(t))
+				seller := setup.Seller(t)
 
 				url := path.User(seller.UserID)
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -332,8 +332,8 @@ func TestGetUserInformation(t *testing.T) {
 				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionID := setup.LoggedIn(setup.Cashier())
-				otherCashier := setup.Cashier()
+				_, sessionID := setup.LoggedIn(t, setup.Cashier(t))
+				otherCashier := setup.Cashier(t)
 
 				url := path.User(otherCashier.UserID)
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -345,8 +345,8 @@ func TestGetUserInformation(t *testing.T) {
 				setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 				defer setup.Close()
 
-				_, sessionID := setup.LoggedIn(setup.Cashier())
-				admin := setup.Admin()
+				_, sessionID := setup.LoggedIn(t, setup.Cashier(t))
+				admin := setup.Admin(t)
 
 				url := path.User(admin.UserID)
 				request := CreateGetRequest(url, WithSessionCookie(sessionID))

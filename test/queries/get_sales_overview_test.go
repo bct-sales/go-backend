@@ -22,13 +22,13 @@ func createTotalMap(categories []*models.ItemCategory) map[models.ID]models.Mone
 
 func TestGetSalesOverview(t *testing.T) {
 	t.Run("Zero items", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		categories, err := queries.GetCategories(db)
+		categories, err := queries.GetCategories(t.Context(), db)
 		require.NoError(t, err)
 
-		categorySaleTotals, err := queries.GetSalesOverview(db)
+		categorySaleTotals, err := queries.GetSalesOverview(t.Context(), db)
 		t.Log(categorySaleTotals)
 		require.NoError(t, err)
 		require.Equal(t, len(categories), len(categorySaleTotals))
@@ -41,16 +41,16 @@ func TestGetSalesOverview(t *testing.T) {
 	})
 
 	t.Run("One item, zero sales", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		categories, err := queries.GetCategories(db)
+		categories, err := queries.GetCategories(t.Context(), db)
 		require.NoError(t, err)
 
-		seller := setup.Seller()
-		setup.Item(seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
+		seller := setup.Seller(t)
+		setup.Item(t, seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
 
-		categorySaleTotals, err := queries.GetSalesOverview(db)
+		categorySaleTotals, err := queries.GetSalesOverview(t.Context(), db)
 		t.Log(categorySaleTotals)
 		require.NoError(t, err)
 		require.Equal(t, len(categories), len(categorySaleTotals))
@@ -63,22 +63,22 @@ func TestGetSalesOverview(t *testing.T) {
 	})
 
 	t.Run("One sold item", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		categories, err := queries.GetCategories(db)
+		categories, err := queries.GetCategories(t.Context(), db)
 		require.NoError(t, err)
 
 		totals := createTotalMap(categories)
 
-		seller := setup.Seller()
-		item := setup.Item(seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categories[0].CategoryID), aux.WithHidden(false))
+		seller := setup.Seller(t)
+		item := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithItemCategory(categories[0].CategoryID), aux.WithHidden(false))
 		totals[item.CategoryID] += item.PriceInCents
 
-		cashier := setup.Cashier()
-		setup.Sale(cashier.UserID, []models.ID{item.ItemID})
+		cashier := setup.Cashier(t)
+		setup.Sale(t, cashier.UserID, []models.ID{item.ItemID})
 
-		categorySaleTotals, err := queries.GetSalesOverview(db)
+		categorySaleTotals, err := queries.GetSalesOverview(t.Context(), db)
 		t.Log(categorySaleTotals)
 		require.NoError(t, err)
 		require.Equal(t, len(categories), len(categorySaleTotals))
@@ -91,24 +91,24 @@ func TestGetSalesOverview(t *testing.T) {
 	})
 
 	t.Run("Two sold same-category items in single sale", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		categories, err := queries.GetCategories(db)
+		categories, err := queries.GetCategories(t.Context(), db)
 		require.NoError(t, err)
 
 		totals := createTotalMap(categories)
 
-		seller := setup.Seller()
-		item1 := setup.Item(seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
-		item2 := setup.Item(seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
+		seller := setup.Seller(t)
+		item1 := setup.Item(t, seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
+		item2 := setup.Item(t, seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
 		totals[item1.CategoryID] += item1.PriceInCents
 		totals[item2.CategoryID] += item2.PriceInCents
 
-		cashier := setup.Cashier()
-		setup.Sale(cashier.UserID, []models.ID{item1.ItemID, item2.ItemID})
+		cashier := setup.Cashier(t)
+		setup.Sale(t, cashier.UserID, []models.ID{item1.ItemID, item2.ItemID})
 
-		categorySaleTotals, err := queries.GetSalesOverview(db)
+		categorySaleTotals, err := queries.GetSalesOverview(t.Context(), db)
 		t.Log(categorySaleTotals)
 		require.NoError(t, err)
 		require.Equal(t, len(categories), len(categorySaleTotals))
@@ -121,24 +121,24 @@ func TestGetSalesOverview(t *testing.T) {
 	})
 
 	t.Run("Two sold different-category items in single sale", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		categories, err := queries.GetCategories(db)
+		categories, err := queries.GetCategories(t.Context(), db)
 		require.NoError(t, err)
 
 		totals := createTotalMap(categories)
 
-		seller := setup.Seller()
-		item1 := setup.Item(seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
-		item2 := setup.Item(seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
+		seller := setup.Seller(t)
+		item1 := setup.Item(t, seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
+		item2 := setup.Item(t, seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
 		totals[item1.CategoryID] += item1.PriceInCents
 		totals[item2.CategoryID] += item2.PriceInCents
 
-		cashier := setup.Cashier()
-		setup.Sale(cashier.UserID, []models.ID{item1.ItemID, item2.ItemID})
+		cashier := setup.Cashier(t)
+		setup.Sale(t, cashier.UserID, []models.ID{item1.ItemID, item2.ItemID})
 
-		categorySaleTotals, err := queries.GetSalesOverview(db)
+		categorySaleTotals, err := queries.GetSalesOverview(t.Context(), db)
 		t.Log(categorySaleTotals)
 		require.NoError(t, err)
 		require.Equal(t, len(categories), len(categorySaleTotals))
@@ -151,25 +151,25 @@ func TestGetSalesOverview(t *testing.T) {
 	})
 
 	t.Run("Two sold same-category items in separate sales", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		categories, err := queries.GetCategories(db)
+		categories, err := queries.GetCategories(t.Context(), db)
 		require.NoError(t, err)
 
 		totals := createTotalMap(categories)
 
-		seller := setup.Seller()
-		item1 := setup.Item(seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
-		item2 := setup.Item(seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
+		seller := setup.Seller(t)
+		item1 := setup.Item(t, seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
+		item2 := setup.Item(t, seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
 		totals[item1.CategoryID] += item1.PriceInCents
 		totals[item2.CategoryID] += item2.PriceInCents
 
-		cashier := setup.Cashier()
-		setup.Sale(cashier.UserID, []models.ID{item1.ItemID})
-		setup.Sale(cashier.UserID, []models.ID{item2.ItemID})
+		cashier := setup.Cashier(t)
+		setup.Sale(t, cashier.UserID, []models.ID{item1.ItemID})
+		setup.Sale(t, cashier.UserID, []models.ID{item2.ItemID})
 
-		categorySaleTotals, err := queries.GetSalesOverview(db)
+		categorySaleTotals, err := queries.GetSalesOverview(t.Context(), db)
 		t.Log(categorySaleTotals)
 		require.NoError(t, err)
 		require.Equal(t, len(categories), len(categorySaleTotals))
@@ -182,25 +182,25 @@ func TestGetSalesOverview(t *testing.T) {
 	})
 
 	t.Run("Two sold different-category items in separate sales", func(t *testing.T) {
-		setup, db := NewDatabaseFixture(WithDefaultCategories)
+		setup, db := NewDatabaseFixture(t, WithDefaultCategories)
 		defer setup.Close()
 
-		categories, err := queries.GetCategories(db)
+		categories, err := queries.GetCategories(t.Context(), db)
 		require.NoError(t, err)
 
 		totals := createTotalMap(categories)
 
-		seller := setup.Seller()
-		item1 := setup.Item(seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
-		item2 := setup.Item(seller.UserID, aux.WithItemCategory(categories[1].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
+		seller := setup.Seller(t)
+		item1 := setup.Item(t, seller.UserID, aux.WithItemCategory(categories[0].CategoryID), aux.WithDummyData(1), aux.WithHidden(false))
+		item2 := setup.Item(t, seller.UserID, aux.WithItemCategory(categories[1].CategoryID), aux.WithDummyData(2), aux.WithHidden(false))
 		totals[item1.CategoryID] += item1.PriceInCents
 		totals[item2.CategoryID] += item2.PriceInCents
 
-		cashier := setup.Cashier()
-		setup.Sale(cashier.UserID, []models.ID{item1.ItemID})
-		setup.Sale(cashier.UserID, []models.ID{item2.ItemID})
+		cashier := setup.Cashier(t)
+		setup.Sale(t, cashier.UserID, []models.ID{item1.ItemID})
+		setup.Sale(t, cashier.UserID, []models.ID{item2.ItemID})
 
-		categorySaleTotals, err := queries.GetSalesOverview(db)
+		categorySaleTotals, err := queries.GetSalesOverview(t.Context(), db)
 		t.Log(categorySaleTotals)
 		require.NoError(t, err)
 		require.Equal(t, len(categories), len(categorySaleTotals))

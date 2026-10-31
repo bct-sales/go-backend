@@ -2,6 +2,7 @@ package queries
 
 import (
 	"bctbackend/algorithms"
+	"context"
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"database/sql"
@@ -13,7 +14,7 @@ import (
 )
 
 // GetItemIDs retrieves the IDs of all items in the database.
-func GetItemIDs(db DatabaseQuerier) (r_result []models.ID, r_err error) {
+func GetItemIDs(ctx context.Context, db DatabaseQuerier) (r_result []models.ID, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -29,7 +30,7 @@ func GetItemIDs(db DatabaseQuerier) (r_result []models.ID, r_err error) {
 	`
 
 	// Perform query
-	rows, err := db.Query(query)
+	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute query to look up item ids in database: %w", err)
 	}
@@ -54,14 +55,14 @@ func GetItemIDs(db DatabaseQuerier) (r_result []models.ID, r_err error) {
 // The items are ordered by their time of addition, then by id.
 // An ErrNoSuchUser is returned if no user with the given sellerID exists.
 // An ErrWrongRole is returned if sellerID does not refer to a seller.
-func GetSellerItems(db DatabaseQuerier, sellerID models.ID, itemSelection ItemSelection) (r_items []*models.Item, r_err error) {
+func GetSellerItems(ctx context.Context, db DatabaseQuerier, sellerID models.ID, itemSelection ItemSelection) (r_items []*models.Item, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
 	// Note: GetSellerItems performs multiple queries, but no transaction is necessary
 	// since once a user exists with a certain role, it will not disappear.
-	if err := EnsureUserExistsAndHasRole(db, sellerID, models.NewSellerRoleID()); err != nil {
+	if err := EnsureUserExistsAndHasRole(ctx, db, sellerID, models.NewSellerRoleID()); err != nil {
 		return nil, err
 	}
 
@@ -87,7 +88,7 @@ func GetSellerItems(db DatabaseQuerier, sellerID models.ID, itemSelection ItemSe
 			added_at, item_id ASC
 	`, ItemsTableFor(itemSelection))
 
-	rows, err := db.Query(query, sellerID)
+	rows, err := db.QueryContext(ctx, query, sellerID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute query to get seller item data from database: %w", err)
 	}
@@ -158,7 +159,7 @@ type ItemWithSaleCount struct {
 // The items are ordered by their time of addition, then by id.
 // An ErrNoSuchUser is returned if no user with the given sellerID exists.
 // An ErrWrongRole is returned if sellerID does not refer to a seller.
-func GetItemsWithSaleCounts(db DatabaseQuerier, itemSelection ItemSelection, sellerID *models.ID) (r_items []*ItemWithSaleCount, r_err error) {
+func GetItemsWithSaleCounts(ctx context.Context, db DatabaseQuerier, itemSelection ItemSelection, sellerID *models.ID) (r_items []*ItemWithSaleCount, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -166,7 +167,7 @@ func GetItemsWithSaleCounts(db DatabaseQuerier, itemSelection ItemSelection, sel
 	// Note: GetSellerItems performs multiple queries, but no transaction is necessary
 	// since once a user exists with a certain role, it will not disappear.
 	if sellerID != nil {
-		if err := EnsureUserExistsAndHasRole(db, *sellerID, models.NewSellerRoleID()); err != nil {
+		if err := EnsureUserExistsAndHasRole(ctx, db, *sellerID, models.NewSellerRoleID()); err != nil {
 			return nil, err
 		}
 	}
@@ -202,7 +203,7 @@ func GetItemsWithSaleCounts(db DatabaseQuerier, itemSelection ItemSelection, sel
 		ORDER BY
 			added_at, i.item_id ASC
 	`, itemsTable, whereClause)
-	rows, err := db.Query(query, arguments...)
+	rows, err := db.QueryContext(ctx, query, arguments...)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute query to get seller items with sale counts from database: %w", err)
@@ -263,18 +264,18 @@ func GetItemsWithSaleCounts(db DatabaseQuerier, itemSelection ItemSelection, sel
 // Hidden items are not included, as they cannot be sold.
 // An ErrNoSuchUser is returned if no user with the given sellerID exists.
 // An ErrWrongRole is returned if sellerID does not refer to a seller.
-func GetSellerItemsWithSaleCounts(db DatabaseQuerier, sellerID models.ID) (r_items []*ItemWithSaleCount, r_err error) {
+func GetSellerItemsWithSaleCounts(ctx context.Context, db DatabaseQuerier, sellerID models.ID) (r_items []*ItemWithSaleCount, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
 	// Note: GetSellerItems performs multiple queries, but no transaction is necessary
 	// since once a user exists with a certain role, it will not disappear.
-	if err := EnsureUserExistsAndHasRole(db, sellerID, models.NewSellerRoleID()); err != nil {
+	if err := EnsureUserExistsAndHasRole(ctx, db, sellerID, models.NewSellerRoleID()); err != nil {
 		return nil, err
 	}
 
-	rows, err := db.Query(
+	rows, err := db.QueryContext(ctx,
 		`
 			SELECT
 				items.item_id,
@@ -368,12 +369,12 @@ func GetSellerItemsWithSaleCounts(db DatabaseQuerier, sellerID models.ID) (r_ite
 
 // Returns the item with the given identifier.
 // A ErrNoSuchItem is returned if no item with the given identifier exists.
-func GetItemWithID(db DatabaseQuerier, itemID models.ID) (r_result *models.Item, r_err error) {
+func GetItemWithID(ctx context.Context, db DatabaseQuerier, itemID models.ID) (r_result *models.Item, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	row := db.QueryRow(`
+	row := db.QueryRowContext(ctx, `
 		SELECT
 			added_at,
 			description,
@@ -440,7 +441,7 @@ func GetItemWithID(db DatabaseQuerier, itemID models.ID) (r_result *models.Item,
 // The result is a map that relates item IDs to the corresponding item.
 // Duplicates in itemIDs are ignored.
 // If itemIDs contains a nonexistent item id, a ErrNoSuchItem is returned.
-func GetItemsWithIDs(db DatabaseQuerier, itemIDs []models.ID) (r_result map[models.ID]*models.Item, r_err error) {
+func GetItemsWithIDs(ctx context.Context, db DatabaseQuerier, itemIDs []models.ID) (r_result map[models.ID]*models.Item, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -450,7 +451,7 @@ func GetItemsWithIDs(db DatabaseQuerier, itemIDs []models.ID) (r_result map[mode
 	query := NewGetItemsQuery()
 	query.WithItemIDs(itemIDs)
 
-	query.Execute(db, func(item *models.Item) error {
+	query.Execute(ctx, db, func(item *models.Item) error {
 		items[item.ItemID] = item
 		return nil
 	})
@@ -491,7 +492,7 @@ func NewGetItemStatisticsQuery() *GetItemStatisticsQuery {
 	return &query
 }
 
-func (q *GetItemStatisticsQuery) Execute(db DatabaseQuerier) (r_result *ItemStatisticsResult, r_err error) {
+func (q *GetItemStatisticsQuery) Execute(ctx context.Context, db DatabaseQuerier) (r_result *ItemStatisticsResult, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -500,7 +501,7 @@ func (q *GetItemStatisticsQuery) Execute(db DatabaseQuerier) (r_result *ItemStat
 	if err != nil {
 		return nil, fmt.Errorf("failed to build SQL query: %w", err)
 	}
-	row := db.QueryRow(query, queryArguments...)
+	row := db.QueryRowContext(ctx, query, queryArguments...)
 
 	var itemCount int
 	var totalValueInCents models.MoneyInCents
@@ -541,12 +542,12 @@ func (q *GetItemStatisticsQuery) buildSQLQuery() (string, []any, error) {
 
 
 // ItemWithIDExists returns true if an item with the given identifier exists in the database.
-func ItemWithIDExists(db DatabaseQuerier, itemID models.ID) (r_result bool, r_err error) {
+func ItemWithIDExists(ctx context.Context, db DatabaseQuerier, itemID models.ID) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	row := db.QueryRow(
+	row := db.QueryRowContext(ctx,
 		`
 			SELECT
 				1
@@ -575,7 +576,7 @@ func ItemWithIDExists(db DatabaseQuerier, itemID models.ID) (r_result bool, r_er
 // ItemsExists checks if all given items exist in the database.
 // Duplicates in itemIDs have no effect on the result.
 // Returns true if all items exist, false otherwise.
-func ItemsExist(db DatabaseQuerier, itemIDs []models.ID) (r_result bool, r_err error) {
+func ItemsExist(ctx context.Context, db DatabaseQuerier, itemIDs []models.ID) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -597,7 +598,7 @@ func ItemsExist(db DatabaseQuerier, itemIDs []models.ID) (r_result bool, r_err e
 	`, placeholderString(len(itemIDs)))
 
 	convertedItemIDs := algorithms.Map(itemIDs, func(id models.ID) any { return id })
-	row := db.QueryRow(query, convertedItemIDs...)
+	row := db.QueryRowContext(ctx, query, convertedItemIDs...)
 
 	var count int
 	err := row.Scan(&count)
@@ -611,12 +612,12 @@ func ItemsExist(db DatabaseQuerier, itemIDs []models.ID) (r_result bool, r_err e
 
 // EnsureItemsExist checks if all items with the given IDs exist in the database.
 // If any item does not exist, it returns a ErrNoSuchItem.
-func EnsureItemsExist(db DatabaseQuerier, itemIDs []models.ID) (r_err error) {
+func EnsureItemsExist(ctx context.Context, db DatabaseQuerier, itemIDs []models.ID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	itemsExist, err := ItemsExist(db, itemIDs)
+	itemsExist, err := ItemsExist(ctx, db, itemIDs)
 	if err != nil {
 		return fmt.Errorf("failed to ensure items exist: %w", err)
 	}
@@ -633,7 +634,7 @@ func EnsureItemsExist(db DatabaseQuerier, itemIDs []models.ID) (r_err error) {
 // Duplicates in itemIDs are ignored.
 // In case of an error, no items are updated.
 // This function consists of multiple database interactions, so it must run within a transaction.
-func UpdateFreezeStatusOfItems(transaction *TransactionalDatabaseQuerier, itemIDs []models.ID, frozen bool) (r_err error) {
+func UpdateFreezeStatusOfItems(ctx context.Context, transaction *TransactionalDatabaseQuerier, itemIDs []models.ID, frozen bool) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -645,11 +646,11 @@ func UpdateFreezeStatusOfItems(transaction *TransactionalDatabaseQuerier, itemID
 	itemIDs = algorithms.RemoveDuplicates(itemIDs)
 	convertedItemIDs := algorithms.Map(itemIDs, func(id models.ID) any { return id })
 
-	if err := EnsureItemsExist(transaction, itemIDs); err != nil {
+	if err := EnsureItemsExist(ctx, transaction, itemIDs); err != nil {
 		return err
 	}
 
-	if err := EnsureNoHiddenItems(transaction, itemIDs); err != nil {
+	if err := EnsureNoHiddenItems(ctx, transaction, itemIDs); err != nil {
 		return fmt.Errorf("failed to ensure no hidden items: %w", err)
 	}
 
@@ -661,7 +662,7 @@ func UpdateFreezeStatusOfItems(transaction *TransactionalDatabaseQuerier, itemID
 
 	sqlValues := append([]any{frozen}, convertedItemIDs...)
 
-	if _, err := transaction.Exec(query, sqlValues...); err != nil {
+	if _, err := transaction.ExecContext(ctx, query, sqlValues...); err != nil {
 		return err
 	}
 
@@ -674,7 +675,7 @@ func UpdateFreezeStatusOfItems(transaction *TransactionalDatabaseQuerier, itemID
 // Duplicates in itemIDs are ignored.
 // In case of an error, no items are updated.
 // This function consists of multiple database interactions, so it must run within a transaction.
-func UpdateHiddenStatusOfItems(transaction *TransactionalDatabaseQuerier, itemIDs []models.ID, hidden bool) (r_err error) {
+func UpdateHiddenStatusOfItems(ctx context.Context, transaction *TransactionalDatabaseQuerier, itemIDs []models.ID, hidden bool) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -686,12 +687,12 @@ func UpdateHiddenStatusOfItems(transaction *TransactionalDatabaseQuerier, itemID
 	itemIDs = algorithms.RemoveDuplicates(itemIDs)
 	convertedItemIDs := algorithms.Map(itemIDs, func(id models.ID) any { return id })
 
-	if err := EnsureItemsExist(transaction, itemIDs); err != nil {
+	if err := EnsureItemsExist(ctx, transaction, itemIDs); err != nil {
 		return err
 	}
 
 	// Check if none of the items are frozen
-	if err := EnsureNoFrozenItems(transaction, itemIDs); err != nil {
+	if err := EnsureNoFrozenItems(ctx, transaction, itemIDs); err != nil {
 		return err
 	}
 
@@ -703,14 +704,14 @@ func UpdateHiddenStatusOfItems(transaction *TransactionalDatabaseQuerier, itemID
 
 	sqlValues := append([]any{hidden}, convertedItemIDs...)
 
-	if _, err := transaction.Exec(query, sqlValues...); err != nil {
+	if _, err := transaction.ExecContext(ctx, query, sqlValues...); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func partitionItemsBy(database DatabaseQuerier, itemIDs []models.ID, columnName string) (*algorithms.Set[models.ID], *algorithms.Set[models.ID], error) {
+func partitionItemsBy(ctx context.Context, database DatabaseQuerier, itemIDs []models.ID, columnName string) (*algorithms.Set[models.ID], *algorithms.Set[models.ID], error) {
 	query := fmt.Sprintf(`
 		SELECT
 			item_id,
@@ -721,7 +722,7 @@ func partitionItemsBy(database DatabaseQuerier, itemIDs []models.ID, columnName 
 			item_id IN (%s)
 	`, columnName, placeholderString(len(itemIDs)))
 	convertedItemIDs := algorithms.Map(itemIDs, func(id models.ID) any { return id })
-	rows, err := database.Query(query, convertedItemIDs...)
+	rows, err := database.QueryContext(ctx, query, convertedItemIDs...)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to query items: %w", err)
 	}
@@ -754,28 +755,28 @@ func partitionItemsBy(database DatabaseQuerier, itemIDs []models.ID, columnName 
 
 // PartitionItemsByHiddenStatus partitions the given item IDs into two sets: one for unhidden items and one for hidden items.
 // If an item ID does not exist in the database, it is ignored.
-func PartitionItemsByHiddenStatus(db DatabaseQuerier, itemIDs []models.ID) (r_visible *algorithms.Set[models.ID], r_hidden *algorithms.Set[models.ID], r_err error) {
+func PartitionItemsByHiddenStatus(ctx context.Context, db DatabaseQuerier, itemIDs []models.ID) (r_visible *algorithms.Set[models.ID], r_hidden *algorithms.Set[models.ID], r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	return partitionItemsBy(db, itemIDs, "hidden")
+	return partitionItemsBy(ctx, db, itemIDs, "hidden")
 }
 
 // PartitionItemsByFrozenStatus partitions the given item IDs into two sets: one for nonfrozen items and one for frozen items.
 // If an item ID does not exist in the database, it is ignored.
-func PartitionItemsByFrozenStatus(db DatabaseQuerier, itemIDs []models.ID) (r_nonfrozen *algorithms.Set[models.ID], r_frozen *algorithms.Set[models.ID], r_err error) {
+func PartitionItemsByFrozenStatus(ctx context.Context, db DatabaseQuerier, itemIDs []models.ID) (r_nonfrozen *algorithms.Set[models.ID], r_frozen *algorithms.Set[models.ID], r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	return partitionItemsBy(db, itemIDs, "frozen")
+	return partitionItemsBy(ctx, db, itemIDs, "frozen")
 }
 
 // ContainsHiddenItems checks if any of the given items are hidden.
 // It returns true if at least one item is hidden, and false otherwise.
 // It is not an error when nonexistent items are passed in, they are simply ignored.
-func ContainsHiddenItems(database DatabaseQuerier, itemIDs []models.ID) (r_result bool, r_err error) {
+func ContainsHiddenItems(ctx context.Context, database DatabaseQuerier, itemIDs []models.ID) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -784,7 +785,7 @@ func ContainsHiddenItems(database DatabaseQuerier, itemIDs []models.ID) (r_resul
 		return false, nil
 	}
 
-	_, hidden, err := PartitionItemsByHiddenStatus(database, itemIDs)
+	_, hidden, err := PartitionItemsByHiddenStatus(ctx, database, itemIDs)
 	if err != nil {
 		return false, err
 	}
@@ -797,7 +798,7 @@ func ContainsHiddenItems(database DatabaseQuerier, itemIDs []models.ID) (r_resul
 // ContainsFrozenItems checks if any of the given items are frozen.
 // It returns true if at least one item is frozen, and false otherwise.
 // It is not an error when nonexistent items are passed in, they are simply ignored.
-func ContainsFrozenItems(database DatabaseQuerier, itemIDs []models.ID) (r_result bool, r_err error) {
+func ContainsFrozenItems(ctx context.Context, database DatabaseQuerier, itemIDs []models.ID) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -806,7 +807,7 @@ func ContainsFrozenItems(database DatabaseQuerier, itemIDs []models.ID) (r_resul
 		return false, nil
 	}
 
-	_, frozen, err := PartitionItemsByFrozenStatus(database, itemIDs)
+	_, frozen, err := PartitionItemsByFrozenStatus(ctx, database, itemIDs)
 	if err != nil {
 		return false, err
 	}
@@ -818,12 +819,12 @@ func ContainsFrozenItems(database DatabaseQuerier, itemIDs []models.ID) (r_resul
 
 // IsItemFrozen checks if none of the items is frozen.
 // If one or more items are frozen, it returns an ErrItemFrozen error.
-func EnsureNoFrozenItems(qh DatabaseQuerier, itemIDs []models.ID) (r_err error) {
+func EnsureNoFrozenItems(ctx context.Context, qh DatabaseQuerier, itemIDs []models.ID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	containsFrozen, err := ContainsFrozenItems(qh, itemIDs)
+	containsFrozen, err := ContainsFrozenItems(ctx, qh, itemIDs)
 
 	if err != nil {
 		return fmt.Errorf("failed to check for frozen items: %w", err)
@@ -838,12 +839,12 @@ func EnsureNoFrozenItems(qh DatabaseQuerier, itemIDs []models.ID) (r_err error) 
 
 // EnsureNoHiddenItems checks if none of the items is hidden.
 // If one or more items are hidden, it returns an ErrItemHidden error.
-func EnsureNoHiddenItems(qh DatabaseQuerier, itemIDs []models.ID) (r_err error) {
+func EnsureNoHiddenItems(ctx context.Context, qh DatabaseQuerier, itemIDs []models.ID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	containsHidden, err := ContainsHiddenItems(qh, itemIDs)
+	containsHidden, err := ContainsHiddenItems(ctx, qh, itemIDs)
 
 	if err != nil {
 		return fmt.Errorf("failed to check for hidden items: %w", err)
@@ -858,12 +859,12 @@ func EnsureNoHiddenItems(qh DatabaseQuerier, itemIDs []models.ID) (r_err error) 
 
 // IsItemFrozen checks whether the item with the given ID is frozen.
 // ErrNoSuchItem is returned if the item does not exist.
-func IsItemFrozen(db DatabaseQuerier, itemID models.ID) (r_result bool, r_err error) {
+func IsItemFrozen(ctx context.Context, db DatabaseQuerier, itemID models.ID) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	nonFrozen, frozen, err := PartitionItemsByFrozenStatus(db, []models.ID{itemID})
+	nonFrozen, frozen, err := PartitionItemsByFrozenStatus(ctx, db, []models.ID{itemID})
 	if err != nil {
 		return false, err
 	}
@@ -883,12 +884,12 @@ func IsItemFrozen(db DatabaseQuerier, itemID models.ID) (r_result bool, r_err er
 
 // IsItemHidden checks whether the item with the given ID is hidden.
 // ErrNoSuchItem is returned if the item does not exist.
-func IsItemHidden(db DatabaseQuerier, itemID models.ID) (r_result bool, r_err error) {
+func IsItemHidden(ctx context.Context, db DatabaseQuerier, itemID models.ID) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	unhidden, hidden, err := PartitionItemsByHiddenStatus(db, []models.ID{itemID})
+	unhidden, hidden, err := PartitionItemsByHiddenStatus(ctx, db, []models.ID{itemID})
 	if err != nil {
 		return false, err
 	}
@@ -912,20 +913,20 @@ func IsItemHidden(db DatabaseQuerier, itemID models.ID) (r_result bool, r_err er
 // If the item does not exist, ErrNoSuchItem is returned.
 // If the item has been sold, ErrItemSold is returned and the item remains in the database.
 // If the item is frozen, ErrItemFrozen is returned and the item remains in the database.
-func RemoveItemWithID(db DatabaseQuerier, itemID models.ID) (r_err error) {
+func RemoveItemWithID(ctx context.Context, db DatabaseQuerier, itemID models.ID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if err := EnsureItemsExist(db, []models.ID{itemID}); err != nil {
+	if err := EnsureItemsExist(ctx, db, []models.ID{itemID}); err != nil {
 		return fmt.Errorf("failed to remove item with id %d: %w", itemID, dberr.ErrNoSuchItem)
 	}
 
-	if err := EnsureNoFrozenItems(db, []models.ID{itemID}); err != nil {
+	if err := EnsureNoFrozenItems(ctx, db, []models.ID{itemID}); err != nil {
 		return fmt.Errorf("failed to remove item with id %d: %w", itemID, dberr.ErrItemFrozen)
 	}
 
-	_, err := db.Exec(
+	_, err := db.ExecContext(ctx,
 		`
 			DELETE FROM items
 			WHERE item_id = $1
@@ -933,7 +934,7 @@ func RemoveItemWithID(db DatabaseQuerier, itemID models.ID) (r_err error) {
 		itemID,
 	)
 	if err != nil {
-		sold, err2 := HasAnyBeenSold(db, []models.ID{itemID})
+		sold, err2 := HasAnyBeenSold(ctx, db, []models.ID{itemID})
 		if err2 != nil {
 			return err
 		}
@@ -963,12 +964,12 @@ type ItemUpdate struct {
 // If the item does not exist, ErrNoSuchItem is returned.
 // If the item is frozen, ErrItemFrozen is returned.
 // If the item is hidden, ErrItemHidden is returned.
-func UpdateItem(db *TransactionalDatabaseQuerier, itemID models.ID, itemUpdate *ItemUpdate) (r_err error) {
+func UpdateItem(ctx context.Context, db *TransactionalDatabaseQuerier, itemID models.ID, itemUpdate *ItemUpdate) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	item, err := GetItemWithID(db, itemID)
+	item, err := GetItemWithID(ctx, db, itemID)
 	if err != nil {
 		return err
 	}
@@ -1004,7 +1005,7 @@ func UpdateItem(db *TransactionalDatabaseQuerier, itemID models.ID, itemUpdate *
 	}
 
 	if itemUpdate.CategoryID != nil {
-		categoryExists, err := CategoryWithIDExists(db, *itemUpdate.CategoryID)
+		categoryExists, err := CategoryWithIDExists(ctx, db, *itemUpdate.CategoryID)
 		if err != nil {
 			return err
 		}
@@ -1039,7 +1040,7 @@ func UpdateItem(db *TransactionalDatabaseQuerier, itemID models.ID, itemUpdate *
 	sqlValues = append(sqlValues, itemID)
 	query := fmt.Sprintf("UPDATE %s SET %s WHERE item_id = ?", "items", strings.Join(sqlUpdates, ", "))
 
-	if _, err := db.Exec(query, sqlValues...); err != nil {
+	if _, err := db.ExecContext(ctx, query, sqlValues...); err != nil {
 		return err
 	}
 
@@ -1051,7 +1052,7 @@ type AddItemFunction func(addedAt models.Timestamp, description string, priceInC
 type AddItemsCallback func(addItem AddItemFunction)
 
 // AddItems allows to add multiple items to the database at once.
-func AddItems(db DatabaseQuerier, callback AddItemsCallback) (r_err error) {
+func AddItems(ctx context.Context, db DatabaseQuerier, callback AddItemsCallback) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
@@ -1073,7 +1074,7 @@ func AddItems(db DatabaseQuerier, callback AddItemsCallback) (r_err error) {
 
 	query := `INSERT INTO items (added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden, large) VALUES ` + strings.Join(valuesString, ",")
 
-	if _, err := db.Exec(query, arguments...); err != nil {
+	if _, err := db.ExecContext(ctx, query, arguments...); err != nil {
 		return err
 	}
 
@@ -1083,12 +1084,12 @@ func AddItems(db DatabaseQuerier, callback AddItemsCallback) (r_err error) {
 // DoesSellerHaveFrozenItems checks if any item owned by the given seller is frozen.
 // Returns ErrNoSuchUser is sellerID does not exist.
 // Returns ErrWrongRole if sellerID does not refer to a seller.
-func DoesSellerHaveFrozenItems(db *TransactionalDatabaseQuerier, sellerID models.ID) (r_result bool, r_err error) {
+func DoesSellerHaveFrozenItems(ctx context.Context, db *TransactionalDatabaseQuerier, sellerID models.ID) (r_result bool, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	if err := EnsureUserExistsAndHasRole(db, sellerID, models.NewSellerRoleID()); err != nil {
+	if err := EnsureUserExistsAndHasRole(ctx, db, sellerID, models.NewSellerRoleID()); err != nil {
 		return false, err
 	}
 
@@ -1101,7 +1102,7 @@ func DoesSellerHaveFrozenItems(db *TransactionalDatabaseQuerier, sellerID models
 			seller_id = ? AND items.frozen
 	`
 
-	row := db.QueryRow(query, sellerID)
+	row := db.QueryRowContext(ctx, query, sellerID)
 
 	var dummy uint64
 	if err := row.Scan(&dummy); err != nil {
@@ -1119,18 +1120,18 @@ func DoesSellerHaveFrozenItems(db *TransactionalDatabaseQuerier, sellerID models
 // Does not check for frozen or hidden items!
 // Returns ErrNoSuchUser if oldSellerID or newSellerID do not exist.
 // Returns ErrWrongRole if oldSellerID or newSellerID do not refer to sellers.
-func MoveItemsToNewSeller(db *TransactionalDatabaseQuerier, oldSellerID models.ID, newSellerID models.ID) (r_err error) {
+func MoveItemsToNewSeller(ctx context.Context, db *TransactionalDatabaseQuerier, oldSellerID models.ID, newSellerID models.ID) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
 	}()
 
 	// oldSellerID must refer to seller
-	if err := EnsureUserExistsAndHasRole(db, oldSellerID, models.NewSellerRoleID()); err != nil {
+	if err := EnsureUserExistsAndHasRole(ctx, db, oldSellerID, models.NewSellerRoleID()); err != nil {
 		return err
 	}
 
 	// newSellerID must refer to seller
-	if err := EnsureUserExistsAndHasRole(db, newSellerID, models.NewSellerRoleID()); err != nil {
+	if err := EnsureUserExistsAndHasRole(ctx, db, newSellerID, models.NewSellerRoleID()); err != nil {
 		return err
 	}
 
@@ -1139,7 +1140,7 @@ func MoveItemsToNewSeller(db *TransactionalDatabaseQuerier, oldSellerID models.I
 		SET seller_id = ?
 		WHERE seller_id = ?
 	`
-	if _, err := db.Exec(query, newSellerID, oldSellerID); err != nil {
+	if _, err := db.ExecContext(ctx, query, newSellerID, oldSellerID); err != nil {
 		return err
 	}
 

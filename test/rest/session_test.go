@@ -14,7 +14,7 @@ func TestSessionExpiration(t *testing.T) {
 	setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 	defer setup.Close()
 
-	_, sessionID := setup.LoggedIn(setup.Admin(), aux.WithExpiration(-1))
+	_, sessionID := setup.LoggedIn(t, setup.Admin(t), aux.WithExpiration(-1))
 
 	url := path.Items()
 	request := CreateGetRequest(url, WithSessionCookie(sessionID))
@@ -26,7 +26,7 @@ func TestMissingSessionID(t *testing.T) {
 	setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 	defer setup.Close()
 
-	setup.LoggedIn(setup.Admin(), aux.WithExpiration(-1))
+	setup.LoggedIn(t, setup.Admin(t), aux.WithExpiration(-1))
 
 	url := path.Items()
 	request := CreateGetRequest(url)
