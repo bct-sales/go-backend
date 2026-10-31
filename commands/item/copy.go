@@ -36,7 +36,7 @@ func NewCopyItemCommand() *cobra.Command {
 				RunE: func(cmd *cobra.Command, args []string) error {
 					return command.execute(cmd.Context(), args)
 				},
-				Args: cobra.NoArgs,
+				Args: cobra.ExactArgs(1),
 			},
 		},
 	}
