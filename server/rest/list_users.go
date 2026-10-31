@@ -6,6 +6,7 @@ import (
 	rest "bctbackend/server/shared"
 	"bytes"
 	"encoding/csv"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
@@ -23,42 +24,42 @@ type GetUsersSuccessResponse struct {
 	Users []GetUsersUserData `json:"users"`
 }
 
-func ListUsers(arguments *HandlerFunctionArguments) {
+func ListUsers(context *gin.Context, arguments *HandlerFunctionArguments) {
 	endpoint := listUsersEndpoint{
 		Endpoint: Endpoint{
 			HandlerFunctionArguments: *arguments,
 		},
 	}
 
-	endpoint.execute()
+	endpoint.execute(context)
 }
 
 type listUsersEndpoint struct {
 	Endpoint
 }
 
-func (ep *listUsersEndpoint) execute() {
-	if !ep.ensureUserIsAdmin() {
+func (ep *listUsersEndpoint) execute(context *gin.Context) {
+	if !ep.ensureUserIsAdmin(context) {
 		return
 	}
 
-	users, usersOk := ep.fetchUsersWithItemCountFromDatabase()
+	users, usersOk := ep.fetchUsersWithItemCountFromDatabase(context)
 	if !usersOk {
 		return
 	}
 
 	userData := ep.convertToUserData(users)
 
-	ep.sendSuccessResponseInAppropriateFormat(userData)
+	ep.sendSuccessResponseInAppropriateFormat(context, userData)
 }
 
-func (ep *listUsersEndpoint) ensureUserIsAdmin() bool {
+func (ep *listUsersEndpoint) ensureUserIsAdmin(context *gin.Context) bool {
 	logger := ep.Logger
 
 	if !ep.RoleID.IsAdmin() {
 		logger.InvalidRequest("Non-admin attempted to list all items")
 
-		failure_response.WrongRole(ep.Context, "Only accessible to admins")
+		failure_response.WrongRole(context, "Only accessible to admins")
 
 		return false
 	}
@@ -66,16 +67,16 @@ func (ep *listUsersEndpoint) ensureUserIsAdmin() bool {
 	return true
 }
 
-func (ep *listUsersEndpoint) fetchUsersWithItemCountFromDatabase() ([]*queries.UserWithItemCount, bool) {
+func (ep *listUsersEndpoint) fetchUsersWithItemCountFromDatabase(context *gin.Context) ([]*queries.UserWithItemCount, bool) {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 	users := []*queries.UserWithItemCount{}
 
 	if err := queries.GetUsersWithItemCount(ctx, ep.Database, queries.OnlyVisibleItems, queries.CollectTo(&users)); err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to fetch users")
 
-		failure_response.Unknown(ep.Context, err.Error())
+		failure_response.Unknown(context, err.Error())
 
 		return nil, false
 	}
@@ -112,45 +113,45 @@ func (ep *listUsersEndpoint) convertToUserData(users []*queries.UserWithItemCoun
 	return userData
 }
 
-func (ep *listUsersEndpoint) sendSuccessResponseInAppropriateFormat(userData []GetUsersUserData) {
+func (ep *listUsersEndpoint) sendSuccessResponseInAppropriateFormat(context *gin.Context, userData []GetUsersUserData) {
 	formatHandler := formatHandlerAdapter{
-		handleDefaultFormatFunc: func() { ep.sendSuccessResponseAsJSON(userData) },
-		handleCSVFormatFunc:     func() { ep.sendSuccessResponseAsCSVFile(userData) },
-		handleJSONFormatFunc:    func() { ep.sendSuccessResponseAsJSONFile(userData) },
+		handleDefaultFormatFunc: func() { ep.sendSuccessResponseAsJSON(context, userData) },
+		handleCSVFormatFunc:     func() { ep.sendSuccessResponseAsCSVFile(context, userData) },
+		handleJSONFormatFunc:    func() { ep.sendSuccessResponseAsJSONFile(context, userData) },
 	}
 
-	ep.parseFormatQueryParameter(&formatHandler)
+	ep.parseFormatQueryParameter(context, &formatHandler)
 }
 
-func (ep *listUsersEndpoint) sendSuccessResponseAsJSON(userData []GetUsersUserData) {
+func (ep *listUsersEndpoint) sendSuccessResponseAsJSON(context *gin.Context, userData []GetUsersUserData) {
 	response := GetUsersSuccessResponse{Users: userData}
-	ep.Context.IndentedJSON(http.StatusOK, response)
+	context.IndentedJSON(http.StatusOK, response)
 }
 
-func (ep *listUsersEndpoint) sendSuccessResponseAsJSONFile(userData []GetUsersUserData) {
-	ep.Context.Header("Content-Type", "application/json")
-	ep.Context.Header("Content-Disposition", "attachment; filename=\"users.json\"")
-	ep.Context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
-	ep.Context.Header("Pragma", "no-cache")
+func (ep *listUsersEndpoint) sendSuccessResponseAsJSONFile(context *gin.Context, userData []GetUsersUserData) {
+	context.Header("Content-Type", "application/json")
+	context.Header("Content-Disposition", "attachment; filename=\"users.json\"")
+	context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	context.Header("Pragma", "no-cache")
 
-	ep.Context.IndentedJSON(http.StatusOK, userData)
+	context.IndentedJSON(http.StatusOK, userData)
 }
 
-func (ep *listUsersEndpoint) sendSuccessResponseAsCSVFile(userData []GetUsersUserData) {
-	ep.Context.Header("Content-Type", "text/csv")
-	ep.Context.Header("Content-Disposition", "attachment; filename=\"users.csv\"")
-	ep.Context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
-	ep.Context.Header("Pragma", "no-cache")
+func (ep *listUsersEndpoint) sendSuccessResponseAsCSVFile(context *gin.Context, userData []GetUsersUserData) {
+	context.Header("Content-Type", "text/csv")
+	context.Header("Content-Disposition", "attachment; filename=\"users.csv\"")
+	context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	context.Header("Pragma", "no-cache")
 
-	string := ep.formatAsCSV(userData)
+	string := ep.formatAsCSV(context, userData)
 	if string == nil {
 		return
 	}
 
-	ep.Context.String(http.StatusOK, *string)
+	context.String(http.StatusOK, *string)
 }
 
-func (ep *listUsersEndpoint) formatAsCSV(userData []GetUsersUserData) *string {
+func (ep *listUsersEndpoint) formatAsCSV(context *gin.Context, userData []GetUsersUserData) *string {
 	logger := ep.Logger
 	buffer := new(bytes.Buffer)
 	csvWriter := csv.NewWriter(buffer)
@@ -162,7 +163,7 @@ func (ep *listUsersEndpoint) formatAsCSV(userData []GetUsersUserData) *string {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to write headers to CSV file")
 
-		failure_response.Unknown(ep.Context, "Failed to write headers to CSV file: "+err.Error())
+		failure_response.Unknown(context, "Failed to write headers to CSV file: "+err.Error())
 
 		return nil
 	}
@@ -192,7 +193,7 @@ func (ep *listUsersEndpoint) formatAsCSV(userData []GetUsersUserData) *string {
 			logger.AddInformation("error", err)
 			logger.InternalError("Failed to write row to CSV file")
 
-			failure_response.Unknown(ep.Context, "Failed to write row to CSV file: "+err.Error())
+			failure_response.Unknown(context, "Failed to write row to CSV file: "+err.Error())
 
 			return nil
 		}

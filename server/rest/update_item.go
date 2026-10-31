@@ -7,6 +7,7 @@ import (
 	"bctbackend/server/failure_response"
 	"errors"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -26,48 +27,45 @@ type updateItemEndpoint struct {
 	Endpoint
 }
 
-func UpdateItem(arguments *HandlerFunctionArguments) {
+func UpdateItem(context *gin.Context, arguments *HandlerFunctionArguments) {
 	endpoint := &updateItemEndpoint{
 		Endpoint: Endpoint{
 			HandlerFunctionArguments: *arguments,
 		},
 	}
 
-	endpoint.execute()
+	endpoint.execute(context)
 }
 
-func (ep *updateItemEndpoint) execute() {
-	context := ep.Context
-
-	itemID, uriParsedOk := ep.parseUriParameters()
+func (ep *updateItemEndpoint) execute(context *gin.Context) {
+	itemID, uriParsedOk := ep.parseUriParameters(context)
 	if !uriParsedOk {
 		return
 	}
 
 	// Parse payload early so that if a failure occurs, the logs contain the request data
-	payload, payloadOk := ep.parsePayload()
+	payload, payloadOk := ep.parsePayload(context)
 	if !payloadOk {
 		return
 	}
 
-	item, itemOk := ep.fetchItemFromDatabase(itemID)
+	item, itemOk := ep.fetchItemFromDatabase(context, itemID)
 	if !itemOk {
 		return
 	}
 
-	if !ep.isOperationAuthorized(item) {
+	if !ep.isOperationAuthorized(context, item) {
 		return
 	}
 
-	if !ep.performItemUpdate(item, payload) {
+	if !ep.performItemUpdate(context, item, payload) {
 		return
 	}
 
 	context.JSON(http.StatusNoContent, nil)
 }
 
-func (ep *updateItemEndpoint) parseUriParameters() (models.ID, bool) {
-	context := ep.Context
+func (ep *updateItemEndpoint) parseUriParameters(context *gin.Context) (models.ID, bool) {
 	logger := ep.Logger
 
 	var uriParameters struct {
@@ -97,11 +95,10 @@ func (ep *updateItemEndpoint) parseUriParameters() (models.ID, bool) {
 	return itemID, true
 }
 
-func (ep *updateItemEndpoint) fetchItemFromDatabase(itemID models.ID) (*models.Item, bool) {
-	ctx := ep.Context.Request.Context()
+func (ep *updateItemEndpoint) fetchItemFromDatabase(context *gin.Context, itemID models.ID) (*models.Item, bool) {
+	ctx := context.Request.Context()
 	db := ep.Database
 	logger := ep.Logger
-	context := ep.Context
 
 	item, err := queries.GetItemWithID(ctx, db, itemID)
 	if err != nil {
@@ -121,8 +118,7 @@ func (ep *updateItemEndpoint) fetchItemFromDatabase(itemID models.ID) (*models.I
 	return item, true
 }
 
-func (ep *updateItemEndpoint) parsePayload() (*UpdateItemPayload, bool) {
-	context := ep.Context
+func (ep *updateItemEndpoint) parsePayload(context *gin.Context) (*UpdateItemPayload, bool) {
 	logger := ep.Logger
 
 	var payload UpdateItemPayload
@@ -140,11 +136,10 @@ func (ep *updateItemEndpoint) parsePayload() (*UpdateItemPayload, bool) {
 	return &payload, true
 }
 
-func (ep *updateItemEndpoint) isOperationAuthorized(item *models.Item) bool {
+func (ep *updateItemEndpoint) isOperationAuthorized(context *gin.Context, item *models.Item) bool {
 	roleID := ep.RoleID
 	userID := ep.UserID
 	logger := ep.Logger
-	context := ep.Context
 
 	if roleID.IsSeller() && item.SellerID != userID {
 		logger.AddInformation("itemID", item.ItemID)
@@ -165,11 +160,10 @@ func (ep *updateItemEndpoint) isOperationAuthorized(item *models.Item) bool {
 	return true
 }
 
-func (ep *updateItemEndpoint) performItemUpdate(item *models.Item, payload *UpdateItemPayload) bool {
-	ctx := ep.Context.Request.Context()
+func (ep *updateItemEndpoint) performItemUpdate(context *gin.Context, item *models.Item, payload *UpdateItemPayload) bool {
+	ctx := context.Request.Context()
 	db := ep.Database
 	logger := ep.Logger
-	context := ep.Context
 	itemID := item.ItemID
 
 	transaction, transactionErr := db.StartTransaction(ctx)

@@ -5,6 +5,7 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/server/failure_response"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"maps"
 	"net/http"
 	"slices"
@@ -20,14 +21,14 @@ type CategoryData struct {
 	Count        *int      `json:"count,omitempty"`
 }
 
-func ListCategories(arguments *HandlerFunctionArguments) {
+func ListCategories(context *gin.Context, arguments *HandlerFunctionArguments) {
 	endpoint := listCategoriesEndpoint{
 		Endpoint: Endpoint{
 			HandlerFunctionArguments: *arguments,
 		},
 	}
 
-	endpoint.execute()
+	endpoint.execute(context)
 }
 
 type listCategoriesEndpoint struct {
@@ -48,37 +49,37 @@ type listCategoriesParameters struct {
 	counts listCategoriesCount
 }
 
-func (ep *listCategoriesEndpoint) execute() {
-	parameters := ep.parseParameters()
+func (ep *listCategoriesEndpoint) execute(context *gin.Context) {
+	parameters := ep.parseParameters(context)
 	if parameters == nil {
 		return
 	}
 
 	switch parameters.counts {
 	case listCategoriesWithCountsOfAllItems:
-		ep.listCategoriesWithCounts(queries.AllItems)
+		ep.listCategoriesWithCounts(context, queries.AllItems)
 		return
 
 	case listCategoriesWithCountsOfHiddenItems:
-		ep.listCategoriesWithCounts(queries.OnlyHiddenItems)
+		ep.listCategoriesWithCounts(context, queries.OnlyHiddenItems)
 		return
 
 	case listCategoriesWithCountsOfVisibleItems:
-		ep.listCategoriesWithCounts(queries.OnlyVisibleItems)
+		ep.listCategoriesWithCounts(context, queries.OnlyVisibleItems)
 		return
 
 	case listCategoriesWithCountsOfSoldItems:
-		ep.listCategoriesWithSoldCounts()
+		ep.listCategoriesWithSoldCounts(context)
 		return
 
 	case listCategoriesWithNoCounts:
-		ep.listCategoriesWithoutCounts()
+		ep.listCategoriesWithoutCounts(context)
 		return
 	}
 }
 
-func (ep *listCategoriesEndpoint) parseParameters() *listCategoriesParameters {
-	counts, countsOk := ep.parseCountsQueryParameter()
+func (ep *listCategoriesEndpoint) parseParameters(context *gin.Context) *listCategoriesParameters {
+	counts, countsOk := ep.parseCountsQueryParameter(context)
 	if !countsOk {
 		return nil
 	}
@@ -90,8 +91,8 @@ func (ep *listCategoriesEndpoint) parseParameters() *listCategoriesParameters {
 	return &parameters
 }
 
-func (ep *listCategoriesEndpoint) parseCountsQueryParameter() (listCategoriesCount, bool) {
-	parameterValue := ep.Context.Query("counts")
+func (ep *listCategoriesEndpoint) parseCountsQueryParameter(context *gin.Context) (listCategoriesCount, bool) {
+	parameterValue := context.Query("counts")
 
 	switch parameterValue {
 	case "":
@@ -106,13 +107,12 @@ func (ep *listCategoriesEndpoint) parseCountsQueryParameter() (listCategoriesCou
 		return listCategoriesWithCountsOfSoldItems, true
 	default:
 		ep.Logger.InvalidInput("Unauthorized access to category counts")
-		failure_response.InvalidUriParameters(ep.Context, "invalid value for counts query parameter")
+		failure_response.InvalidUriParameters(context, "invalid value for counts query parameter")
 		return 0, false
 	}
 }
 
-func (ep *listCategoriesEndpoint) listCategoriesWithCounts(itemSelection queries.ItemSelection) {
-	context := ep.Context
+func (ep *listCategoriesEndpoint) listCategoriesWithCounts(context *gin.Context, itemSelection queries.ItemSelection) {
 	db := ep.Database
 	roleID := ep.RoleID
 	logger := ep.Logger
@@ -175,8 +175,7 @@ func (ep *listCategoriesEndpoint) listCategoriesWithCounts(itemSelection queries
 	context.IndentedJSON(http.StatusOK, response)
 }
 
-func (ep *listCategoriesEndpoint) listCategoriesWithSoldCounts() {
-	context := ep.Context
+func (ep *listCategoriesEndpoint) listCategoriesWithSoldCounts(context *gin.Context) {
 	db := ep.Database
 	roleID := ep.RoleID
 	logger := ep.Logger
@@ -241,8 +240,7 @@ func (ep *listCategoriesEndpoint) listCategoriesWithSoldCounts() {
 	context.IndentedJSON(http.StatusOK, response)
 }
 
-func (ep *listCategoriesEndpoint) listCategoriesWithoutCounts() {
-	context := ep.Context
+func (ep *listCategoriesEndpoint) listCategoriesWithoutCounts(context *gin.Context) {
 	db := ep.Database
 	logger := ep.Logger
 	ctx := context.Request.Context()

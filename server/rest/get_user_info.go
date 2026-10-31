@@ -9,6 +9,7 @@ import (
 	rest "bctbackend/server/shared"
 	"errors"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -98,38 +99,37 @@ func convertSaleToGetUserInformationSale(sale *models.Sale) *GetCashierInformati
 	}
 }
 
-func GetUserInformation(arguments *HandlerFunctionArguments) {
+func GetUserInformation(context *gin.Context, arguments *HandlerFunctionArguments) {
 	endpoint := GetUserInformationEndpoint{
 		Endpoint: Endpoint{
 			HandlerFunctionArguments: *arguments,
 		},
 	}
 
-	endpoint.execute()
+	endpoint.execute(context)
 }
 
 type GetUserInformationEndpoint struct {
 	Endpoint
 }
 
-func (ep *GetUserInformationEndpoint) execute() {
-	context := ep.Context
+func (ep *GetUserInformationEndpoint) execute(context *gin.Context) {
 	roleID := ep.RoleID
 
-	queriedUserID, err := ep.retrieveQueriedUserFromUri()
+	queriedUserID, err := ep.retrieveQueriedUserFromUri(context)
 	if err != nil {
 		return
 	}
 
 	if roleID.IsAdmin() {
 		// If the user is an admin, they can access any user's information
-		ep.getUserInformationAsAdmin(queriedUserID)
+		ep.getUserInformationAsAdmin(context, queriedUserID)
 		return
 	} else if roleID.IsSeller() {
-		ep.getUserInformationAsSeller(queriedUserID)
+		ep.getUserInformationAsSeller(context, queriedUserID)
 		return
 	} else if roleID.IsCashier() {
-		ep.getUserInformationAsCashier(queriedUserID)
+		ep.getUserInformationAsCashier(context, queriedUserID)
 		return
 	} else {
 		failure_response.Unknown(context, fmt.Sprintf("Bug: unhandled role %d", roleID))
@@ -137,18 +137,18 @@ func (ep *GetUserInformationEndpoint) execute() {
 	}
 }
 
-func (ep *GetUserInformationEndpoint) retrieveQueriedUserFromUri() (models.ID, error) {
+func (ep *GetUserInformationEndpoint) retrieveQueriedUserFromUri(context *gin.Context) (models.ID, error) {
 	logger := ep.Logger
 
 	// Retrieve id of user whose information is being requested
 	var uriParameters struct {
 		UserID string `binding:"required" uri:"id"`
 	}
-	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
+	if err := context.ShouldBindUri(&uriParameters); err != nil {
 		logger.AddInformation("error", err)
 		logger.InvalidInput("Invalid URI parameters")
 
-		failure_response.InvalidUriParameters(ep.Context, "Invalid URI parameters: "+err.Error())
+		failure_response.InvalidUriParameters(context, "Invalid URI parameters: "+err.Error())
 		return 0, err
 	}
 
@@ -159,7 +159,7 @@ func (ep *GetUserInformationEndpoint) retrieveQueriedUserFromUri() (models.ID, e
 		logger.AddInformation("userID", uriParameters.UserID)
 		logger.InvalidInput("Invalid user ID")
 
-		failure_response.InvalidUserID(ep.Context, err.Error())
+		failure_response.InvalidUserID(context, err.Error())
 
 		return 0, err
 	}
@@ -169,9 +169,8 @@ func (ep *GetUserInformationEndpoint) retrieveQueriedUserFromUri() (models.ID, e
 	return queriedUserID, nil
 }
 
-func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserID models.ID) {
+func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(context *gin.Context, queriedUserID models.ID) {
 	logger := ep.Logger
-	context := ep.Context
 	ctx := context.Request.Context()
 	db := ep.Database
 
@@ -285,9 +284,8 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsAdmin(queriedUserID mo
 	}
 }
 
-func (ep *GetUserInformationEndpoint) getUserInformationAsSeller(queriedUserID models.ID) {
+func (ep *GetUserInformationEndpoint) getUserInformationAsSeller(context *gin.Context, queriedUserID models.ID) {
 	logger := ep.Logger
-	context := ep.Context
 	ctx := context.Request.Context()
 	db := ep.Database
 	userID := ep.UserID
@@ -352,9 +350,8 @@ func (ep *GetUserInformationEndpoint) getUserInformationAsSeller(queriedUserID m
 	context.JSON(http.StatusOK, response)
 }
 
-func (ep *GetUserInformationEndpoint) getUserInformationAsCashier(queriedUserID models.ID) {
+func (ep *GetUserInformationEndpoint) getUserInformationAsCashier(context *gin.Context, queriedUserID models.ID) {
 	logger := ep.Logger
-	context := ep.Context
 	ctx := context.Request.Context()
 	db := ep.Database
 	userID := ep.UserID

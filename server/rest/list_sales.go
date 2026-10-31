@@ -5,6 +5,7 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -36,70 +37,70 @@ type getSalesQueryParameters struct {
 	orderedAntiChronologically bool
 }
 
-func GetSales(arguments *HandlerFunctionArguments) {
+func GetSales(context *gin.Context, arguments *HandlerFunctionArguments) {
 	endpoint := &getSalesEndpoint{
 		Endpoint: Endpoint{
 			HandlerFunctionArguments: *arguments,
 		},
 	}
 
-	endpoint.execute(arguments.Database)
+	endpoint.execute(context, arguments.Database)
 }
 
-func (ep *getSalesEndpoint) execute(database Database) {
-	if !ep.ensureUserIsAdmin() {
+func (ep *getSalesEndpoint) execute(context *gin.Context, database Database) {
+	if !ep.ensureUserIsAdmin(context) {
 		return
 	}
 
-	queryParameters, queryParametersOk := ep.parseQueryParameters()
+	queryParameters, queryParametersOk := ep.parseQueryParameters(context)
 	if !queryParametersOk {
 		return
 	}
 
-	response, responseOk := ep.fetchData(database, queryParameters)
+	response, responseOk := ep.fetchData(context, database, queryParameters)
 	if !responseOk {
 		return
 	}
 
-	ep.Context.IndentedJSON(http.StatusOK, response)
+	context.IndentedJSON(http.StatusOK, response)
 }
 
-func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSalesQueryParameters) (*ListSalesSuccessResponse, bool) {
+func (ep *getSalesEndpoint) fetchData(context *gin.Context, database Database, queryParameters *getSalesQueryParameters) (*ListSalesSuccessResponse, bool) {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 	transaction, err := database.StartTransaction(ctx)
 
 	if err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to create transaction")
 
-		failure_response.Unknown(ep.Context, "Failed to create transaction: "+err.Error())
+		failure_response.Unknown(context, "Failed to create transaction: "+err.Error())
 
 		return nil, false
 	}
 	defer transaction.RollbackIfNotCommitted()
 
-	sales, getSalesOk := ep.getSales(transaction, queryParameters)
+	sales, getSalesOk := ep.getSales(context, transaction, queryParameters)
 	if !getSalesOk {
 		return nil, false
 	}
 
-	saleCount, countSalesOk := ep.countSales(transaction)
+	saleCount, countSalesOk := ep.countSales(context, transaction)
 	if !countSalesOk {
 		return nil, false
 	}
 
-	totalSaleValue, getTotalSalesValueOk := ep.getTotalSalesValue(transaction)
+	totalSaleValue, getTotalSalesValueOk := ep.getTotalSalesValue(context, transaction)
 	if !getTotalSalesValueOk {
 		return nil, false
 	}
 
-	itemStatistics := ep.getItemStatistics(transaction)
+	itemStatistics := ep.getItemStatistics(context, transaction)
 	if itemStatistics == nil {
 		return nil, false
 	}
 
-	distinctSoldItemCount, totalSoldItemCount, countSoldItemsOk := ep.countSoldItems(transaction)
+	distinctSoldItemCount, totalSoldItemCount, countSoldItemsOk := ep.countSoldItems(context, transaction)
 	if !countSoldItemsOk {
 		return nil, false
 	}
@@ -119,7 +120,7 @@ func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSal
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to commit transaction")
 
-		failure_response.Unknown(ep.Context, "Failed to commit transaction: "+err.Error())
+		failure_response.Unknown(context, "Failed to commit transaction: "+err.Error())
 
 		return nil, false
 	}
@@ -127,9 +128,9 @@ func (ep *getSalesEndpoint) fetchData(database Database, queryParameters *getSal
 	return &response, true
 }
 
-func (ep *getSalesEndpoint) getItemStatistics(transaction *queries.TransactionalDatabaseQuerier) *queries.ItemStatisticsResult {
+func (ep *getSalesEndpoint) getItemStatistics(context *gin.Context, transaction *queries.TransactionalDatabaseQuerier) *queries.ItemStatisticsResult {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 	query := queries.NewGetItemStatisticsQuery()
 	query.WithHidden(false)
 	itemCountResult, err := query.Execute(ctx, transaction)
@@ -138,7 +139,7 @@ func (ep *getSalesEndpoint) getItemStatistics(transaction *queries.Transactional
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to get item count")
 
-		failure_response.Unknown(ep.Context, "Failed to get item count: "+err.Error())
+		failure_response.Unknown(context, "Failed to get item count: "+err.Error())
 
 		return nil
 	}
@@ -146,16 +147,16 @@ func (ep *getSalesEndpoint) getItemStatistics(transaction *queries.Transactional
 	return itemCountResult
 }
 
-func (ep *getSalesEndpoint) countSoldItems(transaction *queries.TransactionalDatabaseQuerier) (int, int, bool) {
+func (ep *getSalesEndpoint) countSoldItems(context *gin.Context, transaction *queries.TransactionalDatabaseQuerier) (int, int, bool) {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 	counts, err := queries.CountSoldItems(ctx, transaction)
 
 	if err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to get sold item count")
 
-		failure_response.Unknown(ep.Context, "Failed to get sold item count: "+err.Error())
+		failure_response.Unknown(context, "Failed to get sold item count: "+err.Error())
 
 		return 0, 0, false
 	}
@@ -163,16 +164,16 @@ func (ep *getSalesEndpoint) countSoldItems(transaction *queries.TransactionalDat
 	return counts.Distinct, counts.IncludeMultiples, true
 }
 
-func (ep *getSalesEndpoint) countSales(transaction *queries.TransactionalDatabaseQuerier) (int, bool) {
+func (ep *getSalesEndpoint) countSales(context *gin.Context, transaction *queries.TransactionalDatabaseQuerier) (int, bool) {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 	saleCount, err := queries.CountSales(ctx, transaction)
 
 	if err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to get sales count")
 
-		failure_response.Unknown(ep.Context, "Failed to get sales count: "+err.Error())
+		failure_response.Unknown(context, "Failed to get sales count: "+err.Error())
 
 		return 0, false
 	}
@@ -180,16 +181,16 @@ func (ep *getSalesEndpoint) countSales(transaction *queries.TransactionalDatabas
 	return saleCount, true
 }
 
-func (ep *getSalesEndpoint) getTotalSalesValue(transaction *queries.TransactionalDatabaseQuerier) (models.MoneyInCents, bool) {
+func (ep *getSalesEndpoint) getTotalSalesValue(context *gin.Context, transaction *queries.TransactionalDatabaseQuerier) (models.MoneyInCents, bool) {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 	totalValue, err := queries.GetTotalSalesValue(ctx, transaction)
 
 	if err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to get total sales value")
 
-		failure_response.Unknown(ep.Context, "Failed to get total sales value: "+err.Error())
+		failure_response.Unknown(context, "Failed to get total sales value: "+err.Error())
 
 		return 0, false
 	}
@@ -198,13 +199,13 @@ func (ep *getSalesEndpoint) getTotalSalesValue(transaction *queries.Transactiona
 
 }
 
-func (ep *getSalesEndpoint) ensureUserIsAdmin() bool {
+func (ep *getSalesEndpoint) ensureUserIsAdmin(context *gin.Context) bool {
 	logger := ep.Logger
 
 	if ep.RoleID != models.NewAdminRoleID() {
 		logger.InvalidRequest("Unauthorized access to list all sales")
 
-		failure_response.WrongRole(ep.Context, "Only admins can list all items")
+		failure_response.WrongRole(context, "Only admins can list all items")
 
 		return false
 	}
@@ -212,9 +213,9 @@ func (ep *getSalesEndpoint) ensureUserIsAdmin() bool {
 	return true
 }
 
-func (ep *getSalesEndpoint) getSales(transaction *queries.TransactionalDatabaseQuerier, queryParameters *getSalesQueryParameters) ([]*ListSalesSaleData, bool) {
+func (ep *getSalesEndpoint) getSales(context *gin.Context, transaction *queries.TransactionalDatabaseQuerier, queryParameters *getSalesQueryParameters) ([]*ListSalesSaleData, bool) {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 	sales := make([]*ListSalesSaleData, 0, 25)
 	processSale := func(sale *models.SaleSummary) error {
 		saleData := ListSalesSaleData{
@@ -235,7 +236,7 @@ func (ep *getSalesEndpoint) getSales(transaction *queries.TransactionalDatabaseQ
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to get sales")
 
-		failure_response.Unknown(ep.Context, "Failed to get sales: "+err.Error())
+		failure_response.Unknown(context, "Failed to get sales: "+err.Error())
 
 		return nil, false
 	}
@@ -276,18 +277,18 @@ func (ep *getSalesEndpoint) buildQuery(queryParameters *getSalesQueryParameters)
 	return query
 }
 
-func (ep *getSalesEndpoint) parseQueryParameters() (*getSalesQueryParameters, bool) {
-	startID, ok := ep.parseStartID()
+func (ep *getSalesEndpoint) parseQueryParameters(context *gin.Context) (*getSalesQueryParameters, bool) {
+	startID, ok := ep.parseStartID(context)
 	if !ok {
 		return nil, false
 	}
 
-	rowSelection := ep.parseRowRangeQueryParameters()
+	rowSelection := ep.parseRowRangeQueryParameters(context)
 	if rowSelection == nil {
 		return nil, false
 	}
 
-	order, ok := ep.parseOrderQueryParameter()
+	order, ok := ep.parseOrderQueryParameter(context)
 	if !ok {
 		return nil, false
 	}
@@ -302,16 +303,16 @@ func (ep *getSalesEndpoint) parseQueryParameters() (*getSalesQueryParameters, bo
 	return &queryParameters, true
 }
 
-func (ep *getSalesEndpoint) parseStartID() (*models.ID, bool) {
+func (ep *getSalesEndpoint) parseStartID(context *gin.Context) (*models.ID, bool) {
 	logger := ep.Logger
-	if startIDStr, exists := ep.Context.GetQuery("startId"); exists {
+	if startIDStr, exists := context.GetQuery("startId"); exists {
 		startID, err := models.ParseID(startIDStr)
 		if err != nil {
 			logger.AddInformation("startId", startIDStr)
 			logger.AddInformation("error", err)
 			logger.InvalidInput("Failed to parse startId parameter")
 
-			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Invalid startId parameter: "+err.Error())
+			failure_response.BadRequest(context, "invalid_uri_parameters", "Invalid startId parameter: "+err.Error())
 
 			return nil, false
 		}

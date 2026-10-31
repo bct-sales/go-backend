@@ -17,7 +17,6 @@ import (
 
 type HandlerFunctionArguments struct {
 	Clock         clock.Clock
-	Context       *gin.Context
 	Configuration *configuration.Configuration
 	Database      Database
 	UserID        models.ID
@@ -25,7 +24,7 @@ type HandlerFunctionArguments struct {
 	Logger        logger.RestLogger // This instance is unique to the request, meaning changes to the logger are localized
 }
 
-type HandlerFunction func(arguments *HandlerFunctionArguments)
+type HandlerFunction func(context *gin.Context, arguments *HandlerFunctionArguments)
 
 type Database interface {
 	queries.DatabaseQuerier
@@ -55,9 +54,9 @@ type Endpoint struct {
 // If it is missing, nil, true is returned.
 // If it is present and its value is a valid integer, the parsed integer and true are returned.
 // If it is present and its value is invalid, nil, false is returned.
-func (ep *Endpoint) parseOffsetQueryParameter() (*uint64, bool) {
+func (ep *Endpoint) parseOffsetQueryParameter(context *gin.Context) (*uint64, bool) {
 	logger := ep.Logger
-	offsetString := ep.Context.Query("offset")
+	offsetString := context.Query("offset")
 
 	if offsetString != "" {
 		parsedOffset, err := strconv.ParseUint(offsetString, 10, 64)
@@ -67,7 +66,7 @@ func (ep *Endpoint) parseOffsetQueryParameter() (*uint64, bool) {
 			logger.AddInformation("error", err)
 			logger.InvalidInput("Failed to parse offset")
 
-			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Failed to parse offset: "+err.Error())
+			failure_response.BadRequest(context, "invalid_uri_parameters", "Failed to parse offset: "+err.Error())
 
 			return nil, false
 		}
@@ -80,9 +79,9 @@ func (ep *Endpoint) parseOffsetQueryParameter() (*uint64, bool) {
 	}
 }
 
-func (ep *Endpoint) parseLimitQueryParameter() (*uint64, bool) {
+func (ep *Endpoint) parseLimitQueryParameter(context *gin.Context) (*uint64, bool) {
 	logger := ep.Logger
-	limitString := ep.Context.Query("limit")
+	limitString := context.Query("limit")
 
 	if limitString != "" {
 		parsedLimit, err := strconv.ParseUint(limitString, 10, 64)
@@ -92,7 +91,7 @@ func (ep *Endpoint) parseLimitQueryParameter() (*uint64, bool) {
 			logger.AddInformation("error", err)
 			logger.InvalidInput("Failed to parse limit")
 
-			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Failed to parse limit: "+err.Error())
+			failure_response.BadRequest(context, "invalid_uri_parameters", "Failed to parse limit: "+err.Error())
 
 			return nil, false
 		}
@@ -101,7 +100,7 @@ func (ep *Endpoint) parseLimitQueryParameter() (*uint64, bool) {
 			logger.AddInformation("limit", limitString)
 			logger.InvalidRequest("Invalid limit parameter")
 
-			failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Limit must be greater than 0")
+			failure_response.BadRequest(context, "invalid_uri_parameters", "Limit must be greater than 0")
 
 			return nil, false
 		}
@@ -114,13 +113,13 @@ func (ep *Endpoint) parseLimitQueryParameter() (*uint64, bool) {
 	}
 }
 
-func (ep *Endpoint) parseRowRangeQueryParameters() *queries.RowRange {
-	limit, limitOk := ep.parseLimitQueryParameter()
+func (ep *Endpoint) parseRowRangeQueryParameters(context *gin.Context) *queries.RowRange {
+	limit, limitOk := ep.parseLimitQueryParameter(context)
 	if !limitOk {
 		return nil
 	}
 
-	offset, offsetOk := ep.parseOffsetQueryParameter()
+	offset, offsetOk := ep.parseOffsetQueryParameter(context)
 	if !offsetOk {
 		return nil
 	}
@@ -133,9 +132,9 @@ func (ep *Endpoint) parseRowRangeQueryParameters() *queries.RowRange {
 	return &rowSelection
 }
 
-func (ep *Endpoint) parseOrderQueryParameter() (queries.Order, bool) {
+func (ep *Endpoint) parseOrderQueryParameter(context *gin.Context) (queries.Order, bool) {
 	logger := ep.Logger
-	order := ep.Context.Query("order")
+	order := context.Query("order")
 
 	switch order {
 	case "", "chronological":
@@ -146,7 +145,7 @@ func (ep *Endpoint) parseOrderQueryParameter() (queries.Order, bool) {
 		logger.AddInformation("order", order)
 		logger.InvalidInput("Invalid order parameter")
 
-		failure_response.BadRequest(ep.Context, "invalid_uri_parameters", "Order must be either 'chronological' or 'antichronological'")
+		failure_response.BadRequest(context, "invalid_uri_parameters", "Order must be either 'chronological' or 'antichronological'")
 
 		return 0, false
 	}
@@ -155,9 +154,9 @@ func (ep *Endpoint) parseOrderQueryParameter() (queries.Order, bool) {
 // parseBooleanQueryParameter looks for a query parameter with the given key.
 // The value must be either true or false.
 // If the value is missing, nil is returned.
-func (ep *Endpoint) parseBooleanQueryParameter(key string) (*bool, bool) {
+func (ep *Endpoint) parseBooleanQueryParameter(context *gin.Context, key string) (*bool, bool) {
 	logger := ep.Logger
-	value := ep.Context.Query(key)
+	value := context.Query(key)
 
 	switch value {
 	case "true":
@@ -176,14 +175,14 @@ func (ep *Endpoint) parseBooleanQueryParameter(key string) (*bool, bool) {
 		logger.AddInformation("query parameter value", value)
 		logger.InvalidInput("Invalid query parameter value")
 
-		failure_response.BadRequest(ep.Context, "invalid_uri_parameters", fmt.Sprintf("%s must be either true or false", key))
+		failure_response.BadRequest(context, "invalid_uri_parameters", fmt.Sprintf("%s must be either true or false", key))
 
 		return nil, false
 	}
 }
 
-func (ep *Endpoint) parseHiddenQueryParameter() (*bool, bool) {
-	return ep.parseBooleanQueryParameter("hidden")
+func (ep *Endpoint) parseHiddenQueryParameter(context *gin.Context) (*bool, bool) {
+	return ep.parseBooleanQueryParameter(context, "hidden")
 }
 
 type formatHandler interface {
@@ -192,9 +191,9 @@ type formatHandler interface {
 	handleJSONFormat()
 }
 
-func (ep *Endpoint) parseFormatQueryParameter(formatHandler formatHandler) {
+func (ep *Endpoint) parseFormatQueryParameter(context *gin.Context, formatHandler formatHandler) {
 	logger := ep.Logger
-	requestedFormat := ep.Context.Query("format")
+	requestedFormat := context.Query("format")
 
 	switch requestedFormat {
 	case "":
@@ -213,7 +212,7 @@ func (ep *Endpoint) parseFormatQueryParameter(formatHandler formatHandler) {
 		logger.AddInformation("format", requestedFormat)
 		logger.InvalidInput("Unknown format requested")
 
-		failure_response.Unknown(ep.Context, "Unknown format: "+requestedFormat)
+		failure_response.Unknown(context, "Unknown format: "+requestedFormat)
 
 		return
 	}

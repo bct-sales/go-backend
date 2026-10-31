@@ -8,6 +8,7 @@ import (
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
 	"errors"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -34,25 +35,25 @@ type getSaleInformationEndpoint struct {
 	Endpoint
 }
 
-func GetSaleInformation(arguments *HandlerFunctionArguments) {
+func GetSaleInformation(context *gin.Context, arguments *HandlerFunctionArguments) {
 	endpoint := &getSaleInformationEndpoint{
 		Endpoint: Endpoint{
 			HandlerFunctionArguments: *arguments,
 		},
 	}
 
-	endpoint.execute()
+	endpoint.execute(context)
 }
 
-func (ep *getSaleInformationEndpoint) execute() {
+func (ep *getSaleInformationEndpoint) execute(context *gin.Context) {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 
-	if !ep.ensureUserHasRightRole() {
+	if !ep.ensureUserHasRightRole(context) {
 		return
 	}
 
-	saleID, ok := ep.extractSaleIDFromUri()
+	saleID, ok := ep.extractSaleIDFromUri(context)
 	if !ok {
 		return
 	}
@@ -64,7 +65,7 @@ func (ep *getSaleInformationEndpoint) execute() {
 		if errors.Is(err, dberr.ErrNoSuchSale) {
 			logger.InvalidRequest("No such sale found")
 
-			failure_response.UnknownSale(ep.Context, err.Error())
+			failure_response.UnknownSale(context, err.Error())
 
 			return
 		}
@@ -72,7 +73,7 @@ func (ep *getSaleInformationEndpoint) execute() {
 		logger.AddInformation("error", err)
 		logger.InternalError("Could not retrieve sale information")
 
-		failure_response.Unknown(ep.Context, "Could not retrieve sale information: "+err.Error())
+		failure_response.Unknown(context, "Could not retrieve sale information: "+err.Error())
 
 		return
 	}
@@ -82,7 +83,7 @@ func (ep *getSaleInformationEndpoint) execute() {
 		logger.AddInformation("sale owner ID", sale.CashierID)
 		logger.InvalidRequest("Sale is not owned by the cashier")
 
-		failure_response.Forbidden(ep.Context, "wrong_sale", "Only accessible to cashiers and owning cashiers")
+		failure_response.Forbidden(context, "wrong_sale", "Only accessible to cashiers and owning cashiers")
 
 		return
 	}
@@ -92,7 +93,7 @@ func (ep *getSaleInformationEndpoint) execute() {
 		if errors.Is(err, dberr.ErrNoSuchSale) {
 			logger.AddInformation("saleID", saleID)
 			logger.Bug("No such sale found; should have been caught earlier")
-			failure_response.UnknownSale(ep.Context, err.Error())
+			failure_response.UnknownSale(context, err.Error())
 			return
 		}
 
@@ -100,7 +101,7 @@ func (ep *getSaleInformationEndpoint) execute() {
 		logger.AddInformation("error", err)
 		logger.InternalError("Could not retrieve sale items")
 
-		failure_response.Unknown(ep.Context, "Could not retrieve sale information: "+err.Error())
+		failure_response.Unknown(context, "Could not retrieve sale information: "+err.Error())
 
 		return
 	}
@@ -112,7 +113,7 @@ func (ep *getSaleInformationEndpoint) execute() {
 		Items:           algorithms.Map(saleItems, ep.convertSaleItemToData),
 	}
 
-	ep.Context.JSON(http.StatusOK, response)
+	context.JSON(http.StatusOK, response)
 }
 
 func (ep *getSaleInformationEndpoint) convertSaleItemToData(saleItem *models.Item) *GetSaleItemData {
@@ -129,29 +130,29 @@ func (ep *getSaleInformationEndpoint) convertSaleItemToData(saleItem *models.Ite
 	}
 }
 
-func (ep *getSaleInformationEndpoint) ensureUserHasRightRole() bool {
+func (ep *getSaleInformationEndpoint) ensureUserHasRightRole(context *gin.Context) bool {
 	logger := ep.Logger
 
 	if !ep.RoleID.IsAdmin() && !ep.RoleID.IsCashier() {
 		logger.InvalidRequest("User does not have the right role to access sale information")
-		failure_response.Forbidden(ep.Context, "wrong_role", "Only accessible to cashiers and owning cashiers")
+		failure_response.Forbidden(context, "wrong_role", "Only accessible to cashiers and owning cashiers")
 		return false
 	}
 
 	return true
 }
 
-func (ep *getSaleInformationEndpoint) extractSaleIDFromUri() (models.ID, bool) {
+func (ep *getSaleInformationEndpoint) extractSaleIDFromUri(context *gin.Context) (models.ID, bool) {
 	logger := ep.Logger
 
 	var uriParameters struct {
 		SaleID string `binding:"required" uri:"id"`
 	}
-	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
+	if err := context.ShouldBindUri(&uriParameters); err != nil {
 		logger.AddInformation("error", err)
 		logger.InvalidInput("Invalid URI parameters")
 
-		failure_response.InvalidUriParameters(ep.Context, "Invalid URI parameters: "+err.Error())
+		failure_response.InvalidUriParameters(context, "Invalid URI parameters: "+err.Error())
 
 		return 0, false
 	}
@@ -162,7 +163,7 @@ func (ep *getSaleInformationEndpoint) extractSaleIDFromUri() (models.ID, bool) {
 		logger.AddInformation("error", err)
 		logger.InvalidInput("Invalid sale ID")
 
-		failure_response.InvalidSaleID(ep.Context, err.Error())
+		failure_response.InvalidSaleID(context, err.Error())
 
 		return 0, false
 	}

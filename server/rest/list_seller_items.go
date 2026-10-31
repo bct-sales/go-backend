@@ -8,6 +8,7 @@ import (
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
 	"errors"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -28,54 +29,54 @@ type ListSellerItemsSuccessResponse struct {
 	Items []*ListSellerItemsItemData `json:"items"`
 }
 
-func ListSellerItems(arguments *HandlerFunctionArguments) {
+func ListSellerItems(context *gin.Context, arguments *HandlerFunctionArguments) {
 	endpoint := listSellerItemsEndpoint{
 		Endpoint: Endpoint{
 			HandlerFunctionArguments: *arguments,
 		},
 	}
 
-	endpoint.execute()
+	endpoint.execute(context)
 }
 
 type listSellerItemsEndpoint struct {
 	Endpoint
 }
 
-func (ep *listSellerItemsEndpoint) execute() {
-	if !ep.ensureUserHasRightRole() {
+func (ep *listSellerItemsEndpoint) execute(context *gin.Context) {
+	if !ep.ensureUserHasRightRole(context) {
 		return
 	}
 
-	queriedSellerID, sellerIDOk := ep.extractSellerIDFromURI()
+	queriedSellerID, sellerIDOk := ep.extractSellerIDFromURI(context)
 	if !sellerIDOk {
 		return
 	}
 
-	if !ep.ensureQueriedUserIsSeller(queriedSellerID) {
+	if !ep.ensureQueriedUserIsSeller(context, queriedSellerID) {
 		return
 	}
-	if !ep.ensureUserHasPermissions(queriedSellerID) {
+	if !ep.ensureUserHasPermissions(context, queriedSellerID) {
 		return
 	}
 
-	itemSelection := ep.extractItemSelectionFromQueryParameters()
+	itemSelection := ep.extractItemSelectionFromQueryParameters(context)
 
-	items, itemsOk := ep.fetchSellerItemsFromDatabase(queriedSellerID, itemSelection)
+	items, itemsOk := ep.fetchSellerItemsFromDatabase(context, queriedSellerID, itemSelection)
 	if !itemsOk {
 		return
 	}
 
-	ep.sendSuccessResponse(items)
+	ep.sendSuccessResponse(context, items)
 }
 
-func (ep *listSellerItemsEndpoint) ensureUserHasRightRole() bool {
+func (ep *listSellerItemsEndpoint) ensureUserHasRightRole(context *gin.Context) bool {
 	logger := ep.Logger
 
 	if !ep.RoleID.IsSeller() && !ep.RoleID.IsAdmin() {
 		logger.InvalidRequest("User lacks permissions to access seller items")
 
-		failure_response.Forbidden(ep.Context, "wrong_role", "Only accessible to sellers and admins")
+		failure_response.Forbidden(context, "wrong_role", "Only accessible to sellers and admins")
 
 		return false
 	}
@@ -83,17 +84,17 @@ func (ep *listSellerItemsEndpoint) ensureUserHasRightRole() bool {
 	return true
 }
 
-func (ep *listSellerItemsEndpoint) extractSellerIDFromURI() (models.ID, bool) {
+func (ep *listSellerItemsEndpoint) extractSellerIDFromURI(context *gin.Context) (models.ID, bool) {
 	logger := ep.Logger
 	var uriParameters struct {
 		SellerID string `binding:"required" uri:"id"`
 	}
 
-	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
+	if err := context.ShouldBindUri(&uriParameters); err != nil {
 		logger.AddInformation("error", err)
 		logger.InvalidInput("Failed to bind URI parameters for GetSellerItems")
 
-		failure_response.InvalidUriParameters(ep.Context, err.Error())
+		failure_response.InvalidUriParameters(context, err.Error())
 
 		return 0, false
 	}
@@ -104,7 +105,7 @@ func (ep *listSellerItemsEndpoint) extractSellerIDFromURI() (models.ID, bool) {
 		logger.AddInformation("error", err)
 		logger.InvalidInput("Failed to parse seller ID from URI")
 
-		failure_response.InvalidUserID(ep.Context, err.Error())
+		failure_response.InvalidUserID(context, err.Error())
 
 		return 0, false
 	}
@@ -114,9 +115,9 @@ func (ep *listSellerItemsEndpoint) extractSellerIDFromURI() (models.ID, bool) {
 	return uriSellerID, true
 }
 
-func (ep *listSellerItemsEndpoint) ensureQueriedUserIsSeller(queriedSellerID models.ID) bool {
+func (ep *listSellerItemsEndpoint) ensureQueriedUserIsSeller(context *gin.Context, queriedSellerID models.ID) bool {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 
 	if err := queries.EnsureUserExistsAndHasRole(ctx, ep.Database, queriedSellerID, models.NewSellerRoleID()); err != nil {
 		logger.AddInformation("error", err)
@@ -124,7 +125,7 @@ func (ep *listSellerItemsEndpoint) ensureQueriedUserIsSeller(queriedSellerID mod
 		if errors.Is(err, dberr.ErrNoSuchUser) {
 			logger.InvalidRequest("Seller does not exist")
 
-			failure_response.UnknownUser(ep.Context, err.Error())
+			failure_response.UnknownUser(context, err.Error())
 
 			return false
 		}
@@ -132,14 +133,14 @@ func (ep *listSellerItemsEndpoint) ensureQueriedUserIsSeller(queriedSellerID mod
 		if errors.Is(err, dberr.ErrWrongRole) {
 			logger.InvalidRequest("Can only list items of sellers")
 
-			failure_response.WrongUser(ep.Context, "Can only list items of sellers")
+			failure_response.WrongUser(context, "Can only list items of sellers")
 
 			return false
 		}
 
 		logger.InternalError("Could not check user role")
 
-		failure_response.Unknown(ep.Context, "Could not check user role: "+err.Error())
+		failure_response.Unknown(context, "Could not check user role: "+err.Error())
 
 		return false
 	}
@@ -147,13 +148,13 @@ func (ep *listSellerItemsEndpoint) ensureQueriedUserIsSeller(queriedSellerID mod
 	return true
 }
 
-func (ep *listSellerItemsEndpoint) ensureUserHasPermissions(queriedSellerID models.ID) bool {
+func (ep *listSellerItemsEndpoint) ensureUserHasPermissions(context *gin.Context, queriedSellerID models.ID) bool {
 	logger := ep.Logger
 
 	if ep.UserID != queriedSellerID && !ep.RoleID.IsAdmin() {
 		logger.InvalidRequest("Logged in user does not match URI seller ID")
 
-		failure_response.WrongSeller(ep.Context, "Logged in user does not match URI seller ID")
+		failure_response.WrongSeller(context, "Logged in user does not match URI seller ID")
 
 		return false
 	}
@@ -161,8 +162,8 @@ func (ep *listSellerItemsEndpoint) ensureUserHasPermissions(queriedSellerID mode
 	return true
 }
 
-func (ep *listSellerItemsEndpoint) extractItemSelectionFromQueryParameters() queries.ItemSelection {
-	switch ep.Context.Query("items") {
+func (ep *listSellerItemsEndpoint) extractItemSelectionFromQueryParameters(context *gin.Context) queries.ItemSelection {
+	switch context.Query("items") {
 	case "all":
 		return queries.AllItems
 	case "hidden":
@@ -172,16 +173,16 @@ func (ep *listSellerItemsEndpoint) extractItemSelectionFromQueryParameters() que
 	}
 }
 
-func (ep *listSellerItemsEndpoint) fetchSellerItemsFromDatabase(queriedSellerID models.ID, itemSelection queries.ItemSelection) ([]*models.Item, bool) {
+func (ep *listSellerItemsEndpoint) fetchSellerItemsFromDatabase(context *gin.Context, queriedSellerID models.ID, itemSelection queries.ItemSelection) ([]*models.Item, bool) {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 	items, err := queries.GetSellerItems(ctx, ep.Database, queriedSellerID, itemSelection)
 
 	if err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Could not retrieve seller items")
 
-		failure_response.Unknown(ep.Context, "Could not retrieve seller items: "+err.Error())
+		failure_response.Unknown(context, "Could not retrieve seller items: "+err.Error())
 
 		return nil, false
 	}
@@ -189,7 +190,7 @@ func (ep *listSellerItemsEndpoint) fetchSellerItemsFromDatabase(queriedSellerID 
 	return items, true
 }
 
-func (ep *listSellerItemsEndpoint) sendSuccessResponse(items []*models.Item) {
+func (ep *listSellerItemsEndpoint) sendSuccessResponse(context *gin.Context, items []*models.Item) {
 	successResponse := ListSellerItemsSuccessResponse{Items: algorithms.Map(items, func(item *models.Item) *ListSellerItemsItemData {
 		return &ListSellerItemsItemData{
 			ItemID:       item.ItemID,
@@ -205,5 +206,5 @@ func (ep *listSellerItemsEndpoint) sendSuccessResponse(items []*models.Item) {
 		}
 	})}
 
-	ep.Context.IndentedJSON(http.StatusOK, successResponse)
+	context.IndentedJSON(http.StatusOK, successResponse)
 }

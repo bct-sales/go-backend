@@ -6,6 +6,7 @@ import (
 	"bctbackend/database/queries"
 	"bctbackend/server/failure_response"
 	"errors"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -22,69 +23,69 @@ type AddSellerItemResponse struct {
 	ItemID models.ID `json:"itemId"`
 }
 
-func AddSellerItem(arguments *HandlerFunctionArguments) {
+func AddSellerItem(context *gin.Context, arguments *HandlerFunctionArguments) {
 	endpoint := addSellerItemEndpoint{
 		Endpoint: Endpoint{
 			HandlerFunctionArguments: *arguments,
 		},
 	}
 
-	endpoint.execute()
+	endpoint.execute(context)
 }
 
 type addSellerItemEndpoint struct {
 	Endpoint
 }
 
-func (ep *addSellerItemEndpoint) execute() {
-	if !ep.ensureUserIsSeller() {
+func (ep *addSellerItemEndpoint) execute(context *gin.Context) {
+	if !ep.ensureUserIsSeller(context) {
 		return
 	}
 
-	uriSellerID, parseOk := ep.parseURI()
+	uriSellerID, parseOk := ep.parseURI(context)
 	if !parseOk {
 		return
 	}
 
-	if !ep.ensureValidity(uriSellerID) {
+	if !ep.ensureValidity(context, uriSellerID) {
 		return
 	}
 
-	payload := ep.parsePayload()
+	payload := ep.parsePayload(context)
 	if payload == nil {
 		return
 	}
 
-	itemID, itemAddedOk := ep.addItemToDatabase(payload)
+	itemID, itemAddedOk := ep.addItemToDatabase(context, payload)
 	if !itemAddedOk {
 		return
 	}
 
-	ep.sendSuccessResponse(itemID)
+	ep.sendSuccessResponse(context, itemID)
 }
 
-func (ep *addSellerItemEndpoint) ensureUserIsSeller() bool {
+func (ep *addSellerItemEndpoint) ensureUserIsSeller(context *gin.Context) bool {
 	if !ep.RoleID.IsSeller() {
 		ep.Logger.InvalidRequest("Blocked attempt to add item with wrong role")
-		failure_response.WrongRole(ep.Context, "Must be seller to add item")
+		failure_response.WrongRole(context, "Must be seller to add item")
 		return false
 	}
 
 	return true
 }
 
-func (ep *addSellerItemEndpoint) parseURI() (models.ID, bool) {
+func (ep *addSellerItemEndpoint) parseURI(context *gin.Context) (models.ID, bool) {
 	logger := ep.Logger
 
 	var uriParameters struct {
 		SellerID string `binding:"required" uri:"id"`
 	}
-	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
+	if err := context.ShouldBindUri(&uriParameters); err != nil {
 		logger.AddInformation("error", err)
 		logger.AddInformation("uriParameters", uriParameters)
 		logger.InvalidInput("Failed to parse URI parameters")
 
-		failure_response.InvalidUriParameters(ep.Context, err.Error())
+		failure_response.InvalidUriParameters(context, err.Error())
 
 		return 0, false
 	}
@@ -95,7 +96,7 @@ func (ep *addSellerItemEndpoint) parseURI() (models.ID, bool) {
 		logger.AddInformation("error", err)
 		logger.InvalidInput("Failed to parse seller ID from URI")
 
-		failure_response.InvalidUserID(ep.Context, err.Error())
+		failure_response.InvalidUserID(context, err.Error())
 
 		return 0, false
 	}
@@ -103,9 +104,9 @@ func (ep *addSellerItemEndpoint) parseURI() (models.ID, bool) {
 	return uriSellerID, true
 }
 
-func (ep *addSellerItemEndpoint) ensureValidity(uriSellerID models.ID) bool {
+func (ep *addSellerItemEndpoint) ensureValidity(context *gin.Context, uriSellerID models.ID) bool {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 
 	sellerExists, err := queries.UserWithIDExists(ctx, ep.Database, uriSellerID)
 
@@ -114,7 +115,7 @@ func (ep *addSellerItemEndpoint) ensureValidity(uriSellerID models.ID) bool {
 		logger.AddInformation("sellerId", uriSellerID)
 		logger.InternalError("Failed to check if seller exists")
 
-		failure_response.Unknown(ep.Context, err.Error())
+		failure_response.Unknown(context, err.Error())
 
 		return false
 	}
@@ -123,7 +124,7 @@ func (ep *addSellerItemEndpoint) ensureValidity(uriSellerID models.ID) bool {
 		logger.AddInformation("sellerId", uriSellerID)
 		logger.InvalidRequest("Blocked attempt to add item for non-existing seller")
 
-		failure_response.UnknownUser(ep.Context, "Seller does not exist")
+		failure_response.UnknownUser(context, "Seller does not exist")
 
 		return false
 	}
@@ -132,7 +133,7 @@ func (ep *addSellerItemEndpoint) ensureValidity(uriSellerID models.ID) bool {
 		logger.AddInformation("sellerId", uriSellerID)
 		ep.Logger.InvalidRequest("Blocked attempt to add item for different seller")
 
-		failure_response.WrongSeller(ep.Context, "Logged in user does not match URI seller ID")
+		failure_response.WrongSeller(context, "Logged in user does not match URI seller ID")
 
 		return false
 	}
@@ -140,15 +141,15 @@ func (ep *addSellerItemEndpoint) ensureValidity(uriSellerID models.ID) bool {
 	return true
 }
 
-func (ep *addSellerItemEndpoint) parsePayload() *AddSellerItemPayload {
+func (ep *addSellerItemEndpoint) parsePayload(context *gin.Context) *AddSellerItemPayload {
 	logger := ep.Logger
 
 	var payload AddSellerItemPayload
-	if err := ep.Context.ShouldBindJSON(&payload); err != nil {
+	if err := context.ShouldBindJSON(&payload); err != nil {
 		logger.AddInformation("error", err)
 		ep.Logger.InvalidInput("Failed to parse AddSellerItem payload")
 
-		failure_response.InvalidRequest(ep.Context, err.Error())
+		failure_response.InvalidRequest(context, err.Error())
 		return nil
 	}
 
@@ -157,45 +158,45 @@ func (ep *addSellerItemEndpoint) parsePayload() *AddSellerItemPayload {
 	return &payload
 }
 
-func (ep *addSellerItemEndpoint) interpretDatabaseError(err error, payload *AddSellerItemPayload) {
+func (ep *addSellerItemEndpoint) interpretDatabaseError(context *gin.Context, err error, payload *AddSellerItemPayload) {
 	logger := ep.Logger
 
 	if errors.Is(err, dberr.ErrNoSuchCategory) {
 		logger.InvalidRequest("Blocked attempt to add item with unknown category")
-		failure_response.UnknownCategory(ep.Context, err.Error())
+		failure_response.UnknownCategory(context, err.Error())
 		return
 	}
 
 	if errors.Is(err, dberr.ErrNoSuchUser) {
 		logger.InvalidRequest("Blocked attempt to add item for non-existing user")
-		failure_response.UnknownUser(ep.Context, err.Error())
+		failure_response.UnknownUser(context, err.Error())
 		return
 	}
 
 	if errors.Is(err, dberr.ErrWrongRole) {
 		logger.Bug("[BUG] Failed to add item to non-seller; this error should have been caught earlier")
-		failure_response.Unknown(ep.Context, "Bug: this error should not happen")
+		failure_response.Unknown(context, "Bug: this error should not happen")
 		return
 	}
 
 	if errors.Is(err, dberr.ErrInvalidPrice) {
 		logger.InvalidRequest("Blocked attempt to add item with invalid price")
-		failure_response.InvalidPrice(ep.Context, err.Error())
+		failure_response.InvalidPrice(context, err.Error())
 		return
 	}
 
 	if errors.Is(err, dberr.ErrInvalidItemDescription) {
 		logger.InvalidRequest("Blocked attempt to add item with invalid description")
-		failure_response.InvalidItemDescription(ep.Context, err.Error())
+		failure_response.InvalidItemDescription(context, err.Error())
 		return
 	}
 
 	ep.Logger.InternalError("Failed to add seller item")
-	failure_response.Unknown(ep.Context, err.Error())
+	failure_response.Unknown(context, err.Error())
 }
 
-func (ep *addSellerItemEndpoint) addItemToDatabase(payload *AddSellerItemPayload) (models.ID, bool) {
-	ctx := ep.Context.Request.Context()
+func (ep *addSellerItemEndpoint) addItemToDatabase(context *gin.Context, payload *AddSellerItemPayload) (models.ID, bool) {
+	ctx := context.Request.Context()
 	timestamp := ep.Clock.Now()
 	itemID, err := queries.AddItem(
 		ctx,
@@ -213,14 +214,14 @@ func (ep *addSellerItemEndpoint) addItemToDatabase(payload *AddSellerItemPayload
 	)
 
 	if err != nil {
-		ep.interpretDatabaseError(err, payload)
+		ep.interpretDatabaseError(context, err, payload)
 		return 0, false
 	}
 
 	return itemID, true
 }
 
-func (ep *addSellerItemEndpoint) sendSuccessResponse(itemID models.ID) {
+func (ep *addSellerItemEndpoint) sendSuccessResponse(context *gin.Context, itemID models.ID) {
 	response := AddSellerItemResponse{ItemID: itemID}
-	ep.Context.JSON(http.StatusCreated, response)
+	context.JSON(http.StatusCreated, response)
 }

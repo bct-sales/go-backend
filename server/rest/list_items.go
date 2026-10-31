@@ -9,6 +9,7 @@ import (
 	rest "bctbackend/server/shared"
 	"bytes"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
@@ -43,55 +44,55 @@ type listItemsParameters struct {
 	rowRange           queries.RowRange
 }
 
-func ListItems(arguments *HandlerFunctionArguments) {
+func ListItems(context *gin.Context, arguments *HandlerFunctionArguments) {
 	endpoint := &listItemsEndpoint{
 		Endpoint: Endpoint{
 			HandlerFunctionArguments: *arguments,
 		},
 	}
 
-	endpoint.execute()
+	endpoint.execute(context)
 }
 
 type listItemsEndpoint struct {
 	Endpoint
 }
 
-func (ep *listItemsEndpoint) execute() {
-	if !ep.ensureUserHasCorrectRole() {
+func (ep *listItemsEndpoint) execute(context *gin.Context) {
+	if !ep.ensureUserHasCorrectRole(context) {
 		return
 	}
 
-	parameters := ep.parseParameters()
+	parameters := ep.parseParameters(context)
 	if parameters == nil {
 		return
 	}
 
-	items, itemsOk := ep.fetchItemsFromDatabase(parameters)
+	items, itemsOk := ep.fetchItemsFromDatabase(context, parameters)
 	if !itemsOk {
 		return
 	}
 
-	ep.sendSuccessResponse(items, parameters)
+	ep.sendSuccessResponse(context, items, parameters)
 }
 
-func (ep *listItemsEndpoint) parseParameters() *listItemsParameters {
-	category, categoryOk := ep.parseCategoryQueryParameter()
+func (ep *listItemsEndpoint) parseParameters(context *gin.Context) *listItemsParameters {
+	category, categoryOk := ep.parseCategoryQueryParameter(context)
 	if !categoryOk {
 		return nil
 	}
 
-	rowRange := ep.parseRowRangeQueryParameters()
+	rowRange := ep.parseRowRangeQueryParameters(context)
 	if rowRange == nil {
 		return nil
 	}
 
-	hidden, hiddenOk := ep.parseHiddenQueryParameter()
+	hidden, hiddenOk := ep.parseHiddenQueryParameter(context)
 	if !hiddenOk {
 		return nil
 	}
 
-	descriptionPattern, descriptionPatternOk := ep.parseDescriptionQueryParameter()
+	descriptionPattern, descriptionPatternOk := ep.parseDescriptionQueryParameter(context)
 	if !descriptionPatternOk {
 		return nil
 	}
@@ -104,8 +105,8 @@ func (ep *listItemsEndpoint) parseParameters() *listItemsParameters {
 	}
 }
 
-func (ep *listItemsEndpoint) parseDescriptionQueryParameter() (*string, bool) {
-	parameterValue := ep.Context.Query("description")
+func (ep *listItemsEndpoint) parseDescriptionQueryParameter(context *gin.Context) (*string, bool) {
+	parameterValue := context.Query("description")
 
 	if parameterValue == "" {
 		return nil, true
@@ -138,9 +139,9 @@ func (ep *listItemsEndpoint) buildSQLQuery(parameters *listItemsParameters) *que
 	return query
 }
 
-func (ep *listItemsEndpoint) parseCategoryQueryParameter() (*models.ID, bool) {
+func (ep *listItemsEndpoint) parseCategoryQueryParameter(context *gin.Context) (*models.ID, bool) {
 	logger := ep.Logger
-	parameterValue := ep.Context.Query("category")
+	parameterValue := context.Query("category")
 
 	// If no category query parameter is present, no filtering needs to occur
 	if parameterValue == "" {
@@ -152,7 +153,7 @@ func (ep *listItemsEndpoint) parseCategoryQueryParameter() (*models.ID, bool) {
 		logger.AddInformation("category", parameterValue)
 		logger.InvalidInput("Invalid category parameter")
 
-		failure_response.InvalidUriParameters(ep.Context, "invalid category identifier")
+		failure_response.InvalidUriParameters(context, "invalid category identifier")
 
 		return nil, false
 	}
@@ -161,13 +162,13 @@ func (ep *listItemsEndpoint) parseCategoryQueryParameter() (*models.ID, bool) {
 	return &categoryID, true
 }
 
-func (ep *listItemsEndpoint) ensureUserHasCorrectRole() bool {
+func (ep *listItemsEndpoint) ensureUserHasCorrectRole(context *gin.Context) bool {
 	logger := ep.Logger
 
 	if ep.RoleID != models.NewAdminRoleID() && ep.RoleID != models.NewCashierRoleID() {
 		logger.InvalidRequest("Unauthorized access attempt to list all items")
 
-		failure_response.WrongRole(ep.Context, "Only admins and cashiers can list all items")
+		failure_response.WrongRole(context, "Only admins and cashiers can list all items")
 
 		return false
 	}
@@ -175,9 +176,9 @@ func (ep *listItemsEndpoint) ensureUserHasCorrectRole() bool {
 	return true
 }
 
-func (ep *listItemsEndpoint) fetchItemsFromDatabase(parameters *listItemsParameters) ([]*models.Item, bool) {
+func (ep *listItemsEndpoint) fetchItemsFromDatabase(context *gin.Context, parameters *listItemsParameters) ([]*models.Item, bool) {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 	var items []*models.Item
 
 	query := ep.buildSQLQuery(parameters)
@@ -185,7 +186,7 @@ func (ep *listItemsEndpoint) fetchItemsFromDatabase(parameters *listItemsParamet
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to get items")
 
-		failure_response.Unknown(ep.Context, "Failed to get items: "+err.Error())
+		failure_response.Unknown(context, "Failed to get items: "+err.Error())
 
 		return nil, false
 	}
@@ -193,19 +194,19 @@ func (ep *listItemsEndpoint) fetchItemsFromDatabase(parameters *listItemsParamet
 	return items, true
 }
 
-func (ep *listItemsEndpoint) sendSuccessResponse(items []*models.Item, parameters *listItemsParameters) {
+func (ep *listItemsEndpoint) sendSuccessResponse(context *gin.Context, items []*models.Item, parameters *listItemsParameters) {
 	formatHandler := formatHandlerAdapter{
-		handleDefaultFormatFunc: func() { ep.sendResponseAsJSON(items, parameters) },
-		handleJSONFormatFunc:    func() { ep.sendResponseAsJSONFile(items) },
-		handleCSVFormatFunc:     func() { ep.sendResponseAsCSVFile(items) },
+		handleDefaultFormatFunc: func() { ep.sendResponseAsJSON(context, items, parameters) },
+		handleJSONFormatFunc:    func() { ep.sendResponseAsJSONFile(context, items) },
+		handleCSVFormatFunc:     func() { ep.sendResponseAsCSVFile(context, items) },
 	}
-	ep.parseFormatQueryParameter(&formatHandler)
+	ep.parseFormatQueryParameter(context, &formatHandler)
 }
 
-func (ep *listItemsEndpoint) sendResponseAsJSON(items []*models.Item, parameters *listItemsParameters) {
+func (ep *listItemsEndpoint) sendResponseAsJSON(context *gin.Context, items []*models.Item, parameters *listItemsParameters) {
 	itemsData := ep.convertData(items)
 
-	itemStatistics, statsOk := ep.getItemStatistics(parameters)
+	itemStatistics, statsOk := ep.getItemStatistics(context, parameters)
 	if !statsOk {
 		return
 	}
@@ -215,12 +216,12 @@ func (ep *listItemsEndpoint) sendResponseAsJSON(items []*models.Item, parameters
 		ListItemsStatistics: *itemStatistics,
 	}
 
-	ep.Context.IndentedJSON(http.StatusOK, response)
+	context.IndentedJSON(http.StatusOK, response)
 }
 
-func (ep *listItemsEndpoint) getItemStatistics(parameters *listItemsParameters) (*ListItemsStatistics, bool) {
+func (ep *listItemsEndpoint) getItemStatistics(context *gin.Context, parameters *listItemsParameters) (*ListItemsStatistics, bool) {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 	query := queries.NewGetItemStatisticsQuery()
 
 	if parameters.hidden != nil {
@@ -240,7 +241,7 @@ func (ep *listItemsEndpoint) getItemStatistics(parameters *listItemsParameters) 
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to count items")
 
-		failure_response.Unknown(ep.Context, "Failed to count items: "+err.Error())
+		failure_response.Unknown(context, "Failed to count items: "+err.Error())
 
 		return nil, false
 	}
@@ -270,44 +271,44 @@ func (ep *listItemsEndpoint) convertData(items []*models.Item) []ListItemsItemDa
 	})
 }
 
-func (ep *listItemsEndpoint) sendResponseAsJSONFile(items []*models.Item) {
+func (ep *listItemsEndpoint) sendResponseAsJSONFile(context *gin.Context, items []*models.Item) {
 	convertedData := ep.convertData(items)
 
-	ep.Context.Header("Content-Type", "application/json")
-	ep.Context.Header("Content-Disposition", "attachment; filename=\"items.json\"")
-	ep.Context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
-	ep.Context.Header("Pragma", "no-cache")
-	ep.Context.IndentedJSON(http.StatusOK, convertedData)
+	context.Header("Content-Type", "application/json")
+	context.Header("Content-Disposition", "attachment; filename=\"items.json\"")
+	context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	context.Header("Pragma", "no-cache")
+	context.IndentedJSON(http.StatusOK, convertedData)
 }
 
-func (ep *listItemsEndpoint) sendResponseAsCSVFile(items []*models.Item) {
+func (ep *listItemsEndpoint) sendResponseAsCSVFile(context *gin.Context, items []*models.Item) {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 	categoryNameTable, err := queries.GetCategoryNameTable(ctx, ep.Database)
 
 	if err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to get category map")
 
-		failure_response.Unknown(ep.Context, "Failed to get category map: "+err.Error())
+		failure_response.Unknown(context, "Failed to get category map: "+err.Error())
 
 		return
 	}
 
-	ep.Context.Header("Content-Type", "text/csv")
-	ep.Context.Header("Content-Disposition", "attachment; filename=\"items.csv\"")
-	ep.Context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
-	ep.Context.Header("Pragma", "no-cache")
+	context.Header("Content-Type", "text/csv")
+	context.Header("Content-Disposition", "attachment; filename=\"items.csv\"")
+	context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	context.Header("Pragma", "no-cache")
 
 	buffer := new(bytes.Buffer)
 	if err := csv.FormatItemsAsCSV(items, categoryNameTable, buffer); err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to format items as CSV")
 
-		failure_response.Unknown(ep.Context, "Failed to format items as CSV: "+err.Error())
+		failure_response.Unknown(context, "Failed to format items as CSV: "+err.Error())
 
 		return
 	}
 	string := buffer.String()
-	ep.Context.String(http.StatusOK, string)
+	context.String(http.StatusOK, string)
 }

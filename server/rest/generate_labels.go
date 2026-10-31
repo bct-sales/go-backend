@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -40,61 +41,61 @@ type generateLabelsEndpoint struct {
 	Endpoint
 }
 
-func GenerateLabels(arguments *HandlerFunctionArguments) {
+func GenerateLabels(context *gin.Context, arguments *HandlerFunctionArguments) {
 	endpoint := &generateLabelsEndpoint{
 		Endpoint: Endpoint{
 			HandlerFunctionArguments: *arguments,
 		},
 	}
 
-	endpoint.execute()
+	endpoint.execute(context)
 }
 
-func (ep *generateLabelsEndpoint) execute() {
-	if !ep.ensureUserIsSeller() {
+func (ep *generateLabelsEndpoint) execute(context *gin.Context) {
+	if !ep.ensureUserIsSeller(context) {
 		return
 	}
 
-	payload := ep.parsePayload()
+	payload := ep.parsePayload(context)
 	if payload == nil {
 		return
 	}
 
-	if !ep.validatePayload(payload) {
+	if !ep.validatePayload(context, payload) {
 		return
 	}
 
-	itemTable := ep.retrieveItemsFromDatabase(payload.ItemIDs)
+	itemTable := ep.retrieveItemsFromDatabase(context, payload.ItemIDs)
 	if itemTable == nil {
 		return
 	}
 
-	if !ep.checkItemOwnership(itemTable) {
+	if !ep.checkItemOwnership(context, itemTable) {
 		return
 	}
 
-	labelData := ep.collectLabelData(ep.Database, itemTable, payload.ItemIDs)
+	labelData := ep.collectLabelData(context, ep.Database, itemTable, payload.ItemIDs)
 	if labelData == nil {
 		return
 	}
 
-	layoutSettings := ep.createLayoutSettings(payload)
+	layoutSettings := ep.createLayoutSettings(context, payload)
 	if layoutSettings == nil {
 		return
 	}
 
-	buffer := ep.generatePdf(labelData, layoutSettings)
+	buffer := ep.generatePdf(context, labelData, layoutSettings)
 	if buffer == nil {
 		return
 	}
 
 	// Do this last, to ensure items are only frozen if the PDF was generated successfully
-	if !ep.freezeItems(ep.Database, payload.ItemIDs) {
+	if !ep.freezeItems(context, ep.Database, payload.ItemIDs) {
 		return
 	}
 
-	ep.Context.Header("Content-Disposition", "attachment; filename=labels.pdf")
-	ep.Context.DataFromReader(
+	context.Header("Content-Disposition", "attachment; filename=labels.pdf")
+	context.DataFromReader(
 		http.StatusOK,
 		int64(buffer.Len()),
 		"application/pdf",
@@ -103,16 +104,16 @@ func (ep *generateLabelsEndpoint) execute() {
 	)
 }
 
-func (ep *generateLabelsEndpoint) freezeItems(db Database, itemIDs []models.ID) bool {
+func (ep *generateLabelsEndpoint) freezeItems(context *gin.Context, db Database, itemIDs []models.ID) bool {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 	transaction, err := db.StartTransaction(ctx)
 
 	if err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to start transaction")
 
-		failure_response.Unknown(ep.Context, "Failed to start transaction while freezing items: "+err.Error())
+		failure_response.Unknown(context, "Failed to start transaction while freezing items: "+err.Error())
 
 		return false
 	}
@@ -122,7 +123,7 @@ func (ep *generateLabelsEndpoint) freezeItems(db Database, itemIDs []models.ID) 
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to freeze items")
 
-		failure_response.Unknown(ep.Context, "Failed to freeze items: "+err.Error())
+		failure_response.Unknown(context, "Failed to freeze items: "+err.Error())
 
 		return false
 	}
@@ -131,7 +132,7 @@ func (ep *generateLabelsEndpoint) freezeItems(db Database, itemIDs []models.ID) 
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to commit transaction")
 
-		failure_response.Unknown(ep.Context, "Failed to commit transaction while freezing items: "+err.Error())
+		failure_response.Unknown(context, "Failed to commit transaction while freezing items: "+err.Error())
 
 		return false
 	}
@@ -139,9 +140,9 @@ func (ep *generateLabelsEndpoint) freezeItems(db Database, itemIDs []models.ID) 
 	return true
 }
 
-func (ep *generateLabelsEndpoint) collectLabelData(db Database, itemTable map[models.ID]*models.Item, itemIDs []models.ID) []*pdf.LabelData {
+func (ep *generateLabelsEndpoint) collectLabelData(context *gin.Context, db Database, itemTable map[models.ID]*models.Item, itemIDs []models.ID) []*pdf.LabelData {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 
 	createLabelData := func(itemID models.ID) (*pdf.LabelData, error) {
 		item, ok := itemTable[itemID]
@@ -207,7 +208,7 @@ func (ep *generateLabelsEndpoint) createLabelDataFromItem(categoryNameTable map[
 	return labelData, nil
 }
 
-func (ep *generateLabelsEndpoint) generatePdf(labelData []*pdf.LabelData, layoutSettings *pdf.LayoutSettings) *bytes.Buffer {
+func (ep *generateLabelsEndpoint) generatePdf(context *gin.Context, labelData []*pdf.LabelData, layoutSettings *pdf.LayoutSettings) *bytes.Buffer {
 	logger := ep.Logger
 
 	pdfConfiguration := pdf.Configuration{
@@ -220,7 +221,7 @@ func (ep *generateLabelsEndpoint) generatePdf(labelData []*pdf.LabelData, layout
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to generate PDF")
 
-		failure_response.InvalidRequest(ep.Context, "Failed to generate PDF: "+err.Error())
+		failure_response.InvalidRequest(context, "Failed to generate PDF: "+err.Error())
 
 		return nil
 	}
@@ -230,7 +231,7 @@ func (ep *generateLabelsEndpoint) generatePdf(labelData []*pdf.LabelData, layout
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to write PDF to buffer")
 
-		failure_response.InvalidRequest(ep.Context, "Failed to write PDF to buffer: "+err.Error())
+		failure_response.InvalidRequest(context, "Failed to write PDF to buffer: "+err.Error())
 
 		return nil
 	}
@@ -238,7 +239,7 @@ func (ep *generateLabelsEndpoint) generatePdf(labelData []*pdf.LabelData, layout
 	return buffer
 }
 
-func (ep *generateLabelsEndpoint) createLayoutSettings(payload *GenerateLabelsPayload) *pdf.LayoutSettings {
+func (ep *generateLabelsEndpoint) createLayoutSettings(context *gin.Context, payload *GenerateLabelsPayload) *pdf.LayoutSettings {
 	logger := ep.Logger
 
 	layoutSettings, err := pdf.NewLayoutSettings(
@@ -271,7 +272,7 @@ func (ep *generateLabelsEndpoint) createLayoutSettings(payload *GenerateLabelsPa
 		logger.AddInformation("error", err)
 		logger.InvalidRequest("Invalid layout for label generation")
 
-		failure_response.InvalidLayout(ep.Context, "Invalid label layout: "+err.Error())
+		failure_response.InvalidLayout(context, "Invalid label layout: "+err.Error())
 
 		return nil
 	}
@@ -279,14 +280,14 @@ func (ep *generateLabelsEndpoint) createLayoutSettings(payload *GenerateLabelsPa
 	return layoutSettings
 }
 
-func (ep *generateLabelsEndpoint) ensureUserIsSeller() bool {
+func (ep *generateLabelsEndpoint) ensureUserIsSeller(context *gin.Context) bool {
 	logger := ep.Logger
 
 	if !ep.RoleID.IsSeller() {
 		logger.AddInformation("roleID", ep.RoleID)
 		logger.InvalidRequest("Blocked attempt at generating labels by a user with the wrong role")
 
-		failure_response.WrongRole(ep.Context, "Only sellers can generate labels")
+		failure_response.WrongRole(context, "Only sellers can generate labels")
 
 		return false
 	}
@@ -294,15 +295,15 @@ func (ep *generateLabelsEndpoint) ensureUserIsSeller() bool {
 	return true
 }
 
-func (ep *generateLabelsEndpoint) parsePayload() *GenerateLabelsPayload {
+func (ep *generateLabelsEndpoint) parsePayload(context *gin.Context) *GenerateLabelsPayload {
 	logger := ep.Logger
 	var payload GenerateLabelsPayload
 
-	if err := ep.Context.ShouldBindJSON(&payload); err != nil {
+	if err := context.ShouldBindJSON(&payload); err != nil {
 		logger.AddInformation("error", err)
 		logger.InvalidInput("Failed to parse payload for GenerateLabels endpoint")
 
-		failure_response.InvalidRequest(ep.Context, "Failed to parse payload:"+err.Error())
+		failure_response.InvalidRequest(context, "Failed to parse payload:"+err.Error())
 
 		return nil
 	}
@@ -312,14 +313,14 @@ func (ep *generateLabelsEndpoint) parsePayload() *GenerateLabelsPayload {
 	return &payload
 }
 
-func (ep *generateLabelsEndpoint) validatePayload(payload *GenerateLabelsPayload) bool {
+func (ep *generateLabelsEndpoint) validatePayload(context *gin.Context, payload *GenerateLabelsPayload) bool {
 	logger := ep.Logger
 
 	if len(payload.ItemIDs) == 0 {
 		logger.AddInformation("userID", ep.UserID)
 		logger.InvalidRequest("Blocked attempt at generating labels for zero items")
 
-		failure_response.MissingItems(ep.Context, "No items provided")
+		failure_response.MissingItems(context, "No items provided")
 
 		return false
 	}
@@ -327,9 +328,9 @@ func (ep *generateLabelsEndpoint) validatePayload(payload *GenerateLabelsPayload
 	return true
 }
 
-func (ep *generateLabelsEndpoint) retrieveItemsFromDatabase(itemIDs []models.ID) map[models.ID]*models.Item {
+func (ep *generateLabelsEndpoint) retrieveItemsFromDatabase(context *gin.Context, itemIDs []models.ID) map[models.ID]*models.Item {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 	itemTable, err := queries.GetItemsWithIDs(ctx, ep.Database, itemIDs)
 
 	if err != nil {
@@ -338,7 +339,7 @@ func (ep *generateLabelsEndpoint) retrieveItemsFromDatabase(itemIDs []models.ID)
 			logger.AddInformation("userID", ep.UserID)
 			logger.InvalidRequest("Blocked attempt at generating labels for non-existing items")
 
-			failure_response.UnknownItem(ep.Context, err.Error())
+			failure_response.UnknownItem(context, err.Error())
 
 			return nil
 		}
@@ -346,7 +347,7 @@ func (ep *generateLabelsEndpoint) retrieveItemsFromDatabase(itemIDs []models.ID)
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to fetch items")
 
-		failure_response.Unknown(ep.Context, "Failed to fetch items: "+err.Error())
+		failure_response.Unknown(context, "Failed to fetch items: "+err.Error())
 
 		return nil
 	}
@@ -354,7 +355,7 @@ func (ep *generateLabelsEndpoint) retrieveItemsFromDatabase(itemIDs []models.ID)
 	return itemTable
 }
 
-func (ep *generateLabelsEndpoint) checkItemOwnership(itemTable map[models.ID]*models.Item) bool {
+func (ep *generateLabelsEndpoint) checkItemOwnership(context *gin.Context, itemTable map[models.ID]*models.Item) bool {
 	logger := ep.Logger
 
 	for _, item := range itemTable {
@@ -364,7 +365,7 @@ func (ep *generateLabelsEndpoint) checkItemOwnership(itemTable map[models.ID]*mo
 			logger.AddInformation("itemID", item.ItemID)
 			logger.InvalidRequest("Blocked attempt at generating labels for items not owned by the seller")
 
-			failure_response.WrongSeller(ep.Context, "labels can only be generated by the owning seller")
+			failure_response.WrongSeller(context, "labels can only be generated by the owning seller")
 
 			return false
 		}

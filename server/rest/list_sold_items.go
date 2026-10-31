@@ -8,6 +8,7 @@ import (
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
 	"bytes"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -32,48 +33,48 @@ type ListSoldItemsSuccessResponse struct {
 
 type ListSoldItemsParameters struct{}
 
-func ListSoldItems(arguments *HandlerFunctionArguments) {
+func ListSoldItems(context *gin.Context, arguments *HandlerFunctionArguments) {
 	endpoint := &listSoldItemsEndpoint{
 		Endpoint: Endpoint{
 			HandlerFunctionArguments: *arguments,
 		},
 	}
 
-	endpoint.execute()
+	endpoint.execute(context)
 }
 
 type listSoldItemsEndpoint struct {
 	Endpoint
 }
 
-func (ep *listSoldItemsEndpoint) execute() {
-	if !ep.ensureUserHasCorrectRole() {
+func (ep *listSoldItemsEndpoint) execute(context *gin.Context) {
+	if !ep.ensureUserHasCorrectRole(context) {
 		return
 	}
 
-	soldItems, fetchOk := ep.fetchSoldItemsFromDatabase()
+	soldItems, fetchOk := ep.fetchSoldItemsFromDatabase(context)
 	if !fetchOk {
 		return
 	}
 
-	ep.sendSuccessResponse(soldItems)
+	ep.sendSuccessResponse(context, soldItems)
 }
 
-func (ep *listSoldItemsEndpoint) ensureUserHasCorrectRole() bool {
+func (ep *listSoldItemsEndpoint) ensureUserHasCorrectRole(context *gin.Context) bool {
 	logger := ep.Logger
 
 	if ep.RoleID != models.NewAdminRoleID() {
 		logger.InvalidRequest("Unauthorized access attempt to list sold items")
-		failure_response.WrongRole(ep.Context, "Only admins can list sold items")
+		failure_response.WrongRole(context, "Only admins can list sold items")
 		return false
 	}
 
 	return true
 }
 
-func (ep *listSoldItemsEndpoint) fetchSoldItemsFromDatabase() ([]*queries.SoldItem, bool) {
+func (ep *listSoldItemsEndpoint) fetchSoldItemsFromDatabase(context *gin.Context) ([]*queries.SoldItem, bool) {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 
 	query := ep.buildSQLQuery()
 	soldItems, err := query.Execute(ctx, ep.Database)
@@ -82,7 +83,7 @@ func (ep *listSoldItemsEndpoint) fetchSoldItemsFromDatabase() ([]*queries.SoldIt
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to get sold items")
 
-		failure_response.Unknown(ep.Context, "Failed to get sold items: "+err.Error())
+		failure_response.Unknown(context, "Failed to get sold items: "+err.Error())
 
 		return nil, false
 	}
@@ -94,33 +95,33 @@ func (ep *listSoldItemsEndpoint) buildSQLQuery() *queries.GetSoldItemsQuery {
 	return queries.NewGetSoldItemsQuery()
 }
 
-func (ep *listSoldItemsEndpoint) sendSuccessResponse(items []*queries.SoldItem) {
+func (ep *listSoldItemsEndpoint) sendSuccessResponse(context *gin.Context, items []*queries.SoldItem) {
 	formatHandler := formatHandlerAdapter{
-		handleDefaultFormatFunc: func() { ep.sendResponseAsJSON(items) },
-		handleJSONFormatFunc:    func() { ep.sendResponseAsJSONFile(items) },
-		handleCSVFormatFunc:     func() { ep.sendResponseAsCSVFile(items) },
+		handleDefaultFormatFunc: func() { ep.sendResponseAsJSON(context, items) },
+		handleJSONFormatFunc:    func() { ep.sendResponseAsJSONFile(context, items) },
+		handleCSVFormatFunc:     func() { ep.sendResponseAsCSVFile(context, items) },
 	}
-	ep.parseFormatQueryParameter(&formatHandler)
+	ep.parseFormatQueryParameter(context, &formatHandler)
 }
 
-func (ep *listSoldItemsEndpoint) sendResponseAsJSON(soldItems []*queries.SoldItem) {
+func (ep *listSoldItemsEndpoint) sendResponseAsJSON(context *gin.Context, soldItems []*queries.SoldItem) {
 	convertedData := ep.convertData(soldItems)
 
 	response := ListSoldItemsSuccessResponse{
 		SoldItems: convertedData,
 	}
 
-	ep.Context.IndentedJSON(http.StatusOK, response)
+	context.IndentedJSON(http.StatusOK, response)
 }
 
-func (ep *listSoldItemsEndpoint) sendResponseAsJSONFile(soldItems []*queries.SoldItem) {
+func (ep *listSoldItemsEndpoint) sendResponseAsJSONFile(context *gin.Context, soldItems []*queries.SoldItem) {
 	convertedData := ep.convertData(soldItems)
 
-	ep.Context.Header("Content-Type", "application/json")
-	ep.Context.Header("Content-Disposition", "attachment; filename=\"sold-items.json\"")
-	ep.Context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
-	ep.Context.Header("Pragma", "no-cache")
-	ep.Context.IndentedJSON(http.StatusOK, convertedData)
+	context.Header("Content-Type", "application/json")
+	context.Header("Content-Disposition", "attachment; filename=\"sold-items.json\"")
+	context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	context.Header("Pragma", "no-cache")
+	context.IndentedJSON(http.StatusOK, convertedData)
 }
 
 func (ep *listSoldItemsEndpoint) convertData(soldItems []*queries.SoldItem) []ListSoldItemsEntry {
@@ -142,34 +143,34 @@ func (ep *listSoldItemsEndpoint) convertData(soldItems []*queries.SoldItem) []Li
 	})
 }
 
-func (ep *listSoldItemsEndpoint) sendResponseAsCSVFile(soldItems []*queries.SoldItem) {
+func (ep *listSoldItemsEndpoint) sendResponseAsCSVFile(context *gin.Context, soldItems []*queries.SoldItem) {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 
 	categoryNameTable, err := queries.GetCategoryNameTable(ctx, ep.Database)
 	if err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to get category map")
 
-		failure_response.Unknown(ep.Context, "Failed to get category map: "+err.Error())
+		failure_response.Unknown(context, "Failed to get category map: "+err.Error())
 
 		return
 	}
 
-	ep.Context.Header("Content-Type", "text/csv")
-	ep.Context.Header("Content-Disposition", "attachment; filename=\"sold-items.csv\"")
-	ep.Context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
-	ep.Context.Header("Pragma", "no-cache")
+	context.Header("Content-Type", "text/csv")
+	context.Header("Content-Disposition", "attachment; filename=\"sold-items.csv\"")
+	context.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	context.Header("Pragma", "no-cache")
 
 	buffer := new(bytes.Buffer)
 	if err := csv.FormatSoldItemsAsCSV(soldItems, categoryNameTable, buffer); err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to format items as CSV")
 
-		failure_response.Unknown(ep.Context, "Failed to format items as CSV: "+err.Error())
+		failure_response.Unknown(context, "Failed to format items as CSV: "+err.Error())
 
 		return
 	}
 	string := buffer.String()
-	ep.Context.String(http.StatusOK, string)
+	context.String(http.StatusOK, string)
 }

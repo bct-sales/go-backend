@@ -269,14 +269,13 @@ func (server *Server) withUserAndRole(handler rest.HandlerFunction, mutates bool
 		logger := logger.NewLoggerWrapper(decoratedSlogger)
 		arguments := rest.HandlerFunctionArguments{
 			Clock:         clock,
-			Context:       context,
 			Configuration: configuration,
 			Database:      rest.NewDatabaseWrapper(database),
 			UserID:        userID,
 			RoleID:        roleID,
 			Logger:        logger,
 		}
-		handler(&arguments)
+		handler(context, &arguments)
 
 		if mutates {
 			broadcaster.Broadcast("update")

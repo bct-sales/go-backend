@@ -8,6 +8,7 @@ import (
 	"bctbackend/server/failure_response"
 	rest "bctbackend/server/shared"
 	"errors"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -23,47 +24,47 @@ type ListCashierSalesSuccessResponse struct {
 	SaleCount int                    `json:"saleCount"`
 }
 
-func ListCashierSales(arguments *HandlerFunctionArguments) {
+func ListCashierSales(context *gin.Context, arguments *HandlerFunctionArguments) {
 	endpoint := &listCashierSalesEndpoint{
 		Endpoint: Endpoint{
 			HandlerFunctionArguments: *arguments,
 		},
 	}
 
-	endpoint.execute()
+	endpoint.execute(context)
 }
 
 type listCashierSalesEndpoint struct {
 	Endpoint
 }
 
-func (ep *listCashierSalesEndpoint) execute() {
-	uriCashierID, ok := ep.extractCashierIDFromUri()
+func (ep *listCashierSalesEndpoint) execute(context *gin.Context) {
+	uriCashierID, ok := ep.extractCashierIDFromUri(context)
 	if !ok {
 		return
 	}
 
-	rowSelection := ep.parseRowRangeQueryParameters()
+	rowSelection := ep.parseRowRangeQueryParameters(context)
 	if rowSelection == nil {
 		return
 	}
 
-	order, orderOk := ep.parseOrderQueryParameter()
+	order, orderOk := ep.parseOrderQueryParameter(context)
 	if !orderOk {
 		return
 	}
 
-	saleSummaries, saleSummariesOk := ep.getSaleSummariesFromDatabase(uriCashierID, order, rowSelection)
+	saleSummaries, saleSummariesOk := ep.getSaleSummariesFromDatabase(context, uriCashierID, order, rowSelection)
 	if !saleSummariesOk {
 		return
 	}
 
-	saleCount, saleCountOk := ep.getCashierSaleCount(uriCashierID)
+	saleCount, saleCountOk := ep.getCashierSaleCount(context, uriCashierID)
 	if !saleCountOk {
 		return
 	}
 
-	ep.sendSuccessResponse(saleCount, saleSummaries)
+	ep.sendSuccessResponse(context, saleCount, saleSummaries)
 }
 
 func (ep *listCashierSalesEndpoint) convertSaleSummaryToData(saleSummary *models.SaleSummary) *ListCashierSaleData {
@@ -79,17 +80,17 @@ func (ep *listCashierSalesEndpoint) convertSaleSummaryToData(saleSummary *models
 // It returns the cashier ID and a boolean indicating success or failure.
 // If the extraction or validation fails, it sends an appropriate error response.
 // False indicates failure, true indicates success.
-func (ep *listCashierSalesEndpoint) extractCashierIDFromUri() (models.ID, bool) {
+func (ep *listCashierSalesEndpoint) extractCashierIDFromUri(context *gin.Context) (models.ID, bool) {
 	logger := ep.Logger
 	var uriParameters struct {
 		CashierID string `binding:"required" uri:"id"`
 	}
 
-	if err := ep.Context.ShouldBindUri(&uriParameters); err != nil {
+	if err := context.ShouldBindUri(&uriParameters); err != nil {
 		logger.AddInformation("error", err)
 		logger.InvalidInput("Failed to bind URI parameters")
 
-		failure_response.InvalidUriParameters(ep.Context, err.Error())
+		failure_response.InvalidUriParameters(context, err.Error())
 
 		return 0, false
 	}
@@ -100,21 +101,21 @@ func (ep *listCashierSalesEndpoint) extractCashierIDFromUri() (models.ID, bool) 
 		logger.AddInformation("error", err)
 		logger.InvalidInput("Failed to parse cashier ID")
 
-		failure_response.InvalidUserID(ep.Context, err.Error())
+		failure_response.InvalidUserID(context, err.Error())
 
 		return 0, false
 	}
 
-	if !ep.ensureUserHasPermission(uriUserID) {
+	if !ep.ensureUserHasPermission(context, uriUserID) {
 		return 0, false
 	}
 
 	return uriUserID, true
 }
 
-func (ep *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.ID) bool {
+func (ep *listCashierSalesEndpoint) ensureUserHasPermission(context *gin.Context, queriedUser models.ID) bool {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 	user, err := queries.GetUserWithID(ctx, ep.Database, ep.UserID)
 
 	if err != nil {
@@ -124,14 +125,14 @@ func (ep *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.I
 			// This should not happen, as the userID is from the logged-in user
 			logger.Bug("Logged in user does not exist")
 
-			failure_response.Unknown(ep.Context, "Bug: logged in user does not exist")
+			failure_response.Unknown(context, "Bug: logged in user does not exist")
 
 			return false
 		}
 
 		logger.InternalError("Could not find logged in user in database")
 
-		failure_response.Unknown(ep.Context, "Could not retrieve logged in user: "+err.Error())
+		failure_response.Unknown(context, "Could not retrieve logged in user: "+err.Error())
 
 		return false
 	}
@@ -146,7 +147,7 @@ func (ep *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.I
 		if loggedInUser != queriedUser {
 			logger.InvalidRequest("User tried to access sales of other cashier")
 
-			failure_response.Forbidden(ep.Context, "wrong_role", "Only accessible to owning cashiers or admins")
+			failure_response.Forbidden(context, "wrong_role", "Only accessible to owning cashiers or admins")
 
 			return false
 		}
@@ -156,20 +157,20 @@ func (ep *listCashierSalesEndpoint) ensureUserHasPermission(queriedUser models.I
 
 	logger.InvalidRequest("Non-cashier tried to access sales")
 
-	failure_response.Forbidden(ep.Context, "wrong_role", "Only accessible to owning cashiers or admins")
+	failure_response.Forbidden(context, "wrong_role", "Only accessible to owning cashiers or admins")
 
 	return false
 }
 
-func (ep *listCashierSalesEndpoint) getSaleSummariesFromDatabase(uriCashierID models.ID, order queries.Order, rowSelection *queries.RowRange) ([]*models.SaleSummary, bool) {
+func (ep *listCashierSalesEndpoint) getSaleSummariesFromDatabase(context *gin.Context, uriCashierID models.ID, order queries.Order, rowSelection *queries.RowRange) ([]*models.SaleSummary, bool) {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 	var saleSummaries []*models.SaleSummary
 
 	if err := queries.GetCashierSales(ctx, ep.Database, uriCashierID, queries.CollectTo(&saleSummaries), order, rowSelection); err != nil {
 		logger.InternalError("Failed to retrieve cashier sales for user")
 
-		failure_response.Unknown(ep.Context, "Could not retrieve cashier sales: "+err.Error())
+		failure_response.Unknown(context, "Could not retrieve cashier sales: "+err.Error())
 
 		return nil, false
 	}
@@ -177,26 +178,26 @@ func (ep *listCashierSalesEndpoint) getSaleSummariesFromDatabase(uriCashierID mo
 	return saleSummaries, true
 }
 
-func (ep *listCashierSalesEndpoint) sendSuccessResponse(saleCount int, saleSummaries []*models.SaleSummary) {
+func (ep *listCashierSalesEndpoint) sendSuccessResponse(context *gin.Context, saleCount int, saleSummaries []*models.SaleSummary) {
 	successResponse := ListCashierSalesSuccessResponse{
 		Sales: algorithms.Map(saleSummaries, func(saleSummary *models.SaleSummary) *ListCashierSaleData {
 			return ep.convertSaleSummaryToData(saleSummary)
 		}),
 		SaleCount: saleCount,
 	}
-	ep.Context.IndentedJSON(http.StatusOK, successResponse)
+	context.IndentedJSON(http.StatusOK, successResponse)
 }
 
-func (ep *listCashierSalesEndpoint) getCashierSaleCount(uriCashierID models.ID) (int, bool) {
+func (ep *listCashierSalesEndpoint) getCashierSaleCount(context *gin.Context, uriCashierID models.ID) (int, bool) {
 	logger := ep.Logger
-	ctx := ep.Context.Request.Context()
+	ctx := context.Request.Context()
 	count, err := queries.CountCashierSales(ctx, ep.Database, uriCashierID)
 
 	if err != nil {
 		logger.AddInformation("error", err)
 		logger.InternalError("Failed to count cashier sales")
 
-		failure_response.Unknown(ep.Context, "Could not count cashier sales: "+err.Error())
+		failure_response.Unknown(context, "Could not count cashier sales: "+err.Error())
 
 		return 0, false
 	}
