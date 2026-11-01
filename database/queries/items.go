@@ -2,10 +2,10 @@ package queries
 
 import (
 	"bctbackend/algorithms"
-	"context"
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries/internal/isql"
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -706,7 +706,7 @@ func UpdateItem(ctx context.Context, db *TransactionalDatabaseQuerier, itemID mo
 		}
 
 		if !categoryExists {
-			return fmt.Errorf("failed to update item's category to %d", *itemUpdate.CategoryID)
+			return dberr.ErrNoSuchCategory
 		}
 
 		sqlValues.ItemCategoryID = sql.NullInt64{Int64: itemUpdate.CategoryID.Int64(), Valid: true}
