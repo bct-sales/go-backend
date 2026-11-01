@@ -147,47 +147,32 @@ func CountItemsPerCategory(ctx context.Context, database DatabaseQuerier, itemSe
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	itemsTable := ItemsTableFor(itemSelection)
+	querier := isql.New(database)
+	result := make(map[models.ID]int)
 
-	query := fmt.Sprintf(`
-		SELECT
-			item_categories.item_category_id, COUNT(i.item_id)
-		FROM
-			item_categories
-		LEFT JOIN
-			%s i ON item_categories.item_category_id = i.item_category_id
-		GROUP BY
-			item_categories.item_category_id
-	`, itemsTable)
+	if itemSelection == AllItems {
+		rows, err := querier.CountItemsPerCategory(ctx)
 
-	rows, err := database.QueryContext(ctx, query)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get category counts: %w", err)
-	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
-
-	counts := make(map[models.ID]int)
-
-	for rows.Next() {
-		var categoryID models.ID
-		var count int
-
-		err := rows.Scan(
-			&categoryID,
-			&count,
-		)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read row: %w", err)
+			return nil, err
 		}
 
-		counts[categoryID] = count
+		for _, row := range rows {
+			result[row.ItemCategoryID] = int(row.Count)
+		}
+	} else {
+		rows, err := querier.CountItemsPerCategoryByHidden(ctx, itemSelection == OnlyHiddenItems)
+
+		if err != nil {
+			return nil, err
+		}
+
+		for _, row := range rows {
+			result[row.ItemCategoryID] = int(row.Count)
+		}
 	}
 
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
-	}
-
-	return counts, nil
+	return result, nil
 }
 
 // CountSoldItemsPerCategory counts the number of sold items for each category.

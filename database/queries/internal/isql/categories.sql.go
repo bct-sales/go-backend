@@ -7,7 +7,87 @@ package isql
 
 import (
 	"context"
+
+	"bctbackend/database/models"
 )
+
+const countItemsPerCategory = `-- name: CountItemsPerCategory :many
+SELECT
+    item_categories.item_category_id, COUNT(items.item_id)
+FROM
+    item_categories
+LEFT JOIN
+    items ON item_categories.item_category_id = items.item_category_id
+GROUP BY
+    item_categories.item_category_id
+`
+
+type CountItemsPerCategoryRow struct {
+	ItemCategoryID models.ID
+	Count          int64
+}
+
+func (q *Queries) CountItemsPerCategory(ctx context.Context) ([]CountItemsPerCategoryRow, error) {
+	rows, err := q.db.QueryContext(ctx, countItemsPerCategory)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []CountItemsPerCategoryRow
+	for rows.Next() {
+		var i CountItemsPerCategoryRow
+		if err := rows.Scan(&i.ItemCategoryID, &i.Count); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const countItemsPerCategoryByHidden = `-- name: CountItemsPerCategoryByHidden :many
+SELECT
+    item_categories.item_category_id, COUNT(items.item_id)
+FROM
+    item_categories
+LEFT JOIN
+    items ON item_categories.item_category_id = items.item_category_id AND items.hidden = ?
+GROUP BY
+    item_categories.item_category_id
+`
+
+type CountItemsPerCategoryByHiddenRow struct {
+	ItemCategoryID models.ID
+	Count          int64
+}
+
+func (q *Queries) CountItemsPerCategoryByHidden(ctx context.Context, hidden bool) ([]CountItemsPerCategoryByHiddenRow, error) {
+	rows, err := q.db.QueryContext(ctx, countItemsPerCategoryByHidden, hidden)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []CountItemsPerCategoryByHiddenRow
+	for rows.Next() {
+		var i CountItemsPerCategoryByHiddenRow
+		if err := rows.Scan(&i.ItemCategoryID, &i.Count); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const listCategories = `-- name: ListCategories :many
 SELECT item_category_id, name
