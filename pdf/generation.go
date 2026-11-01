@@ -278,9 +278,9 @@ func (builder *PdfBuilder) drawCharityImage(rectangle *Rectangle) error {
 }
 
 func (builder *PdfBuilder) drawLargeItemImage(rectangle *Rectangle) error {
-	largeItemImageWidth, _, err := builder.determineImageSize(charityImageName)
+	largeItemImageWidth, _, err := builder.determineImageSize(largeItemImageName)
 	if err != nil {
-		return &PdfError{Message: "failed to determine charity image size", Wrapped: err}
+		return &PdfError{Message: "failed to determine large item image size", Wrapped: err}
 	}
 
 	donationImageWidth, _, err := builder.determineImageSize(donationImageName)
