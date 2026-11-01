@@ -11,6 +11,21 @@ import (
 	"bctbackend/database/models"
 )
 
+const addCategory = `-- name: AddCategory :one
+INSERT INTO
+    item_categories(name)
+VALUES
+    (?)
+RETURNING item_category_id
+`
+
+func (q *Queries) AddCategory(ctx context.Context, name string) (models.ID, error) {
+	row := q.db.QueryRowContext(ctx, addCategory, name)
+	var item_category_id models.ID
+	err := row.Scan(&item_category_id)
+	return item_category_id, err
+}
+
 const countItemsPerCategory = `-- name: CountItemsPerCategory :many
 SELECT
     item_categories.item_category_id, COUNT(items.item_id)

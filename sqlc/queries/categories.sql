@@ -22,3 +22,10 @@ LEFT JOIN
     items ON item_categories.item_category_id = items.item_category_id AND items.hidden = ?
 GROUP BY
     item_categories.item_category_id;
+
+-- name: AddCategory :one
+INSERT INTO
+    item_categories(name)
+VALUES
+    (?)
+RETURNING item_category_id;

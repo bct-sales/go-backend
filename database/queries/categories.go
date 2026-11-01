@@ -27,22 +27,16 @@ func AddCategory(ctx context.Context, db DatabaseQuerier, categoryName string) (
 		return 0, dberr.ErrInvalidCategoryName
 	}
 
-	query := squirrel.Insert(meta.ItemCategory.Table).Columns(meta.ItemCategory.Name).Values(categoryName).Suffix("RETURNING " + meta.ItemCategory.ItemCategoryID)
-	result, err := query.RunWith(newSquirrelRunner(ctx, db)).ExecContext(ctx)
+	id, err := isql.New(db).AddCategory(ctx, categoryName)
 	if err != nil {
-		if categoryExists, existenceErr := CategoryWithNameExists(ctx, db, categoryName); existenceErr == nil && categoryExists {
+		if nameExists, nameErr := CategoryWithNameExists(ctx, db, categoryName); nameErr == nil && nameExists {
 			return 0, fmt.Errorf("failed to insert category: %w", dberr.ErrDuplicateCategoryName)
 		}
 
-		return 0, fmt.Errorf("failed to insert category: %w", err)
+		return 0, err
 	}
 
-	categoryID, err := result.LastInsertId()
-	if err != nil {
-		return 0, fmt.Errorf("failed to determine id of inserted category: %w", err)
-	}
-
-	return models.ID(categoryID), nil
+	return id, nil
 }
 
 // AddCategoryWithID adds a new category with the given ID and name to the database.
