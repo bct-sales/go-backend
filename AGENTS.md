@@ -1,3 +1,2 @@
-# Git
-
 - Never update the Git repository unless explicitly asked.
+- Passwords are merely used to prevent users from accidentally using the wrong user ID. It is okay for them to be stored in plaintext and appear in logs.
