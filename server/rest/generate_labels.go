@@ -10,8 +10,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Insets struct {
@@ -175,6 +176,7 @@ func (ep *generateLabelsEndpoint) collectLabelData(context *gin.Context, db Data
 
 	labelData, err := algorithms.MapError(itemIDs, createLabelData)
 	if err != nil {
+		failure_response.Unknown(context, "Failed to create label data: "+err.Error())
 		return nil
 	}
 
