@@ -1,6 +1,7 @@
 package clock
 
 import (
+	"bctbackend/algorithms"
 	"bctbackend/database/models"
 	"time"
 )
@@ -41,9 +42,17 @@ func (clock *SystemClock) NewTicker(durationInSeconds int, callback func()) Tick
 		}
 	}()
 
-	systemTicker := SystemTicker{stopChannel: stopChannel}
+	systemTicker := &SystemTicker{stopChannel: stopChannel}
+	clock.pruneStoppedTickers()
+	clock.tickers = append(clock.tickers, systemTicker)
 
-	return &systemTicker
+	return systemTicker
+}
+
+func (clock *SystemClock) pruneStoppedTickers() {
+	clock.tickers = algorithms.Filter(clock.tickers, func(ticker *SystemTicker) bool {
+		return ticker.stopChannel != nil
+	})
 }
 
 // Stop deactivates the ticker.
