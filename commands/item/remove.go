@@ -46,7 +46,7 @@ func (c *RemoveItemCommand) execute(ctx context.Context, args []string) error {
 		for _, arg := range args {
 			itemID, err := models.ParseID(arg)
 			if err != nil {
-				c.PrintErrorf("Invalid item ID: %s\n", args[0])
+				c.PrintErrorf("Invalid item ID: %s\n", arg)
 				return err
 			}
 
