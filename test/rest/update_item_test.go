@@ -180,6 +180,31 @@ func TestUpdateItem(t *testing.T) {
 			require.Equal(t, expectedItem, *actualItem)
 		})
 
+		t.Run("Updating hidden item", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
+			defer setup.Close()
+
+			seller, sessionID := setup.LoggedIn(t, setup.Seller(t))
+			originalItem := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithHidden(true), aux.WithFrozen(false))
+
+			url := path.Item(originalItem.ItemID)
+			payload := struct {
+				Description string `json:"description"`
+			}{
+				Description: "updated",
+			}
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionID))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusForbidden, "hidden_item")
+			require.Equal(t, http.StatusForbidden, writer.Code)
+
+			actualItem, err := queries.GetItemWithID(t.Context(), setup.Db, originalItem.ItemID)
+			require.NoError(t, err)
+
+			expectedItem := *originalItem
+			require.Equal(t, expectedItem, *actualItem)
+		})
+
 		t.Run("Invalid price", func(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
