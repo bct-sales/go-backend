@@ -211,6 +211,11 @@ func (ep *updateItemEndpoint) performItemUpdate(context *gin.Context, item *mode
 
 			return false
 		}
+		if errors.Is(updateErr, dberr.ErrItemHidden) {
+			logger.InvalidInput("Cannot update hidden item")
+			failure_response.ItemHidden(context, updateErr.Error())
+			return false
+		}
 		if errors.Is(updateErr, dberr.ErrInvalidPrice) {
 			logger.InvalidInput("Invalid price in item update")
 			failure_response.InvalidPrice(context, updateErr.Error())
