@@ -221,10 +221,13 @@ func GetItemsWithIDs(ctx context.Context, db DatabaseQuerier, itemIDs []models.I
 	query := NewGetItemsQuery()
 	query.WithItemIDs(itemIDs)
 
-	query.Execute(ctx, db, func(item *models.Item) error {
+	err := query.Execute(ctx, db, func(item *models.Item) error {
 		items[item.ItemID] = item
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	// Check if all requested items were found
 	if len(items) != len(itemIDs) {
