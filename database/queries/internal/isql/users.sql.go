@@ -12,6 +12,31 @@ import (
 	"bctbackend/database/models"
 )
 
+const addUser = `-- name: AddUser :one
+INSERT INTO users (role_id, created_at, last_activity, password)
+VALUES (?, ?, ?, ?)
+RETURNING user_id
+`
+
+type AddUserParams struct {
+	RoleID       int64
+	CreatedAt    int64
+	LastActivity sql.NullInt64
+	Password     string
+}
+
+func (q *Queries) AddUser(ctx context.Context, arg AddUserParams) (models.ID, error) {
+	row := q.db.QueryRowContext(ctx, addUser,
+		arg.RoleID,
+		arg.CreatedAt,
+		arg.LastActivity,
+		arg.Password,
+	)
+	var user_id models.ID
+	err := row.Scan(&user_id)
+	return user_id, err
+}
+
 const addUserWithID = `-- name: AddUserWithID :exec
 INSERT INTO users (user_id, role_id, created_at, last_activity, password)
 VALUES (?, ?, ?, ?, ?)
@@ -36,6 +61,99 @@ func (q *Queries) AddUserWithID(ctx context.Context, arg AddUserWithIDParams) er
 	return err
 }
 
+const authenticateUser = `-- name: AuthenticateUser :one
+SELECT
+    role_id,
+    password
+FROM
+    users
+WHERE
+    user_id = ?
+`
+
+type AuthenticateUserRow struct {
+	RoleID   int64
+	Password string
+}
+
+func (q *Queries) AuthenticateUser(ctx context.Context, userID models.ID) (AuthenticateUserRow, error) {
+	row := q.db.QueryRowContext(ctx, authenticateUser, userID)
+	var i AuthenticateUserRow
+	err := row.Scan(&i.RoleID, &i.Password)
+	return i, err
+}
+
+const collectPasswords = `-- name: CollectPasswords :many
+SELECT password FROM users
+`
+
+func (q *Queries) CollectPasswords(ctx context.Context) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, collectPasswords)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var password string
+		if err := rows.Scan(&password); err != nil {
+			return nil, err
+		}
+		items = append(items, password)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const countSellerItems = `-- name: CountSellerItems :one
+SELECT COUNT(item_id)
+FROM
+    items
+WHERE
+    seller_id = ?
+    AND frozen = COALESCE(?2, frozen)
+    AND hidden = COALESCE(?3, hidden)
+`
+
+type CountSellerItemsParams struct {
+	SellerID int64
+	Frozen   sql.NullBool
+	Hidden   sql.NullBool
+}
+
+func (q *Queries) CountSellerItems(ctx context.Context, arg CountSellerItemsParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countSellerItems, arg.SellerID, arg.Frozen, arg.Hidden)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const getSellerTotalValueOfAllItems = `-- name: GetSellerTotalValueOfAllItems :one
+SELECT CAST(COALESCE(SUM(price_in_cents), 0) AS INTEGER)
+FROM
+    items
+WHERE
+    seller_id = ?
+    AND hidden = COALESCE(?2, hidden)
+`
+
+type GetSellerTotalValueOfAllItemsParams struct {
+	SellerID int64
+	Hidden   sql.NullBool
+}
+
+func (q *Queries) GetSellerTotalValueOfAllItems(ctx context.Context, arg GetSellerTotalValueOfAllItemsParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getSellerTotalValueOfAllItems, arg.SellerID, arg.Hidden)
+	var column_1 int64
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const getUser = `-- name: GetUser :one
 SELECT user_id, role_id, created_at, last_activity, password
 FROM users
@@ -53,4 +171,165 @@ func (q *Queries) GetUser(ctx context.Context, userID models.ID) (User, error) {
 		&i.Password,
 	)
 	return i, err
+}
+
+const getUsers = `-- name: GetUsers :many
+SELECT
+    user_id,
+    role_id,
+    created_at,
+    last_activity,
+    password
+FROM
+    users
+`
+
+func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, getUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.UserID,
+			&i.RoleID,
+			&i.CreatedAt,
+			&i.LastActivity,
+			&i.Password,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUsersWithItemCount = `-- name: GetUsersWithItemCount :many
+SELECT
+    users.user_id,
+    users.role_id,
+    users.created_at,
+    users.last_activity,
+    users.password,
+    CAST(COALESCE(COUNT(i.item_id), 0) AS INTEGER) AS item_count
+FROM
+    users
+LEFT JOIN
+    items i ON users.user_id = i.seller_id AND i.hidden = COALESCE(?1, i.hidden)
+GROUP BY
+    users.user_id
+ORDER BY
+    users.user_id
+`
+
+type GetUsersWithItemCountRow struct {
+	UserID       models.ID
+	RoleID       int64
+	CreatedAt    int64
+	LastActivity sql.NullInt64
+	Password     string
+	ItemCount    int64
+}
+
+func (q *Queries) GetUsersWithItemCount(ctx context.Context, hidden sql.NullBool) ([]GetUsersWithItemCountRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUsersWithItemCount, hidden)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUsersWithItemCountRow
+	for rows.Next() {
+		var i GetUsersWithItemCountRow
+		if err := rows.Scan(
+			&i.UserID,
+			&i.RoleID,
+			&i.CreatedAt,
+			&i.LastActivity,
+			&i.Password,
+			&i.ItemCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const removeUserWithID = `-- name: RemoveUserWithID :exec
+DELETE FROM users
+WHERE
+    user_id = ?
+`
+
+func (q *Queries) RemoveUserWithID(ctx context.Context, userID models.ID) error {
+	_, err := q.db.ExecContext(ctx, removeUserWithID, userID)
+	return err
+}
+
+const updateLastActivity = `-- name: UpdateLastActivity :exec
+UPDATE
+    users
+SET
+    last_activity = ?
+WHERE
+    user_id = ?
+`
+
+type UpdateLastActivityParams struct {
+	LastActivity sql.NullInt64
+	UserID       models.ID
+}
+
+func (q *Queries) UpdateLastActivity(ctx context.Context, arg UpdateLastActivityParams) error {
+	_, err := q.db.ExecContext(ctx, updateLastActivity, arg.LastActivity, arg.UserID)
+	return err
+}
+
+const updateUserPassword = `-- name: UpdateUserPassword :exec
+UPDATE
+    users
+SET
+    password = ?
+WHERE
+    user_id = ?
+`
+
+type UpdateUserPasswordParams struct {
+	Password string
+	UserID   models.ID
+}
+
+func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserPassword, arg.Password, arg.UserID)
+	return err
+}
+
+const userWithIDExists = `-- name: UserWithIDExists :one
+SELECT 1
+FROM
+    users
+WHERE
+    user_id = ?
+`
+
+func (q *Queries) UserWithIDExists(ctx context.Context, userID models.ID) (int64, error) {
+	row := q.db.QueryRowContext(ctx, userWithIDExists, userID)
+	var column_1 int64
+	err := row.Scan(&column_1)
+	return column_1, err
 }

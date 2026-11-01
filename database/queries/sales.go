@@ -5,10 +5,10 @@ import (
 	"context"
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
+	"bctbackend/database/queries/internal/isql"
 	"database/sql"
 	"errors"
 	"fmt"
-	"slices"
 )
 
 type addSaleQuery struct {
@@ -33,33 +33,20 @@ func (q *addSaleQuery) execute(ctx context.Context, db *TransactionalDatabaseQue
 	}
 
 	// Create sale
-	result, err := db.ExecContext(ctx,
-		`
-			INSERT INTO sales(cashier_id, transaction_time)
-			VALUES (?, ?)
-		`,
-		q.CashierID,
-		q.TransactionTime,
-	)
-	if err != nil {
-		return 0, err
-	}
-
-	saleID, err := result.LastInsertId()
+	saleID, err := isql.New(db).AddSale(ctx, isql.AddSaleParams{
+		CashierID:       q.CashierID,
+		TransactionTime: int64(q.TransactionTime),
+	})
 	if err != nil {
 		return 0, err
 	}
 
 	// Add items to sale
 	for _, itemID := range q.ItemIDs {
-		_, err := db.ExecContext(ctx,
-			`
-				INSERT INTO sale_items(sale_id, item_id)
-				VALUES (?, ?)
-			`,
-			saleID,
-			itemID,
-		)
+		err := isql.New(db).AddSaleItem(ctx, isql.AddSaleItemParams{
+			SaleID: models.ID(saleID),
+			ItemID: itemID,
+		})
 
 		if err != nil {
 			return 0, err
@@ -121,16 +108,16 @@ func AddSale(
 }
 
 type GetSalesQuery struct {
-	minimalID    *models.ID // If set, only sales with an ID greater than or equal to this value are returned.
-	order        *string    // Specifies the order in which to return the results
-	rowSelection RowRange
+	minimalID         *models.ID // If set, only sales with an ID greater than or equal to this value are returned.
+	antiChronological bool       // Specifies whether the results are returned in anti-chronological order
+	rowSelection      RowRange
 }
 
 func NewGetSalesQuery() *GetSalesQuery {
 	return &GetSalesQuery{
-		minimalID:    nil,
-		rowSelection: RowRange{Limit: nil, Offset: nil},
-		order:        nil,
+		minimalID:         nil,
+		rowSelection:      RowRange{Limit: nil, Offset: nil},
+		antiChronological: false,
 	}
 }
 
@@ -146,93 +133,57 @@ func (q *GetSalesQuery) WithRowRange(limit uint64, offset uint64) *GetSalesQuery
 }
 
 func (q *GetSalesQuery) OrderedAntiChronologically() *GetSalesQuery {
-	order := "ORDER BY sales.transaction_time DESC, sales.sale_id DESC"
-	q.order = &order
+	q.antiChronological = true
 	return q
 }
 
 func (q *GetSalesQuery) Execute(ctx context.Context, db DatabaseQuerier, receiver func(*models.SaleSummary) error) (r_err error) {
-	query := fmt.Sprintf(
-		`
-			SELECT
-				sales.sale_id,
-				sales.cashier_id,
-				sales.transaction_time,
-				COUNT(sale_items.item_id) AS item_count,
-				SUM(items.price_in_cents) AS total_price
-			FROM
-				sales
-			INNER JOIN
-				sale_items ON sales.sale_id = sale_items.sale_id
-			INNER JOIN
-				items ON sale_items.item_id = items.item_id
-			%s
-			GROUP BY
-				sales.sale_id
-			%s
-			%s
-		`,
-		q.whereClause(),
-		q.orderClause(),
-		q.rowSelection.SQL(),
-	)
-
-	queryArguments := slices.Concat(q.whereArguments())
-	rows, err := db.QueryContext(ctx, query, queryArguments...)
-	if err != nil {
-		return err
+	limit, offset := q.rowSelection.LimitOffset()
+	params := isql.GetSalesParams{
+		MinimalID: sql.NullInt64{},
+		Limit:     limit,
+		Offset:    offset,
 	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
-	for rows.Next() {
-		var saleID models.ID
-		var cashierID models.ID
-		var transactionTime models.Timestamp
-		var itemCount int
-		var totalPriceInCents models.MoneyInCents
-		if err := rows.Scan(&saleID, &cashierID, &transactionTime, &itemCount, &totalPriceInCents); err != nil {
-			return err
-		}
+	if q.minimalID != nil {
+		params.MinimalID = sql.NullInt64{Int64: q.minimalID.Int64(), Valid: true}
+	}
 
-		saleSummary := models.SaleSummary{
-			SaleID:            saleID,
-			CashierID:         cashierID,
-			TransactionTime:   transactionTime,
-			ItemCount:         itemCount,
-			TotalPriceInCents: totalPriceInCents,
-		}
-		if err := receiver(&saleSummary); err != nil {
-			return err
+	toSummary := func(row isql.GetSalesRow) *models.SaleSummary {
+		return &models.SaleSummary{
+			SaleID:            models.ID(row.SaleID),
+			CashierID:         row.CashierID,
+			TransactionTime:   models.Timestamp(row.TransactionTime),
+			ItemCount:         int(row.ItemCount),
+			TotalPriceInCents: models.MoneyInCents(row.TotalPrice),
 		}
 	}
 
-	if err := rows.Err(); err != nil {
-		return fmt.Errorf("error occurred while iterating over rows: %w", err)
+	if !q.antiChronological {
+		rows, err := isql.New(db).GetSales(ctx, params)
+		if err != nil {
+			return err
+		}
+
+		for i := range rows {
+			if err := receiver(toSummary(rows[i])); err != nil {
+				return err
+			}
+		}
+	} else {
+		rows, err := isql.New(db).GetSalesAntiChronologically(ctx, isql.GetSalesAntiChronologicallyParams(params))
+		if err != nil {
+			return err
+		}
+
+		for i := range rows {
+			if err := receiver(toSummary(isql.GetSalesRow(rows[i]))); err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil
-}
-
-func (q *GetSalesQuery) whereClause() string {
-	if q.minimalID == nil {
-		return ""
-	}
-	return "WHERE sales.sale_id >= ?"
-}
-
-func (q *GetSalesQuery) whereArguments() []any {
-	if q.minimalID == nil {
-		return nil
-	}
-	return []any{*q.minimalID}
-}
-
-func (q *GetSalesQuery) orderClause() string {
-	if q.order == nil {
-		return ""
-	} else {
-		return *q.order
-	}
 }
 
 // GetSaleWithID returns the sale with the given saleID.
@@ -242,20 +193,7 @@ func GetSaleWithID(ctx context.Context, db DatabaseQuerier, saleID models.ID) (r
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	var cashierID models.ID
-	var transactionTime models.Timestamp
-	err := db.QueryRowContext(ctx,
-		`
-			SELECT
-				cashier_id,
-				transaction_time
-			FROM
-				sales
-			WHERE
-				sale_id = ?
-		`,
-		saleID,
-	).Scan(&cashierID, &transactionTime)
+	row, err := isql.New(db).GetSaleWithID(ctx, saleID.Int64())
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("failed to get sale with id %d: %w", saleID, dberr.ErrNoSuchSale)
 	}
@@ -265,8 +203,8 @@ func GetSaleWithID(ctx context.Context, db DatabaseQuerier, saleID models.ID) (r
 
 	sale := models.Sale{
 		SaleID:          saleID,
-		CashierID:       cashierID,
-		TransactionTime: transactionTime,
+		CashierID:       models.ID(row.CashierID),
+		TransactionTime: models.Timestamp(row.TransactionTime),
 	}
 	return &sale, nil
 }
@@ -278,19 +216,7 @@ func SaleWithIDExists(ctx context.Context, db DatabaseQuerier, saleID models.ID)
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	var exists int64
-
-	err := db.QueryRowContext(ctx,
-		`
-			SELECT
-				1
-			FROM
-				sales
-			WHERE
-				sale_id = ?
-		`,
-		saleID,
-	).Scan(&exists)
+	_, err := isql.New(db).SaleWithIDExists(ctx, saleID.Int64())
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return false, nil
@@ -318,69 +244,27 @@ func GetSaleItems(ctx context.Context, db DatabaseQuerier, saleID models.ID) (r_
 		return nil, fmt.Errorf("failed to get items of sale %d: %w", saleID, dberr.ErrNoSuchSale)
 	}
 
-	rows, err := db.QueryContext(ctx,
-		`
-			SELECT
-				i.item_id,
-				i.added_at,
-				i.description,
-				i.price_in_cents,
-				i.item_category_id,
-				i.seller_id,
-				i.donation,
-				i.charity,
-				i.frozen,
-				i.large
-			FROM
-				sale_items si
-			INNER JOIN
-				items i ON si.item_id = i.item_id
-			WHERE
-				si.sale_id = ?
-		`,
-		saleID,
-	)
+	rows, err := isql.New(db).GetSaleItems(ctx, saleID)
 	if err != nil {
 		return nil, err
 	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	var items []*models.Item
-	for rows.Next() {
-		var itemID models.ID
-		var addedAt models.Timestamp
-		var description string
-		var priceInCents models.MoneyInCents
-		var categoryID models.ID
-		var sellerID models.ID
-		var donation bool
-		var charity bool
-		var frozen bool
-		var hidden bool
-		var large bool
-		err := rows.Scan(&itemID, &addedAt, &description, &priceInCents, &categoryID, &sellerID, &donation, &charity, &frozen, &large)
-		if err != nil {
-			return nil, err
-		}
-
+	for i := range rows {
 		item := models.Item{
-			ItemID:       itemID,
-			AddedAt:      addedAt,
-			Description:  description,
-			PriceInCents: priceInCents,
-			CategoryID:   categoryID,
-			SellerID:     sellerID,
-			Donation:     donation,
-			Charity:      charity,
-			Frozen:       frozen,
-			Hidden:       hidden,
-			Large:        large,
+			ItemID:       rows[i].ItemID,
+			AddedAt:      models.Timestamp(rows[i].AddedAt),
+			Description:  rows[i].Description,
+			PriceInCents: models.MoneyInCents(rows[i].PriceInCents),
+			CategoryID:   models.ID(rows[i].ItemCategoryID),
+			SellerID:     models.ID(rows[i].SellerID),
+			Donation:     rows[i].Donation,
+			Charity:      rows[i].Charity,
+			Frozen:       rows[i].Frozen,
+			Hidden:       false,
+			Large:        rows[i].Large,
 		}
 		items = append(items, &item)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return items, nil
@@ -402,26 +286,11 @@ func RemoveSale(ctx context.Context, transaction *TransactionalDatabaseQuerier, 
 		return fmt.Errorf("failed to remove sale %d: %w", saleID, dberr.ErrNoSuchSale)
 	}
 
-	_, err = transaction.ExecContext(ctx,
-		`
-			DELETE FROM sale_items
-			WHERE sale_id = ?
-		`,
-		saleID,
-	)
-
-	if err != nil {
+	if err := isql.New(transaction).RemoveSaleItems(ctx, saleID); err != nil {
 		return err
 	}
 
-	_, err = transaction.ExecContext(ctx,
-		`
-			DELETE FROM sales
-			WHERE sale_id = ?
-		`,
-		saleID,
-	)
-	if err != nil {
+	if err := isql.New(transaction).RemoveSale(ctx, saleID.Int64()); err != nil {
 		return err
 	}
 
@@ -435,82 +304,27 @@ func GetSoldItems(ctx context.Context, db DatabaseQuerier) (r_result []*models.I
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	rows, err := db.QueryContext(ctx,
-		`
-			SELECT DISTINCT
-				i.item_id,
-				i.added_at,
-				i.description,
-				i.price_in_cents,
-				i.item_category_id,
-				i.seller_id,
-				i.donation,
-				i.charity,
-				i.large,
-				i.frozen
-			FROM
-				sale_items si
-			INNER JOIN
-				items i ON si.item_id = i.item_id
-			INNER JOIN
-				sales s ON si.sale_id = s.sale_id
-			ORDER BY
-				s.transaction_time DESC, i.item_id ASC
-		`,
-	)
+	rows, err := isql.New(db).GetSoldItems(ctx)
 	if err != nil {
 		return nil, err
 	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	var items []*models.Item
-	for rows.Next() {
-		var itemID models.ID
-		var addedAt models.Timestamp
-		var description string
-		var priceInCents models.MoneyInCents
-		var categoryID models.ID
-		var sellerID models.ID
-		var donation bool
-		var charity bool
-		var large bool
-		var frozen bool
-		var hidden bool
-
-		err := rows.Scan(
-			&itemID,
-			&addedAt,
-			&description,
-			&priceInCents,
-			&categoryID,
-			&sellerID,
-			&donation,
-			&charity,
-			&large,
-			&frozen,
-		)
-		if err != nil {
-			return nil, err
-		}
-
+	for i := range rows {
 		item := models.Item{
-			ItemID:       itemID,
-			AddedAt:      addedAt,
-			Description:  description,
-			PriceInCents: priceInCents,
-			CategoryID:   categoryID,
-			SellerID:     sellerID,
-			Donation:     donation,
-			Charity:      charity,
-			Frozen:       frozen,
-			Hidden:       hidden,
-			Large:        large,
+			ItemID:       rows[i].ItemID,
+			AddedAt:      models.Timestamp(rows[i].AddedAt),
+			Description:  rows[i].Description,
+			PriceInCents: models.MoneyInCents(rows[i].PriceInCents),
+			CategoryID:   models.ID(rows[i].ItemCategoryID),
+			SellerID:     models.ID(rows[i].SellerID),
+			Donation:     rows[i].Donation,
+			Charity:      rows[i].Charity,
+			Frozen:       rows[i].Frozen,
+			Hidden:       false,
+			Large:        rows[i].Large,
 		}
 		items = append(items, &item)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return items, nil
@@ -526,18 +340,7 @@ func CountSoldItems(ctx context.Context, db DatabaseQuerier) (r_result *struct {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	var totalCount int
-	var distinctCount int
-	err := db.QueryRowContext(ctx,
-		`
-			SELECT
-				COUNT(si.item_id),
-				COUNT(DISTINCT si.item_id)
-			FROM
-				sale_items si
-		`,
-	).Scan(&totalCount, &distinctCount)
-
+	row, err := isql.New(db).CountSoldItems(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -546,8 +349,8 @@ func CountSoldItems(ctx context.Context, db DatabaseQuerier) (r_result *struct {
 		Distinct         int
 		IncludeMultiples int
 	}{
-		Distinct:         distinctCount,
-		IncludeMultiples: totalCount,
+		Distinct:         int(row.Count_2),
+		IncludeMultiples: int(row.Count),
 	}
 	return &result, nil
 }
@@ -559,31 +362,9 @@ func HasAnyBeenSold(ctx context.Context, db DatabaseQuerier, itemIDs []models.ID
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	query := fmt.Sprintf(`
-		SELECT
-			1
-		FROM
-			items
-		INNER JOIN
-			sale_items ON items.item_id = sale_items.item_id
-		WHERE
-			items.item_id IN (%s)
-	`, placeholderString(len(itemIDs)))
-	convertedItemIDs := algorithms.Map(itemIDs, func(id models.ID) any { return id })
-
-	rows, err := db.QueryContext(ctx, query, convertedItemIDs...)
+	count, err := isql.New(db).HasAnyBeenSold(ctx, itemIDs)
 	if err != nil {
 		return false, err
-	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
-
-	count := 0
-	for rows.Next() {
-		count++
-	}
-
-	if err := rows.Err(); err != nil {
-		return false, fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return count > 0, nil
@@ -600,78 +381,27 @@ func GetItemsSoldBy(ctx context.Context, db DatabaseQuerier, cashierID models.ID
 		return nil, err
 	}
 
-	rows, err := db.QueryContext(ctx,
-		`
-			SELECT
-				i.item_id,
-				i.added_at,
-				i.description,
-				i.price_in_cents,
-				i.item_category_id,
-				i.seller_id,
-				i.donation,
-				i.charity,
-				i.frozen,
-				i.hidden,
-				i.large
-			FROM
-				sale_items si
-			INNER JOIN
-				items i ON si.item_id = i.item_id
-			INNER JOIN
-				sales s ON si.sale_id = s.sale_id
-			WHERE
-				s.cashier_id = ?
-			ORDER BY
-				s.transaction_time DESC, i.item_id ASC
-		`,
-		cashierID,
-	)
-
+	rows, err := isql.New(db).GetItemsSoldBy(ctx, cashierID)
 	if err != nil {
 		return nil, err
 	}
 
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
-
 	var items []*models.Item
-	for rows.Next() {
-		var itemID models.ID
-		var addedAt models.Timestamp
-		var description string
-		var priceInCents models.MoneyInCents
-		var categoryID models.ID
-		var sellerID models.ID
-		var donation bool
-		var charity bool
-		var frozen bool
-		var hidden bool
-		var large bool
-
-		err := rows.Scan(&itemID, &addedAt, &description, &priceInCents, &categoryID, &sellerID, &donation, &charity, &frozen, &hidden, &large)
-
-		if err != nil {
-			return nil, err
-		}
-
+	for i := range rows {
 		item := models.Item{
-			ItemID:       itemID,
-			AddedAt:      addedAt,
-			Description:  description,
-			PriceInCents: priceInCents,
-			CategoryID:   categoryID,
-			SellerID:     sellerID,
-			Donation:     donation,
-			Charity:      charity,
-			Frozen:       frozen,
-			Hidden:       hidden,
-			Large:        large,
+			ItemID:       rows[i].ItemID,
+			AddedAt:      models.Timestamp(rows[i].AddedAt),
+			Description:  rows[i].Description,
+			PriceInCents: models.MoneyInCents(rows[i].PriceInCents),
+			CategoryID:   models.ID(rows[i].ItemCategoryID),
+			SellerID:     models.ID(rows[i].SellerID),
+			Donation:     rows[i].Donation,
+			Charity:      rows[i].Charity,
+			Frozen:       rows[i].Frozen,
+			Hidden:       rows[i].Hidden,
+			Large:        rows[i].Large,
 		}
 		items = append(items, &item)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return items, nil
@@ -692,36 +422,13 @@ func GetSalesWithItem(ctx context.Context, db DatabaseQuerier, itemID models.ID)
 		return nil, err
 	}
 
-	rows, err := db.QueryContext(ctx,
-		`
-			SELECT sale_id
-			FROM sale_items
-			WHERE item_id = ?
-			ORDER BY sale_id ASC
-		`,
-		itemID,
-	)
+	rows, err := isql.New(db).GetSalesWithItem(ctx, itemID)
 	if err != nil {
 		return nil, err
 	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	saleIDs := []models.ID{}
-	for rows.Next() {
-		var saleID models.ID
-
-		err := rows.Scan(&saleID)
-
-		if err != nil {
-			return nil, err
-		}
-
-		saleIDs = append(saleIDs, saleID)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
-	}
+	saleIDs = append(saleIDs, rows...)
 
 	return saleIDs, nil
 }
@@ -739,40 +446,19 @@ func GetSalesWithCashier(ctx context.Context, db DatabaseQuerier, cashierID mode
 		return nil, err
 	}
 
-	rows, err := db.QueryContext(ctx,
-		`
-			SELECT cashier_id, sale_id, transaction_time
-			FROM sales
-			WHERE cashier_id = ?
-			ORDER BY transaction_time ASC, sale_id ASC
-		`,
-		cashierID,
-	)
+	rows, err := isql.New(db).GetSalesWithCashier(ctx, cashierID)
 	if err != nil {
 		return nil, err
 	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	sales := []*models.Sale{}
-	for rows.Next() {
-		var saleID models.ID
-		var cashierID models.ID
-		var transactionTime models.Timestamp
-		err := rows.Scan(&cashierID, &saleID, &transactionTime)
-		if err != nil {
-			return nil, err
-		}
-
+	for i := range rows {
 		sale := models.Sale{
-			SaleID:          saleID,
-			CashierID:       cashierID,
-			TransactionTime: transactionTime,
+			SaleID:          models.ID(rows[i].SaleID),
+			CashierID:       models.ID(rows[i].CashierID),
+			TransactionTime: models.Timestamp(rows[i].TransactionTime),
 		}
 		sales = append(sales, &sale)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return sales, nil
@@ -784,26 +470,12 @@ func RemoveAllSales(ctx context.Context, transaction *TransactionalDatabaseQueri
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	{
-		_, err := transaction.ExecContext(ctx,
-			`
-			DELETE FROM sale_items
-		`,
-		)
-		if err != nil {
-			return err
-		}
+	if err := isql.New(transaction).RemoveAllSaleItems(ctx); err != nil {
+		return err
 	}
 
-	{
-		_, err := transaction.ExecContext(ctx,
-			`
-			DELETE FROM sales
-		`,
-		)
-		if err != nil {
-			return err
-		}
+	if err := isql.New(transaction).RemoveAllSales(ctx); err != nil {
+		return err
 	}
 
 	return nil
@@ -821,68 +493,46 @@ func GetCashierSales(ctx context.Context, db DatabaseQuerier, cashierID models.I
 		return err
 	}
 
-	orderClause := ""
+	limit, offset := rowSelection.LimitOffset()
+	params := isql.GetCashierSalesChronologicalParams{
+		CashierID: cashierID,
+		Limit:     limit,
+		Offset:    offset,
+	}
+
+	toSummary := func(row isql.GetCashierSalesChronologicalRow) *models.SaleSummary {
+		return &models.SaleSummary{
+			SaleID:            models.ID(row.SaleID),
+			CashierID:         row.CashierID,
+			TransactionTime:   models.Timestamp(row.TransactionTime),
+			ItemCount:         int(row.ItemCount),
+			TotalPriceInCents: models.MoneyInCents(row.TotalPrice),
+		}
+	}
+
 	switch order {
 	case OrderChronological:
-		orderClause = "ORDER BY sales.transaction_time ASC, sales.sale_id ASC"
+		rows, err := isql.New(db).GetCashierSalesChronological(ctx, params)
+		if err != nil {
+			return err
+		}
+
+		for i := range rows {
+			if err := receiver(toSummary(rows[i])); err != nil {
+				return err
+			}
+		}
 	case OrderAntiChronological:
-		orderClause = "ORDER BY sales.transaction_time DESC, sales.sale_id DESC"
-	}
-
-	query := fmt.Sprintf(
-		`
-			SELECT
-				sales.sale_id,
-				sales.cashier_id,
-				sales.transaction_time,
-				COUNT(sale_items.item_id) AS item_count,
-				SUM(items.price_in_cents) AS total_price
-			FROM
-				sales
-			INNER JOIN
-				sale_items ON sales.sale_id = sale_items.sale_id
-			INNER JOIN
-				items ON sale_items.item_id = items.item_id
-			WHERE
-				sales.cashier_id = ?
-			GROUP BY
-				sales.sale_id
-			%s
-			%s
-		`,
-		orderClause,
-		rowSelection.SQL(),
-	)
-	rows, err := db.QueryContext(ctx, query, cashierID)
-	if err != nil {
-		return err
-	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
-
-	for rows.Next() {
-		var saleID models.ID
-		var cashierID models.ID
-		var transactionTime models.Timestamp
-		var itemCount int
-		var totalPriceInCents models.MoneyInCents
-		if err := rows.Scan(&saleID, &cashierID, &transactionTime, &itemCount, &totalPriceInCents); err != nil {
+		rows, err := isql.New(db).GetCashierSalesAntiChronological(ctx, isql.GetCashierSalesAntiChronologicalParams(params))
+		if err != nil {
 			return err
 		}
 
-		saleSummary := models.SaleSummary{
-			SaleID:            saleID,
-			CashierID:         cashierID,
-			TransactionTime:   transactionTime,
-			ItemCount:         itemCount,
-			TotalPriceInCents: totalPriceInCents,
+		for i := range rows {
+			if err := receiver(toSummary(isql.GetCashierSalesChronologicalRow(rows[i]))); err != nil {
+				return err
+			}
 		}
-		if err := receiver(&saleSummary); err != nil {
-			return err
-		}
-	}
-
-	if err := rows.Err(); err != nil {
-		return fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return nil
@@ -894,19 +544,12 @@ func CountSales(ctx context.Context, db DatabaseQuerier) (r_result int, r_err er
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	var count int
-	err := db.QueryRowContext(ctx,
-		`
-			SELECT COUNT(*)
-			FROM sales
-		`,
-	).Scan(&count)
-
+	count, err := isql.New(db).CountSales(ctx)
 	if err != nil {
 		return 0, err
 	}
 
-	return count, nil
+	return int(count), nil
 }
 
 // CountCashierSales returns the total number of sales made by the specified cashier.
@@ -919,21 +562,12 @@ func CountCashierSales(ctx context.Context, db DatabaseQuerier, cashierID models
 		return 0, err
 	}
 
-	var count int
-	err := db.QueryRowContext(ctx,
-		`
-			SELECT COUNT(*)
-			FROM sales
-			WHERE cashier_id = ?
-		`,
-		cashierID,
-	).Scan(&count)
-
+	count, err := isql.New(db).CountCashierSales(ctx, cashierID)
 	if err != nil {
 		return 0, err
 	}
 
-	return count, nil
+	return int(count), nil
 }
 
 // GetTotalSalesValue returns the total value of all sales in the database.
@@ -944,25 +578,12 @@ func GetTotalSalesValue(ctx context.Context, db DatabaseQuerier) (r_result model
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	var totalValue models.MoneyInCents
-	err := db.QueryRowContext(ctx,
-		`
-			SELECT
-				COALESCE(SUM(items.price_in_cents), 0) as total
-			FROM
-				sales
-			INNER JOIN
-				sale_items ON sales.sale_id = sale_items.sale_id
-			INNER JOIN
-				items ON sale_items.item_id = items.item_id
-		`,
-	).Scan(&totalValue)
-
+	totalValue, err := isql.New(db).GetTotalSalesValue(ctx)
 	if err != nil {
 		return 0, err
 	}
 
-	return totalValue, nil
+	return models.MoneyInCents(totalValue), nil
 }
 
 type MultiplySoldItem struct {
@@ -976,86 +597,20 @@ func GetMultiplySoldItems(ctx context.Context, db DatabaseQuerier) (r_result []M
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	rows, err := db.QueryContext(ctx,
-		`
-			SELECT
-				item.item_id,
-				item.added_at,
-			    item.description,
-				item.price_in_cents,
-				item.item_category_id,
-				item.seller_id,
-				item.donation,
-				item.charity,
-				item.large,
-				item.frozen,
-				sale.sale_id,
-				sale.cashier_id,
-				sale.transaction_time
-			FROM
-				items item
-			INNER JOIN
-				item_categories category ON item.item_category_id = category.item_category_id
-			INNER JOIN
-				sale_items sale_item ON item.item_id = sale_item.item_id
-			INNER JOIN
-				sales sale ON sale_item.sale_id = sale.sale_id
-			WHERE
-				(
-					SELECT COUNT(*)
-					FROM sale_items si
-					WHERE si.item_id = item.item_id
-				) > 1
-			ORDER BY
-				item.item_id, sale.sale_id
-		`,
-	)
+	rows, err := isql.New(db).GetMultiplySoldItems(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute query: %w", err)
 	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	var multiplySoldItems []MultiplySoldItem
 
-	for rows.Next() {
-		var rowData struct {
-			ItemID          models.ID
-			AddedAt         models.Timestamp
-			Description     string
-			PriceInCents    models.MoneyInCents
-			CategoryID      models.ID
-			SellerID        models.ID
-			Donation        bool
-			Charity         bool
-			Large           bool
-			Frozen          bool
-			SaleID          models.ID
-			CashierID       models.ID
-			TransactionTime models.Timestamp
-		}
-		err := rows.Scan(
-			&rowData.ItemID,
-			&rowData.AddedAt,
-			&rowData.Description,
-			&rowData.PriceInCents,
-			&rowData.CategoryID,
-			&rowData.SellerID,
-			&rowData.Donation,
-			&rowData.Charity,
-			&rowData.Large,
-			&rowData.Frozen,
-			&rowData.SaleID,
-			&rowData.CashierID,
-			&rowData.TransactionTime,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read row: %w", err)
-		}
+	for i := range rows {
+		rowData := rows[i]
 
 		sale := models.Sale{
-			SaleID:          rowData.SaleID,
+			SaleID:          models.ID(rowData.SaleID),
 			CashierID:       rowData.CashierID,
-			TransactionTime: rowData.TransactionTime,
+			TransactionTime: models.Timestamp(rowData.TransactionTime),
 		}
 
 		lastMultiplySoldItemIndex := len(multiplySoldItems) - 1
@@ -1066,11 +621,11 @@ func GetMultiplySoldItems(ctx context.Context, db DatabaseQuerier) (r_result []M
 			multiplySoldItem := MultiplySoldItem{
 				Item: models.Item{
 					ItemID:       rowData.ItemID,
-					AddedAt:      rowData.AddedAt,
+					AddedAt:      models.Timestamp(rowData.AddedAt),
 					Description:  rowData.Description,
-					PriceInCents: rowData.PriceInCents,
-					CategoryID:   rowData.CategoryID,
-					SellerID:     rowData.SellerID,
+					PriceInCents: models.MoneyInCents(rowData.PriceInCents),
+					CategoryID:   models.ID(rowData.ItemCategoryID),
+					SellerID:     models.ID(rowData.SellerID),
 					Donation:     rowData.Donation,
 					Charity:      rowData.Charity,
 					Frozen:       rowData.Frozen,
@@ -1082,10 +637,6 @@ func GetMultiplySoldItems(ctx context.Context, db DatabaseQuerier) (r_result []M
 
 			multiplySoldItems = append(multiplySoldItems, multiplySoldItem)
 		}
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return multiplySoldItems, nil
@@ -1111,29 +662,7 @@ func GetSaleItemInformation(
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	row := db.QueryRowContext(ctx,
-		`
-			SELECT seller_id, description, price_in_cents, item_category_id, large, COUNT(si.sale_id)
-			FROM items i LEFT JOIN sale_items si ON i.item_id = si.item_id
-			GROUP BY i.item_id
-			HAVING i.item_id = ?
-		`,
-		itemID)
-
-	var sellerID models.ID
-	var description string
-	var itemCategoryID models.ID
-	var priceInCents models.MoneyInCents
-	var large bool
-	var sellCount int64
-	err := row.Scan(
-		&sellerID,
-		&description,
-		&priceInCents,
-		&itemCategoryID,
-		&large,
-		&sellCount,
-	)
+	row, err := isql.New(db).GetSaleItemInformation(ctx, itemID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("failed to get information about item %d: %w", itemID, dberr.ErrNoSuchItem)
 	}
@@ -1142,12 +671,12 @@ func GetSaleItemInformation(
 	}
 
 	saleItemInformation := SaleItemInformation{
-		SellerID:       sellerID,
-		Description:    description,
-		ItemCategoryID: itemCategoryID,
-		PriceInCents:   priceInCents,
-		Large:          large,
-		SellCount:      sellCount,
+		SellerID:       models.ID(row.SellerID),
+		Description:    row.Description,
+		ItemCategoryID: models.ID(row.ItemCategoryID),
+		PriceInCents:   models.MoneyInCents(row.PriceInCents),
+		Large:          row.Large,
+		SellCount:      row.Count,
 	}
 
 	return &saleItemInformation, nil
@@ -1166,50 +695,21 @@ func GetSalesOverview(ctx context.Context, db DatabaseQuerier) (r_result []Categ
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	rows, err := db.QueryContext(ctx,
-		`
-			SELECT item_categories.item_category_id, item_categories.name, SUM(COALESCE(i.price_in_cents, 0))
-			FROM item_categories
-			LEFT JOIN (
-				items INNER JOIN sale_items ON items.item_id = sale_items.item_id
-			) AS i ON i.item_category_id = item_categories.item_category_id
-			GROUP BY item_categories.item_category_id
-			ORDER BY item_categories.item_category_id
-		`,
-	)
-
+	rows, err := isql.New(db).GetSalesOverview(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
-
 	var categorySaleTotals []CategorySaleTotal
 
-	for rows.Next() {
-		var categoryID models.ID
-		var categoryName string
-		var totalInCents models.MoneyInCents
-		err := rows.Scan(
-			&categoryID,
-			&categoryName,
-			&totalInCents,
-		)
-		if err != nil {
-			return nil, err
-		}
-
+	for i := range rows {
 		categorySaleTotal := CategorySaleTotal{
-			CategoryID:   categoryID,
-			CategoryName: categoryName,
-			TotalInCents: totalInCents,
+			CategoryID:   rows[i].ItemCategoryID,
+			CategoryName: rows[i].Name,
+			TotalInCents: models.MoneyInCents(rows[i].Total),
 		}
 
 		categorySaleTotals = append(categorySaleTotals, categorySaleTotal)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return categorySaleTotals, nil
@@ -1243,91 +743,30 @@ func (q *GetSoldItemsQuery) Execute(ctx context.Context, db DatabaseQuerier) (r_
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	rows, err := db.QueryContext(ctx,
-		`
-			SELECT
-				sale.sale_id,
-				sale.cashier_id,
-				sale.transaction_time,
-				item.item_id,
-				item.added_at,
-				item.description,
-				item.price_in_cents,
-				item.item_category_id,
-				item.seller_id,
-				item.donation,
-				item.charity,
-				item.large
-			FROM
-				sales sale
-			INNER JOIN
-				sale_items sale_item ON sale.sale_id = sale_item.sale_id
-			INNER JOIN
-				items item ON sale_item.item_id = item.item_id
-			ORDER BY
-				sale.sale_id, item.item_id
-		`,
-	)
-
+	rows, err := isql.New(db).ListSoldItems(ctx)
 	if err != nil {
 		return nil, err
 	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	var soldItems []*SoldItem
 
-	for rows.Next() {
-		var saleID models.ID
-		var cashierID models.ID
-		var transactionTime models.Timestamp
-		var itemID models.ID
-		var addedAt models.Timestamp
-		var description string
-		var priceInCents models.MoneyInCents
-		var itemCategory models.ID
-		var sellerID models.ID
-		var donation bool
-		var charity bool
-		var large bool
-
-		err := rows.Scan(
-			&saleID,
-			&cashierID,
-			&transactionTime,
-			&itemID,
-			&addedAt,
-			&description,
-			&priceInCents,
-			&itemCategory,
-			&sellerID,
-			&donation,
-			&charity,
-			&large,
-		)
-		if err != nil {
-			return nil, err
-		}
-
+	for i := range rows {
 		soldItem := SoldItem{
-			SaleID:          saleID,
-			CashierID:       cashierID,
-			TransactionTime: transactionTime,
-			ItemID:          itemID,
-			AddedAt:         addedAt,
-			Description:     description,
-			PriceInCents:    priceInCents,
-			ItemCategoryID:  itemCategory,
-			SellerID:        sellerID,
-			Donation:        donation,
-			Charity:         charity,
-			Large:           large,
+			SaleID:          models.ID(rows[i].SaleID),
+			CashierID:       rows[i].CashierID,
+			TransactionTime: models.Timestamp(rows[i].TransactionTime),
+			ItemID:          rows[i].ItemID,
+			AddedAt:         models.Timestamp(rows[i].AddedAt),
+			Description:     rows[i].Description,
+			PriceInCents:    models.MoneyInCents(rows[i].PriceInCents),
+			ItemCategoryID:  models.ID(rows[i].ItemCategoryID),
+			SellerID:        models.ID(rows[i].SellerID),
+			Donation:        rows[i].Donation,
+			Charity:         rows[i].Charity,
+			Large:           rows[i].Large,
 		}
 
 		soldItems = append(soldItems, &soldItem)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return soldItems, nil

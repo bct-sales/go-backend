@@ -24,11 +24,23 @@ sql:
             go_type:
               import: "bctbackend/database/models"
               type: "ID"
-          - column: "sales.sale_id"
+          - column: "sales.cashier_id"
+            go_type:
+              import: "bctbackend/database/models"
+              type: "ID"
+          - column: "sale_items.sale_id"
+            go_type:
+              import: "bctbackend/database/models"
+              type: "ID"
+          - column: "sale_items.item_id"
             go_type:
               import: "bctbackend/database/models"
               type: "ID"
           - column: "sessions.session_id"
+            go_type:
+              import: "bctbackend/database/models"
+              type: "SessionID"
+          - column: "sessions.user_id"
             go_type:
               import: "bctbackend/database/models"
               type: "ID"

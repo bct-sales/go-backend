@@ -3,15 +3,12 @@ package queries
 import (
 	"bctbackend/algorithms"
 	dberr "bctbackend/database/errors"
-	"bctbackend/database/meta"
 	models "bctbackend/database/models"
 	"bctbackend/database/queries/internal/isql"
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
-
-	"github.com/Masterminds/squirrel"
 )
 
 // AddCategory adds a new category with the given name to the database.
@@ -175,50 +172,15 @@ func CountSoldItemsPerCategory(ctx context.Context, database DatabaseQuerier) (r
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	query := `
-		SELECT
-			item_categories.item_category_id, COUNT(sold_items.item_id)
-		FROM
-			item_categories
-		LEFT JOIN
-			(
-					sale_items
-				INNER JOIN
-					items
-				ON
-					sale_items.item_id = items.item_id
-			) as sold_items
-			ON
-				item_categories.item_category_id = sold_items.item_category_id
-		GROUP BY
-			item_categories.item_category_id
-	`
-
-	rows, err := database.QueryContext(ctx, query)
+	rows, err := isql.New(database).CountSoldItemsPerCategory(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get category counts: %w", err)
 	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	counts := make(map[models.ID]int)
 
-	for rows.Next() {
-		var categoryID models.ID
-		var count int
-
-		err := rows.Scan(
-			&categoryID,
-			&count,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read row: %w", err)
-		}
-
-		counts[categoryID] = count
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
+	for _, row := range rows {
+		counts[row.ItemCategoryID] = int(row.Count)
 	}
 
 	return counts, nil
@@ -230,11 +192,7 @@ func CategoryWithNameExists(ctx context.Context, db DatabaseQuerier, categoryNam
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	query := squirrel.Select("1").From(meta.ItemCategory.Table).Where(squirrel.Eq{meta.ItemCategory.Name: categoryName})
-	row := query.RunWith(newSquirrelRunner(ctx, db)).QueryRowContext(ctx)
-
-	var dummy int
-	err := row.Scan(&dummy)
+	_, err := isql.New(db).CategoryWithNameExists(ctx, categoryName)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return false, nil
@@ -275,8 +233,10 @@ func RenameCategory(ctx context.Context, db DatabaseQuerier, categoryID models.I
 		return dberr.ErrDuplicateCategoryName
 	}
 
-	query := squirrel.Update(meta.ItemCategory.Table).Set(meta.ItemCategory.Name, newCategoryName).Where(squirrel.Eq{meta.ItemCategory.ItemCategoryID: categoryID})
-	if _, err := query.RunWith(newSquirrelRunner(ctx, db)).ExecContext(ctx); err != nil {
+	if err := isql.New(db).RenameCategory(ctx, isql.RenameCategoryParams{
+		Name:           newCategoryName,
+		ItemCategoryID: categoryID,
+	}); err != nil {
 		return fmt.Errorf("failed to update category name: %w", err)
 	}
 

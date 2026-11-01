@@ -5,8 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
-
-	"github.com/Masterminds/squirrel"
 )
 
 type DatabaseQuerier interface {
@@ -14,39 +12,6 @@ type DatabaseQuerier interface {
 	PrepareContext(ctx context.Context, query string) (*sql.Stmt, error)
 	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
 	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
-}
-
-// squirrelRunner adapts a DatabaseQuerier to squirrel's RunWith, which requires
-// the legacy context-less Exec and Query methods. The ctx-less methods forward to
-// the querier's ctx methods with the context given here; prefer calling the
-// Context-suffixed execution methods (e.g. .ExecContext(ctx)) on the runner.
-type squirrelRunner struct {
-	ctx     context.Context
-	querier DatabaseQuerier
-}
-
-func newSquirrelRunner(ctx context.Context, querier DatabaseQuerier) squirrelRunner {
-	return squirrelRunner{ctx: ctx, querier: querier}
-}
-
-func (r squirrelRunner) Exec(query string, args ...any) (sql.Result, error) {
-	return r.querier.ExecContext(r.ctx, query, args...)
-}
-
-func (r squirrelRunner) Query(query string, args ...any) (*sql.Rows, error) {
-	return r.querier.QueryContext(r.ctx, query, args...)
-}
-
-func (r squirrelRunner) ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error) {
-	return r.querier.ExecContext(ctx, query, args...)
-}
-
-func (r squirrelRunner) QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
-	return r.querier.QueryContext(ctx, query, args...)
-}
-
-func (r squirrelRunner) QueryRowContext(ctx context.Context, query string, args ...any) squirrel.RowScanner {
-	return r.querier.QueryRowContext(ctx, query, args...)
 }
 
 type TransactionalDatabaseQuerier struct {

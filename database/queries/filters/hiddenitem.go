@@ -1,27 +1,14 @@
 package filters
 
-import (
-	"bctbackend/database/meta"
-	"fmt"
-
-	"github.com/Masterminds/squirrel"
-)
-
 type HiddenItem struct {
-	filter
-}
-
-func NewHiddenItemFilter(query *WhereClauses) HiddenItem {
-	return HiddenItem{
-		filter: filter{
-			storeClause: func(clause squirrel.Sqlizer) { query.addWhereClause(clause) },
-		},
-	}
+	hidden *bool
 }
 
 func (filter *HiddenItem) WithHidden(isHidden bool) {
-	columnName := fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.Hidden)
-	clause := squirrel.Eq{columnName: isHidden}
+	filter.hidden = &isHidden
+}
 
-	filter.storeClause(clause)
+// IsHidden returns the value set by WithHidden, or nil if it was never set.
+func (filter *HiddenItem) IsHidden() *bool {
+	return filter.hidden
 }

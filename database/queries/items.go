@@ -5,12 +5,11 @@ import (
 	"context"
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
+	"bctbackend/database/queries/internal/isql"
 	"database/sql"
 	"errors"
 	"fmt"
 	"strings"
-
-	sq "github.com/Masterminds/squirrel"
 )
 
 // GetItemIDs retrieves the IDs of all items in the database.
@@ -19,32 +18,9 @@ func GetItemIDs(ctx context.Context, db DatabaseQuerier) (r_result []models.ID, 
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	// Build SQL query
-	query := `
-		SELECT
-			item_id
-		FROM
-			items
-		ORDER BY
-			item_id ASC
-	`
-
-	// Perform query
-	rows, err := db.QueryContext(ctx, query)
+	itemIDs, err := isql.New(db).GetItemIDs(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute query to look up item ids in database: %w", err)
-	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
-
-	// Iterate over rows and collect item ids
-	var itemIDs []models.ID
-	for rows.Next() {
-		var itemID models.ID
-		err = rows.Scan(&itemID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %w", err)
-		}
-		itemIDs = append(itemIDs, itemID)
 	}
 
 	return itemIDs, nil
@@ -66,84 +42,30 @@ func GetSellerItems(ctx context.Context, db DatabaseQuerier, sellerID models.ID,
 		return nil, err
 	}
 
-	// Build SQL query
-	query := fmt.Sprintf(`
-		SELECT
-			item_id,
-			added_at,
-			description,
-			price_in_cents,
-			item_category_id,
-			seller_id,
-			donation,
-			charity,
-			frozen,
-			hidden,
-			large
-		FROM
-			%s
-		WHERE
-			seller_id = ?
-		ORDER BY
-			added_at, item_id ASC
-	`, ItemsTableFor(itemSelection))
-
-	rows, err := db.QueryContext(ctx, query, sellerID)
+	rows, err := isql.New(db).GetSellerItems(ctx, isql.GetSellerItemsParams{
+		SellerID: sellerID.Int64(),
+		Hidden:   itemSelectionToNullBool(itemSelection),
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute query to get seller item data from database: %w", err)
 	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
 	items := make([]*models.Item, 0)
 
-	for rows.Next() {
-		var id models.ID
-		var addedAt models.Timestamp
-		var description string
-		var priceInCents models.MoneyInCents
-		var itemCategoryID models.ID
-		var sellerID models.ID
-		var donation bool
-		var charity bool
-		var frozen bool
-		var hidden bool
-		var large bool
-
-		err = rows.Scan(
-			&id,
-			&addedAt,
-			&description,
-			&priceInCents,
-			&itemCategoryID,
-			&sellerID,
-			&donation,
-			&charity,
-			&frozen,
-			&hidden,
-			&large,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read row: %w", err)
-		}
-
-		item := models.Item{
-			ItemID:       id,
-			AddedAt:      addedAt,
-			Description:  description,
-			PriceInCents: priceInCents,
-			CategoryID:   itemCategoryID,
-			SellerID:     sellerID,
-			Donation:     donation,
-			Charity:      charity,
-			Frozen:       frozen,
-			Hidden:       hidden,
-			Large:        large,
-		}
-		items = append(items, &item)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
+	for i := range rows {
+		items = append(items, &models.Item{
+			ItemID:       rows[i].ItemID,
+			AddedAt:      models.Timestamp(rows[i].AddedAt),
+			Description:  rows[i].Description,
+			PriceInCents: models.MoneyInCents(rows[i].PriceInCents),
+			CategoryID:   models.ID(rows[i].ItemCategoryID),
+			SellerID:     models.ID(rows[i].SellerID),
+			Donation:     rows[i].Donation,
+			Charity:      rows[i].Charity,
+			Frozen:       rows[i].Frozen,
+			Hidden:       rows[i].Hidden,
+			Large:        rows[i].Large,
+		})
 	}
 
 	return items, nil
@@ -172,88 +94,38 @@ func GetItemsWithSaleCounts(ctx context.Context, db DatabaseQuerier, itemSelecti
 		}
 	}
 
-	itemsTable := ItemsTableFor(itemSelection)
-	var whereClause string
-	var arguments []any
+	var sellerFilter sql.NullInt64
 	if sellerID != nil {
-		whereClause = "WHERE seller_id = ?"
-		arguments = append(arguments, *sellerID)
-	} else {
-		whereClause = ""
+		sellerFilter = sql.NullInt64{Int64: sellerID.Int64(), Valid: true}
 	}
-	query := fmt.Sprintf(`
-		SELECT
-			i.item_id,
-			added_at,
-			description,
-			price_in_cents,
-			item_category_id,
-			seller_id,
-			donation,
-			charity,
-			frozen,
-			hidden,
-			large,
-			COALESCE(COUNT(sale_items.sale_id), 0) AS sale_count
-		FROM
-			%s i LEFT JOIN sale_items ON i.item_id = sale_items.item_id
-		%s
-		GROUP BY
-			i.item_id
-		ORDER BY
-			added_at, i.item_id ASC
-	`, itemsTable, whereClause)
-	rows, err := db.QueryContext(ctx, query, arguments...)
 
+	rows, err := isql.New(db).GetItemsWithSaleCounts(ctx, isql.GetItemsWithSaleCountsParams{
+		Hidden:   itemSelectionToNullBool(itemSelection),
+		SellerID: sellerFilter,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute query to get seller items with sale counts from database: %w", err)
 	}
 
-	defer func() { err = errors.Join(err, rows.Close()) }()
-
 	itemsWithSaleCount := make([]*ItemWithSaleCount, 0)
 
-	for rows.Next() {
-		var itemID models.ID
-		var addedAt models.Timestamp
-		var description string
-		var priceInCents models.MoneyInCents
-		var itemCategoryID models.ID
-		var sellerID models.ID
-		var donation bool
-		var charity bool
-		var frozen bool
-		var hidden bool
-		var large bool
-		var saleCount int
-
-		err = rows.Scan(&itemID, &addedAt, &description, &priceInCents, &itemCategoryID, &sellerID, &donation, &charity, &frozen, &hidden, &large, &saleCount)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read row: %w", err)
-		}
-
-		itemWithSaleCount := ItemWithSaleCount{
+	for i := range rows {
+		itemsWithSaleCount = append(itemsWithSaleCount, &ItemWithSaleCount{
 			Item: models.Item{
-				ItemID:       itemID,
-				AddedAt:      addedAt,
-				Description:  description,
-				PriceInCents: priceInCents,
-				CategoryID:   itemCategoryID,
-				SellerID:     sellerID,
-				Donation:     donation,
-				Charity:      charity,
-				Frozen:       frozen,
-				Hidden:       hidden,
-				Large:        large,
+				ItemID:       rows[i].ItemID,
+				AddedAt:      models.Timestamp(rows[i].AddedAt),
+				Description:  rows[i].Description,
+				PriceInCents: models.MoneyInCents(rows[i].PriceInCents),
+				CategoryID:   models.ID(rows[i].ItemCategoryID),
+				SellerID:     models.ID(rows[i].SellerID),
+				Donation:     rows[i].Donation,
+				Charity:      rows[i].Charity,
+				Frozen:       rows[i].Frozen,
+				Hidden:       rows[i].Hidden,
+				Large:        rows[i].Large,
 			},
-			SaleCount: saleCount,
-		}
-
-		itemsWithSaleCount = append(itemsWithSaleCount, &itemWithSaleCount)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
+			SaleCount: int(rows[i].SaleCount),
+		})
 	}
 
 	return itemsWithSaleCount, nil
@@ -275,93 +147,30 @@ func GetSellerItemsWithSaleCounts(ctx context.Context, db DatabaseQuerier, selle
 		return nil, err
 	}
 
-	rows, err := db.QueryContext(ctx,
-		`
-			SELECT
-				items.item_id,
-				added_at,
-				description,
-				price_in_cents,
-				item_category_id,
-				seller_id,
-				donation,
-				charity,
-				frozen,
-				hidden,
-				large,
-				COALESCE(COUNT(sale_items.sale_id), 0) AS sale_count
-			FROM
-				items LEFT JOIN sale_items ON items.item_id = sale_items.item_id
-			WHERE
-				seller_id = ? AND hidden = false
-			GROUP BY
-				items.item_id
-			ORDER BY
-				added_at, items.item_id ASC
-		`,
-		sellerID,
-	)
+	rows, err := isql.New(db).GetSellerItemsWithSaleCounts(ctx, sellerID.Int64())
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute query to get seller items with sale counts from database: %w", err)
 	}
 
-	defer func() { err = errors.Join(err, rows.Close()) }()
-
 	itemsWithSaleCount := make([]*ItemWithSaleCount, 0)
 
-	for rows.Next() {
-		var itemID models.ID
-		var addedAt models.Timestamp
-		var description string
-		var priceInCents models.MoneyInCents
-		var itemCategoryID models.ID
-		var sellerID models.ID
-		var donation bool
-		var charity bool
-		var frozen bool
-		var hidden bool
-		var large bool
-		var saleCount int
-
-		err = rows.Scan(&itemID,
-			&addedAt,
-			&description,
-			&priceInCents,
-			&itemCategoryID,
-			&sellerID,
-			&donation,
-			&charity,
-			&frozen,
-			&hidden,
-			&large,
-			&saleCount,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read row: %w", err)
-		}
-
-		itemWithSaleCount := ItemWithSaleCount{
+	for i := range rows {
+		itemsWithSaleCount = append(itemsWithSaleCount, &ItemWithSaleCount{
 			Item: models.Item{
-				ItemID:       itemID,
-				AddedAt:      addedAt,
-				Description:  description,
-				PriceInCents: priceInCents,
-				CategoryID:   itemCategoryID,
-				SellerID:     sellerID,
-				Donation:     donation,
-				Charity:      charity,
-				Frozen:       frozen,
-				Hidden:       hidden,
-				Large:        large,
+				ItemID:       rows[i].ItemID,
+				AddedAt:      models.Timestamp(rows[i].AddedAt),
+				Description:  rows[i].Description,
+				PriceInCents: models.MoneyInCents(rows[i].PriceInCents),
+				CategoryID:   models.ID(rows[i].ItemCategoryID),
+				SellerID:     models.ID(rows[i].SellerID),
+				Donation:     rows[i].Donation,
+				Charity:      rows[i].Charity,
+				Frozen:       rows[i].Frozen,
+				Hidden:       rows[i].Hidden,
+				Large:        rows[i].Large,
 			},
-			SaleCount: saleCount,
-		}
-
-		itemsWithSaleCount = append(itemsWithSaleCount, &itemWithSaleCount)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
+			SaleCount: int(rows[i].SaleCount),
+		})
 	}
 
 	return itemsWithSaleCount, nil
@@ -374,46 +183,7 @@ func GetItemWithID(ctx context.Context, db DatabaseQuerier, itemID models.ID) (r
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	row := db.QueryRowContext(ctx, `
-		SELECT
-			added_at,
-			description,
-			price_in_cents,
-			item_category_id,
-			seller_id,
-			donation,
-			charity,
-			frozen,
-			hidden,
-			large
-		FROM
-			items
-		WHERE
-			item_id = ?
-	`, itemID)
-
-	var addedAt models.Timestamp
-	var description string
-	var priceInCents models.MoneyInCents
-	var categoryID models.ID
-	var sellerID models.ID
-	var donation bool
-	var charity bool
-	var frozen bool
-	var hidden bool
-	var large bool
-	err := row.Scan(
-		&addedAt,
-		&description,
-		&priceInCents,
-		&categoryID,
-		&sellerID,
-		&donation,
-		&charity,
-		&frozen,
-		&hidden,
-		&large,
-	)
+	row, err := isql.New(db).GetItemWithID(ctx, itemID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, dberr.ErrNoSuchItem
@@ -423,16 +193,16 @@ func GetItemWithID(ctx context.Context, db DatabaseQuerier, itemID models.ID) (r
 
 	item := models.Item{
 		ItemID:       itemID,
-		AddedAt:      addedAt,
-		Description:  description,
-		PriceInCents: priceInCents,
-		CategoryID:   categoryID,
-		SellerID:     sellerID,
-		Donation:     donation,
-		Charity:      charity,
-		Frozen:       frozen,
-		Hidden:       hidden,
-		Large:        large,
+		AddedAt:      models.Timestamp(row.AddedAt),
+		Description:  row.Description,
+		PriceInCents: models.MoneyInCents(row.PriceInCents),
+		CategoryID:   models.ID(row.ItemCategoryID),
+		SellerID:     models.ID(row.SellerID),
+		Donation:     row.Donation,
+		Charity:      row.Charity,
+		Frozen:       row.Frozen,
+		Hidden:       row.Hidden,
+		Large:        row.Large,
 	}
 	return &item, nil
 }
@@ -497,49 +267,35 @@ func (q *GetItemStatisticsQuery) Execute(ctx context.Context, db DatabaseQuerier
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	query, queryArguments, err := q.buildSQLQuery()
-	if err != nil {
-		return nil, fmt.Errorf("failed to build SQL query: %w", err)
+	params := isql.GetItemStatisticsParams{
+		Hidden:         sql.NullBool{},
+		Description:    sql.NullString{},
+		ItemCategoryID: sql.NullInt64{},
 	}
-	row := db.QueryRowContext(ctx, query, queryArguments...)
 
-	var itemCount int
-	var totalValueInCents models.MoneyInCents
-	if err := row.Scan(&itemCount, &totalValueInCents); err != nil {
+	if q.hidden != nil {
+		params.Hidden = sql.NullBool{Bool: *q.hidden, Valid: true}
+	}
+
+	if q.descriptionPattern != nil {
+		params.Description = sql.NullString{String: *q.descriptionPattern, Valid: true}
+	}
+
+	if q.categoryID != nil {
+		params.ItemCategoryID = sql.NullInt64{Int64: q.categoryID.Int64(), Valid: true}
+	}
+
+	row, err := isql.New(db).GetItemStatistics(ctx, params)
+	if err != nil {
 		return nil, fmt.Errorf("failed to read row: %w", err)
 	}
 
 	result := ItemStatisticsResult{
-		ItemCount:         itemCount,
-		TotalValueInCents: totalValueInCents,
+		ItemCount:         int(row.Count),
+		TotalValueInCents: models.MoneyInCents(row.Column2),
 	}
 	return &result, nil
 }
-
-func (q *GetItemStatisticsQuery) buildSQLQuery() (string, []any, error) {
-	query := sq.Select("COUNT(item_id)", "COALESCE(SUM(price_in_cents), 0)").From("items")
-
-	if q.hidden != nil {
-		query = query.Where(sq.Eq{"hidden": *q.hidden})
-	}
-
-	if q.descriptionPattern != nil {
-		query = query.Where(sq.Like{"description": fmt.Sprintf("%%%s%%", *q.descriptionPattern)})
-	}
-
-	if q.categoryID != nil {
-		query = query.Where(sq.Eq{"item_category_id": *q.categoryID})
-	}
-
-	queryString, queryArguments, err := query.ToSql()
-	if err != nil {
-		return "", nil, fmt.Errorf("failed to build SQL query: %w", err)
-	}
-
-	return queryString, queryArguments, nil
-}
-
-
 
 // ItemWithIDExists returns true if an item with the given identifier exists in the database.
 func ItemWithIDExists(ctx context.Context, db DatabaseQuerier, itemID models.ID) (r_result bool, r_err error) {
@@ -547,20 +303,7 @@ func ItemWithIDExists(ctx context.Context, db DatabaseQuerier, itemID models.ID)
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	row := db.QueryRowContext(ctx,
-		`
-			SELECT
-				1
-			FROM
-				items
-			WHERE
-				item_id = $1
-		`,
-		itemID,
-	)
-
-	var result int
-	err := row.Scan(&result)
+	_, err := isql.New(db).ItemWithIDExists(ctx, itemID)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return false, nil
@@ -587,27 +330,12 @@ func ItemsExist(ctx context.Context, db DatabaseQuerier, itemIDs []models.ID) (r
 
 	itemIDs = algorithms.RemoveDuplicates(itemIDs)
 
-	// Set up SQL query
-	query := fmt.Sprintf(`
-		SELECT
-			COUNT(item_id)
-		FROM
-			items
-		WHERE
-			item_id IN (%s)
-	`, placeholderString(len(itemIDs)))
-
-	convertedItemIDs := algorithms.Map(itemIDs, func(id models.ID) any { return id })
-	row := db.QueryRowContext(ctx, query, convertedItemIDs...)
-
-	var count int
-	err := row.Scan(&count)
-
+	count, err := isql.New(db).CountItemsWithIDs(ctx, itemIDs)
 	if err != nil {
 		return false, err
 	}
 
-	return count == len(itemIDs), nil
+	return int(count) == len(itemIDs), nil
 }
 
 // EnsureItemsExist checks if all items with the given IDs exist in the database.
@@ -644,7 +372,6 @@ func UpdateFreezeStatusOfItems(ctx context.Context, transaction *TransactionalDa
 	}
 
 	itemIDs = algorithms.RemoveDuplicates(itemIDs)
-	convertedItemIDs := algorithms.Map(itemIDs, func(id models.ID) any { return id })
 
 	if err := EnsureItemsExist(ctx, transaction, itemIDs); err != nil {
 		return err
@@ -654,15 +381,10 @@ func UpdateFreezeStatusOfItems(ctx context.Context, transaction *TransactionalDa
 		return fmt.Errorf("failed to ensure no hidden items: %w", err)
 	}
 
-	query := fmt.Sprintf(`
-		UPDATE items
-		SET frozen = ?
-		WHERE item_id IN (%s)
-	`, placeholderString(len(itemIDs)))
-
-	sqlValues := append([]any{frozen}, convertedItemIDs...)
-
-	if _, err := transaction.ExecContext(ctx, query, sqlValues...); err != nil {
+	if err := isql.New(transaction).UpdateFreezeStatusOfItems(ctx, isql.UpdateFreezeStatusOfItemsParams{
+		Frozen:  frozen,
+		ItemIds: itemIDs,
+	}); err != nil {
 		return err
 	}
 
@@ -685,7 +407,6 @@ func UpdateHiddenStatusOfItems(ctx context.Context, transaction *TransactionalDa
 	}
 
 	itemIDs = algorithms.RemoveDuplicates(itemIDs)
-	convertedItemIDs := algorithms.Map(itemIDs, func(id models.ID) any { return id })
 
 	if err := EnsureItemsExist(ctx, transaction, itemIDs); err != nil {
 		return err
@@ -696,61 +417,14 @@ func UpdateHiddenStatusOfItems(ctx context.Context, transaction *TransactionalDa
 		return err
 	}
 
-	query := fmt.Sprintf(`
-		UPDATE items
-		SET hidden = ?
-		WHERE item_id IN (%s)
-	`, placeholderString(len(itemIDs)))
-
-	sqlValues := append([]any{hidden}, convertedItemIDs...)
-
-	if _, err := transaction.ExecContext(ctx, query, sqlValues...); err != nil {
+	if err := isql.New(transaction).UpdateHiddenStatusOfItems(ctx, isql.UpdateHiddenStatusOfItemsParams{
+		Hidden:  hidden,
+		ItemIds: itemIDs,
+	}); err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func partitionItemsBy(ctx context.Context, database DatabaseQuerier, itemIDs []models.ID, columnName string) (*algorithms.Set[models.ID], *algorithms.Set[models.ID], error) {
-	query := fmt.Sprintf(`
-		SELECT
-			item_id,
-			%s
-		FROM
-			items
-		WHERE
-			item_id IN (%s)
-	`, columnName, placeholderString(len(itemIDs)))
-	convertedItemIDs := algorithms.Map(itemIDs, func(id models.ID) any { return id })
-	rows, err := database.QueryContext(ctx, query, convertedItemIDs...)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to query items: %w", err)
-	}
-	defer func() { err = errors.Join(err, rows.Close()) }()
-
-	falseSet := algorithms.NewSet[models.ID]()
-	trueSet := algorithms.NewSet[models.ID]()
-	for rows.Next() {
-		var id models.ID
-		var hiddenStatus bool
-
-		err = rows.Scan(&id, &hiddenStatus)
-		if err != nil {
-			return nil, nil, fmt.Errorf("failed to scan items: %w", err)
-		}
-
-		if hiddenStatus {
-			trueSet.Add(id)
-		} else {
-			falseSet.Add(id)
-		}
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
-	}
-
-	return &falseSet, &trueSet, nil
 }
 
 // PartitionItemsByHiddenStatus partitions the given item IDs into two sets: one for unhidden items and one for hidden items.
@@ -760,7 +434,23 @@ func PartitionItemsByHiddenStatus(ctx context.Context, db DatabaseQuerier, itemI
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	return partitionItemsBy(ctx, db, itemIDs, "hidden")
+	rows, err := isql.New(db).GetHiddenStatusOfItems(ctx, itemIDs)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to query items: %w", err)
+	}
+
+	visible := algorithms.NewSet[models.ID]()
+	hidden := algorithms.NewSet[models.ID]()
+
+	for i := range rows {
+		if rows[i].Hidden {
+			hidden.Add(rows[i].ItemID)
+		} else {
+			visible.Add(rows[i].ItemID)
+		}
+	}
+
+	return &visible, &hidden, nil
 }
 
 // PartitionItemsByFrozenStatus partitions the given item IDs into two sets: one for nonfrozen items and one for frozen items.
@@ -770,7 +460,23 @@ func PartitionItemsByFrozenStatus(ctx context.Context, db DatabaseQuerier, itemI
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	return partitionItemsBy(ctx, db, itemIDs, "frozen")
+	rows, err := isql.New(db).GetFrozenStatusOfItems(ctx, itemIDs)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to query items: %w", err)
+	}
+
+	nonfrozen := algorithms.NewSet[models.ID]()
+	frozen := algorithms.NewSet[models.ID]()
+
+	for i := range rows {
+		if rows[i].Frozen {
+			frozen.Add(rows[i].ItemID)
+		} else {
+			nonfrozen.Add(rows[i].ItemID)
+		}
+	}
+
+	return &nonfrozen, &frozen, nil
 }
 
 // ContainsHiddenItems checks if any of the given items are hidden.
@@ -926,14 +632,7 @@ func RemoveItemWithID(ctx context.Context, db DatabaseQuerier, itemID models.ID)
 		return fmt.Errorf("failed to remove item with id %d: %w", itemID, dberr.ErrItemFrozen)
 	}
 
-	_, err := db.ExecContext(ctx,
-		`
-			DELETE FROM items
-			WHERE item_id = $1
-		`,
-		itemID,
-	)
-	if err != nil {
+	if err := isql.New(db).RemoveItemWithID(ctx, itemID); err != nil {
 		sold, err2 := HasAnyBeenSold(ctx, db, []models.ID{itemID})
 		if err2 != nil {
 			return err
@@ -982,17 +681,14 @@ func UpdateItem(ctx context.Context, db *TransactionalDatabaseQuerier, itemID mo
 		return dberr.ErrItemHidden
 	}
 
-	sqlUpdates := []string{}
-	sqlValues := []any{}
+	sqlValues := isql.UpdateItemParams{ItemID: itemID}
 
 	if itemUpdate.AddedAt != nil {
-		sqlUpdates = append(sqlUpdates, "added_at = ?")
-		sqlValues = append(sqlValues, *itemUpdate.AddedAt)
+		sqlValues.AddedAt = sql.NullInt64{Int64: int64(*itemUpdate.AddedAt), Valid: true}
 	}
 
 	if itemUpdate.Description != nil {
-		sqlUpdates = append(sqlUpdates, "description = ?")
-		sqlValues = append(sqlValues, *itemUpdate.Description)
+		sqlValues.Description = sql.NullString{String: *itemUpdate.Description, Valid: true}
 	}
 
 	if itemUpdate.PriceInCents != nil {
@@ -1000,8 +696,7 @@ func UpdateItem(ctx context.Context, db *TransactionalDatabaseQuerier, itemID mo
 			return fmt.Errorf("failed to updated item's price to %d: %w", *itemUpdate.PriceInCents, dberr.ErrInvalidPrice)
 		}
 
-		sqlUpdates = append(sqlUpdates, "price_in_cents = ?")
-		sqlValues = append(sqlValues, *itemUpdate.PriceInCents)
+		sqlValues.PriceInCents = sql.NullInt64{Int64: int64(*itemUpdate.PriceInCents), Valid: true}
 	}
 
 	if itemUpdate.CategoryID != nil {
@@ -1014,33 +709,26 @@ func UpdateItem(ctx context.Context, db *TransactionalDatabaseQuerier, itemID mo
 			return fmt.Errorf("failed to update item's category to %d", *itemUpdate.CategoryID)
 		}
 
-		sqlUpdates = append(sqlUpdates, "item_category_id = ?")
-		sqlValues = append(sqlValues, *itemUpdate.CategoryID)
+		sqlValues.ItemCategoryID = sql.NullInt64{Int64: itemUpdate.CategoryID.Int64(), Valid: true}
 	}
 
 	if itemUpdate.Donation != nil {
-		sqlUpdates = append(sqlUpdates, "donation = ?")
-		sqlValues = append(sqlValues, *itemUpdate.Donation)
+		sqlValues.Donation = sql.NullBool{Bool: *itemUpdate.Donation, Valid: true}
 	}
 
 	if itemUpdate.Charity != nil {
-		sqlUpdates = append(sqlUpdates, "charity = ?")
-		sqlValues = append(sqlValues, *itemUpdate.Charity)
+		sqlValues.Charity = sql.NullBool{Bool: *itemUpdate.Charity, Valid: true}
 	}
 
 	if itemUpdate.Large != nil {
-		sqlUpdates = append(sqlUpdates, "large = ?")
-		sqlValues = append(sqlValues, *itemUpdate.Large)
+		sqlValues.Large = sql.NullBool{Bool: *itemUpdate.Large, Valid: true}
 	}
 
-	if len(sqlUpdates) == 0 {
+	if !sqlValues.AddedAt.Valid && !sqlValues.Description.Valid && !sqlValues.PriceInCents.Valid && !sqlValues.ItemCategoryID.Valid && !sqlValues.Donation.Valid && !sqlValues.Charity.Valid && !sqlValues.Large.Valid {
 		return nil
 	}
 
-	sqlValues = append(sqlValues, itemID)
-	query := fmt.Sprintf("UPDATE %s SET %s WHERE item_id = ?", "items", strings.Join(sqlUpdates, ", "))
-
-	if _, err := db.ExecContext(ctx, query, sqlValues...); err != nil {
+	if err := isql.New(db).UpdateItem(ctx, sqlValues); err != nil {
 		return err
 	}
 
@@ -1051,7 +739,9 @@ type AddItemFunction func(addedAt models.Timestamp, description string, priceInC
 
 type AddItemsCallback func(addItem AddItemFunction)
 
-// AddItems allows to add multiple items to the database at once.
+// NOTE: AddItems is kept as raw SQL: sqlc's SQLite engine cannot capture a
+// query parameter passed to the json_each table-valued function, which the
+// batch insert would require. See docs/superpowers/specs/2026-11-01-sqlc-query-migration-design.md.
 func AddItems(ctx context.Context, db DatabaseQuerier, callback AddItemsCallback) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -1093,19 +783,9 @@ func DoesSellerHaveFrozenItems(ctx context.Context, db *TransactionalDatabaseQue
 		return false, err
 	}
 
-	query := `
-		SELECT
-			1
-		FROM
-			items
-		WHERE
-			seller_id = ? AND items.frozen
-	`
+	_, err := isql.New(db).DoesSellerHaveFrozenItems(ctx, sellerID.Int64())
 
-	row := db.QueryRowContext(ctx, query, sellerID)
-
-	var dummy uint64
-	if err := row.Scan(&dummy); err != nil {
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return false, nil
 		}
@@ -1135,12 +815,10 @@ func MoveItemsToNewSeller(ctx context.Context, db *TransactionalDatabaseQuerier,
 		return err
 	}
 
-	query := `
-		UPDATE items
-		SET seller_id = ?
-		WHERE seller_id = ?
-	`
-	if _, err := db.ExecContext(ctx, query, newSellerID, oldSellerID); err != nil {
+	if err := isql.New(db).MoveItemsToNewSeller(ctx, isql.MoveItemsToNewSellerParams{
+		SellerID:   newSellerID.Int64(),
+		SellerID_2: oldSellerID.Int64(),
+	}); err != nil {
 		return err
 	}
 

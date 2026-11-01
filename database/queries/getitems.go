@@ -3,12 +3,10 @@ package queries
 import (
 	"context"
 	dberr "bctbackend/database/errors"
-	"bctbackend/database/meta"
 	"bctbackend/database/models"
-	"errors"
+	"bctbackend/database/queries/internal/isql"
+	"database/sql"
 	"fmt"
-
-	sq "github.com/Masterminds/squirrel"
 )
 
 type HiddenFilter struct {
@@ -94,60 +92,109 @@ func (q *GetItemsQuery) Execute(ctx context.Context, db DatabaseQuerier, receive
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	queryString, queryArguments, err := q.buildSQLQuery()
-	if err != nil {
-		return err
+	// The generated queries are split in two because sqlc's slice expansion is
+	// incompatible with trailing LIMIT/OFFSET parameters (they would share
+	// placeholder indices). No caller combines item IDs with a row range.
+	// Mirror the previous dynamic query: an unset limit means no LIMIT clause
+	// at all (sentinel -1, which SQLite treats as unbounded), and an OFFSET
+	// without LIMIT used an implicit 100000-row limit.
+	limit := int64(-1)
+	offset := int64(0)
+	if q.RowRange.Limit != nil {
+		limit = int64(*q.RowRange.Limit)
+	} else if q.RowRange.Offset != nil {
+		limit = 100000
+	}
+	if q.RowRange.Offset != nil {
+		offset = int64(*q.RowRange.Offset)
 	}
 
-	// Perform query
-	rows, err := db.QueryContext(ctx, queryString, queryArguments...)
-	if err != nil {
-		return fmt.Errorf("failed to execute query %s to look up items in database: %w", queryString, err)
-	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
+	var rows []isql.Item
+	var err error
 
-	// Iterate over rows and call receiver function for each item
-	for rows.Next() {
-		var itemID models.ID
-		var addedAt models.Timestamp
-		var description string
-		var priceInCents models.MoneyInCents
-		var itemCategoryID models.ID
-		var sellerID models.ID
-		var donation bool
-		var charity bool
-		var frozen bool
-		var hidden bool
-		var large bool
-		err = rows.Scan(
-			&itemID,
-			&addedAt,
-			&description,
-			&priceInCents,
-			&itemCategoryID,
-			&sellerID,
-			&donation,
-			&charity,
-			&frozen,
-			&hidden,
-			&large,
-		)
-		if err != nil {
-			return fmt.Errorf("failed to scan row: %w", err)
+	if q.itemIDs != nil {
+		params := isql.GetItemsWithIDsParams{
+			Hidden:         sql.NullBool{},
+			Frozen:         sql.NullBool{},
+			ItemCategoryID: sql.NullInt64{},
+			Description:    sql.NullString{},
+			Large:          sql.NullBool{},
+			ItemIds:        q.itemIDs,
 		}
 
+		if q.hidden != nil {
+			params.Hidden = sql.NullBool{Bool: *q.hidden, Valid: true}
+		}
+
+		if q.frozen != nil {
+			params.Frozen = sql.NullBool{Bool: *q.frozen, Valid: true}
+		}
+
+		if q.categoryID != nil {
+			params.ItemCategoryID = sql.NullInt64{Int64: q.categoryID.Int64(), Valid: true}
+		}
+
+		if q.descriptionPattern != nil {
+			params.Description = sql.NullString{String: *q.descriptionPattern, Valid: true}
+		}
+
+		if q.large != nil {
+			params.Large = sql.NullBool{Bool: *q.large, Valid: true}
+		}
+
+		rows, err = isql.New(db).GetItemsWithIDs(ctx, params)
+	} else {
+		params := isql.GetItemsParams{
+			Hidden:         sql.NullBool{},
+			Frozen:         sql.NullBool{},
+			ItemCategoryID: sql.NullInt64{},
+			Description:    sql.NullString{},
+			Large:          sql.NullBool{},
+			Limit:          limit,
+			Offset:         offset,
+		}
+
+		if q.hidden != nil {
+			params.Hidden = sql.NullBool{Bool: *q.hidden, Valid: true}
+		}
+
+		if q.frozen != nil {
+			params.Frozen = sql.NullBool{Bool: *q.frozen, Valid: true}
+		}
+
+		if q.categoryID != nil {
+			params.ItemCategoryID = sql.NullInt64{Int64: q.categoryID.Int64(), Valid: true}
+		}
+
+		if q.descriptionPattern != nil {
+			params.Description = sql.NullString{String: *q.descriptionPattern, Valid: true}
+		}
+
+		if q.large != nil {
+			params.Large = sql.NullBool{Bool: *q.large, Valid: true}
+		}
+
+		rows, err = isql.New(db).GetItems(ctx, params)
+	}
+
+	if err != nil {
+		return fmt.Errorf("failed to execute query to look up items in database: %w", err)
+	}
+
+	// Iterate over rows and call receiver function for each item
+	for i := range rows {
 		item := models.Item{
-			ItemID:       itemID,
-			AddedAt:      addedAt,
-			Description:  description,
-			PriceInCents: priceInCents,
-			CategoryID:   itemCategoryID,
-			SellerID:     sellerID,
-			Donation:     donation,
-			Charity:      charity,
-			Frozen:       frozen,
-			Hidden:       hidden,
-			Large:        large,
+			ItemID:       rows[i].ItemID,
+			AddedAt:      models.Timestamp(rows[i].AddedAt),
+			Description:  rows[i].Description,
+			PriceInCents: models.MoneyInCents(rows[i].PriceInCents),
+			CategoryID:   models.ID(rows[i].ItemCategoryID),
+			SellerID:     models.ID(rows[i].SellerID),
+			Donation:     rows[i].Donation,
+			Charity:      rows[i].Charity,
+			Frozen:       rows[i].Frozen,
+			Hidden:       rows[i].Hidden,
+			Large:        rows[i].Large,
 		}
 
 		// If receiver returns error, abort enumeration
@@ -156,71 +203,5 @@ func (q *GetItemsQuery) Execute(ctx context.Context, db DatabaseQuerier, receive
 		}
 	}
 
-	if err := rows.Err(); err != nil {
-		return fmt.Errorf("error occurred while iterating over rows: %w", err)
-	}
-
 	return nil
-}
-
-func (q *GetItemsQuery) buildSQLQuery() (string, []any, error) {
-	query := sq.Select(
-		meta.Item.ItemID,
-		meta.Item.AddedAt,
-		meta.Item.Description,
-		meta.Item.PriceInCents,
-		meta.Item.ItemCategoryID,
-		meta.Item.SellerID,
-		meta.Item.Donation,
-		meta.Item.Charity,
-		meta.Item.Frozen,
-		meta.Item.Hidden,
-		meta.Item.Large,
-	)
-	query = query.From(meta.Item.Table)
-	query = query.OrderBy(fmt.Sprintf("%s ASC", meta.Item.ItemID))
-
-	if q.frozen != nil {
-		query = query.Where(sq.Eq{"frozen": *q.frozen})
-	}
-
-	if q.hidden != nil {
-		query = query.Where(sq.Eq{"hidden": *q.hidden})
-	}
-
-	if q.RowRange.Limit != nil {
-		query = query.Limit(*q.RowRange.Limit)
-	}
-
-	if q.RowRange.Offset != nil {
-		// Offset without limit is not allowed
-		if q.RowRange.Limit == nil {
-			query = query.Limit(100000)
-		}
-
-		query = query.Offset(*q.RowRange.Offset)
-	}
-
-	if q.categoryID != nil {
-		query = query.Where(sq.Eq{"item_category_id": (*q.categoryID).Int64()})
-	}
-
-	if q.descriptionPattern != nil {
-		query = query.Where(sq.Like{"description": q.descriptionPattern})
-	}
-
-	if q.large != nil {
-		query = query.Where(sq.Eq{"large": *q.large})
-	}
-
-	if q.itemIDs != nil {
-		query = query.Where(sq.Eq{"item_id": q.itemIDs})
-	}
-
-	queryString, queryArguments, err := query.ToSql()
-	if err != nil {
-		return "", nil, fmt.Errorf("failed to build SQL query: %w", err)
-	}
-
-	return queryString, queryArguments, nil
 }

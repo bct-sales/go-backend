@@ -58,6 +58,21 @@ func (q *Queries) CategoryWithIDExists(ctx context.Context, itemCategoryID model
 	return column_1, err
 }
 
+const categoryWithNameExists = `-- name: CategoryWithNameExists :one
+SELECT 1
+FROM
+    item_categories
+WHERE
+    name = ?
+`
+
+func (q *Queries) CategoryWithNameExists(ctx context.Context, name string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, categoryWithNameExists, name)
+	var column_1 int64
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const countItemsPerCategory = `-- name: CountItemsPerCategory :many
 SELECT
     item_categories.item_category_id, COUNT(items.item_id)
@@ -136,6 +151,47 @@ func (q *Queries) CountItemsPerCategoryByHidden(ctx context.Context, hidden bool
 	return items, nil
 }
 
+const countSoldItemsPerCategory = `-- name: CountSoldItemsPerCategory :many
+SELECT
+    item_categories.item_category_id, COUNT(sale_items.item_id)
+FROM
+    item_categories
+LEFT JOIN
+    items ON item_categories.item_category_id = items.item_category_id
+LEFT JOIN
+    sale_items ON sale_items.item_id = items.item_id
+GROUP BY
+    item_categories.item_category_id
+`
+
+type CountSoldItemsPerCategoryRow struct {
+	ItemCategoryID models.ID
+	Count          int64
+}
+
+func (q *Queries) CountSoldItemsPerCategory(ctx context.Context) ([]CountSoldItemsPerCategoryRow, error) {
+	rows, err := q.db.QueryContext(ctx, countSoldItemsPerCategory)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []CountSoldItemsPerCategoryRow
+	for rows.Next() {
+		var i CountSoldItemsPerCategoryRow
+		if err := rows.Scan(&i.ItemCategoryID, &i.Count); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listCategories = `-- name: ListCategories :many
 SELECT item_category_id, name
 FROM item_categories
@@ -163,4 +219,23 @@ func (q *Queries) ListCategories(ctx context.Context) ([]ItemCategory, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const renameCategory = `-- name: RenameCategory :exec
+UPDATE
+    item_categories
+SET
+    name = ?
+WHERE
+    item_category_id = ?
+`
+
+type RenameCategoryParams struct {
+	Name           string
+	ItemCategoryID models.ID
+}
+
+func (q *Queries) RenameCategory(ctx context.Context, arg RenameCategoryParams) error {
+	_, err := q.db.ExecContext(ctx, renameCategory, arg.Name, arg.ItemCategoryID)
+	return err
 }

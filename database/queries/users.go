@@ -3,16 +3,43 @@ package queries
 import (
 	"context"
 	dberr "bctbackend/database/errors"
-	"bctbackend/database/meta"
 	models "bctbackend/database/models"
+	"bctbackend/database/queries/internal/isql"
 	"database/sql"
 	"errors"
 	"fmt"
 	"strings"
-
-	"github.com/Masterminds/squirrel"
-	sq "github.com/Masterminds/squirrel"
 )
+
+func timestampToNullInt64(timestamp *models.Timestamp) sql.NullInt64 {
+	if timestamp == nil {
+		return sql.NullInt64{}
+	}
+
+	return sql.NullInt64{Int64: int64(*timestamp), Valid: true}
+}
+
+func nullInt64ToTimestamp(value sql.NullInt64) *models.Timestamp {
+	if !value.Valid {
+		return nil
+	}
+
+	timestamp := models.Timestamp(value.Int64)
+	return &timestamp
+}
+
+func sellerItemCountFlagToNullBool(flag GetSellerItemCountFlag) sql.NullBool {
+	switch flag {
+	case IncludeAll:
+		return sql.NullBool{}
+	case Exclude:
+		return sql.NullBool{Bool: false, Valid: true}
+	case IncludeOnly:
+		return sql.NullBool{Bool: true, Valid: true}
+	default:
+		return sql.NullBool{}
+	}
+}
 
 // AddUserWithID adds a user to the database with a specific user ID.
 // An ErrUserIDAlreadyInUse is returned if the user ID is already in use.
@@ -34,17 +61,13 @@ func AddUserWithID(
 		return fmt.Errorf("invalid role id %d: %w", roleID.ID, dberr.ErrNoSuchRole)
 	}
 
-	_, err := database.ExecContext(ctx,
-		`
-			INSERT INTO users (user_id, role_id, created_at, last_activity, password)
-			VALUES ($1, $2, $3, $4, $5)
-		`,
-		userID,
-		roleID.Int64(),
-		createdAt,
-		lastActivity,
-		password,
-	)
+	err := isql.New(database).AddUserWithID(ctx, isql.AddUserWithIDParams{
+		UserID:       userID,
+		RoleID:       roleID.Int64(),
+		CreatedAt:    int64(createdAt),
+		LastActivity: timestampToNullInt64(lastActivity),
+		Password:     password,
+	})
 
 	if err != nil {
 		userExists, err := UserWithIDExists(ctx, database, userID)
@@ -77,31 +100,24 @@ func AddUser(
 		return 0, fmt.Errorf("invalid role id %d: %w", roleID.ID, dberr.ErrNoSuchRole)
 	}
 
-	result, err := db.ExecContext(ctx,
-		`
-			INSERT INTO users (role_id, created_at, last_activity, password)
-			VALUES ($1, $2, $3, $4)
-		`,
-		roleID.Int64(),
-		createdAt,
-		lastActivity,
-		password,
-	)
-
+	userID, err := isql.New(db).AddUser(ctx, isql.AddUserParams{
+		RoleID:       roleID.Int64(),
+		CreatedAt:    int64(createdAt),
+		LastActivity: timestampToNullInt64(lastActivity),
+		Password:     password,
+	})
 	if err != nil {
 		return 0, err
 	}
 
-	userID, err := result.LastInsertId()
-	if err != nil {
-		return 0, fmt.Errorf("failed to get last insert id: %w", err)
-	}
-
-	return models.ID(userID), nil
+	return userID, nil
 }
 
 type AddUsersCallback func(addUser func(userID models.ID, roleID models.RoleID, createdAt models.Timestamp, lastActivity *models.Timestamp, password string))
 
+// NOTE: AddUsers is kept as raw SQL: sqlc's SQLite engine cannot capture a
+// query parameter passed to the json_each table-valued function, which the
+// batch insert would require. See docs/superpowers/specs/2026-11-01-sqlc-query-migration-design.md.
 func AddUsers(ctx context.Context, database DatabaseQuerier, callback AddUsersCallback) (r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)
@@ -136,20 +152,7 @@ func UserWithIDExists(ctx context.Context, db DatabaseQuerier, userID models.ID)
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	row := db.QueryRowContext(ctx,
-		`
-			SELECT
-				1
-			FROM
-				users
-			WHERE
-				user_id = $1
-		`,
-		userID,
-	)
-
-	var value int
-	err := row.Scan(&value)
+	_, err := isql.New(db).UserWithIDExists(ctx, userID)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -169,26 +172,7 @@ func GetUserWithID(ctx context.Context, db DatabaseQuerier, userID models.ID) (r
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	row := db.QueryRowContext(ctx,
-		`
-			SELECT
-				role_id,
-				created_at,
-				last_activity,
-				password
-			FROM
-				users
-			WHERE
-				user_id = $1
-		`,
-		userID,
-	)
-
-	var roleID models.RoleID
-	var createdAt models.Timestamp
-	var lastActivity *models.Timestamp
-	var password string
-	err := row.Scan(&roleID.ID, &createdAt, &lastActivity, &password)
+	user, err := isql.New(db).GetUser(ctx, userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("failed to get user with id %d: %w", userID, dberr.ErrNoSuchUser)
@@ -197,8 +181,14 @@ func GetUserWithID(ctx context.Context, db DatabaseQuerier, userID models.ID) (r
 		return nil, err
 	}
 
-	user := models.User{UserID: userID, RoleID: roleID, CreatedAt: createdAt, LastActivity: lastActivity, Password: password}
-	return &user, nil
+	result := models.User{
+		UserID:       user.UserID,
+		RoleID:       models.RoleID{ID: models.ID(user.RoleID)},
+		CreatedAt:    models.Timestamp(user.CreatedAt),
+		LastActivity: nullInt64ToTimestamp(user.LastActivity),
+		Password:     user.Password,
+	}
+	return &result, nil
 }
 
 // GetUsers retrieves all users from the database.
@@ -207,48 +197,22 @@ func GetUsers(ctx context.Context, db DatabaseQuerier, receiver func(*models.Use
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	rows, err := db.QueryContext(ctx,
-		`
-			SELECT
-				user_id,
-				role_id,
-				created_at,
-				last_activity,
-				password
-			FROM
-				users
-		`,
-	)
+	users, err := isql.New(db).GetUsers(ctx)
 	if err != nil {
 		return err
 	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
-	for rows.Next() {
-		var userID models.ID
-		var roleID models.RoleID
-		var createdAt models.Timestamp
-		var lastActivity *models.Timestamp
-		var password string
-
-		if err := rows.Scan(&userID, &roleID.ID, &createdAt, &lastActivity, &password); err != nil {
-			return err
-		}
-
+	for i := range users {
 		user := models.User{
-			UserID:       userID,
-			RoleID:       roleID,
-			CreatedAt:    createdAt,
-			LastActivity: lastActivity,
-			Password:     password,
+			UserID:       users[i].UserID,
+			RoleID:       models.RoleID{ID: models.ID(users[i].RoleID)},
+			CreatedAt:    models.Timestamp(users[i].CreatedAt),
+			LastActivity: nullInt64ToTimestamp(users[i].LastActivity),
+			Password:     users[i].Password,
 		}
 		if err := receiver(&user); err != nil {
 			return err
 		}
-	}
-
-	if err := rows.Err(); err != nil {
-		return fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return nil
@@ -264,60 +228,25 @@ func GetUsersWithItemCount(ctx context.Context, db DatabaseQuerier, itemSelectio
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	query := fmt.Sprintf(
-		`
-			SELECT
-				users.user_id,
-				role_id,
-				created_at,
-				last_activity,
-				password,
-				COALESCE(COUNT(i.item_id), 0) AS item_count
-			FROM
-				users
-			LEFT JOIN %s i ON users.user_id = i.seller_id
-			GROUP BY
-				users.user_id
-			ORDER BY
-				users.user_id
-		`,
-		ItemsTableFor(itemSelection))
-	rows, err := db.QueryContext(ctx, query)
-
+	rows, err := isql.New(db).GetUsersWithItemCount(ctx, itemSelectionToNullBool(itemSelection))
 	if err != nil {
 		return err
 	}
 
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
-
-	for rows.Next() {
-		var userID models.ID
-		var roleID models.RoleID
-		var createdAt models.Timestamp
-		var lastActivity *models.Timestamp
-		var password string
-		var itemCount int
-		if err := rows.Scan(&userID, &roleID.ID, &createdAt, &lastActivity, &password, &itemCount); err != nil {
-			return err
-		}
-
+	for i := range rows {
 		userWithItemCount := UserWithItemCount{
 			User: models.User{
-				UserID:       userID,
-				RoleID:       roleID,
-				CreatedAt:    createdAt,
-				LastActivity: lastActivity,
-				Password:     password,
+				UserID:       rows[i].UserID,
+				RoleID:       models.RoleID{ID: models.ID(rows[i].RoleID)},
+				CreatedAt:    models.Timestamp(rows[i].CreatedAt),
+				LastActivity: nullInt64ToTimestamp(rows[i].LastActivity),
+				Password:     rows[i].Password,
 			},
-			ItemCount: itemCount,
+			ItemCount: int(rows[i].ItemCount),
 		}
 		if err := receiver(&userWithItemCount); err != nil {
 			return err
 		}
-	}
-
-	if err := rows.Err(); err != nil {
-		return fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return nil
@@ -338,15 +267,10 @@ func UpdateUserPassword(ctx context.Context, database DatabaseQuerier, userID mo
 		return fmt.Errorf("failed to update password of user %d: %w", userID, dberr.ErrNoSuchUser)
 	}
 
-	_, err = database.ExecContext(ctx,
-		`
-			UPDATE users
-			SET password = $1
-			WHERE user_id = $2
-		`,
-		password,
-		userID,
-	)
+	err = isql.New(database).UpdateUserPassword(ctx, isql.UpdateUserPasswordParams{
+		Password: password,
+		UserID:   userID,
+	})
 
 	return err
 }
@@ -408,13 +332,7 @@ func RemoveUserWithID(ctx context.Context, db DatabaseQuerier, userID models.ID)
 		}
 	}
 
-	_, err := db.ExecContext(ctx,
-		`
-			DELETE FROM users
-			WHERE user_id = $1
-		`,
-		userID,
-	)
+	err := isql.New(db).RemoveUserWithID(ctx, userID)
 
 	return err
 }
@@ -436,15 +354,10 @@ func UpdateLastActivity(ctx context.Context, db DatabaseQuerier, userID models.I
 		}
 	}
 
-	_, err := db.ExecContext(ctx,
-		`
-			UPDATE users
-			SET last_activity = $1
-			WHERE user_id = $2
-		`,
-		lastActivity,
-		userID,
-	)
+	err := isql.New(db).UpdateLastActivity(ctx, isql.UpdateLastActivityParams{
+		LastActivity: sql.NullInt64{Int64: int64(lastActivity), Valid: true},
+		UserID:       userID,
+	})
 
 	return err
 }
@@ -473,40 +386,16 @@ func CountSellerItems(ctx context.Context, db DatabaseQuerier, sellerID models.I
 		return 0, fmt.Errorf("failed to get hidden item count of user %d: %w", sellerID, err)
 	}
 
-	query := sq.Select("COUNT(item_id)").From("items").Where(sq.Eq{"seller_id": sellerID})
-
-	switch frozen {
-	case IncludeAll:
-		// No additional condition needed, all items are included
-	case Exclude:
-		query = query.Where(sq.Eq{"frozen": false})
-	case IncludeOnly:
-		query = query.Where(sq.Eq{"frozen": true})
-	}
-
-	switch hidden {
-	case IncludeAll:
-		// No additional condition needed, all items are included
-	case Exclude:
-		query = query.Where(sq.Eq{"hidden": false})
-	case IncludeOnly:
-		query = query.Where(sq.Eq{"hidden": true})
-	}
-
-	queryString, queryArguments, sqlErr := query.ToSql()
-	if sqlErr != nil {
-		return 0, fmt.Errorf("failed to build SQL query")
-	}
-	row := db.QueryRowContext(ctx, queryString, queryArguments...)
-
-	var itemCount int
-	err := row.Scan(&itemCount)
-
+	itemCount, err := isql.New(db).CountSellerItems(ctx, isql.CountSellerItemsParams{
+		SellerID: sellerID.Int64(),
+		Frozen:   sellerItemCountFlagToNullBool(frozen),
+		Hidden:   sellerItemCountFlagToNullBool(hidden),
+	})
 	if err != nil {
 		return 0, fmt.Errorf("failed to get seller's %d item count: %w", sellerID, err)
 	}
 
-	return itemCount, nil
+	return int(itemCount), nil
 }
 
 // GetSellerTotalValueOfAllItems returns the total value of all items owned by a given seller.
@@ -523,28 +412,15 @@ func GetSellerTotalValueOfAllItems(ctx context.Context, db DatabaseQuerier, sell
 		return 0, fmt.Errorf("failed to get total price of all items of user %d: %w", sellerID, err)
 	}
 
-	itemTable := ItemsTableFor(itemSelection)
-	query := fmt.Sprintf(
-		`
-			SELECT
-				COALESCE(SUM(i.price_in_cents), 0)
-			FROM
-				%s i
-			WHERE
-				i.seller_id = $1
-		`,
-		itemTable,
-	)
-	row := db.QueryRowContext(ctx, query, sellerID)
-
-	var totalPrice models.MoneyInCents
-	err := row.Scan(&totalPrice)
-
+	totalValue, err := isql.New(db).GetSellerTotalValueOfAllItems(ctx, isql.GetSellerTotalValueOfAllItemsParams{
+		SellerID: sellerID.Int64(),
+		Hidden:   itemSelectionToNullBool(itemSelection),
+	})
 	if err != nil {
 		return 0, err
 	}
 
-	return totalPrice, nil
+	return models.MoneyInCents(totalValue), nil
 }
 
 func CollectPasswords(ctx context.Context, db DatabaseQuerier) (r_result []string, r_err error) {
@@ -552,22 +428,10 @@ func CollectPasswords(ctx context.Context, db DatabaseQuerier) (r_result []strin
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	query := squirrel.Select(meta.User.Password).From(meta.User.Table)
-	rows, err := query.RunWith(newSquirrelRunner(ctx, db)).QueryContext(ctx)
+	passwords, err := isql.New(db).CollectPasswords(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch passwords from database: %w", err)
 	}
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
 
-	for rows.Next() {
-		var password string
-
-		if err := rows.Scan(&password); err != nil {
-			return nil, fmt.Errorf("failed to scan row while fetching password: %w", err)
-		}
-
-		r_result = append(r_result, password)
-	}
-
-	return r_result, nil
+	return passwords, nil
 }

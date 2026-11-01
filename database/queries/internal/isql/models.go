@@ -35,19 +35,19 @@ type Role struct {
 }
 
 type Sale struct {
-	SaleID          models.ID
-	CashierID       int64
+	SaleID          int64
+	CashierID       models.ID
 	TransactionTime int64
 }
 
 type SaleItem struct {
-	SaleID int64
-	ItemID int64
+	SaleID models.ID
+	ItemID models.ID
 }
 
 type Session struct {
-	SessionID      models.ID
-	UserID         int64
+	SessionID      models.SessionID
+	UserID         models.ID
 	ExpirationTime int64
 }
 

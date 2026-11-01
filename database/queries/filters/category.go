@@ -1,28 +1,30 @@
 package filters
 
 import (
-	"bctbackend/database/meta"
 	"bctbackend/database/models"
-	"fmt"
-
-	"github.com/Masterminds/squirrel"
 )
 
 type Category struct {
-	filter
-}
-
-func NewCategoryFilter(query *WhereClauses) Category {
-	return Category{
-		filter: filter{
-			storeClause: func(clause squirrel.Sqlizer) { query.addWhereClause(clause) },
-		},
-	}
+	categoryID         *models.ID
+	descriptionPattern *string
 }
 
 func (filter *Category) WithCategory(category models.ID) {
-	columnName := fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.ItemCategoryID)
-	clause := squirrel.Eq{columnName: category}
+	filter.categoryID = &category
+}
 
-	filter.storeClause(clause)
+// CategoryID returns the value set by WithCategory, or nil if it was never set.
+func (filter *Category) CategoryID() *models.ID {
+	return filter.categoryID
+}
+
+// WithDescriptionPattern stores a LIKE pattern for the item description.
+// Note that the pattern is used as-is: callers add their own wildcards.
+func (filter *Category) WithDescriptionPattern(pattern string) {
+	filter.descriptionPattern = &pattern
+}
+
+// DescriptionPattern returns the value set by WithDescriptionPattern, or nil if it was never set.
+func (filter *Category) DescriptionPattern() *string {
+	return filter.descriptionPattern
 }

@@ -3,13 +3,11 @@ package queries
 import (
 	"context"
 	dberr "bctbackend/database/errors"
-	"bctbackend/database/meta"
 	models "bctbackend/database/models"
+	"bctbackend/database/queries/internal/isql"
 	"database/sql"
 	"errors"
 	"fmt"
-
-	"github.com/Masterminds/squirrel"
 )
 
 // AuthenticateUser authenticates a user with the given user id and password.
@@ -23,12 +21,7 @@ func AuthenticateUser(ctx context.Context, database DatabaseQuerier, userID mode
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	query := squirrel.Select(meta.User.RoleID, meta.User.Password).From(meta.User.Table).Where(squirrel.Eq{meta.User.UserID: userID})
-	row := query.RunWith(newSquirrelRunner(ctx, database)).QueryRowContext(ctx)
-
-	var roleID models.RoleID
-	var expectedPassword string
-	err := row.Scan(&roleID.ID, &expectedPassword)
+	row, err := isql.New(database).AuthenticateUser(ctx, userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.RoleID{}, fmt.Errorf("failed to authenticate user %d: %w", userID, dberr.ErrNoSuchUser)
@@ -37,9 +30,9 @@ func AuthenticateUser(ctx context.Context, database DatabaseQuerier, userID mode
 		return models.RoleID{}, fmt.Errorf("failed to execute query to look up user %d in database: %w", userID, err)
 	}
 
-	if expectedPassword != password {
+	if row.Password != password {
 		return models.RoleID{}, dberr.ErrWrongPassword
 	}
 
-	return roleID, nil
+	return models.RoleID{ID: models.ID(row.RoleID)}, nil
 }

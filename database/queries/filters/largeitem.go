@@ -1,27 +1,14 @@
 package filters
 
-import (
-	"bctbackend/database/meta"
-	"fmt"
-
-	"github.com/Masterminds/squirrel"
-)
-
 type LargeItem struct {
-	filter
-}
-
-func NewLargeItemFilter(query *WhereClauses) LargeItem {
-	return LargeItem{
-		filter: filter{
-			storeClause: func(clause squirrel.Sqlizer) { query.addWhereClause(clause) },
-		},
-	}
+	large *bool
 }
 
 func (filter *LargeItem) WithLarge(isLargeItem bool) {
-	columnName := fmt.Sprintf("%s.%s", meta.Item.Table, meta.Item.Large)
-	clause := squirrel.Eq{columnName: isLargeItem}
+	filter.large = &isLargeItem
+}
 
-	filter.storeClause(clause)
+// IsLarge returns the value set by WithLarge, or nil if it was never set.
+func (filter *LargeItem) IsLarge() *bool {
+	return filter.large
 }

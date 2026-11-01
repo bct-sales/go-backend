@@ -4,6 +4,7 @@ import (
 	"context"
 	dberr "bctbackend/database/errors"
 	models "bctbackend/database/models"
+	"bctbackend/database/queries/internal/isql"
 	"bctbackend/security"
 	"database/sql"
 	"errors"
@@ -26,15 +27,11 @@ func AddSession(
 
 	sessionID := security.GenerateUniqueSessionID()
 
-	_, err := db.ExecContext(ctx,
-		`
-			INSERT INTO sessions (session_id, user_id, expiration_time)
-			VALUES (?, ?, ?)
-		`,
-		sessionID,
-		userID,
-		expirationTime,
-	)
+	err := isql.New(db).AddSession(ctx, isql.AddSessionParams{
+		SessionID:      sessionID,
+		UserID:         userID,
+		ExpirationTime: int64(expirationTime),
+	})
 
 	if err != nil {
 		return "", err
@@ -48,22 +45,8 @@ func GetSessionByID(ctx context.Context, db DatabaseQuerier, sessionID models.Se
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	row := db.QueryRowContext(ctx,
-		`
-			SELECT
-				user_id,
-				expiration_time
-			FROM
-				sessions
-			WHERE
-				session_id = ?
-		`,
-		sessionID,
-	)
-
-	var userID models.ID
-	var expirationTime models.Timestamp
-	if err := row.Scan(&userID, &expirationTime); err != nil {
+	row, err := isql.New(db).GetSessionByID(ctx, sessionID)
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("failed to get session with id %s: %w", sessionID, dberr.ErrNoSuchSession)
 		}
@@ -72,8 +55,8 @@ func GetSessionByID(ctx context.Context, db DatabaseQuerier, sessionID models.Se
 
 	session := models.Session{
 		SessionID:      sessionID,
-		UserID:         userID,
-		ExpirationTime: expirationTime,
+		UserID:         row.UserID,
+		ExpirationTime: models.Timestamp(row.ExpirationTime),
 	}
 	return &session, nil
 }
@@ -92,25 +75,11 @@ func GetSessionData(ctx context.Context, db DatabaseQuerier, sessionID models.Se
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	row := db.QueryRowContext(ctx,
-		`
-			SELECT
-				users.user_id, role_id, expiration_time
-			FROM
-				sessions
-			INNER JOIN
-				users ON sessions.user_id = users.user_id
-			WHERE
-				session_id = ? AND ? < expiration_time
-		`,
-		sessionID,
-		currentTime,
-	)
-
-	var userID models.ID
-	var roleID models.RoleID
-	var expirationTime models.Timestamp
-	if err := row.Scan(&userID, &roleID.ID, &expirationTime); err != nil {
+	row, err := isql.New(db).GetSessionData(ctx, isql.GetSessionDataParams{
+		SessionID:      sessionID,
+		ExpirationTime: int64(currentTime),
+	})
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, dberr.ErrNoSuchSession
 		}
@@ -118,9 +87,9 @@ func GetSessionData(ctx context.Context, db DatabaseQuerier, sessionID models.Se
 	}
 
 	sessionData := SessionData{
-		UserID:         userID,
-		RoleID:         roleID,
-		ExpirationTime: expirationTime,
+		UserID:         row.UserID,
+		RoleID:         models.RoleID{ID: models.ID(row.RoleID)},
+		ExpirationTime: models.Timestamp(row.ExpirationTime),
 	}
 	return &sessionData, nil
 }
@@ -130,43 +99,20 @@ func GetSessions(ctx context.Context, db DatabaseQuerier) (r_result []models.Ses
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	rows, err := db.QueryContext(ctx,
-		`
-			SELECT
-				session_id,
-				user_id,
-				expiration_time
-			FROM
-				sessions
-		`,
-	)
-
+	rows, err := isql.New(db).GetSessions(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	defer func() { r_err = errors.Join(r_err, rows.Close()) }()
-
 	var sessions []models.Session
 
-	for rows.Next() {
-		var sessionID models.SessionID
-		var userID models.ID
-		var expirationTime models.Timestamp
-		if err := rows.Scan(&sessionID, &userID, &expirationTime); err != nil {
-			return nil, err
-		}
-
+	for i := range rows {
 		session := models.Session{
-			SessionID:      sessionID,
-			UserID:         userID,
-			ExpirationTime: expirationTime,
+			SessionID:      rows[i].SessionID,
+			UserID:         rows[i].UserID,
+			ExpirationTime: models.Timestamp(rows[i].ExpirationTime),
 		}
 		sessions = append(sessions, session)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error occurred while iterating over rows: %w", err)
 	}
 
 	return sessions, nil
@@ -177,21 +123,11 @@ func DeleteSession(ctx context.Context, db DatabaseQuerier, sessionID models.Ses
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	result, err := db.ExecContext(ctx,
-		`
-			DELETE FROM sessions
-			WHERE session_id = ?
-		`,
-		sessionID,
-	)
+	rowsAffected, err := isql.New(db).DeleteSession(ctx, sessionID)
 	if err != nil {
 		return fmt.Errorf("failed to delete session: %w", err)
 	}
 
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("failed to delete session: %w", err)
-	}
 	if rowsAffected == 0 {
 		return dberr.ErrNoSuchSession
 	}
@@ -204,13 +140,7 @@ func DeleteSessionWithUser(ctx context.Context, db DatabaseQuerier, userID model
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	_, err := db.ExecContext(ctx,
-		`
-			DELETE FROM sessions
-			WHERE user_id = ?
-		`,
-		userID,
-	)
+	err := isql.New(db).DeleteSessionWithUser(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("failed to delete session: %w", err)
 	}
@@ -223,12 +153,7 @@ func DeleteExpiredSessions(ctx context.Context, db DatabaseQuerier, cutOff model
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	query := `
-		DELETE FROM sessions
-		WHERE expiration_time < ?
-	`
-	_, err := db.ExecContext(ctx, query, cutOff)
-
+	err := isql.New(db).DeleteExpiredSessions(ctx, int64(cutOff))
 	if err != nil {
 		return fmt.Errorf("failed to delete expired sessions: %w", err)
 	}
@@ -241,11 +166,7 @@ func DeleteAllSessions(ctx context.Context, db DatabaseQuerier) (r_err error) {
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	query := `
-		DELETE FROM sessions
-	`
-	_, err := db.ExecContext(ctx, query)
-
+	err := isql.New(db).DeleteAllSessions(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to delete sessions: %w", err)
 	}
@@ -253,6 +174,8 @@ func DeleteAllSessions(ctx context.Context, db DatabaseQuerier) (r_err error) {
 	return nil
 }
 
+// NOTE: GetTables is kept as raw SQL; the sqlite_schema table cannot be
+// declared in sqlc/schemas, so sqlc cannot generate this query.
 func GetTables(ctx context.Context, db DatabaseQuerier) (r_result []string, r_err error) {
 	defer func() {
 		r_err = dberr.WrapError(r_err)

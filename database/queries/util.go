@@ -1,46 +1,33 @@
 package queries
 
-import (
-	"fmt"
-	"strings"
-)
-
-func placeholderString(placeholderCount int) string {
-	placeholders := make([]string, placeholderCount)
-	for i := range placeholderCount {
-		placeholders[i] = "?"
-	}
-
-	return strings.Join(placeholders, ", ")
-}
-
 type RowRange struct {
 	Limit  *uint64
 	Offset *uint64
 }
 
-func (rowRange *RowRange) SQL() string {
-	// If neither field has been set, no extra SQL is necessary
-	if rowRange.Limit == nil && rowRange.Offset == nil {
-		return ""
-	}
-
-	var offset uint64
-	var limit uint64
-
+// LimitOffset returns the limit and offset to use for LIMIT/OFFSET query
+// parameters. When neither limit nor offset is set, the limit is -1, which
+// SQLite treats as "no upper bound", matching the old behavior of emitting no
+// LIMIT clause at all. An offset without a limit keeps an implicit row cap
+// (1000000), as the old generated SQL did.
+func (rowRange *RowRange) LimitOffset() (limit int64, offset int64) {
 	if rowRange.Limit == nil {
-		limit = 1000000
+		if rowRange.Offset == nil {
+			limit = -1
+		} else {
+			limit = 1000000
+		}
 	} else {
-		limit = *rowRange.Limit
+		limit = int64(*rowRange.Limit)
 	}
 
 	if rowRange.Offset == nil {
 		offset = 0
 	} else {
-		offset = *rowRange.Offset
+		offset = int64(*rowRange.Offset)
 	}
 
-	return fmt.Sprintf("LIMIT %d OFFSET %d", limit, offset)
+	return limit, offset
 }
 
 func AllRows() *RowRange {

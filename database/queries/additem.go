@@ -4,6 +4,7 @@ import (
 	"context"
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
+	"bctbackend/database/queries/internal/isql"
 	"fmt"
 )
 
@@ -48,22 +49,18 @@ func AddItem(
 	}
 
 	// Insert the item into the database
-	result, err := db.ExecContext(ctx,
-		`
-			INSERT INTO items (added_at, description, price_in_cents, item_category_id, seller_id, donation, charity, frozen, hidden, large)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		`,
-		addedAt,
-		description,
-		priceInCents,
-		itemCategoryID,
-		sellerID,
-		donation,
-		charity,
-		frozen,
-		hidden,
-		large,
-	)
+	itemID, err := isql.New(db).AddItem(ctx, isql.AddItemParams{
+		AddedAt:        int64(addedAt),
+		Description:    description,
+		PriceInCents:   int64(priceInCents),
+		ItemCategoryID: itemCategoryID.Int64(),
+		SellerID:       sellerID.Int64(),
+		Donation:       donation,
+		Charity:        charity,
+		Frozen:         frozen,
+		Hidden:         hidden,
+		Large:          large,
+	})
 	if err != nil {
 		categoryExists, err2 := CategoryWithIDExists(ctx, db, itemCategoryID)
 		if err2 != nil {
@@ -77,11 +74,5 @@ func AddItem(
 		return 0, fmt.Errorf("failed to insert item: %w", err)
 	}
 
-	// Get ID of the inserted item
-	itemID, err := result.LastInsertId()
-	if err != nil {
-		return 0, fmt.Errorf("failed to determine id of inserted item: %w", err)
-	}
-
-	return models.ID(itemID), nil
+	return itemID, nil
 }
