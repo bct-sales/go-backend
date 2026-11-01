@@ -29,3 +29,9 @@ INSERT INTO
 VALUES
     (?)
 RETURNING item_category_id;
+
+-- name: AddCategoryWithID :exec
+INSERT INTO
+    item_categories(item_category_id, name)
+VALUES
+    (?, ?);

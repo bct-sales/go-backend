@@ -26,6 +26,23 @@ func (q *Queries) AddCategory(ctx context.Context, name string) (models.ID, erro
 	return item_category_id, err
 }
 
+const addCategoryWithID = `-- name: AddCategoryWithID :exec
+INSERT INTO
+    item_categories(item_category_id, name)
+VALUES
+    (?, ?)
+`
+
+type AddCategoryWithIDParams struct {
+	ItemCategoryID models.ID
+	Name           string
+}
+
+func (q *Queries) AddCategoryWithID(ctx context.Context, arg AddCategoryWithIDParams) error {
+	_, err := q.db.ExecContext(ctx, addCategoryWithID, arg.ItemCategoryID, arg.Name)
+	return err
+}
+
 const countItemsPerCategory = `-- name: CountItemsPerCategory :many
 SELECT
     item_categories.item_category_id, COUNT(items.item_id)
