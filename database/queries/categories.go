@@ -33,7 +33,7 @@ func AddCategory(ctx context.Context, db DatabaseQuerier, categoryName string) (
 			return 0, fmt.Errorf("failed to insert category: %w", dberr.ErrDuplicateCategoryName)
 		}
 
-		return 0, err
+		return 0, fmt.Errorf("failed to insert category: %w", err)
 	}
 
 	return id, nil
