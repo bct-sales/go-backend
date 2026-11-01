@@ -142,19 +142,23 @@ func (ep *updateItemEndpoint) isOperationAuthorized(context *gin.Context, item *
 	userID := ep.UserID
 	logger := ep.Logger
 
-	if roleID.IsSeller() && item.SellerID != userID {
+	if !roleID.IsSeller() {
+		logger.AddInformation("itemID", item.ItemID)
+		logger.AddInformation("ownerID", item.SellerID)
+		logger.InvalidRequest("Unauthorized item update attempt")
+
+		failure_response.WrongRole(context, "Only the owner of the item can update it")
+
+		return false
+	}
+
+	if item.SellerID != userID {
 		logger.AddInformation("itemID", item.ItemID)
 		logger.AddInformation("ownerID", item.SellerID)
 		logger.InvalidRequest("Unauthorized item update attempt")
 
 		failure_response.WrongSeller(context, "Only the owner of the item can update it")
 
-		return false
-	}
-
-	if !roleID.IsAdmin() && !roleID.IsSeller() {
-		logger.InvalidRequest("Unauthorized role for item update")
-		failure_response.WrongRole(context, "Must be seller or admin to update item")
 		return false
 	}
 

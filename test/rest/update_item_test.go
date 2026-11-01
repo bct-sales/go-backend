@@ -45,34 +45,6 @@ func TestUpdateItem(t *testing.T) {
 			require.Equal(t, expectedItem, *actualItem)
 		})
 
-		t.Run("Updating as admin", func(t *testing.T) {
-			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
-			defer setup.Close()
-
-			seller := setup.Seller(t)
-			_, sessionID := setup.LoggedIn(t, setup.Admin(t))
-			originalDescription := "old description"
-			newDescription := "new description"
-			originalItem := setup.Item(t, seller.UserID, aux.WithDummyData(1), aux.WithDescription(originalDescription), aux.WithHidden(false))
-
-			url := path.Item(originalItem.ItemID)
-			payload := struct {
-				Description string `json:"description"`
-			}{
-				Description: newDescription,
-			}
-			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionID))
-			router.ServeHTTP(writer, request)
-			require.Equal(t, http.StatusNoContent, writer.Code)
-
-			actualItem, err := queries.GetItemWithID(t.Context(), setup.Db, originalItem.ItemID)
-			require.NoError(t, err)
-
-			expectedItem := *originalItem
-			expectedItem.Description = newDescription
-			require.Equal(t, expectedItem, *actualItem)
-		})
-
 		t.Run("Updating price", func(t *testing.T) {
 			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
 			defer setup.Close()
@@ -279,6 +251,31 @@ func TestUpdateItem(t *testing.T) {
 
 			ownerSeller := setup.Seller(t)
 			_, sessionID := setup.LoggedIn(t, setup.Cashier(t))
+			originalItem := setup.Item(t, ownerSeller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
+
+			url := path.Item(originalItem.ItemID)
+			payload := struct {
+				PriceInCents int `json:"priceInCents"`
+			}{
+				PriceInCents: 100,
+			}
+			request := CreatePutRequest(url, &payload, WithSessionCookie(sessionID))
+			router.ServeHTTP(writer, request)
+			RequireFailureType(t, writer, http.StatusForbidden, "wrong_role")
+
+			actualItem, err := queries.GetItemWithID(t.Context(), setup.Db, originalItem.ItemID)
+			require.NoError(t, err)
+
+			expectedItem := *originalItem
+			require.Equal(t, expectedItem, *actualItem)
+		})
+
+		t.Run("Updating as admin", func(t *testing.T) {
+			setup, router, writer := NewRestFixture(t, WithDefaultCategories)
+			defer setup.Close()
+
+			ownerSeller := setup.Seller(t)
+			_, sessionID := setup.LoggedIn(t, setup.Admin(t))
 			originalItem := setup.Item(t, ownerSeller.UserID, aux.WithDummyData(1), aux.WithHidden(false))
 
 			url := path.Item(originalItem.ItemID)
