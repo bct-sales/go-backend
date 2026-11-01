@@ -43,6 +43,21 @@ func (q *Queries) AddCategoryWithID(ctx context.Context, arg AddCategoryWithIDPa
 	return err
 }
 
+const categoryWithIDExists = `-- name: CategoryWithIDExists :one
+SELECT 1
+FROM
+    item_categories
+WHERE
+    item_category_id = ?
+`
+
+func (q *Queries) CategoryWithIDExists(ctx context.Context, itemCategoryID models.ID) (int64, error) {
+	row := q.db.QueryRowContext(ctx, categoryWithIDExists, itemCategoryID)
+	var column_1 int64
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const countItemsPerCategory = `-- name: CountItemsPerCategory :many
 SELECT
     item_categories.item_category_id, COUNT(items.item_id)

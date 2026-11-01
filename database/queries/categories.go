@@ -77,17 +77,13 @@ func CategoryWithIDExists(ctx context.Context, db DatabaseQuerier, categoryID mo
 		r_err = dberr.WrapError(r_err)
 	}()
 
-	query := squirrel.Select("1").From(meta.ItemCategory.Table).Where(squirrel.Eq{meta.ItemCategory.ItemCategoryID: categoryID})
-	row := query.RunWith(newSquirrelRunner(ctx, db)).QueryRowContext(ctx)
-
-	var dummy int
-	err := row.Scan(&dummy)
+	_, err := isql.New(db).CategoryWithIDExists(ctx, categoryID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return false, nil
 		}
 
-		return false, fmt.Errorf("failed to read row: %w", err)
+		return false, fmt.Errorf("failed to check if category with id %d exists: %w", categoryID, err)
 	}
 
 	return true, nil

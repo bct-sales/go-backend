@@ -30,6 +30,13 @@ VALUES
     (?)
 RETURNING item_category_id;
 
+-- name: CategoryWithIDExists :one
+SELECT 1
+FROM
+    item_categories
+WHERE
+    item_category_id = ?;
+
 -- name: AddCategoryWithID :exec
 INSERT INTO
     item_categories(item_category_id, name)
