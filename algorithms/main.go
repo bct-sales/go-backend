@@ -153,3 +153,19 @@ func Any[T any](values []T, predicate func(T) bool) bool {
 
 	return false
 }
+
+// Tally returns a map with the number of occurrences of each value in the
+// given slice.
+func Tally[T any, K comparable](values []T, keyFunction func(T) K) map[K]int {
+	table := make(map[K]int)
+
+	for _, value := range values {
+		table[keyFunction(value)]++
+	}
+
+	return table
+}
+
+func IdentityFunction[T any](t T) T {
+	return t
+}
