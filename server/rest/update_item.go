@@ -7,8 +7,9 @@ import (
 	"bctbackend/server/failure_response"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type UpdateItemPayload struct {
@@ -218,6 +219,7 @@ func (ep *updateItemEndpoint) performItemUpdate(context *gin.Context, item *mode
 
 		logger.InternalError("Failed to update item")
 		failure_response.Unknown(context, updateErr.Error())
+		return false
 	}
 
 	if commitErr := transaction.Commit(); commitErr != nil {
