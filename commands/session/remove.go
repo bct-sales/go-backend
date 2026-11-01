@@ -53,6 +53,10 @@ func (c *RemoveSessionCommand) execute(ctx context.Context) error {
 	} else if c.CobraCommand.Flags().Changed("user") {
 		return c.removeByUserID(ctx, models.ID(c.userID))
 	} else if c.CobraCommand.Flags().Changed("all") {
+		if !c.all {
+			panic("Only use --all if you actually want to remove all sessions")
+		}
+
 		return c.removeAll(ctx)
 	} else {
 		panic("should not happen; cobra is supposed to keep this from happening")
