@@ -42,7 +42,7 @@ func NewAddSessionCommand() *cobra.Command {
 	}
 
 	command.CobraCommand.Flags().Uint64VarP(&command.userID, "user", "u", 0, "ID of the user")
-	command.CobraCommand.Flags().StringVarP(&command.expiration, "expiration", "e", "1", "Time before session expires")
+	command.CobraCommand.Flags().StringVarP(&command.expiration, "expiration", "e", "1h", "Time before session expires (number followed by s, m, h, or d)")
 
 	if err := command.CobraCommand.MarkFlagRequired("user"); err != nil {
 		panic("failed to mark user as required")
@@ -75,13 +75,16 @@ func (c *AddSessionCommand) execute(ctx context.Context) error {
 
 func (c *AddSessionCommand) parseExpiration() (models.Timestamp, error) {
 	expiration := c.expiration
+	if len(expiration) < 2 {
+		return 0, fmt.Errorf("invalid expiration %q: expected a number followed by s, m, h, or d", expiration)
+	}
 
 	numberString := expiration[0 : len(expiration)-1]
 	unit := expiration[len(expiration)-1]
 
 	number, err := strconv.ParseUint(numberString, 10, 64)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("invalid expiration %q: %w", expiration, err)
 	}
 
 	multiplier, err := c.parseTimeUnit(unit)
@@ -108,5 +111,5 @@ func (c *AddSessionCommand) parseTimeUnit(unit byte) (uint64, error) {
 		return 24 * 60 * 60, nil
 	}
 
-	return 0, fmt.Errorf("invalid unit")
+	return 0, fmt.Errorf("invalid expiration unit %q: expected s, m, h, or d", unit)
 }
