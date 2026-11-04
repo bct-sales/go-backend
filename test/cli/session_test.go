@@ -37,129 +37,137 @@ func addSession(t *testing.T, run func(...string) CommandResult, databasePath st
 }
 
 func TestSessionCommands(t *testing.T) {
-	t.Run("Add prints the bare session ID", func(t *testing.T) {
-		run, databasePath := setupSessionTest(t)
+	t.Run("Add", func(t *testing.T) {
+		t.Run("Add prints the bare session ID", func(t *testing.T) {
+			run, databasePath := setupSessionTest(t)
 
-		result := run("session", "add", "-u", "1", "-e", "1d", "--db", databasePath)
+			result := run("session", "add", "-u", "1", "-e", "24h", "--db", databasePath)
 
-		requireSuccess(t, result)
-		require.Equal(t, strings.TrimSpace(result.Stdout), result.Stdout)
-		require.NotEmpty(t, result.Stdout)
+			requireSuccess(t, result)
+			require.Equal(t, strings.TrimSpace(result.Stdout), result.Stdout)
+			require.NotEmpty(t, result.Stdout)
+		})
+
+		t.Run("Add with a nonexistent user fails", func(t *testing.T) {
+			run, databasePath := setupSessionTest(t)
+
+			result := run("session", "add", "-u", "999", "-e", "1h", "--db", databasePath)
+
+			requireFailure(t, result)
+		})
+
+		t.Run("Add with an invalid expiration fails", func(t *testing.T) {
+			run, databasePath := setupSessionTest(t)
+
+			result := run("session", "add", "-u", "1", "-e", "1x", "--db", databasePath)
+
+			requireFailure(t, result)
+		})
 	})
 
-	t.Run("Add with a nonexistent user fails", func(t *testing.T) {
-		run, databasePath := setupSessionTest(t)
+	t.Run("List", func(t *testing.T) {
+		t.Run("List on empty database", func(t *testing.T) {
+			run, databasePath := setupSessionTest(t)
 
-		result := run("session", "add", "-u", "999", "-e", "1d", "--db", databasePath)
+			result := run("session", "list", "--db", databasePath)
 
-		requireFailure(t, result)
+			requireSuccess(t, result)
+			require.Contains(t, result.Stdout, "no sessions found")
+		})
+
+		t.Run("List shows added sessions", func(t *testing.T) {
+			run, databasePath := setupSessionTest(t)
+			sessionID1 := addSession(t, run, databasePath, "24h")
+			sessionID2 := addSession(t, run, databasePath, "48h")
+
+			result := run("session", "list", "--no-color", "--db", databasePath)
+
+			requireSuccess(t, result)
+			require.Contains(t, result.Stdout, sessionID1)
+			require.Contains(t, result.Stdout, sessionID2)
+		})
 	})
 
-	t.Run("Add with an invalid expiration fails", func(t *testing.T) {
-		run, databasePath := setupSessionTest(t)
+	t.Run("Remove", func(t *testing.T) {
+		t.Run("Remove by session ID", func(t *testing.T) {
+			run, databasePath := setupSessionTest(t)
+			sessionID1 := addSession(t, run, databasePath, "24h")
+			sessionID2 := addSession(t, run, databasePath, "48h")
 
-		result := run("session", "add", "-u", "1", "-e", "1x", "--db", databasePath)
+			result := run("session", "remove", "-s", sessionID1, "--db", databasePath)
 
-		requireFailure(t, result)
+			requireSuccess(t, result)
+			require.Empty(t, result.Stdout)
+
+			result = run("session", "list", "--no-color", "--db", databasePath)
+
+			requireSuccess(t, result)
+			require.NotContains(t, result.Stdout, sessionID1)
+			require.Contains(t, result.Stdout, sessionID2)
+		})
+
+		t.Run("Remove by user ID", func(t *testing.T) {
+			run, databasePath := setupSessionTest(t)
+			addSession(t, run, databasePath, "24h")
+			addSession(t, run, databasePath, "48h")
+
+			result := run("session", "remove", "-u", "1", "--db", databasePath)
+
+			requireSuccess(t, result)
+
+			result = run("session", "list", "--db", databasePath)
+
+			requireSuccess(t, result)
+			require.Contains(t, result.Stdout, "no sessions found")
+		})
+
+		t.Run("Remove without flags fails", func(t *testing.T) {
+			// This documents current behavior: although --all defaults to true,
+			// cobra's one-required validation fires because the flag was not
+			// explicitly given, so a bare `session remove` fails cleanly instead
+			// of deleting every session.
+			run, databasePath := setupSessionTest(t)
+
+			result := run("session", "remove", "--db", databasePath)
+
+			requireFailure(t, result)
+			require.Contains(t, result.Stderr, "at least one of the flags in the group [session user all] is required")
+		})
+
+		t.Run("Remove with all removes every session", func(t *testing.T) {
+			run, databasePath := setupSessionTest(t)
+			addSession(t, run, databasePath, "24h")
+			addSession(t, run, databasePath, "48h")
+
+			result := run("session", "remove", "--all", "--db", databasePath)
+
+			requireSuccess(t, result)
+
+			result = run("session", "list", "--db", databasePath)
+
+			requireSuccess(t, result)
+			require.Contains(t, result.Stdout, "no sessions found")
+		})
 	})
 
-	t.Run("List on empty database", func(t *testing.T) {
-		run, databasePath := setupSessionTest(t)
+	t.Run("Prune", func(t *testing.T) {
+		t.Run("Prune removes only expired sessions", func(t *testing.T) {
+			run, databasePath := setupSessionTest(t)
+			expiredSessionID := addSession(t, run, databasePath, "1s")
+			activeSessionID := addSession(t, run, databasePath, "24h")
 
-		result := run("session", "list", "--db", databasePath)
+			time.Sleep(2 * time.Second)
 
-		requireSuccess(t, result)
-		require.Contains(t, result.Stdout, "no sessions found")
-	})
+			result := run("session", "prune", "--db", databasePath)
 
-	t.Run("List shows added sessions", func(t *testing.T) {
-		run, databasePath := setupSessionTest(t)
-		sessionID1 := addSession(t, run, databasePath, "1d")
-		sessionID2 := addSession(t, run, databasePath, "2d")
+			requireSuccess(t, result)
+			require.Empty(t, result.Stdout)
 
-		result := run("session", "list", "--no-color", "--db", databasePath)
+			result = run("session", "list", "--no-color", "--db", databasePath)
 
-		requireSuccess(t, result)
-		require.Contains(t, result.Stdout, sessionID1)
-		require.Contains(t, result.Stdout, sessionID2)
-	})
-
-	t.Run("Remove by session ID", func(t *testing.T) {
-		run, databasePath := setupSessionTest(t)
-		sessionID1 := addSession(t, run, databasePath, "1d")
-		sessionID2 := addSession(t, run, databasePath, "2d")
-
-		result := run("session", "remove", "-s", sessionID1, "--db", databasePath)
-
-		requireSuccess(t, result)
-		require.Empty(t, result.Stdout)
-
-		result = run("session", "list", "--no-color", "--db", databasePath)
-
-		requireSuccess(t, result)
-		require.NotContains(t, result.Stdout, sessionID1)
-		require.Contains(t, result.Stdout, sessionID2)
-	})
-
-	t.Run("Remove by user ID", func(t *testing.T) {
-		run, databasePath := setupSessionTest(t)
-		addSession(t, run, databasePath, "1d")
-		addSession(t, run, databasePath, "2d")
-
-		result := run("session", "remove", "-u", "1", "--db", databasePath)
-
-		requireSuccess(t, result)
-
-		result = run("session", "list", "--db", databasePath)
-
-		requireSuccess(t, result)
-		require.Contains(t, result.Stdout, "no sessions found")
-	})
-
-	t.Run("Remove without flags fails", func(t *testing.T) {
-		// This documents current behavior: although --all defaults to true,
-		// cobra's one-required validation fires because the flag was not
-		// explicitly given, so a bare `session remove` fails cleanly instead
-		// of deleting every session.
-		run, databasePath := setupSessionTest(t)
-
-		result := run("session", "remove", "--db", databasePath)
-
-		requireFailure(t, result)
-		require.Contains(t, result.Stderr, "at least one of the flags in the group [session user all] is required")
-	})
-
-	t.Run("Remove with all removes every session", func(t *testing.T) {
-		run, databasePath := setupSessionTest(t)
-		addSession(t, run, databasePath, "1d")
-		addSession(t, run, databasePath, "2d")
-
-		result := run("session", "remove", "--all", "--db", databasePath)
-
-		requireSuccess(t, result)
-
-		result = run("session", "list", "--db", databasePath)
-
-		requireSuccess(t, result)
-		require.Contains(t, result.Stdout, "no sessions found")
-	})
-
-	t.Run("Prune removes only expired sessions", func(t *testing.T) {
-		run, databasePath := setupSessionTest(t)
-		expiredSessionID := addSession(t, run, databasePath, "1s")
-		activeSessionID := addSession(t, run, databasePath, "1d")
-
-		time.Sleep(2 * time.Second)
-
-		result := run("session", "prune", "--db", databasePath)
-
-		requireSuccess(t, result)
-		require.Empty(t, result.Stdout)
-
-		result = run("session", "list", "--no-color", "--db", databasePath)
-
-		requireSuccess(t, result)
-		require.NotContains(t, result.Stdout, expiredSessionID)
-		require.Contains(t, result.Stdout, activeSessionID)
+			requireSuccess(t, result)
+			require.NotContains(t, result.Stdout, expiredSessionID)
+			require.Contains(t, result.Stdout, activeSessionID)
+		})
 	})
 }

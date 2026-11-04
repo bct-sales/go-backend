@@ -22,3 +22,7 @@ func (ts Timestamp) FormattedDateTime() string {
 func (ts Timestamp) Int64() int64 {
 	return int64(ts)
 }
+
+func (ts Timestamp) AddDuration(duration time.Duration) Timestamp {
+	return Timestamp(ts.Int64() + int64(duration.Seconds()))
+}

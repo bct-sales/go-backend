@@ -6,8 +6,7 @@ import (
 	"bctbackend/database/queries"
 	"context"
 	"database/sql"
-	"fmt"
-	"strconv"
+	"time"
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/spf13/cobra"
@@ -15,8 +14,8 @@ import (
 
 type AddSessionCommand struct {
 	common.Command
-	userID     uint64 `exhaustruct:"optional"`
-	expiration string `exhaustruct:"optional"`
+	userID     uint64        `exhaustruct:"optional"`
+	expiration time.Duration `exhaustruct:"optional"`
 }
 
 func NewAddSessionCommand() *cobra.Command {
@@ -42,27 +41,20 @@ func NewAddSessionCommand() *cobra.Command {
 	}
 
 	command.CobraCommand.Flags().Uint64VarP(&command.userID, "user", "u", 0, "ID of the user")
-	command.CobraCommand.Flags().StringVarP(&command.expiration, "expiration", "e", "1", "Time before session expires")
+	command.CobraCommand.Flags().DurationVarP(&command.expiration, "expiration", "e", 24*time.Hour, "Time before session expires (default: 1 day)")
 
 	if err := command.CobraCommand.MarkFlagRequired("user"); err != nil {
 		panic("failed to mark user as required")
-	}
-
-	if err := command.CobraCommand.MarkFlagRequired("expiration"); err != nil {
-		panic("failed to mark expiration as required")
 	}
 
 	return command.AsCobraCommand()
 }
 
 func (c *AddSessionCommand) execute(ctx context.Context) error {
-	expiration, err := c.parseExpiration()
-	if err != nil {
-		return err
-	}
+	expirationTime := models.Now().AddDuration(c.expiration)
 
 	return c.WithOpenedDatabase(ctx, func(ctx context.Context, db *sql.DB) error {
-		sessionID, err := queries.AddSession(ctx, db, models.ID(c.userID), expiration)
+		sessionID, err := queries.AddSession(ctx, db, models.ID(c.userID), expirationTime)
 		if err != nil {
 			return err
 		}
@@ -71,42 +63,4 @@ func (c *AddSessionCommand) execute(ctx context.Context) error {
 
 		return nil
 	})
-}
-
-func (c *AddSessionCommand) parseExpiration() (models.Timestamp, error) {
-	expiration := c.expiration
-
-	numberString := expiration[0 : len(expiration)-1]
-	unit := expiration[len(expiration)-1]
-
-	number, err := strconv.ParseUint(numberString, 10, 64)
-	if err != nil {
-		return 0, err
-	}
-
-	multiplier, err := c.parseTimeUnit(unit)
-	if err != nil {
-		return 0, err
-	}
-
-	result := models.Now() + models.Timestamp(number*multiplier)
-	return result, nil
-}
-
-func (c *AddSessionCommand) parseTimeUnit(unit byte) (uint64, error) {
-	switch unit {
-	case 's':
-		return 1, nil
-
-	case 'm':
-		return 60, nil
-
-	case 'h':
-		return 60 * 60, nil
-
-	case 'd':
-		return 24 * 60 * 60, nil
-	}
-
-	return 0, fmt.Errorf("invalid unit")
 }

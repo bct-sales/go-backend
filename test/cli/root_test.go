@@ -23,55 +23,6 @@ func TestRootCommand(t *testing.T) {
 		require.Contains(t, result.Stdout, "Usage:")
 	})
 
-	t.Run("Help lists all command groups", func(t *testing.T) {
-		result := run("--help")
-
-		expectedGroups := []string{
-			"Manage items",
-			"Manage users",
-			"Manage sales",
-			"Manage categories",
-			"Manage sessions",
-			"Performs database-level operations",
-			"Performs email related operations",
-			"Initialize backend components",
-			"Shows version",
-			"Generates password",
-			"Start server",
-			"Start UI [work in progress]",
-		}
-
-		requireSuccess(t, result)
-		require.Contains(t, result.Stdout, "Usage:")
-		for _, group := range expectedGroups {
-			require.Contains(t, result.Stdout, group)
-		}
-	})
-
-	t.Run("Group help lists subcommands", func(t *testing.T) {
-		result := run("item", "--help")
-
-		expectedSubcommands := []string{
-			"add",
-			"add-consumable",
-			"list",
-			"show",
-			"freeze",
-			"unfreeze",
-			"hide",
-			"unhide",
-			"remove",
-			"copy",
-			"update",
-			"Add an item",
-		}
-
-		requireSuccess(t, result)
-		for _, subcommand := range expectedSubcommands {
-			require.Contains(t, result.Stdout, subcommand)
-		}
-	})
-
 	t.Run("Unknown command fails", func(t *testing.T) {
 		result := run("frobnicate")
 

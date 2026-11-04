@@ -104,7 +104,7 @@ func TestUserLifecycle(t *testing.T) {
 		run, databasePath := setupDatabaseTest(t)
 		seedUser(t, databasePath, models.ID(1), models.NewAdminRoleID())
 
-		result := run("session", "add", "-u", "1", "-e", "1d", "--db", databasePath)
+		result := run("session", "add", "-u", "1", "-e", "24h", "--db", databasePath)
 		requireSuccess(t, result)
 
 		result = run("user", "set-password", "1", "newpass", "--db", databasePath)
@@ -129,7 +129,7 @@ func TestUserLifecycle(t *testing.T) {
 		run, databasePath := setupDatabaseTest(t)
 		seedUser(t, databasePath, models.ID(1), models.NewAdminRoleID())
 
-		result := run("session", "add", "-u", "1", "-e", "1d", "--db", databasePath)
+		result := run("session", "add", "-u", "1", "-e", "24h", "--db", databasePath)
 		requireSuccess(t, result)
 
 		result = run("user", "set-password", "1", "newpass", "--no-invalidate", "--db", databasePath)
