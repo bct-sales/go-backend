@@ -24,6 +24,29 @@ WHERE
     sales.sale_id >= COALESCE(sqlc.narg('minimal_id'), sales.sale_id)
 GROUP BY
     sales.sale_id
+ORDER BY
+    sales.sale_id ASC
+LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
+
+-- name: GetSalesChronologically :many
+SELECT
+    sales.sale_id,
+    sales.cashier_id,
+    sales.transaction_time,
+    COUNT(sale_items.item_id) AS item_count,
+    CAST(SUM(items.price_in_cents) AS INTEGER) AS total_price
+FROM
+    sales
+INNER JOIN
+    sale_items ON sales.sale_id = sale_items.sale_id
+INNER JOIN
+    items ON sale_items.item_id = items.item_id
+WHERE
+    sales.sale_id >= COALESCE(sqlc.narg('minimal_id'), sales.sale_id)
+GROUP BY
+    sales.sale_id
+ORDER BY
+    sales.transaction_time ASC, sales.sale_id ASC
 LIMIT sqlc.arg('limit') OFFSET sqlc.arg('offset');
 
 -- name: GetSalesAntiChronologically :many

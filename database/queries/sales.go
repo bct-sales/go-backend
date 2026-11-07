@@ -2,10 +2,10 @@ package queries
 
 import (
 	"bctbackend/algorithms"
-	"context"
 	dberr "bctbackend/database/errors"
 	"bctbackend/database/models"
 	"bctbackend/database/queries/internal/isql"
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -160,13 +160,13 @@ func (q *GetSalesQuery) Execute(ctx context.Context, db DatabaseQuerier, receive
 	}
 
 	if !q.antiChronological {
-		rows, err := isql.New(db).GetSales(ctx, params)
+		rows, err := isql.New(db).GetSalesChronologically(ctx, isql.GetSalesChronologicallyParams(params))
 		if err != nil {
 			return err
 		}
 
 		for i := range rows {
-			if err := receiver(toSummary(rows[i])); err != nil {
+			if err := receiver(toSummary(isql.GetSalesRow(rows[i]))); err != nil {
 				return err
 			}
 		}

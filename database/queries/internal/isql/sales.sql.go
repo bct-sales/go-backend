@@ -503,6 +503,8 @@ WHERE
     sales.sale_id >= COALESCE(?1, sales.sale_id)
 GROUP BY
     sales.sale_id
+ORDER BY
+    sales.sale_id ASC
 LIMIT ?3 OFFSET ?2
 `
 
@@ -594,6 +596,71 @@ func (q *Queries) GetSalesAntiChronologically(ctx context.Context, arg GetSalesA
 	var items []GetSalesAntiChronologicallyRow
 	for rows.Next() {
 		var i GetSalesAntiChronologicallyRow
+		if err := rows.Scan(
+			&i.SaleID,
+			&i.CashierID,
+			&i.TransactionTime,
+			&i.ItemCount,
+			&i.TotalPrice,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSalesChronologically = `-- name: GetSalesChronologically :many
+SELECT
+    sales.sale_id,
+    sales.cashier_id,
+    sales.transaction_time,
+    COUNT(sale_items.item_id) AS item_count,
+    CAST(SUM(items.price_in_cents) AS INTEGER) AS total_price
+FROM
+    sales
+INNER JOIN
+    sale_items ON sales.sale_id = sale_items.sale_id
+INNER JOIN
+    items ON sale_items.item_id = items.item_id
+WHERE
+    sales.sale_id >= COALESCE(?1, sales.sale_id)
+GROUP BY
+    sales.sale_id
+ORDER BY
+    sales.transaction_time ASC, sales.sale_id ASC
+LIMIT ?3 OFFSET ?2
+`
+
+type GetSalesChronologicallyParams struct {
+	MinimalID sql.NullInt64
+	Offset    int64
+	Limit     int64
+}
+
+type GetSalesChronologicallyRow struct {
+	SaleID          int64
+	CashierID       models.ID
+	TransactionTime int64
+	ItemCount       int64
+	TotalPrice      int64
+}
+
+func (q *Queries) GetSalesChronologically(ctx context.Context, arg GetSalesChronologicallyParams) ([]GetSalesChronologicallyRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSalesChronologically, arg.MinimalID, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSalesChronologicallyRow
+	for rows.Next() {
+		var i GetSalesChronologicallyRow
 		if err := rows.Scan(
 			&i.SaleID,
 			&i.CashierID,
